@@ -6,6 +6,7 @@ import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
+import type { RfqTradeIn } from "./rfqTradeIn";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
@@ -178,6 +179,31 @@ export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: s
 export async function submitBuyerCounter(rfqId: string, inviteId: string, counter: BuyerCounter): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/buyer-counter`, { counter });
   return json.rfq as RfqRequest;
+}
+
+/**
+ * Attach a trade-in to ONE invite (the dealer is asked to quote a value). Needs the
+ * box patch scripts/box/2026-10-08-invite-trade-in.sh; on an unpatched box it 404s.
+ */
+export async function submitInviteTradeIn(rfqId: string, inviteId: string, tradeIn: RfqTradeIn): Promise<RfqRequest> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-in`, { tradeIn });
+  return json.rfq as RfqRequest;
+}
+
+/** The invite's trade-in WITH photos — server-to-server (the buyer's invite list carries only photoCount). */
+export async function getInviteTradeIn(rfqId: string, inviteId: string): Promise<RfqTradeIn | null> {
+  try {
+    const json = await request("GET", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-in`);
+    return (json.tradeIn as RfqTradeIn) || null;
+  } catch (err) {
+    if (err instanceof RfqApiError && err.status === 404) return null;
+    throw err;
+  }
+}
+
+/** The dealer's trade-in allowance (null clears it). Works while the invite is open or already quoted. */
+export async function submitInviteTradeAllowance(rfqId: string, inviteId: string, allowance: number | null): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-allowance`, { allowance });
 }
 
 export async function declineRfqInvite(

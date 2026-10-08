@@ -13,6 +13,7 @@
 
 import { DESK_ROLE_LABELS, type DeskRole } from "./quotePackage";
 import type { LeaseRequestPrefs } from "./leaseQuote";
+import { TRADE_VALUES_COPY } from "./rfqTradeIn";
 import { DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
 import { EXACT_ZIP_LOOKUP } from "./zipCoordinates";
 import { getZipCoordinates } from "./otdCalculator";
@@ -241,6 +242,52 @@ export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
     ${input.note ? `<p style="font-size:14px"><span style="color:#64748b">Their note:</span> ${escapeHtml(input.note)}</p>` : ""}
     <p><strong>To reply:</strong> open the ${input.kind === "lease" || !input.kind ? "calculator" : "quote sheet"} below — it's prefilled with your last quote — and submit a revised quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
     <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
+    <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Buyer added a trade-in → dealer. The only reply path is the dealer's own
+// quote link. A request for an estimate, not a bid; nothing is binding.
+// ---------------------------------------------------------------------------
+export interface TradeInRequestEmailInput {
+  dealerName: string;
+  contactName: string;
+  vehicle: { vin: string; year?: number; make?: string; model?: string; trim?: string; vdpUrl?: string | null };
+  dealReference: string | null;
+  tradeTitle: string;
+  mileage: number;
+  condition: string;
+  payoff: number | null;
+  photoCount: number;
+  /** The desk already sent a quote; the allowance is a separate line they add on top of it. */
+  alreadyQuoted: boolean;
+  viewUrl: string;
+}
+
+export function tradeInRequestSubject(input: TradeInRequestEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `Buyer added a trade-in, please quote a trade value: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
+}
+
+export function tradeInRequestHtml(input: TradeInRequestEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const firstName = greetingName(input.contactName);
+  const owed = input.payoff ? `$${Math.round(input.payoff).toLocaleString()} still owed` : "no payoff";
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
+    <p style="font-size:15px">Hi ${escapeHtml(firstName)},</p>
+    <p>The buyer added a trade-in to their request for the <strong>${escapeHtml(car)}</strong> (VIN ${escapeHtml(input.vehicle.vin)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}). Please quote a trade value.</p>
+    <table style="border-collapse:collapse;width:100%;margin:12px 0;font-size:14px">
+      <tr><td style="padding:6px 0;color:#64748b;width:160px">Trade-in</td><td style="padding:6px 0"><strong>${escapeHtml(input.tradeTitle)}</strong></td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Mileage · condition</td><td style="padding:6px 0">${input.mileage.toLocaleString()} mi · ${escapeHtml(input.condition)}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Payoff</td><td style="padding:6px 0">${escapeHtml(owed)}</td></tr>
+      <tr><td style="padding:6px 0;color:#64748b">Photos</td><td style="padding:6px 0">${input.photoCount} — on your quote page</td></tr>
+    </table>
+    <p><strong>To reply:</strong> open your quote page and enter a <em>Trade-in allowance</em>${input.alreadyQuoted ? " — it sits next to the quote you already sent; you don't need to re-quote the car" : " with your quote"}. Quote the car on its own as usual; the trade is a separate line.</p>
+    <p style="font-size:13px;color:#475569">${escapeHtml(TRADE_VALUES_COPY)} Nothing here is binding on either side.</p>
+    <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the quote page</a></p>
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;
 }

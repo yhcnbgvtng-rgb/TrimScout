@@ -11,6 +11,7 @@ export const RFQ_MAX_INVITES = 3;
 // list is the exhaustive confirmed set for that VIN, so absence there is a
 // real "miss", not an unknown.
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
+import type { RfqTradeIn } from "./rfqTradeIn";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
@@ -132,6 +133,8 @@ export interface RfqInvite {
   dealerUnsubscribedAt?: string | null;
   /** Earlier versions of this desk's quote, superseded by a buyer counter. */
   priorQuotes?: RfqQuote[];
+  /** The buyer's trade-in for THIS desk (photos stripped to photoCount) and the desk's allowance once quoted. */
+  tradeIn?: RfqTradeIn | null;
 }
 
 export interface RfqSpec {

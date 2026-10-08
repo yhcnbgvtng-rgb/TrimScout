@@ -36,6 +36,8 @@ export async function GET(req: Request) {
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
     tradeInExpected: rfq.tradeInExpected ?? null,
+    // This desk's trade-in (photos fetched separately via /api/quote-invite/trade-in).
+    tradeIn: invite.tradeIn || null,
     msrp: thisCar?.msrp ?? recheck?.msrp ?? null,
     factoryStickerUrl: recheck?.pdfUrl || null,
     vin: rfq.vin,

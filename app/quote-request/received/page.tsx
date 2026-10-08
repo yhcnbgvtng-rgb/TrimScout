@@ -12,6 +12,8 @@ import { CounterComparison } from "../../../components/CounterComparison";
 import type { UsedQuote } from "../../../lib/usedQuote";
 import type { BuyerCounter } from "../../../lib/rfq";
 import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
+import { DealerTradeInPanel } from "../../../components/DealerTradeInPanel";
+import type { RfqTradeIn } from "../../../lib/rfqTradeIn";
 import { SiteFooter } from "../../../components/SiteFooter";
 import type { QuotePrefs } from "../../../lib/usedQuote";
 
@@ -40,6 +42,8 @@ type Context = {
   msrp: number | null;
   /** Buyer said a trade-in is coming (handled after the OTD price). */
   tradeInExpected: boolean | null;
+  /** The trade-in the buyer added for this desk, if any (photos load separately). */
+  tradeIn?: RfqTradeIn | null;
   /** The factory window sticker, when it was found on a later re-check. */
   factoryStickerUrl: string | null;
 };
@@ -166,9 +170,12 @@ function ReceivedBody() {
               The buyer has closed this request — no quote is needed. Thanks for looking.
             </p>
           ) : ctx.inviteStatus !== "invited" ? (
-            <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
-              This invite already has a response ({ctx.inviteStatus}). Nothing more to do.
-            </p>
+            <>
+              <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
+                This invite already has a response ({ctx.inviteStatus}). {ctx.tradeIn && ctx.inviteStatus === "quoted" ? "The buyer has since added a trade-in — see below." : "Nothing more to do."}
+              </p>
+              {ctx.tradeIn && ctx.inviteStatus === "quoted" ? <DealerTradeInPanel token={token} tradeIn={ctx.tradeIn} /> : null}
+            </>
           ) : ctx.quotePrefs ? (
             <>
               {ctx.buyerNote ? <BuyerNote note={ctx.buyerNote} /> : null}
@@ -196,10 +203,10 @@ function ReceivedBody() {
                   <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
                   {ctx.quotePrefs.quoteType === "finance" ? "; term and down must equal the buyer's lock, and the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}.
                 </p>
-                <TradeInNote expected={ctx.tradeInExpected} />
+                {ctx.tradeIn ? <p className="text-xs text-sky-200 border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">The buyer added a trade-in — quote the car on its own, then give a Trade-in allowance as its own line below.</p> : <TradeInNote expected={ctx.tradeInExpected} />}
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} tradeIn={ctx.tradeIn || null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
             </>
           ) : !ctx.leasePrefs ? (
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">

@@ -7,6 +7,8 @@ import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
+import { tradeOutTheDoor, TRADE_VALUES_COPY, tradeTitle, type RfqTradeIn } from "../lib/rfqTradeIn";
+import { TradeInForm } from "./TradeInForm";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import type { RfqRequest } from "../lib/rfq";
@@ -20,9 +22,13 @@ import type { LineItem } from "../lib/leaseQuote";
  * so a cheap monthly can't hide junk. Cash ranks by out the door.
  * Expired rows grey out; waiting rows show dashes.
  */
-export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade, onCopyTrade, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; onAddTrade?: (inviteId: string, tradeIn: Record<string, unknown>) => Promise<void>; onCopyTrade?: (toInviteId: string, fromInviteId: string) => Promise<void>; busy: boolean }) {
   // Which row has the counter sheet open — one at a time.
   const [countering, setCountering] = useState<string | null>(null);
+  // Which dealer's "Add a trade-in" form is open; one at a time.
+  const [tradingFor, setTradingFor] = useState<string | null>(null);
+  const [tradeBusy, setTradeBusy] = useState<string | null>(null);
+  const [tradeError, setTradeError] = useState<string | null>(null);
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
   const lane = rfq.lane ?? "same_spec";
@@ -33,19 +39,22 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const liveAll = rows.filter((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }));
   const live = lane === "alternate" ? liveAll : liveAll.filter((r) => !r.alternate);
   const sideAlternates = lane === "alternate" ? [] : liveAll.filter((r) => r.alternate);
+  // Out the door = price + fees + tax + add-ons − rebates − net trade equity. A dealer who hasn't
+  // quoted the trade yet keeps their no-trade total (status "pending"); tax is never reduced by a trade.
+  const otdOf = (r: (typeof rows)[number]) => tradeOutTheDoor(cashOutTheDoor(r.used!), r.invite.tradeIn);
   const ranked = [...live].sort((a, b) =>
     finance && a.used!.kind === "finance" && b.used!.kind === "finance"
       ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote)
-      : cashOutTheDoor(a.used!) - cashOutTheDoor(b.used!)
+      : otdOf(a).total - otdOf(b).total
   );
   const best = ranked[0] || null;
-  const lowest = (pick: (u: UsedQuote) => number | null) => {
-    const vals = live.map((r) => pick(r.used!)).filter((v): v is number => v != null);
+  const lowest = (pick: (u: UsedQuote, r: (typeof rows)[number]) => number | null) => {
+    const vals = live.map((r) => pick(r.used!, r)).filter((v): v is number => v != null);
     return vals.length ? Math.min(...vals) : null;
   };
   const bestMonthly = finance ? lowest((u) => (u.kind === "finance" ? u.monthlyPaymentPreTax : null)) : null;
   const bestCashDue = finance ? lowest((u) => (u.kind === "finance" ? financeCashDue(u) : null)) : null;
-  const bestOtd = !finance ? lowest((u) => (u.kind === "cash" ? cashOutTheDoor(u) : null)) : null;
+  const bestOtd = !finance ? lowest((u, r) => (u.kind === "cash" ? otdOf(r).total : null)) : null;
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
@@ -62,6 +71,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
       <span className="font-bold text-white">{fmtMoney(total)}</span>
     );
 
+  const anyTrade = rows.some((r) => r.invite.tradeIn);
   const anyMiles = rows.some((r) => r.used?.miles != null);
   const rowDefs: QuoteRowDef[] = [
     ...(finance ? [{ key: "monthly", label: "Monthly" }, { key: "cashdue", label: "Cash due at signing" }, { key: "apr", label: "APR · financed" }] : []),
@@ -70,6 +80,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
     { key: "tax", label: "Sales tax" },
     { key: "addons", label: "Add-ons" },
     { key: "rebates", label: "Rebates / credits" },
+    ...(anyTrade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff" }, { key: "netequity", label: "Net trade equity" }] : []),
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
     ...(!finance ? [{ key: "otd", label: "Out the door", total: true }] : []),
@@ -95,8 +106,16 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
     if (used && !expired && !excluded) {
       if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
       if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
-      if (used.kind === "cash" && cashOutTheDoor(used) === bestOtd) best.push("otd");
+      if (used.kind === "cash" && tradeOutTheDoor(cashOutTheDoor(used), invite.tradeIn).total === bestOtd) best.push("otd");
     }
+    const trade = used ? tradeOutTheDoor(cashOutTheDoor(used), invite.tradeIn) : tradeOutTheDoor(0, invite.tradeIn);
+    const tradeCells: Record<string, React.ReactNode> = invite.tradeIn ? {
+      tradeallow: trade.status === "quoted" ? fmtMoney(trade.allowance!) : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
+      payoff: invite.tradeIn.payoff ? fmtMoney(invite.tradeIn.payoff) : <span className="text-ink-muted">None</span>,
+      netequity: trade.status !== "quoted" ? <span className="text-ink-muted">—</span>
+        : trade.negativeEquity ? <span data-testid="negative-equity"><span className="block text-[10px] font-bold uppercase text-rose-300">Negative equity</span>+{fmtMoney(Math.abs(trade.netEquity!))}<span className="block text-[10px] font-normal text-ink-muted">added to your total</span></span>
+        : <>−{fmtMoney(trade.netEquity!)}</>,
+    } : {};
     const taxLines = used ? used.dueAtSigning.filter((l) => isTax(l.name)) : [];
     const feeLines = used ? used.dueAtSigning.filter((l) => !isTax(l.name)) : [];
     const cells: Record<string, React.ReactNode> = used ? {
@@ -112,8 +131,15 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
         cashdue: fmtMoney(financeCashDue(fin)),
         apr: <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></>,
       } : {}),
-      ...(used.kind === "cash" ? { otd: fmtMoney(cashOutTheDoor(used)) } : {}),
-    } : {};
+      ...(used.kind === "cash" ? { otd: (
+        <>
+          {fmtMoney(trade.total)}
+          {trade.status === "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{trade.negativeEquity ? "includes negative equity" : "after trade equity"}</span> : null}
+          {trade.status === "pending" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">excludes trade — value pending</span> : null}
+        </>
+      ) } : {}),
+      ...tradeCells,
+    } : { ...tradeCells };
     const header = (
       <div className="space-y-1" data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "quoted"}`}>
         <span className="block text-sm font-bold leading-snug text-white">{invite.dealerName}</span>
@@ -133,8 +159,8 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
         <CounterComparison sheet={invite.buyerCounter.sheet} compact />
       </div>
     ) : null;
-    const footer = collecting && used && !expired && invite.quote ? (
-      <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
+    const actions = collecting && used && !expired && invite.quote ? (
+      <>
         <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
         <div className="grid grid-cols-2 gap-1.5">
         {onCounter && !unsubscribed ? (
@@ -142,6 +168,33 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
         ) : null}
         <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>
         </div>
+      </>
+    ) : null;
+    // Add a trade-in sits below Counter / Walk away as a secondary button, so Choose stays the main action.
+    // Once this dealer has one, the column says so instead; another dealer's trade can be added here in one click.
+    const canTrade = collecting && Boolean(onAddTrade) && invite.status !== "declined" && !unsubscribed && !expired;
+    const donor = rows.find((r) => r.invite.id !== invite.id && r.invite.tradeIn && r.invite.status !== "declined");
+    const tradeBlock = canTrade ? (
+      <div className="space-y-1.5" data-testid="trade-in-actions">
+        {invite.tradeIn ? (
+          <p className="text-[11px] text-ink-light" data-testid="trade-in-sent">Trade-in sent: {tradeTitle(invite.tradeIn)}</p>
+        ) : (
+          <>
+            <button type="button" onClick={() => { setTradeError(null); setTradingFor(invite.id); }} disabled={busy || tradeBusy === invite.id} className="w-full rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:border-ink-muted hover:text-white disabled:opacity-50" data-testid="add-trade-in">Add a trade-in</button>
+            {donor && onCopyTrade ? (
+              <button type="button" onClick={async () => { setTradeError(null); setTradeBusy(invite.id); try { await onCopyTrade(invite.id, donor.invite.id); } catch (e) { setTradeError(e instanceof Error ? e.message : "Could not add the trade-in."); } finally { setTradeBusy(null); } }} disabled={busy || tradeBusy === invite.id} className="w-full text-left text-[11px] font-bold text-brand-300 hover:text-brand-200 disabled:opacity-50" data-testid="copy-trade-in">
+                {tradeBusy === invite.id ? "Adding…" : `Send ${donor.invite.dealerName}'s trade-in here too`}
+              </button>
+            ) : null}
+          </>
+        )}
+        <p className="text-[10px] leading-snug text-ink-faint" data-testid="trade-in-copy">{TRADE_VALUES_COPY}</p>
+      </div>
+    ) : null;
+    const footer = actions || tradeBlock ? (
+      <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
+        {actions}
+        {tradeBlock}
       </div>
     ) : null;
     return { id: invite.id, kind: !used ? "waiting" : expired ? "expired" : "quoted", header, cells, best, muted: expired || invite.status === "declined" || (unsubscribed && !used), picked, footer, detail };
@@ -170,7 +223,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
         <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3" data-testid="used-glance-best">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{finance ? "Best on monthly, then cash due at signing" : "Lowest out the door"}</p>
           <p className="text-lg font-extrabold text-white tabular-nums">
-            {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(cashOutTheDoor(best.used!))}
+            {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(otdOf(best).total)}
           </p>
           <p className="text-[11px] text-ink-light">{best.invite.dealerName}</p>
         </div>
@@ -179,6 +232,15 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
       )}
 
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
+      {tradingFor && onAddTrade ? (() => {
+        const target = rows.find((r) => r.invite.id === tradingFor);
+        return target ? (
+          <>
+            {tradeError ? <p className="text-[11px] text-rose-300" role="alert">{tradeError}</p> : null}
+            <TradeInForm dealerName={target.invite.dealerName} onCancel={() => setTradingFor(null)} onSubmit={async (t) => { await onAddTrade(target.invite.id, t); setTradingFor(null); }} />
+          </>
+        ) : null;
+      })() : null}
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
         <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
       ) : null}
