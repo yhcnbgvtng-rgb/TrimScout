@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
+import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
@@ -48,8 +49,6 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
-  const cell = (v: React.ReactNode, extra = "") => <td className={`px-3 py-2.5 align-top tabular-nums ${extra}`}>{v}</td>;
-  const hi = "bg-brand-500/10 font-extrabold text-brand-300";
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
   const lines = (total: number, items: LineItem[] | undefined, negative = false) =>
     items && items.length ? (
@@ -63,6 +62,92 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
       <span className="font-bold text-white">{fmtMoney(total)}</span>
     );
 
+  const anyMiles = rows.some((r) => r.used?.miles != null);
+  const rowDefs: QuoteRowDef[] = [
+    ...(finance ? [{ key: "monthly", label: "Monthly" }, { key: "cashdue", label: "Cash due at signing" }, { key: "apr", label: "APR · financed" }] : []),
+    { key: "price", label: "Selling price" },
+    { key: "fees", label: "Fees (named)" },
+    { key: "tax", label: "Sales tax" },
+    { key: "addons", label: "Add-ons" },
+    { key: "rebates", label: "Rebates / credits" },
+    ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
+    { key: "expires", label: "Expires" },
+    ...(!finance ? [{ key: "otd", label: "Out the door", total: true }] : []),
+  ];
+  const isTax = (n: string) => /tax/i.test(n);
+  const counteringRow = countering ? rows.find((r) => r.invite.id === countering) : null;
+  const toColumn = ({ invite, used, alternate }: (typeof rows)[number]): QuoteColumn => {
+    const expired = used ? isExpired({ expiresAt: used.expiresAt }) : false;
+    const picked = Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id);
+    const unsubscribed = Boolean(invite.dealerUnsubscribedAt);
+    const chip = (cls: string, text: string, testId?: string) => <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${cls}`} data-testid={testId}>{text}</span>;
+    const status = !used
+      ? invite.status === "declined" ? chip("bg-rose-500/15 text-rose-300", "Declined")
+        : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — won't reply", "unsub-chip")
+        : chip("bg-border text-ink-muted", "Waiting")
+      : expired ? chip("bg-border text-ink-muted", "Expired")
+      : picked ? chip("bg-brand-500/15 text-brand-300", "Chosen")
+      : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — quote still valid", "unsub-chip")
+      : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
+    const fin = used?.kind === "finance" ? used : null;
+    const excluded = alternate && lane !== "alternate";
+    const best: string[] = [];
+    if (used && !expired && !excluded) {
+      if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
+      if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
+      if (used.kind === "cash" && cashOutTheDoor(used) === bestOtd) best.push("otd");
+    }
+    const taxLines = used ? used.dueAtSigning.filter((l) => isTax(l.name)) : [];
+    const feeLines = used ? used.dueAtSigning.filter((l) => !isTax(l.name)) : [];
+    const cells: Record<string, React.ReactNode> = used ? {
+      price: fmtMoney(used.sellingPrice),
+      fees: feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>,
+      tax: taxLines.length ? lines(dueAtSigningSum(taxLines), taxLines) : <span className="text-ink-muted">—</span>,
+      addons: used.noAddOns || !used.addOns?.length ? <span className="text-ink-muted">None</span> : lines(dueAtSigningSum(used.addOns), used.addOns),
+      rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
+      miles: used.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—",
+      expires: <span className={expired ? "text-rose-300" : ""}>{new Date(used.expiresAt).toLocaleDateString()}</span>,
+      ...(fin ? {
+        monthly: <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)}/mo with est. tax</span> : null}</>,
+        cashdue: fmtMoney(financeCashDue(fin)),
+        apr: <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></>,
+      } : {}),
+      ...(used.kind === "cash" ? { otd: fmtMoney(cashOutTheDoor(used)) } : {}),
+    } : {};
+    const header = (
+      <div className="space-y-1" data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "quoted"}`}>
+        <span className="block text-sm font-bold leading-snug text-white">{invite.dealerName}</span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {status}
+          {alternate ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" ? " — not ranked" : ""}</span> : null}
+        </div>
+        {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
+        {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
+        {invite.buyerCounter && invite.status === "invited" ? <span className="block text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
+        <span className={`block text-[10px] ${expired ? "text-rose-300" : "text-ink-faint"}`}>{used ? `Expires ${new Date(used.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
+      </div>
+    );
+    const detail = invite.buyerCounter?.sheet && invite.status === "invited" ? (
+      <div className="space-y-1" data-testid="used-row-counter">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your counter, line by line — before vs after</p>
+        <CounterComparison sheet={invite.buyerCounter.sheet} compact />
+      </div>
+    ) : null;
+    const footer = collecting && used && !expired && invite.quote ? (
+      <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
+        <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+        <div className="grid grid-cols-2 gap-1.5">
+        {onCounter && !unsubscribed ? (
+          <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
+        ) : null}
+        <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>
+        </div>
+      </div>
+    ) : null;
+    return { id: invite.id, kind: !used ? "waiting" : expired ? "expired" : "quoted", header, cells, best, muted: expired || invite.status === "declined" || (unsubscribed && !used), picked, footer, detail };
+  };
+  const anyActions = collecting && rows.some((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }) && r.invite.quote);
+
   return (
     <section className="space-y-3" data-testid="used-compare">
       <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-ink-muted">
@@ -71,7 +156,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
           {lane === "alternate" ? (
             <span data-testid="alternate-lane-note">open to different vehicles — you asked for <span className="text-ink-light">{alternateAskSummary(rfq.alternateAsk)}</span>; every quote is a dealer&apos;s proposal, compared among alternate quotes</span>
           ) : (
-            <>same car on every row: VIN <span className="font-mono text-ink-light">{vin}</span>{rfq.stockNumber ? <> · stock {rfq.stockNumber}</> : null}{sideAlternates.length ? <span className="text-sky-200"> · {sideAlternates.length} alternate vehicle{sideAlternates.length === 1 ? "" : "s"} proposed, shown separately</span> : null}</>
+            <>same car in every column: VIN <span className="font-mono text-ink-light">{vin}</span>{rfq.stockNumber ? <> · stock {rfq.stockNumber}</> : null}{sideAlternates.length ? <span className="text-sky-200"> · {sideAlternates.length} alternate vehicle{sideAlternates.length === 1 ? "" : "s"} proposed, shown separately</span> : null}</>
           )}
         </span>
         {finance ? <span>Your locks: {prefs.finance.termMonths} mo · {fmtMoney(prefs.finance.downPayment)} down · {prefs.finance.creditBand} credit · ZIP {prefs.finance.zip}</span> : <span>ZIP {prefs.cash.zip} (tax context)</span>}
@@ -93,118 +178,14 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>
       )}
 
-      <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
-        <table className="w-full min-w-[900px] text-left text-xs">
-          <thead>
-            <tr className="border-b border-border text-[10px] font-bold uppercase tracking-wide text-ink-faint">
-              <th className="sticky left-0 z-10 bg-surface px-3 py-2.5">Dealer</th>
-              {finance ? (
-                <>
-                  <th className="px-3 py-2.5">Monthly</th>
-                  <th className="px-3 py-2.5">Cash due at signing</th>
-                  <th className="px-3 py-2.5">APR · financed</th>
-                </>
-              ) : (
-                <th className="px-3 py-2.5">Out the door</th>
-              )}
-              <th className="px-3 py-2.5">Selling price</th>
-              <th className="px-3 py-2.5">Fees & tax</th>
-              <th className="px-3 py-2.5">Add-ons</th>
-              <th className="px-3 py-2.5">Rebates</th>
-              {rows.some((r) => r.used?.miles != null) ? <th className="px-3 py-2.5">Miles · CPO</th> : null}
-              <th className="px-3 py-2.5">Expires</th>
-              <th className="px-3 py-2.5">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/60">
-            {ordered.map(({ invite, used, alternate }) => {
-              const expired = used ? isExpired({ expiresAt: used.expiresAt }) : false;
-              const picked = Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id);
-              const unsubscribed = Boolean(invite.dealerUnsubscribedAt);
-              const status = !used
-                ? invite.status === "declined" ? <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-rose-300">Declined</span>
-                  : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — won't reply</span>
-                  : <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Waiting</span>
-                : expired ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted">Expired</span>
-                : picked ? <span className="rounded bg-brand-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-brand-300">Chosen</span>
-                : unsubscribed ? <span className="rounded bg-border px-1.5 py-0.5 text-[9px] font-bold uppercase text-ink-muted" data-testid="unsub-chip">Unsubscribed — quote still valid</span>
-                : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
-              const fin = used?.kind === "finance" ? used : null;
-              const colCount = 8 + (finance ? 2 : 0) + (rows.some((r) => r.used?.miles != null) ? 1 : 0);
-              return (
-                <React.Fragment key={invite.id}>
-                <tr className={`${expired || invite.status === "declined" || (unsubscribed && !used) ? "opacity-50" : ""} ${picked ? "bg-brand-500/5" : ""}`} data-testid={`used-row-${!used ? "waiting" : expired ? "expired" : "eligible"}`}>
-                  <td className="sticky left-0 z-10 bg-surface px-3 py-2.5 align-top">
-                    <span className="block text-sm font-bold text-white">{invite.dealerName}</span>
-                    {alternate ? <span className="mt-0.5 inline-block rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" && invite.quote?.vin ? <span className="font-mono normal-case"> · {invite.quote.vin}</span> : null}</span> : null}
-                    {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
-                    {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
-                  </td>
-                  {finance ? (
-                    <>
-                      {cell(fin ? <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)} with est. tax</span> : <span className="block text-[10px] text-ink-muted">tax estimated at signing</span>}</> : "—", fin && !expired && !(alternate && lane !== "alternate") && fin.monthlyPaymentPreTax === bestMonthly ? hi : "")}
-                      {cell(fin ? (
-                        <div>
-                          <span className="font-bold text-white">{fmtMoney(financeCashDue(fin))}</span>
-                          <ul className="mt-1 space-y-0.5 text-[10px] text-ink-muted tabular-nums">
-                            <li className="flex justify-between gap-3"><span>Down</span><span>{fmtMoney(fin.downPayment)}</span></li>
-                            {fin.dueAtSigning.map((l, i) => (<li key={`f${i}`} className="flex justify-between gap-3"><span>{l.name}</span><span>{fmtMoney(l.amount)}</span></li>))}
-                            {fin.addOns?.map((l, i) => (<li key={`a${i}`} className="flex justify-between gap-3"><span>{l.name} (add-on)</span><span>{fmtMoney(l.amount)}</span></li>))}
-                            {fin.rebates?.map((l, i) => (<li key={`r${i}`} className="flex justify-between gap-3"><span>{l.name} (rebate)</span><span>−{fmtMoney(l.amount)}</span></li>))}
-                          </ul>
-                        </div>
-                      ) : "—", fin && !expired && !(alternate && lane !== "alternate") && financeCashDue(fin) === bestCashDue ? hi : "")}
-                      {cell(fin ? <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></> : "—")}
-                    </>
-                  ) : (
-                    cell(used?.kind === "cash" ? fmtMoney(cashOutTheDoor(used)) : "—", used && !expired && !(alternate && lane !== "alternate") && used.kind === "cash" && cashOutTheDoor(used) === bestOtd ? hi : "")
-                  )}
-                  {cell(used ? fmtMoney(used.sellingPrice) : "—")}
-                  {cell(used ? lines(dueAtSigningSum(used.dueAtSigning), used.dueAtSigning) : "—")}
-                  {cell(used ? (used.noAddOns || !used.addOns?.length ? <span className="text-ink-muted">None</span> : lines(dueAtSigningSum(used.addOns), used.addOns)) : "—")}
-                  {cell(used ? (used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>) : "—")}
-                  {rows.some((r) => r.used?.miles != null) ? cell(used?.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—") : null}
-                  {cell(used ? new Date(used.expiresAt).toLocaleDateString() : "—", expired ? "text-rose-300" : "")}
-                  <td className="px-3 py-2.5 align-top">
-                    <div className="flex flex-col items-start gap-1.5">
-                      {status}
-                      {invite.buyerCounter && invite.status === "invited" ? <span className="text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
-                      {collecting && used && !expired && invite.quote ? (
-                        <>
-                          <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
-                          {onCounter && !unsubscribed ? (
-                            <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-2.5 py-1 text-[10px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
-                          ) : null}
-                        </>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-                {countering === invite.id && used && invite.quote && onCounter ? (
-                  <tr className="bg-background/60">
-                    <td colSpan={colCount} className="px-4 py-3">
-                      <CounterSheetForm dealerName={invite.dealerName} quote={{ used }} quoteId={invite.quote.id} onSubmit={async (c) => { await onCounter(invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
-                    </td>
-                  </tr>
-                ) : null}
-                {invite.buyerCounter?.sheet && invite.status === "invited" ? (
-                  <tr className="bg-background/60" data-testid="used-row-counter">
-                    <td colSpan={colCount} className="px-4 py-3 space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your counter to {invite.dealerName}, line by line — before vs after{invite.buyerCounter.note ? ` · “${invite.buyerCounter.note}”` : ""}</p>
-                      <CounterComparison sheet={invite.buyerCounter.sheet} />
-                    </td>
-                  </tr>
-                ) : null}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
+      {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
+        <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
+      ) : null}
       {collecting ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-4 py-3">
-          <p className="text-[11px] text-ink-muted">Choose a quote from the table, or walk away — nothing is binding until you sign with the dealer.</p>
-          <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away from this request</button>
+          <p className="text-[11px] text-ink-muted">Choose a quote under its dealer, or walk away — nothing is binding until you sign with the dealer.</p>
+          {!anyActions ? <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away from this request</button> : null}
         </div>
       ) : null}
     </section>

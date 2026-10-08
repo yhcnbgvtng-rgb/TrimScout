@@ -99,8 +99,8 @@ describe("wiring — server attaches the analysis, the page renders it, lease de
   });
   it("the compare component: glance → same-column table (sticky dealer) → expand detail → Choose / Walk away; no inputs, no score, no price hero", () => {
     const c = read("components/LeaseCompare.tsx");
-    for (const col of ["Dealer", "Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Expires", "Status"]) assert.ok(c.includes(`>${col}</th>`), col);
-    assert.match(c, /sticky left-0/);
+    for (const col of ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Add-ons", "Fees", "Sales tax", "Rebates / credits", "Expires"]) assert.ok(c.includes(`label: "${col}"`), col);
+    assert.match(read("components/QuoteColumns.tsx"), /sticky left-0/);
     assert.match(c, /data-testid="counter-divider"/);
     assert.match(c, /data-testid="lease-row-detail"/);
     assert.match(c, /data-testid="walk-away"/);

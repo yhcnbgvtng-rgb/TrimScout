@@ -148,16 +148,16 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     assert.match(page, /\{rfq\.leasePrefs && \(\s*<div className="space-y-3">\s*<h2[^>]*>Compare lease quotes/);
     const c = read("components/UsedCompare.tsx");
     assert.doesNotMatch(c, /moneyFactor|residual/i);
-    assert.match(c, />Out the door</);
-    assert.match(c, />Cash due at signing</);
-    assert.match(c, />APR · financed</);
-    assert.match(c, />Fees & tax</);
-    assert.match(c, />Add-ons</);
+    assert.match(c, /label: "Out the door"/);
+    assert.match(c, /label: "Cash due at signing"/);
+    assert.match(c, /label: "APR · financed"/);
+    assert.match(c, /label: "Fees \(named\)"/); assert.match(c, /label: "Sales tax"/);
+    assert.match(c, /label: "Add-ons"/);
     assert.match(c, /compareFinanceQuotes\(a\.used as UsedFinanceQuote, b\.used as UsedFinanceQuote\)/);
-    assert.match(c, /same car on every row: VIN/);
+    assert.match(c, /same car in every column: VIN/);
     // Dealer-side counter offers never existed on used quotes; the buyer's own counter (2026-09-17) does.
     assert.doesNotMatch(c, /isFinanceCounter|dealer counter/i);
-    assert.match(c, /<CounterSheetForm dealerName=\{invite\.dealerName\} quote=\{\{ used \}\}/);
+    assert.match(c, /<CounterSheetForm dealerName=\{counteringRow\.invite\.dealerName\} quote=\{\{ used: counteringRow\.used \}\}/);
     assert.match(read("lib/rfqTracker.ts"), /quotePrefs\?\.quoteType === "finance"\) return "Finance"/);
   });
 });
