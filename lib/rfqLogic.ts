@@ -109,6 +109,14 @@ export function hasActiveRfq(rfqs: Pick<RfqRequest, "status">[]): boolean {
   return rfqs.some((r) => r.status === "collecting");
 }
 
+/** The buyer's one active request, for the "you already have one" notice (id for the link, deal # for the words). */
+export function activeRfqSummary(rfqs: unknown): { id: string; dealReference: string | null } | null {
+  if (!Array.isArray(rfqs)) return null;
+  const r = rfqs.find((x) => x && typeof x === "object" && (x as { status?: unknown }).status === "collecting") as { id?: unknown; dealReference?: unknown } | undefined;
+  if (!r || (typeof r.id !== "string" && typeof r.id !== "number")) return null;
+  return { id: String(r.id), dealReference: typeof r.dealReference === "string" && r.dealReference ? r.dealReference : null };
+}
+
 /** A quoted RFQ left uncollected this long reads as abandoned, not merely slow. */
 export const RFQ_GHOST_STALE_DAYS = 7;
 
