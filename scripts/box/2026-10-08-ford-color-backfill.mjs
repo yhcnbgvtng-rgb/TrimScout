@@ -68,6 +68,8 @@ async function dryRun() {
 
   // 1. candidates: in-stock Ford rows in the state with a blank exterior or interior colour.
   const cands = [];
+  const junk = {}; // dealer -> { exterior: {value: n}, interior: {value: n} } — present-but-not-a-colour values, counted and left alone
+  const isJunk = (v) => !blank(v) && (String(v).trim().length <= 4 || /^[A-Za-z]{0,2}\d{1,3}[A-Za-z]?$/.test(String(v).trim()));
   let scanned = 0;
   for (let offset = 0; ; offset += 2000) {
     const qs = new URLSearchParams({ state, make: "Ford", inStock: "1", sort: "model:asc", limit: "2000", offset: String(offset) });
@@ -78,6 +80,9 @@ async function dryRun() {
     for (const v of page) {
       const vin = String(v.vin || "").toUpperCase();
       if (!VIN_RE.test(vin) || String(v.make || "").toLowerCase() !== "ford") continue;
+      for (const [field, val] of [["exterior", v.exteriorColor], ["interior", v.interiorColor]]) {
+        if (isJunk(val)) { const d = (junk[v.dealerName] ||= { exterior: {}, interior: {} }); d[field][String(val).trim()] = (d[field][String(val).trim()] || 0) + 1; }
+      }
       if (blank(v.exteriorColor) || blank(v.interiorColor)) cands.push({ vin, dealerId: v.dealerId, dealerName: v.dealerName, condition: v.condition, year: v.year, model: v.model, exteriorColor: v.exteriorColor ?? null, interiorColor: v.interiorColor ?? null });
     }
     if (page.length < 2000) break;
@@ -99,7 +104,7 @@ async function dryRun() {
     const f = path.join(cacheDir, `${c.vin}.json`);
     let rec = null;
     try { rec = JSON.parse(fs.readFileSync(f, "utf-8")); } catch { /* not cached */ }
-    if (rec && (rec.status === "ok" || Date.now() - rec.fetchedAt < day)) {
+    if (rec && rec.v === 2 && (rec.status === "ok" || Date.now() - rec.fetchedAt < day)) {
       stats.cacheHit++;
     } else {
       stats.fetched++;
@@ -128,11 +133,11 @@ async function dryRun() {
             let text = "";
             try { const t = (await extractText(bytes, { mergePages: true })).text; text = Array.isArray(t) ? t.join("\n") : String(t || ""); } catch { /* unreadable */ }
             const p = parseStickerColors(text);
-            rec = p.exteriorColor || p.interiorColor ? { status: "ok", ...p, fetchedAt: Date.now() } : { status: "miss", reason: "no_vehicle_description", fetchedAt: Date.now() };
+            rec = p.exteriorRaw || p.interiorRaw ? { status: "ok", ...p, fetchedAt: Date.now() } : { status: "miss", reason: "no_vehicle_description", fetchedAt: Date.now() };
           }
         }
       }
-      fs.writeFileSync(f, JSON.stringify({ vin: c.vin, ...rec }));
+      fs.writeFileSync(f, JSON.stringify({ v: 2, vin: c.vin, ...rec }));
       await sleep(delayMs + Math.floor(Math.random() * 400));
     }
     if (rec.status === "ok") { stats.ok++; colors.set(c.vin, rec); }
@@ -144,11 +149,14 @@ async function dryRun() {
   for (const c of work) {
     const s = colors.get(c.vin);
     if (!s) continue;
+    // A value already on the row (from the dealer's listing) always wins: only a blank field is ever planned.
     const ext = blank(c.exteriorColor) && s.exteriorColor ? s.exteriorColor : null;
-    const int = blank(c.interiorColor) && s.interiorColor ? s.interiorColor : null;
-    if (ext || int) rows.push({ vin: c.vin, dealerId: c.dealerId, dealerName: c.dealerName, condition: c.condition, year: c.year, model: c.model, fill: { exterior_color: ext, interior_color: int } });
+    let int = blank(c.interiorColor) && s.interiorColor ? s.interiorColor : null;
+    if (blank(c.interiorColor) && s.interiorRaw && !s.interiorColor) { misses.interior_unnormalized = (misses.interior_unnormalized || 0) + 1; missLog.push({ vin: c.vin, reason: "interior_unnormalized", raw: s.interiorRaw }); }
+    if (ext || int) rows.push({ vin: c.vin, dealerId: c.dealerId, dealerName: c.dealerName, condition: c.condition, year: c.year, model: c.model, fill: { exterior_color: ext, interior_color: int }, sticker: { exteriorRaw: s.exteriorRaw, interiorRaw: s.interiorRaw } });
   }
   fs.writeFileSync(outFile, JSON.stringify(rows, null, 1));
+  fs.writeFileSync(`${outFile}.junk.json`, JSON.stringify(junk, null, 1));
   fs.writeFileSync(`${outFile}.misses.jsonl`, missLog.map((m) => JSON.stringify(m)).join("\n") + (missLog.length ? "\n" : ""));
   const both = rows.filter((r) => r.fill.exterior_color && r.fill.interior_color).length;
   const extOnly = rows.filter((r) => r.fill.exterior_color && !r.fill.interior_color).length;
@@ -159,7 +167,9 @@ async function dryRun() {
   console.log(`  misses:                 ${Object.entries(misses).map(([k, v]) => `${k} ${v}`).join(", ") || "0"}  blocked ${stats.blocked}`);
   console.log(`  filled rows by condition: ${JSON.stringify(byCond(rows))}`);
   console.log(`  rows the plan would fill: ${rows.length}  (both colours ${both}, exterior only ${extOnly}, interior only ${intOnly})`);
-  console.log(`  plan: ${outFile}\n  misses: ${outFile}.misses.jsonl`);
+  const junkTotals = {}; for (const d of Object.values(junk)) for (const f of ["exterior", "interior"]) for (const [k, n] of Object.entries(d[f])) junkTotals[`${f}:${k}`] = (junkTotals[`${f}:${k}`] || 0) + n;
+  console.log(`  junk values left alone (${Object.keys(junk).length} dealers): ${JSON.stringify(junkTotals)}`);
+  console.log(`  plan: ${outFile}\n  misses: ${outFile}.misses.jsonl\n  junk by dealer: ${outFile}.junk.json`);
 }
 
 // ------------------------------------------------------------------------------------------------ stage 2: apply

@@ -32,11 +32,39 @@ function lineAfter(lines, endsWith) {
   return i >= 0 ? clean(lines[i + 1] || "") : "";
 }
 
-/** { exteriorColor, interiorColor } from the extracted sticker text. Each is null when its line is absent or unrecognised. */
+// Interior trim words Ford prints after (or before) the colour: material, seat/trim wording, and abbreviations of them.
+// Stripped repeatedly from the end, then once from the start, until only the colour name is left.
+const INTERIOR_TAIL = /\s+(?:ACTIVE-?X(?:\s+TRIM(?:MED)?|\s+TRM|\s+TRI)?|ACTIV|UNIQUE\s+CLOTH(?:\s+SEATS|\s+STS)?|STX\s+CLOTH\s+40\/CON\/40|CLOTH\s+40\/CON\/40|CLOTH\/VINYL\s+TRIM|CLOTH(?:\s+SEATS|\s+STS)?|CLTH\s+TRIM\s+S|LEATHER(?:-TRIMMED|\s+TRI)?|LTH-TRM(?:\s+RECRO)?|VINYL|TRIMMED|TRIM\s+SEATS|TRIM|TRM|SEATS|STS|MIKO\s+INSERTS|INSERTS)$/;
+const INTERIOR_HEAD = /^(?:PLAID\s+)?(?:LTH-TRM\/VINYL|CLOTH|LEATHER|VINYL)\s+/;
+// Colour words that must remain for a result to count as a colour name (a line that ends up with none is a miss, not a guess).
+const COLOR_WORD = /\b(?:BLACK|GRAY|GREY|WHITE|ONYX|EBONY|SLATE|EMBERGLO|NAVY|PIER|RED|BLUE|TAN|BROWN|SAND|CAMEL|SADDLE|BEIGE|IVORY|PALAZZO|CHARCOAL|SILVER|GREEN|ORANGE|PRFM|SPACE)\b/;
+
+/**
+ * "Black Onyx Cloth/Vinyl Trim" -> "Black Onyx", "Emberglo Activex Trm" -> "Emberglo". Works on the printed text (any case).
+ * Returns null when nothing colour-like is left or an abbreviation we do not know remains ("EBNY PART VNL/CLTH&RED STCH"):
+ * the raw sticker text is kept next to it by the caller, and the row's interior stays blank rather than get a half-cleaned value.
+ */
+export function normalizeInterior(raw) {
+  let s = clean(String(raw || "")).toUpperCase();
+  if (!s) return null;
+  for (let i = 0; i < 4 && INTERIOR_TAIL.test(s); i++) s = s.replace(INTERIOR_TAIL, "");
+  s = s.replace(INTERIOR_HEAD, "");
+  s = clean(s);
+  if (!s || !SANE.test(s) || !COLOR_WORD.test(s)) return null;
+  // Leftover wording that is not a colour (an unrecognised trim or abbreviation) means the line was not fully understood.
+  if (/\b(?:CLOTH|CLTH|VNL|VINYL|LTH|LEATHER|TRIM|TRM|SEATS?|STS|STCH|PART)\b|&/.test(s)) return null;
+  return titleCase(s);
+}
+
+/**
+ * { exteriorColor, interiorColor, exteriorRaw, interiorRaw } from the extracted sticker text. exteriorColor / interiorColor are the
+ * cleaned colour names (interior via normalizeInterior); the *Raw fields are the printed text, Title Cased, for audit. Each is null
+ * when its line is absent or unrecognised.
+ */
 export function parseStickerColors(text) {
   const all = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const start = all.findIndex((l) => l === "VEHICLE DESCRIPTION");
-  if (start < 0) return { exteriorColor: null, interiorColor: null };
+  if (start < 0) return { exteriorColor: null, interiorColor: null, exteriorRaw: null, interiorRaw: null };
   const lines = all.slice(start + 1, start + 9);
   let exterior = null;
   const paintLine = lineAfter(lines, "EXTERIOR");
@@ -46,7 +74,7 @@ export function parseStickerColors(text) {
   const interiorLine = lineAfter(lines, "INTERIOR");
   const t = interiorLine && TRANS_END.exec(interiorLine);
   if (t && SANE.test(t[1])) interior = titleCase(t[1]);
-  return { exteriorColor: exterior, interiorColor: interior };
+  return { exteriorColor: exterior, interiorColor: interior ? normalizeInterior(interior) : null, exteriorRaw: exterior, interiorRaw: interior };
 }
 
 export const STICKER_URL = "https://www.windowsticker.forddirect.com/windowsticker.pdf";
