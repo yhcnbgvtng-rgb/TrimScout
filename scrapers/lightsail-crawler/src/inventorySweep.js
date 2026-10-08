@@ -19,6 +19,14 @@ export function parseSweepRequest(body, { toInt, toStr }) {
   const seenAfter = typeof body?.seenAfter === "string" ? new Date(body.seenAfter) : null;
   if (!seenAfter || Number.isNaN(seenAfter.getTime())) return { ok: false, error: "dealerId and seenAfter (ISO) are required" };
   const sources = Array.isArray(body.sources) ? body.sources.map((x) => toStr(x, 16)).filter(Boolean) : [];
+  // Cross-box protection (optional; a client that predates it sends neither field and gets the old behaviour).
+  // `sourceBox` is the box running this sync; with `foreignBefore` it says: retire a stale row only if THIS box wrote it
+  // (or nobody recorded who did) OR it hasn't been seen at all since foreignBefore — a row another box wrote more
+  // recently than that belongs to that box's crawl, which this sync knows nothing about.
+  const sourceBox = typeof body?.sourceBox === "string" ? toStr(body.sourceBox, 16) : null;
+  const foreignBefore = typeof body?.foreignBefore === "string" ? new Date(body.foreignBefore) : null;
+  if (sourceBox && (!foreignBefore || Number.isNaN(foreignBefore.getTime()))) return { ok: false, error: "sourceBox needs foreignBefore (ISO)" };
+  const ownership = sourceBox ? { sourceBox, foreignBefore } : {};
 
   const hasBatch = body.dealerIds !== undefined && body.dealerIds !== null;
   const hasSingle = body.dealerId !== undefined && body.dealerId !== null;
@@ -33,17 +41,17 @@ export function parseSweepRequest(body, { toInt, toStr }) {
       if (id == null) return { ok: false, error: "dealerIds must all be integers" };
       ids.push(id);
     }
-    return { ok: true, dealerIds: [...new Set(ids)], seenAfter, sources, batch: true };
+    return { ok: true, dealerIds: [...new Set(ids)], seenAfter, sources, ...ownership, batch: true };
   }
 
   // dealerId 0 is the "no store matched" bucket — sweeping it retires rows that a later sync re-filed under a real store.
   const id = toInt(body?.dealerId);
   if (id == null) return { ok: false, error: "dealerId and seenAfter (ISO) are required" };
-  return { ok: true, dealerIds: [id], seenAfter, sources, batch: false };
+  return { ok: true, dealerIds: [id], seenAfter, sources, ...ownership, batch: false };
 }
 
 /** The UPDATE for a parsed request. One store keeps the exact statement the single-store sweep always used. */
-export function buildSweepStatement({ dealerIds, seenAfter, sources }) {
+export function buildSweepStatement({ dealerIds, seenAfter, sources, sourceBox = null, foreignBefore = null }) {
   const args = [];
   let sql;
   if (dealerIds.length === 1) {
@@ -58,6 +66,13 @@ export function buildSweepStatement({ dealerIds, seenAfter, sources }) {
   if (sources.length) {
     sql += " AND source IN (?)";
     args.push(sources);
+  }
+  // Never retire a row another box has written since foreignBefore. `source` is "nightly" for every box, so it cannot
+  // tell boxes apart; source_box (the box whose sync last wrote the row) can. Found 2026-10-07: box3's sync retired 30+
+  // Brownsville Toyota rows box2 had written that morning, because box3's own (stale) file didn't contain them.
+  if (sourceBox && foreignBefore) {
+    sql += " AND (source_box = ? OR source_box IS NULL OR last_seen_at < ?)";
+    args.push(sourceBox, foreignBefore);
   }
   return { sql, args };
 }

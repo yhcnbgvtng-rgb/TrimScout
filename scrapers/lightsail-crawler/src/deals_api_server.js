@@ -31,15 +31,17 @@ import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
+import { guardPrice } from "./ingestGuards.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
@@ -2114,7 +2116,7 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0;
+  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0, priceGuarded = 0;
   // Where the time inside this request goes, reported back so the sync's own log shows it every night
   // (milliseconds, summed over the request's chunks).
   const timings = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, chunks: 0 };
@@ -2125,6 +2127,14 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(v.transmission, 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
+    // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k and unsupported by its own MSRP, or ~10x the
+    // row's MSRP) is written as null, and an MSRP that is the corrupt half of a ~10x pair is written as null instead of the price;
+    // the upsert's COALESCE turns a null into "keep the stored value". Column order is the INSERT's below: year [4], make [5],
+    // model [6], price [12], msrp [13].
+    for (const row of values) {
+      const g = guardPrice({ price: row[12], msrp: row[13], make: row[5], model: row[6], year: row[4] });
+      if (g.reason) { row[12] = g.price; row[13] = g.msrp; priceGuarded++; }
+    }
     // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
     // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
     // deadlock (see the catch-up-sync deadlock-storm investigation): two concurrent chunks
@@ -2244,7 +2254,7 @@ async function handleInventoryBulk(req, res) {
   for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, timings });
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, priceGuarded, timings });
 }
 
 // The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One
@@ -2389,7 +2399,8 @@ async function handleListInventory(req, res, params) {
 async function handleExportInventory(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, args, orderBy } = inventoryListQuery(params);
+  // State+Make (no Model, in stock) with no chosen sort streams from the model-ordered index, like the list view.
+  const { sql, args, orderBy } = inventoryListQuery(withExportFastSort(params));
   const conn = await pool.getConnection();
   let aborted = false;
   res.on("close", () => { if (!res.writableFinished) { aborted = true; conn.destroy(); } });
@@ -2891,8 +2902,10 @@ async function loadCatalogFacetMeta(pool) {
 // pause it (e.g. during a heavy sync night); unset and restart to resume. The facet tables just
 // keep serving whatever they last had — buyer /search's factory-options facet doesn't go blank,
 // it just doesn't reflect tonight's crawl until this is turned back on.
-async function rebuildCatalogFacets(pool) {
-  if (process.env.DISABLE_FACET_REBUILD) return;
+// `opts.manual` is passed ONLY by the explicit POST /api/inventory/catalog-facets/rebuild: it may run with the
+// switch set (facetRebuildGate.js); the debounced timer, the finish re-queue and the startup check never pass it.
+async function rebuildCatalogFacets(pool, opts = {}) {
+  if (!facetRebuildAllowed(process.env, opts)) return;
   if (catalogFacets.building) { catalogFacets.again = true; return; }
   catalogFacets.building = true;
   const started = Date.now();
@@ -2963,7 +2976,7 @@ async function handleCatalogFacetRebuild(req, res) {
   const pool = getPool();
   await loadCatalogFacetMeta(pool).catch(() => {});
   const alreadyRunning = catalogFacets.building;
-  void rebuildCatalogFacets(pool);
+  void rebuildCatalogFacets(pool, { manual: true });
   sendJson(res, 202, { started: !alreadyRunning, alreadyRunning, lastBuiltAt: catalogFacets.builtAt });
 }
 async function handleCatalogFacetStatus(req, res) {

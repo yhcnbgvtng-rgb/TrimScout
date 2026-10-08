@@ -75,7 +75,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       <div className="text-center space-y-6 max-w-3xl mx-auto pt-4">
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
           Paste Your Link. <br />
-          <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-brand-400 via-brand-200 to-brand-400 bg-clip-text text-transparent">
             No Calls. No Spam. Just Quotes.
           </span>
         </h1>
@@ -85,7 +85,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             type="button"
             onClick={() => onStartWizard("hero")}
             data-testid="cta-request-quote-hero"
-            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+            className="flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-brand-400 transition-all shadow-xl shadow-brand-500/20 active:scale-95"
           >
             <Zap className="h-4 w-4 fill-black" />
             <span>Request a Quote</span>
@@ -94,7 +94,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-ink-faint">
             {["Free to request & compare", "Takes about 2 minutes", "Your number stays private"].map((t) => (
               <li key={t} className="flex items-center gap-1.5">
-                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                <Check className="h-3.5 w-3.5 text-brand-400" />
                 {t}
               </li>
             ))}
@@ -105,7 +105,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* WHY TRIMSCOUT */}
       <div className="space-y-8">
         <div className="text-center space-y-2">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">Why TrimScout</p>
+          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">Why TrimScout</p>
           <h2 className="text-2xl sm:text-3xl font-black text-white">
             Three reasons buyers use it instead of walking in
           </h2>
@@ -113,8 +113,8 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {REASONS.map(({ icon: Icon, title, body }) => (
             <div key={title} className="rounded-2xl border border-border bg-surface p-6">
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600">
-                <Icon className="h-7 w-7 text-emerald-950" strokeWidth={1.9} />
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-700">
+                <Icon className="h-7 w-7 text-brand-950" strokeWidth={1.9} />
               </div>
               <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
               <p className="text-sm text-ink-muted leading-relaxed">{body}</p>
@@ -128,7 +128,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* THE DIFFERENCE */}
       <div className="space-y-8">
         <div className="text-center space-y-2">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">The difference</p>
+          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">The difference</p>
           <h2 className="text-2xl sm:text-3xl font-black text-white">Stop negotiating on their turf</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
@@ -143,12 +143,12 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
               ))}
             </ul>
           </div>
-          <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-b from-emerald-500/10 to-surface p-7">
-            <h3 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-emerald-400">With TrimScout</h3>
+          <div className="rounded-2xl border-2 border-brand-500 bg-gradient-to-b from-brand-500/10 to-surface p-7">
+            <h3 className="mb-4 text-xs font-extrabold uppercase tracking-wider text-brand-400">With TrimScout</h3>
             <ul className="space-y-3 text-sm text-ink-light">
               {WITH_TRIMSCOUT.map((t) => (
                 <li key={t} className="flex gap-3">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
                   {t}
                 </li>
               ))}
@@ -160,7 +160,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       {/* HOW IT WORKS */}
       <div className="space-y-8">
         <div className="text-center space-y-2">
-          <p className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">How it works</p>
+          <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">How it works</p>
           <h2 className="text-2xl sm:text-3xl font-black text-white">From link to quote in three steps</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -180,7 +180,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       </div>
 
       {/* FINAL CTA */}
-      <div className="rounded-3xl border border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-10 text-center space-y-5">
+      <div className="rounded-3xl border border-brand-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-10 text-center space-y-5">
         <div className="max-w-xl mx-auto space-y-2">
           <h2 className="text-2xl sm:text-3xl font-black text-white">
             Know the real price before you set foot in a dealership
@@ -193,7 +193,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           type="button"
           onClick={() => onStartWizard("intro_footer")}
           data-testid="cta-request-quote-intro-footer"
-          className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-emerald-400 transition-all shadow-xl shadow-emerald-500/20 active:scale-95"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-brand-400 transition-all shadow-xl shadow-brand-500/20 active:scale-95"
         >
           <Zap className="h-4 w-4 fill-black" />
           <span>Request a Quote</span>

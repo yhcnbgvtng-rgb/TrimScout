@@ -61,6 +61,9 @@ export async function runSweep({
   stores,
   startedAt,
   sources = ["nightly"],
+  // Cross-box protection (see syncFreshness.js): only retire rows this box wrote, or rows nobody has seen since foreignBefore.
+  sourceBox = null,
+  foreignBefore = null,
   batchStores = 50,
   concurrency = 1,
   startIndex = 0,
@@ -73,7 +76,11 @@ export async function runSweep({
   retry = { batch: { retries: 3, delayMs: 5000, factor: 2, maxDelayMs: 60_000 }, store: { retries: 1, delayMs: 3000 } },
   maxConsecutiveStoreFailures = 5,
 }) {
-  const sorted = [...new Set(stores)].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
+  // The dealership directory API returns ids as strings ("123"), and Number.isFinite("123") is false — without this
+  // coercion every store was dropped, so the sweep made no calls and reported mode "none" (seen on box2, 2026-10-05).
+  const asStoreId = (id) => (typeof id === "string" && /^\d+$/.test(id.trim()) ? Number(id) : id);
+  const ownership = sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {};
+  const sorted = [...new Set(stores.map(asStoreId))].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
   const batches = [];
   for (let i = Math.min(startIndex, sorted.length); i < sorted.length; i += batchStores) batches.push({ start: i, ids: sorted.slice(i, i + batchStores) });
 
@@ -93,7 +100,7 @@ export async function runSweep({
     storeCalls++;
     usedPerStore = true;
     try {
-      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
+      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources, ...ownership }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
       if (counts) consecutiveStoreFailures = 0;
       return { removed: r?.removed ?? 0, ok: true };
     } catch (err) {
@@ -114,7 +121,7 @@ export async function runSweep({
       assertLock();
       batchCalls++;
       try {
-        const r = await withRetry(() => api(SWEEP_PATH, { dealerIds: batch.ids, seenAfter: startedAt, sources }), {
+        const r = await withRetry(() => api(SWEEP_PATH, { dealerIds: batch.ids, seenAfter: startedAt, sources, ...ownership }), {
           ...retry.batch,
           sleep,
           shouldRetry: heavyCallShouldRetry(),

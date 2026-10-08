@@ -7,6 +7,7 @@
 // resolver used by the crawler AND by the deals-API write path (the API is the choke point that
 // also catches stale shards and not-yet-updated boxes), and by the one-shot backfill script.
 import { VIN5_NAMEPLATE, VIN3_PURE_NAMEPLATE } from './stellantisVinTable.js';
+import { canonicalMake } from './ingestGuards.js';
 
 export const UMBRELLA_MAKE = 'Stellantis';
 
@@ -101,12 +102,13 @@ export function resolveUmbrellaMake({ vin, model } = {}) {
 // The one entry point for every write path. Idempotent; never returns "Stellantis".
 //  - nameplate spelling variants collapse to the canonical spelling (RAM/Ram → Ram, Fiat/FIAT → FIAT)
 //  - the umbrella make is resolved from VIN/model
-//  - any other make (a Ford trade-in the crawler already labeled correctly, or blank) is untouched
+//  - any other make (a Ford trade-in the crawler already labeled correctly, or blank) keeps its make; only its
+//    capitalization is canonicalized (LEXUS -> Lexus)
 // An unresolvable umbrella row yields null rather than re-storing the umbrella name.
 export function normalizeMakeForWrite({ make, vin, model } = {}) {
   const np = canonicalNameplate(make);
   if (np) return np;
   if (isUmbrellaMake(make)) return resolveUmbrellaMake({ vin, model }).make;
-  const raw = String(make == null ? '' : make).trim();
-  return raw || null;
+  // Any other make: one canonical spelling (LEXUS / lexus / Lexus -> Lexus), see ingestGuards.js.
+  return canonicalMake(make);
 }

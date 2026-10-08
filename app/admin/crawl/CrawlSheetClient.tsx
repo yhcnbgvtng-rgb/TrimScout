@@ -220,7 +220,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
       <main ref={menusRef} className="mx-auto max-w-[1800px] px-4 py-6 sm:px-6 lg:px-8 space-y-4">
         <div className="rounded-3xl border border-border-strong bg-surface p-5 shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 to-blue-500/20 text-emerald-400 border border-emerald-500/40 shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/30 to-blue-500/20 text-brand-400 border border-brand-500/40 shadow-inner">
               <Table2 className="h-6 w-6" />
             </div>
             <div>
@@ -231,7 +231,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
               </p>
               <div className="mt-2 inline-flex rounded-xl border border-border bg-surface-elevated p-0.5">
                 {(["dealers", "vehicles"] as const).map((t) => (
-                  <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg px-3 py-1 text-[11px] font-black uppercase tracking-wider ${tab === t ? "bg-emerald-500 text-black" : "text-ink-muted hover:text-white"}`}>
+                  <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg px-3 py-1 text-[11px] font-black uppercase tracking-wider ${tab === t ? "bg-brand-500 text-black" : "text-ink-muted hover:text-white"}`}>
                     {t === "dealers" ? `Dealers${rows.length ? ` · ${rows.length.toLocaleString()}` : ""}` : "Vehicles"}
                   </button>
                 ))}
@@ -242,7 +242,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
             <div className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-[11px] font-bold text-ink-light tabular-nums">
               <span className="text-white">{sorted.length.toLocaleString()}</span> of {rows.length.toLocaleString()} rows
               <span className="text-ink-faint"> · </span>{stats.named.toLocaleString()} named<span className="text-ink-faint"> · </span>{stats.emails.toLocaleString()} personal emails
-              <span className="text-ink-faint"> · </span><span className="text-emerald-400">{stats.ready.toLocaleString()} contact-ready</span>
+              <span className="text-ink-faint"> · </span><span className="text-brand-400">{stats.ready.toLocaleString()} contact-ready</span>
             </div>
             <button type="button" onClick={() => void load()} disabled={loading} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white transition-all disabled:opacity-50">
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload
@@ -255,14 +255,14 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
                 <div className="absolute right-0 mt-1.5 w-56 rounded-xl border border-border bg-surface-elevated shadow-2xl p-2 z-30 grid grid-cols-1 gap-0.5">
                   {CRAWL_SHEET_COLUMNS.map((c) => (
                     <label key={c.key} className="flex items-center gap-2 rounded-lg px-2 py-1 text-[11px] font-semibold text-ink-light hover:bg-surface cursor-pointer">
-                      <input type="checkbox" checked={!hidden.has(c.key)} onChange={() => { if (c.key === "notes" && hidden.has("notes") && notesState === "none") void loadNotes(); setHidden((h) => { const n = new Set(h); if (n.has(c.key)) n.delete(c.key); else n.add(c.key); return n; }); }} className="accent-emerald-500" />
+                      <input type="checkbox" checked={!hidden.has(c.key)} onChange={() => { if (c.key === "notes" && hidden.has("notes") && notesState === "none") void loadNotes(); setHidden((h) => { const n = new Set(h); if (n.has(c.key)) n.delete(c.key); else n.add(c.key); return n; }); }} className="accent-brand-500" />
                       {c.label}
                     </label>
                   ))}
                 </div>
               )}
             </div>
-            <button type="button" onClick={download} disabled={loading || sorted.length === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50">
+            <button type="button" onClick={download} disabled={loading || sorted.length === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20 transition-all disabled:opacity-50">
               <Download className="h-3.5 w-3.5" /> Download CSV ({sorted.length.toLocaleString()})
             </button>
           </div>}
@@ -333,7 +333,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
                     style={{ width: COL_WIDTH[c.key] || 140 }}
                   >
                     <span className="truncate">{c.label}</span>
-                    {sort.key === c.key ? (sort.dir === 1 ? <ArrowUp className="h-3 w-3 text-emerald-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-emerald-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />}
+                    {sort.key === c.key ? (sort.dir === 1 ? <ArrowUp className="h-3 w-3 text-brand-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-brand-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />}
                   </button>
                 ))}
               </div>
@@ -348,17 +348,17 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
                     return (
                       <div
                         key={r.id}
-                        className={`absolute left-0 right-0 flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`}
+                        className={`absolute left-0 right-0 flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-brand-500/5`}
                         style={{ top: idx * ROW_H, height: ROW_H }}
                       >
                         {columns.map((c) => {
                           const v = crawlRowCell(r, c.key);
                           const isLink = (c.key === "website" || c.key === "source") && /^https?:\/\//.test(v);
                           const tone =
-                            c.key === "contactReady" && r.contactReady ? "text-emerald-400 font-bold"
-                            : c.key === "emailKind" ? (r.emailKind === "named" ? "text-emerald-300" : r.emailKind === "generic" ? "text-amber-300" : "text-ink-faint")
+                            c.key === "contactReady" && r.contactReady ? "text-positive-400 font-bold"
+                            : c.key === "emailKind" ? (r.emailKind === "named" ? "text-positive-300" : r.emailKind === "generic" ? "text-amber-300" : "text-ink-faint")
                             : c.key === "staffPage" ? (r.staffPage === "captured" ? "text-ink-light" : r.staffPage === "blocked" ? "text-amber-300" : "text-ink-faint")
-                            : c.key === "inStock" || c.key === "newCount" || c.key === "priceDrops" ? `tabular-nums justify-end ${Number(v) > 0 ? (c.key === "priceDrops" ? "text-emerald-300" : "text-ink-light") : "text-ink-faint"}`
+                            : c.key === "inStock" || c.key === "newCount" || c.key === "priceDrops" ? `tabular-nums justify-end ${Number(v) > 0 ? (c.key === "priceDrops" ? "text-positive-300" : "text-ink-light") : "text-ink-faint"}`
                             : c.key === "contactEmail" || c.key === "phone" || c.key === "zip" ? "font-mono text-ink-light"
                             : c.key === "dealerName" ? "font-semibold text-white"
                             : "text-ink-light";
@@ -377,7 +377,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
           </div>
         </div>
         <p className="text-[11px] text-ink-faint max-w-3xl">
-          <span className="text-emerald-400 font-bold">Contact-ready</span> = a named person at a personal mailbox who hasn&apos;t opted out — the only rows a quote request is sent to. Generic inboxes (sales@, info@) are kept on file but never emailed. The CSV contains the rows and columns currently shown, in the order shown.
+          <span className="text-brand-400 font-bold">Contact-ready</span> = a named person at a personal mailbox who hasn&apos;t opted out — the only rows a quote request is sent to. Generic inboxes (sales@, info@) are kept on file but never emailed. The CSV contains the rows and columns currently shown, in the order shown.
         </p>
         </>}
       </main>

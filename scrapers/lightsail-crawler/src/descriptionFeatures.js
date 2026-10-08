@@ -91,6 +91,31 @@ const MARKETING_PROSE_MARKERS = [
     /if you like this vehicle/i,
 ];
 
+
+// Splits a description into candidate features on newlines and on commas/periods — but never INSIDE
+// parentheses ("Multi-Information Display (MID, ...)" used to be cut after "(MID", leaving a truncated
+// "(MID" label and orphan fragments) and never BETWEEN TWO DIGITS ("12.3", "2.0-amp", "$1,299").
+// A newline always ends an item and resets paren depth, so one unclosed "(" can't swallow the rest of
+// the description.
+export function splitFeatureText(text) {
+    const items = [];
+    let cur = '';
+    let depth = 0;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === '\n') { items.push(cur); cur = ''; depth = 0; continue; }
+        if (ch === '(') depth++;
+        else if (ch === ')' && depth > 0) depth--;
+        if ((ch === ',' || ch === '.') && depth === 0) {
+            const betweenDigits = /\d/.test(text[i - 1] || '') && /\d/.test(text[i + 1] || '');
+            if (!betweenDigits) { items.push(cur); cur = ''; continue; }
+        }
+        cur += ch;
+    }
+    items.push(cur);
+    return items;
+}
+
 // Extracts a real, dealer-published feature list from a VDP's free-text
 // description field (used on DealerOn and similar platforms). This is
 // genuinely written by the dealer for this specific vehicle, but unlike
@@ -123,7 +148,7 @@ export function parseFeaturesFromDescription(description) {
     // shredded prices and specs into fake "features" — confirmed live 2026-09-28 in the Honda CR-V
     // facet: "$899.00 Dealer Document Processing Fee" became "00 Dealer Document Processing Fee",
     // "2.0-amp USB port" became "0-amp port in center console".
-    let rawItems = text.split(/\n|[,.](?!\d)|(?<!\d)[,.]/).map((s) => s.trim());
+    let rawItems = splitFeatureText(text).map((s) => s.trim());
 
     // Some descriptions mix a genuine bulleted feature list with trailing
     // prose in the same field ("- Sport Chrono Package ... The vehicle has

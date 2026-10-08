@@ -41,10 +41,11 @@ export function CounterComparison({ sheet, beforeLabel = "Dealer quoted", afterL
                 <td className="px-3 py-1.5">
                   {r.label}
                   {r.locked ? <span className="ml-1 text-[9px] uppercase tracking-wide text-ink-faint">fixed</span> : null}
+                  {r.note ? <span className="block text-[9px] font-normal normal-case tracking-normal text-ink-faint" data-testid="tax-as-quoted-note">({r.note})</span> : null}
                 </td>
                 <td className="px-3 py-1.5 text-right">{fmtRow(r.before, r.format)}</td>
                 <td className={`px-3 py-1.5 text-right ${moved && !r.total ? "text-sky-200" : ""}`}>{fmtRow(r.after, r.format)}</td>
-                <td className={`px-3 py-1.5 text-right ${moved ? (r.delta < 0 ? "text-emerald-300" : "text-amber-300") : "text-ink-faint"}`}>{moved ? fmtRow(r.delta, r.format) : "·"}</td>
+                <td className={`px-3 py-1.5 text-right ${moved ? (r.delta < 0 ? "text-brand-300" : "text-amber-300") : "text-ink-faint"}`}>{moved ? fmtRow(r.delta, r.format) : "·"}</td>
               </tr>
             );
           })}

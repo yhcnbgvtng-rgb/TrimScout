@@ -127,7 +127,9 @@ export async function buildBoxReport(driverSummary, config = {}) {
       if (brandResult.status === 'skipped') continue; // 0 dealers for this brand — nothing ran
       const dealerCount = brandResult.dealerCount || 0;
       rooftopsAttempted += dealerCount;
+      // A sharded brand with one failed shard is not 'ok', but the shards that finished did crawl their rooftops.
       if (brandResult.status === 'ok') rooftopsCompleted += dealerCount;
+      else if (brandResult.dealersInOkShards > 0) rooftopsCompleted += brandResult.dealersInOkShards;
       if (dealerCount > 0 && Number.isFinite(brandResult.durationMs)) {
         secondsPerRooftopSamples.push(brandResult.durationMs / 1000 / dealerCount);
       }

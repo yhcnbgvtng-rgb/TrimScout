@@ -31,6 +31,7 @@
 // read/write cost was.
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { readJsonLarge } from './bigJson.js';
 
 function requireState(state, fnName) {
   if (!state || typeof state !== 'string') {
@@ -93,9 +94,9 @@ export async function readAllInventoryShards(cwd = process.cwd()) {
   const all = [];
   for (const state of states) {
     try {
-      const raw = await fs.readFile(inventoryShardPath(state, cwd), 'utf-8');
-      const records = JSON.parse(raw);
-      if (Array.isArray(records)) all.push(...records);
+      const records = await readJsonLarge(inventoryShardPath(state, cwd));
+      // A loop, not all.push(...records): spreading a six-figure array into one call overflows the argument limit.
+      if (Array.isArray(records)) for (const r of records) all.push(r);
     } catch {
       // Skip: a corrupt or transiently-mid-write shard shouldn't blank out
       // every other state's data for a read-only nationwide view.

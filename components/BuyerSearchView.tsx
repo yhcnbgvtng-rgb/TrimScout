@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, X } from "lucide-react";
+import { ArrowDown, ArrowUp, MapPin, X } from "lucide-react";
 import type { DropdownOption } from "./search/SearchableDropdown";
 import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
+import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
 import { useRouter } from "next/navigation";
 
@@ -81,7 +82,7 @@ const EMPTY_FILTERS: Filters = {
 // trigger can say "3 more filters" instead of a generic icon with no idea how many are hiding.
 function countMoreFilters(f: Filters): number {
   return (
-    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles, f.sort].filter(Boolean).length +
+    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles].filter(Boolean).length +
     (f.possibleDemo ? 1 : 0)
   );
 }
@@ -104,7 +105,11 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
   if (f.possibleDemo) sp.set("possibleDemo", "1");
   if (f.zip) sp.set("zip", f.zip);
   if (f.radiusMiles && f.make && f.zip) sp.set("radiusMiles", f.radiusMiles);
-  if (f.sort) sp.set("sort", f.sort);
+  if (f.sort) {
+    sp.set("sort", f.sort);
+    // Blank values after every real value in both directions (see lib/buyerSort.ts). Not sent without a sort: the default order's plan is tuned and must not change.
+    if (parseSort(f.sort)?.key !== "distance") sp.set("nullsLast", "1");
+  }
   if (extra.limit) sp.set("limit", String(extra.limit));
   if (extra.offset) sp.set("offset", String(extra.offset));
   return sp.toString();
@@ -158,6 +163,10 @@ export function BuyerSearchView() {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  // A header sort that could not be applied (too slow for this many vehicles) or is not offered yet — shown above the table.
+  const [sortNote, setSortNote] = useState<string | null>(null);
+  // The sort a header click is waiting on: if its request fails the previous sort comes back and the old results stay on screen.
+  const sortAttemptRef = useRef<{ prev: string; label: string } | null>(null);
 
   // State + Make counts, cross-scoped by each other — always fetched (they're always visible).
   // Model/trim counts ride along on the same call whenever make/model are set; the box only
@@ -249,16 +258,35 @@ export function BuyerSearchView() {
       if (requestId !== runSearchRef.current) return; // a newer request has since superseded this one
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json?.error) {
+        const attempt = sortAttemptRef.current;
+        if (attempt && offset === 0) {
+          // A header sort that failed or timed out: put the previous sort back, keep the results on screen, say why.
+          sortAttemptRef.current = null;
+          setFilters((fl) => ({ ...fl, sort: attempt.prev }));
+          setApplied((a) => (a ? { ...a, sort: attempt.prev } : a));
+          setSortNote(SORT_TIMEOUT_NOTE(attempt.label));
+          setSearchError(null);
+          return;
+        }
         setSearchError(typeof json?.error === "string" ? json.error : "Could not search inventory.");
         if (offset === 0) setResults(null);
         return;
       }
+      sortAttemptRef.current = null;
       setSearchError(null);
       const lastPageCount = Array.isArray(json.vehicles) ? json.vehicles.length : 0;
       setResults((prev) => (offset > 0 && prev ? { ...json, lastPageCount, vehicles: [...prev.vehicles, ...json.vehicles] } : { ...json, lastPageCount }));
     } catch (e) {
       if ((e as { name?: string })?.name === "AbortError") return;
       if (requestId !== runSearchRef.current) return;
+      const attempt = sortAttemptRef.current;
+      if (attempt && offset === 0) {
+        sortAttemptRef.current = null;
+        setFilters((fl) => ({ ...fl, sort: attempt.prev }));
+        setApplied((a) => (a ? { ...a, sort: attempt.prev } : a));
+        setSortNote(SORT_TIMEOUT_NOTE(attempt.label));
+        return;
+      }
       setSearchError("Could not reach the search service.");
       if (offset === 0) setResults(null);
     } finally {
@@ -277,11 +305,29 @@ export function BuyerSearchView() {
   const submitSearch = () => {
     if (blockedReason) return;
     setMoreOpen(false);
+    setSortNote(null);
     // A fresh object every time, so pressing Search again re-runs the same filters on purpose.
     setApplied({ ...filters });
   };
   // Filters edited since the last Search — the results on screen no longer match the panel.
   const dirty = applied !== null && JSON.stringify(applied) !== JSON.stringify(filters);
+
+  // Clicking a column header: ascending, then descending, then cleared. It re-runs the search already on screen (the applied filters,
+  // not unapplied edits in the panel) with the new sort, and the server orders the WHOLE result set. One click = one request: clicks
+  // are ignored while a search is loading, so a burst cannot become a burst of box queries.
+  const onSort = (column: SortableColumn) => {
+    if (!applied || searchLoading) return;
+    const label = TABLE_COLUMNS.find((c) => c.key === column)?.label || column;
+    const next = nextSort(applied.sort, column);
+    if (next) {
+      const why = sortBlockedReason(column, Boolean(applied.model), label);
+      if (why) { setSortNote(why); return; }
+    }
+    setSortNote(null);
+    sortAttemptRef.current = next ? { prev: applied.sort, label } : null; // clearing back to the default order never needs a revert
+    setFilters((f) => ({ ...f, sort: next }));
+    setApplied((a) => (a ? { ...a, sort: next } : a));
+  };
 
   const toggleOptionKey = (key: string) => {
     setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
@@ -298,7 +344,8 @@ export function BuyerSearchView() {
   const clearMore = () =>
     setFilters((f) => ({
       ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
-      exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: "",
+      // The header sort is kept (it is not a filter); only a Distance sort goes, because clearing the ZIP removes that column.
+      exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
 
   // Counts are hidden while the facet request is in flight or has failed, so a stale number is never shown (#389).
@@ -311,19 +358,19 @@ export function BuyerSearchView() {
   const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => o.label), [catalogOptions]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 accent-emerald-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-emerald-500">
+    <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
 
       <div className="mb-6">
         <div className="flex flex-wrap items-center gap-2">
-          <SinglePill accent="emerald" label="State" options={shownCounts(stateOptions)} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
-          <SinglePill accent="emerald" label="Make" options={shownCounts(makeOptions)} value={filters.make} loading={facetsLoading} onChange={setMake} />
-          <SinglePill accent="emerald" label="Model" options={shownCounts(modelOptions)} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
-          <SinglePill accent="emerald" label="Trim" options={shownCounts(trimOptions)} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
-          <MultiPill accent="emerald" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."} />
-          <PillShell accent="emerald" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
+          <SinglePill accent="brand" label="State" options={shownCounts(stateOptions)} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
+          <SinglePill accent="brand" label="Make" options={shownCounts(makeOptions)} value={filters.make} loading={facetsLoading} onChange={setMake} />
+          <SinglePill accent="brand" label="Model" options={shownCounts(modelOptions)} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
+          <SinglePill accent="brand" label="Trim" options={shownCounts(trimOptions)} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
+          <MultiPill accent="brand" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."} />
+          <PillShell accent="brand" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
             {() => (
               <div
                 onKeyDown={(e) => {
@@ -333,7 +380,7 @@ export function BuyerSearchView() {
                 className="space-y-3 p-3">
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
-                  <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+                  <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
                     <option value="">New + used</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
@@ -343,45 +390,45 @@ export function BuyerSearchView() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price min</label>
-                    <input type="number" value={filters.priceMin} onChange={(e) => setFilters((f) => ({ ...f, priceMin: e.target.value }))} placeholder="$0" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                    <input type="number" value={filters.priceMin} onChange={(e) => setFilters((f) => ({ ...f, priceMin: e.target.value }))} placeholder="$0" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price max</label>
-                    <input type="number" value={filters.priceMax} onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))} placeholder="No max" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                    <input type="number" value={filters.priceMax} onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))} placeholder="No max" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year min</label>
-                    <input type="number" value={filters.yearMin} onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                    <input type="number" value={filters.yearMin} onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year max</label>
-                    <input type="number" value={filters.yearMax} onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                    <input type="number" value={filters.yearMax} onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                   </div>
                 </div>
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Max odometer</label>
-                  <input type="number" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} placeholder="Any mileage" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                  <input type="number" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} placeholder="Any mileage" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Exterior</label>
-                    <select value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+                    <select value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
                       <option value="">Any</option>
                       {exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Interior</label>
-                    <select value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+                    <select value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
                       <option value="">Any</option>
                       {interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
                 <label className="flex items-center gap-2 text-xs text-ink-light">
-                  <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-emerald-500" />
+                  <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-brand-500" />
                   Include likely demo/loaner vehicles
                 </label>
                 <div className="border-t border-border pt-3">
@@ -389,11 +436,11 @@ export function BuyerSearchView() {
                     <MapPin className="h-3 w-3" /> Near
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    <input type="text" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none" />
+                    <input type="text" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
                     <input
                       type="number" value={filters.radiusMiles} onChange={(e) => setFilters((f) => ({ ...f, radiusMiles: e.target.value }))} placeholder="Radius (mi)"
                       disabled={!filters.make || !filters.zip} title={!filters.zip ? "Enter a ZIP code to search within a radius" : !filters.make ? "Pick a make to search within a radius" : undefined}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-emerald-500/50 focus:outline-none disabled:opacity-40"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none disabled:opacity-40"
                     />
                   </div>
                   {filters.radiusMiles && (!filters.make || !filters.zip) && (
@@ -402,7 +449,7 @@ export function BuyerSearchView() {
                 </div>
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Sort</label>
-                  <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-emerald-500/50 focus:outline-none">
+                  <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
                     <option value="">Best match</option>
                     <option value="price:asc">Price: low to high</option>
                     <option value="price:desc">Price: high to low</option>
@@ -424,7 +471,7 @@ export function BuyerSearchView() {
             onClick={submitSearch}
             disabled={Boolean(blockedReason) || searchLoading}
             title={blockedReason ?? undefined}
-            className="ml-2 text-sm font-extrabold text-emerald-400 transition-colors hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+            className="ml-2 text-sm font-extrabold text-brand-400 transition-colors hover:text-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {searchLoading ? "Searching…" : "Search"}
           </button>
@@ -460,7 +507,8 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
-            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
+            {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
+            {results.vehicles.length > 0 && <VehicleTable sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
@@ -468,7 +516,7 @@ export function BuyerSearchView() {
             )}
             {hasMore && (
               <div className="mt-6 flex justify-center">
-                <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-emerald-500/50 hover:text-white disabled:opacity-50">
+                <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-brand-500/50 hover:text-white disabled:opacity-50">
                   {searchLoading ? "Loading…" : "Load more"}
                 </button>
               </div>
@@ -508,29 +556,63 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
 ];
 const ROW_H = 32;
 
-function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }: {
+function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
   vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
   onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
+  /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
+  sort: string; onSort: (column: SortableColumn) => void; sortBusy: boolean;
 }) {
   const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
   const totalW = cols.reduce((s, c) => s + c.w, 0);
   const picked = new Set(picks.map((p) => p.key));
+  // The scroller's own bottom edge — and with it the horizontal scrollbar and the last rows — must stay above the fixed picks bar.
+  // Its top moves with the filters above it, so measure it and cap the height at: viewport − its top − the bar's height (--picks-bar-h,
+  // published by PicksBar) − a margin. The page also pads its bottom by the bar's height, so everything stays reachable by scrolling.
+  const scroller = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const measure = () => el.style.setProperty("--table-top", `${Math.round(el.getBoundingClientRect().top + window.scrollY)}px`);
+    measure();
+    window.addEventListener("resize", measure);
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    ro?.observe(document.body);
+    return () => { window.removeEventListener("resize", measure); ro?.disconnect(); };
+  });
   return (
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
-      <div className="overflow-auto" style={{ maxHeight: "calc(100vh - 260px)", minHeight: 120 }}>
+      <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
           <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
-            {cols.map((c) => (
-              <div key={c.key} className={`flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
-                <span className="truncate">{c.label}</span>
-              </div>
-            ))}
+            {cols.map((c) => {
+              const sortable = isSortableColumn(c.key);
+              const active = activeSort(sort);
+              const here = sortable && active?.column === c.key ? active : null;
+              return (
+                <div key={c.key} role="columnheader" aria-sort={sortable ? ariaSortFor(sort, c.key) : undefined} className={`flex shrink-0 items-center border-r border-gray-300 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
+                  {sortable ? (
+                    <button
+                      type="button"
+                      onClick={() => onSort(c.key as SortableColumn)}
+                      disabled={sortBusy}
+                      title={`Sort by ${c.label} — click for ${here ? (here.dir === "asc" ? "descending" : "no sort") : "ascending"}`}
+                      className={`flex h-full w-full min-w-0 items-center gap-1 px-2.5 uppercase tracking-wider hover:bg-gray-200 focus-visible:outline-2 disabled:cursor-wait ${c.right ? "justify-end" : ""}`}
+                    >
+                      <span className="truncate">{c.label}</span>
+                      {here && (here.dir === "asc" ? <ArrowUp aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-asc" /> : <ArrowDown aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-desc" />)}
+                    </button>
+                  ) : (
+                    <span className="truncate px-2.5">{c.label}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
           {vehicles.map((v, idx) => {
             const key = vehicleKey(v);
             const isViewed = viewed.has(key);
             return (
-              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-emerald-500/5`} style={{ height: ROW_H }}>
+              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-brand-500/5`} style={{ height: ROW_H }}>
                 {cols.map((c) => {
                   const text = c.show ? c.show(v) : "";
                   const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
@@ -545,12 +627,12 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
                           aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
-                          className="h-3.5 w-3.5 accent-emerald-500"
+                          className="h-3.5 w-3.5 accent-brand-500"
                         />
                       ) : c.key === "listing" ? (
                         <span className="flex min-w-0 items-center gap-2">
                           {v.vdpUrl ? (
-                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-emerald-400 hover:underline">View at dealer ↗</Link>
+                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-brand-400 hover:underline">View at dealer ↗</Link>
                           ) : (
                             <span className="truncate text-ink-faint">No link</span>
                           )}
@@ -565,6 +647,7 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
               </div>
             );
           })}
+          <div aria-hidden style={{ height: 10 }} />
         </div>
       </div>
     </div>
@@ -576,29 +659,47 @@ const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
   const router = useRouter();
+  // Publish the bar's real height (it grows when it wraps on a phone or shows a note) as --picks-bar-h, so the page's bottom
+  // padding and the results scroller can stay clear of it.
+  const bar = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = bar.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--picks-bar-h", `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    publish();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(publish);
+    ro?.observe(el);
+    window.addEventListener("resize", publish);
+    return () => { ro?.disconnect(); window.removeEventListener("resize", publish); root.style.removeProperty("--picks-bar-h"); };
+  }, []);
   // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
   const requestQuote = () => {
     writeQuoteSeed(window.sessionStorage, state.picks);
     router.push("/?quote=1");
   };
-  const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit } = state;
+  const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit, notice, hasAnyPicks } = state;
   const status =
     saveStatus === "saving" ? "Saving…"
-    : saveStatus === "saved" ? (signedIn ? "Saved to your account" : "Saved for this session")
+    : saveStatus === "saved" ? (signedIn ? "Saved to your account for 7 days" : "Saved on this device for 7 days")
     : saveStatus === "saved-local" ? "Saved on this device"
+    : saveStatus === "cleared" ? "Picks cleared"
     : dirty && picks.length > 0 ? "Not saved yet" : "";
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-surface-elevated/95 backdrop-blur" role="region" aria-label="Picked vehicles">
+    <div ref={bar} className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-surface-elevated/95 backdrop-blur" role="region" aria-label="Picked vehicles">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+        {notice && (
+          <p role="status" aria-live="polite" data-testid="picks-notice" className="basis-full text-[11px] font-semibold text-amber-300">{notice}</p>
+        )}
         <span className="text-xs font-bold text-white tabular-nums">Picked {picks.length} of {MAX_PICKS}</span>
         {picks.length === 0 ? (
           <span className="text-xs text-ink-faint">Tick up to 3 vehicles to use in a quote. They stay here while you search again.</span>
         ) : (
-          <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <ul className="flex min-w-[16rem] flex-1 flex-wrap items-center gap-2">
             {picks.map((p) => (
-              <li key={p.key} className="flex max-w-xs items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 py-1 pl-3 pr-1.5 text-[11px] text-emerald-200">
-                <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-emerald-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
-                <button type="button" onClick={() => state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-emerald-300/70 hover:text-white"><X className="h-3 w-3" /></button>
+              <li key={p.key} className="flex min-w-0 max-w-full items-center gap-1.5 sm:max-w-xs rounded-full border border-brand-500/40 bg-brand-500/10 py-1 pl-3 pr-1.5 text-[11px] text-brand-200">
+                <span className="truncate" title={`${pickLabel(p)} · ${p.dealerName}${p.price != null ? ` · $${p.price.toLocaleString()}` : ""}`}>{pickLabel(p)}<span className="text-brand-300/60"> · {p.dealerName}</span>{p.price != null && <span> · ${p.price.toLocaleString()}</span>}</span>
+                <button type="button" onClick={() => void state.removePick(p.key)} aria-label={`Remove ${pickLabel(p)}`} className="rounded-full p-0.5 text-brand-300/70 hover:text-white"><X className="h-3 w-3" /></button>
               </li>
             ))}
           </ul>
@@ -607,8 +708,9 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
           <span role="status" aria-live="polite" className={`text-[11px] ${limitNotice ? "font-semibold text-amber-300" : "text-ink-faint"}`}>
             {limitNotice ? "You can pick up to 3 vehicles. Remove one to add another." : status || (atLimit ? "3 of 3 picked" : "")}
           </span>
-          <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
-          <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-emerald-400 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
+          <button type="button" onClick={requestQuote} disabled={picks.length === 0} className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-extrabold text-black hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-40">Request a quote{picks.length > 1 ? ` (${picks.length})` : ""}</button>
+          <button type="button" onClick={() => void state.save()} disabled={picks.length === 0 || !dirty || saveStatus === "saving"} className="text-sm font-extrabold text-brand-400 hover:text-brand-300 disabled:cursor-not-allowed disabled:opacity-40">Save picks</button>
+          <button type="button" onClick={() => void state.clearPicks()} disabled={!hasAnyPicks} className="text-sm font-bold text-ink-muted hover:text-white disabled:cursor-not-allowed disabled:opacity-40">Clear picks</button>
         </div>
       </div>
     </div>

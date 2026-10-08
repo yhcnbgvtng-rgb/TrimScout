@@ -65,7 +65,7 @@ export function DealerEngagementChips({ dealers }: { dealers: DealerEngagementSt
               <span
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
                   dealer.clicked
-                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                    ? "bg-brand-500/15 text-brand-400 border-brand-500/30"
                     : "bg-surface text-ink-faint border-border"
                 }`}
               >
@@ -75,7 +75,7 @@ export function DealerEngagementChips({ dealers }: { dealers: DealerEngagementSt
               <span
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
                   dealer.viewed
-                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                    ? "bg-brand-500/15 text-brand-400 border-brand-500/30"
                     : "bg-surface text-ink-faint border-border"
                 }`}
               >
@@ -85,7 +85,7 @@ export function DealerEngagementChips({ dealers }: { dealers: DealerEngagementSt
               <span
                 className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border ${
                   dealer.responded
-                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                    ? "bg-brand-500/15 text-brand-400 border-brand-500/30"
                     : "bg-surface text-ink-faint border-border"
                 }`}
               >

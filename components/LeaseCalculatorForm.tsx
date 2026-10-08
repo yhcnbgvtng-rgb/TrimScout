@@ -1,5 +1,7 @@
 "use client";
 
+import { counterPriceChanged, TAX_PROMPT_COPY, type CounterSheet } from "../lib/counterSheet";
+import { TaxUpdatePrompt } from "./TaxUpdatePrompt";
 import React, { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem, LEASE_DAS_INTENT_LABELS } from "../lib/leaseQuote";
@@ -59,6 +61,7 @@ export function LeaseCalculatorForm({
   stockNumber,
   prefs,
   initial = null,
+  counterSheet = null,
   onSubmitted,
 }: {
   token: string;
@@ -67,6 +70,8 @@ export function LeaseCalculatorForm({
   prefs: LeaseRequestPrefs;
   /** A prior quote to prefill from (the dealer revising after a buyer counter). */
   initial?: LeaseQuote | null;
+  /** The buyer's counter being answered — a price change makes the dealer update or confirm sales tax first. */
+  counterSheet?: CounterSheet | null;
   onSubmitted: (result: { warnings: string[]; dueAtSigningTotal: number }) => void;
 }) {
   const zipRate = prefs.zip ? getZipCoordinates(prefs.zip).taxRate : null;
@@ -173,12 +178,15 @@ export function LeaseCalculatorForm({
   };
   const validation = useMemo(() => validateLeaseQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber }), [quote, prefs, f.vin, f.stockNumber]);
   const warnings = [...validation.warnings, ...(d.residualDrift ? [`Residual amount ${money(d.residualAmount)} doesn't match ${d.residualPercent}% of MSRP (${money(d.residualFromMsrp)}) — double-check which one is right.`] : [])];
+  const [taxConfirmed, setTaxConfirmed] = useState(false);
+  const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && f.taxesAtSigning === str(initial?.dueAtSigning.taxes);
+  const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : [])];
   const differs = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear;
 
   const submit = async () => {
     setTouched(true);
     setServerError(null);
-    if (validation.errors.length) return;
+    if (errors.length) return;
     setBusy(true);
     try {
       const res = await fetch("/api/quote-invite/lease-quote", {
@@ -198,7 +206,7 @@ export function LeaseCalculatorForm({
   };
 
   // --- render helpers (plain functions: nested components would remount and drop focus) ---
-  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
   const labelCls = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const hintCls = "block text-[10px] text-ink-faint";
   type Fmt = "money" | "percent" | "mf" | "text";
@@ -271,7 +279,7 @@ export function LeaseCalculatorForm({
           </div>
         );
       })}
-      <button type="button" onClick={() => o.setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+      <button type="button" onClick={() => o.setList((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
         <Plus className="h-3 w-3" /> {o.addLabel}
       </button>
       {o.hint ? <span className={hintCls}>{o.hint}</span> : null}
@@ -390,6 +398,7 @@ export function LeaseCalculatorForm({
           {section(
             "7 · Tax",
             <>
+              {counterPriceChanged(counterSheet) ? <TaxUpdatePrompt pending={taxPending} confirmed={taxConfirmed} onConfirm={setTaxConfirmed} /> : null}
               <div className="grid grid-cols-2 gap-3">
                 {field({ k: "taxRatePercent", title: "Sales tax rate", kind: "percent", hint: prefs.zip ? `Estimated for ZIP ${prefs.zip} — edit if you use another rate.` : "Blank = tax estimated at signing." })}
                 {field({ k: "taxesAtSigning", title: "Taxes due at signing", hint: "Defaults to tax on the cap reduction; type your figure to override." })}
@@ -470,9 +479,9 @@ export function LeaseCalculatorForm({
         </aside>
       </div>
 
-      {touched && validation.errors.length ? (
+      {touched && errors.length ? (
         <ul className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300 space-y-0.5" data-testid="calc-errors">
-          {validation.errors.map((e) => (
+          {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}
         </ul>
@@ -486,7 +495,7 @@ export function LeaseCalculatorForm({
         </ul>
       ) : null}
 
-      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50">
+      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
         {busy ? "Submitting…" : "Submit lease quote"}
       </button>
     </div>

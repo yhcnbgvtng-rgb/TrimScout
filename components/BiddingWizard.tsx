@@ -68,6 +68,9 @@ import {
 } from "../lib/linkImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
+import { seedDealersFrom } from "../lib/quoteSeed";
+import { useRequireBuyerLogin } from "./BuyerAccessProvider";
+import { saveGuestToken } from "../lib/guestToken";
 import {
   buildOfferCompareSnapshot,
   collectDealVehicles,
@@ -156,7 +159,7 @@ function QuoteFormatMatrix({
   const eq = QUOTE_EQUATIONS[quoteType];
   const primary = cars[0] || null;
   const opCls = (op: QuoteEquationLine["op"]) =>
-    op === "=" || op === "→" ? "bg-emerald-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white";
+    op === "=" || op === "→" ? "bg-brand-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white";
   return (
     <div className="space-y-3 rounded-xl border border-border bg-surface-elevated px-3.5 py-3" data-testid="quote-format-matrix">
       {/* 1 — the store(s) the request goes to, with the sales contact */}
@@ -188,10 +191,10 @@ function QuoteFormatMatrix({
           spelled out by the lease calculator itself. */}
       {quoteType !== "lease" ? (
       <div className="space-y-1.5" data-testid="format-equation">
-        <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-400">Every dealer returns {eq.returns}</p>
+        <p className="text-[10px] font-bold uppercase tracking-wide text-brand-400">Every dealer returns {eq.returns}</p>
         <div className="space-y-1">
           {eq.lines.map((l) => (
-            <div key={l.label} className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-1.5 ${l.op === "=" || l.op === "→" ? "border-emerald-500/40 bg-emerald-500/5" : "border-border/60 bg-background"}`} data-op={l.op}>
+            <div key={l.label} className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-1.5 ${l.op === "=" || l.op === "→" ? "border-brand-500/40 bg-brand-500/5" : "border-border/60 bg-background"}`} data-op={l.op}>
               <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${opCls(l.op)}`}>{l.op}</span>
               <span className={`text-[11px] ${l.op === "=" || l.op === "→" ? "font-bold text-white" : "text-ink-light"}`}>{l.label}</span>
               {l.note ? <span className="ml-auto text-[10px] text-ink-faint">{l.note}</span> : null}
@@ -227,7 +230,7 @@ function FactoryMustHavePicker({
               type="checkbox"
               checked={isChecked}
               onChange={() => onToggle(opt.name)}
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0"
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
             />
             <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
               {line}
@@ -276,7 +279,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -301,7 +304,7 @@ interface BiddingWizardProps {
    * the buyer in My Deal Tracker on that deal; the wizard's own "sent"
    * screen is only shown when nothing could be sent.
    */
-  onQuoteRequestSent?: (sent: { rfqId: string; rows: Array<{ dealerName: string; sent: boolean; message?: string }> }) => void;
+  onQuoteRequestSent?: (sent: { rfqId: string; rows: Array<{ dealerName: string; sent: boolean; message?: string }>; trackerPath?: string }) => void;
 }
 
 /** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
@@ -376,7 +379,7 @@ function DealerPicker({
             }
           }}
           placeholder="Dealership name"
-          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
         />
         <input
           type="text"
@@ -384,13 +387,13 @@ function DealerPicker({
           value={zip}
           onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
           placeholder="ZIP"
-          className="w-20 shrink-0 rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+          className="w-20 shrink-0 rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
         />
         <button
           type="button"
           onClick={() => void runSearch()}
           disabled={searching || q.trim().length < 2}
-          className="shrink-0 rounded-lg border border-border px-3 py-2 text-[11px] font-bold text-ink-light hover:border-emerald-500 hover:text-white transition-all disabled:opacity-50"
+          className="shrink-0 rounded-lg border border-border px-3 py-2 text-[11px] font-bold text-ink-light hover:border-brand-500 hover:text-white transition-all disabled:opacity-50"
         >
           {searching ? "Searching…" : "Search"}
         </button>
@@ -410,7 +413,7 @@ function DealerPicker({
                 </span>
                 <span
                   className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                    d.knownNamed ? "bg-emerald-500/15 text-emerald-300" : "bg-border text-ink-muted"
+                    d.knownNamed ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
                   }`}
                 >
                   {d.knownNamed ? "Contact on file" : "No sales contact"}
@@ -534,7 +537,7 @@ function LinkConfirmPanel({
           onChange={(e) => setVin(e.target.value)}
           placeholder="17-character VIN"
           maxLength={17}
-          className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+          className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] uppercase text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
         />
       </div>
 
@@ -567,7 +570,7 @@ function LinkConfirmPanel({
               {isUsedCondition(build.vehicle.condition) || build.buildConfidence === "verified_factory" ? (
                 <span
                   className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                    isUsedCondition(build.vehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-emerald-500/15 text-emerald-300"
+                    isUsedCondition(build.vehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-brand-500/15 text-brand-300"
                   }`}
                   data-testid="confirm-build-badge"
                 >
@@ -579,7 +582,7 @@ function LinkConfirmPanel({
                   href={build.pdfUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300"
+                  className="flex items-center gap-1 text-[10px] font-bold text-brand-400 hover:text-brand-300"
                 >
                   <FileText className="h-3 w-3" />
                   {FORD_BUILD_SHEET_LINK}
@@ -600,10 +603,10 @@ function LinkConfirmPanel({
                 {shown.where ? <span className="text-ink-muted"> · {shown.where}</span> : null}
               </span>
               <span className="block text-[10px] text-ink-muted">
-                <span className={shown.tone === "link" ? "text-emerald-300" : shown.tone === "picked" ? "text-sky-300" : "text-amber-300"}>
+                <span className={shown.tone === "link" ? "text-brand-300" : shown.tone === "picked" ? "text-sky-300" : "text-amber-300"}>
                   {shown.note}
                 </span>
-                {contactNote === true ? <span className="text-emerald-300"> · sales contact on file</span> : null}
+                {contactNote === true ? <span className="text-brand-300"> · sales contact on file</span> : null}
                 {contactNote === false ? (
                   <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales adviser&apos;s email on the Dealers step</span>
                 ) : null}
@@ -683,7 +686,7 @@ function LinkConfirmPanel({
             )
           }
           disabled={busy || !isPlausibleVin(cleanVin)}
-          className="rounded-lg bg-emerald-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
+          className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-brand-400 transition-all disabled:opacity-50"
         >
           {busy ? "Adding…" : shown ? "Confirm & add" : "Add without a dealership"}
         </button>
@@ -737,7 +740,7 @@ function AlternateVinField({
     const hasDiffs = specDiffs.length > 0 || missingDiffs.length > 0 || addedDiffs.length > 0;
     return (
       <div
-        className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4 space-y-3"
+        className="rounded-xl border border-brand-500/40 bg-brand-500/5 p-4 space-y-3"
         data-resolve-path={vehicle.resolvePath || ""}
         data-dealer-from-vdp={dealerFromVdp(vehicle) ? "true" : "false"}
         data-dealer-shown={vehicle.location?.dealerName?.trim() || ""}
@@ -759,9 +762,9 @@ function AlternateVinField({
 
         {/* 2. Quiet status chips. */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">{label} — added</span>
+          <span className="rounded bg-brand-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-brand-300">{label} — added</span>
           {vehicle.buildConfidence !== "dealer_listing_only" ? (
-            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
+            <span className="rounded bg-positive-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-positive-300">Factory verified</span>
           ) : null}
         </div>
 
@@ -798,7 +801,7 @@ function AlternateVinField({
         {/* 4. Must-haves — its own block, chips on their own row. */}
         {report ? (
           <div className="space-y-1.5 border-t border-border/60 pt-3" data-testid="alternate-compare">
-            <p className={`text-[11px] font-semibold ${report.missing.length === 0 ? "text-emerald-300" : "text-amber-200"}`}>
+            <p className={`text-[11px] font-semibold ${report.missing.length === 0 ? "text-brand-300" : "text-amber-200"}`}>
               {mustHaveHeadline(report)} <span className="font-normal text-ink-faint">vs your favorite</span>
             </p>
             {report.total > 1 ? (
@@ -806,7 +809,7 @@ function AlternateVinField({
                 {report.hits.map((h) => (
                   <span
                     key={h.name}
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
                   >
                     {h.present ? "✓ " : "✕ "}
                     {h.name}
@@ -830,7 +833,7 @@ function AlternateVinField({
                   <p className="text-[9px] font-bold uppercase tracking-wide text-ink-faint">Trim · color · drivetrain</p>
                   <div className="flex flex-wrap gap-1.5">
                     {specDiffs.map((c) => (
-                      <span key={c.text} className={`rounded px-1.5 py-0.5 text-[10px] ${c.kind === "same" ? "bg-emerald-500/15 text-emerald-300" : "bg-border text-ink-light"}`}>{c.text}</span>
+                      <span key={c.text} className={`rounded px-1.5 py-0.5 text-[10px] ${c.kind === "same" ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-light"}`}>{c.text}</span>
                     ))}
                   </div>
                 </div>
@@ -866,21 +869,21 @@ function AlternateVinField({
     <div className="space-y-1">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-400" />
           <input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={`${label} — ${VEHICLE_INPUT_PLACEHOLDER} (optional)`}
             aria-label={label}
-            className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
           />
         </div>
         <button
           type="button"
           onClick={onImport}
           disabled={parsing || !value.trim()}
-          className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-emerald-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
+          className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-brand-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
         >
           {parsing ? "Adding…" : "Add"}
         </button>
@@ -934,14 +937,14 @@ function FactoryOptionsCompare({
         {vehicles.map((v, i) => (
           <div
             key={i}
-            className={`rounded-lg border p-2.5 ${i === 0 ? "border-emerald-500/40 bg-emerald-500/5" : "border-border bg-background"}`}
+            className={`rounded-lg border p-2.5 ${i === 0 ? "border-brand-500/40 bg-brand-500/5" : "border-border bg-background"}`}
           >
             <div className="flex flex-wrap gap-1">
-              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${i === 0 ? "bg-emerald-500/15 text-emerald-300" : "bg-border text-ink-light"}`}>
+              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${i === 0 ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-light"}`}>
                 {i === 0 ? "Your pick" : `Alternate ${i}`}
               </span>
               {v.buildConfidence !== "dealer_listing_only" ? (
-                <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
+                <span className="rounded bg-positive-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-positive-300">Factory verified</span>
               ) : null}
             </div>
             <p className="mt-1.5 truncate text-[12px] font-bold text-white">{vehicleLabel(v)}</p>
@@ -964,7 +967,7 @@ function FactoryOptionsCompare({
               const hit = report.hits.find((h) => sameText(h.name, m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "")));
               const present = hit?.present ?? false;
               return (
-                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-emerald-300" : "text-amber-200"}`}>
+                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-brand-300" : "text-amber-200"}`}>
                   {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : <X className="h-3.5 w-3.5 shrink-0" />}
                   {present ? "Included" : "Missing"}
                 </div>
@@ -976,7 +979,7 @@ function FactoryOptionsCompare({
         {reports.map((report, i) => (
           <div key={i} className="flex min-h-[28px] items-center">
             {report.kind === "scored" ? (
-              <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ${report.missing.length === 0 ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-200"}`}>
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ${report.missing.length === 0 ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/15 text-amber-200"}`}>
                 {report.present.length} of {report.total}
               </span>
             ) : (
@@ -1386,7 +1389,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [sentPackage, setSentPackage] = useState<{
     rfqId: string;
     rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }>;
+    /** Guest sends only: the private tracker path (carries the signed link token). */
+    trackerPath?: string;
   } | null>(null);
+  // REQUIRE_BUYER_LOGIN=false: a visitor with no session sends as a guest, identified by this email.
+  const requireLogin = useRequireBuyerLogin();
+  const [guestEmail, setGuestEmail] = useState("");
 
   // A primitive key, so the effect re-runs when the dealerships actually change
   // rather than on every render that rebuilds the array above.
@@ -1540,6 +1548,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     window.location.assign("/signup");
   };
   const authState = wizardAuthState(currentUser);
+  const guestMode = !requireLogin && authState === "signed_out";
 
   useEffect(() => {
     const draft = readQuoteDraft();
@@ -1857,9 +1866,37 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
   const seedList = (seedVehicles || []).slice(0, SEED_SLOTS.length);
-  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null }) => {
+  // A picked car whose listing link named no store keeps the store the search row said it sits at, so step 3's
+  // "Dealerships to ask" lists it (deduped by store, max 3; the buyer unticks to drop one). A store the link did
+  // name is never overwritten.
+  const seedDealerByVin = React.useMemo(() => {
+    const m = new Map<string, { deskId: string; dealerName: string; state: string | null }>();
+    for (const c of seedVehicles || []) {
+      const d = seedDealersFrom([c])[0];
+      if (d) m.set(c.vin.toUpperCase(), d);
+    }
+    return m;
+  }, [seedVehicles]);
+  useEffect(() => {
+    if (!seedDealerByVin.size) return;
+    const stamp = (v: Vehicle | null): Vehicle | null => {
+      const d = v ? seedDealerByVin.get(v.vin.toUpperCase()) : undefined;
+      if (!v || !d || dealerFromVdp(v) || v.location?.dealerConfirmed || v.location?.dealerSource === "buyer_picked") return v;
+      return { ...v, location: { ...v.location, dealerName: d.dealerName, state: d.state || v.location?.state || "", dealerConfirmed: true, dealerSource: "buyer_picked", deskId: d.deskId } };
+    };
+    setSelectedVehicle(stamp);
+    setAltVehicle1(stamp);
+    setAltVehicle2(stamp);
+  }, [seedDealerByVin, selectedVehicle, altVehicle1, altVehicle2]);
+  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
+    const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
+    // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).
+    if (slot === "primary" && listedUsed) setVehicleCondition(car.condition as UsedCondition);
     if (car.vdpUrl && (await parkLink(slot, car.vdpUrl, car.vin))) return;
-    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...(slot === "primary" ? usedOpt : {}), freeDecodeOnly: intent === "alternate" });
+    // An alternate is seated as used only when its listing says so (the effect below has already checked it matches the
+    // primary's kind).
+    const condOpt = slot === "primary" ? (listedUsed ? { condition: car.condition as UsedCondition } : usedOpt) : car.condition === "used" || car.condition === "cpo" ? { condition: car.condition as UsedCondition } : {};
+    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       if (slot === "primary") setParseError(result.error);
       else if (slot === "alt1") setAltError1(result.error);
@@ -1880,11 +1917,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       seedStartedRef.current = seedIdx;
       const slot = SEED_SLOTS[seedIdx];
       const car = seedList[seedIdx];
-      // Used requests are one car (the alternate slots only exist for a new car), so don't park a car in a slot the
-      // buyer can't see — stop here and say so.
-      if (slot !== "primary" && isUsed) {
-        setSeedSkipped(seedList.length - seedIdx);
-        setSeedIdx(seedList.length);
+      // A request is all new or all used: a used car can't sit beside a new one (different quote sheet, no lease).
+      // A car of the other kind is left out and the note says so; the next one still gets its turn.
+      if (slot !== "primary" && (car.condition === "used" || car.condition === "cpo") !== isUsed) {
+        setSeedSkipped((n) => n + 1);
+        setSeedIdx(seedIdx + 1);
         return;
       }
       setSeedIdx(seedIdx + 1);
@@ -2027,6 +2064,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError1(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
+      ...usedOpt,
       freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
@@ -2071,6 +2109,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltError2(null);
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
+      ...usedOpt,
       freeDecodeOnly: intent === "alternate",
     });
     if (!result.ok) {
@@ -2102,12 +2141,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         ? "bg-amber-500/15 text-amber-300"
         : stage === "queued"
           ? "bg-border text-ink-muted"
-          : "bg-emerald-500/15 text-emerald-300";
+          : "bg-brand-500/15 text-brand-300";
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-        <div className="relative w-full max-w-md rounded-2xl border border-emerald-500/40 bg-surface shadow-2xl p-6 space-y-4 animate-fadeIn">
+        <div className="relative w-full max-w-md rounded-2xl border border-brand-500/40 bg-surface shadow-2xl p-6 space-y-4 animate-fadeIn">
           <div className="text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-500/20 text-brand-400">
               <CheckCircle2 className="h-7 w-7" />
             </div>
             <h2 className="mt-3 text-lg font-black text-white">
@@ -2132,20 +2171,20 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           </ul>
           <div className="rounded-xl border border-border bg-surface-elevated py-3 text-center">
             <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Quote request</div>
-            <div className="text-xl font-mono font-black text-emerald-400">{dealReference}</div>
+            <div className="text-xl font-mono font-black text-brand-400">{dealReference}</div>
             <div className="mt-0.5 text-[10px] font-mono text-ink-faint">ref #{sentPackage.rfqId}</div>
           </div>
           <p className="text-[10px] leading-snug text-ink-faint">{NON_BINDING_COPY}</p>
           <div className="flex gap-2">
             <a
-              href={`/rfq/${sentPackage.rfqId}`}
+              href={sentPackage.trackerPath || `/rfq/${sentPackage.rfqId}`}
               className="flex-1 rounded-xl border border-border py-2.5 text-center text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-colors"
             >
               Track this request
             </a>
             <button
               onClick={onClose}
-              className="flex-1 rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95"
+              className="flex-1 rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all active:scale-95"
             >
               Done
             </button>
@@ -2158,8 +2197,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   if (createdDealId) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-        <div className="relative w-full max-w-md rounded-2xl border border-emerald-500/40 bg-surface shadow-2xl p-6 space-y-4 text-center animate-fadeIn">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+        <div className="relative w-full max-w-md rounded-2xl border border-brand-500/40 bg-surface shadow-2xl p-6 space-y-4 text-center animate-fadeIn">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-500/20 text-brand-400">
             <CheckCircle2 className="h-7 w-7" />
           </div>
           <div>
@@ -2183,12 +2222,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               quoting "TS-K7M3Q2" and one quoting "#118" must both be findable. */}
           <div className="rounded-xl border border-border bg-surface-elevated py-3">
             <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Deal Number</div>
-            <div className="text-2xl font-mono font-black text-emerald-400">{dealReference}</div>
+            <div className="text-2xl font-mono font-black text-brand-400">{dealReference}</div>
             <div className="mt-0.5 text-[10px] font-mono text-ink-faint">ref #{createdDealId}</div>
           </div>
           <button
             onClick={handleCloseConfirmation}
-            className="w-full rounded-xl bg-emerald-500 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95"
+            className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all active:scale-95"
           >
             Done
           </button>
@@ -2378,6 +2417,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           stockNumber: primary.stockNumber || null,
           linkPastes: alternateLane ? [] : pastes,
           dealReference,
+          ...(guestMode ? { guestEmail: guestEmail.trim() } : {}),
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -2389,6 +2429,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         return;
       }
       const rfqId = String(json.rfq.id);
+      // A guest's credential for this request: the signed token inside the tracker path.
+      const trackerPath: string | undefined = typeof json.guest?.trackerPath === "string" ? json.guest.trackerPath : undefined;
+      const guestToken = trackerPath ? new URL(trackerPath, "http://x").searchParams.get("t") : null;
+      if (guestToken) saveGuestToken(rfqId, guestToken);
 
       // Invites go one at a time so a per-desk or sister-store block on one
       // never blocks the others, and each row reports its own outcome.
@@ -2401,7 +2445,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         }
         const r = await fetch(`/api/rfqs/${rfqId}/invites`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(guestToken ? { "x-guest-token": guestToken } : {}) },
           body: JSON.stringify({
             dealerName: name,
             dealerState: paste.dealerState,
@@ -2428,10 +2472,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (onQuoteRequestSent && sentRows.some((r) => r.sent)) {
         // The deal is real on the box now — land in the tracker on it. A
         // package where every desk was blocked stays here with the reasons.
-        onQuoteRequestSent({ rfqId, rows: sentRows });
+        onQuoteRequestSent({ rfqId, rows: sentRows, trackerPath });
         return;
       }
-      setSentPackage({ rfqId, rows });
+      setSentPackage({ rfqId, rows, trackerPath });
     } catch {
       setSubmitError("Couldn't reach the server. Your request wasn't sent — try again.");
     } finally {
@@ -2448,14 +2492,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSubmitError("Enter your target out-the-door price, or switch to letting the dealer name their price.");
       return;
     }
-    if (!currentUser) {
+    if (guestMode) {
+      // No sign-in anywhere: the email is the only thing a guest owes us (it owns the tracker link).
+      if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]{2,}$/.test(guestEmail.trim())) {
+        setSubmitError("Enter your email so we can send you your deal tracker link.");
+        return;
+      }
+    } else if (!currentUser) {
       // Stay put: the sign-in modal stacks over the wizard and the draft
       // survives it. Closing here used to throw the whole request away.
       setSubmitError("Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are.");
       openAuth("sign_in");
       return;
-    }
-    if (currentUser.role !== "buyer") {
+    } else if (currentUser.role !== "buyer") {
       setSubmitError(`You're signed in as a ${currentUser.role}. Sign in as a buyer to send this request.`);
       openAuth("switch_account");
       return;
@@ -2565,8 +2614,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-              <Zap className="h-4 w-4 fill-emerald-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/20 text-brand-400">
+              <Zap className="h-4 w-4 fill-brand-400" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">Configure Quote Request</h2>
@@ -2579,7 +2628,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 survives every path. */}
             <div className="flex items-center gap-2 whitespace-nowrap text-[11px] text-ink-muted" data-testid="wizard-auth">
               {authState === "signed_out" ? (
-                <>
+                guestMode ? null : <>
                   <button type="button" onClick={() => openAuth("sign_in")} className="hover:text-white transition-colors">
                     Sign in
                   </button>
@@ -2633,7 +2682,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         onClick={() => chooseIntent(lane)}
                         data-testid={`intent-${lane}`}
                         title={LANE_COPY[lane].help}
-                        className={`rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${intent === lane ? "border-emerald-500 bg-emerald-500/15 text-white" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"}`}
+                        className={`rounded-full border px-3.5 py-1.5 text-xs font-bold transition-all ${intent === lane ? "border-brand-500 bg-brand-500/15 text-white" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"}`}
                       >
                         {LANE_COPY[lane].title}
                       </button>
@@ -2657,7 +2706,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         role="radio"
                         aria-checked={c === "new" ? !isUsed : isUsed}
                         onClick={() => setVehicleCondition(c)}
-                        className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition-all ${(c === "new" ? !isUsed : isUsed) ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}
+                        className={`rounded-lg border px-3 py-1 text-[11px] font-bold transition-all ${(c === "new" ? !isUsed : isUsed) ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}
                       >
                         {c === "new" ? "New" : "Used"}
                       </button>
@@ -2686,21 +2735,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 ) : null}
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-emerald-400" />
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-400" />
                     <input
                       id="primary-link-input"
                       type="text"
                       value={dealerUrlInput}
                       onChange={(e) => setDealerUrlInput(e.target.value)}
                       placeholder={VEHICLE_INPUT_PLACEHOLDER}
-                      className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleParseDealerUrl()}
                     disabled={isParsingLink || !dealerUrlInput.trim()}
-                    className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-emerald-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
+                    className="rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:border-brand-500 hover:text-white transition-all disabled:opacity-50 shrink-0"
                   >
                     {isParsingLink ? "Adding…" : "Add"}
                   </button>
@@ -2737,7 +2786,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     build stays one click away on the factory sheet. */}
                 {parseSuccessMsg && selectedVehicle && (
                   <div
-                    className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fadeIn"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-brand-500/40 bg-brand-500/5 px-3 py-2 animate-fadeIn"
                     data-testid="primary-vehicle-card"
                     data-resolve-path={selectedVehicle.resolvePath || ""}
                     data-dealer-from-vdp={dealerFromVdp(selectedVehicle) ? "true" : "false"}
@@ -2745,7 +2794,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     data-build-state={selectedVehicle.buildConfidence === "dealer_listing_only" ? "factory_pending" : "factory_verified"}
                   >
                     <span className="flex min-w-0 items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-400" />
                       <span className="min-w-0 text-[11px] text-ink-light">
                         <span className="block truncate">
                         {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
@@ -2797,7 +2846,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       {isUsedCondition(selectedVehicle.condition) || selectedVehicle.buildConfidence !== "dealer_listing_only" ? (
                         <span
                           className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                            isUsedCondition(selectedVehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-emerald-500/15 text-emerald-300"
+                            isUsedCondition(selectedVehicle.condition) ? "bg-sky-500/15 text-sky-300" : "bg-brand-500/15 text-brand-300"
                           }`}
                           title={
                             isUsedCondition(selectedVehicle.condition)
@@ -2814,7 +2863,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           href={fordPdfUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 hover:text-emerald-300"
+                          className="flex items-center gap-1 text-[10px] font-bold text-brand-400 hover:text-brand-300"
                         >
                           <FileText className="h-3 w-3" />
                           {FORD_BUILD_SHEET_LINK}
@@ -2921,14 +2970,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 {/* Two alternate slots, always visible on a new car — optional,
-                    the buyer fills them in or doesn't. Used requests are one car. */}
-                {isUsed && seedSkipped > 0 ? (
+                    the buyer fills them in or doesn't. A request is all new or all used. */}
+                {seedSkipped > 0 ? (
                   <p className="text-[11px] text-amber-300" data-testid="seed-used-note">
-                    Used requests are one car, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
+                    A request is all new or all used, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
                   </p>
                 ) : null}
-                {isUsed ? null : (
-                  <div className="space-y-2" data-testid="alternate-vehicles">
+                <div className="space-y-2" data-testid="alternate-vehicles">
                     <p className="text-[10px] text-ink-faint">
                       Optional: up to 2 similar vehicles — dealers can quote on any of the three.
                     </p>
@@ -2979,8 +3027,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     {selectedVehicle && altVehicle1 && altVehicle2 && mustHavePackages.length > 0 ? (
                       <FactoryOptionsCompare primary={selectedVehicle} alt1={altVehicle1} alt2={altVehicle2} mustHaves={selectedMustHaveRefs} />
                     ) : null}
-                  </div>
-                )}
+                </div>
               </WizardSection>
               ) : null}
             </div>
@@ -3001,7 +3048,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       aria-checked={quoteType === id}
                       onClick={() => setQuoteType(id)}
                       className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${
-                        quoteType === id ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                        quoteType === id ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
                       }`}
                       data-testid={`quote-type-${id}`}
                     >
@@ -3066,7 +3113,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   checked={Boolean(row?.checked)}
                                   disabled={!row?.selectable}
                                   onChange={(e) => setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))}
-                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-emerald-500 focus:ring-0 disabled:opacity-40"
+                                  className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0 disabled:opacity-40"
                                 />
                                 <span className="min-w-0">
                                   <span className="block text-xs font-semibold text-white">{dealer.dealerName}</span>
@@ -3076,11 +3123,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               {!desk ? (
                                 <span className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-[10px] font-bold text-ink-muted">Checking…</span>
                               ) : onFile ? (
-                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={`${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}`}>
+                                <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={`${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}`}>
                                   ✓ Sales contact on file
                                 </span>
                               ) : supplied ? (
-                                <span className="shrink-0 rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
+                                <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
                                   ✓ Adviser added
                                 </span>
                               ) : optedOut ? (
@@ -3119,7 +3166,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
                                   placeholder={optedOut ? "Sales adviser email" : "Sales adviser email (optional)"}
                                   aria-label={`Sales adviser email for ${dealer.dealerName}`}
-                                  className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                                  className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                                 />
                                 {typed.trim() !== "" && !supplied ? <p className="text-[10px] text-rose-400">That doesn&apos;t look like an email address.</p> : null}
                               </div>
@@ -3150,7 +3197,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             aria-checked={leaseTerm === t}
                             onClick={() => setLeaseTerm(t)}
                             className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
-                              leaseTerm === t ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                              leaseTerm === t ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
                             }`}
                           >
                             {t} mo
@@ -3170,7 +3217,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             aria-checked={leaseMiles === m}
                             onClick={() => setLeaseMiles(m)}
                             className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
-                              leaseMiles === m ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                              leaseMiles === m ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
                             }`}
                           >
                             {m.toLocaleString()}
@@ -3184,7 +3231,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <select
                         value={leaseDasIntent}
                         onChange={(e) => setLeaseDasIntent(e.target.value as "" | LeaseDueAtSigningIntent)}
-                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none"
                         data-testid="lease-das-intent"
                       >
                         <option value="">Choose what you intend to pay up front</option>
@@ -3199,7 +3246,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <select
                         value={creditBand}
                         onChange={(e) => setCreditBand(e.target.value as "" | CreditBand)}
-                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none"
                         data-testid="lease-credit-band"
                       >
                         <option value="">Choose your band</option>
@@ -3225,7 +3272,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <select
                         value={financeTerm}
                         onChange={(e) => setFinanceTerm(e.target.value ? Number(e.target.value) : "")}
-                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none"
                       >
                         <option value="">Choose a term</option>
                         {[36, 48, 60, 72, 84].map((t) => (
@@ -3244,7 +3291,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         onChange={(e) => setDownPayment(e.target.value)}
                         placeholder="0"
                         aria-label="Down payment"
-                        className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                       />
                       {downPayment !== "" && !(Number.isFinite(downPaymentNumber) && downPaymentNumber >= 0) ? (
                         <span className="block text-[10px] text-amber-300">Enter 0 or more.</span>
@@ -3255,7 +3302,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <select
                         value={creditBand}
                         onChange={(e) => setCreditBand(e.target.value as "" | CreditBand)}
-                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background py-2 px-3 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none"
                         data-testid="finance-credit-band"
                       >
                         <option value="">Choose your band</option>
@@ -3295,7 +3342,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         placeholder="ZIP"
                         autoComplete="off"
                         aria-label="Your ZIP, for tax context"
-                        className="w-20 rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+                        className="w-20 rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                       />
                     </label>
                     <label className="flex items-center gap-2 text-[11px] text-ink-muted">
@@ -3303,7 +3350,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <select
                         value={purchaseTimeline}
                         onChange={(e) => setPurchaseTimeline(e.target.value as PurchaseTimeline)}
-                        className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none"
+                        className="rounded-lg border border-border bg-background py-1.5 px-2.5 text-[11px] text-ink-light focus:border-brand-500 focus:outline-none"
                       >
                         <option value="">Optional — pick if you know</option>
                         <option value="asap">ASAP</option>
@@ -3342,7 +3389,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       aria-checked={tradeInExpected === v}
                       onClick={() => setTradeInExpected(v)}
                       className={`rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
-                        tradeInExpected === v ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                        tradeInExpected === v ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
                       }`}
                       data-testid={v ? "trade-in-yes" : "trade-in-no"}
                     >
@@ -3370,7 +3417,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   className={`w-full rounded-xl border bg-background py-2.5 px-3.5 text-xs text-white placeholder-ink-faint focus:outline-none resize-none ${
                     dealCommentContactWarning
                       ? "border-rose-500 focus:border-rose-500"
-                      : "border-border focus:border-emerald-500"
+                      : "border-border focus:border-brand-500"
                   }`}
                 />
                 {dealCommentContactWarning ? (
@@ -3396,7 +3443,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 <p className="rounded-xl border border-amber-500/40 bg-amber-950/20 px-3.5 py-2.5 text-xs text-amber-100" data-testid="degrade-banner">{featureStatus.banner}</p>
               ) : null}
               <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider text-brand-400">
                   Review & Privacy Shield
                 </h3>
                 <p className="text-xs text-ink-muted mt-0.5">
@@ -3407,6 +3454,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       : "Dealers reply through TrimScout, so your inbox and phone stay out of it."}
                 </p>
               </div>
+
+              {guestMode ? (
+                <div className="rounded-xl border border-border bg-surface-elevated px-3.5 py-3 space-y-1.5" data-testid="guest-email-field">
+                  <label htmlFor="guest-email" className="block text-xs font-bold text-white">Your email</label>
+                  <input
+                    id="guest-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-white placeholder:text-ink-faint focus:border-brand-500 focus:outline-none"
+                  />
+                  <p className="text-[10px] leading-snug text-ink-faint">For your private deal tracker link. Dealers never see it, and there&apos;s no account to create.</p>
+                </div>
+              ) : null}
 
               {/* On a quote request there is no buyer target price — the desk
                   quotes its own number, full stop. The pricing choice only
@@ -3425,11 +3489,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onClick={() => setPricingChoice("dealer_names")}
                     className={`text-left rounded-xl border p-3 transition-all ${
                       pricingChoice === "dealer_names"
-                        ? "border-emerald-500 bg-emerald-500/10"
+                        ? "border-brand-500 bg-brand-500/10"
                         : "border-border bg-surface-elevated hover:border-border-strong"
                     }`}
                   >
-                    <div className={`text-xs font-bold ${pricingChoice === "dealer_names" ? "text-emerald-400" : "text-white"}`}>
+                    <div className={`text-xs font-bold ${pricingChoice === "dealer_names" ? "text-brand-400" : "text-white"}`}>
                       Dealer Names Price
                     </div>
                     <div className="text-[10.5px] text-ink-faint mt-0.5">They quote their best out-the-door price</div>
@@ -3439,11 +3503,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     onClick={() => setPricingChoice("buyer_names")}
                     className={`text-left rounded-xl border p-3 transition-all ${
                       pricingChoice === "buyer_names"
-                        ? "border-emerald-500 bg-emerald-500/10"
+                        ? "border-brand-500 bg-brand-500/10"
                         : "border-border bg-surface-elevated hover:border-border-strong"
                     }`}
                   >
-                    <div className={`text-xs font-bold ${pricingChoice === "buyer_names" ? "text-emerald-400" : "text-white"}`}>
+                    <div className={`text-xs font-bold ${pricingChoice === "buyer_names" ? "text-brand-400" : "text-white"}`}>
                       I&apos;ll Set My Price
                     </div>
                     <div className="text-[10.5px] text-ink-faint mt-0.5">Set a firm target OTD price</div>
@@ -3464,7 +3528,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                           setTargetOtdPrice(digits ? Number(digits) : 0);
                         }}
                         placeholder="52,000"
-                        className="w-full rounded-xl border border-border bg-surface-elevated py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none font-mono"
+                        className="w-full rounded-xl border border-border bg-surface-elevated py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none font-mono"
                       />
                     </div>
                     <p className="text-[11px] text-ink-faint">
@@ -3549,7 +3613,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                       href={target.vdpHref}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="font-mono text-emerald-400 hover:underline"
+                                      className="font-mono text-brand-400 hover:underline"
                                     >
                                       {vehicle.vin}
                                     </a>
@@ -3572,7 +3636,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             ? Boolean(target?.dealerName && deskPlan.rows[target.dealerName]?.checked)
                                             : reachable || supplied;
                                           const pending = directOfferMode ? !(target?.dealerName && quoteDesks[target.dealerName]) : !contact;
-                                          return pending ? "bg-border text-ink-muted" : ok ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300";
+                                          return pending ? "bg-border text-ink-muted" : ok ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/15 text-amber-300";
                                         })()}`}
                                       >
                                         {(() => {
@@ -3595,7 +3659,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                     {isPrimary && formatDealerResponsivenessLabel(dealerResponsiveness) ? (
                                       <div
                                         className={`text-[10.5px] font-medium ${
-                                          dealerResponsiveness?.bidCount ? "text-emerald-400" : "text-ink-faint"
+                                          dealerResponsiveness?.bidCount ? "text-brand-400" : "text-ink-faint"
                                         }`}
                                       >
                                         {formatDealerResponsivenessLabel(dealerResponsiveness)}
@@ -3624,7 +3688,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2 text-xs">
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">Quotes from:</span>
-                  <span className="text-emerald-400 font-bold text-right">
+                  <span className="text-brand-400 font-bold text-right">
                     {directOfferMode
                       ? competeAmongImported
                         ? `${sendToCount} of ${importedDealerships.length} dealerships confirmed`
@@ -3635,7 +3699,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-ink-muted">{quoteType === "lease" ? "Lease:" : quoteType === "finance" ? "Finance:" : "Paying:"}</span>
-                  <span className="text-emerald-400 font-bold text-right">
+                  <span className="text-brand-400 font-bold text-right">
                     {quoteType === "lease"
                       ? `${leaseTerm} months · ${leaseMiles ? leaseMiles.toLocaleString() : "—"} mi/yr${creditBand ? ` · ${creditBand} credit` : ""}${leaseDasIntent === "first_month_only" ? " · first month + fees" : leaseDasIntent === "cash_down" ? " · money down" : ""}`
                       : quoteType === "finance"
@@ -3648,7 +3712,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {mustHavePackages.length > 0 && (
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-ink-muted">Must-Have Packages:</span>
-                    <span className="text-emerald-400 font-medium text-right">
+                    <span className="text-brand-400 font-medium text-right">
                       {mustHavePackages.slice(0, 3).join(", ")}{mustHavePackages.length > 3 ? ` +${mustHavePackages.length - 3} more` : ""}
                     </span>
                   </div>
@@ -3668,10 +3732,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               ) : null}
 
               {/* How dealers reply — short, at the bottom */}
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 flex items-start gap-2.5 text-xs" data-testid="how-dealers-reply">
-                <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="rounded-xl border border-brand-500/30 bg-brand-950/20 p-3 flex items-start gap-2.5 text-xs" data-testid="how-dealers-reply">
+                <ShieldCheck className="h-5 w-5 text-brand-400 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <div className="font-bold text-emerald-400">How dealers reply</div>
+                  <div className="font-bold text-brand-400">How dealers reply</div>
                   <p className="text-[11px] leading-relaxed text-ink-light">
                     {quoteType === "lease"
                       ? "In TrimScout, on your term and miles: monthly, due at signing itemized, cap cost, money factor, residual."
@@ -3702,7 +3766,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {submitError && (
             <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">
               {submitError}
-              {authState !== "buyer" ? (
+              {authState !== "buyer" && !guestMode ? (
                 <>
                   {" "}
                   <button
@@ -3755,7 +3819,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   (step === 2 && !paymentChosen) ||
                   (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning) || tradeInExpected === null))
                 }
-                className="flex items-center gap-1.5 rounded-lg bg-emerald-500 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-bold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
@@ -3763,7 +3827,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <button
                 onClick={handleLaunchDeal}
                 disabled={isSubmittingReal || !!dealCommentContactWarning || !featureStatus.rfqSend}
-                className="flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-60"
+                className="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/20 active:scale-95 disabled:opacity-60"
               >
                 {isSubmittingReal ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

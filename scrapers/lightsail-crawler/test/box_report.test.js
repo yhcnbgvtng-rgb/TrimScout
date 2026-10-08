@@ -93,6 +93,14 @@ describe('box_report.js (per-box nightly SLA report)', () => {
     assert.equal(report.scope.rooftopsSkipped, 485);
   });
 
+  it('credits the rooftops of the shards that finished when a sharded brand failed (it used to count zero)', async () => {
+    const summary = fixtureDriverSummary();
+    summary.states.hi.brands.ford = { status: 'error', dealerCount: 60, sharded: true, shardCount: 3, shardsOk: 2, shardsFailed: 1, dealersInOkShards: 35, durationMs: 60 * 41200, logFile: summary.states.hi.brands.ford.logFile, stats: null };
+    const report = await buildBoxReport(summary, { brandSet: 'expansion', runLabel: 'expansion', concurrency: 4 });
+    assert.equal(report.scope.rooftopsAttempted, 65); // 60 (ford) + 5 (chevrolet)
+    assert.equal(report.scope.rooftopsCompleted, 40); // 35 from ford's finished shards + 5 chevrolet
+  });
+
   it('hitBudget is true when a state was skipped for the driver time budget, and slaOk reflects it', async () => {
     const report = await buildBoxReport(fixtureDriverSummary(), { brandSet: 'expansion' });
     assert.equal(report.schedule.hitBudget, true);

@@ -50,8 +50,8 @@ describe("rate limits — 429 with Retry-After, never a 500", () => {
     delete process.env.RATE_LIMIT_EXEMPT_ACCOUNTS;
     const create = fs.readFileSync("app/api/rfqs/route.ts", "utf8");
     const inv = fs.readFileSync("app/api/rfqs/[id]/invites/route.ts", "utf8");
-    assert.match(create, /isRateLimitExempt\(session\.user[\s\S]*?\) \? null : firstTrippedLimit/);
-    assert.match(inv, /isRateLimitExempt\(session\.user[\s\S]*?\) \? null : firstTrippedLimit/);
+    assert.match(create, /isRateLimitExempt\(session!?\.user[\s\S]*?\) \? null : firstTrippedLimit/);
+    assert.match(inv, /isRateLimitExempt\(session!?\.user[\s\S]*?\) \? null : firstTrippedLimit/);
   });
   it("named limits: per IP, per account, global — first trip wins; the response is 429 + Retry-After", async () => {
     resetRateLimitsForTests();

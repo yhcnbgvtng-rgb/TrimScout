@@ -261,8 +261,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6 animate-fadeIn">
       {/* Toast Notification */}
       {successToast && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-emerald-500/40 bg-surface-elevated/95 backdrop-blur-md p-4 text-xs text-white shadow-2xl flex items-center gap-3 animate-fadeIn">
-          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-positive-500/40 bg-surface-elevated/95 backdrop-blur-md p-4 text-xs text-white shadow-2xl flex items-center gap-3 animate-fadeIn">
+          <CheckCircle2 className="h-5 w-5 text-positive-400 shrink-0" />
           <span className="font-semibold">{successToast}</span>
         </div>
       )}
@@ -372,7 +372,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <Users className="h-4 w-4 text-ink-faint" />
           </div>
           <div className="text-2xl font-black text-white">{accounts.length}</div>
-          <div className="text-[10.5px] text-emerald-400 font-medium">+2 this week</div>
+          <div className="text-[10.5px] text-brand-400 font-medium">+2 this week</div>
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-4 space-y-1">
@@ -427,7 +427,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <button
               onClick={() => setRoleFilter("all")}
               className={`px-3 py-1.5 rounded-xl transition-all ${
-                roleFilter === "all" ? "bg-emerald-500 text-black font-black" : "text-ink-muted hover:text-white"
+                roleFilter === "all" ? "bg-brand-500 text-black font-black" : "text-ink-muted hover:text-white"
               }`}
             >
               All ({accounts.length})
@@ -482,7 +482,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, email, dealer, zip..."
-              className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
           </div>
         </div>
@@ -575,7 +575,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                               <User className="h-3 w-3" />
                               BUYER
                             </span>
-                            <div className="text-[10px] font-mono text-emerald-400">{acc.buyerAlias}</div>
+                            <div className="text-[10px] font-mono text-brand-400">{acc.buyerAlias}</div>
                           </div>
                         )}
                       </td>
@@ -599,7 +599,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             PENDING APPROVAL
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded bg-emerald-950/60 px-2 py-0.5 text-[10px] font-extrabold text-emerald-400 border border-emerald-500/30">
+                          <span className="inline-flex items-center gap-1 rounded bg-brand-950/60 px-2 py-0.5 text-[10px] font-extrabold text-brand-400 border border-brand-500/30">
                             <UserCheck className="h-3 w-3" />
                             ACTIVE
                           </span>
@@ -619,7 +619,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                           <button
                             type="button"
                             onClick={() => onImpersonateUser(acc)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-black text-emerald-400 px-2.5 py-1 text-[10.5px] font-bold border border-emerald-500/40 transition-all cursor-pointer shadow-sm"
+                            className="inline-flex items-center gap-1 rounded-lg bg-brand-500/20 hover:bg-brand-500 hover:text-black text-brand-400 px-2.5 py-1 text-[10.5px] font-bold border border-brand-500/40 transition-all cursor-pointer shadow-sm"
                             title={`Log in and view as ${acc.name}`}
                           >
                             <Eye className="h-3 w-3" />
@@ -675,7 +675,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                             onClick={() => handleToggleSuspend(acc)}
                             className={`p-1.5 rounded-lg border transition-all ${
                               isSuspended
-                                ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-400 hover:bg-emerald-900/40"
+                                ? "border-brand-500/40 bg-brand-950/30 text-brand-400 hover:bg-brand-900/40"
                                 : "border-rose-500/30 bg-rose-950/20 text-rose-400 hover:bg-rose-900/30"
                             }`}
                             title={isSuspended ? "Re-activate Account" : isPending ? "Reject (suspend) Account" : "Suspend Account"}
@@ -707,7 +707,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <div className="relative w-full max-w-md rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/20 text-brand-400">
                   <KeyRound className="h-5 w-5" />
                 </div>
                 <div>
@@ -741,7 +741,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     value={resetPasswordValue}
                     onChange={(e) => setResetPasswordValue(e.target.value)}
                     placeholder="At least 8 characters"
-                    className="flex-1 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    className="flex-1 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-brand-500 focus:outline-none"
                   />
                   <button
                     type="button"
@@ -767,7 +767,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <button
                   type="submit"
                   disabled={resetPasswordSubmitting}
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                  className="rounded-xl bg-brand-500 hover:bg-brand-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20"
                 >
                   {resetPasswordSubmitting ? "Resetting…" : "Reset Password"}
                 </button>
@@ -785,7 +785,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           <div className="relative w-full max-w-md rounded-3xl border border-border-strong bg-surface p-6 sm:p-8 shadow-2xl space-y-6 animate-fadeIn my-8">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500/20 text-brand-400">
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div>
@@ -817,7 +817,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   value={dealerNameValue}
                   onChange={(e) => setDealerNameValue(e.target.value)}
                   placeholder="Exact name as it appears in inventory, e.g. Family Ford Inc."
-                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white font-mono focus:border-brand-500 focus:outline-none"
                 />
                 <p className="text-[10.5px] text-ink-faint">
                   Must match the dealer name in the inventory feed exactly — this is what dealer-portal routes
@@ -836,7 +836,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <button
                   type="submit"
                   disabled={dealerNameSubmitting}
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-emerald-500/20"
+                  className="rounded-xl bg-brand-500 hover:bg-brand-400 disabled:opacity-60 px-5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20"
                 >
                   {dealerNameSubmitting ? "Saving…" : "Assign Dealership"}
                 </button>

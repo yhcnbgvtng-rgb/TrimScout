@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { COUNTER_COPY, type CounterEditsPayload } from "../lib/buyerCounter";
-import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isDocFee, validateCounterSheet, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
+import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
 import type { LeaseQuote, LineItem } from "../lib/leaseQuote";
 import type { UsedQuote } from "../lib/usedQuote";
 import { CounterComparison } from "./CounterComparison";
@@ -71,7 +71,8 @@ export function CounterSheetForm({
   }, [lease, used, edits]);
   const errors = sheet ? validateCounterSheet(sheet) : ["No quote to counter."];
 
-  const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none tabular-nums";
+  const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
+  const LR = "grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1";
   const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
   const setLine = (list: Line[], set: (l: Line[]) => void, i: number, amount: string) => set(list.map((l, j) => (j === i ? { ...l, amount } : l)));
   const strike = (list: Line[], set: (l: Line[]) => void, i: number) => setLine(list, set, i, "0");
@@ -91,15 +92,14 @@ export function CounterSheetForm({
 
   const priceLabel = kind === "lease" ? "Cap cost (selling price)" : "Selling price";
   const downLabel = kind === "lease" ? "Cap reduction (cash down)" : "Down payment";
-  const feeEditable = (name: string) => (kind === "lease" ? true : isDocFee(name));
+  const feeEditable = (name: string) => !isLockedFee(name);
 
   return (
     <div className="space-y-3 rounded-xl border border-sky-500/40 bg-sky-950/20 px-4 py-3" data-testid="counter-sheet-form" data-kind={kind}>
       <div>
         <p className="text-xs font-bold text-white">Counter {dealerName}&apos;s quote — edit only the lines you&apos;re asking about</p>
-        <p className="text-[10px] text-ink-muted">
-          {kind === "lease" ? "Money factor, residual, term, miles, acquisition fee and taxes stay as quoted; the monthly and due-at-signing recompute from their own factors." : kind === "finance" ? "APR, term, tax and title stay as quoted; amount financed and the monthly recompute." : "Tax and title stay as quoted; out-the-door recomputes."}{" "}
-          Prices and fees can only go down, add-ons can be lowered or struck, rebates added. {COUNTER_COPY}
+        <p className="text-[10px] text-ink-muted" data-testid="counter-header-copy">
+          Sales tax, title &amp; registration and doc fee stay as quoted. Price and other fees can only go down, add-ons can be lowered or struck, rebates added.
         </p>
       </div>
 
@@ -107,6 +107,7 @@ export function CounterSheetForm({
         <label className="space-y-1">
           <span className={label}>{priceLabel} <span className="normal-case font-normal text-ink-muted">— quoted ${(lease ? lease.capCost : used!.sellingPrice).toLocaleString()}</span></span>
           <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" className={input} data-testid="counter-price" />
+          {sheet && counterPriceChanged(sheet) ? <span className="block text-[10px] font-normal normal-case text-sky-200" data-testid="tax-update-note">{TAX_UPDATE_NOTE}</span> : null}
         </label>
         {kind !== "cash" ? (
           <label className="space-y-1">
@@ -116,33 +117,40 @@ export function CounterSheetForm({
         ) : null}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="counter-lines">
         <div className="space-y-1">
           <span className={label}>Add-ons <span className="normal-case font-normal text-ink-muted">— lower or strike</span></span>
           {addOns.length === 0 ? <p className="text-[10px] text-ink-faint">None quoted.</p> : null}
           {addOns.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <span className="min-w-0 flex-1 text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
-              <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={`${input} w-24 flex-none`} aria-label={`Add-on ${l.name}`} />
-              <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <span className="min-w-0 break-words text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
+              <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Add-on ${l.name}`} />
+              <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
             </div>
           ))}
         </div>
         <div className="space-y-1">
-          <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— {kind === "lease" ? "lower any" : "doc fee only"}</span></span>
+          <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— lower or strike</span></span>
+          {lease ? (
+            <div className={LR} data-testid="fixed-tax-line">
+              <span className="min-w-0 text-[11px] leading-snug text-ink-faint">Sales tax (fixed)</span>
+              <input value={String(lease.dueAtSigning.taxes)} readOnly disabled className={`${input} disabled:opacity-50`} aria-label="Sales tax (fixed)" />
+            </div>
+          ) : null}
           {fees.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <span className={`min-w-0 flex-1 text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
-              <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} w-24 flex-none disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
+              <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+              {feeEditable(l.name) ? <button type="button" onClick={() => strike(fees, setFees, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this fee">strike</button> : null}
             </div>
           ))}
         </div>
         <div className="space-y-1">
           <span className={label}>{kind === "lease" ? "Incentives" : "Rebates"} <span className="normal-case font-normal text-ink-muted">— add or raise</span></span>
           {rebates.map((l, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <input value={l.name} onChange={(e) => setRebates(rebates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Name" className={`${input} min-w-0 flex-1`} aria-label="Rebate name" />
-              <input value={l.amount} onChange={(e) => setLine(rebates, setRebates, i, e.target.value)} inputMode="decimal" className={`${input} w-24 flex-none`} aria-label={`Rebate ${l.name || i + 1}`} />
+            <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
+              <input value={l.name} onChange={(e) => setRebates(rebates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Name" className={`${input} min-w-0`} aria-label="Rebate name" />
+              <input value={l.amount} onChange={(e) => setLine(rebates, setRebates, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Rebate ${l.name || i + 1}`} />
             </div>
           ))}
           <button type="button" onClick={() => setRebates([...rebates, { name: "", amount: "" }])} className="text-[10px] font-bold text-sky-300 hover:text-white" data-testid="counter-add-rebate">+ Add a rebate you qualify for</button>

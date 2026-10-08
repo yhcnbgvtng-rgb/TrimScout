@@ -106,7 +106,7 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
     }
   };
 
-  const field = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none";
+  const field = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none";
   const label = "text-[10px] font-bold uppercase tracking-wide text-ink-faint";
 
   return (
@@ -147,7 +147,7 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
                     type="button"
                     onClick={() => setCondition(c.value)}
                     className={`rounded-lg border px-3 py-2 text-left transition-colors ${
-                      condition === c.value ? "border-emerald-500 bg-emerald-500/10" : "border-border hover:border-border-strong"
+                      condition === c.value ? "border-brand-500 bg-brand-500/10" : "border-border hover:border-border-strong"
                     }`}
                   >
                     <div className="text-[11px] font-bold text-ink-light">{c.label}</div>
@@ -168,7 +168,7 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
                 const has = Boolean(photos[a.angle]);
                 const busy = busyAngle === a.angle;
                 return (
-                  <div key={a.angle} className={`relative rounded-lg border overflow-hidden ${has ? "border-emerald-500/50" : "border-border border-dashed"}`}>
+                  <div key={a.angle} className={`relative rounded-lg border overflow-hidden ${has ? "border-brand-500/50" : "border-border border-dashed"}`}>
                     {has ? (
                       <>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -181,13 +181,13 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
-                        <div className="absolute bottom-0 inset-x-0 bg-black/60 px-2 py-1 text-[10px] font-bold text-emerald-300 flex items-center gap-1">
+                        <div className="absolute bottom-0 inset-x-0 bg-black/60 px-2 py-1 text-[10px] font-bold text-brand-300 flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" /> {a.label}
                         </div>
                       </>
                     ) : (
                       <label className="flex h-28 cursor-pointer flex-col items-center justify-center gap-1 px-2 text-center hover:bg-surface-elevated">
-                        {busy ? <Loader2 className="h-5 w-5 animate-spin text-emerald-400" /> : <Camera className="h-5 w-5 text-ink-faint" />}
+                        {busy ? <Loader2 className="h-5 w-5 animate-spin text-brand-400" /> : <Camera className="h-5 w-5 text-ink-faint" />}
                         <span className="text-[11px] font-bold text-ink-light">{a.label}</span>
                         <span className="text-[10px] leading-tight text-ink-faint">{a.hint}</span>
                         <input
@@ -221,7 +221,7 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit || isSubmitting}
-            className="rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center gap-2"
+            className="rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center gap-2"
           >
             {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</> : `Send to ${dealerName}`}
           </button>

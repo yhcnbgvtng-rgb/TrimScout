@@ -3,6 +3,8 @@ import { SessionProvider } from 'next-auth/react';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
+import { BuyerAccessProvider } from '../components/BuyerAccessProvider';
+import { requireBuyerLogin } from '../lib/buyerAccess';
 
 const title = 'TrimScout | Whole Market Vehicle Search & Dealership Bidding';
 const description =
@@ -33,8 +35,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-emerald-500/20 selection:text-emerald-300">
-        <SessionProvider>{children}</SessionProvider>
+      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-brand-500/20 selection:text-brand-300">
+        <SessionProvider>
+          <BuyerAccessProvider requireLogin={requireBuyerLogin()}>{children}</BuyerAccessProvider>
+        </SessionProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -17,7 +17,7 @@ import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from ".
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { FactoryMatchFlow } from "../components/FactoryMatchFlow";
-import { takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
+import { QUOTE_SEED_LANE, takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
@@ -112,7 +112,7 @@ export default function Home() {
   }, []);
 
   // Arriving from buyer search's "Request a quote" button: ?quote=1 opens the wizard fresh on Step 1 with the picked cars
-  // (one car = a normal quote; two or three = the compare lane). The seed is read once and cleared, and so is the query,
+  // (always the specific-vehicle lane: the cars go in the request and Step 3 lists their dealers). The seed is read once and cleared, and so is the query,
   // so a refresh doesn't reopen it. Nothing is submitted; the buyer confirms each car in Step 1.
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -123,7 +123,7 @@ export default function Home() {
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     // Even with no usable cars (a row without a valid VIN), the buyer asked for a quote: open the wizard plain.
     setPreselectedVehicle(null);
-    setRepickIntent(seed.length > 1 ? "alternate" : "same_spec");
+    setRepickIntent(QUOTE_SEED_LANE);
     setSeedVehicles(seed);
     openFreshWizard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -693,7 +693,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-2.5 text-xs font-black text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-6 py-2.5 text-xs font-black text-black hover:bg-brand-400 shadow-md shadow-brand-500/20 transition-all"
               >
                 Log In / Switch Account
               </button>
@@ -747,7 +747,7 @@ export default function Home() {
             <p className="text-sm text-ink-muted">Sign in with a dealer account to view the Dealer Portal.</p>
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="rounded-xl bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all"
+              className="rounded-xl bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all"
             >
               Sign In
             </button>
@@ -820,6 +820,12 @@ export default function Home() {
         }}
         onDraftRestored={() => setIsWizardOpen(true)}
         onQuoteRequestSent={(sent) => {
+          // A guest has no account tracker: go to their private link instead.
+          if (sent.trackerPath) {
+            setIsWizardOpen(false);
+            window.location.assign(sent.trackerPath);
+            return;
+          }
           // Land in My Deal Tracker on the deal that just went out.
           setJustSent(sent);
           setFocusRfqId(sent.rfqId);

@@ -19,7 +19,7 @@ export default function PrivacyPage() {
               className="h-8 w-8 rounded-lg shadow-sm group-hover:scale-105 transition-transform"
             />
             <span className="font-extrabold text-lg tracking-tight text-white">
-              Trim<span className="text-emerald-400">Scout</span>
+              Trim<span className="text-brand-400">Scout</span>
             </span>
           </Link>
           <Link
@@ -172,7 +172,7 @@ export default function PrivacyPage() {
               <h2 className="text-sm font-bold text-white">Contact</h2>
               <p>
                 Privacy questions or requests:{" "}
-                <a href="mailto:general@trimscout.com" className="text-emerald-400 hover:underline">
+                <a href="mailto:general@trimscout.com" className="text-brand-400 hover:underline">
                   general@trimscout.com
                 </a>
                 .

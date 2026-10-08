@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, walkAwayFromRfq } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
+import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 
-export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!hasBuyerCredential(session, req)) {
     return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
   }
   const { id } = await params;
@@ -13,7 +14,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   try {
     const existing = await getRfq(id);
     if (!existing) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
-    if (existing.buyerUserId !== session.user.id) {
+    const buyer = buyerForRfq(session, req, existing);
+    if (!buyer) return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
+    if (existing.buyerUserId !== buyer.id) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const rfq = await walkAwayFromRfq(id);

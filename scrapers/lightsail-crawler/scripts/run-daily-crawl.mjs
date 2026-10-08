@@ -509,6 +509,22 @@ async function dealerCountFor(state, brand) {
 // day's daily_changes ledger across two dated files. Pulled out as its
 // own function so the exact env passed to every brand subprocess is
 // covered by a fast unit test without spawning a real subprocess.
+// Old-space heap per brand run. 3584MB was sized on an 8GB box; most runs still sit well under it.
+export const DEFAULT_HEAP_MB = 3584;
+// The few (state, brand) runs that die with "JavaScript heap out of memory" every night: the enrichment step
+// loads the WHOLE state inventory file plus the enrichment cache (FL ~179k vehicles + ~198k cached VINs), so
+// the heap is set by the state's data, not by how many dealers a shard covers — more shards would not help,
+// only headroom does. NC Ford died in extraction (a 1,000-vehicle dealer) at 3,625MB. Peak at crash on
+// 2026-10-07 (V8's "Last few GCs"): nc-ford 3625, fl-gmc 3555, fl-buick 3565, oh-stellantis 3572 MB — all pinned
+// at the limit, so the real need is higher. TX Ford crashes nightly in its 2nd shard; OH GMC / OH Buick crashed
+// 10-03..05 and have squeaked through since. Per-run override: shards of one brand run one after another, so
+// this adds headroom for at most one process per state at a time; boxes have 15.7GB and no swap.
+export const HEAVY_HEAP_MB = Number(process.env.CRAWLER_HEAVY_HEAP_MB) || 5120;
+const HEAVY_HEAP_RUNS = new Set(['FL:gmc', 'FL:buick', 'NC:ford', 'OH:stellantis', 'OH:gmc', 'OH:buick', 'TX:ford']);
+export function heapMbFor(state, brand) {
+  return HEAVY_HEAP_RUNS.has(`${String(state).toUpperCase()}:${String(brand).toLowerCase()}`) ? HEAVY_HEAP_MB : DEFAULT_HEAP_MB;
+}
+
 export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
   return {
     CRAWLER_DEALERS_FILE: dealersFile,
@@ -531,7 +547,7 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
     // little left for the OS/MariaDB/Chromium. If the dataset grows
     // enough to make that a real risk, drop MAX_CONCURRENT_STATES to 1
     // before raising this further.
-    NODE_OPTIONS: '--max-old-space-size=3584',
+    NODE_OPTIONS: `--max-old-space-size=${heapMbFor(state, brand)}`,
   };
 }
 
@@ -632,7 +648,7 @@ export async function runBrandSharded(state, brand, dealersFile, dealerCount, da
         }
       }
 
-      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
+      console.log(`[driver] ${state} ${brand}: shard ${i + 1}/${shardCount} ${shardResult.status} (exit ${shardResult.exitCode}${shardResult.signal ? `, signal ${shardResult.signal}` : ''}, ${Math.round(shardResult.durationMs / 1000)}s)${shardStats ? ` — ${shardStats.totalActiveInventory} active` : ''}`);
       shardResults.push(shardResult);
     }
   } finally {
@@ -646,13 +662,28 @@ export async function runBrandSharded(state, brand, dealersFile, dealerCount, da
   const anyError = shardResults.some((r) => r.status === 'error');
   const overallStatus = anyTimedOut ? 'timeout' : anyError ? 'error' : 'ok';
 
+  // A failed shard used to flatten the whole brand to `exitCode: null` — the "exit null" seen on TX Stellantis / FL
+  // Cadillac — which hid (a) what actually killed the shard (exit code or signal) and (b) that the brand's OTHER
+  // shards did finish. The brand status above is unchanged (any failed shard still makes the brand 'error'/'timeout',
+  // so nothing downstream treats it as a clean run), but the result now carries the first failure's real exit
+  // code/signal and per-shard counts, and box_report credits the rooftops of the shards that completed.
+  const failedShards = shardResults.map((r, i) => ({ r, i })).filter(({ r }) => r.status !== 'ok');
+  const firstFailed = failedShards[0]?.r;
+  const shardsOk = shardResults.length - failedShards.length;
+  const dealersInOkShards = shardResults.reduce((sum, r) => sum + (r.status === 'ok' ? r.dealerCount || 0 : 0), 0);
+
   return {
     status: overallStatus,
     dealerCount,
     durationMs: totalDurationMs,
-    exitCode: overallStatus === 'ok' ? 0 : null,
+    exitCode: overallStatus === 'ok' ? 0 : (firstFailed?.exitCode ?? null),
+    signal: firstFailed?.signal ?? null,
     sharded: true,
     shardCount,
+    shardsOk,
+    shardsFailed: failedShards.length,
+    dealersInOkShards,
+    failedShards: failedShards.map(({ r, i }) => ({ shard: i, status: r.status, exitCode: r.exitCode ?? null, signal: r.signal ?? null, logFile: r.logFile ?? null })),
     shardResults,
     stats: anyStatsSeen ? combinedStats : null,
     logFile: shardResults[0]?.logFile ?? null,
@@ -808,7 +839,7 @@ async function runState(state, date) {
       result.stats = await readBrandStatsFromDailyChanges(state, brand, date);
     }
 
-    console.log(`[driver] ${state} ${brand}: ${result.status} (exit ${result.exitCode}, ${Math.round(result.durationMs / 1000)}s)${result.stats ? ` — ${result.stats.totalActiveInventory} active, ${result.stats.totalPriceDrops} drops, ${result.stats.totalSoldOrRemoved} sold` : ''}`);
+    console.log(`[driver] ${state} ${brand}: ${result.status} (exit ${result.exitCode}${result.signal ? `, signal ${result.signal}` : ''}${result.sharded ? `, ${result.shardsOk}/${result.shardCount} shards ok` : ''}, ${Math.round(result.durationMs / 1000)}s)${result.stats ? ` — ${result.stats.totalActiveInventory} active, ${result.stats.totalPriceDrops} drops, ${result.stats.totalSoldOrRemoved} sold` : ''}`);
 
     stateSummary.brands[brand] = result;
   }
@@ -830,6 +861,7 @@ export function computeGrandTotals(states) {
   let brandsOk = 0;
   let brandsFailed = 0;
   let brandsSkipped = 0;
+  let brandsPartial = 0; // failed brands that still had at least one shard complete (a subset of brandsFailed)
   for (const stateSummary of Object.values(states)) {
     for (const brandResult of Object.values(stateSummary.brands)) {
       if (brandResult.status === 'skipped') {
@@ -837,7 +869,10 @@ export function computeGrandTotals(states) {
         continue;
       }
       if (brandResult.status === 'ok') brandsOk++;
-      else brandsFailed++;
+      else {
+        brandsFailed++;
+        if (brandResult.shardsOk > 0) brandsPartial++;
+      }
       if (brandResult.stats) {
         for (const key of Object.keys(totals)) {
           totals[key] += brandResult.stats[key] || 0;
@@ -845,7 +880,7 @@ export function computeGrandTotals(states) {
       }
     }
   }
-  return { ...totals, brandsOk, brandsFailed, brandsSkipped };
+  return { ...totals, brandsOk, brandsFailed, brandsSkipped, brandsPartial };
 }
 
 // Runs every state's full pipeline (write-dealers -> bot-report -> per-

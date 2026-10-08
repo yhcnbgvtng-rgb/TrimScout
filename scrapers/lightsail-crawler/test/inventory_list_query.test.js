@@ -7,7 +7,7 @@
 // rediscover the same trap by hitting a slow query in production.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from '../src/inventoryListQuery.js';
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from '../src/inventoryListQuery.js';
 
 function query(pairs) {
   return inventoryListQuery(new URLSearchParams(pairs));
@@ -378,5 +378,106 @@ describe('deferredPageSql', () => {
     const sql = deferredPageSql(r);
     assert.ok(sql.indexOf('opt_match') < sql.indexOf(') pg JOIN'));
     assert.deepEqual(r.args.slice(0, 3), ['heated front seats', '4wd', 2]);
+  });
+});
+
+describe('inventoryListQuery — every buyer-table column sorts on the server, blanks last (nullsLast=1)', () => {
+  const ob = (sort, extra = {}) => query({ make: 'Honda', inStock: '1', sort, ...extra }).orderBy;
+
+  it('without nullsLast the order is byte-for-byte what it always was (default, explicit and trim sorts, admin callers)', () => {
+    assert.equal(query({}).orderBy, 'i.dealer_name ASC, i.vin ASC');
+    assert.equal(ob('price:asc'), 'i.price ASC, i.vin ASC');
+    assert.equal(ob('price:desc'), 'i.price DESC, i.vin ASC');
+    assert.equal(ob('trim:asc'), 'i.trim ASC, i.dealer_name ASC, i.vin ASC');
+    assert.equal(ob('trim:desc'), 'i.trim DESC, i.dealer_name DESC, i.vin DESC');
+  });
+
+  it('numeric columns: a leading "is blank" key (always ASC) puts NULLs after every value in BOTH directions', () => {
+    for (const [key, col] of [['days', 'i.days_on_lot'], ['year', 'i.year'], ['mileage', 'i.mileage'], ['price', 'i.price'], ['vehicleid', 'i.vehicle_id']]) {
+      assert.equal(ob(`${key}:asc`, { nullsLast: '1' }), `(${col}) IS NULL ASC, ${col} ASC, i.vin ASC`, `${key} asc`);
+      assert.equal(ob(`${key}:desc`, { nullsLast: '1' }), `(${col}) IS NULL ASC, ${col} DESC, i.vin ASC`, `${key} desc`);
+    }
+  });
+
+  it('text columns: empty string counts as blank as well as NULL', () => {
+    for (const [key, col] of [['make', 'i.make'], ['model', 'i.model'], ['dealer', 'i.dealer_name'], ['vin', 'i.vin'], ['ext', 'i.exterior_color'], ['int', 'i.interior_color'], ['state', 'i.state'], ['listing', 'i.vdp_url']]) {
+      assert.equal(ob(`${key}:asc`, { nullsLast: '1' }), `(${col} IS NULL OR ${col} = '') ASC, ${col} ASC, i.vin ASC`, `${key} asc`);
+      assert.equal(ob(`${key}:desc`, { nullsLast: '1' }), `(${col} IS NULL OR ${col} = '') ASC, ${col} DESC, i.vin ASC`, `${key} desc`);
+    }
+  });
+
+  it('trim keeps its three-key tie-break and just gains the blank key in front', () => {
+    assert.equal(ob('trim:asc', { nullsLast: '1' }), "(i.trim IS NULL OR i.trim = '') ASC, i.trim ASC, i.dealer_name ASC, i.vin ASC");
+    assert.equal(ob('trim:desc', { nullsLast: '1' }), "(i.trim IS NULL OR i.trim = '') ASC, i.trim DESC, i.dealer_name DESC, i.vin DESC");
+  });
+
+  it('contact: a yes/no flag, unknown (no directory row) last in both directions; its page query keeps the dealership_contacts join', () => {
+    const asc = query({ make: 'Honda', inStock: '1', sort: 'contact:asc', nullsLast: '1' });
+    assert.match(asc.orderBy, /^\(\(CASE WHEN d\.id IS NULL THEN NULL WHEN d\.contact_email IS NOT NULL AND TRIM\(d\.contact_email\) <> '' THEN 1 ELSE 0 END\)\) IS NULL ASC, \(CASE WHEN .* END\) ASC, i\.vin ASC$/);
+    const desc = query({ make: 'Honda', inStock: '1', sort: 'contact:desc', nullsLast: '1' });
+    assert.match(desc.orderBy, / END\) DESC, i\.vin ASC$/);
+    assert.match(asc.countSql, /LEFT JOIN dealership_contacts d ON d\.id = i\.dealer_id/, 'the inner page query needs d to order by it');
+    assert.match(deferredPageSql({ countSql: asc.countSql, orderBy: asc.orderBy }), /SELECT i\.vin, i\.dealer_id FROM dealer_inventory i .*LEFT JOIN dealership_contacts d .* ORDER BY .*d\.contact_email/);
+  });
+
+  it('no other sort drags the dealership_contacts join into the count / inner query (that join was measured as pure overhead)', () => {
+    for (const s of ['price:asc', 'days:asc', 'vin:asc', 'ext:desc', 'state:asc', 'listing:asc', 'trim:asc', 'vehicleid:desc']) {
+      assert.doesNotMatch(query({ make: 'Honda', inStock: '1', sort: s, nullsLast: '1' }).countSql, /dealership_contacts/, s);
+    }
+  });
+
+  it('an unknown key still falls back to the dealer sort (and still gets the blank key when asked) — nothing is injectable through sort', () => {
+    assert.equal(ob('nope:asc'), 'i.dealer_name ASC, i.vin ASC');
+    assert.equal(ob('nope:asc', { nullsLast: '1' }), 'i.dealer_name ASC, i.vin ASC');
+    // the key is whitelisted and the direction is one of two fixed words, so trailing junk can only ever mean ASC
+    const junk = ob('price:asc;DROP TABLE x', { nullsLast: '1' });
+    assert.equal(junk, '(i.price) IS NULL ASC, i.price ASC, i.vin ASC');
+    assert.doesNotMatch(junk, /DROP/);
+    assert.equal(ob('i.price:asc', { nullsLast: '1' }), 'i.dealer_name ASC, i.vin ASC');
+  });
+
+  it('nullsLast only counts when it is exactly "1"', () => {
+    for (const v of ['0', 'true', '', 'yes']) assert.equal(ob('price:asc', { nullsLast: v }), 'i.price ASC, i.vin ASC', v);
+  });
+
+  it('the new sort keys keep every filter and index hint untouched', () => {
+    const a = query({ make: 'Honda', model: 'CR-V', inStock: '1', sort: 'price:asc' });
+    const b = query({ make: 'Honda', model: 'CR-V', inStock: '1', sort: 'price:asc', nullsLast: '1' });
+    assert.equal(a.sql, b.sql);
+    assert.deepEqual(a.args, b.args);
+    assert.match(b.sql, /FORCE INDEX \(idx_inv_stock_make_model_trim\)/);
+  });
+});
+
+describe('withExportFastSort — CSV export default for in-stock State+Make (no Model)', () => {
+  const qs = (s) => new URLSearchParams(s);
+  it('swaps an unchosen sort (none or dealer:asc) for model:asc, and the query then takes the model-ordered index', () => {
+    for (const s of ['state=NJ&make=Porsche&inStock=1', 'state=NJ&make=Porsche&inStock=1&sort=dealer:asc', 'state=NJ&state=NY&make=Porsche&make=Audi&inStock=1']) {
+      const p = withExportFastSort(qs(s));
+      assert.equal(p.get('sort'), 'model:asc', s);
+      const q = inventoryListQuery(p);
+      assert.match(q.sql, /FORCE INDEX \(idx_inv_facet_make_state_model\)/, s);
+      assert.match(q.orderBy, /i\.model/, s);
+    }
+  });
+  it('without the swap the same filter keeps the dealer-order plan (the slow one being fixed)', () => {
+    const q = inventoryListQuery(qs('state=NJ&make=Porsche&inStock=1'));
+    assert.doesNotMatch(q.sql, /idx_inv_facet_make_state_model/);
+  });
+  it('leaves an explicit sort alone', () => {
+    const p = qs('state=NJ&make=Porsche&inStock=1&sort=price:desc');
+    assert.equal(withExportFastSort(p), p);
+    assert.equal(withExportFastSort(qs('state=NJ&make=Porsche&inStock=1&sort=year:asc')).get('sort'), 'year:asc');
+  });
+  it('changes nothing for other shapes: State-only, Make-only, with a Model, not in stock, dealerId, no filters', () => {
+    for (const s of ['state=NJ&inStock=1', 'make=Porsche&inStock=1', 'state=NJ&make=Porsche&model=911&inStock=1', 'state=NJ&make=Porsche', 'state=NJ&make=Porsche&inStock=1&dealerId=5', 'inStock=1', '']) {
+      const p = qs(s);
+      assert.equal(withExportFastSort(p), p, s);
+    }
+  });
+  it("does not mutate the caller's params", () => {
+    const p = qs('state=NJ&make=Porsche&inStock=1');
+    withExportFastSort(p);
+    assert.equal(p.get('sort'), null);
   });
 });

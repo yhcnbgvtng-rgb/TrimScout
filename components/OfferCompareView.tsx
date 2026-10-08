@@ -131,7 +131,7 @@ function moneyInput(value: number, onChange: (n: number) => void, label: string)
         min={0}
         value={Number.isFinite(value) ? value : 0}
         onChange={(e) => onChange(Number(e.target.value) || 0)}
-        className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+        className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
       />
     </label>
   );
@@ -408,7 +408,7 @@ export const OfferCompareView: React.FC = () => {
   if (!snapshot || snapshot.vehicles.length === 0) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center space-y-4">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-500/10 text-brand-400">
           <Car className="h-7 w-7" />
         </div>
         <h1 className="text-xl font-black text-white">No vehicles in this deal</h1>
@@ -417,7 +417,7 @@ export const OfferCompareView: React.FC = () => {
         </p>
         <Link
           href="/"
-          className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400"
+          className="inline-flex rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400"
         >
           Start a quote request
         </Link>
@@ -444,7 +444,7 @@ export const OfferCompareView: React.FC = () => {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Offer terms</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-brand-400">Offer terms</p>
           <h1 className="text-2xl font-black text-white tracking-tight">Compare vehicles in this deal</h1>
           <p className="text-xs text-ink-muted mt-1">
             {formatDealStructures(snapshot.requestedStructures) || "Deal structure"}
@@ -456,7 +456,7 @@ export const OfferCompareView: React.FC = () => {
           <button
             type="button"
             onClick={goToTracker}
-            className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md shadow-emerald-500/20"
+            className="rounded-xl bg-brand-500 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 shadow-md shadow-brand-500/20"
           >
             Continue to My Deal Tracker
           </button>
@@ -476,7 +476,7 @@ export const OfferCompareView: React.FC = () => {
                 type="button"
                 onClick={() => setShowFavoriteDetails((v) => !v)}
                 aria-expanded={showFavoriteDetails}
-                className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:border-emerald-500 hover:text-emerald-200 transition-all"
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] font-bold text-brand-300 hover:border-brand-500 hover:text-brand-200 transition-all"
               >
                 Deal terms &amp; factory options
                 <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showFavoriteDetails ? "rotate-180" : ""}`} />
@@ -612,7 +612,7 @@ function VehicleHeroCard({
   return (
     <section
       className={`flex items-center gap-4 rounded-2xl bg-surface px-4 py-3 shadow-lg ${
-        isFavorite ? "border-2 border-emerald-500/70" : "border border-border"
+        isFavorite ? "border-2 border-brand-500/70" : "border border-border"
       }`}
     >
       <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-surface-elevated flex items-center justify-center">
@@ -624,13 +624,13 @@ function VehicleHeroCard({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className={`text-[10px] font-bold uppercase tracking-wider ${isFavorite ? "text-emerald-400" : "text-ink-faint"}`}>
+        <div className={`text-[10px] font-bold uppercase tracking-wider ${isFavorite ? "text-brand-400" : "text-ink-faint"}`}>
           {label}
         </div>
         <h2 className="truncate text-base font-black text-white">{title || "Imported vehicle"}</h2>
         <p className="truncate text-[11px] text-ink-muted">
           {vdp ? (
-            <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-emerald-400 hover:underline">
+            <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-brand-400 hover:underline">
               {vehicle.vin}
             </a>
           ) : (
@@ -707,7 +707,7 @@ function CompetingVehiclesPanel({
         </div>
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold ${
-            full ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "bg-surface text-ink-muted border border-border"
+            full ? "bg-brand-500/15 text-brand-300 border border-brand-500/30" : "bg-surface text-ink-muted border border-border"
           }`}
         >
           {selectedVins.length} of {maxSelectable} chosen
@@ -729,7 +729,7 @@ function CompetingVehiclesPanel({
               <button
                 type="button"
                 onClick={onEditCriteria}
-                className="text-[11px] font-bold text-emerald-300 hover:text-emerald-200 underline"
+                className="text-[11px] font-bold text-brand-300 hover:text-brand-200 underline"
               >
                 Widen your search radius
               </button>
@@ -760,7 +760,7 @@ function CompetingVehiclesPanel({
                     <tr
                       key={match.vin}
                       className={`border-t border-border/60 text-xs transition-colors ${
-                        checked ? "bg-emerald-500/5" : disabled ? "opacity-40" : "hover:bg-surface-elevated/60"
+                        checked ? "bg-brand-500/5" : disabled ? "opacity-40" : "hover:bg-surface-elevated/60"
                       }`}
                     >
                       <td className="py-2 pr-1">
@@ -770,7 +770,7 @@ function CompetingVehiclesPanel({
                           disabled={disabled}
                           onChange={() => onToggle(match)}
                           aria-label={`${checked ? "Remove" : "Choose"} ${title} as a comparable vehicle`}
-                          className="h-4 w-4 rounded border-border bg-background text-emerald-500 focus:ring-0 disabled:cursor-not-allowed"
+                          className="h-4 w-4 rounded border-border bg-background text-brand-500 focus:ring-0 disabled:cursor-not-allowed"
                         />
                       </td>
                       <td className="py-2 pr-3 font-bold text-white whitespace-nowrap">
@@ -779,7 +779,7 @@ function CompetingVehiclesPanel({
                             href={vdp}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hover:text-emerald-300 hover:underline"
+                            className="hover:text-brand-300 hover:underline"
                           >
                             {title}
                           </a>
@@ -794,7 +794,7 @@ function CompetingVehiclesPanel({
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${
                                 matchPercent >= 80
-                                  ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                                  ? "bg-brand-500/15 text-brand-300 border border-brand-500/30"
                                   : matchPercent >= 40
                                     ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                                     : "bg-surface-elevated text-ink-muted border border-border"
@@ -815,7 +815,7 @@ function CompetingVehiclesPanel({
                       <td className="py-2 pr-3 text-ink-muted whitespace-nowrap">
                         {match.daysOnMarket != null ? `${match.daysOnMarket}d` : "—"}
                         {typeof match.priceChangeHint === "number" && match.priceChangeHint < 0 ? (
-                          <span className="ml-1.5 text-emerald-400 font-semibold">price cut</span>
+                          <span className="ml-1.5 text-brand-400 font-semibold">price cut</span>
                         ) : null}
                       </td>
                       <td className="py-2 pr-3 text-right font-mono text-white whitespace-nowrap">
@@ -869,7 +869,7 @@ function SearchCriteriaPanel({
           <div className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Search criteria</div>
           <h2 className="text-sm font-black text-white mt-0.5">Radius, must-haves &amp; nice-to-haves</h2>
         </div>
-        <span className="text-[11px] font-bold text-emerald-300 shrink-0">{open ? "Hide" : "Edit"}</span>
+        <span className="text-[11px] font-bold text-brand-300 shrink-0">{open ? "Hide" : "Edit"}</span>
       </button>
       {open ? (
         <div className="border-t border-border px-4 py-3 space-y-3">
@@ -884,14 +884,14 @@ function SearchCriteriaPanel({
                 {mustHaveLines.map((line) => (
                   <span
                     key={line}
-                    className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-300"
+                    className="inline-flex items-center gap-1 rounded-full border border-brand-500/30 bg-brand-500/10 px-2 py-0.5 text-[10px] font-bold text-brand-300"
                   >
                     {line}
                     <button
                       type="button"
                       onClick={() => onRemoveMustHave(line)}
                       aria-label={`Remove must-have ${line}`}
-                      className="text-emerald-300 hover:text-white"
+                      className="text-brand-300 hover:text-white"
                     >
                       ×
                     </button>
@@ -938,14 +938,14 @@ function SearchCriteriaPanel({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") onRadiusCommit();
                 }}
-                className="w-24 rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                className="w-24 rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
               />
             </label>
             <span className="text-[11px] text-ink-muted pb-1.5">from {buyerZip || "your ZIP"}</span>
             <button
               type="button"
               onClick={onSearchAgain}
-              className="ml-auto rounded-xl bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 shadow-md"
+              className="ml-auto rounded-xl bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 shadow-md"
             >
               Search again
             </button>
@@ -1017,10 +1017,10 @@ function VehicleOfferColumn({
 
   return (
     <section
-      className={`rounded-2xl bg-surface shadow-xl overflow-hidden flex flex-col ${wide ? "lg:flex-row" : ""} ${highlighted ? "border-2 border-emerald-500" : "border border-border"}`}
+      className={`rounded-2xl bg-surface shadow-xl overflow-hidden flex flex-col ${wide ? "lg:flex-row" : ""} ${highlighted ? "border-2 border-brand-500" : "border border-border"}`}
     >
       <div className={`border-b border-border bg-surface-elevated px-4 py-3 ${wide ? "lg:w-80 lg:shrink-0 lg:border-b-0 lg:border-r" : ""}`}>
-        <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">{column.label}</div>
+        <div className="text-[10px] font-bold uppercase tracking-wider text-brand-400">{column.label}</div>
         <h2 className="text-base font-black text-white mt-0.5">
           {[vehicle.year > 0 ? vehicle.year : null, vehicle.make, vehicle.model, vehicle.trim]
             .filter(Boolean)
@@ -1030,7 +1030,7 @@ function VehicleOfferColumn({
           <p className="text-[11px] text-ink-muted mt-0.5">
             VIN:{" "}
             {vdp ? (
-              <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-emerald-400 hover:underline">
+              <a href={vdp} target="_blank" rel="noopener noreferrer" className="font-mono text-brand-400 hover:underline">
                 {vehicle.vin}
               </a>
             ) : (
@@ -1089,7 +1089,7 @@ function VehicleOfferColumn({
                 <select
                   value={terms.finance.termMonths}
                   onChange={(e) => patch({ finance: { ...terms.finance!, termMonths: Number(e.target.value) } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                 >
                   {FINANCE_TERM_MONTHS.map((m) => (
                     <option key={m} value={m}>{m} months</option>
@@ -1104,10 +1104,10 @@ function VehicleOfferColumn({
                   step="0.1"
                   value={terms.finance.aprPercent}
                   onChange={(e) => patch({ finance: { ...terms.finance!, aprPercent: Number(e.target.value) || 0 } })}
-                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                 />
               </label>
-              <p className="text-[11px] text-emerald-400 font-semibold">
+              <p className="text-[11px] text-brand-400 font-semibold">
                 Estimated monthly: {financeEst != null ? formatPriceAmount(financeEst) : "—"}
               </p>
               <p className="text-[10px] text-ink-faint">Estimate only — not a dealer quote.</p>
@@ -1126,7 +1126,7 @@ function VehicleOfferColumn({
                   <select
                     value={terms.lease.termMonths}
                     onChange={(e) => patch({ lease: { ...terms.lease!, termMonths: Number(e.target.value) } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   >
                     {LEASE_TERM_MONTHS.map((m) => (
                       <option key={m} value={m}>{m} months</option>
@@ -1140,7 +1140,7 @@ function VehicleOfferColumn({
                     min={0}
                     value={terms.lease.milesPerYear}
                     onChange={(e) => patch({ lease: { ...terms.lease!, milesPerYear: Number(e.target.value) || 0 } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
               </div>
@@ -1153,7 +1153,7 @@ function VehicleOfferColumn({
                     step="0.0001"
                     value={terms.lease.moneyFactor}
                     onChange={(e) => patch({ lease: { ...terms.lease!, moneyFactor: Number(e.target.value) || 0 } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="block space-y-1">
@@ -1165,7 +1165,7 @@ function VehicleOfferColumn({
                     step="0.5"
                     value={terms.lease.residualPercent}
                     onChange={(e) => patch({ lease: { ...terms.lease!, residualPercent: Number(e.target.value) || 0 } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
               </div>
@@ -1179,7 +1179,7 @@ function VehicleOfferColumn({
                     step="0.1"
                     value={terms.lease.salesTaxPercent ?? 0}
                     onChange={(e) => patch({ lease: { ...terms.lease!, salesTaxPercent: Number(e.target.value) || 0 } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="block space-y-1">
@@ -1187,7 +1187,7 @@ function VehicleOfferColumn({
                   <select
                     value={terms.lease.taxMethod ?? "monthly"}
                     onChange={(e) => patch({ lease: { ...terms.lease!, taxMethod: e.target.value as "monthly" | "upfront" } })}
-                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   >
                     {LEASE_TAX_METHODS.map((m) => (
                       <option key={m} value={m}>{m === "monthly" ? "Monthly payment" : "Upfront on cap cost"}</option>
@@ -1196,10 +1196,10 @@ function VehicleOfferColumn({
                 </label>
               </div>
               {moneyInput(terms.lease.dispositionFee ?? 0, (dispositionFee) => patch({ lease: { ...terms.lease!, dispositionFee } }), "Disposition fee (due at lease end)")}
-              <p className="text-[11px] text-emerald-400 font-semibold">
+              <p className="text-[11px] text-brand-400 font-semibold">
                 Estimated monthly: {leaseEst != null ? formatPriceAmount(leaseEst) : "—"}
               </p>
-              <p className="text-[11px] text-emerald-400 font-semibold">
+              <p className="text-[11px] text-brand-400 font-semibold">
                 Est. due at signing: {leaseDueAtSigningEst != null ? formatPriceAmount(leaseDueAtSigningEst) : "—"}
               </p>
               <p className="text-[10px] text-ink-faint">Estimate only — not a dealer quote.</p>
@@ -1213,7 +1213,7 @@ function VehicleOfferColumn({
               {FORD_COMPETITION_FACTORY_OPTIONS}
             </div>
             {sharedOptions.size > 0 ? (
-              <div className="flex items-center gap-1 text-[10px] text-emerald-400">
+              <div className="flex items-center gap-1 text-[10px] text-brand-400">
                 <Check className="h-3 w-3" /> on another car
               </div>
             ) : null}
@@ -1229,9 +1229,9 @@ function VehicleOfferColumn({
                     key={`${opt.code || ""}-${opt.description}-${i}`}
                     className={`text-[11px] leading-snug rounded px-1 -mx-1 flex items-start gap-1 ${
                       opt.isPackageChild ? "pl-3 text-ink-muted" : "text-ink-light"
-                    } ${shared ? "bg-emerald-500/10 text-emerald-200" : ""}`}
+                    } ${shared ? "bg-brand-500/10 text-brand-200" : ""}`}
                   >
-                    {shared ? <Check className="h-3 w-3 mt-0.5 shrink-0 text-emerald-400" /> : null}
+                    {shared ? <Check className="h-3 w-3 mt-0.5 shrink-0 text-brand-400" /> : null}
                     <span>
                       {formatFactoryOptionLine(opt)}
                       {opt.price != null && opt.price > 0 ? (
@@ -1327,7 +1327,7 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
           href={sheet.vdpUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[11px] text-emerald-400 hover:underline"
+          className="text-[11px] text-brand-400 hover:underline"
         >
           Dealer listing
         </a>

@@ -455,7 +455,7 @@ describe("listing-facts route and compare page copy", () => {
     assert.doesNotMatch(view, /importPastedFactoryVehicle/);
     assert.doesNotMatch(view, /Already know one\?/);
     assert.doesNotMatch(view, /saveOfferCompareSnapshot\([^)]*candidates/);
-    assert.match(view, /border-2 border-emerald-500/);
+    assert.match(view, /border-2 border-brand-500/);
     // v1: no market comparables — the wizard never routes to /compare.
     assert.doesNotMatch(wizard, /router\.push\("\/compare"\)/);
     assert.match(wizard, /buildOfferCompareSnapshot/);

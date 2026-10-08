@@ -263,7 +263,7 @@ async function main() {
 
   // ---- apply ----------------------------------------------------------------------------------------------
   if (!API_KEY) { console.error("No TRIMSCOUT_API_KEY found (env, .env): refusing to apply without being able to take the sync lock."); await pool.end(); process.exit(3); }
-  const owner = `fill-blank-model-${process.pid}`;
+  const owner = `blank-model-fill-${process.pid}`;
   const lock = await lockCall("acquire", owner, { heartbeat: true });
   if (!lock.acquired) { console.log(`HELD, LOCK BUSY — ${JSON.stringify(lock)}. Nothing was changed.`); await pool.end(); process.exit(4); }
   console.log(`\nSync lock taken as ${owner}; updating ${fmt(fills.length)} rows...`);

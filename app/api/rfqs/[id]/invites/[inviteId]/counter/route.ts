@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, submitBuyerCounter } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
+import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { buildCounterFromEdits, counterSummary, parseCounterEdits } from "@/lib/buyerCounter";
 import { counterDiff, counterKindOf } from "@/lib/counterSheet";
 import { cashOutTheDoor } from "@/lib/usedQuote";
@@ -17,7 +18,7 @@ import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
   const session = await auth();
-  if (!session?.user?.id || (session.user as { role?: string }).role !== "buyer") {
+  if (!hasBuyerCredential(session, req) || (session?.user && (session.user as { role?: string }).role !== "buyer")) {
     return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
   }
   const { id, inviteId } = await params;
@@ -26,7 +27,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
-    if (rfq.buyerUserId !== session.user.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
+    const buyer = buyerForRfq(session, req, rfq);
+    if (!buyer) return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
+    if (rfq.buyerUserId !== buyer.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     if (rfq.status !== "collecting") return NextResponse.json({ error: "This request is closed." }, { status: 409 });
     const invite = rfq.invites.find((i) => i.id === inviteId);
     const kind = invite?.quote ? counterKindOf(invite.quote) : null;

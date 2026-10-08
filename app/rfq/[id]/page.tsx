@@ -13,6 +13,7 @@ import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useGuestAccess } from "../../../lib/guestToken";
 import {
   CircleCheck as CheckCircle2,
   CircleX as XCircle,
@@ -103,7 +104,7 @@ function QuoteIntakeForm({
             type="number"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
           />
         </label>
         <label className="space-y-1">
@@ -112,7 +113,7 @@ function QuoteIntakeForm({
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
           />
         </label>
       </div>
@@ -126,14 +127,14 @@ function QuoteIntakeForm({
               value={f.label}
               onChange={(e) => updateFee(i, "label", e.target.value)}
               placeholder="Fee label"
-              className="flex-1 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              className="flex-1 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
             <input
               type="number"
               value={f.amount}
               onChange={(e) => updateFee(i, "amount", e.target.value)}
               placeholder="Amount"
-              className="w-28 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-emerald-500 focus:outline-none"
+              className="w-28 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
             {fees.length > 1 && (
               <button onClick={() => removeFee(i)} className="text-ink-muted hover:text-rose-400">
@@ -142,7 +143,7 @@ function QuoteIntakeForm({
             )}
           </div>
         ))}
-        <button onClick={addFee} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+        <button onClick={addFee} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
           <Plus className="h-3 w-3" />
           Add fee
         </button>
@@ -155,7 +156,7 @@ function QuoteIntakeForm({
             type="text"
             value={vin}
             onChange={(e) => setVin(e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white font-mono focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none"
           />
         </label>
         <label className="space-y-1">
@@ -164,7 +165,7 @@ function QuoteIntakeForm({
             type="text"
             value={stockNumber}
             onChange={(e) => setStockNumber(e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
           />
         </label>
       </div>
@@ -175,12 +176,12 @@ function QuoteIntakeForm({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+          className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
         />
       </label>
 
       <label className="flex items-start gap-2 text-[11px] text-ink-light cursor-pointer">
-        <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-border text-emerald-500 focus:ring-0" />
+        <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-border text-brand-500 focus:ring-0" />
         <span>The dealer confirmed all locked must-haves are on this VIN before quoting.</span>
       </label>
 
@@ -190,7 +191,7 @@ function QuoteIntakeForm({
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="flex-1 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
+          className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50"
         >
           {submitting ? "Saving…" : "Save Quote"}
         </button>
@@ -211,7 +212,7 @@ function DeclineForm({ onSubmit, onCancel }: { onSubmit: (reason: RfqDeclineReas
       <select
         value={reason}
         onChange={(e) => setReason(e.target.value as RfqDeclineReason)}
-        className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+        className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
       >
         {(Object.keys(RFQ_DECLINE_REASON_LABELS) as RfqDeclineReason[]).map((r) => (
           <option key={r} value={r}>
@@ -273,7 +274,7 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
     queued: { label: "Queued", cls: "bg-border text-ink-muted border-border" },
     sent: { label: "Sent", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
     viewed: { label: "Opened by dealer", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    quoted: { label: "Quoted", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+    quoted: { label: "Quoted", cls: "bg-positive-500/15 text-positive-300 border-positive-500/30" },
     declined: { label: "Declined", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
     expired: { label: "Expired", cls: "bg-border text-ink-muted border-border" },
   }[stage];
@@ -333,7 +334,7 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
         <div className="flex gap-2">
           <button
             onClick={() => setMode("quote")}
-            className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-emerald-400"
+            className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400"
           >
             Record Dealer&apos;s Quote
           </button>
@@ -364,10 +365,10 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
   const isPicked = rfq.pickedQuoteId === q.id;
 
   return (
-    <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${isPicked ? "border-emerald-500/60" : "border-border"}`}>
+    <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${isPicked ? "border-brand-500/60" : "border-border"}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="text-sm font-bold text-white">{invite.dealerName}</div>
-        <div className="text-sm font-extrabold text-emerald-400">{formatCurrency(q.totalOtdPrice)}</div>
+        <div className="text-sm font-extrabold text-brand-400">{formatCurrency(q.totalOtdPrice)}</div>
       </div>
       <div className="space-y-1 text-[11px] text-ink-muted">
         <div>Price: {formatCurrency(q.price)}</div>
@@ -379,11 +380,11 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
         <div>Expires: {new Date(q.expiresAt).toLocaleDateString()}</div>
       </div>
       <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
-        <span className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border ${specOk ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" : "bg-rose-500/15 text-rose-300 border-rose-500/30"}`}>
+        <span className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border ${specOk ? "bg-brand-500/15 text-brand-300 border-brand-500/30" : "bg-rose-500/15 text-rose-300 border-rose-500/30"}`}>
           {specOk ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />}
           {specOk ? "Same VIN/stock" : "Different VIN/stock"}
         </span>
-        <span className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border ${complete ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" : "bg-amber-500/15 text-amber-300 border-amber-500/30"}`}>
+        <span className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border ${complete ? "bg-positive-500/15 text-positive-300 border-positive-500/30" : "bg-amber-500/15 text-amber-300 border-amber-500/30"}`}>
           {complete ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
           {complete ? "Complete quote" : "Missing fields"}
         </span>
@@ -392,12 +393,12 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
         <button
           onClick={onPick}
           disabled={picking}
-          className="w-full rounded-lg bg-emerald-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all disabled:opacity-50"
+          className="w-full rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50"
         >
           Choose This Quote
         </button>
       )}
-      {isPicked && <div className="text-center text-[11px] font-bold text-emerald-400">You chose this quote</div>}
+      {isPicked && <div className="text-center text-[11px] font-bold text-brand-400">You chose this quote</div>}
     </div>
   );
 }
@@ -407,6 +408,9 @@ export default function RfqWorkspacePage() {
   const rfqId = params.id as string;
   const router = useRouter();
   const { status: sessionStatus } = useSession();
+  const guest = useGuestAccess(rfqId);
+  // A guest link counts as a way in; the API decides whether it is honoured (REQUIRE_BUYER_LOGIN).
+  const canLoad = sessionStatus === "authenticated" || Boolean(guest.token);
 
   const [rfq, setRfq] = useState<RfqRequest | null>(null);
   // Server-computed lease comparison (counter / expired / best). Pick and
@@ -421,7 +425,7 @@ export default function RfqWorkspacePage() {
   const [walking, setWalking] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/rfqs/${rfqId}`);
+    const res = await fetch(`/api/rfqs/${rfqId}`, { headers: guest.headers });
     const json = await res.json();
     if (!res.ok) {
       setLoadError(json.error || "Could not load this request.");
@@ -430,18 +434,18 @@ export default function RfqWorkspacePage() {
     setRfq(json.rfq);
     setLeaseCompare((json.leaseCompare as LeaseCompareData | null) ?? null);
     setStickerRecheck((json.stickerRecheck as typeof stickerRecheck) || {});
-  }, [rfqId]);
+  }, [rfqId, guest.token]);
 
   useEffect(() => {
-    if (sessionStatus === "authenticated") load();
-  }, [sessionStatus, load]);
+    if (canLoad) load();
+  }, [canLoad, load]);
 
   const handlePick = async (quoteId: string) => {
     setPicking(true);
     setPickError(null);
     const res = await fetch(`/api/rfqs/${rfqId}/pick`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...guest.headers },
       body: JSON.stringify({ quoteId }),
     });
     const json = await res.json();
@@ -459,7 +463,7 @@ export default function RfqWorkspacePage() {
   const handleCounter = async (inviteId: string, counter: CounterEditsPayload) => {
     const res = await fetch(`/api/rfqs/${rfqId}/invites/${inviteId}/counter`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...guest.headers },
       body: JSON.stringify({ counter }),
     });
     const json = await res.json().catch(() => ({}));
@@ -472,7 +476,7 @@ export default function RfqWorkspacePage() {
 
   const handleWalk = async () => {
     setWalking(true);
-    const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST" });
+    const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST", headers: guest.headers });
     const json = await res.json();
     if (res.ok) {
       setRfq(json.rfq);
@@ -481,14 +485,14 @@ export default function RfqWorkspacePage() {
     setWalking(false);
   };
 
-  if (sessionStatus === "loading") {
+  if (sessionStatus === "loading" || !guest.ready) {
     return <div className="mx-auto max-w-3xl px-4 py-16 text-center text-sm text-ink-muted">Loading…</div>;
   }
-  if (sessionStatus !== "authenticated") {
+  if (!canLoad) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-2">
         <p className="text-sm text-white font-semibold">Please sign in to view this request.</p>
-        <button onClick={() => router.push("/")} className="text-xs text-emerald-400 hover:text-emerald-300">
+        <button onClick={() => router.push("/")} className="text-xs text-brand-400 hover:text-brand-300">
           Back to TrimScout
         </button>
       </div>
@@ -524,16 +528,16 @@ export default function RfqWorkspacePage() {
       <UnsubscribedBanner rfq={rfq} />
 
       {Object.values(stickerRecheck).map((hit) => (
-        <p key={hit.pdfUrl} className="flex flex-wrap items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-2.5 text-xs text-ink-light" data-testid="sticker-published">
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-300">Factory verified</span>
+        <p key={hit.pdfUrl} className="flex flex-wrap items-center gap-2 rounded-xl border border-brand-500/30 bg-brand-500/5 px-4 py-2.5 text-xs text-ink-light" data-testid="sticker-published">
+          <span className="rounded bg-positive-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-positive-300">Factory verified</span>
           The factory window sticker for this {hit.make} has been published{hit.msrp ? <> — MSRP ${hit.msrp.toLocaleString()}</> : null}.
-          <a href={hit.pdfUrl} target="_blank" rel="noreferrer" className="font-bold text-emerald-400 hover:text-emerald-300">View sticker</a>
+          <a href={hit.pdfUrl} target="_blank" rel="noreferrer" className="font-bold text-brand-400 hover:text-brand-300">View sticker</a>
         </p>
       ))}
 
       {rfq.status === "picked" && (
-        <div className="rounded-2xl border border-emerald-500/60 bg-emerald-950/20 p-5 text-center">
-          <p className="text-sm font-bold text-emerald-400">You chose this quote</p>
+        <div className="rounded-2xl border border-brand-500/60 bg-brand-950/20 p-5 text-center">
+          <p className="text-sm font-bold text-brand-400">You chose this quote</p>
         </div>
       )}
       {rfq.status === "walked" && (
@@ -614,7 +618,7 @@ export default function RfqWorkspacePage() {
                 <p className="text-[11px] font-bold text-ink-light uppercase tracking-wide">Locked must-haves</p>
                 {rfq.mustHaves.map((m) => (
                   <div key={m.code} className="flex items-start gap-1.5 text-[11px] text-white">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-brand-400 shrink-0 mt-0.5" />
                     <span>{formatFactoryOptionLine({ code: m.code, description: m.name })}</span>
                   </div>
                 ))}

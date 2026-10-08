@@ -37,6 +37,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
+import { StringDecoder } from "node:string_decoder";
 import { waitForSyncLock } from "./syncLockWait.js";
 import { startSyncLockHeartbeat } from "./syncLockHeartbeat.js";
 import { computeFileIdentity } from "./syncCheckpoint.js";
@@ -45,6 +46,8 @@ import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
+import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
+import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
 
 // The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
 // TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
@@ -61,6 +64,9 @@ const flags = new Set(argv.filter((a) => a.startsWith("--")));
 const inputPath = argv.find((a) => !a.startsWith("--"));
 const DRY_RUN = flags.has("--dry-run");
 const NO_RESUME = flags.has("--no-resume");
+// --dry-run --write-retired: also write this run's retired file (no lock, no writes to the deals box) — seeds ~/sweep-retired/.
+const WRITE_RETIRED = flags.has("--write-retired");
+const RETIRED_DIR = process.env.SWEEP_RETIRED_DIR || RETIRED_DIR_DEFAULT;
 if (!inputPath || !KEY) {
   // --dry-run needs the key too: it still reads the dealership directory (a GET) to assign stores.
   console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file> [--dry-run] [--no-resume]");
@@ -125,11 +131,14 @@ const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 function* streamTopLevelObjects(filePath) {
   const fd = fs.openSync(filePath, "r");
   const buf = Buffer.alloc(1 << 20);
+  // A multi-byte character can straddle a 1 MiB read boundary; decoding each chunk on its own turned it into U+FFFD U+FFFD
+  // (a corrupted dealer name / option string). A StringDecoder carries the partial character into the next chunk.
+  const decoder = new StringDecoder("utf8");
   let depth = 0, inStr = false, esc = false, started = false, cur = "";
   for (;;) {
     const n = fs.readSync(fd, buf, 0, buf.length, null);
     if (n <= 0) break;
-    const chunk = buf.toString("utf8", 0, n);
+    const chunk = decoder.write(buf.subarray(0, n));
     for (const ch of chunk) {
       if (!started) { if (ch === "[") started = true; continue; }
       if (depth === 0) { if (ch === "{") { depth = 1; cur = "{"; } continue; }
@@ -190,10 +199,45 @@ const options = (v) => {
 
 const rows = [];
 let total = 0;
+// What this run is allowed to claim about the crawl output (syncFreshness.js): only records the crawl refreshed recently
+// are uploaded (an upload stamps last_seen_at = now, which is a lie for a stale shard record), a truncated shard is not
+// read at all, and no store from an over-size shard is swept (retiring rows presumes the file is complete).
+const fcfg = freshnessConfig();
+const RUN_NOW_MS = Date.now();
+const noSweepStores = new Set();       // dealer ids that came from an over-size shard
+const skippedShards = [];              // { file, reason } — unreadable/truncated: nothing uploaded from them
+let staleSkipped = 0, freshUploaded = 0;
+const staleByStore = new Map();        // store name -> stale records skipped
+const dropped = [];                    // records read but not uploaded (sold, or stale) — see syncRetired.js
+let newestShardMs = 0;
 for (const shardFile of files) {
+  const shardStat = fs.statSync(shardFile);
+  const sizeBytes = shardStat.size;
+  newestShardMs = Math.max(newestShardMs, shardStat.mtimeMs);
+  const plan = shardPlan({ sizeBytes, structure: checkShardStructure(shardFile), maxBytes: fcfg.shardMaxBytes });
+  if (plan.action === "skip") {
+    skippedShards.push({ file: shardFile, reason: plan.reason });
+    log(`[sync] ✗ SKIPPING ${path.basename(shardFile)}: ${plan.reason}. Nothing from it is uploaded and none of its stores are swept; this run will exit non-zero.`);
+    continue;
+  }
+  if (plan.action === "noSweep") log(`[sync] ⚠ ${path.basename(shardFile)}: ${plan.reason}. Its fresh records are uploaded, but none of its stores are swept.`);
   for (const v of streamTopLevelObjects(shardFile)) {
     total++;
-    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
+    const vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase());
+    const isActive = (v.status || "ACTIVE").toUpperCase() === "ACTIVE";
+    if (!vinOk || !isActive) {
+      if (vinOk && isRecentDrop(v, RUN_NOW_MS)) dropped.push({ vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName || "", state: String(v.state || "").toUpperCase() });
+      continue;
+    }
+    if (!isFreshRecord(v, RUN_NOW_MS, fcfg.maxRecordAgeMs)) {
+      staleSkipped++;
+      if (isRecentDrop(v, RUN_NOW_MS)) dropped.push({ vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName || "", state: String(v.state || "").toUpperCase() });
+      const k = v.dealerName || v.configDealerName || "?";
+      staleByStore.set(k, (staleByStore.get(k) || 0) + 1);
+      continue;
+    }
+    freshUploaded++;
+    if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
       vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim,
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
@@ -204,8 +248,27 @@ for (const shardFile of files) {
   }
 }
 const unmatched = rows.filter((r) => !r.dealerId).length;
-log(`${total} vehicles in file, ${rows.length} active with a valid VIN`);
+log(`${total} vehicles in file, ${rows.length} active with a valid VIN and refreshed in the last ${Math.round(fcfg.maxRecordAgeMs / 3600_000)}h`);
+if (staleSkipped) {
+  const top = [...staleByStore.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, c]) => `${n} (${c})`).join(", ");
+  log(`[sync] skipped ${staleSkipped} ACTIVE record(s) the crawl has not refreshed within ${Math.round(fcfg.maxRecordAgeMs / 3600_000)}h (not uploaded, not re-stamped as seen) across ${staleByStore.size} store name(s); most: ${top}`);
+}
 log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
+
+// Came-back count (syncRetired.js): VINs uploaded now that an earlier run's retired file (last 7 days, this box) listed.
+// Files written at/after the newest shard belong to this same crawl output (an earlier attempt tonight) and are ignored.
+const retiredHistory = loadRecentRetired(RETIRED_DIR, RUN_NOW_MS, { notAfterMs: newestShardMs });
+log(formatCameBack(cameBack(rows, retiredHistory.map), retiredHistory.files));
+const sweptStoreIds = (failedStores = []) => new Set([...new Set(rows.map((r) => r.dealerId).filter(Boolean))].filter((id) => !noSweepStores.has(id) && !failedStores.includes(id)));
+const writeRetired = (failedStores) => {
+  try {
+    const list = retiredList(dropped, rows, sweptStoreIds(failedStores));
+    const file = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now());
+    log(`[sync] retired list: ${list.length} VIN(s) from swept stores written to ${file}`);
+  } catch (err) {
+    log(`[sync] could not write the retired list (${err.message}) — the sync itself is unaffected`);
+  }
+};
 
 // Resume state (syncCheckpoint.js): identifies the crawl output by each shard's path/size/mtime — not its
 // content, so checking it is cheap — plus a digest of every row's (vin, store) pair (syncRun.js). State for a
@@ -229,7 +292,8 @@ if (DRY_RUN) {
   log(`[dry-run] sweep plan: ${stores.size} stores -> ${Math.ceil(stores.size / config.sweepBatchStores)} batches of <= ${config.sweepBatchStores} stores, concurrency ${config.sweepConcurrency} (+ the store-0 bucket)`);
   const m = process.memoryUsage();
   log(`[dry-run] memory: rss ${mb(m.rss)}MB, heapUsed ${mb(m.heapUsed)}MB`);
-  log("[dry-run] nothing was sent: no lock taken, no writes");
+  if (WRITE_RETIRED) writeRetired([]);
+  log("[dry-run] nothing was sent: no lock taken, no writes to the deals box" + (WRITE_RETIRED ? " (retired file written locally)" : ""));
   process.exit(0);
 }
 
@@ -247,7 +311,8 @@ lockHeartbeat = startSyncLockHeartbeat({
 });
 let failed = false;
 try {
-  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config });
+  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs });
+  writeRetired(r.failedStores || []);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
 } catch (err) {
@@ -262,3 +327,4 @@ try {
   await releaseSyncLock();
 }
 if (failed) process.exitCode = 1;
+else if (skippedShards.length) { log(`[sync] exiting 3: ${skippedShards.length} shard file(s) were not synced (${skippedShards.map((x) => path.basename(x.file)).join(", ")}) — the rest of the run completed`); process.exitCode = 3; }

@@ -127,13 +127,13 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
       {/* Quote room header */}
-      <div className="rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-6 shadow-2xl relative overflow-hidden">
-        <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+      <div className="rounded-2xl border-2 border-brand-500/40 bg-gradient-to-r from-surface via-surface-elevated to-surface p-6 shadow-2xl relative overflow-hidden">
+        <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-400 border border-emerald-500/20">
+              <span className="rounded-md bg-brand-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-brand-400 border border-brand-500/20">
                 {quoteCount === 0
                   ? "Waiting on dealer quotes"
                   : `${quoteCount} quote${quoteCount === 1 ? "" : "s"} in`}
@@ -154,7 +154,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     href={reviewTarget.vdpHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-emerald-400 hover:underline"
+                    className="font-mono text-brand-400 hover:underline"
                   >
                     {reviewTarget.vin}
                   </a>
@@ -240,7 +240,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-ink-muted mt-0.5">
-                Mileage: <strong className="text-white font-mono">{request.tradeIn.mileage.toLocaleString()} mi</strong> • Condition: <strong className="text-white capitalize">{request.tradeIn.condition.replace("_", " ")}</strong> • Est. Market Value: <strong className="text-emerald-400 font-mono">{formatCurrency(request.tradeIn.estimatedValueMin)} – {formatCurrency(request.tradeIn.estimatedValueMax)}</strong>
+                Mileage: <strong className="text-white font-mono">{request.tradeIn.mileage.toLocaleString()} mi</strong> • Condition: <strong className="text-white capitalize">{request.tradeIn.condition.replace("_", " ")}</strong> • Est. Market Value: <strong className="text-brand-400 font-mono">{formatCurrency(request.tradeIn.estimatedValueMin)} – {formatCurrency(request.tradeIn.estimatedValueMax)}</strong>
               </p>
             </div>
           </div>
@@ -265,7 +265,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
         )}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-emerald-400" />
+            <Trophy className="h-4 w-4 text-brand-400" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
               Dealer Quotes ({sortedBids.length})
             </h2>
@@ -277,7 +277,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
               onClick={() => setSortBy("discount")}
               className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
                 sortBy === "discount"
-                  ? "bg-emerald-500 text-black shadow-sm"
+                  ? "bg-brand-500 text-black shadow-sm"
                   : "border border-border bg-surface text-ink-muted hover:text-white"
               }`}
             >
@@ -287,7 +287,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
               onClick={() => setSortBy("quoted")}
               className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
                 sortBy === "quoted"
-                  ? "bg-emerald-500 text-black shadow-sm"
+                  ? "bg-brand-500 text-black shadow-sm"
                   : "border border-border bg-surface text-ink-muted hover:text-white"
               }`}
             >
@@ -312,7 +312,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                 key={bid.id}
                 className={`rounded-2xl border transition-all p-5 space-y-4 ${
                   isFirst
-                    ? "border-emerald-500 bg-surface-elevated shadow-xl ring-1 ring-emerald-500/50"
+                    ? "border-brand-500 bg-surface-elevated shadow-xl ring-1 ring-brand-500/50"
                     : "border-border bg-surface hover:border-border-strong"
                 }`}
               >
@@ -323,7 +323,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     <div
                       className={`flex h-9 w-9 items-center justify-center rounded-xl font-black text-sm ${
                         index === 0
-                          ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                          ? "bg-brand-500 text-black shadow-lg shadow-brand-500/20"
                           : index === 1
                           ? "bg-slate-300 text-black"
                           : "bg-amber-700 text-white"
@@ -351,7 +351,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   {/* Inventory Status */}
                   <div>
                     {bid.vehicleStatus === "on_lot" ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-950/80 px-2.5 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-brand-950/80 px-2.5 py-1 text-xs font-bold text-brand-400 border border-brand-500/30">
                         🟢 On Lot (Immediate Delivery)
                       </span>
                     ) : (
@@ -372,8 +372,8 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-emerald-400">Dealer Discount</span>
-                    <div className="font-bold text-emerald-400 font-mono text-sm">
+                    <span className="text-[10px] uppercase font-bold text-brand-400">Dealer Discount</span>
+                    <div className="font-bold text-brand-400 font-mono text-sm">
                       -{formatCurrency(bid.dealerDiscountDollars)} ({formatPercent(bid.dealerDiscountPercent)})
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-emerald-400">Quoted Price</span>
+                    <span className="text-[10px] uppercase font-bold text-brand-400">Quoted Price</span>
                     <div className="font-black text-white font-mono text-base">
                       {formatCurrency(bid.quotedOtdPrice)}
                     </div>
@@ -407,7 +407,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
                   <button
                     onClick={() => onInspectFee(bid)}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:underline"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-400 hover:underline"
                   >
                     <FileText className="h-3.5 w-3.5" /> Inspect Itemized Line Items
                   </button>
@@ -416,8 +416,8 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                     onClick={() => onInspectFee(bid)}
                     className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all shadow-md active:scale-95 ${
                       isFirst
-                        ? "bg-emerald-500 text-black hover:bg-emerald-400 shadow-emerald-500/20"
-                        : "border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500 hover:text-black"
+                        ? "bg-brand-500 text-black hover:bg-brand-400 shadow-brand-500/20"
+                        : "border border-brand-500/40 bg-brand-500/10 text-brand-300 hover:bg-brand-500 hover:text-black"
                     }`}
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" /> Pick this quote
@@ -430,7 +430,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 
         {/* Safe Purchase Info Card */}
         <div className="rounded-2xl border border-border bg-surface-elevated p-4 flex items-start gap-3 text-xs">
-          <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+          <ShieldCheck className="h-5 w-5 text-brand-400 shrink-0 mt-0.5" />
           <div>
             <h4 className="font-bold text-white">Transparent Transaction Policy</h4>
             <p className="text-[11px] text-ink-muted mt-0.5 leading-relaxed">
@@ -496,7 +496,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
             <div className="flex justify-end border-t border-border bg-surface-elevated px-6 py-4">
               <button
                 onClick={() => setIsTradeInModalOpen(false)}
-                className="rounded-lg bg-emerald-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-emerald-400 transition-all shadow-md"
+                className="rounded-lg bg-brand-500 px-5 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all shadow-md"
               >
                 Done
               </button>

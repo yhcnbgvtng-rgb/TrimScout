@@ -17,9 +17,9 @@ type Tab = "pending" | "decided";
 
 /** How the invite will be delivered, from what the box stored about its desk. */
 export function inviteRoutingLabel(i: Pick<AdminRfqInvite, "desk" | "dealerContactEmail">): { label: string; tone: string } {
-  if (i.desk?.source === "buyer") return { label: "Adviser (buyer-added)", tone: "text-emerald-300" };
+  if (i.desk?.source === "buyer") return { label: "Adviser (buyer-added)", tone: "text-brand-300" };
   if (i.desk?.source === "rooftop") return i.dealerContactEmail ? { label: "Dealership sales desk", tone: "text-sky-300" } : { label: "Unassigned — no address on file; ops routes by hand", tone: "text-amber-300" };
-  if (i.desk?.contactName) return { label: `Named contact · ${i.desk.contactName}${i.desk.role ? ` (${(DESK_ROLE_LABELS as Record<string, string>)[i.desk.role] || i.desk.role})` : ""}`, tone: "text-emerald-300" };
+  if (i.desk?.contactName) return { label: `Named contact · ${i.desk.contactName}${i.desk.role ? ` (${(DESK_ROLE_LABELS as Record<string, string>)[i.desk.role] || i.desk.role})` : ""}`, tone: "text-brand-300" };
   return { label: "No desk", tone: "text-amber-300" };
 }
 
@@ -134,7 +134,7 @@ export default function ApprovalsClient() {
 
         <div className="flex flex-wrap items-center gap-2">
           {(["pending", "decided"] as Tab[]).map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${tab === t ? "border-emerald-500 bg-emerald-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`}>
+            <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold ${tab === t ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-muted hover:text-white"}`}>
               {t === "pending" ? `Pending · ${pending?.length ?? "…"}` : `Decided (30 days) · ${decided.length}`}
             </button>
           ))}
@@ -190,13 +190,17 @@ function RequestCard({
   onChanged: (rfq: AdminRfq, msg?: string) => void;
 }) {
   const isPending = rfq.approvalStatus === "pending";
-  const decidedTone = rfq.approvalStatus === "approved" ? "bg-emerald-500/15 text-emerald-300" : rfq.approvalStatus === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300";
+  const previewable = rfq.invites.filter((i) => i.calculatorUrl);
+  const [previewId, setPreviewId] = useState<string>("");
+  const previewInvite = previewable.find((i) => String(i.id) === previewId) || previewable[0];
+  const dealerPreviewUrl = previewInvite?.calculatorUrl ? `${previewInvite.calculatorUrl}&preview=1` : null;
+  const decidedTone = rfq.approvalStatus === "approved" ? "bg-positive-500/15 text-positive-300" : rfq.approvalStatus === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300";
   return (
     <section id={`rfq-${rfq.id}`} className="rounded-2xl border border-border bg-surface p-4 space-y-3" data-testid="approval-rfq" data-approval={rfq.approvalStatus}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm font-black text-emerald-400">{rfqDealNumber(rfq)}</span>
+            <span className="font-mono text-sm font-black text-brand-400">{rfqDealNumber(rfq)}</span>
             <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{rfqQuoteTypeLabel(rfq)}</span>
             <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${decidedTone}`}>{rfq.approvalStatus === "pending" ? "Pending review" : rfq.approvalStatus === "approved" ? "Released" : "Rejected"}</span>
             <span className="text-[10px] text-ink-faint">submitted {relativeTime(rfq.createdAt)}{rfq.approvalDecidedAt ? ` · decided ${relativeTime(rfq.approvalDecidedAt)} by ${rfq.approvalDecidedBy || "admin"}` : ""}</span>
@@ -214,9 +218,23 @@ function RequestCard({
             <p className="mt-1 text-[10px] text-sky-200/90">Corrections: {rfq.adminEdits.map((e) => `${e.summary} (${e.by || "admin"}, ${relativeTime(e.at)})`).join(" · ")}</p>
           ) : null}
         </div>
-        <Link href={`/rfq/${rfq.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">
-          Buyer view
-        </Link>
+        <div className="flex shrink-0 flex-col items-stretch gap-2">
+          <Link href={`/rfq/${rfq.id}`} className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">
+            Buyer view
+          </Link>
+          {previewable.length > 1 ? (
+            <select value={String(previewInvite?.id ?? "")} onChange={(e) => setPreviewId(e.target.value)} aria-label="Dealer to preview" className="max-w-[180px] rounded-lg border border-border bg-background px-2 py-1.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none" data-testid="dealer-view-select">
+              {previewable.map((i) => (
+                <option key={i.id} value={String(i.id)}>{i.dealerName}</option>
+              ))}
+            </select>
+          ) : null}
+          {dealerPreviewUrl ? (
+            <a href={dealerPreviewUrl} target="_blank" rel="noreferrer" title={`Read-only: what ${previewInvite?.dealerName || "the dealer"} sees. Not recorded as a dealer view.`} className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white" data-testid="dealer-view">
+              Dealer view
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <ul className="divide-y divide-border/60 rounded-xl border border-border bg-background" data-testid="approval-dealers">
@@ -244,7 +262,7 @@ function RequestCard({
       {isPending ? (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={busy || rfq.invites.length === 0} onClick={() => onDecide("approved")} className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3.5 py-2 text-[11px] font-extrabold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="approve">
+            <button type="button" disabled={busy || rfq.invites.length === 0} onClick={() => onDecide("approved")} className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3.5 py-2 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="approve">
               <Check className="h-3.5 w-3.5" /> Approve &amp; release
             </button>
             <button type="button" onClick={onToggleEdit} className="inline-flex items-center gap-1 rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:text-white" data-testid="edit">
@@ -301,7 +319,7 @@ function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const field = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-emerald-500 focus:outline-none";
+  const field = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none";
 
   const save = async () => {
     setBusy(true);

@@ -39,7 +39,7 @@ describe("buyer-facing RFQ responses never carry a dealer's cleartext address or
     assert.match(read("lib/rfqApi.ts"), /\/api\/rfqs\?all=1&limit=/);
     assert.match(read("scrapers/lightsail-crawler/src/deals_api_server.js"), /const all = query\.get\("all"\) === "1";[\s\S]*?ORDER BY created_at DESC LIMIT \?/);
     assert.match(read("scripts/box/2026-09-13-admin-rfq-list.sh"), /"list all"/);
-    assert.match(read("app/api/rfqs/[id]/route.ts"), /const isAdmin = \(session\.user as \{ role\?: string \}\)\.role === "admin";[\s\S]*?!== session\.user\.id && !isAdmin/);
+    assert.match(read("app/api/rfqs/[id]/route.ts"), /viewer = buyerForRfq\(session, req, rfq\);[\s\S]*?buyerUserId !== viewer\.id && !viewer\.isAdmin/);
     const page = read("app/admin/quote-requests/QuoteRequestsClient.tsx");
     assert.match(page, /Quote as dealer/);
     assert.match(page, /marks the invite viewed and locks the buyer/);
