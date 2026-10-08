@@ -22,6 +22,12 @@ export function multiParam(params, key, normalize = (v) => v) {
   return [...seen];
 }
 
+// Sorting by the "Contact on file" column: 1 = the dealership has a contact email, 0 = it has a directory row but no email,
+// NULL = no directory row (unknown). Same meaning as lib/dealerContactIndex.ts. Reads the d join, so the page query keeps it.
+const CONTACT_SORT_EXPR = "(CASE WHEN d.id IS NULL THEN NULL WHEN d.contact_email IS NOT NULL AND TRIM(d.contact_email) <> '' THEN 1 ELSE 0 END)";
+// Columns whose "blank" includes the empty string; the rest (numbers, the contact flag) are blank only when NULL.
+const TEXT_SORT_COLUMNS = new Set(["i.dealer_name", "i.make", "i.model", "i.trim", "i.vin", "i.exterior_color", "i.interior_color", "i.state", "i.vdp_url"]);
+
 export function inventoryListQuery(params) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
@@ -149,16 +155,27 @@ export function inventoryListQuery(params) {
       args.push(like, like, like, like, like);
     }
   }
-  const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp" };
+  const sortable = { dealer: "i.dealer_name", year: "i.year", make: "i.make", model: "i.model", price: "i.price", mileage: "i.mileage", seen: "i.last_seen_at", days: "i.days_on_lot", pricediff: "i.price_diff", msrp: "i.msrp",
+    // The buyer /search table's other column headers (each sortable across the WHOLE result set, not just the visible page).
+    vin: "i.vin", vehicleid: "i.vehicle_id", ext: "i.exterior_color", int: "i.interior_color", state: "i.state", listing: "i.vdp_url", contact: CONTACT_SORT_EXPR };
   const [sk, sd] = (p("sort") || "dealer:asc").split(":");
+  const dirSql = sd === "desc" ? "DESC" : "ASC";
+  // nullsLast=1 (opt-in; only the buyer search's header sort sends it): a blank value sorts AFTER every real value in BOTH
+  // directions. Without it MariaDB treats NULL as the lowest value, so an ascending sort led with the rows that have nothing
+  // (price:asc, mileage:asc, trim:asc all started with blanks). The blank test is a separate leading key that is always ASC
+  // (0 = has a value, 1 = blank), so the real direction only applies to the values. Not applied to the default order or to any
+  // caller that does not ask: their plans (index order, no filesort) are measured and must not change.
+  const nullsLast = p("nullsLast") === "1";
+  const blankKey = (col) => (TEXT_SORT_COLUMNS.has(col) ? `(${col} IS NULL OR ${col} = '')` : `(${col}) IS NULL`);
+  const lead = (col) => (nullsLast ? `${blankKey(col)} ASC, ` : "");
   // sort=trim is the buyer search's default for make+model: idx_inv_stock_make_model_trim is ordered
   // (removed_at, make, model, trim, dealer_name, vin), so with make+model pinned, (trim, dealer_name,
   // vin) IS index order — no filesort at all. Measured live 2026-10-01 on 57,574 in-stock Ford F-150s:
   // the dealer:asc default filesorts the whole make+model range (348ms covering / 952ms with full
   // rows) while this order stops after 24 index entries (4ms). Only meaningful with make+model.
   const orderBy = sk === "trim"
-    ? `i.trim ${sd === "desc" ? "DESC" : "ASC"}, i.dealer_name ${sd === "desc" ? "DESC" : "ASC"}, i.vin ${sd === "desc" ? "DESC" : "ASC"}`
-    : `${sortable[sk] || "i.dealer_name"} ${sd === "desc" ? "DESC" : "ASC"}, i.vin ASC`;
+    ? `${lead("i.trim")}i.trim ${dirSql}, i.dealer_name ${dirSql}, i.vin ${dirSql}`
+    : `${sortable[sk] ? lead(sortable[sk]) : ""}${sortable[sk] || "i.dealer_name"} ${dirSql}, i.vin ASC`;
   // A make= filter combined with the default dealer_name sort made the optimizer pick
   // idx_inv_stock_dealer (295k-row estimate) over the far more selective idx_inv_stock_make
   // (removed_at, make, model) — confirmed live 2026-09-22: 110.9s vs 203ms forced. Likely
@@ -250,7 +267,9 @@ export function inventoryListQuery(params) {
   // (or the whole table's) matching rows just to discard the result. Confirmed live 2026-09-28
   // this join was pure overhead on the COUNT(*) query for every filter combination, not just the
   // make=+model= case this fix targets.
-  const countSql = `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
+  // Only a sort by the contact flag reads a d.* column inside the page's inner query (deferredPageSql builds that from countSql), so
+  // exactly then countSql keeps the join; every other sort still drops it.
+  const countSql = /\bd\./.test(orderBy) ? sql : `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
   // countCap: stop counting once this many matches are found. An exact COUNT(*) has to visit every
   // matching row — 186k+ for a bare make like Ford — and buyers never need that number: "1,000+" is
   // an honest answer, and the LIMIT inside the derived table lets MariaDB stop early (a plain

@@ -129,6 +129,8 @@ export interface InventoryQuery {
   limit?: number;
   offset?: number;
   sort?: string;
+  /** Opt-in: with a sort, blank values come after every real value in BOTH directions (the buyer table's header sort). */
+  nullsLast?: boolean;
 }
 
 /** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
@@ -156,6 +158,7 @@ export type BuyerSearchQuery = Pick<
   | "limit"
   | "offset"
   | "sort"
+  | "nullsLast"
 > & {
   /** Buyer's own zip — used only for the response's per-vehicle distanceMiles, and (with radiusMiles) to filter/sort by distance. */
   zip?: string;

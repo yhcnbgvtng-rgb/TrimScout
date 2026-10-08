@@ -2,10 +2,11 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, SlidersHorizontal, X } from "lucide-react";
+import { ArrowDown, ArrowUp, MapPin, SlidersHorizontal, X } from "lucide-react";
 import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
+import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
 import { useRouter } from "next/navigation";
 
@@ -80,7 +81,7 @@ const EMPTY_FILTERS: Filters = {
 // trigger can say "3 more filters" instead of a generic icon with no idea how many are hiding.
 function countMoreFilters(f: Filters): number {
   return (
-    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles, f.sort].filter(Boolean).length +
+    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles].filter(Boolean).length +
     (f.possibleDemo ? 1 : 0)
   );
 }
@@ -103,7 +104,11 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
   if (f.possibleDemo) sp.set("possibleDemo", "1");
   if (f.zip) sp.set("zip", f.zip);
   if (f.radiusMiles && f.make && f.zip) sp.set("radiusMiles", f.radiusMiles);
-  if (f.sort) sp.set("sort", f.sort);
+  if (f.sort) {
+    sp.set("sort", f.sort);
+    // Blank values after every real value in both directions (see lib/buyerSort.ts). Not sent without a sort: the default order's plan is tuned and must not change.
+    if (parseSort(f.sort)?.key !== "distance") sp.set("nullsLast", "1");
+  }
   if (extra.limit) sp.set("limit", String(extra.limit));
   if (extra.offset) sp.set("offset", String(extra.offset));
   return sp.toString();
@@ -158,6 +163,10 @@ export function BuyerSearchView() {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  // A header sort that could not be applied (too slow for this many vehicles) or is not offered yet — shown above the table.
+  const [sortNote, setSortNote] = useState<string | null>(null);
+  // The sort a header click is waiting on: if its request fails the previous sort comes back and the old results stay on screen.
+  const sortAttemptRef = useRef<{ prev: string; label: string } | null>(null);
 
   // Close the "More" popover on an outside click, same convention as SearchableDropdown.
   useEffect(() => {
@@ -259,16 +268,35 @@ export function BuyerSearchView() {
       if (requestId !== runSearchRef.current) return; // a newer request has since superseded this one
       const json = await res.json().catch(() => ({}));
       if (!res.ok || json?.error) {
+        const attempt = sortAttemptRef.current;
+        if (attempt && offset === 0) {
+          // A header sort that failed or timed out: put the previous sort back, keep the results on screen, say why.
+          sortAttemptRef.current = null;
+          setFilters((fl) => ({ ...fl, sort: attempt.prev }));
+          setApplied((a) => (a ? { ...a, sort: attempt.prev } : a));
+          setSortNote(SORT_TIMEOUT_NOTE(attempt.label));
+          setSearchError(null);
+          return;
+        }
         setSearchError(typeof json?.error === "string" ? json.error : "Could not search inventory.");
         if (offset === 0) setResults(null);
         return;
       }
+      sortAttemptRef.current = null;
       setSearchError(null);
       const lastPageCount = Array.isArray(json.vehicles) ? json.vehicles.length : 0;
       setResults((prev) => (offset > 0 && prev ? { ...json, lastPageCount, vehicles: [...prev.vehicles, ...json.vehicles] } : { ...json, lastPageCount }));
     } catch (e) {
       if ((e as { name?: string })?.name === "AbortError") return;
       if (requestId !== runSearchRef.current) return;
+      const attempt = sortAttemptRef.current;
+      if (attempt && offset === 0) {
+        sortAttemptRef.current = null;
+        setFilters((fl) => ({ ...fl, sort: attempt.prev }));
+        setApplied((a) => (a ? { ...a, sort: attempt.prev } : a));
+        setSortNote(SORT_TIMEOUT_NOTE(attempt.label));
+        return;
+      }
       setSearchError("Could not reach the search service.");
       if (offset === 0) setResults(null);
     } finally {
@@ -287,11 +315,29 @@ export function BuyerSearchView() {
   const submitSearch = () => {
     if (blockedReason) return;
     setMoreOpen(false);
+    setSortNote(null);
     // A fresh object every time, so pressing Search again re-runs the same filters on purpose.
     setApplied({ ...filters });
   };
   // Filters edited since the last Search — the results on screen no longer match the panel.
   const dirty = applied !== null && JSON.stringify(applied) !== JSON.stringify(filters);
+
+  // Clicking a column header: ascending, then descending, then cleared. It re-runs the search already on screen (the applied filters,
+  // not unapplied edits in the panel) with the new sort, and the server orders the WHOLE result set. One click = one request: clicks
+  // are ignored while a search is loading, so a burst cannot become a burst of box queries.
+  const onSort = (column: SortableColumn) => {
+    if (!applied || searchLoading) return;
+    const label = TABLE_COLUMNS.find((c) => c.key === column)?.label || column;
+    const next = nextSort(applied.sort, column);
+    if (next) {
+      const why = sortBlockedReason(column, Boolean(applied.model), label);
+      if (why) { setSortNote(why); return; }
+    }
+    setSortNote(null);
+    sortAttemptRef.current = next ? { prev: applied.sort, label } : null; // clearing back to the default order never needs a revert
+    setFilters((f) => ({ ...f, sort: next }));
+    setApplied((a) => (a ? { ...a, sort: next } : a));
+  };
 
   const toggleOptionKey = (key: string) => {
     setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
@@ -308,7 +354,8 @@ export function BuyerSearchView() {
   const clearMore = () =>
     setFilters((f) => ({
       ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
-      exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: "",
+      // The header sort is kept (it is not a filter); only a Distance sort goes, because clearing the ZIP removes that column.
+      exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
 
   const modelDisabledHint = !filters.make ? "Pick a make first" : undefined;
@@ -504,7 +551,8 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
-            {results.vehicles.length > 0 && <VehicleTable vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
+            {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
+            {results.vehicles.length > 0 && <VehicleTable sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
@@ -552,9 +600,11 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
 ];
 const ROW_H = 32;
 
-function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }: {
+function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
   vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
   onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
+  /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
+  sort: string; onSort: (column: SortableColumn) => void; sortBusy: boolean;
 }) {
   const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
   const totalW = cols.reduce((s, c) => s + c.w, 0);
@@ -578,11 +628,29 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView }:
       <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
           <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
-            {cols.map((c) => (
-              <div key={c.key} className={`flex shrink-0 items-center border-r border-gray-300 px-2.5 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
-                <span className="truncate">{c.label}</span>
-              </div>
-            ))}
+            {cols.map((c) => {
+              const sortable = isSortableColumn(c.key);
+              const active = activeSort(sort);
+              const here = sortable && active?.column === c.key ? active : null;
+              return (
+                <div key={c.key} role="columnheader" aria-sort={sortable ? ariaSortFor(sort, c.key) : undefined} className={`flex shrink-0 items-center border-r border-gray-300 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
+                  {sortable ? (
+                    <button
+                      type="button"
+                      onClick={() => onSort(c.key as SortableColumn)}
+                      disabled={sortBusy}
+                      title={`Sort by ${c.label} — click for ${here ? (here.dir === "asc" ? "descending" : "no sort") : "ascending"}`}
+                      className={`flex h-full w-full min-w-0 items-center gap-1 px-2.5 uppercase tracking-wider hover:bg-gray-200 focus-visible:outline-2 disabled:cursor-wait ${c.right ? "justify-end" : ""}`}
+                    >
+                      <span className="truncate">{c.label}</span>
+                      {here && (here.dir === "asc" ? <ArrowUp aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-asc" /> : <ArrowDown aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-desc" />)}
+                    </button>
+                  ) : (
+                    <span className="truncate px-2.5">{c.label}</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
           {vehicles.map((v, idx) => {
             const key = vehicleKey(v);

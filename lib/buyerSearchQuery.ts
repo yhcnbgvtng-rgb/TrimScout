@@ -1,4 +1,5 @@
 import type { BuyerSearchQuery } from "./inventoryApi";
+import { formatSort, parseSort, type SortDir } from "./buyerSort";
 
 export class BuyerSearchParamsError extends Error {}
 
@@ -7,6 +8,8 @@ export interface ParsedBuyerSearch {
   zip?: string;
   radiusMiles?: number;
   sortDistance: boolean;
+  /** Direction of the in-memory distance sort (distance has no database column). */
+  distanceDir: SortDir;
 }
 
 const MAX_LIMIT = 100;
@@ -46,7 +49,11 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     throw new BuyerSearchParamsError(`Pick at most ${MAX_OPTION_KEYS} factory options at a time.`);
   }
 
-  const sortDistance = sp.get("sort") === "distance";
+  // sort= is whitelisted (an unknown or malformed value is ignored, never forwarded). Distance has no database column: it sorts
+  // in memory in runBuyerSearch, so the box gets no sort for it.
+  const sortSpec = parseSort(sp.get("sort"));
+  const sortDistance = sortSpec?.key === "distance";
+  const boxSort = sortSpec && !sortDistance ? formatSort(sortSpec) : undefined;
   const query: BuyerSearchQuery = {
     state: sp.get("state") || undefined,
     make,
@@ -66,15 +73,15 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     interiorColor: sp.get("interiorColor") || undefined,
     optionKeys: optionKeys.length ? optionKeys : undefined,
     possibleDemo: sp.get("possibleDemo") === "1",
-    // "distance" isn't a box-side sort key (inventoryListQuery.js falls back to dealer:asc for
-    // an unknown key) — distance sort happens in-memory on the fetched page, in the route.
     // No explicit sort: the one order the make-scoped index serves with no filesort — trim for
     // make+model (idx_inv_stock_make_model_trim), model for make+state (idx_inv_facet_make_state_model);
     // make alone keeps the box's dealer default (idx_inv_stock_make_dealer). See inventoryListQuery.js.
-    sort: sortDistance ? undefined : sp.get("sort") || (sp.get("model") ? "trim:asc" : sp.get("state") ? "model:asc" : undefined),
+    // nullsLast only rides along with an explicit sort; the default order's plan must not change.
+    sort: boxSort || (sortDistance ? undefined : sp.get("model") ? "trim:asc" : sp.get("state") ? "model:asc" : undefined),
+    nullsLast: boxSort && sp.get("nullsLast") === "1" ? true : undefined,
     countCap: BUYER_COUNT_CAP,
     limit: Math.min(Number(sp.get("limit")) || 50, MAX_LIMIT),
     offset: Number(sp.get("offset")) || 0,
   };
-  return { query, zip, radiusMiles, sortDistance };
+  return { query, zip, radiusMiles, sortDistance, distanceDir: sortSpec?.dir ?? "asc" };
 }
