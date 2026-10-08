@@ -199,7 +199,7 @@ function ReceivedBody() {
                 <TradeInNote expected={ctx.tradeInExpected} />
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
             </>
           ) : !ctx.leasePrefs ? (
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">
@@ -252,6 +252,7 @@ function ReceivedBody() {
                 stockNumber={ctx.stockNumber}
                 prefs={ctx.leasePrefs}
                 initial={ctx.priorLease}
+                counterSheet={ctx.buyerCounter?.sheet ?? null}
                 onSubmitted={setDone}
               />
             </>

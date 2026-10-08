@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { COUNTER_COPY, type CounterEditsPayload } from "../lib/buyerCounter";
-import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isDocFee, validateCounterSheet, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
+import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
 import type { LeaseQuote, LineItem } from "../lib/leaseQuote";
 import type { UsedQuote } from "../lib/usedQuote";
 import { CounterComparison } from "./CounterComparison";
@@ -46,7 +46,6 @@ export function CounterSheetForm({
   const [rebates, setRebates] = useState<Line[]>(toLines(lease ? lease.incentives : used?.rebates));
   const [fees, setFees] = useState<Line[]>(toLines(lease ? lease.dueAtSigning.otherFees : used?.dueAtSigning));
   const [note, setNote] = useState("");
-  const [lineNote, setLineNote] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -78,16 +77,12 @@ export function CounterSheetForm({
   const setLine = (list: Line[], set: (l: Line[]) => void, i: number, amount: string) => set(list.map((l, j) => (j === i ? { ...l, amount } : l)));
   const strike = (list: Line[], set: (l: Line[]) => void, i: number) => setLine(list, set, i, "0");
 
-  const lineNotes = Object.entries(lineNote).filter(([, v]) => v.trim()).map(([k, v]) => `${k}: ${v.trim()}`);
-  const fullNote = [note.trim(), ...lineNotes].filter(Boolean).join(" · ").slice(0, 300);
-  const noteTooLong = [note.trim(), ...lineNotes].filter(Boolean).join(" · ").length > 300;
-
   const submit = async () => {
     if (!sheet || errors.length) return;
     setBusy(true);
     setServerError(null);
     try {
-      await onSubmit({ againstQuoteId: quoteId, edits, note: fullNote || null });
+      await onSubmit({ againstQuoteId: quoteId, edits, note: note.trim() || null });
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "Could not send your counter.");
     } finally {
@@ -97,15 +92,14 @@ export function CounterSheetForm({
 
   const priceLabel = kind === "lease" ? "Cap cost (selling price)" : "Selling price";
   const downLabel = kind === "lease" ? "Cap reduction (cash down)" : "Down payment";
-  const feeEditable = (name: string) => (kind === "lease" ? true : isDocFee(name));
+  const feeEditable = (name: string) => !isLockedFee(name);
 
   return (
     <div className="space-y-3 rounded-xl border border-sky-500/40 bg-sky-950/20 px-4 py-3" data-testid="counter-sheet-form" data-kind={kind}>
       <div>
         <p className="text-xs font-bold text-white">Counter {dealerName}&apos;s quote — edit only the lines you&apos;re asking about</p>
-        <p className="text-[10px] text-ink-muted">
-          {kind === "lease" ? "Money factor, residual, term, miles, acquisition fee and taxes stay as quoted; the monthly and due-at-signing recompute from their own factors." : kind === "finance" ? "APR, term, tax and title stay as quoted; amount financed and the monthly recompute." : "Tax and title stay as quoted; out-the-door recomputes."}{" "}
-          Prices and fees can only go down, add-ons can be lowered or struck, rebates added. {COUNTER_COPY}
+        <p className="text-[10px] text-ink-muted" data-testid="counter-header-copy">
+          Sales tax, title &amp; registration and doc fee stay as quoted. Price and other fees can only go down, add-ons can be lowered or struck, rebates added.
         </p>
       </div>
 
@@ -113,6 +107,7 @@ export function CounterSheetForm({
         <label className="space-y-1">
           <span className={label}>{priceLabel} <span className="normal-case font-normal text-ink-muted">— quoted ${(lease ? lease.capCost : used!.sellingPrice).toLocaleString()}</span></span>
           <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" className={input} data-testid="counter-price" />
+          {sheet && counterPriceChanged(sheet) ? <span className="block text-[10px] font-normal normal-case text-sky-200" data-testid="tax-update-note">{TAX_UPDATE_NOTE}</span> : null}
         </label>
         {kind !== "cash" ? (
           <label className="space-y-1">
@@ -135,7 +130,7 @@ export function CounterSheetForm({
           ))}
         </div>
         <div className="space-y-1">
-          <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— {kind === "lease" ? "lower any" : "doc fee only"}</span></span>
+          <span className={label}>Fees <span className="normal-case font-normal text-ink-muted">— lower or strike</span></span>
           {lease ? (
             <div className={LR} data-testid="fixed-tax-line">
               <span className="min-w-0 text-[11px] leading-snug text-ink-faint">Sales tax (fixed)</span>
@@ -146,6 +141,7 @@ export function CounterSheetForm({
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
               <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
               <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+              {feeEditable(l.name) ? <button type="button" onClick={() => strike(fees, setFees, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this fee">strike</button> : null}
             </div>
           ))}
         </div>
@@ -161,18 +157,6 @@ export function CounterSheetForm({
         </div>
       </div>
 
-      <fieldset className="space-y-1" data-testid="line-comments">
-        <legend className={label}>Comment on a line (optional)</legend>
-        <div className="grid gap-2 md:grid-cols-2">
-          {[{ k: "Price", on: true }, ...addOns.map((l) => ({ k: l.name, on: Boolean(l.name) })), ...fees.filter((l) => feeEditable(l.name)).map((l) => ({ k: l.name, on: Boolean(l.name) }))].filter((x) => x.on).slice(0, 8).map((x) => (
-            <div key={x.k} className={LR}>
-              <span className="min-w-0 break-words text-[11px] text-ink-light">{x.k}</span>
-              <input value={lineNote[x.k] || ""} onChange={(e) => setLineNote({ ...lineNote, [x.k]: e.target.value.slice(0, 80) })} placeholder="Comment" className={input} aria-label={`Comment on ${x.k}`} />
-            </div>
-          ))}
-        </div>
-      </fieldset>
-
       <label className="block space-y-1">
         <span className={label}>Note to the dealer (optional)</span>
         <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 300))} rows={2} placeholder="e.g. I have the loyalty rebate — happy to sign this week at these numbers." className={input} />
@@ -185,7 +169,6 @@ export function CounterSheetForm({
         </div>
       ) : null}
 
-      {noteTooLong ? <p className="text-[11px] text-amber-200">Your note and line comments are over 300 characters — the end will be trimmed.</p> : null}
       {errors.length ? (
         <ul className="space-y-0.5 text-[11px] text-rose-300" data-testid="counter-errors">
           {errors.map((e) => <li key={e}>{e}</li>)}
