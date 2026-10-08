@@ -11,15 +11,15 @@ const NOW = new Date("2026-09-13T12:00:00Z");
 const PREFS = { termMonths: 36 as const, milesPerYear: 10000 as const, zip: "07405", timeline: null };
 const quote: LeaseQuote = {
   capCost: 66000, residualPercent: 55, residualAmount: 39391, moneyFactor: 0.0019, termMonths: 36, milesPerYear: 10000, capReduction: 0,
-  monthlyPaymentPreTax: 939, monthlyPaymentWithEstTax: 1001, dueAtSigning: { firstMonth: 1001, acquisitionFee: 695, capReduction: 0, taxes: 0, otherFees: [{ name: "Doc fee", amount: 299 }] },
+  monthlyPaymentPreTax: 939, monthlyPaymentWithEstTax: 1001, dueAtSigning: { firstMonth: 1001, acquisitionFee: 695, capReduction: 0, taxes: 0, otherFees: [{ name: "Doc fee", amount: 299 }, { name: "Electronic filing fee", amount: 199 }] },
   incentives: [{ name: "Lease cash / rebate", amount: 1500 }], addOns: [], expiresAt: "2026-09-30T00:00:00Z", notes: null, counter: { counterOffer: false, note: "" },
 };
 
 describe("buyer counter — the dealer's own sheet with price-side edits, a request not a bid", () => {
   it("parseCounterEdits keeps numbers and named lines only, per kind; buildCounterFromEdits re-applies them to the quote on file", () => {
-    const raw = { againstQuoteId: "q1", note: "  Loyalty applies. ", edits: { capCost: "$64,500", capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: "750" }, { name: "", amount: 5 }], otherFees: [{ name: "Doc fee", amount: 199 }], moneyFactor: 0.001, termMonths: 24 } };
+    const raw = { againstQuoteId: "q1", note: "  Loyalty applies. ", edits: { capCost: "$64,500", capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: "750" }, { name: "", amount: 5 }], otherFees: [{ name: "Doc fee", amount: 299 }, { name: "Electronic filing fee", amount: 99 }], moneyFactor: 0.001, termMonths: 24 } };
     const p = parseCounterEdits(raw, "lease")!;
-    assert.deepEqual(p, { againstQuoteId: "q1", note: "Loyalty applies.", edits: { capCost: 64500, capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: 750 }], otherFees: [{ name: "Doc fee", amount: 199 }] } }, "money factor / term in the payload are ignored — they're not edits");
+    assert.deepEqual(p, { againstQuoteId: "q1", note: "Loyalty applies.", edits: { capCost: 64500, capReduction: 1000, incentives: [{ name: "Lease cash / rebate", amount: 1500 }, { name: "Loyalty", amount: 750 }], otherFees: [{ name: "Doc fee", amount: 299 }, { name: "Electronic filing fee", amount: 99 }] } }, "money factor / term in the payload are ignored — they're not edits");
     const built = buildCounterFromEdits({ lease: quote }, p, NOW);
     assert.ok(built.counter);
     const sheet = built.counter!.sheet!;
@@ -28,10 +28,10 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     assert.equal((sheet.after as LeaseQuote).moneyFactor, quote.moneyFactor);
     assert.equal((sheet.after as LeaseQuote).termMonths, 36);
     assert.ok((sheet.after as LeaseQuote).monthlyPaymentPreTax < quote.monthlyPaymentPreTax);
-    assert.deepEqual(sheet.changed.sort(), ["capCost", "capReduction", "fee:Doc fee", "incentive:Loyalty"]);
+    assert.deepEqual(sheet.changed.sort(), ["capCost", "capReduction", "fee:Electronic filing fee", "incentive:Loyalty"]);
     assert.equal(built.counter!.againstQuoteId, "q1");
     assert.equal(built.counter!.note, "Loyalty applies.");
-    assert.match(counterSummary(built.counter!), /Cap cost −\$2,250 · Loyalty −\$750 · Cap reduction \+\$1,000 · Doc fee −\$100 → \$/);
+    assert.match(counterSummary(built.counter!), /Cap cost −\$2,250 · Loyalty −\$750 · Cap reduction \+\$1,000 · Electronic filing fee −\$100 → \$/);
   });
   it("refuses a counter that raises the price, moves a locked line, or changes nothing", () => {
     assert.match(buildCounterFromEdits({ lease: quote }, { againstQuoteId: "q1", edits: { capCost: 70000 } }).errors.join(" "), /can lower this, not raise it/);
@@ -39,6 +39,18 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     assert.equal(parseCounterEdits({ edits: { capCost: 1 } }, "lease"), null, "no quote id → nothing");
     assert.equal(parseCounterEdits("junk", "cash"), null);
     assert.equal(buildCounterFromEdits({}, { againstQuoteId: "q1", edits: { sellingPrice: 1 } }).counter, null);
+  });
+  it("server: edits to sales tax, title & registration or the doc fee are refused; the electronic fee may be struck", () => {
+    const used = { kind: "cash", sellingPrice: 30000, dueAtSigning: [{ name: "Sales tax", amount: 2000 }, { name: "Doc fee", amount: 400 }, { name: "Title & registration", amount: 300 }, { name: "Electronic filing fee", amount: 100 }], addOns: [], noAddOns: true, rebates: [], miles: null, stockNumber: null, cpo: false, expiresAt: "2026-09-30T00:00:00Z", notes: null } as unknown as import("./usedQuote").UsedQuote;
+    const lines = (over: Record<string, number>) => Object.entries({ "Sales tax": 2000, "Doc fee": 400, "Title & registration": 300, "Electronic filing fee": 100, ...over }).map(([name, amount]) => ({ name, amount }));
+    for (const name of ["Sales tax", "Doc fee", "Title & registration"]) {
+      const r = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ [name]: 1 }) } }, NOW);
+      assert.equal(r.counter, null, name);
+      assert.match(r.errors.join(" "), /is set by the lender or the state/, name);
+    }
+    const ok = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ "Electronic filing fee": 0 }) } }, NOW);
+    assert.deepEqual(ok.errors, []);
+    assert.ok(ok.counter);
   });
   it("legacy counters (target monthly asks) still parse and summarise; copy never says bid or auction", () => {
     const legacy = parseBuyerCounter({ againstQuoteId: "q1", targetMonthlyMax: 875, note: "x" })!;

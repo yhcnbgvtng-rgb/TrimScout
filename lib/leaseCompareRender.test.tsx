@@ -108,7 +108,7 @@ describe("column compare at 1, 3 and 5 dealers", () => {
     const form = fs.readFileSync("components/CounterSheetForm.tsx", "utf8");
     assert.match(form, /grid-cols-\[minmax\(0,1fr\)_6\.5rem\]/, "label left, input right — no overlap");
     assert.match(form, /data-testid="fixed-tax-line"/);
-    assert.match(form, /Comment on a line \(optional\)/); assert.match(form, /Note to the dealer \(optional\)/);
+    assert.doesNotMatch(form, /Comment on a line/); assert.match(form, /Note to the dealer \(optional\)/);
   });
 });
 

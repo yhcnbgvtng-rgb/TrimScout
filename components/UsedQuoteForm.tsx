@@ -5,6 +5,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { CREDIT_BAND_LABELS, FINANCE_TERMS, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
+import { counterPriceChanged, TAX_PROMPT_COPY, type CounterSheet } from "../lib/counterSheet";
+import { TaxUpdatePrompt } from "./TaxUpdatePrompt";
 
 /**
  * The dealer's Cash / Finance sheet, new or used, to match the buyer's
@@ -30,6 +32,7 @@ export function UsedQuoteForm({
   buyerMiles,
   msrp,
   initial,
+  counterSheet = null,
   onSubmitted,
 }: {
   token: string;
@@ -42,6 +45,8 @@ export function UsedQuoteForm({
   msrp?: number | null;
   /** The dealer's own last quote (after a buyer counter) — the sheet opens prefilled so they revise, not retype. */
   initial?: UsedQuote | null;
+  /** The buyer's counter being answered — a price change makes the dealer update or confirm sales tax first. */
+  counterSheet?: CounterSheet | null;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
   const kind = prefs.quoteType;
@@ -144,12 +149,16 @@ export function UsedQuoteForm({
           lenderName: f.lenderName.trim() || null,
         };
   const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition }), [quote, prefs, f.vin, f.stockNumber, condition]);
+  const [taxConfirmed, setTaxConfirmed] = useState(false);
+  const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
+  const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
+  const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : [])];
   const lockBroken = kind === "finance" && ((d.term != null && d.term !== prefs.finance.termMonths) || (d.down != null && Math.round(d.down) !== prefs.finance.downPayment));
 
   const submit = async () => {
     setTouched(true);
     setServerError(null);
-    if (validation.errors.length) return;
+    if (errors.length) return;
     setBusy(true);
     try {
       const res = await fetch("/api/quote-invite/used-quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote }) });
@@ -268,6 +277,7 @@ export function UsedQuoteForm({
               ), "doc, title & registration, each named")}
               {eqBlock("+", "Sales tax", "eq-sales-tax", (
                 <>
+                  {counterPriceChanged(counterSheet) ? <TaxUpdatePrompt pending={taxPending} confirmed={taxConfirmed} onConfirm={setTaxConfirmed} /> : null}
                   {feeRow(fees[0], 0, fees, setFees, "fee", true, d.estTaxOnPrice != null ? String(d.estTaxOnPrice) : "0")}
                   <p className={hintCls}>For the buyer&apos;s ZIP {zip}{d.estTaxOnPrice != null ? ` — tax on the price at that rate ≈ ${money(d.estTaxOnPrice)}` : ""}. Required as its own line ($0 if none applies).</p>
                 </>
@@ -449,9 +459,9 @@ export function UsedQuoteForm({
         </aside>
       </div>
 
-      {touched && validation.errors.length ? (
+      {touched && errors.length ? (
         <ul className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300 space-y-0.5" data-testid="used-errors">
-          {validation.errors.map((e) => (
+          {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}
         </ul>
