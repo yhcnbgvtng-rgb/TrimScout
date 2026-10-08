@@ -32,6 +32,7 @@ import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
+import { fillColorsFromLabels } from './listingColors.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -1116,6 +1117,8 @@ for (let i = 0; i < dealers.length; i++) {
                 // real value any stronger strategy already found is never
                 // overwritten.
                 vehicle = fillFromFacebookPixelViewContent(vehicle, html);
+                // The page's own labelled Exterior / Interior Color fields (listingColors.js) — blanks only.
+                vehicle = fillColorsFromLabels(vehicle, html);
 
                 if (vehicle && vehicle.vin && vehicle.vin.length >= 16) {
                     // Multi-brand isolation check — see brand_match.js. Most
