@@ -483,3 +483,64 @@ describe('deny rules added 2026-10-07 (option-normalize audit) — real live str
     }
   });
 });
+
+
+// ---- 2026-10-08: fragments split at a period / .com / comma that the 10-07 list missed. Every label below is a real string
+// from the live facet table (Toyota + Chevrolet), with the vehicle count it carried.
+describe('deny rules added 2026-10-08 — sentence fragments (real live strings)', () => {
+  const dropped = (rule, labels) => {
+    for (const l of labels) assert.equal(denyRuleFor(l.replace(/^[^a-z0-9]+/i, '')), rule, `${JSON.stringify(l)} should trip ${rule}`);
+  };
+  it('the examples that started this: See toyota / See onstar / com/connected-services for details / com or dealer for details / SiriusXM genre words', () => {
+    dropped('see-ref', ['See toyota', 'See onstar', 'See dealer or vw']);
+    dropped('url-crumb', ['com/connected-services for details', 'com or dealer for details', 'com/audio-multimedia for details', 'com']);
+    for (const w of ['artists', 'creators', 'comedy', 'news', 'talk and news']) assert.notEqual(denyRuleFor(w), null, w);
+  });
+  it('see-ref also catches a footnote number in front: "56 See toyota"', () => {
+    dropped('see-ref', ['56 See toyota', '7 See onstar']);
+    assert.equal(denyRuleFor('See Ride Quality Details Below'), 'see-ref');
+  });
+  it('siriusxm-genre: the genre words and blurb pieces left by splitting the SiriusXM text (Chevrolet, 14,654 / 10,830 / 3,992 vehicles)', () => {
+    dropped('siriusxm-genre', ['to comedy', 'talk and sports', 'sports', 'Car and Driver', 'podcasts and more1Enjoy channels curated by DJs']);
+  });
+  it('owner decision stands: a bare "Siri" (12,919), "Unlock" and "Google Built-in" are kept, not denied (needs the owner to revisit)', () => {
+    for (const keep of ['Siri', 'unlock', 'Unlock', 'Alexa Built In', 'Navigation system: Google Built-in']) assert.equal(denyRuleFor(keep), null, keep);
+  });
+  it('stub-word-2: leftover single words of split sentences / list headings', () => {
+    dropped('stub-word-2', ['panic', 'audio', 'side', 'quarter', 'lower', 'dust', 'rocks', 'Inside', 'Colors', 'Packages', 'Awards:', 'extra wide', 'fuel range', 'oil life', 'average fuel economy', 'Canada']);
+    for (const ok of ['Remote keyless entry', 'Audio system', 'Side airbags', 'Unlock and panic functions', 'License Plate Front Mounting Package']) assert.equal(denyRuleFor(ok), null, ok);
+  });
+  it('bare-unit: "-ft" (4,953), "5-ft" (2,196) — a bed length split at its decimal', () => {
+    dropped('bare-unit', ['-ft', '5-ft', '5 ft', '2 Gal']);
+    assert.equal(denyRuleFor('6.5-ft Bed'), null);
+  });
+  it('split-displacement: "4L V6", "5L DOHC", "5L 4-Cylinder" — a one-digit displacement split at its decimal', () => {
+    dropped('split-displacement', ['4L V6', '5L DOHC', '5L 4-Cylinder', '4L 4-Cylinder']);
+    for (const ok of ['2.5L 4-Cylinder', '3.5L V6', '2 Liter Turbo']) assert.equal(denyRuleFor(ok), null, ok);
+  });
+  it('spec-cut: "Torque: 170 lb", "Axle Ratio: 3", "583 Axle Ratio"', () => {
+    dropped('spec-cut', ['Torque: 170 lb', 'Torque: 17', 'Axle Ratio: 3', '583 Axle Ratio', '31 Axle Ratio']);
+    assert.equal(denyRuleFor('3.73 Axle Ratio'), null, 'a real ratio with its decimal stays');
+  });
+  it('split-diagonal: "4 diagonal touch-screen display Use"', () => {
+    dropped('split-diagonal', ['4 diagonal touch-screen display Use']);
+    assert.equal(denyRuleFor('8-inch diagonal touchscreen'), null, 'a whole size with its unit stays');
+  });
+  it('dealer-boilerplate: dealer-site text in the options list (Toyota, 1,100-1,500 vehicles each)', () => {
+    dropped('dealer-boilerplate', ['Recent Arrival!', '** CERTIFIED **', '-Trade-Ins Accepted', 'including DMV paperwork', '400 Toyota dealers in the continental U', 'Toyota Gold Certified Details:', 'Dealer is not responsible for typographic errors', 'Serving Selma', 'Tulare County', '* Vehicle History', 'OPTION PACKAGES']);
+    assert.equal(denyRuleFor('Certified Pre-Owned Warranty'), null);
+    for (const l of ['Trouble-free handling of your transaction', 'without eating up your data allowance']) assert.notEqual(denyRuleFor(l), null, l); // already denied by an earlier rule (marketing / legal-boilerplate)
+  });
+  it('sentence-lead: a sentence, not an option (Chevrolet driver-assist blurb, 2,100-4,800 vehicles each)', () => {
+    dropped('sentence-lead', ['When it senses an impending impact', 'If the system determines a likely impact', 'It projects that image to an interior display screen', 'Requires compatible iPhone and data plan rates apply', 'includes multi-touch display', 'such as vehicle speed', 'after a set amount of time', 'Find the hotspot with mobile hotspot', 'Pedestrians don\'t always stop', 'Forward collision mitigation is always looking ahead', 'Horsepower calculations based on trim engine configuration']);
+    for (const ok of ['Pedestrian impact prevention', 'Forward Collision Alert', 'Include Aluminum Wheels', 'Find My Car', 'Requirement Package']) assert.equal(denyRuleFor(ok), null, ok);
+  });
+  it('Toyota footnote numbers are stripped in front of the feature names only (the ~60 spellings of one option become one)', () => {
+    for (const [from, to] of [['21 Lane Departure Alert with Steering Assist (LDA w/SA)', 'Lane Departure Alert with Steering Assist (LDA w/SA)'], ['42 Lane Tracing Assist (LTA)', 'Lane Tracing Assist (LTA)'], ['33 Full-Speed Range Dynamic Radar Cruise Control (DRCC)', 'Full-Speed Range Dynamic Radar Cruise Control (DRCC)'], ['64 Traction Control (TRAC)', 'Traction Control (TRAC)'], ['46 Automatic High Beams (AHB)', 'Automatic High Beams (AHB)'], ['27 auto LSD/VSC', 'auto LSD/VSC']]) assert.equal(repairTruncatedLabel(from), to);
+    for (const keep of ['20 Inch Aluminum Wheels', '2 USB Data Ports', '10 Speed Automatic', '6 Speaker Audio System Feature']) assert.equal(repairTruncatedLabel(keep), keep, keep);
+    assert.equal(normalizeOptionKey(repairTruncatedLabel('21 Lane Departure Alert (LDA)')), normalizeOptionKey(repairTruncatedLabel('18 Lane Departure Alert (LDA)')));
+  });
+  it('regression: real options near these shapes are never denied', () => {
+    for (const ok of ['Sync 4', '10-Speed Automatic', 'Heated mirrors', 'Rear Cross Traffic Alert', 'Premium Package', '4WD', 'AWD', 'Apple CarPlay / Android Auto', '2 USB Data Ports', '20 Inch Aluminum Wheels', '6 Speaker Audio System Feature', 'Heated Driver & Front Passenger Seats', 'Remote Vehicle Starter System', 'Wi-Fi Hot Spot Capable', 'Dual Rear USB Ports (Charge Only)', 'Teen Driver', 'Panoramic Moonroof', 'Black Cloth', 'Siri', 'Unlock', 'Driver Information Center', 'Toyota Safety Sense (TSS) 3']) assert.equal(denyRuleFor(ok), null, ok);
+  });
+});
