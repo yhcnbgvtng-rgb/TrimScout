@@ -25,9 +25,38 @@ export const LOCKED_FIELDS: Record<CounterKind, string[]> = {
   cash: ["expiresAt"],
 };
 
-/** Lines a fee list treats as "the doc fee" — the one mandatory fee a buyer may counter. */
+/** Lines a fee list treats as "the doc fee". */
 export function isDocFee(name: string): boolean {
   return /\b(doc|documentation|dealer)\s*(fee|prep)?\b/i.test(name) && !/title|registration|tax/i.test(name);
+}
+
+/** Sales tax, title & registration: set by the state, never counterable. */
+export function isTaxOrTitleFee(name: string): boolean {
+  return /tax|title|registration/i.test(name);
+}
+
+/** Sales tax, title & registration and the doc fee stay as quoted — every other named fee may be lowered or struck. */
+export function isLockedFee(name: string): boolean {
+  return isTaxOrTitleFee(name) || isDocFee(name);
+}
+
+/** Shown under the price when the buyer's price differs from the quote — tax is the dealer's to update. */
+export const TAX_UPDATE_NOTE = "Sales tax will be updated by the dealer when they respond.";
+/** Shown on the preview's out-the-door lines: the buyer's side never recalculates tax. */
+export const TAX_AS_QUOTED_NOTE = "tax shown as quoted; dealer will update";
+/** Dealer side: a counter moved the price, so the tax line needs a look before the revised quote is sent. */
+export const TAX_PROMPT_COPY = "Price changed — update sales tax before sending";
+
+/** Did the buyer's counter move the selling price / cap cost? */
+export function counterPriceChanged(sheet: { kind: CounterKind; before: CounterQuote; after: CounterQuote } | null | undefined): boolean {
+  if (!sheet) return false;
+  if (sheet.kind === "lease") {
+    // The lease cap cost nets incentives in, so add a bigger incentive back: only the buyer's price ask counts.
+    const b = sheet.before as LeaseQuote;
+    const af = sheet.after as LeaseQuote;
+    return Math.abs(af.capCost + (sumItems(af.incentives) - sumItems(b.incentives)) - b.capCost) >= 0.005;
+  }
+  return Math.abs((sheet.after as UsedQuote).sellingPrice - (sheet.before as UsedQuote).sellingPrice) >= 0.005;
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -69,12 +98,8 @@ export function applyLeaseCounter(before: LeaseQuote, edits: LeaseCounterEdits):
   const rate = impliedTaxRate(before);
   const monthlyTaxed = rate == null ? null : r2(monthly * (1 + rate));
   // DAS: first month follows the new monthly; cap reduction follows the edit. Taxes at signing are the
-  // dealer's figure unless the cap reduction moved AND the dealer's figure was exactly tax on the old
-  // cap reduction — then it scales (the implied rate is recovered from their two monthlies, so it
-  // carries a cent of rounding; hence the tolerance and the "only when moved").
-  const capMoved = Math.abs(capReduction - before.dueAtSigning.capReduction) >= 0.005;
-  const beforeCapTax = before.dueAtSigning.capReduction > 0 && rate != null ? r2(before.dueAtSigning.capReduction * rate) : null;
-  const taxes = capMoved && beforeCapTax != null && Math.abs(beforeCapTax - before.dueAtSigning.taxes) < 0.05 ? r2(capReduction * (rate as number)) : before.dueAtSigning.taxes;
+  // dealer's figure, untouched — tax is not recalculated on the buyer's side; the dealer updates it when they reply.
+  const taxes = before.dueAtSigning.taxes;
   return {
     ...before,
     capCost,
@@ -166,6 +191,8 @@ export interface DiffRow {
   total?: boolean;
   /** How to print: money by default. */
   format?: "money" | "mf" | "pct" | "int";
+  /** Small print under the label (e.g. tax shown as quoted). */
+  note?: string;
 }
 
 const item = (key: string, label: string, before: number | null, after: number | null, opt: Partial<DiffRow> = {}): DiffRow => {
@@ -189,6 +216,9 @@ function lineRows(prefix: string, label: string, before: LineItem[], after: Line
   });
 }
 
+/** Tax, title & registration and the doc fee are fixed lines; any other named fee is the buyer's to lower or strike. */
+const lockFee = (r: DiffRow): DiffRow => (isLockedFee(r.label.replace(/^Fee: /, "")) ? { ...r, locked: true } : r);
+
 /** Line-by-line comparison, in sheet order, ending with the bottom line(s). */
 export function counterDiff(sheet: CounterSheet): DiffRow[] {
   if (sheet.kind === "lease") {
@@ -204,8 +234,8 @@ export function counterDiff(sheet: CounterSheet): DiffRow[] {
       item("termMonths", "Term (months)", b.termMonths, a.termMonths, { locked: true, format: "int" }),
       item("milesPerYear", "Miles per year", b.milesPerYear, a.milesPerYear, { locked: true, format: "int" }),
       item("acquisitionFee", "Acquisition fee", b.dueAtSigning.acquisitionFee, a.dueAtSigning.acquisitionFee, { locked: true }),
-      ...lineRows("fee", "Fee", b.dueAtSigning.otherFees, a.dueAtSigning.otherFees),
-      item("dasTaxes", "Taxes due at signing", b.dueAtSigning.taxes, a.dueAtSigning.taxes, { locked: true, derived: true }),
+      ...lineRows("fee", "Fee", b.dueAtSigning.otherFees, a.dueAtSigning.otherFees).map(lockFee),
+      item("dasTaxes", "Taxes due at signing", b.dueAtSigning.taxes, a.dueAtSigning.taxes, { locked: true }),
       item("monthly", "Monthly (pre-tax)", b.monthlyPaymentPreTax, a.monthlyPaymentPreTax, { total: true }),
       item("monthlyTaxed", "Monthly with est. tax", b.monthlyPaymentWithEstTax, a.monthlyPaymentWithEstTax, { total: true }),
       item("das", "Due at signing", dasTotal(b.dueAtSigning), dasTotal(a.dueAtSigning), { total: true }),
@@ -216,7 +246,7 @@ export function counterDiff(sheet: CounterSheet): DiffRow[] {
   const rows: DiffRow[] = [
     item("sellingPrice", "Selling price", b.sellingPrice, a.sellingPrice),
     ...lineRows("addOn", "Add-on", b.addOns, a.addOns),
-    ...lineRows("fee", "Fee", b.dueAtSigning, a.dueAtSigning).map((r) => (isDocFee(r.label.replace(/^Fee: /, "")) ? r : { ...r, locked: true })),
+    ...lineRows("fee", "Fee", b.dueAtSigning, a.dueAtSigning).map(lockFee),
     ...lineRows("rebate", "Rebate", b.rebates ?? [], a.rebates ?? [], -1),
   ];
   if (sheet.kind === "finance") {
@@ -231,7 +261,7 @@ export function counterDiff(sheet: CounterSheet): DiffRow[] {
       item("monthlyTaxed", "Monthly with est. tax", bf.monthlyPaymentWithEstTax, af.monthlyPaymentWithEstTax, { total: true })
     );
   } else {
-    rows.push(item("otd", "Out the door", cashOutTheDoor(b as UsedCashQuote), cashOutTheDoor(a as UsedCashQuote), { total: true }));
+    rows.push(item("otd", "Out the door", cashOutTheDoor(b as UsedCashQuote), cashOutTheDoor(a as UsedCashQuote), { total: true, note: TAX_AS_QUOTED_NOTE }));
   }
   return rows;
 }

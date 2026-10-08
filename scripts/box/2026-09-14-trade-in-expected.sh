@@ -3,7 +3,7 @@
 # trade-in is coming (handled after the OTD price is agreed; never part of
 # the quote). Accepted on POST /api/rfqs, returned as rfq.tradeInExpected.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   bash 2026-09-14-trade-in-expected.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart.
 set -euo pipefail

@@ -4,7 +4,7 @@
 # list filters (changeType, priceChange=drop|increase, hasSticker, minDays), extra sort keys, movement counts
 # in /stats, and GET /api/inventory/by-dealer (in-stock counts per store for the dealer sheet).
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-16-inventory-rich-fields.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-16-inventory-rich-fields.sh && bash 2026-09-16-inventory-rich-fields.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check. Columns are added
 # on the next request (ALTER TABLE … IF NOT EXISTS).

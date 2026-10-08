@@ -3,7 +3,7 @@
 # velocity, pricing, assortment, coverage, data quality), aggregated in SQL over dealer_inventory and
 # dealer_inventory_days, cached 10 min per filter set and refreshed by the nightly sync (bulk/sweep invalidate).
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (ubuntu@52.202.234.65):
 #   curl -fsSL -o 2026-09-17-inventory-analytics.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-17-inventory-analytics.sh && bash 2026-09-17-inventory-analytics.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

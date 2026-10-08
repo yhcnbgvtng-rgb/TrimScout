@@ -19,7 +19,7 @@
 # gets. This does NOT fix the underlying query slowness itself (a separate, real performance
 # question worth its own follow-up) — it only makes the failure legible instead of opaque.
 #
-# Run on the deals box (ubuntu@3.237.204.55 — box2):
+# Run on the deals box (ubuntu@52.202.234.65 — box2):
 #   cd ~ && curl -fsSL -o 2026-09-27-clear-statement-timeout-error.sh "https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-27-clear-statement-timeout-error.sh?cb=$(date +%s)" && sudo cp 2026-09-27-clear-statement-timeout-error.sh /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && sudo bash 2026-09-27-clear-statement-timeout-error.sh
 set -euo pipefail
 FILE=/opt/trimscout-deals/src/deals_api_server.js

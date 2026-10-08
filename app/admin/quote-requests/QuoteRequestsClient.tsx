@@ -186,6 +186,11 @@ export default function QuoteRequestsClient() {
                             <div className="text-[10px] text-positive-300">Quoted ${i.quote.price.toLocaleString()}</div>
                           ) : null}
                         </div>
+                        {i.calculatorUrl ? (
+                          <a href={`${i.calculatorUrl}&preview=1`} target="_blank" rel="noreferrer" title="Read-only: what this dealer sees. Not recorded as a dealer view." className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white" data-testid="dealer-view">
+                            Dealer view
+                          </a>
+                        ) : null}
                         {i.calculatorUrl && i.status === "invited" ? (
                           <a
                             href={i.calculatorUrl}

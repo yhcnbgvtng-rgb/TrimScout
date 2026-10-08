@@ -9,7 +9,7 @@
 # optimizer more (worse) options to choose from. model= and state= filters were checked
 # against the same live data at the same time and do NOT hit this — only make= needed a hint.
 #
-# Run on the box (ubuntu@3.208.49.1) — deploy ASAP, this is an active-outage-class fix:
+# Run on the box (ubuntu@52.202.234.65) — deploy ASAP, this is an active-outage-class fix:
 #   cd ~ && curl -fsSL -o 2026-09-22-fix-make-filter-index.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-fix-make-filter-index.sh && sudo cp 2026-09-22-fix-make-filter-index.sh /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-22-fix-make-filter-index.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

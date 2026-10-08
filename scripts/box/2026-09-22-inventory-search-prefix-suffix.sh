@@ -15,7 +15,7 @@
 # NOTE: this supersedes an earlier same-day attempt at an ngram FULLTEXT index, which turned
 # out not to exist on this MariaDB install at all (no plugin file, no apt package either).
 #
-# Run on the box (ubuntu@3.208.49.1), AFTER the schema-build step:
+# Run on the box (ubuntu@52.202.234.65), AFTER the schema-build step:
 #   curl -fsSL -o 2026-09-22-inventory-search-prefix-suffix.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-inventory-search-prefix-suffix.sh && bash 2026-09-22-inventory-search-prefix-suffix.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 set -euo pipefail

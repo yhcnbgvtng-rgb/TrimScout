@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, Columns3, Download, RefreshCw, Search, Table2, X } from "lucide-react";
 import { CRAWL_SHEET_COLUMNS, crawlRowCell, crawlRowsToCsv, crawlSheetFilename, type CrawlRow } from "@/lib/crawlSheetColumns";
 import VehiclesSheet from "./VehiclesSheet";
+import { MultiPill, PillShell } from "@/components/admin/FilterPill";
 
 type ColKey = keyof CrawlRow;
 type Facet = "brands" | "state" | "emailKind" | "emailSource" | "staffPage";
@@ -171,6 +172,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
 
   const toggleFacet = (f: Facet, v: string) => setFacets((prev) => { const next = new Set(prev[f]); if (next.has(v)) next.delete(v); else next.add(v); return { ...prev, [f]: next }; });
   const clearAll = () => { setQuery(""); setFacets({ brands: new Set(), state: new Set(), emailKind: new Set(), emailSource: new Set(), staffPage: new Set() }); setContactReady("any"); setHasPhone("any"); setHasWebsite("any"); };
+  const moreCount = (contactReady !== "any" ? 1 : 0) + (hasPhone !== "any" ? 1 : 0) + (hasWebsite !== "any" ? 1 : 0);
   const activeFilters = Object.values(facets).reduce((n, s) => n + s.size, 0) + (contactReady !== "any" ? 1 : 0) + (hasPhone !== "any" ? 1 : 0) + (hasWebsite !== "any" ? 1 : 0) + (query.trim() ? 1 : 0);
 
   const download = () => {
@@ -193,7 +195,7 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
   }), [filtered]);
 
   const TriSelect = ({ label, value, onChange }: { label: string; value: Tri; onChange: (v: Tri) => void }) => (
-    <label className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-muted">
+    <label className="flex items-center justify-between gap-3 text-xs text-ink-light">
       {label}
       <select value={value} onChange={(e) => onChange(e.target.value as Tri)} className="rounded-lg border border-border bg-surface-elevated px-2 py-1 text-[11px] font-bold text-ink-light">
         <option value="any">any</option><option value="yes">yes</option><option value="no">no</option>
@@ -269,46 +271,45 @@ export default function CrawlSheetClient({ initialVin = null }: { initialVin?: s
         {tab === "vehicles" && <VehiclesSheet initialVin={initialVin} />}
 
         {tab === "dealers" && <>
-        <div className="rounded-2xl border border-border bg-surface p-3 flex flex-wrap items-center gap-2">
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-            <input
+        <div className="space-y-3">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 border-b border-border-strong">
+              <label htmlFor="crawl-search" className="sr-only">Search</label>
+              <Search className="pointer-events-none absolute left-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-faint" />
+              <input
               id="crawl-search"
               value={query}
               onChange={(e) => { setQuery(e.target.value); if (e.target.value.trim() && notesState === "none") void loadNotes(); }}
               placeholder={notesState === "loaded" ? "Search dealer, city, contact, email, source, notes…" : "Search dealer, city, contact, email, source…"}
-              className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3 py-2 text-xs text-white placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-brand-500/40"
+              className="w-full bg-transparent py-2 pl-6 pr-2 text-sm text-white placeholder:text-ink-faint focus:outline-none"
             />
-          </div>
-          {FACETS.map((f) => (
-            <div key={f.key} className="relative">
-              <button type="button" onClick={() => setOpenFacet((o) => (o === f.key ? null : f.key))} className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-bold transition-all ${facets[f.key].size ? "border-brand-500/50 bg-brand-500/10 text-brand-300" : "border-border bg-surface-elevated text-ink-light hover:text-white"}`}>
-                {f.label}{facets[f.key].size ? ` · ${facets[f.key].size}` : ""}
+            </div>
+            {activeFilters > 0 && (
+              <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 text-xs font-medium text-rose-300/80 hover:text-rose-200">
+                <X className="h-3 w-3" /> Clear {activeFilters} filter{activeFilters === 1 ? "" : "s"}
               </button>
-              {openFacet === f.key && (
-                <div className="absolute left-0 mt-1.5 w-64 max-h-80 overflow-y-auto rounded-xl border border-border bg-surface-elevated shadow-2xl p-2 z-30">
-                  <div className="flex items-center justify-between px-2 pb-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-ink-faint">{f.label}</span>
-                    {facets[f.key].size > 0 && <button type="button" onClick={() => setFacets((p) => ({ ...p, [f.key]: new Set() }))} className="text-[10px] font-bold text-ink-muted hover:text-white">clear</button>}
-                  </div>
-                  {facetOptions[f.key].map(([v, n]) => (
-                    <label key={v} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1 text-[11px] font-semibold text-ink-light hover:bg-surface cursor-pointer">
-                      <span className="flex items-center gap-2 min-w-0"><input type="checkbox" checked={facets[f.key].has(v)} onChange={() => toggleFacet(f.key, v)} className="accent-brand-500" /><span className="truncate">{pretty(f.key, v) || "—"}</span></span>
-                      <span className="text-ink-faint tabular-nums">{n.toLocaleString()}</span>
-                    </label>
-                  ))}
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {FACETS.map((f) => (
+              <MultiPill
+                key={f.key}
+                label={f.label}
+                options={facetOptions[f.key].map(([v, n]) => ({ value: v, label: pretty(f.key, v) || "—", count: n }))}
+                value={Array.from(facets[f.key])}
+                onChange={(next) => setFacets((p) => ({ ...p, [f.key]: new Set(next) }))}
+              />
+            ))}
+            <PillShell label="More filters" summary={moreCount ? String(moreCount) : undefined} active={moreCount > 0} width="w-64">
+              {() => (
+                <div className="space-y-2 p-3">
+                  <TriSelect label="Contact-ready" value={contactReady} onChange={setContactReady} />
+                  <TriSelect label="Phone" value={hasPhone} onChange={setHasPhone} />
+                  <TriSelect label="Website" value={hasWebsite} onChange={setHasWebsite} />
                 </div>
               )}
-            </div>
-          ))}
-          <TriSelect label="Contact-ready" value={contactReady} onChange={setContactReady} />
-          <TriSelect label="Phone" value={hasPhone} onChange={setHasPhone} />
-          <TriSelect label="Website" value={hasWebsite} onChange={setHasWebsite} />
-          {activeFilters > 0 && (
-            <button type="button" onClick={clearAll} className="inline-flex items-center gap-1 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] font-bold text-rose-300 hover:text-white">
-              <X className="h-3 w-3" /> Clear {activeFilters} filter{activeFilters === 1 ? "" : "s"}
-            </button>
-          )}
+            </PillShell>
+          </div>
         </div>
 
         {error && <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 text-xs text-rose-200">{error}</div>}

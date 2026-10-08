@@ -2,13 +2,18 @@
 // quote against: the vehicle, the buyer's lease prefs, and the invite's
 // state. Nothing about the buyer beyond term / miles / ZIP.
 import { NextResponse } from "next/server";
+import { requireAdminSession } from "@/lib/adminAuth";
 import { dealerReference } from "@/lib/dealerReference";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { recheckPendingStickers, type StickerRecheckHit } from "@/lib/stickerRecheck";
 
 export async function GET(req: Request) {
-  const token = (new URL(req.url).searchParams.get("t") || "").trim();
+  const sp = new URL(req.url).searchParams;
+  const token = (sp.get("t") || "").trim();
+  // ?preview=1 is the admin "Dealer view": same payload, but opening it must not count as the dealer viewing.
+  const preview = sp.get("preview") === "1";
+  if (preview && !(await requireAdminSession())) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   if (!/^[A-Za-z0-9_-]{8,80}$/.test(token)) return NextResponse.json({ error: "Invalid link." }, { status: 400 });
   const found = await getRfqInviteByViewToken(token).catch(() => null);
   if (!found) return NextResponse.json({ error: "This quote request link is no longer valid." }, { status: 404 });
@@ -16,7 +21,7 @@ export async function GET(req: Request) {
   // box moves delivery forward only, and locks the buyer's lease sheet the
   // first time). Server-side, so a direct visit without the tracked
   // redirect still counts.
-  if (found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
+  if (!preview && found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   // The by-token row is bare; the full rfq carries the buyer counter and
@@ -29,6 +34,7 @@ export async function GET(req: Request) {
   const recheck = thisCar ? rechecks[thisCar.vin] || null : null;
   const usedCar = thisCar && thisCar.condition !== "new" ? thisCar : null;
   return NextResponse.json({
+    preview,
     buyerCounter: invite.buyerCounter || null,
     priorLease: priorQuote?.lease || null,
     priorUsed: priorQuote?.used || null,

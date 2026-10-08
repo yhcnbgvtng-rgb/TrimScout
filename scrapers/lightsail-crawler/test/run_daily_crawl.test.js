@@ -17,6 +17,9 @@ import {
   MAX_CONCURRENT_STATES,
   runStatesWithBoundedConcurrency,
   buildBrandCrawlEnv,
+  heapMbFor,
+  DEFAULT_HEAP_MB,
+  HEAVY_HEAP_MB,
   shouldRunWriteDealersStep,
   checkProjectedRuntime,
   runBrandSharded,
@@ -168,6 +171,21 @@ describe('run-daily-crawl driver', () => {
       // risks the OOM-killer instead of a clean, catchable V8 heap error.
       const env = buildBrandCrawlEnv({ state: 'TX', brand: 'Toyota', dealersFile: 'dealers/tx/toyota.json', date: '2026-09-15' });
       assert.equal(env.NODE_OPTIONS, '--max-old-space-size=3584');
+    });
+
+    it('raises the heap only for the runs that crash nightly; every other run keeps the default', () => {
+      for (const [state, brand] of [['FL', 'GMC'], ['FL', 'Buick'], ['NC', 'Ford'], ['OH', 'Stellantis'], ['OH', 'GMC'], ['OH', 'Buick'], ['TX', 'Ford']]) {
+        const env = buildBrandCrawlEnv({ state, brand, dealersFile: `dealers/${state.toLowerCase()}/x.json`, date: '2026-10-08' });
+        assert.equal(env.NODE_OPTIONS, `--max-old-space-size=${HEAVY_HEAP_MB}`, `${state} ${brand}`);
+      }
+      assert.ok(HEAVY_HEAP_MB > DEFAULT_HEAP_MB && HEAVY_HEAP_MB <= 6144, 'headroom, but bounded for a 16GB no-swap box');
+      for (const [state, brand] of [['TX', 'Toyota'], ['FL', 'Honda'], ['FL', 'Ford'], ['NC', 'GMC'], ['OH', 'Honda'], ['NJ', 'Stellantis']]) assert.equal(heapMbFor(state, brand), DEFAULT_HEAP_MB, `${state} ${brand}`);
+      assert.equal(heapMbFor('fl', 'gmc'), HEAVY_HEAP_MB, 'case-insensitive');
+    });
+
+    it('standalone logs its peak RSS and heap limit at exit', async () => {
+      const fsMod = await import('node:fs');
+      assert.match(fsMod.readFileSync(new URL('../src/standalone.js', import.meta.url), 'utf8'), /process\.on\('exit'[\s\S]{0,300}\[mem\] peak RSS/);
     });
 
     it('gives every brand in a state the identical CRAWLER_RUN_DATE, proving it is the driver\'s one canonical value and not recomputed per brand', () => {

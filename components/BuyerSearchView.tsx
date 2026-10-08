@@ -2,8 +2,9 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, MapPin, SlidersHorizontal, X } from "lucide-react";
-import SearchableDropdown, { type DropdownOption } from "./search/SearchableDropdown";
+import { ArrowDown, ArrowUp, MapPin, X } from "lucide-react";
+import type { DropdownOption } from "./search/SearchableDropdown";
+import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
@@ -140,7 +141,6 @@ export function BuyerSearchView() {
   const picksState = useBuyerSearchState();
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
-  const moreRef = useRef<HTMLDivElement>(null);
 
   const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);
   const [makeOptions, setMakeOptions] = useState<DropdownOption[]>([]);
@@ -167,16 +167,6 @@ export function BuyerSearchView() {
   const [sortNote, setSortNote] = useState<string | null>(null);
   // The sort a header click is waiting on: if its request fails the previous sort comes back and the old results stay on screen.
   const sortAttemptRef = useRef<{ prev: string; label: string } | null>(null);
-
-  // Close the "More" popover on an outside click, same convention as SearchableDropdown.
-  useEffect(() => {
-    if (!moreOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [moreOpen]);
 
   // State + Make counts, cross-scoped by each other — always fetched (they're always visible).
   // Model/trim counts ride along on the same call whenever make/model are set; the box only
@@ -358,6 +348,10 @@ export function BuyerSearchView() {
       exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
 
+  // Counts are hidden while the facet request is in flight or has failed, so a stale number is never shown (#389).
+  const countsHidden = facetsLoading || facetsFailed;
+  const shownCounts = (opts: DropdownOption[]) => (countsHidden ? opts.map((o) => ({ ...o, count: undefined })) : opts);
+
   const modelDisabledHint = !filters.make ? "Pick a make first" : undefined;
   const trimDisabledHint = !filters.model ? "Pick a model first" : undefined;
   const optionsDisabledHint = !filters.make || !filters.model ? "Pick a make and model first" : undefined;
@@ -369,55 +363,21 @@ export function BuyerSearchView() {
         <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-lg">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="w-40">
-            <SearchableDropdown accent="brand" label="State" placeholder="All states" options={stateOptions} value={filters.state} countsLoading={facetsLoading || facetsFailed} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown accent="brand" label="Make" placeholder="All makes" options={makeOptions} value={filters.make} countsLoading={facetsLoading || facetsFailed} onChange={setMake} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown accent="brand" label="Model" placeholder="All models" options={modelOptions} value={filters.model} countsLoading={facetsLoading || facetsFailed} onChange={setModel} disabledHint={modelDisabledHint} />
-          </div>
-          <div className="w-48">
-            <SearchableDropdown accent="brand" label="Trim" placeholder="Any trim" options={trimOptions} value={filters.trim} countsLoading={facetsLoading || facetsFailed} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
-          </div>
-          <div className="w-56">
-            <SearchableDropdown
-              accent="brand"
-              multi
-              label="Factory options"
-              placeholder="Any options"
-              options={optionDropdownOptions}
-              value={filters.optionKeys}
-              onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))}
-              disabledHint={optionsDisabledHint}
-              loading={catalogOptionsLoading}
-              emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."}
-            />
-          </div>
-
-          <div ref={moreRef} className="relative flex flex-col gap-1">
-            <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">&nbsp;</span>
-            <button
-              type="button"
-              onClick={() => setMoreOpen((o) => !o)}
-              className={`flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-colors ${
-                moreCount > 0 ? "border-brand-500/50 bg-brand-950/20 text-brand-300" : "border-border bg-surface-elevated text-ink-light hover:border-border-strong"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              More{moreCount > 0 ? ` · ${moreCount}` : ""}
-            </button>
-
-            {moreOpen && (
+      <div className="mb-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <SinglePill accent="brand" label="State" options={shownCounts(stateOptions)} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
+          <SinglePill accent="brand" label="Make" options={shownCounts(makeOptions)} value={filters.make} loading={facetsLoading} onChange={setMake} />
+          <SinglePill accent="brand" label="Model" options={shownCounts(modelOptions)} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
+          <SinglePill accent="brand" label="Trim" options={shownCounts(trimOptions)} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
+          <MultiPill accent="brand" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."} />
+          <PillShell accent="brand" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
+            {() => (
               <div
                 onKeyDown={(e) => {
                   const t = e.target as HTMLElement;
                   if (e.key === "Enter" && t.tagName === "INPUT" && (t as HTMLInputElement).type !== "checkbox") { e.preventDefault(); submitSearch(); }
                 }}
-                className="absolute right-0 top-full z-30 mt-1.5 w-80 max-w-[92vw] space-y-3 rounded-xl border border-border-strong bg-surface-elevated p-3 shadow-2xl">
+                className="space-y-3 p-3">
                 <div>
                   <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
                   <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
@@ -505,20 +465,16 @@ export function BuyerSearchView() {
                 )}
               </div>
             )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">&nbsp;</span>
-            <button
-              type="button"
-              onClick={submitSearch}
-              disabled={Boolean(blockedReason) || searchLoading}
-              title={blockedReason ?? undefined}
-              className="rounded-xl bg-brand-500 px-5 py-2.5 text-xs font-extrabold text-black transition-colors hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {searchLoading ? "Searching…" : "Search"}
-            </button>
-          </div>
+          </PillShell>
+          <button
+            type="button"
+            onClick={submitSearch}
+            disabled={Boolean(blockedReason) || searchLoading}
+            title={blockedReason ?? undefined}
+            className="ml-2 text-sm font-extrabold text-brand-400 transition-colors hover:text-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {searchLoading ? "Searching…" : "Search"}
+          </button>
         </div>
         {facetsFailed && !facetsLoading && (
           <p className="mt-2 text-[11px] text-amber-300" role="status">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>

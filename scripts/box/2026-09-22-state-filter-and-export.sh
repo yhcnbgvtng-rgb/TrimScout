@@ -10,7 +10,7 @@
 # (2) The admin CSV used to page /api/inventory 2,000 rows at a time from Vercel — ~20 sequential
 # re-sorts for TX, each a fresh filesort. The export endpoint runs the filter ONCE and streams NDJSON.
 #
-# Run on the box (ubuntu@3.208.49.1):
+# Run on the box (ubuntu@52.202.234.65):
 #   cd ~ && curl -fsSL -o 2026-09-22-state-filter-and-export.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-09-22-state-filter-and-export.sh && sudo cp 2026-09-22-state-filter-and-export.sh /opt/trimscout-deals/ && cd /opt/trimscout-deals && sudo bash 2026-09-22-state-filter-and-export.sh
 # Idempotent. Backup, exact-replace with asserts, node --check, pm2 restart, health check.
 # FILE=... overrides the target (used to apply the identical change to the repo mirror).
