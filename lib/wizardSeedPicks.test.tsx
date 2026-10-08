@@ -21,6 +21,8 @@ const vehicle = (vin: string, over: Record<string, unknown> = {}) => ({
 });
 
 const sent: Array<{ url: string; body: any }> = [];
+let activeRfqs: unknown[] = [];
+let lastZip = "";
 function stubFetch() {
   const json = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
   return async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -31,6 +33,7 @@ function stubFetch() {
     if (url.startsWith("/api/free-vin") || url.startsWith("/api/used-vin")) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
     if (url.includes("-sticker")) return json({ handled: false, notFord: true, notGm: true, notToyota: true, notHonda: true, vin, error: "no factory build" });
     if (url.startsWith("/api/status/features")) return json({ rfqSend: true });
+    if (url === "/api/rfqs" && !init?.method) return json({ rfqs: activeRfqs });
     if (url.startsWith("/api/rfqs")) { sent.push({ url, body }); return json({ rfq: { id: "rfq-test" }, invite: { stage: "sent" } }); }
     if (url.startsWith("/api/quote-desks")) {
       const asked = (JSON.parse(String(init?.body || "{}")).dealers || []) as Array<{ dealerName: string }>;
@@ -77,7 +80,7 @@ describe("buyer search seed -> Step 1", () => {
     });
     after(() => dom.window.close());
 
-    async function run(picks: ReturnType<typeof row>[], toStep3 = false, send = false) {
+    async function run(picks: ReturnType<typeof row>[], toStep3 = false, send = false, user: object | null = null) {
       const React = (await import("react")).default;
       const { act } = await import("react");
       const { createRoot } = await import("react-dom/client");
@@ -85,7 +88,7 @@ describe("buyer search seed -> Step 1", () => {
       const seed = picks.map((p) => ({ vin: p.vin, vdpUrl: p.vdpUrl, condition: p.condition, dealerId: p.dealerId, dealerName: p.dealerName, dealerState: p.dealerState }));
       const root = createRoot(dom.window.document.getElementById("root")!);
       await act(async () => {
-        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: QUOTE_SEED_LANE, seedVehicles: seed, currentUser: send ? ({ id: "u1", name: "T", email: "t@example.com", role: "buyer", phone: "", zipCode: "44503", savedVehicleIds: [] } as never) : null, onRequireLogin: () => {} }));
+        root.render(React.createElement(BiddingWizard, { isOpen: true, onClose: () => {}, onSubmitBidRequest: () => {}, vehicles: [], preselectedVehicle: null, initialIntent: QUOTE_SEED_LANE, seedVehicles: seed, currentUser: user ? (user as never) : send ? ({ id: "u1", name: "T", email: "t@example.com", role: "buyer", phone: "", zipCode: "44503", savedVehicleIds: [] } as never) : null, onRequireLogin: () => {} }));
       });
       const doc = dom.window.document;
       const tick = async () => { await act(async () => { await new Promise((r) => setTimeout(r, 10)); }); };
@@ -106,6 +109,7 @@ describe("buyer search seed -> Step 1", () => {
         await act(async () => { next().click(); });
         await tick();
       }
+      lastZip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')?.value ?? "";
       if (send) {
         const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')!;
         await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
@@ -167,6 +171,36 @@ describe("buyer search seed -> Step 1", () => {
       assert.ok(text.includes(USED_VINS[0]) && text.includes(USED_VINS[1]));
       assert.ok(!text.includes(NEW_VINS[0]));
       assert.match(text, /all new or all used, so 1 other car you picked wasn't added/);
+    });
+
+    it("a car left out does not use up a slot: the next car lands in Alternate 1, not Alternate 2", async () => {
+      const text = await run([row(USED_VINS[0], "used", "a"), row(NEW_VINS[0], "new", "b"), row(USED_VINS[1], "used", "c")]);
+      assert.ok(text.includes(USED_VINS[1]), "the third pick is seated");
+      assert.match(text, /Alternate 1 — added/i);
+      assert.doesNotMatch(text, /Alternate 2 — added/i);
+    });
+
+    const buyer = (zipCode: string) => ({ id: "u1", name: "T", email: "t@example.com", role: "buyer", phone: "", zipCode, savedVehicleIds: [] });
+    it("the ZIP on the buyer's account starts in the ZIP box on Step 3 (editable)", async () => {
+      await run(USED_VINS.map((v, i) => row(v, "used", "abc"[i])), true, false, buyer("07002"));
+      assert.equal(lastZip, "07002");
+    });
+    it("no usable ZIP on the account leaves the box empty, and a guest gets nothing", async () => {
+      await run([row(USED_VINS[0], "used", "a")], true, false, buyer("n/a"));
+      assert.equal(lastZip, "");
+      await run([row(USED_VINS[0], "used", "a")], true);
+      assert.equal(lastZip, "");
+    });
+
+    it("a buyer with an active request is told so up front, with its deal number and a link", async () => {
+      activeRfqs = [{ id: "32", status: "collecting", dealReference: "TS-ABC123" }];
+      try {
+        const text = await run([row(USED_VINS[0], "used", "a")], false, false, buyer("07002"));
+        assert.match(text, /You already have an active request \(TS-ABC123\)/);
+        assert.match(text, /View it/);
+      } finally { activeRfqs = []; }
+      const none = await run([row(USED_VINS[0], "used", "a")], false, false, buyer("07002"));
+      assert.doesNotMatch(none, /You already have an active request/);
     });
   });
 });

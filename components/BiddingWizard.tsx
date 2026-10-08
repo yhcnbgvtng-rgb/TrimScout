@@ -12,6 +12,7 @@ import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
 import { planDeskSelection } from "../lib/deskSelection";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
+import { activeRfqSummary } from "../lib/rfqLogic";
 import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
@@ -1064,6 +1065,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [fordFilterableOptions, setFordFilterableOptions] = useState<FilterableFactoryOption[]>([]);
   const [niceToHavePackages, setNiceToHavePackages] = useState<string[]>([]);
   const [huntZip, setHuntZip] = useState("");
+  // Set once the buyer types in the ZIP box: from then on their value is theirs and the saved ZIP never overwrites it.
+  const zipTouchedRef = React.useRef(false);
   // Alternate vehicles are optional, so Step 1 keeps them behind a link
   // until asked for — or auto-reveals them once one is actually imported.
   // New | Used. Default New; a pasted link that says used / pre-owned /
@@ -1240,6 +1243,26 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   useEffect(() => {
     if (isOpen) dialogRef.current?.focus({ preventScroll: true });
   }, [isOpen]);
+  // The ZIP saved on the buyer's own account, offered as the starting value of the ZIP box (still editable).
+  const savedBuyerZip = currentUser?.role === "buyer" && /^\d{5}$/.test(String(currentUser.zipCode || "").trim()) ? String(currentUser.zipCode).trim() : "";
+  useEffect(() => {
+    // The account can arrive after the wizard has opened (a fresh page load that goes straight to the quote): fill the
+    // still-empty, still-untouched box then too.
+    if (!isOpen || !savedBuyerZip || zipTouchedRef.current) return;
+    setHuntZip((z) => (z ? z : savedBuyerZip));
+    setBuyerZip((z) => (z && z !== "94107" ? z : savedBuyerZip));
+  }, [isOpen, savedBuyerZip]);
+  // One active request per buyer (the server refuses a second): say so up front, with the way to it, instead of at Send.
+  const [activeRfq, setActiveRfq] = useState<{ id: string; dealReference: string | null } | null>(null);
+  useEffect(() => {
+    if (!isOpen || currentUser?.role !== "buyer") { setActiveRfq(null); return; }
+    let cancelled = false;
+    fetch("/api/rfqs")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (!cancelled) setActiveRfq(activeRfqSummary(j?.rfqs)); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isOpen, currentUser?.role]);
   useEffect(() => {
     if (!isOpen) return;
     fetch("/api/status/features")
@@ -1262,7 +1285,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setDownPayment("");
     setCreditBand("");
     setLeaseDasIntent("");
-    setHuntZip("");
+    zipTouchedRef.current = false;
+    setHuntZip(savedBuyerZip);
+    if (savedBuyerZip) setBuyerZip(savedBuyerZip);
     setPurchaseTimeline("");
     // Everything a previous request's vehicle put on screen: the imported car, its build, the alternates,
     // the rooftops resolved for it, and the send-side bookkeeping. A fresh open must start empty.
@@ -1866,6 +1891,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // to resolve shows that slot's normal error and the next car moves on; nothing here submits or invites anyone.
   const SEED_SLOTS: VehicleSlot[] = ["primary", "alt1", "alt2"];
   const [seedIdx, setSeedIdx] = useState(0);
+  // Which of the three slots the next seated car takes. A car left out (the other kind) must not use one up, or the next car
+  // would land in Alternate 2 with Alternate 1 empty.
+  const [seedSlotIdx, setSeedSlotIdx] = useState(0);
   const [seedBusy, setSeedBusy] = useState(false);
   /** How many picked cars weren't added because used requests are one car. */
   const [seedSkipped, setSeedSkipped] = useState(0);
@@ -1922,7 +1950,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const t = setTimeout(() => {
       if (seedStartedRef.current >= seedIdx) return;
       seedStartedRef.current = seedIdx;
-      const slot = SEED_SLOTS[seedIdx];
+      const slot = SEED_SLOTS[seedSlotIdx];
       const car = seedList[seedIdx];
       // A request is all new or all used: a used car can't sit beside a new one (different quote sheet, no lease).
       // A car of the other kind is left out and the note says so; the next one still gets its turn.
@@ -1932,12 +1960,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         return;
       }
       setSeedIdx(seedIdx + 1);
+      setSeedSlotIdx(seedSlotIdx + 1);
       setSeedBusy(true);
       void seedOne(slot, car).finally(() => setSeedBusy(false));
     }, 0);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, step, seedBusy, pendingLink, linkBusy, seedIdx, seedList.length, isUsed]);
+  }, [isOpen, step, seedBusy, pendingLink, linkBusy, seedIdx, seedSlotIdx, seedList.length, isUsed]);
 
   const handleParseDealerUrl = async (urlToParse?: string) => {
     const raw = (urlToParse || dealerUrlInput).trim();
@@ -2668,6 +2697,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
         {/* Wizard Body */}
         <div className="p-5 space-y-4 max-h-[68vh] overflow-y-auto">
+          {activeRfq ? (
+            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-[11px] text-amber-200" role="status" data-testid="active-request-notice">
+              You already have an active request{activeRfq.dealReference ? <> (<span className="font-mono">{activeRfq.dealReference}</span>)</> : null}. Only one can be out at a time, so finish it or walk away from it before sending this one — you can set this one up now.{" "}
+              <a href={`/rfq/${activeRfq.id}`} className="font-bold underline hover:text-white" data-testid="active-request-link">View it</a>
+            </div>
+          ) : null}
           {/* ========================================================================= */}
           {/* STEP 1: VEHICLE (+ up to two optional alternates)                          */}
           {/* ========================================================================= */}
@@ -3345,6 +3380,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         value={huntZip}
                         onChange={(e) => {
                           const next = e.target.value.replace(/\D/g, "").slice(0, 5);
+                          zipTouchedRef.current = true;
                           setHuntZip(next);
                           if (next.length === 5) setBuyerZip(next);
                         }}
