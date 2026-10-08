@@ -190,8 +190,10 @@ function RequestCard({
   onChanged: (rfq: AdminRfq, msg?: string) => void;
 }) {
   const isPending = rfq.approvalStatus === "pending";
-  const previewBase = rfq.invites.find((i) => i.calculatorUrl)?.calculatorUrl;
-  const dealerPreviewUrl = previewBase ? `${previewBase}&preview=1` : null;
+  const previewable = rfq.invites.filter((i) => i.calculatorUrl);
+  const [previewId, setPreviewId] = useState<string>("");
+  const previewInvite = previewable.find((i) => String(i.id) === previewId) || previewable[0];
+  const dealerPreviewUrl = previewInvite?.calculatorUrl ? `${previewInvite.calculatorUrl}&preview=1` : null;
   const decidedTone = rfq.approvalStatus === "approved" ? "bg-positive-500/15 text-positive-300" : rfq.approvalStatus === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300";
   return (
     <section id={`rfq-${rfq.id}`} className="rounded-2xl border border-border bg-surface p-4 space-y-3" data-testid="approval-rfq" data-approval={rfq.approvalStatus}>
@@ -220,8 +222,15 @@ function RequestCard({
           <Link href={`/rfq/${rfq.id}`} className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">
             Buyer view
           </Link>
+          {previewable.length > 1 ? (
+            <select value={String(previewInvite?.id ?? "")} onChange={(e) => setPreviewId(e.target.value)} aria-label="Dealer to preview" className="max-w-[180px] rounded-lg border border-border bg-background px-2 py-1.5 text-[11px] text-ink-light focus:border-emerald-500 focus:outline-none" data-testid="dealer-view-select">
+              {previewable.map((i) => (
+                <option key={i.id} value={String(i.id)}>{i.dealerName}</option>
+              ))}
+            </select>
+          ) : null}
           {dealerPreviewUrl ? (
-            <a href={dealerPreviewUrl} target="_blank" rel="noreferrer" title="Read-only: what the dealer sees. Not recorded as a dealer view." className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white" data-testid="dealer-view">
+            <a href={dealerPreviewUrl} target="_blank" rel="noreferrer" title={`Read-only: what ${previewInvite?.dealerName || "the dealer"} sees. Not recorded as a dealer view.`} className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white" data-testid="dealer-view">
               Dealer view
             </a>
           ) : null}
