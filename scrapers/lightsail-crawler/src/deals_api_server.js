@@ -41,6 +41,7 @@ import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { guardPrice } from "./ingestGuards.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
@@ -2901,8 +2902,10 @@ async function loadCatalogFacetMeta(pool) {
 // pause it (e.g. during a heavy sync night); unset and restart to resume. The facet tables just
 // keep serving whatever they last had — buyer /search's factory-options facet doesn't go blank,
 // it just doesn't reflect tonight's crawl until this is turned back on.
-async function rebuildCatalogFacets(pool) {
-  if (process.env.DISABLE_FACET_REBUILD) return;
+// `opts.manual` is passed ONLY by the explicit POST /api/inventory/catalog-facets/rebuild: it may run with the
+// switch set (facetRebuildGate.js); the debounced timer, the finish re-queue and the startup check never pass it.
+async function rebuildCatalogFacets(pool, opts = {}) {
+  if (!facetRebuildAllowed(process.env, opts)) return;
   if (catalogFacets.building) { catalogFacets.again = true; return; }
   catalogFacets.building = true;
   const started = Date.now();
@@ -2973,7 +2976,7 @@ async function handleCatalogFacetRebuild(req, res) {
   const pool = getPool();
   await loadCatalogFacetMeta(pool).catch(() => {});
   const alreadyRunning = catalogFacets.building;
-  void rebuildCatalogFacets(pool);
+  void rebuildCatalogFacets(pool, { manual: true });
   sendJson(res, 202, { started: !alreadyRunning, alreadyRunning, lastBuiltAt: catalogFacets.builtAt });
 }
 async function handleCatalogFacetStatus(req, res) {
