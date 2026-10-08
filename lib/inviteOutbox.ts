@@ -59,6 +59,7 @@ export async function buildInviteEmailFromStored(
     financePrefs: rfq.quotePrefs?.quoteType === "finance" ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand } : null,
     buyerNote: rfq.buyerNote || null,
     tradeInExpected: rfq.tradeInExpected ?? null,
+    tradeInIncluded: Boolean(rfq.tradeIn),
     alternateAsk: (rfq.lane ?? "same_spec") === "alternate" ? alternateAskSummary(rfq.alternateAsk) : null,
   };
   return { subject: quoteInviteSubject(input), html: quoteInviteHtml(input) };

@@ -42,6 +42,8 @@ export interface QuoteInviteEmailInput {
   alternateAsk?: string | null;
   /** Buyer said a trade-in is coming — handled after the OTD price, never in the quote. */
   tradeInExpected?: boolean | null;
+  /** The buyer attached trade details + photos; the appraisal is answered on the dealer's quote page. */
+  tradeInIncluded?: boolean;
   /** Kept for callers that still pass it; not rendered. */
   buyerAlias?: string;
   vehicleFacts?: { drivetrain?: string | null; exteriorColor?: string | null } | null;
@@ -166,7 +168,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
         ${row("Rooftop", rooftopLine(input))}
         ${input.buyerNote ? row("Buyer says", `<span style="font-weight:400;white-space:pre-wrap">${escapeHtml(input.buyerNote)}</span>`) : ""}
-        ${input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
+        ${input.tradeInIncluded ? row("Trade-in", `Included <span style="font-weight:400;color:#475569">— details and 6 photos are on your quote page; appraise it there as its own line, separate from your quote on the car</span>`) : input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>
@@ -241,6 +243,37 @@ export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
     ${input.note ? `<p style="font-size:14px"><span style="color:#64748b">Their note:</span> ${escapeHtml(input.note)}</p>` : ""}
     <p><strong>To reply:</strong> open the ${input.kind === "lease" || !input.kind ? "calculator" : "quote sheet"} below — it's prefilled with your last quote — and submit a revised quote, or mark that you can't do better. This is a request, not a bid, and there's no deadline on you.</p>
     <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the calculator</a></p>
+    <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Buyer changed trade photos → dealer. One notice per change batch (the box says who is owed one); the only
+// reply path is the dealer's own quote page. No replies by email, nothing binding.
+// ---------------------------------------------------------------------------
+export interface TradePhotosUpdatedEmailInput {
+  dealerName: string;
+  contactName: string;
+  vehicle: { vin: string; year?: number; make?: string; model?: string; trim?: string };
+  dealReference: string | null;
+  tradeTitle: string;
+  viewUrl: string;
+}
+
+export function tradePhotosUpdatedSubject(input: TradePhotosUpdatedEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `Buyer updated the trade-in photos: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
+}
+
+export function tradePhotosUpdatedHtml(input: TradePhotosUpdatedEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
+    <p style="font-size:15px">Hi ${escapeHtml(greetingName(input.contactName))},</p>
+    <p>The buyer updated the photos of their trade-in (<strong>${escapeHtml(input.tradeTitle)}</strong>) on the request for the ${escapeHtml(car)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}.</p>
+    <p>Open your quote page to see the current photos and update your trade appraisal if it changes. You'll get this notice once per batch of changes, not one per photo. There is nothing to reply to by email.</p>
+    <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the quote page</a></p>
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { BuyerTradeCard } from "@/components/trade/BuyerTradeCard";
 import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompare } from "@/components/LeaseCompare";
 import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib/leaseCompare";
@@ -546,6 +547,8 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
+      {rfq.tradeIn ? <BuyerTradeCard rfqId={rfqId} headers={guest.headers} version={rfq} /> : null}
+
       {/* Once a dealer has quoted, the compare is the decision surface: it takes the first screen and the
           locked sheet + invited-dealer audit fold into "Request details". Before any quote, the sheet leads. */}
       {hasQuotes ? (
@@ -562,7 +565,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -657,7 +660,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 

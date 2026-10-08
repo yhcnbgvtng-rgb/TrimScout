@@ -47,7 +47,7 @@ export function checkRateLimit(key: string, limit: number, windowMs: number, now
 }
 
 /** The named limits, each overridable by env: RATE_<NAME>_LIMIT / RATE_<NAME>_WINDOW_MS. */
-export type RateLimitName = "rfq_create_ip" | "rfq_create_user" | "rfq_create_global" | "invite_send_ip" | "invite_send_user" | "invite_send_global" | "rfq_guest_ip" | "rfq_guest_email" | "signup_ip" | "signup_global";
+export type RateLimitName = "rfq_create_ip" | "rfq_create_user" | "rfq_create_global" | "invite_send_ip" | "invite_send_user" | "invite_send_global" | "rfq_guest_ip" | "rfq_guest_email" | "signup_ip" | "signup_global" | "trade_photo_target" | "trade_photo_user" | "trade_photo_ip";
 const DEFAULTS: Record<RateLimitName, { limit: number; windowMs: number }> = {
   // Per-account / per-IP caps are sized for a real buyer iterating on a request (re-sending after edits,
   // trying an alternate VIN) — 3 creates in 10 min locked out a single person mid-flow. The global caps
@@ -63,6 +63,10 @@ const DEFAULTS: Record<RateLimitName, { limit: number; windowMs: number }> = {
   invite_send_global: { limit: 300, windowMs: 60_000 },
   signup_ip: { limit: 5, windowMs: 10 * 60_000 },
   signup_global: { limit: 200, windowMs: 60_000 },
+  // Trade photos: a buyer retaking 12 slots a few times each is real use; these stop a loop, not a person.
+  trade_photo_target: { limit: 60, windowMs: 60 * 60_000 },
+  trade_photo_user: { limit: 200, windowMs: 60 * 60_000 },
+  trade_photo_ip: { limit: 300, windowMs: 60 * 60_000 },
 };
 
 export function namedLimit(name: RateLimitName, subject: string, now?: number): RateLimitVerdict {

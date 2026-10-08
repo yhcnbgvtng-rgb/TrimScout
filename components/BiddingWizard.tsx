@@ -2,6 +2,7 @@
 
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
+import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -1214,7 +1215,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
   // Asked on Step 3: is a trade-in coming? Handled after the OTD price is agreed — never part of the quote.
-  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(null);
+  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(false);
+  // The trade-in step's own state (draft id, readiness). Toggle off = nothing collected, nothing sent.
+  const [tradeStep, setTradeStep] = useState<TradeStepState>({ ready: true, draftId: null, token: null, firstError: null });
+  const [tradeAttempted, setTradeAttempted] = useState(false);
   const dealCommentContactWarning = findContactInfo(dealComment);
 
   // Step 3: how soon the buyer wants to close — round-trips through the
@@ -1320,7 +1324,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setQuoteDesks({});
     setConfirmedDesks({});
     setDealComment("");
-    setTradeInExpected(null);
+    setTradeInExpected(false);
+    setTradeAttempted(false);
     setCreatedDealId(null);
     setSentPackage(null);
     setSubmitError(null);
@@ -1711,7 +1716,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     }
     if (step === 2 && !paymentChosen) return;
     // Step 3 → 4: every lock set, and at least one desk with a named contact (or an adviser address) ticked.
-    if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning || tradeInExpected === null)) return;
+    if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning)) return;
+    // Trade toggle on: the details and all six required photos must be in before Continue; point at what's missing.
+    if (step === 3 && tradeInExpected && !tradeStep.ready) { setTradeAttempted(true); return; }
     setStep(step + 1);
   };
   const goBack = () => {
@@ -2420,6 +2427,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           // Word for word to every quoting dealer (scrubbed of contact info first).
           buyerNote: dealComment.trim() || null,
           tradeInExpected,
+          // Toggle off: no trade data at all. On: the draft (fields + six photos) the server re-verifies before anything is created.
+          tradeIn: tradeInExpected && tradeStep.draftId ? { enabled: true, draftId: tradeStep.draftId, token: tradeStep.token } : { enabled: false },
           leasePrefs:
             quoteType === "lease" && !isUsed
               ? {
@@ -3415,25 +3424,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              <WizardSection title="Trade-in" hint="Handled after an out-the-door price is agreed — it never changes the quote. We'll work with the dealer on any registration-fee and sales-tax changes it brings." className="pt-6">
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Will a trade-in be coming in?" data-testid="trade-in-question">
-                  {([true, false] as const).map((v) => (
-                    <button
-                      key={String(v)}
-                      type="button"
-                      role="radio"
-                      aria-checked={tradeInExpected === v}
-                      onClick={() => setTradeInExpected(v)}
-                      className={`rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
-                        tradeInExpected === v ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
-                      }`}
-                      data-testid={v ? "trade-in-yes" : "trade-in-no"}
-                    >
-                      {v ? "Yes — I have a trade-in coming" : "No trade-in"}
-                    </button>
-                  ))}
-                </div>
-                {tradeInExpected === null ? <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-trade-in">Tell us whether a trade-in is coming to continue.</p> : null}
+              <WizardSection title="Trade-in" hint="Optional. Dealers appraise it as its own line next to the price; nothing is binding." className="pt-6">
+                <TradeInStep
+                  enabled={Boolean(tradeInExpected)}
+                  onToggle={(on) => { setTradeInExpected(on); if (!on) setTradeAttempted(false); }}
+                  defaultZip={zipOk ? huntZip.trim() : null}
+                  attempted={tradeAttempted}
+                  onState={setTradeStep}
+                />
               </WizardSection>
 
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
@@ -3853,7 +3851,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 disabled={
                   (step === 1 && step1ContinueDisabled) ||
                   (step === 2 && !paymentChosen) ||
-                  (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning) || tradeInExpected === null))
+                  (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning)))
                 }
                 className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-bold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >

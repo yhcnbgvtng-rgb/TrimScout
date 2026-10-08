@@ -72,3 +72,7 @@ Listings APIs filter year/make/model/zip/radius. They cannot filter Ultimate / B
 - Not ChromeData / VinAudit / GoodCar as Ford source of truth.
 - Not hooked to the existing BMW/Porsche scrapers, Excel, or SQLite inventory.
 - Do not bulk-crawl Ford Direct. Lookups are user-initiated (subject VIN + up to 50 hunt candidates).
+
+
+## Trade-ins
+Buyers can attach a trade-in (six required photos) to a quote request and dealers appraise it in-app. See [docs/TRADE_IN.md](docs/TRADE_IN.md) for the fields, the photo rules and how equity flows into cash, finance and lease.

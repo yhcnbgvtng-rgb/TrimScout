@@ -42,6 +42,10 @@ export async function GET(req: Request) {
     buyerMiles: usedCar?.mileage ?? null,
     buyerNote: rfq.buyerNote || null,
     tradeInExpected: rfq.tradeInExpected ?? null,
+    // The buyer attached a trade-in (details + photos load via /api/quote-invite/trade, behind this same token).
+    hasTrade: Boolean(rfq.tradeIn),
+    // The trade appraisal's good-until defaults to the vehicle quote's expiry when there is one.
+    quoteExpiresAt: invite.quote?.expiresAt ?? null,
     msrp: thisCar?.msrp ?? recheck?.msrp ?? null,
     factoryStickerUrl: recheck?.pdfUrl || null,
     vin: rfq.vin,

@@ -49,7 +49,7 @@ const nextConfig = {
               // origin, hence frame-src below too.
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https:",
+              "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
               "connect-src 'self' https:",
               "frame-src https://challenges.cloudflare.com",
