@@ -11,7 +11,7 @@ export const RFQ_MAX_INVITES = 3;
 // list is the exhaustive confirmed set for that VIN, so absence there is a
 // real "miss", not an unknown.
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
-import type { RfqTradeIn } from "./rfqTradeIn";
+import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "./trade/types";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
@@ -133,8 +133,13 @@ export interface RfqInvite {
   dealerUnsubscribedAt?: string | null;
   /** Earlier versions of this desk's quote, superseded by a buyer counter. */
   priorQuotes?: RfqQuote[];
-  /** The buyer's trade-in for THIS desk (photos stripped to photoCount) and the desk's allowance once quoted. */
-  tradeIn?: RfqTradeIn | null;
+  /** This desk's appraisal of the request's trade-in (the box column behind the spec's dealer_trade_appraisal). */
+  tradeAppraisal?: DealerTradeAppraisal | null;
+  /** The desk's single open/fulfilled ask for more photos (spec: trade_photo_request). */
+  tradePhotoRequest?: TradePhotoRequest | null;
+  /** When this desk last opened the trade; a photo change after it earns one new notice. */
+  tradeSeenAt?: string | null;
+  tradePhotosNotifiedAt?: string | null;
 }
 
 export interface RfqSpec {
@@ -172,8 +177,10 @@ export interface RfqRequest extends RfqSpec {
   quotePrefs?: QuotePrefs | null;
   /** The buyer's note to every quoting dealer, word for word (≤1000 chars, no contact info). */
   buyerNote?: string | null;
-  /** Buyer said a trade-in is coming — handled after the OTD price is agreed, never part of the quote. */
+  /** Buyer said a trade-in is coming (older requests: handled after the OTD price). */
   tradeInExpected?: boolean | null;
+  /** The buyer's trade-in (fields + photo metadata; bytes are in S3, never here). Present only when the toggle was on. */
+  tradeIn?: TradeInRecord | null;
   /**
    * "same_spec" (default): quotes for this VIN / build compete in the main compare.
    * "alternate": the buyer is open to other vehicles — no VIN required; every quote is an alternate.

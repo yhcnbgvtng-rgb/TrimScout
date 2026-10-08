@@ -5,8 +5,6 @@ import { Plus, Trash2 } from "lucide-react";
 import { CREDIT_BAND_LABELS, FINANCE_TERMS, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
-import type { RfqTradeIn } from "../lib/rfqTradeIn";
-import { saveTradeAllowance, TradeAllowanceInput, TradeInSummary } from "./DealerTradeInPanel";
 
 /**
  * The dealer's Cash / Finance sheet, new or used, to match the buyer's
@@ -32,7 +30,6 @@ export function UsedQuoteForm({
   buyerMiles,
   msrp,
   initial,
-  tradeIn,
   onSubmitted,
 }: {
   token: string;
@@ -45,8 +42,6 @@ export function UsedQuoteForm({
   msrp?: number | null;
   /** The dealer's own last quote (after a buyer counter) — the sheet opens prefilled so they revise, not retype. */
   initial?: UsedQuote | null;
-  /** The buyer's trade-in for this desk, when they added one — adds the Trade-in allowance field. */
-  tradeIn?: RfqTradeIn | null;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
   const kind = prefs.quoteType;
@@ -75,7 +70,6 @@ export function UsedQuoteForm({
   const [addOns, setAddOns] = useState<Item[]>(asItems(initial?.addOns));
   const [noAddOns, setNoAddOns] = useState(initial?.noAddOns ?? false);
   const [rebates, setRebates] = useState<Item[]>(asItems(initial?.rebates));
-  const [tradeAllowance, setTradeAllowance] = useState(tradeIn?.allowance != null ? String(tradeIn.allowance) : "");
   const [fees, setFees] = useState<Item[]>(
     initial?.dueAtSigning?.length
       ? asItems(initial.dueAtSigning)
@@ -164,13 +158,7 @@ export function UsedQuoteForm({
         setServerError(Array.isArray(json.errors) && json.errors.length ? json.errors.join(" ") : json.error || "Could not submit the quote.");
         return;
       }
-      const warnings: string[] = json.warnings || [];
-      // The allowance is its own line on the invite, saved after the quote lands; a miss never loses the quote.
-      if (tradeIn && tradeAllowance.trim()) {
-        const r = await saveTradeAllowance(token, tradeAllowance);
-        if (!r.ok) warnings.push(`Your quote was sent, but the trade-in allowance wasn't saved (${r.error}) — add it from your quote link.`);
-      }
-      onSubmitted({ warnings });
+      onSubmitted({ warnings: json.warnings || [] });
     } finally {
       setBusy(false);
     }
@@ -382,14 +370,6 @@ export function UsedQuoteForm({
             ) : null}
             <p className={hintCls}>Each add-on is its own line with its own price — never folded into the selling price or the payment. Either list them or confirm none.</p>
           </section>
-
-          {tradeIn ? (
-            <section className="space-y-2.5" data-testid="trade-in-section">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Buyer&apos;s trade-in <span className="font-normal normal-case">(optional to answer now)</span></h4>
-              <TradeInSummary token={token} tradeIn={tradeIn} />
-              <TradeAllowanceInput value={tradeAllowance} onChange={setTradeAllowance} />
-            </section>
-          ) : null}
 
           <section className="space-y-2.5" data-testid="rebates">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Rebates / incentives <span className="font-normal normal-case">(optional)</span></h4>

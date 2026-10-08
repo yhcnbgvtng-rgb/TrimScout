@@ -7,8 +7,8 @@ import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
-import { tradeOutTheDoor, TRADE_VALUES_COPY, tradeTitle, type RfqTradeIn } from "../lib/rfqTradeIn";
-import { TradeInForm } from "./TradeInForm";
+import { allowanceOf, applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
+import { BASIS_LABELS, TRADE_ESTIMATE_COPY } from "../lib/trade/types";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import type { RfqRequest } from "../lib/rfq";
@@ -22,13 +22,9 @@ import type { LineItem } from "../lib/leaseQuote";
  * so a cheap monthly can't hide junk. Cash ranks by out the door.
  * Expired rows grey out; waiting rows show dashes.
  */
-export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade, onCopyTrade, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; onAddTrade?: (inviteId: string, tradeIn: Record<string, unknown>) => Promise<void>; onCopyTrade?: (toInviteId: string, fromInviteId: string) => Promise<void>; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
   // Which row has the counter sheet open — one at a time.
   const [countering, setCountering] = useState<string | null>(null);
-  // Which dealer's "Add a trade-in" form is open; one at a time.
-  const [tradingFor, setTradingFor] = useState<string | null>(null);
-  const [tradeBusy, setTradeBusy] = useState<string | null>(null);
-  const [tradeError, setTradeError] = useState<string | null>(null);
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
   const lane = rfq.lane ?? "same_spec";
@@ -39,13 +35,17 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
   const liveAll = rows.filter((r) => r.used && !isExpired({ expiresAt: r.used.expiresAt }));
   const live = lane === "alternate" ? liveAll : liveAll.filter((r) => !r.alternate);
   const sideAlternates = lane === "alternate" ? [] : liveAll.filter((r) => r.alternate);
-  // Out the door = price + fees + tax + add-ons − rebates − net trade equity. A dealer who hasn't
-  // quoted the trade yet keeps their no-trade total (status "pending"); tax is never reduced by a trade.
-  const otdOf = (r: (typeof rows)[number]) => tradeOutTheDoor(cashOutTheDoor(r.used!), r.invite.tradeIn);
+  // Trade-in lines (request-level trade, per-dealer appraisal). The dealer's own quote is never edited; the trade
+  // sits beside it. TODO(tax): no trade-in tax credit; sales tax stays as each dealer quoted it on the full price.
+  const trade = rfq.tradeIn ?? null;
+  const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity => tradeEquity(Boolean(trade), trade?.payoffEstimate, r.invite.tradeAppraisal);
+  const otdOf = (r: (typeof rows)[number]) => otdBeforeAfter(cashOutTheDoor(r.used!), eqOf(r));
+  // Cash ranks on post-trade OTD (ties: more net equity), so a big trade offset by a higher price can't hide.
+  // Finance keeps its monthly-first order, with the trade shown beside it.
   const ranked = [...live].sort((a, b) =>
     finance && a.used!.kind === "finance" && b.used!.kind === "finance"
       ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote)
-      : otdOf(a).total - otdOf(b).total
+      : compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after })
   );
   const best = ranked[0] || null;
   const lowest = (pick: (u: UsedQuote, r: (typeof rows)[number]) => number | null) => {
@@ -54,7 +54,10 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
   };
   const bestMonthly = finance ? lowest((u) => (u.kind === "finance" ? u.monthlyPaymentPreTax : null)) : null;
   const bestCashDue = finance ? lowest((u) => (u.kind === "finance" ? financeCashDue(u) : null)) : null;
-  const bestOtd = !finance ? lowest((u, r) => (u.kind === "cash" ? otdOf(r).total : null)) : null;
+  const bestOtd = !finance ? lowest((u, r) => (u.kind === "cash" ? otdOf(r).after : null)) : null;
+  const bestAfter = finance && trade ? lowest((_u, r) => (eqOf(r).status === "quoted" ? otdOf(r).after : null)) : null;
+  const quotedNets = trade ? live.map((r) => eqOf(r)).filter((e) => e.status === "quoted").map((e) => e.net as number) : [];
+  const bestNet = quotedNets.length > 1 ? Math.max(...quotedNets) : null;
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
@@ -71,7 +74,6 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
       <span className="font-bold text-white">{fmtMoney(total)}</span>
     );
 
-  const anyTrade = rows.some((r) => r.invite.tradeIn);
   const anyMiles = rows.some((r) => r.used?.miles != null);
   const rowDefs: QuoteRowDef[] = [
     ...(finance ? [{ key: "monthly", label: "Monthly" }, { key: "cashdue", label: "Cash due at signing" }, { key: "apr", label: "APR · financed" }] : []),
@@ -80,10 +82,12 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
     { key: "tax", label: "Sales tax" },
     { key: "addons", label: "Add-ons" },
     { key: "rebates", label: "Rebates / credits" },
-    ...(anyTrade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff" }, { key: "netequity", label: "Net trade equity" }] : []),
+    ...(trade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }] : []),
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
-    ...(!finance ? [{ key: "otd", label: "Out the door", total: true }] : []),
+    ...(trade
+      ? [{ key: "otdbefore", label: "OTD before trade" }, ...(finance ? [{ key: "applied", label: "How equity is applied" }] : []), { key: "otdafter", label: "OTD after trade", total: true }]
+      : !finance ? [{ key: "otd", label: "Out the door", total: true }] : []),
   ];
   const isTax = (n: string) => /tax/i.test(n);
   const counteringRow = countering ? rows.find((r) => r.invite.id === countering) : null;
@@ -91,6 +95,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
     const expired = used ? isExpired({ expiresAt: used.expiresAt }) : false;
     const picked = Boolean(invite.quote && rfq.pickedQuoteId === invite.quote.id);
     const unsubscribed = Boolean(invite.dealerUnsubscribedAt);
+    const eq = eqOf({ invite });
     const chip = (cls: string, text: string, testId?: string) => <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${cls}`} data-testid={testId}>{text}</span>;
     const status = !used
       ? invite.status === "declined" ? chip("bg-rose-500/15 text-rose-300", "Declined")
@@ -106,15 +111,38 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
     if (used && !expired && !excluded) {
       if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
       if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
-      if (used.kind === "cash" && tradeOutTheDoor(cashOutTheDoor(used), invite.tradeIn).total === bestOtd) best.push("otd");
+      if (used.kind === "cash" && (trade ? otdBeforeAfter(cashOutTheDoor(used), eq).after : cashOutTheDoor(used)) === bestOtd) best.push(trade ? "otdafter" : "otd");
+      if (trade && eq.status === "quoted" && bestNet != null && eq.net === bestNet) best.push("netequity");
+      if (trade && finance && eq.status === "quoted" && bestAfter != null && otdBeforeAfter(cashOutTheDoor(used), eq).after === bestAfter) best.push("otdafter");
     }
-    const trade = used ? tradeOutTheDoor(cashOutTheDoor(used), invite.tradeIn) : tradeOutTheDoor(0, invite.tradeIn);
-    const tradeCells: Record<string, React.ReactNode> = invite.tradeIn ? {
-      tradeallow: trade.status === "quoted" ? fmtMoney(trade.allowance!) : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
-      payoff: invite.tradeIn.payoff ? fmtMoney(invite.tradeIn.payoff) : <span className="text-ink-muted">None</span>,
-      netequity: trade.status !== "quoted" ? <span className="text-ink-muted">—</span>
-        : trade.negativeEquity ? <span data-testid="negative-equity"><span className="block text-[10px] font-bold uppercase text-rose-300">Negative equity</span>+{fmtMoney(Math.abs(trade.netEquity!))}<span className="block text-[10px] font-normal text-ink-muted">added to your total</span></span>
-        : <>−{fmtMoney(trade.netEquity!)}</>,
+    const otd = used ? otdBeforeAfter(cashOutTheDoor(used), eq) : null;
+    const tradeCells: Record<string, React.ReactNode> = trade ? {
+      tradeallow: eq.status === "quoted" && eq.allowance
+        ? <div data-testid="trade-allowance"><span className="font-bold text-white">{eq.allowance.isRange ? `${fmtMoney(eq.allowance.low)} to ${fmtMoney(eq.allowance.high)}` : fmtMoney(eq.allowance.mid)}</span>
+            <span className={`mt-1 block text-[10px] font-bold uppercase ${eq.basis === "firm" ? "text-emerald-300" : "text-amber-200"}`} data-testid="trade-basis">{BASIS_LABELS[eq.basis!]}</span>
+            <span className="block text-[10px] font-normal text-ink-muted">good until {new Date(eq.goodUntil!).toLocaleDateString()}</span></div>
+        : eq.status === "expired" ? <span className="font-bold text-rose-300" data-testid="trade-expired">Trade value expired</span>
+        : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
+      payoff: eq.payoff ? fmtMoney(eq.payoff) : <span className="text-ink-muted">None</span>,
+      netequity: eq.status !== "quoted" ? <span className="text-ink-muted">—</span>
+        : <span className={eq.negative ? "font-bold text-rose-300" : "font-bold text-emerald-300"} data-testid={eq.negative ? "negative-equity" : "positive-equity"}>
+            {eq.negative ? "−" : "+"}{fmtMoney(Math.abs(eq.net!))}
+            {eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted">{fmtMoney(eq.netLow!)} to {fmtMoney(eq.netHigh!)}</span> : null}
+            {eq.negative ? <span className="block text-[10px] font-bold uppercase">Negative equity</span> : null}
+          </span>,
+      ...(used ? {
+        otdbefore: fmtMoney(otd!.before),
+        otdafter: <>
+          {fmtMoney(otd!.after)}
+          {eq.status === "quoted" && eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted">{fmtMoney(otd!.afterLow)} to {fmtMoney(otd!.afterHigh)}</span> : null}
+          {eq.status !== "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{eq.status === "expired" ? "trade expired; not applied" : "trade pending; not applied"}</span> : null}
+        </>,
+        ...(used.kind === "finance" ? { applied: (() => {
+          const a = applyToFinance(eq, used.amountFinanced);
+          return a.how === "none" ? <span className="text-ink-muted">{eq.status === "quoted" ? "No equity to apply" : "—"}</span>
+            : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">amount financed {fmtMoney(used.amountFinanced)} → {fmtMoney(a.adjusted)} (your monthly is the dealer&apos;s, not recomputed)</span></span>;
+        })() } : {}),
+      } : {}),
     } : {};
     const taxLines = used ? used.dueAtSigning.filter((l) => isTax(l.name)) : [];
     const feeLines = used ? used.dueAtSigning.filter((l) => !isTax(l.name)) : [];
@@ -131,13 +159,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
         cashdue: fmtMoney(financeCashDue(fin)),
         apr: <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></>,
       } : {}),
-      ...(used.kind === "cash" ? { otd: (
-        <>
-          {fmtMoney(trade.total)}
-          {trade.status === "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{trade.negativeEquity ? "includes negative equity" : "after trade equity"}</span> : null}
-          {trade.status === "pending" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">excludes trade — value pending</span> : null}
-        </>
-      ) } : {}),
+      ...(used.kind === "cash" && !trade ? { otd: fmtMoney(cashOutTheDoor(used)) } : {}),
       ...tradeCells,
     } : { ...tradeCells };
     const header = (
@@ -159,8 +181,8 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
         <CounterComparison sheet={invite.buyerCounter.sheet} compact />
       </div>
     ) : null;
-    const actions = collecting && used && !expired && invite.quote ? (
-      <>
+    const footer = collecting && used && !expired && invite.quote ? (
+      <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
         <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
         <div className="grid grid-cols-2 gap-1.5">
         {onCounter && !unsubscribed ? (
@@ -168,33 +190,6 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
         ) : null}
         <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>
         </div>
-      </>
-    ) : null;
-    // Add a trade-in sits below Counter / Walk away as a secondary button, so Choose stays the main action.
-    // Once this dealer has one, the column says so instead; another dealer's trade can be added here in one click.
-    const canTrade = collecting && Boolean(onAddTrade) && invite.status !== "declined" && !unsubscribed && !expired;
-    const donor = rows.find((r) => r.invite.id !== invite.id && r.invite.tradeIn && r.invite.status !== "declined");
-    const tradeBlock = canTrade ? (
-      <div className="space-y-1.5" data-testid="trade-in-actions">
-        {invite.tradeIn ? (
-          <p className="text-[11px] text-ink-light" data-testid="trade-in-sent">Trade-in sent: {tradeTitle(invite.tradeIn)}</p>
-        ) : (
-          <>
-            <button type="button" onClick={() => { setTradeError(null); setTradingFor(invite.id); }} disabled={busy || tradeBusy === invite.id} className="w-full rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:border-ink-muted hover:text-white disabled:opacity-50" data-testid="add-trade-in">Add a trade-in</button>
-            {donor && onCopyTrade ? (
-              <button type="button" onClick={async () => { setTradeError(null); setTradeBusy(invite.id); try { await onCopyTrade(invite.id, donor.invite.id); } catch (e) { setTradeError(e instanceof Error ? e.message : "Could not add the trade-in."); } finally { setTradeBusy(null); } }} disabled={busy || tradeBusy === invite.id} className="w-full text-left text-[11px] font-bold text-brand-300 hover:text-brand-200 disabled:opacity-50" data-testid="copy-trade-in">
-                {tradeBusy === invite.id ? "Adding…" : `Send ${donor.invite.dealerName}'s trade-in here too`}
-              </button>
-            ) : null}
-          </>
-        )}
-        <p className="text-[10px] leading-snug text-ink-faint" data-testid="trade-in-copy">{TRADE_VALUES_COPY}</p>
-      </div>
-    ) : null;
-    const footer = actions || tradeBlock ? (
-      <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
-        {actions}
-        {tradeBlock}
       </div>
     ) : null;
     return { id: invite.id, kind: !used ? "waiting" : expired ? "expired" : "quoted", header, cells, best, muted: expired || invite.status === "declined" || (unsubscribed && !used), picked, footer, detail };
@@ -221,9 +216,9 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
         </p>
       ) : best ? (
         <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3" data-testid="used-glance-best">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{finance ? "Best on monthly, then cash due at signing" : "Lowest out the door"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{finance ? "Best on monthly, then cash due at signing" : trade ? "Lowest out the door after trade" : "Lowest out the door"}</p>
           <p className="text-lg font-extrabold text-white tabular-nums">
-            {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(otdOf(best).total)}
+            {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(otdOf(best).after)}
           </p>
           <p className="text-[11px] text-ink-light">{best.invite.dealerName}</p>
         </div>
@@ -231,16 +226,8 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, onAddTrade,
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>
       )}
 
+      {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} Sales tax is as each dealer quoted it, on the full price.</p> : null}
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
-      {tradingFor && onAddTrade ? (() => {
-        const target = rows.find((r) => r.invite.id === tradingFor);
-        return target ? (
-          <>
-            {tradeError ? <p className="text-[11px] text-rose-300" role="alert">{tradeError}</p> : null}
-            <TradeInForm dealerName={target.invite.dealerName} onCancel={() => setTradingFor(null)} onSubmit={async (t) => { await onAddTrade(target.invite.id, t); setTradingFor(null); }} />
-          </>
-        ) : null;
-      })() : null}
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
         <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
       ) : null}

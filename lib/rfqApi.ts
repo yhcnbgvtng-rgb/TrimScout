@@ -6,7 +6,7 @@ import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
-import type { RfqTradeIn } from "./rfqTradeIn";
+import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
@@ -22,7 +22,7 @@ export class RfqApiError extends Error {
   }
 }
 
-async function request(method: "GET" | "POST" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<any> {
+async function request(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<any> {
   const apiKey = serverSecret("LIGHTSAIL_API_KEY");
   if (!apiKey) {
     throw new RfqApiError("RFQ backend is not configured (missing LIGHTSAIL_API_KEY)", 500);
@@ -182,28 +182,35 @@ export async function submitBuyerCounter(rfqId: string, inviteId: string, counte
 }
 
 /**
- * Attach a trade-in to ONE invite (the dealer is asked to quote a value). Needs the
- * box patch scripts/box/2026-10-08-invite-trade-in.sh; on an unpatched box it 404s.
+ * Trade-in endpoints — need the box patch scripts/box/2026-10-08-rfq-trade-in.sh; on an unpatched box they 404.
+ * Only metadata travels here: photo bytes live in S3.
  */
-export async function submitInviteTradeIn(rfqId: string, inviteId: string, tradeIn: RfqTradeIn): Promise<RfqRequest> {
-  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-in`, { tradeIn });
+export async function submitRfqTradeIn(rfqId: string, tradeIn: TradeInRecord): Promise<RfqRequest> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/trade-in`, { tradeIn });
   return json.rfq as RfqRequest;
 }
 
-/** The invite's trade-in WITH photos — server-to-server (the buyer's invite list carries only photoCount). */
-export async function getInviteTradeIn(rfqId: string, inviteId: string): Promise<RfqTradeIn | null> {
-  try {
-    const json = await request("GET", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-in`);
-    return (json.tradeIn as RfqTradeIn) || null;
-  } catch (err) {
-    if (err instanceof RfqApiError && err.status === 404) return null;
-    throw err;
-  }
+/** Replace the request's photo list (buyer changed a photo after sending). `notify` lists invites owed one notice. */
+export async function putRfqTradePhotos(rfqId: string, photos: TradePhoto[]): Promise<{ rfq: RfqRequest; notifyInviteIds: string[] }> {
+  const json = await request("PUT", `/api/rfqs/${rfqId}/trade-in/photos`, { photos });
+  return { rfq: json.rfq as RfqRequest, notifyInviteIds: (json.notifyInviteIds as string[]) || [] };
 }
 
-/** The dealer's trade-in allowance (null clears it). Works while the invite is open or already quoted. */
-export async function submitInviteTradeAllowance(rfqId: string, inviteId: string, allowance: number | null): Promise<void> {
-  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-allowance`, { allowance });
+export async function submitTradeAppraisal(rfqId: string, inviteId: string, appraisal: DealerTradeAppraisal): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-appraisal`, { appraisal });
+}
+
+export async function submitTradePhotoRequest(rfqId: string, inviteId: string, photoRequest: TradePhotoRequest): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-photo-request`, { photoRequest });
+}
+
+/** Buyer replaced/added photos covering an open ask (or dismissed it): marks that desk's request fulfilled. */
+export async function fulfilTradePhotoRequests(rfqId: string, slots: string[]): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/trade-photo-requests/fulfil`, { slots });
+}
+
+export async function markTradeSeen(rfqId: string, inviteId: string): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-seen`, {});
 }
 
 export async function declineRfqInvite(

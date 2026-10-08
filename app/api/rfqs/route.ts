@@ -2,7 +2,10 @@ import { NextResponse, after } from "next/server";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
 import { parseQuotePrefs } from "@/lib/usedQuote";
 import { auth } from "@/auth";
-import { createRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
+import { createRfq, listRfqsForBuyer, RfqApiError, submitRfqTradeIn, walkAwayFromRfq } from "@/lib/rfqApi";
+import { s3Storage } from "@/lib/trade/storage";
+import { adoptDraftIntoRfq, prepareTradeForRfq } from "@/lib/trade/service";
+import { tradeErrorResponse } from "@/lib/trade/routeKit";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
@@ -144,7 +147,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const rfq = await createRfq({
+    // Trade-in: toggle off → nothing. Toggle on → the whole thing (fields + all six required photos, present in
+    // storage) is verified HERE, before any request exists, whatever the browser claimed.
+    let tradeReady: Awaited<ReturnType<typeof prepareTradeForRfq>> = null;
+    try {
+      tradeReady = await prepareTradeForRfq(s3Storage, body, ownerId);
+    } catch (err) {
+      return tradeErrorResponse(err);
+    }
+
+    let rfq = await createRfq({
       buyerUserId: ownerId,
       vin: body.vin,
       stockNumber: body.stockNumber ?? null,
@@ -161,10 +173,20 @@ export async function POST(req: Request) {
       // rather than silently dropped.
       quotePrefs: parseQuotePrefs(body.quotePrefs),
       buyerNote: buyerNote || null,
-      tradeInExpected: typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
+      tradeInExpected: tradeReady ? true : typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
       lane,
       alternateAsk,
     });
+    if (tradeReady) {
+      try {
+        const record = await adoptDraftIntoRfq(s3Storage, tradeReady.draft, tradeReady.record, rfq.id);
+        rfq = await submitRfqTradeIn(rfq.id, record);
+      } catch (err) {
+        // Don't leave a trade-less request behind for a buyer who asked for a trade-in: close it so they can resend.
+        await walkAwayFromRfq(rfq.id).catch(() => undefined);
+        return tradeErrorResponse(err);
+      }
+    }
     recordQuoteRequest();
     bump("rfq_create");
     // The admin gate: every new request waits for approval. Tell the admin

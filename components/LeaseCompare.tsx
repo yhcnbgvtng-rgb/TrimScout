@@ -7,6 +7,8 @@ import { termMilesLabel } from "../lib/leaseQuote";
 import { counterSummary } from "../lib/buyerCounter";
 import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
+import { applyToLease, tradeEquity } from "../lib/trade/otd";
+import { BASIS_LABELS, TRADE_ESTIMATE_COPY, type DealerTradeAppraisal, type TradeInRecord } from "../lib/trade/types";
 import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import type { CounterEditsPayload } from "../lib/buyerCounter";
 
@@ -39,8 +41,11 @@ export function LeaseCompare({
   onPick,
   onWalk,
   onCounter,
+  trade,
   busy,
 }: {
+  /** The request's trade-in and each desk's appraisal. Shown as its own lines; the dealer's monthly is never recomputed. */
+  trade?: { record: TradeInRecord; byInvite: Record<string, DealerTradeAppraisal | null> } | null;
   data: LeaseCompareData;
   collecting: boolean;
   onPick: (quoteId: string) => void;
@@ -60,6 +65,10 @@ export function LeaseCompare({
   const mainRows = [...eligible, ...alternates, ...rest];
   const canAct = (r: LeaseCompareRow) => collecting && Boolean(r.lease) && (r.kind === "eligible" || r.kind === "counter") && Boolean(r.quoteId);
   const anyActions = rows.some(canAct);
+  // With a trade: its lines sit right under Rebates / credits, as separate lines, never inside the monthly.
+  const leaseRows: QuoteRowDef[] = trade
+    ? LEASE_ROWS.flatMap((row) => row.key === "rebates" ? [row, { key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }, { key: "applied", label: "How equity is applied" }] : [row])
+    : LEASE_ROWS;
 
   const toColumn = (r: LeaseCompareRow): QuoteColumn => {
     const l = r.lease;
@@ -102,7 +111,17 @@ export function LeaseCompare({
         <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
       </div>
     );
+    const eq = tradeEquity(Boolean(trade), trade?.record.payoffEstimate, trade?.byInvite[r.inviteId]);
+    const tradeCells: Record<string, React.ReactNode> = trade ? {
+      tradeallow: eq.status === "quoted" && eq.allowance
+        ? <div data-testid="trade-allowance"><span className="font-bold text-white">{eq.allowance.isRange ? `${fmtMoney(eq.allowance.low)} to ${fmtMoney(eq.allowance.high)}` : fmtMoney(eq.allowance.mid)}</span><span className={`mt-1 block text-[10px] font-bold uppercase ${eq.basis === "firm" ? "text-emerald-300" : "text-amber-200"}`} data-testid="trade-basis">{BASIS_LABELS[eq.basis!]}</span></div>
+        : eq.status === "expired" ? <span className="font-bold text-rose-300">Trade value expired</span> : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
+      payoff: eq.payoff ? fmtMoney(eq.payoff) : <span className="text-ink-muted">None</span>,
+      netequity: eq.status !== "quoted" ? <span className="text-ink-muted">—</span> : <span className={eq.negative ? "font-bold text-rose-300" : "font-bold text-emerald-300"} data-testid={eq.negative ? "negative-equity" : "positive-equity"}>{eq.negative ? "−" : "+"}{fmtMoney(Math.abs(eq.net!))}{eq.negative ? <span className="block text-[10px] font-bold uppercase">Negative equity</span> : null}</span>,
+      applied: l ? (() => { const a = applyToLease(eq, l.capCost); return a.how === "none" ? <span className="text-ink-muted">{eq.status === "quoted" ? "No equity to apply" : "—"}</span> : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">cap cost {fmtMoney(l.capCost)} → {fmtMoney(a.adjusted)} (the monthly is the dealer&apos;s, not recomputed)</span></span>; })() : undefined,
+    } : {};
     const cells: Record<string, React.ReactNode> = l ? {
+      ...tradeCells,
       monthly: <><span className="text-base">{fmtMoney(r.monthly)}</span><span className="text-[10px] font-semibold text-ink-muted">/mo</span>{monthlyNote ? <span className="mt-1 block text-[10px] font-normal leading-snug text-ink-muted" data-testid="money-note">{monthlyNote}</span> : null}</>,
       das: <><span className="text-base">{fmtMoney(r.dueAtSigning)}</span>{r.chips.length && dasNote ? <span className="mt-1 block text-[10px] font-normal leading-snug text-ink-muted" data-testid="money-note">{dasNote}</span> : null}{l.addOns.length || l.incentives.length ? (
         <span className="mt-1 block text-[10px] font-normal leading-snug" data-testid="lines-summary">
@@ -122,7 +141,7 @@ export function LeaseCompare({
       tax: fmtMoney(l.dueAtSigning.taxes),
       rebates: names(l.incentives, "−"),
       expires: <span className={r.kind === "expired" ? "text-rose-300" : ""}>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—"}</span>,
-    } : {};
+    } : { ...tradeCells };
     const detail = isOpen && l ? (
       <div className="space-y-3" data-testid="lease-row-detail">
         {r.contactName || r.emailMasked ? <p className="text-[10px] text-ink-muted">Quoted by <span className="text-ink-light">{r.contactName || r.dealerName}</span>{r.emailMasked ? <span className="font-mono"> · {r.emailMasked}</span> : null}</p> : null}
@@ -234,14 +253,15 @@ export function LeaseCompare({
       </div>
 
       {/* 2 — dealers as columns */}
-      {mainRows.length ? <QuoteColumns testId="lease-table" caption="Lease quotes, one column per dealer" rows={LEASE_ROWS} columns={mainRows.map(toColumn)} /> : null}
+      {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY}</p> : null}
+      {mainRows.length ? <QuoteColumns testId="lease-table" caption="Lease quotes, one column per dealer" rows={leaseRows} columns={mainRows.map(toColumn)} /> : null}
 
       {counters.length ? (
         <div className="space-y-1.5" data-testid="counters-block">
           <p className="text-[10px] font-bold uppercase tracking-wide text-amber-300" data-testid="counter-divider">
             Counters — differ from your {termMilesLabel(prefs.termMonths, prefs.milesPerYear)}
           </p>
-          <QuoteColumns testId="lease-counters-table" caption="Dealer counters to your term and miles" rows={LEASE_ROWS} columns={counters.map(toColumn)} />
+          <QuoteColumns testId="lease-counters-table" caption="Dealer counters to your term and miles" rows={leaseRows} columns={counters.map(toColumn)} />
         </div>
       ) : null}
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { BuyerTradeCard } from "@/components/trade/BuyerTradeCard";
 import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompare } from "@/components/LeaseCompare";
 import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib/leaseCompare";
@@ -474,21 +475,6 @@ export default function RfqWorkspacePage() {
     setLeaseCompare(null);
   };
 
-  // Trade-in for ONE dealer's invite (or the same trade copied from another dealer's invite).
-  // The dealer is asked to quote a trade value; the response carries the refreshed rfq.
-  const postTrade = async (inviteId: string, body: Record<string, unknown>) => {
-    const res = await fetch(`/api/rfqs/${rfqId}/invites/${inviteId}/trade-in`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...guest.headers },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json.error || "Could not add your trade-in.");
-    setRfq(json.rfq);
-  };
-  const handleAddTrade = (inviteId: string, tradeIn: Record<string, unknown>) => postTrade(inviteId, { tradeIn });
-  const handleCopyTrade = (toInviteId: string, fromInviteId: string) => postTrade(toInviteId, { copyFromInviteId: fromInviteId });
-
   const handleWalk = async () => {
     setWalking(true);
     const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST", headers: guest.headers });
@@ -561,6 +547,8 @@ export default function RfqWorkspacePage() {
         </div>
       )}
 
+      {rfq.tradeIn ? <BuyerTradeCard rfqId={rfqId} headers={guest.headers} version={rfq} /> : null}
+
       {/* Once a dealer has quoted, the compare is the decision surface: it takes the first screen and the
           locked sheet + invited-dealer audit fold into "Request details". Before any quote, the sheet leads. */}
       {hasQuotes ? (
@@ -577,7 +565,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -589,7 +577,7 @@ export default function RfqWorkspacePage() {
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
                   : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} onAddTrade={handleAddTrade} onCopyTrade={handleCopyTrade} busy={picking || walking} />
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -672,7 +660,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -684,7 +672,7 @@ export default function RfqWorkspacePage() {
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
                   : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} onAddTrade={handleAddTrade} onCopyTrade={handleCopyTrade} busy={picking || walking} />
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
