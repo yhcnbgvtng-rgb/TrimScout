@@ -47,6 +47,7 @@ import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
+import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
 
 // The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
 // TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
@@ -63,6 +64,9 @@ const flags = new Set(argv.filter((a) => a.startsWith("--")));
 const inputPath = argv.find((a) => !a.startsWith("--"));
 const DRY_RUN = flags.has("--dry-run");
 const NO_RESUME = flags.has("--no-resume");
+// --dry-run --write-retired: also write this run's retired file (no lock, no writes to the deals box) — seeds ~/sweep-retired/.
+const WRITE_RETIRED = flags.has("--write-retired");
+const RETIRED_DIR = process.env.SWEEP_RETIRED_DIR || RETIRED_DIR_DEFAULT;
 if (!inputPath || !KEY) {
   // --dry-run needs the key too: it still reads the dealership directory (a GET) to assign stores.
   console.error("usage: TRIMSCOUT_API_KEY=… node inventory-sync.mjs <data/inventory dir, or a single shard .json file> [--dry-run] [--no-resume]");
@@ -204,8 +208,12 @@ const noSweepStores = new Set();       // dealer ids that came from an over-size
 const skippedShards = [];              // { file, reason } — unreadable/truncated: nothing uploaded from them
 let staleSkipped = 0, freshUploaded = 0;
 const staleByStore = new Map();        // store name -> stale records skipped
+const dropped = [];                    // records read but not uploaded (sold, or stale) — see syncRetired.js
+let newestShardMs = 0;
 for (const shardFile of files) {
-  const sizeBytes = fs.statSync(shardFile).size;
+  const shardStat = fs.statSync(shardFile);
+  const sizeBytes = shardStat.size;
+  newestShardMs = Math.max(newestShardMs, shardStat.mtimeMs);
   const plan = shardPlan({ sizeBytes, structure: checkShardStructure(shardFile), maxBytes: fcfg.shardMaxBytes });
   if (plan.action === "skip") {
     skippedShards.push({ file: shardFile, reason: plan.reason });
@@ -215,9 +223,15 @@ for (const shardFile of files) {
   if (plan.action === "noSweep") log(`[sync] ⚠ ${path.basename(shardFile)}: ${plan.reason}. Its fresh records are uploaded, but none of its stores are swept.`);
   for (const v of streamTopLevelObjects(shardFile)) {
     total++;
-    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase()) || (v.status || "ACTIVE").toUpperCase() !== "ACTIVE") continue;
+    const vinOk = /^[A-HJ-NPR-Z0-9]{17}$/.test(String(v.vin || "").toUpperCase());
+    const isActive = (v.status || "ACTIVE").toUpperCase() === "ACTIVE";
+    if (!vinOk || !isActive) {
+      if (vinOk && isRecentDrop(v, RUN_NOW_MS)) dropped.push({ vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName || "", state: String(v.state || "").toUpperCase() });
+      continue;
+    }
     if (!isFreshRecord(v, RUN_NOW_MS, fcfg.maxRecordAgeMs)) {
       staleSkipped++;
+      if (isRecentDrop(v, RUN_NOW_MS)) dropped.push({ vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName || "", state: String(v.state || "").toUpperCase() });
       const k = v.dealerName || v.configDealerName || "?";
       staleByStore.set(k, (staleByStore.get(k) || 0) + 1);
       continue;
@@ -241,6 +255,21 @@ if (staleSkipped) {
 }
 log(`stores matched to the directory: ${rows.length - unmatched}/${rows.length} vehicles (${unmatched} unmatched — kept, keyed to store 0)`);
 
+// Came-back count (syncRetired.js): VINs uploaded now that an earlier run's retired file (last 7 days, this box) listed.
+// Files written at/after the newest shard belong to this same crawl output (an earlier attempt tonight) and are ignored.
+const retiredHistory = loadRecentRetired(RETIRED_DIR, RUN_NOW_MS, { notAfterMs: newestShardMs });
+log(formatCameBack(cameBack(rows, retiredHistory.map), retiredHistory.files));
+const sweptStoreIds = (failedStores = []) => new Set([...new Set(rows.map((r) => r.dealerId).filter(Boolean))].filter((id) => !noSweepStores.has(id) && !failedStores.includes(id)));
+const writeRetired = (failedStores) => {
+  try {
+    const list = retiredList(dropped, rows, sweptStoreIds(failedStores));
+    const file = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now());
+    log(`[sync] retired list: ${list.length} VIN(s) from swept stores written to ${file}`);
+  } catch (err) {
+    log(`[sync] could not write the retired list (${err.message}) — the sync itself is unaffected`);
+  }
+};
+
 // Resume state (syncCheckpoint.js): identifies the crawl output by each shard's path/size/mtime — not its
 // content, so checking it is cheap — plus a digest of every row's (vin, store) pair (syncRun.js). State for a
 // different crawl output (a new night's files) is ignored entirely rather than resumed into unrelated data.
@@ -263,7 +292,8 @@ if (DRY_RUN) {
   log(`[dry-run] sweep plan: ${stores.size} stores -> ${Math.ceil(stores.size / config.sweepBatchStores)} batches of <= ${config.sweepBatchStores} stores, concurrency ${config.sweepConcurrency} (+ the store-0 bucket)`);
   const m = process.memoryUsage();
   log(`[dry-run] memory: rss ${mb(m.rss)}MB, heapUsed ${mb(m.heapUsed)}MB`);
-  log("[dry-run] nothing was sent: no lock taken, no writes");
+  if (WRITE_RETIRED) writeRetired([]);
+  log("[dry-run] nothing was sent: no lock taken, no writes to the deals box" + (WRITE_RETIRED ? " (retired file written locally)" : ""));
   process.exit(0);
 }
 
@@ -282,6 +312,7 @@ lockHeartbeat = startSyncLockHeartbeat({
 let failed = false;
 try {
   const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs });
+  writeRetired(r.failedStores || []);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
 } catch (err) {
