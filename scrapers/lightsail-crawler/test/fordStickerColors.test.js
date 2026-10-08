@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { normalizeInterior, parseStickerColors, stickerUrlForVin } from "../src/fordStickerColors.js";
+import { normalizeExterior, normalizeInterior, parseStickerColors, stickerUrlForVin } from "../src/fordStickerColors.js";
 
 // "VEHICLE DESCRIPTION" blocks cut from real Ford Direct stickers (fetched 2026-10-08), 47 VINs across Mustang, F-150, Super Duty,
 // Transit, Explorer, Expedition, Escape, Bronco, Bronco Sport, Ranger, Maverick and Mach-E.
@@ -87,4 +87,24 @@ test("a sticker that is not the expected shape is a miss, never a guess", () => 
 
 test("sticker URL is the public VIN lookup", () => {
   assert.equal(stickerUrlForVin("1fa6p8th4t5136280"), "https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=1FA6P8TH4T5136280");
+});
+
+test("chassis-cab body wording is not part of the paint", () => {
+  assert.equal(normalizeExterior("Chassis Cab Oxford White"), "Oxford White");
+  assert.equal(normalizeExterior("Cab Race Red"), "Race Red");
+  assert.equal(normalizeExterior("Oxford White"), "Oxford White");
+  const t = "VEHICLE DESCRIPTION\nF-350\n2026 F350 DRW 4X4 CHASSIS CAB EXTERIOR\n2-PASSENGER CHASSIS CAB OXFORD WHITE\n6.7L POWER STROKE V8 DIESEL INTERIOR\n10-SPEED AUTO TORQSHIFT MEDIUM DARK SLATE VINYL";
+  assert.equal(parseStickerColors(t).exteriorColor, "Oxford White");
+});
+
+test("more interior trim wording and attested abbreviations (values seen on NJ stickers)", () => {
+  const cases = {
+    "Ult Dk Spc Gry Activex Seat": "Ultra Dark Space Gray", "Ult Drk Spc Gry Cloth Seats": "Ultra Dark Space Gray",
+    "Ebony Activex Seat Mtrl": "Ebony", "Lthr-Trim/Vinyl Black Sts": "Black", "Blk Perforated Activex": "Black",
+    "Dark Slate Cloth 40/20/40": "Dark Slate", "Black Leather Trm 40/Con/40": "Black", "Bronze Fire Premium Trim": "Bronze Fire",
+    "Ebony Roast Lea-Trim": "Ebony Roast", "Ebony Leather-Trim Seats": "Ebony", "Med Light Smoked Truffle Tr": "Medium Light Smoked Truffle",
+    "Ebony/Lt Slate Activex Seat": "Ebony/Light Slate", "Baja Activex Trimmed": "Baja",
+  };
+  for (const [raw, want] of Object.entries(cases)) assert.equal(normalizeInterior(raw), want, raw);
+  for (const bad of ["Leather Seating Surface", "Lth-Trm/Vn Smk Trf/Blk Sts", "Ebny Part Vnyl/Clth&red Sti"]) assert.equal(normalizeInterior(bad), null, bad);
 });

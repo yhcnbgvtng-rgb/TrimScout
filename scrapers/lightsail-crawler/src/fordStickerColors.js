@@ -15,7 +15,7 @@
 
 // Words that end the "seats / body / wheelbase" lead-in on the paint line. The paint is what comes after the LAST one.
 // (4-PASSENGER SPORTS CAR <PAINT>, 119" WHEELBASE <PAINT>, XL 164" WB STYLESIDE <PAINT>, BIG BEND - 5 PASSENGER <PAINT>.)
-const PAINT_LEAD_END = /^(?:.*\b(?:PASSENGER|WHEELBASE|WB|STYLESIDE|FLARESIDE|SPORTS CAR)\b)\s+(.+)$/;
+const PAINT_LEAD_END = /^(?:.*\b(?:PASSENGER|WHEELBASE|WB|STYLESIDE|FLARESIDE|SPORTS CAR|CAB)\b)\s+(.+)$/;
 // Where the transmission description ends on the interior line. Earliest match wins; longer phrases listed first.
 const TRANS_END = /^(?:.*?\b(?:TRANS W\/SLCTSHFT|TRANSMISSION|TRANS|TRAN|TORQSHIFT-G|TORQSHIFT|CVT)\b)\s+(.+)$/;
 
@@ -34,10 +34,12 @@ function lineAfter(lines, endsWith) {
 
 // Interior trim words Ford prints after (or before) the colour: material, seat/trim wording, and abbreviations of them.
 // Stripped repeatedly from the end, then once from the start, until only the colour name is left.
-const INTERIOR_TAIL = /\s+(?:ACTIVE-?X(?:\s+TRIM(?:MED)?|\s+TRM|\s+TRI)?|ACTIV|UNIQUE\s+CLOTH(?:\s+SEATS|\s+STS)?|STX\s+CLOTH\s+40\/CON\/40|CLOTH\s+40\/CON\/40|CLOTH\/VINYL\s+TRIM|CLOTH(?:\s+SEATS|\s+STS)?|CLTH\s+TRIM\s+S|LEATHER(?:-TRIMMED|\s+TRI)?|LTH-TRM(?:\s+RECRO)?|VINYL|TRIMMED|TRIM\s+SEATS|TRIM|TRM|SEATS|STS|MIKO\s+INSERTS|INSERTS)$/;
-const INTERIOR_HEAD = /^(?:PLAID\s+)?(?:LTH-TRM\/VINYL|CLOTH|LEATHER|VINYL)\s+/;
+const INTERIOR_TAIL = /\s+(?:ACTIVE-?X(?:\s+SEAT(?:\s+MTRL|\s+MATERIAL)?|\s+TRIM(?:MED)?|\s+TRM|\s+TRI)?|PERFORATED\s+ACTIVEX|PERFORATED|ACTIV|LTH\s+SEAT\s+SURF|LEATHER\s+SEATING\s+SURFACE|LEA-TRIM|LEATHER-TRIM(?:\s+SEATS)?|LEATHER\s+TRM\s+40\/CON\/40|CLOTH\s+40\/20\/40|PREMIUM\s+TRIM|TR|UNIQUE\s+CLOTH(?:\s+SEATS|\s+STS)?|STX\s+CLOTH\s+40\/CON\/40|CLOTH\s+40\/CON\/40|CLOTH\/VINYL\s+TRIM|CLOTH(?:\s+SEATS|\s+STS)?|CLTH\s+TRIM\s+S|LEATHER(?:-TRIMMED|\s+TRI)?|LTH-TRM(?:\s+RECRO)?|VINYL|TRIMMED|TRIM\s+SEATS|TRIM|TRM|SEATS|STS|MIKO\s+INSERTS|INSERTS)$/;
+const INTERIOR_HEAD = /^(?:PLAID\s+)?(?:LTH-TRM\/VINYL|LTHR-TRIM\/VINYL|CLOTH|LEATHER|VINYL)\s+/;
+// Abbreviations Ford prints in colour names that are attested in full on other stickers ("ULT DK SPC GRY" = Ultra Dark Space Gray).
+const ABBREV = { BLK: "BLACK", EBNY: "EBONY", ULT: "ULTRA", DK: "DARK", DRK: "DARK", SPC: "SPACE", GRY: "GRAY", MED: "MEDIUM", LT: "LIGHT" };
 // Colour words that must remain for a result to count as a colour name (a line that ends up with none is a miss, not a guess).
-const COLOR_WORD = /\b(?:BLACK|GRAY|GREY|WHITE|ONYX|EBONY|SLATE|EMBERGLO|NAVY|PIER|RED|BLUE|TAN|BROWN|SAND|CAMEL|SADDLE|BEIGE|IVORY|PALAZZO|CHARCOAL|SILVER|GREEN|ORANGE|PRFM|SPACE)\b/;
+const COLOR_WORD = /\b(?:BLACK|GRAY|GREY|WHITE|ONYX|EBONY|SLATE|EMBERGLO|NAVY|PIER|RED|BLUE|TAN|BROWN|SAND|CAMEL|SADDLE|BEIGE|IVORY|PALAZZO|CHARCOAL|SILVER|GREEN|ORANGE|PRFM|SPACE|TRUFFLE|SMOKED|ROAST|BRONZE|BAJA|DUNE|JAVA|MESA|LIME|TEAL)\b/;
 
 /**
  * "Black Onyx Cloth/Vinyl Trim" -> "Black Onyx", "Emberglo Activex Trm" -> "Emberglo". Works on the printed text (any case).
@@ -49,7 +51,7 @@ export function normalizeInterior(raw) {
   if (!s) return null;
   for (let i = 0; i < 4 && INTERIOR_TAIL.test(s); i++) s = s.replace(INTERIOR_TAIL, "");
   s = s.replace(INTERIOR_HEAD, "");
-  s = clean(s);
+  s = clean(s.replace(/[A-Z]+/g, (w) => ABBREV[w] || w));
   if (!s || !SANE.test(s) || !COLOR_WORD.test(s)) return null;
   // Leftover wording that is not a colour (an unrecognised trim or abbreviation) means the line was not fully understood.
   if (/\b(?:CLOTH|CLTH|VNL|VINYL|LTH|LEATHER|TRIM|TRM|SEATS?|STS|STCH|PART)\b|&/.test(s)) return null;
@@ -69,12 +71,18 @@ export function parseStickerColors(text) {
   let exterior = null;
   const paintLine = lineAfter(lines, "EXTERIOR");
   const p = paintLine && PAINT_LEAD_END.exec(paintLine);
-  if (p && SANE.test(p[1])) exterior = titleCase(p[1]);
+  if (p && SANE.test(p[1])) exterior = normalizeExterior(titleCase(p[1]));
   let interior = null;
   const interiorLine = lineAfter(lines, "INTERIOR");
   const t = interiorLine && TRANS_END.exec(interiorLine);
   if (t && SANE.test(t[1])) interior = titleCase(t[1]);
   return { exteriorColor: exterior, interiorColor: interior ? normalizeInterior(interior) : null, exteriorRaw: exterior, interiorRaw: interior };
+}
+
+/** Paint with any body/cab wording that rode along on the line removed ("Chassis Cab Oxford White" -> "Oxford White"). */
+export function normalizeExterior(raw) {
+  const s = clean(String(raw || "")).replace(/^(?:CHASSIS\s+)?CAB\s+/i, "");
+  return s || null;
 }
 
 export const STICKER_URL = "https://www.windowsticker.forddirect.com/windowsticker.pdf";
