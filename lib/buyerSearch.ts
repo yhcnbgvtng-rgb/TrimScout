@@ -2,6 +2,7 @@ import { searchInventory, type InventoryVehicle } from "./inventoryApi";
 import type { ParsedBuyerSearch } from "./buyerSearchQuery";
 import { calculateDistanceMiles } from "./otdCalculator";
 import { contactStatus, loadContactIndex } from "./dealerContactIndex";
+import { sortByDistance } from "./buyerSort";
 
 /** Fields a buyer has no reason to see — crawl-pipeline provenance, not vehicle or deal facts. */
 export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"> & {
@@ -17,7 +18,7 @@ function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, conta
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
 export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; totalCapped: boolean; limit: number; offset: number; vehicles: BuyerVehicle[] }> {
-  const { query, zip, radiusMiles, sortDistance } = parsed;
+  const { query, zip, radiusMiles, sortDistance, distanceDir } = parsed;
   const [result, contacts] = await Promise.all([searchInventory(query), loadContactIndex()]);
   let vehicles: BuyerVehicle[] = result.vehicles.map((v) =>
     toBuyerVehicle(v, zip ? calculateDistanceMiles(zip, { city: v.dealerCity || "", state: v.dealerState || "" }) : null, contacts)
@@ -26,7 +27,7 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total
     vehicles = vehicles.filter((v) => v.distanceMiles !== null && v.distanceMiles <= radiusMiles);
   }
   if (zip && sortDistance) {
-    vehicles = vehicles.sort((a, b) => (a.distanceMiles ?? Infinity) - (b.distanceMiles ?? Infinity));
+    vehicles = sortByDistance(vehicles, distanceDir);
   }
   return { total: result.total, totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles };
 }
