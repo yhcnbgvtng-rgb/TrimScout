@@ -42,6 +42,8 @@ type Context = {
   tradeInExpected: boolean | null;
   /** The factory window sticker, when it was found on a later re-check. */
   factoryStickerUrl: string | null;
+  /** Admin "Dealer view": read-only, not recorded as a dealer view. */
+  preview?: boolean;
 };
 
 /** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
@@ -70,6 +72,7 @@ function ReceivedBody() {
   const params = useSearchParams();
   const token = params.get("t") || "";
   const car = params.get("car");
+  const preview = params.get("preview") === "1";
   const [ctx, setCtx] = useState<Context | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ warnings: string[]; dueAtSigningTotal: number } | null>(null);
@@ -89,14 +92,14 @@ function ReceivedBody() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/quote-invite/context?t=${encodeURIComponent(token)}`)
+    fetch(`/api/quote-invite/context?t=${encodeURIComponent(token)}${preview ? "&preview=1" : ""}`)
       .then(async (r) => {
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.error || "This link is no longer valid.");
         setCtx(j as Context);
       })
       .catch((e) => setError(e instanceof Error ? e.message : "This link is no longer valid."));
-  }, [token]);
+  }, [token, preview]);
 
   const title = ctx?.vehicle ? [ctx.vehicle.year, ctx.vehicle.make, ctx.vehicle.model, ctx.vehicle.trim].filter(Boolean).join(" ") : car;
 
@@ -128,6 +131,13 @@ function ReceivedBody() {
             ) : null}
           </div>
 
+          {preview ? (
+            <p className="rounded-xl border border-sky-500/40 bg-sky-950/30 px-3 py-2 text-xs text-sky-200" data-testid="dealer-preview-banner">
+              <strong>Admin preview — this is exactly what {ctx?.dealerName || "the dealer"} sees.</strong> Read-only: opening it isn&apos;t recorded as a dealer view and nothing here can be submitted.
+            </p>
+          ) : null}
+
+          <fieldset disabled={preview} className="contents">
           {!token ? (
             <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
               Open this page from the link in your quote-request email — that link carries the request.
@@ -257,6 +267,7 @@ function ReceivedBody() {
               />
             </>
           )}
+          </fieldset>
           <p className="text-xs text-ink-faint">
             We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.
           </p>

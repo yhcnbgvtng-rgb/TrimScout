@@ -190,6 +190,8 @@ function RequestCard({
   onChanged: (rfq: AdminRfq, msg?: string) => void;
 }) {
   const isPending = rfq.approvalStatus === "pending";
+  const previewBase = rfq.invites.find((i) => i.calculatorUrl)?.calculatorUrl;
+  const dealerPreviewUrl = previewBase ? `${previewBase}&preview=1` : null;
   const decidedTone = rfq.approvalStatus === "approved" ? "bg-positive-500/15 text-positive-300" : rfq.approvalStatus === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300";
   return (
     <section id={`rfq-${rfq.id}`} className="rounded-2xl border border-border bg-surface p-4 space-y-3" data-testid="approval-rfq" data-approval={rfq.approvalStatus}>
@@ -214,9 +216,16 @@ function RequestCard({
             <p className="mt-1 text-[10px] text-sky-200/90">Corrections: {rfq.adminEdits.map((e) => `${e.summary} (${e.by || "admin"}, ${relativeTime(e.at)})`).join(" · ")}</p>
           ) : null}
         </div>
-        <Link href={`/rfq/${rfq.id}`} className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">
-          Buyer view
-        </Link>
+        <div className="flex shrink-0 flex-col items-stretch gap-2">
+          <Link href={`/rfq/${rfq.id}`} className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white">
+            Buyer view
+          </Link>
+          {dealerPreviewUrl ? (
+            <a href={dealerPreviewUrl} target="_blank" rel="noreferrer" title="Read-only: what the dealer sees. Not recorded as a dealer view." className="inline-flex items-center justify-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white" data-testid="dealer-view">
+              Dealer view
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <ul className="divide-y divide-border/60 rounded-xl border border-border bg-background" data-testid="approval-dealers">
