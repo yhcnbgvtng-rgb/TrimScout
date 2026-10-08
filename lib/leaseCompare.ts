@@ -11,7 +11,7 @@
  */
 import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
 import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
-import { alternateAskSummary, isAlternateQuote, type RfqLane } from "./alternateAsk";
+import { alternateAskSummary, askedVinForInvite, isAlternateQuote, type RfqLane } from "./alternateAsk";
 
 export type LeaseRowKind = "eligible" | "counter" | "expired" | "waiting" | "declined" | "countered" | "unsubscribed";
 
@@ -98,8 +98,8 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     priorQuotes: invite.priorQuotes ?? [],
     revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
     unsubscribed: Boolean(invite.dealerUnsubscribedAt),
-    alternate: isAlternateQuote(rfq, invite.quote?.vin),
-    quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== (rfq.vin || "").trim().toUpperCase() ? invite.quote.vin.trim().toUpperCase() : null,
+    alternate: isAlternateQuote({ lane: rfq.lane, vin: askedVinForInvite(rfq, invite) }, invite.quote?.vin),
+    quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== askedVinForInvite(rfq, invite) ? invite.quote.vin.trim().toUpperCase() : null,
   };
 }
 

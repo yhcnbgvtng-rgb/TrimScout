@@ -5,7 +5,7 @@ import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
 import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
-import { alternateAskSummary, isAlternateQuote } from "../lib/alternateAsk";
+import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
@@ -26,7 +26,10 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
   const lane = rfq.lane ?? "same_spec";
-  const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null, alternate: Boolean(i.quote) && isAlternateQuote(rfq, i.quote?.vin) }));
+  const rows = rfq.invites.map((i) => ({ invite: i, used: i.quote?.used ?? null, alternate: Boolean(i.quote) && isAlternateQuote({ lane: rfq.lane, vin: askedVinForInvite(rfq, i) }, i.quote?.vin) }));
+  // A request with several cars invites each dealer about its own car: the columns are different cars, not one car at several stores.
+  const vehicles = distinctInviteVehicles(rfq);
+  const multiCar = lane !== "alternate" && vehicles.length > 1;
   // Same-spec lane: a quote for a different VIN is an alternate — its own block, never ranked
   // with the same-spec quotes, never "best". Alternate lane: every quote is an alternate and
   // they are the set being compared.
@@ -121,6 +124,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
           {status}
           {alternate ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" ? " — not ranked" : ""}</span> : null}
         </div>
+        {multiCar && invite.vehicle ? <span className="block text-[11px] font-semibold text-ink-light" data-testid="column-vehicle">{[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}</span> : null}
         {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
         {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
         {invite.buyerCounter && invite.status === "invited" ? <span className="block text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
@@ -156,7 +160,11 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
           {lane === "alternate" ? (
             <span data-testid="alternate-lane-note">open to different vehicles — you asked for <span className="text-ink-light">{alternateAskSummary(rfq.alternateAsk)}</span>; every quote is a dealer&apos;s proposal, compared among alternate quotes</span>
           ) : (
+            multiCar ? (
+              <span data-testid="multi-car-note">{vehicles.length} cars in this request — each dealer quotes its own car, named under the dealer. The totals compare different cars, so read price against the car.</span>
+            ) : (
             <>same car in every column: VIN <span className="font-mono text-ink-light">{vin}</span>{rfq.stockNumber ? <> · stock {rfq.stockNumber}</> : null}{sideAlternates.length ? <span className="text-sky-200"> · {sideAlternates.length} alternate vehicle{sideAlternates.length === 1 ? "" : "s"} proposed, shown separately</span> : null}</>
+            )
           )}
         </span>
         {finance ? <span>Your locks: {prefs.finance.termMonths} mo · {fmtMoney(prefs.finance.downPayment)} down · {prefs.finance.creditBand} credit · ZIP {prefs.finance.zip}</span> : <span>ZIP {prefs.cash.zip} (tax context)</span>}

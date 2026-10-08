@@ -104,6 +104,27 @@ export function alternateAskSummary(ask: AlternateAsk | null | undefined): strin
   return parts.length ? parts.join(" · ") : "Open to different vehicles";
 }
 
+/**
+ * The VIN a given invite asked about. A request with several cars (a package) invites each dealer about its own car, so
+ * that car — not the request's primary VIN — is what "the car that was asked" means for that dealer's quote.
+ */
+export function askedVinForInvite(rfq: { vin: string }, invite: { vehicle?: { vin: string } | null }): string {
+  return (invite.vehicle?.vin || rfq.vin || "").trim().toUpperCase();
+}
+
+/** The distinct cars the request's invites are about, in invite order (one entry for an ordinary single-car request). */
+export function distinctInviteVehicles(rfq: { vin: string; invites: Array<{ vehicle?: { vin: string; year?: number; make?: string; model?: string; trim?: string } | null }> }): Array<{ vin: string; label: string }> {
+  const seen = new Map<string, string>();
+  for (const i of rfq.invites) {
+    const v = i.vehicle;
+    const vin = (v?.vin || "").trim().toUpperCase();
+    if (!vin || seen.has(vin)) continue;
+    seen.set(vin, [v?.year, v?.make, v?.model, v?.trim].filter(Boolean).join(" ") || vin);
+  }
+  if (!seen.size && rfq.vin) seen.set(rfq.vin.trim().toUpperCase(), rfq.vin.trim().toUpperCase());
+  return [...seen].map(([vin, label]) => ({ vin, label }));
+}
+
 /** A quote is an alternate when the request is the alternate lane, or when the dealer quoted a different VIN than asked. */
 export function isAlternateQuote(rfq: { lane?: RfqLane | null; vin: string }, quoteVin: string | null | undefined): boolean {
   if ((rfq.lane ?? "same_spec") === "alternate") return true;
