@@ -1,295 +1,261 @@
-# Mega-dealer group crawl: plan (2026-10-08)
+# Daytime new-cars job: plan (2026-10-08, revision 2)
 
 **Status: plan only. Nothing here has crawled into the database, synced, or taken a lock.**
-Everything below came from read-only SSH to boxes 1, 3 and 4, our own dealer rosters, and one
-plain homepage GET per matched store (no retries, no bypass). Box 2 was not touched.
-Store-level data: [`megadealer_stores.csv`](megadealer_stores.csv) (390 stores).
+The Larry H. Miller pilot is on hold. This revision redirects the job to **adding cars we
+don't have**, using the same isolated daytime-job design. It was built from read-only SSH to
+boxes 1, 3 and 4 (box 2 untouched), our rosters, the 2026-09-12 roster archive, web search,
+Toyota's public dealer pages, and one plain homepage GET per store with a website
+(no retries, no bypass).
 
-## Hard rules (from the brief, restated as design constraints)
+Files in this PR:
 
-1. Mega-dealers never join the nightly 22:00 crawl or its chain.
-2. Separate daytime job: own schedule, own lock `megadealer-crawl`, own logs, own failure log.
-3. A failure there never stops, delays or retries the nightly crawl or sync.
-4. It never runs between 21:30 and the end of the box's nightly sync.
+| File | What |
+|---|---|
+| [`megadealer_new_stores.csv`](megadealer_new_stores.csv) | 434 stores missing from our rosters, with fetch result, platform, parser and estimated cars |
+| [`megadealer_retry_candidates.csv`](megadealer_retry_candidates.csv) | 221 stores that crawled zero or were skipped (not by a bot block) 4+ nights running |
+| [`megadealer_pilot_stores.csv`](megadealer_pilot_stores.csv) | the proposed 20-store pilot |
+| [`megadealer_stores.csv`](megadealer_stores.csv) | revision 1: 390 group stores that are **already crawled** (kept for reference) |
 
-Two traps in the existing code that a naive implementation would hit:
+## What changed from revision 1
 
-- **Lock name collision.** `scripts/check-crawl-gate.mjs` treats every `driver*.lock` in the
-  runs dir as "a crawl is running" and holds the nightly sync back. A lock or run label that
-  ends up as `driver-megadealer*.lock` in the real runs dir would therefore delay the nightly
-  sync. The mega job must run from its **own isolated working directory**
-  (`~/megadealer/`, own `data/`, own `daily_crawl_runs/`) and its lock must live there as
-  `megadealer-crawl.lock`. Same isolated-cwd pattern as the 2026-10-04 recovery wave.
-- **Sync reads every `*.json` in `data/inventory`.** The 2026-10-03 stale-shard incident came
-  from exactly that. The mega sync must be pointed at the isolated directory only, so it can
-  never re-upsert or sweep nightly shards, and the nightly sync can never see mega shards.
-  How the sync client takes its input dir needs confirming in a read-only code pass before GO
-  (not yet verified; see Open items).
+Revision 1 found that the franchised stores of the mega-groups are already in our rosters, so
+re-crawling them adds about zero cars. This revision lists stores that are genuinely not in the
+rosters, and stores that are in the rosters but produced nothing.
 
-## 1. Roster: what I could and could not build
+## 1. Stores missing from our rosters
 
-Group corporate location pages (AutoNation, Lithia, Penske, Group 1, EchoPark, Hendrick, Ken
-Garff, Holman) return 403 to plain fetches (Akamai / Cloudflare), and web search returns no
-complete lists. Per the decision for this step, I did **not** work around that. The roster is
-therefore a **lower bound**: every store already in our rosters whose domain or name carries a
-group marker (e.g. `autonation`, `koons|coggin|nalley|mcdavid`, `hendrick`, `^dch|quirk|lithia`,
-`garff`, `catena`, `^openroad`). The roster source is the union of `dealers/<state>/<brand>.json`
-on boxes 1, 3 and 4: 68,603 rows, 17,191 unique domains.
+Method: diff the 2026-09-12 roster archive (`TrimScout-crawl-archive-2026-09-12/*_dealer_build`)
+against the live crawl rosters (union of `dealers/*/*.json` on boxes 1/3/4: 17,191 domains).
+A store counts as missing if its domain is not in the roster **and** no roster store in the same
+state has the same normalized name. Treat the non-TX Toyota and Stellantis counts as an
+**upper bound**: some are the same rooftop under a different domain. The pilot's dry run
+(section 6) is what settles that.
 
-| Group | Stores matched | Top states | Notes |
+Plain-fetch results are indicative only. The same probe reads Akamai on sites the nightly
+production client passes (Asbury: 35 Akamai on plain fetch, 31 of 32 pass the nightly gate), so
+"Akamai" below means unknown. Cloudflare agrees between the two, so those are real blocks.
+
+| Category | Stores | Plain pass | Akamai (unknown) | Cloudflare | No site / not fetched | Est. cars, pass | Est. cars, Akamai |
+|---|---|---|---|---|---|---|---|
+| Brand gap: Toyota | 151 | 58 | 48 | 42 | 3 | 14,400 | 11,900 |
+| Brand gap: Genesis (not a crawled brand) | 198 | 66 | 74 | 57 | 1 | 3,300 | 3,700 |
+| Brand gap: Stellantis | 59 | 7 | 37 | 1 | 14 | 1,100 | 5,800 |
+| Used-only chains | 6 | 4 | 1 | 0 | 0 (+1 other WAF) | 870 | n/a |
+| NJ/NY/PA independents | 7 | 3 | 0 | 0 | 4 | 510 | n/a |
+| Land Rover / Jaguar (not a crawled brand) | 13 | 0 | 0 | 0 | 13 | n/a | n/a |
+
+Cars per store: Toyota 248 and Stellantis 158 are the **medians of our own crawled stores**
+(183 and 1,025 stores). Genesis 50 is an **assumption**: there is no crawled Genesis store to
+measure. Independents use third-party counts (CarEdge, DealerRater), unverified.
+
+### 1a. The TX Toyota stores
+
+Toyota's own dealer pages list 85 TX dealers (checked across about 70 large-city hub pages, then a
+sweep of 125 small-town pages that added none). **14** are not in our roster, not 18. I can't
+reproduce the other 4; if you have their names I'll check them.
+
+| Store | City | Plain fetch | Platform |
 |---|---|---|---|
-| Lithia / Driveway (incl. Quirk, DCH) | 65 | CA 14, ME 13, MA 12, NJ 7 | DCH folded in here (Lithia owns DCH); no `driveway` store sites exist, Driveway is one national site |
-| Asbury (incl. Koons, Coggin, Nalley, McDavid) | 64 | FL 15, GA 14, MD 12, VA 12 | |
-| Group 1 | 64 | TX 37, GA 7, FL 4, LA 4 | |
-| Hendrick | 62 | NC 33, SC 10, GA 5, AL 3 | |
-| AutoNation | 56 | CA 12, GA 9, TX 6, CO 5 | |
-| Larry H. Miller | 30 | AZ 9, UT 7, NM 6, CO 4 | Dealerships belong to Asbury since 2021; kept separate as asked |
-| Ken Garff | 24 | UT 16, AZ 3, WY 3, CO 2 | |
-| Ray Catena | 8 | NJ 6, NY 2 | |
-| Holman | 8 | NJ 6, CO 1, OH 1 | |
-| Open Road (NJ) | 7 | NJ 7 | Not the Canadian openroadauto.com |
-| Penske Automotive | 2 | CA 2 | Almost nothing identifiable by name |
-| Sonic / EchoPark | 0 | - | `capitol*` stores are not provably Sonic; EchoPark is used-only and absent from OEM locators |
-| Berkshire Hathaway Automotive | 0 | - | `berkshiremazda.com` (MA) is not BHA; no marker available |
-| Morgan | 0 | - | name too generic to match safely |
+| **Bruner Toyota** | Early | pass | DealerOn |
+| Platinum Toyota of Texoma | Denison | pass | Team Velocity |
+| Toyota of Del Rio | Del Rio | pass | Team Velocity |
+| Stewart Toyota | Corsicana | Akamai (unknown) | undetected |
+| Toyota of Mt. Pleasant | Mt. Pleasant | Akamai (unknown) | undetected |
+| Loving Toyota | Lufkin | Akamai (unknown) | undetected |
+| Bryan College Station Toyota | Bryan | Akamai (unknown) | undetected |
+| Tegeler Toyota | Brenham | Akamai (unknown) | undetected |
+| Mitchell Toyota | San Angelo | Akamai (unknown) | undetected |
+| Huntsville Toyota | Huntsville | Akamai (unknown) | undetected |
+| Robbins Toyota | Nash | **Cloudflare** | undetected |
+| Group 1 Toyota Southwest Houston | Houston | **Cloudflare** | undetected |
+| Toyota of Victoria | Victoria | **Cloudflare** | undetected |
+| Toyota of Paris | Paris | not fetched (no site known) | n/a |
 
-**Every matched store is `crawled = yes`.** That is the main finding, and it changes what the
-job can add:
+At 248 cars each: 14 stores, about 3,470 cars if all were reachable; 3 are confirmed
+reachable now (about 740).
 
-- Franchised stores of the 25 brands we crawl come from the OEM dealer locators, so most of a
-  group's franchised stores are already in the nightly rosters, just not labelled by group
-  (AutoNation sells Toyota/Honda/Ford under names without "AutoNation" in them).
-- So re-crawling the matched 390 stores in the daytime adds **about zero new cars**. It would
-  only improve freshness.
-- New cars can only come from stores **outside** the OEM locators: used-only chains (EchoPark,
-  Driveway, CarMax-style), brands we don't crawl (Land Rover, Jaguar, Genesis, Maserati, Alfa,
-  Bentley, etc.), and group-owned stores whose locator domain differs from the group's own.
-  I can't enumerate those without the group lists.
+### 1b. Used-only chains and independents
 
-Rough published US store counts, **from memory and unverified** (sources blocked): AutoNation
-~240, Lithia ~450, Penske ~150, Group 1 ~150, Sonic ~100 plus EchoPark ~45, Asbury ~150 plus
-LHM ~60, Hendrick ~90, BHA ~80, Ken Garff ~60, Holman ~80, Morgan ~50, Ray Catena ~20, Open
-Road NJ ~20. Treat "published minus matched" as an upper bound on unseen stores, not as a
-count of missing stores.
+| Store | Result | Platform | Cars |
+|---|---|---|---|
+| EchoPark (about 40 hubs, one national site) | 403 Akamai | n/a | unknown |
+| CarMax (NJ 6, PA 5, one national site) | 403 other WAF | n/a | unknown |
+| Driveway (Lithia, national online) | pass | Dealer Inspire | unknown, not per-store |
+| CarShop Hatfield / Chester Springs / Robinson (Penske used-only, PA) | pass | Dealer.com | 332 / 300 / 237 |
+| J & S Autohaus III and 6 (NJ, one site `jsautohaus.com`) | pass | Dealer.com | 301 + 211 |
+| NJ State Auto Used Cars 158, Stockton Auto Sales II 156, Platinum Pre-owned Carlisle (PA) 155, Jersey Car Direct 108 | not fetched, site unknown | n/a | as listed |
+| AutoLenders (NJ/PA multi-showroom) | pass | undetected | unknown |
 
-## 2. Platform and blocks
+EchoPark and CarMax each run **one national site**, so they are one parser build, not
+per-store work, and both block the plain probe. NY and PA independents with 100+ cars: web
+search found PA ones (the three CarShops, Platinum Pre-owned) but **no NY dealer with a
+verified count**; that needs a data source, not more searching. Land Rover / Jaguar: 13 NJ/NY/PA
+stores found by name with no websites located; they need the JLR locator.
 
-Platform comes from the VDP URL shape in our own shards when the store has inventory on boxes
-1/3/4 (no fetch needed), otherwise from the one homepage fetch.
+Parsers: Dealer.com and DealerOn (schema.org) are existing. Team Velocity, Dealer Inspire and
+the rest use only the generic fallbacks, so expect lower yield until proven on a pilot store.
 
-| URL shape | Platform | Parser we have |
+### 1c. Brands we don't crawl
+
+Our crawl brands are the 25 in `src/brands.js`. Not crawled: **Genesis** (198 stores in our
+archive roster, 197 not in the crawl), Land Rover, Jaguar, Alfa Romeo, Maserati, Bentley,
+Lamborghini, Ferrari, Aston Martin, Rolls-Royce, Polestar, Lotus. Only Genesis has a roster
+today; the others have no roster to diff against, so only the 13 NJ/NY/PA JLR stores are listed.
+
+## 2. Stores that crawled zero or were skipped, 4+ nights running
+
+Source: per-dealer lines in the nightly logs on boxes 1/3/4 for nights 2026-10-03 to 10-07
+(3,076 dealer-brand records parsed). Bot-block skips (Cloudflare, 403, 429, challenge pages)
+are excluded. 221 stores had 4 or more bad nights in a row:
+
+| Last-night result | Stores | Retry helps? |
 |---|---|---|
-| `/new/Make/2026-....htm` | Dealer.com | Yes (Strategy 1, DDC.dataLayer) |
-| `/new-City-2026-Make-...-VIN` (one path segment) | DealerOn | Yes (Strategy 2, schema.org JSON-LD) |
-| `/viewdetails/...` | Dealer Inspire | Generic only (Strategy 2 / 3) |
-| `/inventory/...` | Dealer Inspire / DealerFire / Sincro style | Generic only |
-| anything else | custom | Generic only |
+| No inventory URLs detected | 97 | Rarely; sitemap or discovery problem, needs alt-discovery work |
+| Extracted 0 vehicles | 38 | Rarely; may be genuinely empty |
+| Skipped: HTTP 5xx | 32 | **Yes, if transient** |
+| Skipped: connection reset / timeout / TLS | 8 / 6 / 6 | **Yes, if transient** |
+| Skipped: DNS dead / HTTP 404 | 27 / 5 | **No**; roster fix, not a retry |
+| Skipped: other | 2 | Inspect |
 
-Fleet-wide, of 5,762 hosts with inventory: 2,681 single-segment (DealerOn-style), 2,640
-Dealer.com, 366 Dealer Inspire, 56 explicit DealerOn, the rest unclassified. The crawler has no
-per-platform parser beyond these two strategies plus the generic fallback.
+So the daytime retry list proper is the **52 transient skips** (5xx, reset, timeout, TLS) plus
+whatever of the 135 no-URL/zero stores a second pass recovers. 189 are marked retry-worthy in
+the CSV; if every one recovered at its brand's median, that is about 33,800 cars. That is a
+ceiling, not a forecast: most of the 135 are deterministic failures a retry won't fix.
 
-Blocks have two signals and they disagree, so both are in the CSV:
+Limits: only boxes 1/3/4 logs (box 2's states are excluded), and only 5 nights of logs exist.
+NY 24, OH 18, NJ 17, IL 14, SC 13, CT 12 are the biggest states; Audi (36), Nissan (28) and
+Mercedes-Benz (16) the biggest brands.
 
-- `nightly_gate`: the real result from last night's bot-protection reports on boxes 1/3/4 (the
-  production client). This is the one that decides whether a store gets crawled.
-- `plain_fetch`: my one Python GET of the homepage. It reads **Akamai** much more often than
-  production does (Asbury: 35 Akamai on plain fetch, yet 31 of 32 pass the nightly gate), so
-  treat a plain-fetch Akamai as "unknown", not "blocked". Cloudflare agrees in both.
+Related finding, not acted on: the 2026-10-07 box 3 logs show **193 store crawls that hit the 1,000-vehicle cap**
+(`Found 1000 vehicle URLs`), so those stores are truncated. A daytime pass with a
+higher cap would add cars at stores we already crawl.
 
-| Group | Nightly gate (probed stores) | Plain fetch | Platforms seen |
-|---|---|---|---|
-| Asbury | 31 pass / 1 Cloudflare | 19 pass, 35 Akamai, 2 CF, 8 unreachable | DealerOn 12, Dealer.com 5, Team Velocity 2 |
-| Larry H. Miller | 16 pass / 0 | 25 Akamai, 5 unreachable | Dealer.com 8 |
-| Open Road NJ | not in box1/3/4 reports | 7 pass | DealerOn 5 |
-| AutoNation | not in box1/3/4 reports | 48 Akamai, 2 CF, 6 unreachable | undetected |
-| Lithia (incl. Quirk, DCH) | 7 pass / 19 Cloudflare | 10 pass, 32 CF, 21 unreachable | DealerOn 6, Dealer.com 5 |
-| Penske | not in reports | 1 pass, 1 CF | DealerOn 1 |
-| Hendrick | 6 pass / 27 CF / 3 HTTP 403 | 36 CF, 7 other WAF, 18 unreachable | Dealer.com 5 |
-| Holman | 2 pass / 5 CF | 6 CF | Dealer.com 1 |
-| Group 1 | 2 pass / 32 CF | 54 CF, 10 unreachable | undetected |
-| Ken Garff | 1 pass / 12 CF | 22 CF, 2 unreachable | Dealer.com 1 |
-| Ray Catena | 0 pass / 8 CF | 7 CF | undetected |
+## 3. Isolation design (unchanged) and the sync input directory, confirmed
 
-The "unreachable" rows (6 to 21 per group) are TLS or DNS failures on the bare domain, not
-blocks. They are probably `www`-only hosts; I did not retry, to stay at one fetch per store.
+The daytime job runs from its own working directory with its own lock, logs and failure log, and
+a lock name that cannot match `driver*.lock`.
 
-## 3. Size
+**Confirmed from `scripts/box/inventory-sync.mjs` and `run_sync_when_safe.sh`:**
 
-For stores with inventory on boxes 1/3/4 the count is the ACTIVE row count in last night's
-shards. That covers only 31 of 390 stores because the rest sit in states whose shards live on
-box 2 (not touched) or are Cloudflare-blocked.
+- The sync's input directory is a **positional argument**: `node inventory-sync.mjs <dir>`
+  (line 64; it reads every `*.json` in that dir only, line 83). The nightly waiter hard-codes
+  `.../lightsail-crawler/data/inventory`. So the daytime job calls `inventory-sync.mjs` directly
+  on `~/megadealer/data/inventory`, never `run_sync_when_safe.sh`.
+- Three more settings must be overridden or the daytime sync would touch nightly state:
+  - `SYNC_CHECKPOINT_PATH`: defaults to the shared `~/.inventory-sync-checkpoint.json`. Set it to
+    `~/megadealer/.sync-checkpoint.json`, or a daytime run would clobber or resume the nightly one.
+  - `SWEEP_RETIRED_DIR`: defaults to `~/sweep-retired`. Set it under `~/megadealer/`.
+  - `TRIMSCOUT_BOX_LABEL`: set to e.g. `box1-day`. Sweeps only retire rows written by the same
+    box label, or rows nobody has refreshed since the foreign grace window, so the daytime sweep
+    cannot retire nightly rows. It also tags these rows in the admin Vehicles "Box" column.
+- The sync lock is **not a file**: it is a lock on the deals box
+  (`/api/ops/sync-lock/acquire`), shared by all boxes, owner `<host>-<dirname>-<pid>`. The
+  daytime sync queues behind any nightly sync like any other box. The skip rule "do not start if
+  the sync lock is held" must call the lock API read-only (`sync-lock-probe.mjs` exists for this
+  but takes the lock with a throwaway owner; use a status read, to be confirmed at build).
+- The crawl lock `~/megadealer/data/megadealer-crawl.lock` is a plain file in the isolated dir.
+  `check-crawl-gate.mjs` only reads the real runs dir, so it never sees it.
+- **Stores not in the dealership directory** (every store in this plan) are matched by domain
+  or name against `/api/dealerships`; unmatched vehicles are **kept but filed under store 0**
+  (log line "kept, keyed to store 0"). They are visible but not tied to a rooftop. Adding the
+  rooftops to the directory first is a **production write and needs your GO**; without it the
+  pilot's cars land in store 0.
+- Store-0 sweep: the sync also sweeps store 0 with this run's `sourceBox` filter. Because the
+  daytime label is distinct, it can only retire daytime-written store-0 rows (or foreign rows
+  older than the grace window, which are stale anyway). Verify with `--dry-run` before the
+  first real run.
 
-Measured: Asbury 371 cars/store (n=7), Hendrick 290 (n=8), Lithia 456 (n=6), LHM 164 (n=8).
-Everything else uses the fleet average of **221 cars/host** (1,270,666 active rows over 5,762
-hosts). I did not use the homepage for listing counts: homepages rarely show a trustworthy
-count, and one fetch per store was the cap.
+## 4. Box capacity and schedule (unchanged from revision 1)
 
-## 4. Ranking (provisional, low confidence)
+Idle snapshot Thursday 16:25 ET: box1 2 vCPU / 7.8 GB (6.9 GB available), box3 and box4 4 vCPU /
+15.8 GB (14.9 GB available), all 96 to 100% idle. Peak RAM/CPU during crawl is not instrumented.
 
-Order is "existing parser and not blocked first", then size. Because every matched store is
-already crawled, the "new cars" column is **0 for the matched set**; the estimate that matters
-is the unseen remainder, which I can't count. Do not read this as a forecast of added cars.
+Latest nightly sync end last week (chain nights 10-03 to 10-07, ET): **box1 10:07, box3 12:54,
+box4 15:58**. Syncs share one lock and run one after another.
 
-| # | Group | Stores matched | Est. in-stock (matched) | Gate | Parser needed |
-|---|---|---|---|---|---|
-| 1 | Asbury (incl. LHM below) | 64 | 23,700 | 31/32 pass | Existing (Dealer.com, DealerOn) |
-| 2 | Larry H. Miller | 30 | 4,900 | 16/16 pass | Existing (Dealer.com) |
-| 3 | Open Road NJ | 7 | 1,500 | plain pass 7/7 | Existing (DealerOn) |
-| 4 | AutoNation | 56 | 12,400 | unknown (plain: Akamai) | Likely existing; platform undetected |
-| 5 | Lithia (Quirk, DCH) | 65 | 29,600 | 7/26 pass | Existing; 73% Cloudflare |
-| 6 | Penske | 2 | 400 | unknown | Unknown; roster not identifiable |
-| 7 | Hendrick | 62 | 18,000 | 6/36 pass | Existing; 92% blocked |
-| 8 | Holman | 8 | 1,800 | 2/7 pass | Existing; blocked |
-| 9 | Group 1 | 64 | 14,100 | 2/34 pass | Undetected; 94% Cloudflare |
-| 10 | Ken Garff | 24 | 5,300 | 1/13 pass | Existing; blocked |
+| Box | Gate opens | Window to 20:30 | Heap | Concurrency |
+|---|---|---|---|---|
+| box1 | 11:00 | 9.5 h | `--max-old-space-size=2048` | 2 |
+| box3 | 13:30 | 7.0 h | `--max-old-space-size=3072` | 3 |
+| box4 | 16:30 | 4.0 h | `--max-old-space-size=3072` | 3 |
 
-Not rankable: Sonic/EchoPark, BHA, Morgan (no roster), Ray Catena (0/8 pass, Cloudflare).
-Blocked groups (Group 1, Hendrick, Garff, Holman, Catena, most of Lithia) stay out of the
-schedule: no bypass, and the existing allowlisting route is in `DEALER_ALLOWLIST_STRATEGY.md`.
+Skip rules, in order, each logging one line to `megadealer-failures-<date>.log` and exiting 0:
 
-## 5. Box capacity (boxes 1, 3, 4)
+1. The batch can't finish crawl plus sync by 20:30. Nothing starts after 18:30.
+2. This box's nightly sync isn't finished: newest `~/inventory-sync/logs/sync-*.log` lacks its
+   final `{"upserted":...}` line, or `check-crawl-gate.mjs` against the real runs dir exits non-zero.
+3. The shared sync lock is held by any box.
+4. `megadealer-crawl.lock` is already held.
+5. Free memory below 2.5 GB (box1) or 5 GB (box3/4).
 
-Idle snapshot at 16:25 ET Thursday 2026-10-08 (vmstat, 3 samples): all three at 96 to 100%
-CPU idle, load 0.00.
+Mid-run: abort the crawl at 19:45; don't start the sync after 20:15; if the sync lock isn't
+acquired by 21:00, drop the batch and leave shards in the isolated dir. Nothing runs between
+21:30 and the end of the box's nightly sync. A failure never retries the same day and never
+touches the nightly crontab, chain or gate.
 
-| Box | vCPU | RAM total | RAM available | CPU idle | Notes |
-|---|---|---|---|---|---|
-| box1 | 2 | 7.8 GB | 6.9 GB (1.7 free + 3.2 cache + 2.5 buffers) | 96 to 98% | has a local mariadbd (87 MB RSS) |
-| box3 | 4 | 15.8 GB | 14.9 GB | 100% | |
-| box4 | 4 | 15.8 GB | 14.9 GB | 100% | |
+Time model: crawl = stores x (box1 38 s | box3/4 27.5 s) x max(1, cars/151) / concurrency; sync
+= rows / 4,400 per min + stores / 110 per min + 15 min fixed (assumed, not isolated from lock
+wait). Even all 434 new stores is under 3 h of crawl on box1; the sync lock and box4's late
+nightly sync are the constraint, not crawl time.
 
-Peak RAM and CPU during the crawl are **not instrumented** (`box-report.json` samples free
-memory once, at report time), so I can't state a measured crawl-time peak. Disk is fine (box1
-133 GB free, box3/4 280 GB free).
+Proposed assignment: **box1 takes the new-store batches** (longest window, earliest nightly
+sync), **box3 takes the transient-retry list** (52 stores, about 1 h), box4 stays in reserve.
 
-Last week, chain nights starting 22:00 ET on 10-03 to 10-07 (the schedule from PR #375). Times
-are ET. Sync log timestamps are UTC; I converted them. "Sync end" is the last write to the
-night's sync log.
+## 5. Platform detection recap
 
-| Night | box1 crawl | box1 sync end | box3 expansion | box3 core | box3 sync end | box4 expansion | box4 core | box4 sync end |
-|---|---|---|---|---|---|---|---|---|
-| 10-03 | 22:00 to 06:25 | 08:26 | 22:00 to 05:50 | 05:50 to 08:04 | 11:53 | 22:00 to 04:20 | 04:20 to 08:36 | 14:37 |
-| 10-04 | 22:00 to 07:28 | 08:27 | 22:00 to 06:09 | 06:09 to 07:59 | 11:28 | 22:00 to 04:25 | 04:25 to 09:16 | 14:20 |
-| 10-05 | 22:00 to 06:40 | 07:43 | 22:00 to 05:54 | 05:54 to 07:34 | 12:54 | 22:00 to 05:02 | 05:02 to 10:16 | 15:58 |
-| 10-06 | 22:00 to 06:27 | 07:47 | 22:00 to 06:23 | 06:23 to 08:37 | 10:57 | 22:00 to 04:05 | 04:05 to 10:38 | 13:42 |
-| 10-07 | 22:00 to 07:22 | 10:07 | 22:00 to 05:22 | about 05:22 to 06:50 | 09:19 | 22:00 to 05:00 | (not pulled) | 13:13 |
+New stores that pass the plain fetch, by platform: Toyota 41 DealerOn / 5 Team Velocity / 4
+Dealer.com / 8 undetected; Genesis 34 DealerOn / 12 Team Velocity / 9 Dealer.com / 1 Dealer
+Inspire / 1 CDK / 9 undetected; Stellantis 5 Dealer.com / 2 undetected. DealerOn and Dealer.com
+(about 70% of passing stores) use existing parsers.
 
-Latest sync end seen: **box1 10:07, box3 12:54, box4 15:58**. The syncs share one lock and run
-one after another, which is why box4 is always last. Measured sync detail, 10-07: box3
-06:57 to 09:19 (508,272 rows at about 73 rows/s, 2,106 stores swept in 19.0 min); box4
-11:09 to 13:13 (534,423 rows at about 90 rows/s, 2,133 stores swept in 18.6 min); box1
-07:25 to 10:07 (224,111 rows at about 108 rows/s, 785 stores in 7.4 min). Those totals include
-waiting on the shared sync lock.
+## 6. Pilot (proposed, waiting for your GO)
 
-## 6. Time estimates
+**20 new stores on box1**, all pass the plain fetch, all on DealerOn or Dealer.com except the two
+Team Velocity TX Toyotas (included on purpose, to test the generic fallback):
 
-Crawl: `stores x s_per_rooftop x max(1, cars/151) / concurrency`. Base `s_per_rooftop` from the
-10-07 box reports: box3 and box4 27.5 s mean (p50 26.6, p90 39.1) at concurrency 4; box1 about
-38 s at concurrency 2 (1,782 rooftops in 9.37 h). The 151 is cars per rooftop at that base
-(554,553 vehicles over 3,675 rooftops). p90 = 1.42 x p50. This assumes time scales linearly
-with car count; there is no per-platform timing in the reports, so "same platform average" is
-not available and this is the closest proxy.
+- 3 TX Toyota that pass: Bruner (Early), Platinum Toyota of Texoma, Toyota of Del Rio
+- 7 other Toyota: Central City (PA), Sunny King and Toyota of Dothan (AL), Phil Wright (AR),
+  Findlay Prescott (AZ), Chuck Patterson and Mid-City (CA)
+- 9 Genesis: Cherry Hill (NJ); Brooklyn, Buffalo, Smithtown (NY); Monroeville (PA); Mesquite,
+  Clear Lake, NW San Antonio, Grubbs Grapevine (TX)
+- 1 independent: J & S Autohaus (NJ), two stores on one site
 
-Sync: rows / 4,400 per min (low end of the measured 73 to 108 rows/s) + stores / 110 per min
-(measured 106 to 111) + 15 min fixed. The 15 min is an **assumption** (JSON load, factory-option
-phase); I did not isolate it from lock wait. Lock wait is extra and is why the skip rule exists.
+Full list with URLs: [`megadealer_pilot_stores.csv`](megadealer_pilot_stores.csv).
 
-| Group | Stores | Cars | Crawl box1 | Crawl box3/4 p50 | Crawl box3/4 p90 | Sync |
-|---|---|---|---|---|---|---|
-| Asbury | 64 | 23,700 | 0.83 h | 0.30 h | 0.43 h | 21 min |
-| Larry H. Miller | 30 | 4,900 | 0.17 h | 0.06 h | 0.09 h | 16 min |
-| Open Road NJ | 7 | 1,500 | 0.05 h | 0.02 h | 0.03 h | 15 min |
-| AutoNation | 56 | 12,400 | 0.43 h | 0.16 h | 0.22 h | 18 min |
-| Lithia | 65 | 29,600 | 1.04 h | 0.37 h | 0.53 h | 22 min |
-| Penske | 2 | 400 | 0.02 h | 0.01 h | 0.01 h | 15 min |
-| Hendrick | 62 | 18,000 | 0.63 h | 0.23 h | 0.32 h | 20 min |
-| Holman | 8 | 1,800 | 0.06 h | 0.02 h | 0.03 h | 15 min |
-| Group 1 | 64 | 14,100 | 0.49 h | 0.18 h | 0.25 h | 19 min |
-| Ken Garff | 24 | 5,300 | 0.19 h | 0.07 h | 0.10 h | 16 min |
+| Item | Estimate |
+|---|---|
+| Estimated new cars | **about 3,400** (Toyota 10 x 248 = 2,480; Genesis 9 x 50 = 450 assumed; J&S 512) |
+| Confidence | Toyota medium (median of our crawled Toyota stores); Genesis low (assumed 50); J&S low (third-party count) |
+| Crawl | about 9 min p50, 13 min p90 on box1 at concurrency 2 |
+| Sync | about 16 min (4,400 rows, 20 stores, 15 min fixed) |
+| Window | gate 11:00 ET, finished well before 12:00 on a normal day |
 
-Even the whole 390-store set is about 1.6 h of crawl on box1 and well under 1 h on box3/4. The
-time budget is not the constraint; the sync lock and the late nightly sync on box4 are.
+Steps at GO, in order, each a separate approval:
 
-## 7. Schedule
+1. **Gate check** with the production bot-protection probe (not my Python probe) on the 20
+   domains, in the isolated dir. Any store the production client can't reach is swapped for the
+   next passing one.
+2. Create `~/megadealer/` on box1 (dirs, config, the overrides in section 3). `--dry-run` the
+   sync against an empty shard to confirm it touches nothing.
+3. Crawl the 20 stores into `~/megadealer/data/inventory`.
+4. **Dry-run the sync**; compare the VINs against `dealer_inventory` (read-only) to count how
+   many are actually new. This also settles whether any of the 20 are duplicate rooftops.
+5. Decide on adding the 20 rooftops to the dealership directory (production write) before the
+   real sync, so the cars aren't filed under store 0.
+6. Real sync, then check the nightly logs are unchanged.
 
-Windows, from the latest nightly sync end seen last week, to the 20:30 ET finish line:
+Not in the pilot: Cloudflare stores (no bypass), Akamai-unknown stores until step 1 clears them,
+EchoPark/CarMax (national sites, blocked, need their own parser work), and the retry list
+(second pilot).
 
-| Box | Nightly sync done by (worst case) | Gate opens | Window to 20:30 | Heap | Concurrency |
-|---|---|---|---|---|---|
-| box1 | 10:07 | 11:00 | 9.5 h | `--max-old-space-size=2048` | 2 |
-| box3 | 12:54 | 13:30 | 7.0 h | `--max-old-space-size=3072` | 3 |
-| box4 | 15:58 | 16:30 | 4.0 h | `--max-old-space-size=3072` | 3 |
+## Open items
 
-Heap choices are judgement, not measured: nightly jobs set no explicit limit, Node 22's default
-is size-dependent, and a per-state shard hit the roughly 512 MB V8 string limit on 2026-10-04.
-The mega job writes small per-batch shards (under 30k rows) so it stays far from that wall.
-Leave at least 1.5 GB free on box1 for mariadbd and the OS.
-
-Assignment, by what passes the nightly gate and the window:
-
-- **box1, 11:00 gate:** Asbury (64) then Larry H. Miller (30). About 1.0 h crawl, about 25 min sync.
-  Longest window and these two have verified passing gates and existing parsers.
-- **box3, 13:30 gate:** AutoNation (56), Open Road NJ (7), Lithia stores that pass the gate
-  (7 now). About 0.3 h crawl.
-- **box4, 16:30 gate:** reserve. Only batches that fit a 3 h window; first candidate is EchoPark
-  or Penske once a roster exists.
-- Not scheduled: Group 1, Hendrick, Ken Garff, Holman, Ray Catena and the Cloudflare part of
-  Lithia (blocked; no bypass).
-
-Skip rules, checked in this order at batch start, each logging one line to
-`megadealer-failures-<date>.log` and exiting 0:
-
-1. Wall clock is past 21:30 ET minus the projected crawl-plus-sync time, i.e. the batch could
-   not finish by 20:30: skip. Hard stop regardless: **nothing starts after 18:30**.
-2. This box's nightly sync has not finished: the newest `~/inventory-sync/logs/sync-*.log` must
-   have its final `{"upserted":...}` summary line, **and** `check-crawl-gate.mjs` against the
-   real runs dir must exit 0 (no nightly crawl, chain or sync active). Otherwise skip.
-3. Any box holds the shared sync lock right now: do not crawl-then-queue; skip. (Avoids
-   stacking a mega sync in front of the next nightly.)
-4. `megadealer-crawl.lock` already held: skip.
-5. Free memory below 2.5 GB (box1) or 5 GB (box3/4): skip.
-
-Mid-run guards: abort the crawl at 19:45 ET and do not start the sync after 20:15 (give the sync
-about 15 min); if the shared sync lock is not acquired by 21:00, drop the batch and leave the
-shards in the isolated dir. A sync that starts will finish before 21:30 for batches of this size
-(estimates above are 15 to 22 min). The mega job never retries a failed batch the same day.
-
-Own artifacts: lock `~/megadealer/data/megadealer-crawl.lock`; logs
-`~/megadealer/logs/megadealer-<date>.log`; failures
-`~/megadealer/logs/megadealer-failures-<date>.log`. A failure there exits non-zero only within
-its own wrapper; nothing in the nightly crontab, chain or gate reads these files.
-
-## 8. Pilot (proposed, not started)
-
-- **Group:** Larry H. Miller, 20 of its 30 stores (AZ, UT, NM, CO). All 16 probed pass the
-  nightly gate, all Dealer.com (existing Strategy 1), measured 164 cars/store.
-- **Box:** box1, gate 11:00 ET, concurrency 2, heap 2048.
-- **Size:** 20 stores x about 164 cars = about 3,300 rows. Crawl about 12 min on box1
-  (20 x 38 s x 1.09 / 2 = 7.6 min p50, about 11 min p90). Sync about 15 min of fixed cost.
-- **What it proves:** the isolated-directory job, the lock and skip rules, and the failure log.
-  It also tells us how many VINs a daytime pass finds that the nightly row set doesn't have
-  (compare against `dealer_inventory` read-only).
-- **What it does not prove:** that mega groups add new cars. As the finding in section 1 says,
-  these stores are already in the nightly roster, so the expected new-VIN count is small, and
-  the real number is the answer to whether daytime refresh is worth anything. If you'd rather
-  pilot something that can add inventory, that needs a roster of non-locator stores first.
-
-## Open items before GO
-
-1. **Roster source.** Without group lists the remaining upside can't be counted. Options: you
-   export a list (e.g. MarketCheck dealer groups), or I read each group's public location page
-   in the built-in browser, one page per group, like a person would.
-2. **Sync input directory.** Confirm read-only how `sync_lightsail_inventory.js` and
-   `run_sync_when_safe.sh` pick their input directory, so the mega sync can't see nightly shards.
-3. **Allowlisting** for the Cloudflare-fronted groups (Group 1, Hendrick, Garff, Holman,
-   Catena, most of Lithia), per `DEALER_ALLOWLIST_STRATEGY.md`.
-4. **AutoNation platform and gate** are unknown from here (plain fetch shows Akamai; production
-   result unknown because their states sit on box 2).
-5. The 6 to 21 "unreachable" stores per group are likely `www` host issues; worth a one-fetch
-   recheck with `www.` once approved.
-6. Published store counts in section 1 are from memory and unverified.
-
-Data sources: `dealers/*/*.json` on boxes 1/3/4; `data/inventory/*.json` ACTIVE counts
-(boxes 1/3/4 only, 31 of 390 stores); `data/reports/dealer-bot-report-*-2026-10-0[4-8].json`;
-`data/runs/<date>/<label>/box-report.json`; `~/inventory-sync/logs/sync-*.log`.
+1. The 4 TX Toyota stores between my 14 and your 18.
+2. Genesis cars per store is an assumption (50); the pilot measures it.
+3. No NY independents with counts; Land Rover / Jaguar and the other uncrawled brands have no
+   roster.
+4. Non-TX Toyota and Stellantis "missing" counts include some domain variants of rooftops we
+   already crawl.
+5. Directory write (section 3) needs approval before any real sync of new stores.
+6. Box 2 states are absent from the retry analysis.
+7. Revision 1's caveats still stand for the group stores (roster lower bound, group sites blocked).
