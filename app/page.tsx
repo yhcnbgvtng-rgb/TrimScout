@@ -820,6 +820,12 @@ export default function Home() {
         }}
         onDraftRestored={() => setIsWizardOpen(true)}
         onQuoteRequestSent={(sent) => {
+          // A guest has no account tracker: go to their private link instead.
+          if (sent.trackerPath) {
+            setIsWizardOpen(false);
+            window.location.assign(sent.trackerPath);
+            return;
+          }
           // Land in My Deal Tracker on the deal that just went out.
           setJustSent(sent);
           setFocusRfqId(sent.rfqId);

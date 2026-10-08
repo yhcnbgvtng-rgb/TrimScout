@@ -47,13 +47,16 @@ export function checkRateLimit(key: string, limit: number, windowMs: number, now
 }
 
 /** The named limits, each overridable by env: RATE_<NAME>_LIMIT / RATE_<NAME>_WINDOW_MS. */
-export type RateLimitName = "rfq_create_ip" | "rfq_create_user" | "rfq_create_global" | "invite_send_ip" | "invite_send_user" | "invite_send_global" | "signup_ip" | "signup_global";
+export type RateLimitName = "rfq_create_ip" | "rfq_create_user" | "rfq_create_global" | "invite_send_ip" | "invite_send_user" | "invite_send_global" | "rfq_guest_ip" | "rfq_guest_email" | "signup_ip" | "signup_global";
 const DEFAULTS: Record<RateLimitName, { limit: number; windowMs: number }> = {
   // Per-account / per-IP caps are sized for a real buyer iterating on a request (re-sending after edits,
   // trying an alternate VIN) — 3 creates in 10 min locked out a single person mid-flow. The global caps
   // are the spike guard; these only stop one client from hammering.
   rfq_create_ip: { limit: 20, windowMs: 10 * 60_000 },
   rfq_create_user: { limit: 12, windowMs: 10 * 60_000 },
+  // Guest RFQs (REQUIRE_BUYER_LOGIN=false): no account to answer for them, so tighter than a signed-in buyer.
+  rfq_guest_ip: { limit: 6, windowMs: 60 * 60_000 },
+  rfq_guest_email: { limit: 4, windowMs: 60 * 60_000 },
   rfq_create_global: { limit: 120, windowMs: 60_000 },
   invite_send_ip: { limit: 40, windowMs: 10 * 60_000 },
   invite_send_user: { limit: 30, windowMs: 10 * 60_000 },

@@ -1,14 +1,15 @@
 import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
+import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
 import { recheckPendingStickers } from "@/lib/stickerRecheck";
 import { drainQueuedInvites, queuedInvitesOf } from "@/lib/inviteOutbox";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!hasBuyerCredential(session, req)) {
     return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
   }
   const { id } = await params;
@@ -17,8 +18,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
     // The owner, or an admin (the all-requests desk opens any deal read-only;
     // pick / walk / edits stay owner-only).
-    const isAdmin = (session.user as { role?: string }).role === "admin";
-    if (rfq.buyerUserId !== session.user.id && !isAdmin) {
+    const viewer = buyerForRfq(session, req, rfq);
+    if (!viewer) return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
+    if (rfq.buyerUserId !== viewer.id && !viewer.isAdmin) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     // The server decides counter / expired / best — the page renders it as given.

@@ -1,5 +1,6 @@
 "use client";
 
+import { readGuestToken } from "../lib/guestToken";
 import React, { useState } from "react";
 import { CheckCircle2, Lock, Pencil } from "lucide-react";
 import type { RfqRequest } from "../lib/rfq";
@@ -169,7 +170,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
     setError(null);
     const leasePrefs: LeaseRequestPrefs = { termMonths: term, milesPerYear: miles, zip, timeline: timeline || null, dueAtSigningIntent: dasIntent || null, creditBand: band || null };
     try {
-      const res = await fetch(`/api/rfqs/${rfq.id}/lease-prefs`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leasePrefs }) });
+      const res = await fetch(`/api/rfqs/${rfq.id}/lease-prefs`, { method: "PATCH", headers: { "Content-Type": "application/json", ...(readGuestToken(String(rfq.id)) ? { "x-guest-token": readGuestToken(String(rfq.id))! } : {}) }, body: JSON.stringify({ leasePrefs }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json.rfq) throw new Error(json.error || "Could not save your changes.");
       onSaved(json.rfq as RfqRequest);

@@ -13,6 +13,7 @@ import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useGuestAccess } from "../../../lib/guestToken";
 import {
   CircleCheck as CheckCircle2,
   CircleX as XCircle,
@@ -407,6 +408,9 @@ export default function RfqWorkspacePage() {
   const rfqId = params.id as string;
   const router = useRouter();
   const { status: sessionStatus } = useSession();
+  const guest = useGuestAccess(rfqId);
+  // A guest link counts as a way in; the API decides whether it is honoured (REQUIRE_BUYER_LOGIN).
+  const canLoad = sessionStatus === "authenticated" || Boolean(guest.token);
 
   const [rfq, setRfq] = useState<RfqRequest | null>(null);
   // Server-computed lease comparison (counter / expired / best). Pick and
@@ -421,7 +425,7 @@ export default function RfqWorkspacePage() {
   const [walking, setWalking] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/rfqs/${rfqId}`);
+    const res = await fetch(`/api/rfqs/${rfqId}`, { headers: guest.headers });
     const json = await res.json();
     if (!res.ok) {
       setLoadError(json.error || "Could not load this request.");
@@ -430,18 +434,18 @@ export default function RfqWorkspacePage() {
     setRfq(json.rfq);
     setLeaseCompare((json.leaseCompare as LeaseCompareData | null) ?? null);
     setStickerRecheck((json.stickerRecheck as typeof stickerRecheck) || {});
-  }, [rfqId]);
+  }, [rfqId, guest.token]);
 
   useEffect(() => {
-    if (sessionStatus === "authenticated") load();
-  }, [sessionStatus, load]);
+    if (canLoad) load();
+  }, [canLoad, load]);
 
   const handlePick = async (quoteId: string) => {
     setPicking(true);
     setPickError(null);
     const res = await fetch(`/api/rfqs/${rfqId}/pick`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...guest.headers },
       body: JSON.stringify({ quoteId }),
     });
     const json = await res.json();
@@ -459,7 +463,7 @@ export default function RfqWorkspacePage() {
   const handleCounter = async (inviteId: string, counter: CounterEditsPayload) => {
     const res = await fetch(`/api/rfqs/${rfqId}/invites/${inviteId}/counter`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...guest.headers },
       body: JSON.stringify({ counter }),
     });
     const json = await res.json().catch(() => ({}));
@@ -472,7 +476,7 @@ export default function RfqWorkspacePage() {
 
   const handleWalk = async () => {
     setWalking(true);
-    const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST" });
+    const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST", headers: guest.headers });
     const json = await res.json();
     if (res.ok) {
       setRfq(json.rfq);
@@ -481,10 +485,10 @@ export default function RfqWorkspacePage() {
     setWalking(false);
   };
 
-  if (sessionStatus === "loading") {
+  if (sessionStatus === "loading" || !guest.ready) {
     return <div className="mx-auto max-w-3xl px-4 py-16 text-center text-sm text-ink-muted">Loading…</div>;
   }
-  if (sessionStatus !== "authenticated") {
+  if (!canLoad) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-2">
         <p className="text-sm text-white font-semibold">Please sign in to view this request.</p>
