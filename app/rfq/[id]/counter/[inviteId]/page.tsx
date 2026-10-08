@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useGuestAccess } from "../../../../../lib/guestToken";
 import { ArrowLeft } from "lucide-react";
 import { CounterComparison } from "@/components/CounterComparison";
 import { counterSummary } from "@/lib/buyerCounter";
@@ -21,22 +22,23 @@ export default function CounterReviewPage() {
   const rfqId = String(params.id);
   const inviteId = String(params.inviteId);
   const { status: sessionStatus } = useSession();
+  const guest = useGuestAccess(rfqId);
   const [rfq, setRfq] = useState<RfqRequest | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/rfqs/${rfqId}`);
+    const res = await fetch(`/api/rfqs/${rfqId}`, { headers: guest.headers });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(json.error || "Could not load this request.");
       return;
     }
     setRfq(json.rfq as RfqRequest);
-  }, [rfqId]);
+  }, [rfqId, guest.token]);
   useEffect(() => {
-    if (sessionStatus === "authenticated") load();
-    else if (sessionStatus === "unauthenticated") setError("Sign in as the buyer to see this counter.");
-  }, [sessionStatus, load]);
+    if (sessionStatus === "authenticated" || guest.token) load();
+    else if (sessionStatus === "unauthenticated" && guest.ready) setError("Open your private tracker link (or sign in as the buyer) to see this counter.");
+  }, [sessionStatus, guest.token, guest.ready, load]);
 
   const invite = rfq?.invites.find((i) => i.id === inviteId) || null;
   const counter = invite?.buyerCounter || null;

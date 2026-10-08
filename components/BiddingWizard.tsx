@@ -69,6 +69,8 @@ import {
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
 import { seedDealersFrom } from "../lib/quoteSeed";
+import { useRequireBuyerLogin } from "./BuyerAccessProvider";
+import { saveGuestToken } from "../lib/guestToken";
 import {
   buildOfferCompareSnapshot,
   collectDealVehicles,
@@ -302,7 +304,7 @@ interface BiddingWizardProps {
    * the buyer in My Deal Tracker on that deal; the wizard's own "sent"
    * screen is only shown when nothing could be sent.
    */
-  onQuoteRequestSent?: (sent: { rfqId: string; rows: Array<{ dealerName: string; sent: boolean; message?: string }> }) => void;
+  onQuoteRequestSent?: (sent: { rfqId: string; rows: Array<{ dealerName: string; sent: boolean; message?: string }>; trackerPath?: string }) => void;
 }
 
 /** One alternate-vehicle slot in Step 1 — resolved via the same real factory-build import as the primary VIN. */
@@ -1387,7 +1389,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [sentPackage, setSentPackage] = useState<{
     rfqId: string;
     rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }>;
+    /** Guest sends only: the private tracker path (carries the signed link token). */
+    trackerPath?: string;
   } | null>(null);
+  // REQUIRE_BUYER_LOGIN=false: a visitor with no session sends as a guest, identified by this email.
+  const requireLogin = useRequireBuyerLogin();
+  const [guestEmail, setGuestEmail] = useState("");
 
   // A primitive key, so the effect re-runs when the dealerships actually change
   // rather than on every render that rebuilds the array above.
@@ -1541,6 +1548,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     window.location.assign("/signup");
   };
   const authState = wizardAuthState(currentUser);
+  const guestMode = !requireLogin && authState === "signed_out";
 
   useEffect(() => {
     const draft = readQuoteDraft();
@@ -2169,7 +2177,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           <p className="text-[10px] leading-snug text-ink-faint">{NON_BINDING_COPY}</p>
           <div className="flex gap-2">
             <a
-              href={`/rfq/${sentPackage.rfqId}`}
+              href={sentPackage.trackerPath || `/rfq/${sentPackage.rfqId}`}
               className="flex-1 rounded-xl border border-border py-2.5 text-center text-xs font-bold text-ink-light hover:text-white hover:border-border-strong transition-colors"
             >
               Track this request
@@ -2409,6 +2417,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           stockNumber: primary.stockNumber || null,
           linkPastes: alternateLane ? [] : pastes,
           dealReference,
+          ...(guestMode ? { guestEmail: guestEmail.trim() } : {}),
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -2420,6 +2429,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         return;
       }
       const rfqId = String(json.rfq.id);
+      // A guest's credential for this request: the signed token inside the tracker path.
+      const trackerPath: string | undefined = typeof json.guest?.trackerPath === "string" ? json.guest.trackerPath : undefined;
+      const guestToken = trackerPath ? new URL(trackerPath, "http://x").searchParams.get("t") : null;
+      if (guestToken) saveGuestToken(rfqId, guestToken);
 
       // Invites go one at a time so a per-desk or sister-store block on one
       // never blocks the others, and each row reports its own outcome.
@@ -2432,7 +2445,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         }
         const r = await fetch(`/api/rfqs/${rfqId}/invites`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(guestToken ? { "x-guest-token": guestToken } : {}) },
           body: JSON.stringify({
             dealerName: name,
             dealerState: paste.dealerState,
@@ -2459,10 +2472,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (onQuoteRequestSent && sentRows.some((r) => r.sent)) {
         // The deal is real on the box now — land in the tracker on it. A
         // package where every desk was blocked stays here with the reasons.
-        onQuoteRequestSent({ rfqId, rows: sentRows });
+        onQuoteRequestSent({ rfqId, rows: sentRows, trackerPath });
         return;
       }
-      setSentPackage({ rfqId, rows });
+      setSentPackage({ rfqId, rows, trackerPath });
     } catch {
       setSubmitError("Couldn't reach the server. Your request wasn't sent — try again.");
     } finally {
@@ -2479,14 +2492,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setSubmitError("Enter your target out-the-door price, or switch to letting the dealer name their price.");
       return;
     }
-    if (!currentUser) {
+    if (guestMode) {
+      // No sign-in anywhere: the email is the only thing a guest owes us (it owns the tracker link).
+      if (!/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]{2,}$/.test(guestEmail.trim())) {
+        setSubmitError("Enter your email so we can send you your deal tracker link.");
+        return;
+      }
+    } else if (!currentUser) {
       // Stay put: the sign-in modal stacks over the wizard and the draft
       // survives it. Closing here used to throw the whole request away.
       setSubmitError("Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are.");
       openAuth("sign_in");
       return;
-    }
-    if (currentUser.role !== "buyer") {
+    } else if (currentUser.role !== "buyer") {
       setSubmitError(`You're signed in as a ${currentUser.role}. Sign in as a buyer to send this request.`);
       openAuth("switch_account");
       return;
@@ -2610,7 +2628,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 survives every path. */}
             <div className="flex items-center gap-2 whitespace-nowrap text-[11px] text-ink-muted" data-testid="wizard-auth">
               {authState === "signed_out" ? (
-                <>
+                guestMode ? null : <>
                   <button type="button" onClick={() => openAuth("sign_in")} className="hover:text-white transition-colors">
                     Sign in
                   </button>
@@ -3437,6 +3455,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </p>
               </div>
 
+              {guestMode ? (
+                <div className="rounded-xl border border-border bg-surface-elevated px-3.5 py-3 space-y-1.5" data-testid="guest-email-field">
+                  <label htmlFor="guest-email" className="block text-xs font-bold text-white">Your email</label>
+                  <input
+                    id="guest-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs text-white placeholder:text-ink-faint focus:border-brand-500 focus:outline-none"
+                  />
+                  <p className="text-[10px] leading-snug text-ink-faint">For your private deal tracker link. Dealers never see it, and there&apos;s no account to create.</p>
+                </div>
+              ) : null}
+
               {/* On a quote request there is no buyer target price — the desk
                   quotes its own number, full stop. The pricing choice only
                   exists on the open-to-other-dealers path. */}
@@ -3731,7 +3766,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {submitError && (
             <div className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">
               {submitError}
-              {authState !== "buyer" ? (
+              {authState !== "buyer" && !guestMode ? (
                 <>
                   {" "}
                   <button

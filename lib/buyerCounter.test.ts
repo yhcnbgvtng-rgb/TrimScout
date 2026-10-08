@@ -76,7 +76,7 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     assert.match(box, /SET status = 'invited', responded_at = NULL, buyer_counter_json = \?, buyer_counter_at = NOW\(\)/);
     assert.match(read("scripts/box/2026-09-13-buyer-counter.sh"), /"counter handler"/);
     const route = read("app/api/rfqs/[id]/invites/[inviteId]/counter/route.ts");
-    assert.match(route, /rfq\.buyerUserId !== session\.user\.id/);
+    assert.match(route, /rfq\.buyerUserId !== buyer\.id/);
     assert.match(route, /invite\.quote\.id !== payload\.againstQuoteId/);
     assert.match(route, /buildCounterFromEdits\(invite\.quote, payload\)/, "the sheet is rebuilt server-side from the quote on file");
     assert.match(route, /buyerCounterHtml\(input\)/);

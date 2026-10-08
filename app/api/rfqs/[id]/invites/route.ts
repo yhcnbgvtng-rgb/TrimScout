@@ -9,6 +9,7 @@ import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
+import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 
 // The one send path. The buyer's confirm step names a dealership; this
 // route re-derives the desk from the contact directory itself — the
@@ -17,17 +18,18 @@ import { bump } from "@/lib/opsMetrics";
 // only once Resend has accepted it. Each step is on the audit trail.
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id) {
+  if (!hasBuyerCredential(session, req)) {
     return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
   }
   const { id } = await params;
   if (!featureEnabled("rfqSend")) {
     return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
   }
-  // Test / admin accounts are never capped — see isRateLimitExempt.
-  const tripped = isRateLimitExempt(session.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
+  // Test / admin accounts are never capped — see isRateLimitExempt. A guest has no account: their
+  // per-user key is the request id, and the per-IP + global caps still apply.
+  const tripped = session?.user && isRateLimitExempt(session.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
     { name: "invite_send_ip", subject: clientIpFromHeaders(req.headers) },
-    { name: "invite_send_user", subject: String(session.user.id) },
+    { name: "invite_send_user", subject: session?.user?.id ? String(session.user.id) : `rfq:${id}` },
     { name: "invite_send_global", subject: "all" },
   ]);
   if (tripped) {
@@ -50,7 +52,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
-    if (rfq.buyerUserId !== session.user.id) {
+    const buyer = buyerForRfq(session, req, rfq);
+    if (!buyer) return NextResponse.json({ error: "You must be signed in." }, { status: 401 });
+    if (rfq.buyerUserId !== buyer.id) {
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const history = await listRfqsForBuyer(rfq.buyerUserId);

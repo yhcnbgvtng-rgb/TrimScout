@@ -14,7 +14,10 @@ import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rat
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
 import { approvalAlertHtml, approvalAlertSubject } from "@/lib/approvalAlertEmail";
-import { sendAdminApprovalAlert } from "@/lib/dealerEmail";
+import { sendAdminApprovalAlert, sendQuoteInviteEmail } from "@/lib/dealerEmail";
+import { guestTrackerPath, rfqCreateActor } from "@/lib/buyerAccess";
+import { guestTrackerEmailHtml, guestTrackerEmailSubject } from "@/lib/guestTrackerEmail";
+import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 
 export async function GET() {
   const session = await auth();
@@ -33,27 +36,43 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.id || (session.user as any).role !== "buyer") {
-    return NextResponse.json({ error: "You must be signed in as a buyer to send an RFQ." }, { status: 401 });
+  const body = await req.json().catch(() => null);
+  // A signed-in buyer, or — only while REQUIRE_BUYER_LOGIN is off — a guest identified by their email.
+  const actor = rfqCreateActor(session, body);
+  if (actor.kind === "deny") {
+    return NextResponse.json({ error: actor.error, ...(actor.code ? { code: actor.code } : {}) }, { status: actor.status });
   }
   // Kill switch: an honest pause, never a 500 or a silent drop.
   if (!featureEnabled("rfqSend")) {
     bump("rfq_create_off");
     return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
   }
-  // Hard caps per IP, per account and per instance-global — 429 + Retry-After.
-  // Test / admin accounts are never capped — see isRateLimitExempt.
-  const tripped = isRateLimitExempt(session.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
-    { name: "rfq_create_ip", subject: clientIpFromHeaders(req.headers) },
-    { name: "rfq_create_user", subject: String(session.user.id) },
-    { name: "rfq_create_global", subject: "all" },
-  ]);
-  if (tripped) {
-    bump("rfq_create_429");
-    return tooManyRequests(tripped);
+  const ownerId = actor.ownerId;
+  const guestEmail = actor.kind === "guest" ? actor.email : null;
+  if (actor.kind === "guest") {
+    // Guests have no account to hold accountable, so they get their own, tighter per-IP and per-email caps.
+    const guestTripped = firstTrippedLimit([
+      { name: "rfq_guest_ip", subject: clientIpFromHeaders(req.headers) },
+      { name: "rfq_guest_email", subject: actor.email },
+      { name: "rfq_create_global", subject: "all" },
+    ]);
+    if (guestTripped) {
+      bump("rfq_guest_429");
+      return tooManyRequests(guestTripped);
+    }
+  } else {
+    // Hard caps per IP, per account and per instance-global — 429 + Retry-After.
+    // Test / admin accounts are never capped — see isRateLimitExempt.
+    const tripped = isRateLimitExempt(session!.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
+      { name: "rfq_create_ip", subject: clientIpFromHeaders(req.headers) },
+      { name: "rfq_create_user", subject: ownerId },
+      { name: "rfq_create_global", subject: "all" },
+    ]);
+    if (tripped) {
+      bump("rfq_create_429");
+      return tooManyRequests(tripped);
+    }
   }
-
-  const body = await req.json().catch(() => null);
   const packageKind: "match" | "links" = body?.packageKind === "links" ? "links" : "match";
   if (!body?.vin || !body?.vehicleMake || !body?.vehicleModel || (packageKind === "match" && !body?.vehicleTrim)) {
     return NextResponse.json({ error: "A specific matched vehicle is required." }, { status: 400 });
@@ -109,7 +128,7 @@ export async function POST(req: Request) {
     // Rate limit: one active RFQ at a time — no spray. The buyer must
     // finish (pick) or walk away from the current one before starting
     // another.
-    const existing = await listRfqsForBuyer(session.user.id as string);
+    const existing = await listRfqsForBuyer(ownerId);
     if (hasActiveRfq(existing)) {
       // Idempotent double-submit: the same buyer re-sending the same car
       // (a retry, a double click, a refresh) gets the request that already
@@ -126,7 +145,7 @@ export async function POST(req: Request) {
     }
 
     const rfq = await createRfq({
-      buyerUserId: session.user.id as string,
+      buyerUserId: ownerId,
       vin: body.vin,
       stockNumber: body.stockNumber ?? null,
       vehicleYear: body.vehicleYear,
@@ -153,6 +172,15 @@ export async function POST(req: Request) {
     after(async () => {
       await sendAdminApprovalAlert(approvalAlertSubject(rfq), approvalAlertHtml(rfq)).catch(() => false);
     });
+    if (guestEmail) {
+      bump("rfq_guest_create");
+      const trackerUrl = `${DEALER_EMAIL_BASE_URL}${guestTrackerPath(rfq.id)}`;
+      // SAFE MODE: this sender has nowhere to put a real address, so the copy lands with the site owner.
+      after(async () => {
+        await sendQuoteInviteEmail(guestTrackerEmailSubject(rfq), guestTrackerEmailHtml(rfq, guestEmail!, trackerUrl)).catch(() => false);
+      });
+      return NextResponse.json({ rfq: publicRfqForBuyer(rfq), guest: { trackerPath: guestTrackerPath(rfq.id) } });
+    }
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not create your request.";

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getRfq, RfqApiError, updateRfqLeasePrefs } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
+import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 
 // PATCH /api/rfqs/:id/lease-prefs { leasePrefs } — the buyer adjusting the
 // lease quote sheet. Allowed only while no invited dealer has opened their
@@ -10,7 +11,7 @@ import { parseLeasePrefs } from "@/lib/leaseQuote";
 // buyer words first.
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  if (!session?.user?.id || (session.user as any).role !== "buyer") {
+  if (!hasBuyerCredential(session, req) || (session?.user && (session.user as any).role !== "buyer")) {
     return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
   }
   const { id } = await params;
@@ -21,7 +22,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
-    if (rfq.buyerUserId !== session.user.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
+    const buyer = buyerForRfq(session, req, rfq);
+    if (!buyer) return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
+    if (rfq.buyerUserId !== buyer.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     if (!rfq.leasePrefs) return NextResponse.json({ error: "This request has no lease quote sheet." }, { status: 409 });
     if (rfq.leaseSheetLockedAt) {
       return NextResponse.json({ error: "Locked — a dealer has viewed this request. New terms need a new quote request.", lockedAt: rfq.leaseSheetLockedAt }, { status: 409 });
