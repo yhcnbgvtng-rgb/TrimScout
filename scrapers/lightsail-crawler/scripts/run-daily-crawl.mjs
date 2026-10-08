@@ -509,6 +509,22 @@ async function dealerCountFor(state, brand) {
 // day's daily_changes ledger across two dated files. Pulled out as its
 // own function so the exact env passed to every brand subprocess is
 // covered by a fast unit test without spawning a real subprocess.
+// Old-space heap per brand run. 3584MB was sized on an 8GB box; most runs still sit well under it.
+export const DEFAULT_HEAP_MB = 3584;
+// The few (state, brand) runs that die with "JavaScript heap out of memory" every night: the enrichment step
+// loads the WHOLE state inventory file plus the enrichment cache (FL ~179k vehicles + ~198k cached VINs), so
+// the heap is set by the state's data, not by how many dealers a shard covers — more shards would not help,
+// only headroom does. NC Ford died in extraction (a 1,000-vehicle dealer) at 3,625MB. Peak at crash on
+// 2026-10-07 (V8's "Last few GCs"): nc-ford 3625, fl-gmc 3555, fl-buick 3565, oh-stellantis 3572 MB — all pinned
+// at the limit, so the real need is higher. TX Ford crashes nightly in its 2nd shard; OH GMC / OH Buick crashed
+// 10-03..05 and have squeaked through since. Per-run override: shards of one brand run one after another, so
+// this adds headroom for at most one process per state at a time; boxes have 15.7GB and no swap.
+export const HEAVY_HEAP_MB = Number(process.env.CRAWLER_HEAVY_HEAP_MB) || 5120;
+const HEAVY_HEAP_RUNS = new Set(['FL:gmc', 'FL:buick', 'NC:ford', 'OH:stellantis', 'OH:gmc', 'OH:buick', 'TX:ford']);
+export function heapMbFor(state, brand) {
+  return HEAVY_HEAP_RUNS.has(`${String(state).toUpperCase()}:${String(brand).toLowerCase()}`) ? HEAVY_HEAP_MB : DEFAULT_HEAP_MB;
+}
+
 export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
   return {
     CRAWLER_DEALERS_FILE: dealersFile,
@@ -531,7 +547,7 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
     // little left for the OS/MariaDB/Chromium. If the dataset grows
     // enough to make that a real risk, drop MAX_CONCURRENT_STATES to 1
     // before raising this further.
-    NODE_OPTIONS: '--max-old-space-size=3584',
+    NODE_OPTIONS: `--max-old-space-size=${heapMbFor(state, brand)}`,
   };
 }
 

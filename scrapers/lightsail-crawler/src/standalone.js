@@ -3,6 +3,7 @@ import { chromium } from 'patchright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
+import v8 from 'node:v8';
 import zlib from 'node:zlib';
 import { runEnrichmentPipeline } from './enricher.js';
 import { getBrand } from './brands.js';
@@ -28,6 +29,14 @@ import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
+
+// One line per run so a heap limit can be sized from data: peak RSS and the heap limit this run had.
+// (A run killed by the heap limit never reaches this — its own "Last few GCs" block shows the peak.)
+process.on('exit', () => {
+    try {
+        console.log(`[mem] peak RSS ${Math.round(process.resourceUsage().maxRSS / 1024)} MB, heap limit ${Math.round(v8.getHeapStatistics().heap_size_limit / 1048576)} MB`);
+    } catch { /* never fail an exit over a log line */ }
+});
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
