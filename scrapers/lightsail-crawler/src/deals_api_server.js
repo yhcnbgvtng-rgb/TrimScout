@@ -1773,7 +1773,7 @@ async function handleRfqApproval(req, res, rfqId) {
   await ensureQuotePackageColumns(pool);
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
   if (rows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
-  if (rows[0].status !== "collecting") return sendJson(res, 409, { error: "closed" });
+  if (rows[0].status !== "collecting" && decision !== "rejected") return sendJson(res, 409, { error: "closed" });
   await pool.query(
     "UPDATE rfq_requests SET approval_status = ?, approval_decided_at = ?, approval_decided_by = ?, rejection_reason = ? WHERE id = ?",
     [decision, decision === "pending" ? null : new Date(), decision === "pending" ? null : by, reason, rfqId]
