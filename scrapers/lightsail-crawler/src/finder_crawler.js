@@ -2,6 +2,7 @@ import { chromium } from 'patchright';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { runEnrichmentPipeline } from './enricher.js';
+import { shouldFetchOptions, stampOptionsTry } from './optionsCapture.js';
 import { getBrand } from './brands.js';
 import { readOdometer, resolveMileage } from './ingestSanitize.js';
 
@@ -364,11 +365,17 @@ for (let i = 0; i < dealersWithCoords.length; i++) {
                 if (!currentInventory.has(v.vin)) {
                     newCount++;
                     const prevRecord = previousSnapshot[v.vin];
+                    // The capture bookkeeping travels with the record every night, whether or not options are fetched tonight —
+                    // otherwise the try count would reset and a junk VIN would be asked again every night.
+                    for (const k of ['optionsCapturedAt', 'optionsSource', 'optionsAttempts', 'optionsCheckedAt']) if (prevRecord?.[k] != null) v[k] = prevRecord[k];
                     if (Array.isArray(prevRecord?.dealerListedOptions) && prevRecord.dealerListedOptions.length > 0) {
                         v.dealerListedOptions = prevRecord.dealerListedOptions; // already have real options, carry forward for free
-                    } else if (v.url && (MAX_OPTIONS_FETCHES_PER_RUN === 0 || optionsFetchCount < MAX_OPTIONS_FETCHES_PER_RUN)) {
+                    } else if (v.url && shouldFetchOptions(prevRecord) && (MAX_OPTIONS_FETCHES_PER_RUN === 0 || optionsFetchCount < MAX_OPTIONS_FETCHES_PER_RUN)) {
+                        // Options once per VIN (optionsCapture.js): a VIN whose earlier try came back empty/junk is not asked again
+                        // every night — one retry after 7 days, then never.
                         v.dealerListedOptions = await fetchVehicleOptions(context, v.url);
                         optionsFetchCount++;
+                        stampOptionsTry(v, prevRecord);
                     }
                 }
                 currentInventory.set(v.vin, v);

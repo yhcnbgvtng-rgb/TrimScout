@@ -19,6 +19,13 @@
 //   sudo nohup node 2026-09-28-backfill-inventory-options.mjs [--apply] [--after=VIN:DEALER_ID]
 //     [--make=Toyota[,Honda]] [--batch=250] [--pause-ms=150] [--min-free-mb=600] [--report=/path/report.csv] [--rebuild-facets] > ~/backfill.log 2>&1 &
 //
+// RE-CLEAN AFTER A RULE CHANGE — this script IS the "re-clean the stored raw options" tool for "options once per VIN": a change to the
+// deny rules or the allowlist never re-crawls anything, it re-derives dealer_inventory_options from the options_json already stored.
+//   --stamp   (needs deals-api running the options-once build, which adds the columns) also stamps options_captured_at / options_source
+//             ('vdp') / options_checked_at on every in-stock vehicle whose stored options are a GOOD capture under the current rules
+//             (optionsCapture.js: not empty, not mostly junk) and has none yet — run once after the deploy so the nightly sync skips
+//             them from the first night. Never touches options_json. Dry run counts what it would stamp; --apply writes.
+//
 // SAFE BY DEFAULT (changed 2026-10-07, option-normalize deny rules): with no flag this is a DRY RUN —
 // plain SELECTs, no transaction, no row locks, nothing written, nothing rebuilt — and it writes a per-make
 // report (make, rule, label, vehicles) of every label the rules would DROP and every truncated label they
@@ -36,6 +43,7 @@ if (args.apply && args["dry-run"]) { console.error("--apply and --dry-run are mu
 // (vin, dealer_id) primary key, so a make filter never changes ordering or resume (--after) semantics.
 const MAKES = typeof args.make === "string" ? args.make.split(",").map((m) => m.trim()).filter(Boolean) : [];
 const REBUILD_FACETS = Boolean(args["rebuild-facets"]) && !DRY_RUN;
+const STAMP = Boolean(args.stamp);
 const REPORT_PATH = typeof args.report === "string" ? args.report : path.resolve(process.cwd(), `option-normalize-report-${DRY_RUN ? "dry" : "apply"}.csv`);
 // box2 is a shared box (MariaDB + deals/auth APIs + crawls). The first dry run (2026-09-28) read
 // 2,000 vehicles' full options_json per batch and the box stopped responding around 600K scanned.
@@ -68,6 +76,12 @@ if (!fs.existsSync(modPath)) {
   process.exit(1);
 }
 const { optionRowsFromOptions } = await import(modPath);
+let assessOptionsCapture = null;
+if (STAMP) {
+  const capPath = path.resolve(process.cwd(), "src/optionsCapture.js");
+  if (!fs.existsSync(capPath)) { console.error(`--stamp needs ${capPath} — deploy the options-once build first.`); process.exit(1); }
+  ({ assessOptionsCapture } = await import(capPath));
+}
 
 // Same write-time key normalization as the nightly upsert (deals_api_server.js), so a backfilled
 // vehicle's dealer spellings land on the allowlisted canonical key too. Optional on purpose: a box
@@ -105,13 +119,18 @@ const pool = mysql.createPool({
   connectionLimit: 2,
 });
 
+if (STAMP) {
+  const [cols] = await pool.query("SHOW COLUMNS FROM dealer_inventory LIKE 'options_captured_at'");
+  if (!cols.length) { console.error("--stamp needs the options_captured_at column: restart deals-api on the options-once build first (it adds the columns on start)."); process.exit(1); }
+}
+
 let cursor = { vin: "", dealerId: -1 };
 if (typeof args.after === "string") {
   const [vin, dealerId] = args.after.split(":");
   cursor = { vin, dealerId: Number(dealerId) };
 }
 
-const totals = { scanned: 0, withOptionsJson: 0, replaced: 0, nowWithFacet: 0, rowsWritten: 0, junkDropped: 0, unparseable: 0 };
+const totals = { scanned: 0, withOptionsJson: 0, replaced: 0, nowWithFacet: 0, rowsWritten: 0, junkDropped: 0, unparseable: 0, stampGood: 0, stampJunk: 0 };
 const byMake = new Map(); // make -> { replaced, nowWithFacet }
 const dropReport = new Map(); // `${make}\t${rule}\t${label}` -> vehicles (rule-attributed drops only; "legacy" = pre-existing filters)
 const repairReport = new Map(); // `${make}\t${from}\t${to}` -> vehicles
@@ -142,7 +161,7 @@ async function main() {
       cursor = { vin: rows[rows.length - 1].vin, dealerId: rows[rows.length - 1].dealer_id };
       totals.scanned += rows.length;
 
-      const pairs = [], inserts = [];
+      const pairs = [], inserts = [], stampPairs = [];
       for (const r of rows) {
         if (!r.options_json) continue;
         let options;
@@ -155,6 +174,10 @@ async function main() {
         const mk = r.make || "(none)";
         for (const d of new Set(dropped.map((x) => `${x.rule}\t${x.label}`))) bump(dropReport, `${mk}\t${d}`);
         for (const x of new Set(repaired.map((y) => `${y.from}\t${y.to}`))) bump(repairReport, `${mk}\t${x}`);
+        if (STAMP) {
+          const a = assessOptionsCapture(options, { resolveKey: resolveForMake(r.make) });
+          if (a.state === "good") { stampPairs.push([r.vin, r.dealer_id]); totals.stampGood++; } else totals.stampJunk++;
+        }
         pairs.push([r.vin, r.dealer_id]);
         totals.replaced++;
         const m = byMake.get(r.make || "(none)") || { replaced: 0, nowWithFacet: 0 };
@@ -171,6 +194,12 @@ async function main() {
         const pairConds = sortedPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
         await conn.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, sortedPairs.flat());
         if (inserts.length) await conn.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ?", [inserts]);
+      }
+      if (!DRY_RUN && stampPairs.length) {
+        // Only vehicles with no capture yet; COALESCE keeps any stamp a nightly sync already set. options_json is not touched.
+        const sorted = stampPairs.slice().sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
+        const conds = sorted.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+        await conn.query(`UPDATE dealer_inventory SET options_captured_at = COALESCE(options_captured_at, NOW()), options_source = COALESCE(options_source, 'vdp'), options_checked_at = COALESCE(options_checked_at, NOW()) WHERE ${conds}`, sorted.flat());
       }
       totals.rowsWritten += inserts.length;
       if (!DRY_RUN) await conn.commit();
@@ -193,6 +222,7 @@ async function main() {
   console.log(`Option rows written:              ${totals.rowsWritten}`);
   console.log(`Junk sentences dropped:           ${totals.junkDropped}`);
   console.log(`Unparseable options_json:         ${totals.unparseable}`);
+  if (STAMP) console.log(`Options-once ${DRY_RUN ? "WOULD stamp" : "stamped"} (good capture): ${totals.stampGood}   left unstamped (mostly junk under current rules): ${totals.stampJunk}`);
   console.log(`\nTop makes by vehicles rebuilt (rebuilt / now with >=1 option):`);
   for (const [make, m] of [...byMake].sort((a, b) => b[1].replaced - a[1].replaced).slice(0, 25)) {
     console.log(`  ${make.padEnd(18)} ${String(m.replaced).padStart(8)} / ${m.nowWithFacet}`);

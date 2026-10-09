@@ -46,6 +46,7 @@ import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLo
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
+import { decideOptionsIngest, normalizeOptionsSource } from "./optionsCapture.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -61,6 +62,10 @@ if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${option
 // already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
 // upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
 const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
+// "Options once per VIN" (optionsCapture.js): a VIN with a good options capture is never re-taken — later nights update price,
+// stock, last_seen and removed only; an empty/junk capture is tried once more after 7 days, then never again. OPTIONS_ONCE_PER_VIN=0
+// restores the old "options in every payload overwrite" behavior without a code change.
+const OPTIONS_ONCE_PER_VIN = process.env.OPTIONS_ONCE_PER_VIN !== "0";
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -1915,6 +1920,12 @@ async function ensureInventoryTable(pool) {
     "ADD COLUMN IF NOT EXISTS options_json MEDIUMTEXT NULL",
     "ADD COLUMN IF NOT EXISTS options_total INT NULL",
     "ADD COLUMN IF NOT EXISTS base_msrp INT NULL",
+    // Options once per VIN (optionsCapture.js): when a good capture was taken and from where (vdp | sticker | feed), plus the
+    // bookkeeping for the single retry of an empty/junk capture. NULL = never captured.
+    "ADD COLUMN IF NOT EXISTS options_captured_at DATETIME NULL",
+    "ADD COLUMN IF NOT EXISTS options_source VARCHAR(16) NULL",
+    "ADD COLUMN IF NOT EXISTS options_attempts TINYINT UNSIGNED NULL",
+    "ADD COLUMN IF NOT EXISTS options_checked_at DATETIME NULL",
     "ADD COLUMN IF NOT EXISTS crawl_first_seen DATE NULL",
     "ADD COLUMN IF NOT EXISTS source_box VARCHAR(16) NULL",
     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
@@ -2252,7 +2263,7 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
-  let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0, priceGuarded = 0;
+  let upserted = 0, skipped = 0, optionsSkipped = 0, optionsCaptured = 0, optionsFailedTry = 0, optionsWaiting = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0, priceGuarded = 0;
   // Where the time inside this request goes, reported back so the sync's own log shows it every night
   // (milliseconds, summed over the request's chunks).
   const timings = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, chunks: 0 };
@@ -2271,6 +2282,27 @@ async function handleInventoryBulk(req, res) {
       const g = guardPrice({ price: row[12], msrp: row[13], make: row[5], model: row[6], year: row[4] });
       if (g.reason) { row[12] = g.price; row[13] = g.msrp; priceGuarded++; }
     }
+    // Options once per VIN (optionsCapture.js): what is stored for each VIN decides whether this payload's options are taken at all.
+    // A skipped / waiting / given-up VIN has its options written as null here, which the upsert's COALESCE turns into "keep what
+    // is stored", and it is left out of the facet rewrite below.
+    const optionDecisions = new Map(); // `${vin}|${dealerId}` -> decision
+    if (OPTIONS_ONCE_PER_VIN) {
+      const pairs = values.map((r) => [r[0], r[1]]);
+      const conds = pairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
+      const [stored] = await pool.query(`SELECT vin, dealer_id, options_captured_at, options_attempts, options_checked_at FROM dealer_inventory WHERE ${conds}`, pairs.flat());
+      const storedByPair = new Map(stored.map((s) => [pairKey(s.vin, s.dealer_id), { capturedAt: s.options_captured_at, attempts: s.options_attempts, checkedAt: s.options_checked_at }]));
+      const now = new Date();
+      for (const v of chunk) {
+        const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
+        const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
+        const d = decideOptionsIngest({ existing: storedByPair.get(pairKey(vin, dealerId)) || null, incoming: { options: v.options, source: v.optionsSource }, now, resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
+        optionDecisions.set(pairKey(vin, dealerId), d);
+        if (d.action === "skip") optionsSkipped++;
+        else if (d.action === "capture") optionsCaptured++;
+        else if (d.action === "attempt_failed") optionsFailedTry++;
+        else optionsWaiting++; // wait / give_up
+      }
+    }
     // Sorted by the table's own primary key (vin, dealer_id) before the multi-row INSERT below.
     // Confirmed live 2026-09-28 via SHOW ENGINE INNODB STATUS on a deliberately reproduced
     // deadlock (see the catch-up-sync deadlock-storm investigation): two concurrent chunks
@@ -2285,16 +2317,24 @@ async function handleInventoryBulk(req, res) {
     values.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] - b[1]));
     // Stable numeric vehicle id: one per VIN, registered here on first sight and appended as the last column (vehicleId.js).
     const vehicleIds = await resolveVehicleIds(pool, values.map((r) => r[0]));
-    for (const row of values) row.push(vehicleIds.get(row[0]));
+    for (const row of values) {
+      row.push(vehicleIds.get(row[0]));
+      // Capture columns (last four of the INSERT): options_captured_at, options_source, options_attempts, options_checked_at.
+      const d = optionDecisions.get(pairKey(row[0], row[1]));
+      if (d && !d.useIncoming) { row[27] = null; row[28] = null; } // options_json, options_total: keep what is stored
+      row.push(d?.set.capturedAt ?? null, d?.set.capturedAt ? normalizeOptionsSource(d.set.source) : null, d?.set.attempts ?? null, d?.set.checkedAt ?? null);
+    }
     timings.chunks++;
     const tUpsert = performance.now();
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
-        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, vehicle_id)
+        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, vehicle_id,
+        options_captured_at, options_source, options_attempts, options_checked_at)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
         price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
         price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
-        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
+        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id)),
+        options_captured_at = COALESCE(VALUES(options_captured_at), options_captured_at), options_source = COALESCE(VALUES(options_source), options_source), options_attempts = COALESCE(VALUES(options_attempts), options_attempts), options_checked_at = COALESCE(VALUES(options_checked_at), options_checked_at)`,
       [values]
     );
     timings.upsertMs += performance.now() - tUpsert;
@@ -2310,7 +2350,7 @@ async function handleInventoryBulk(req, res) {
     // the last real value. Every re-crawl that hit a fallback page strategy or a partial page
     // silently erased that car's factory options from buyer /search. A null/empty payload now
     // leaves the existing rows alone, exactly matching options_json.
-    const withOptions = chunk.filter((v) => payloadHasOptions(v.options));
+    const withOptions = chunk.filter((v) => payloadHasOptions(v.options) && (optionDecisions.get(pairKey(v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId)))?.useIncoming ?? true));
     optionSetsKept += chunk.length - withOptions.length;
     if (withOptions.length) {
       const tOptions = performance.now();
@@ -2390,7 +2430,7 @@ async function handleInventoryBulk(req, res) {
   for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, priceGuarded, timings });
+  sendJson(res, 200, { upserted, skipped, optionsSkipped, optionsCaptured, optionsFailedTry, optionsWaiting, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, priceGuarded, timings });
 }
 
 // The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One

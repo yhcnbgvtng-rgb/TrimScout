@@ -42,6 +42,7 @@ import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
+import { carryOptionsForward } from './optionsCapture.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -1220,6 +1221,11 @@ for (let i = 0; i < dealers.length; i++) {
                         // listing with no odometer becomes null instead of a 0 default.
                         vehicle.mileage = resolveMileage(vehicle.mileage, vehicle.inventoryType);
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
+                        // Options once per VIN (optionsCapture.js): a VIN whose options were captured earlier keeps them (a junk or
+                        // half-loaded page tonight cannot replace them); a fresh good parse is stamped as the capture. The listing page
+                        // is fetched anyway for price and stock — options come from the same response, so there is no separate
+                        // request to skip here.
+                        try { carryOptionsForward(vehicle, previousSnapshot[vehicle.vin]); } catch (err) { console.log(`⚠️ options carry-forward error (ignored): ${vehicle.vin} ${err.message}`); }
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];

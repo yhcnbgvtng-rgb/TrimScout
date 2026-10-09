@@ -98,7 +98,7 @@ describe('a normal run', () => {
     const r = await run({ rows: makeRows(25), api: d.api, store: memoryStore(), clock, log: (m) => logs.push(m) });
     assert.equal(r.timings.server.requests, 3);
     assert.equal(r.timings.server.optionsMs, 180);
-    assert.deepEqual(r.optionStats, { setsReplaced: 3, setsKept: 6, setsUnchanged: 9, rowsWritten: 12, junkDropped: 15 });
+    assert.deepEqual(r.optionStats, { setsReplaced: 3, setsKept: 6, setsUnchanged: 9, rowsWritten: 12, junkDropped: 15, onceSkipped: 0, onceCaptured: 0, onceFailedTry: 0, onceWaiting: 0 });
     assert.ok(logs.some((m) => /deals API time inside those requests/.test(m)));
     assert.ok(logs.some((m) => /factory options: 3 vehicles replaced .* 9 unchanged/.test(m)));
   });
