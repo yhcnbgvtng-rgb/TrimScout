@@ -246,6 +246,7 @@ export function policyOptionRows(policy, vehicle, options) {
   const resolved = resolvePolicyTrim(policy, vehicle.trim, vehicle.model);
   const trim = resolved ? resolved.trim : null;
   out.trim = vehicle.trim || null;
+  out.scope = policy.scope; // which make|model|year policy decided this vehicle
   out.trimTrusted = Boolean(trim);
   out.trimVia = resolved ? resolved.via : null; // "exact" | "alias" (shorthand folded into its policy trim) | null
   const rows = new Map(), addons = new Map();
