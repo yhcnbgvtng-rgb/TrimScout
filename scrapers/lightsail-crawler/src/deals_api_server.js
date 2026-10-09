@@ -28,7 +28,7 @@
 
 import http from "node:http";
 import { randomBytes } from "node:crypto";
-import { authenticate, authorizeAudit, auditLogLine, checkOwnership, createRateLimiter } from "./auditKey.js";
+import { authenticate, authorizeAudit, authorizeAuditDealer, auditLogLine, bidVerdict, checkOwnership, createRateLimiter, dealVerdict, evaluateGuard, inviteCreationVerdict } from "./auditKey.js";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
@@ -154,9 +154,12 @@ function badRequest(res, message) {
   sendJson(res, 400, { error: message });
 }
 
-// Two key types (see auditKey.js): the shared full key, and a scoped audit key tied to one
-// test buyer. requireAuth sets req.audit for the latter; the route gate below then confines it.
-const auditRateLimiter = createRateLimiter();
+// Three key types (see auditKey.js): the shared full key, a scoped audit BUYER key tied to one
+// test buyer, and a scoped audit TEST-DEALER key. requireAuth sets req.audit for the scoped ones; the
+// route gate below then confines them. Each scoped key has its own 60/min bucket.
+const auditRateLimiters = { audit: createRateLimiter(), audit_dealer: createRateLimiter() };
+const isAuditBuyer = (req) => req.audit?.kind === "audit";
+const isAuditDealer = (req) => req.audit?.kind === "audit_dealer";
 
 function requireAuth(req, res) {
   const principal = authenticate(req.headers["x-trimscout-api-key"]);
@@ -164,14 +167,14 @@ function requireAuth(req, res) {
     sendJson(res, 401, { error: "Unauthorized: missing or invalid X-Trimscout-Api-Key header" });
     return false;
   }
-  if (principal.kind === "audit") {
+  if (principal.kind === "audit" || principal.kind === "audit_dealer") {
     req.audit = principal;
     const started = Date.now();
     const pathname = new URL(req.url, "http://x").pathname;
     // One log line per call (route template + status), written when the response finishes —
     // including 401-after-auth rejections below, 403s and 429s.
-    res.on("finish", () => console.log(auditLogLine({ method: req.method, pathname, status: res.statusCode, ms: Date.now() - started })));
-    const limit = auditRateLimiter.take();
+    res.on("finish", () => console.log(auditLogLine({ method: req.method, pathname, status: res.statusCode, ms: Date.now() - started, kind: principal.kind })));
+    const limit = auditRateLimiters[principal.kind].take();
     if (!limit.ok) {
       res.setHeader("Retry-After", String(limit.retryAfterSeconds));
       sendJson(res, 429, { error: "Rate limit exceeded for this key (60 requests per minute)" });
@@ -185,8 +188,46 @@ function requireAuth(req, res) {
 // fixed allowlist in auditKey.js, never from the request.
 async function lookupBuyerId(table, id) {
   if (table !== "rfq_requests" && table !== "deal_requests") return null;
-  const [rows] = await getPool().query(`SELECT buyer_user_id FROM ${table} WHERE id = ?`, [id]);
+  await ensureAuditColumns(getPool());
+  // The audit buyer key only ever sees audit = 1 rows; soft-deleted ones are gone as far as it is concerned.
+  const [rows] = await getPool().query(`SELECT buyer_user_id FROM ${table} WHERE id = ? AND audit = 1 AND deleted_at IS NULL`, [id]);
   return rows.length ? rows[0].buyer_user_id : null;
+}
+
+// Lookups for the audit guards (auditKey.js evaluateGuard). Rows are returned raw, deleted_at included,
+// and the verdicts treat a deleted row as missing.
+async function loadTestDealers(pool) {
+  await ensureAuditColumns(pool);
+  const [rows] = await pool.query("SELECT dealer_name, contact_email FROM dealership_contacts WHERE is_test = 1");
+  return rows;
+}
+function auditDb(pool) {
+  const one = async (sql, args) => (await pool.query(sql, args))[0][0] || null;
+  return {
+    testDealers: () => loadTestDealers(pool),
+    rfq: (id) => one("SELECT * FROM rfq_requests WHERE id = ?", [id]),
+    invite: (id) => one("SELECT * FROM rfq_invites WHERE id = ?", [id]),
+    inviteByToken: (token) => one("SELECT * FROM rfq_invites WHERE view_token = ?", [token]),
+    invitesForRfq: async (rfqId) => (await pool.query("SELECT * FROM rfq_invites WHERE rfq_id = ? AND deleted_at IS NULL", [rfqId]))[0],
+    dealRequest: (id) => one("SELECT * FROM deal_requests WHERE id = ?", [id]),
+  };
+}
+
+// Columns every audit-flagged record carries. audit=1 marks a record created by (or hanging off one
+// created by) a scoped audit key; audit_at is when, so cleanup can age it; deleted_at is the soft delete.
+// Real-facing reads below filter audit = 0 / deleted_at IS NULL. dealership_contacts.is_test marks the
+// test dealers. Idempotent (ADD COLUMN IF NOT EXISTS), run lazily like ensureQuotePackageColumns.
+const AUDIT_TABLES = ["rfq_requests", "rfq_invites", "rfq_quotes", "rfq_events", "deal_requests", "deal_bids", "deals"];
+let auditColumnsEnsured = false;
+async function ensureAuditColumns(pool) {
+  if (auditColumnsEnsured) return;
+  for (const t of AUDIT_TABLES) {
+    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0`);
+    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS audit_at DATETIME NULL`);
+    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL`);
+  }
+  await pool.query("ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS is_test TINYINT(1) NOT NULL DEFAULT 0");
+  auditColumnsEnsured = true;
 }
 
 function readBody(req, maxBytes = 1_000_000) {
@@ -229,6 +270,7 @@ function publicDeal(row) {
     matchedVin: row.matched_vin,
     dealRequestId: row.deal_request_id ? String(row.deal_request_id) : null,
     bidId: row.bid_id ? String(row.bid_id) : null,
+    audit: Boolean(row.audit),
     totalOtdPrice: Number(row.total_otd_price),
     platformFeeCents: row.platform_fee_cents,
     winningBid: typeof row.winning_bid_json === "string" ? JSON.parse(row.winning_bid_json) : row.winning_bid_json,
@@ -386,10 +428,27 @@ async function handleCreateDeal(req, res) {
   if (!winningBid || typeof winningBid !== "object") return badRequest(res, "winningBid is required");
 
   const pool = getPool();
+  await ensureAuditColumns(pool);
+  // The audit buyer key may only create a deal from its own audit request + that request's audit bid by a
+  // test dealer; for any other key the same pairing rule stops a real dealer's bid being tied to an audit
+  // request (and a test dealer's bid to a real one). The audit key can't mark the deal paid.
+  let dealRequestRow = null;
+  let bidRow = null;
+  if (dealRequestId) dealRequestRow = (await pool.query("SELECT * FROM deal_requests WHERE id = ?", [dealRequestId]))[0][0] || null;
+  if (bidId) bidRow = (await pool.query("SELECT * FROM deal_bids WHERE id = ?", [bidId]))[0][0] || null;
+  const dealDenied = dealVerdict({
+    buyerUserId: isAuditBuyer(req) ? req.audit.buyerUserId : null,
+    dealRequest: dealRequestRow,
+    bid: bidRow,
+    body,
+    testDealers: await loadTestDealers(pool),
+  });
+  if (dealDenied) return sendJson(res, dealDenied.status, { error: dealDenied.error });
+  const auditDeal = Boolean(dealRequestRow && dealRequestRow.audit);
   const [result] = await pool.query(
-    `INSERT INTO deals (buyer_user_id, dealer_name, matched_vin, deal_request_id, bid_id, total_otd_price, platform_fee_cents, winning_bid_json, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment')`,
-    [buyerUserId, dealerName, matchedVin, dealRequestId, bidId, totalOtdPrice, platformFeeCents, JSON.stringify(winningBid)]
+    `INSERT INTO deals (buyer_user_id, dealer_name, matched_vin, deal_request_id, bid_id, total_otd_price, platform_fee_cents, winning_bid_json, status, audit, audit_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, ?)`,
+    [buyerUserId, dealerName, matchedVin, dealRequestId, bidId, totalOtdPrice, platformFeeCents, JSON.stringify(winningBid), auditDeal ? 1 : 0, auditDeal ? new Date() : null]
   );
   const dealId = result.insertId;
   const certificateId = `OTD-${String(dealId).padStart(6, "0")}`;
@@ -544,6 +603,7 @@ function publicDealRequest(row) {
     searchRadiusMiles: row.search_radius_miles,
     sameStateOnly: Boolean(row.same_state_only),
     buyerComment: row.buyer_comment,
+    audit: Boolean(row.audit),
     status: row.status,
     createdAt: row.created_at,
     expiresAt: row.expires_at,
@@ -569,6 +629,13 @@ function findContactInfo(text) {
 
 async function handleCreateDealRequest(req, res) {
   const body = await readBody(req);
+  // The audit buyer key can only create requests for its own test buyer; they are audit=1, so they
+  // never reach real dealers (the dealer-matching list excludes them) or any metric.
+  const auditForced = isAuditBuyer(req);
+  if (auditForced) {
+    if (body.buyerUserId != null && String(body.buyerUserId).trim() !== req.audit.buyerUserId) return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
+    body.buyerUserId = req.audit.buyerUserId;
+  }
   const buyerUserId = Number(body.buyerUserId);
   const strategy = body.strategy;
   const referenceBrandCode = (body.referenceBrandCode || "").trim();
@@ -595,13 +662,14 @@ async function handleCreateDealRequest(req, res) {
   const sameStateOnly = body.sameStateOnly !== false;
 
   const pool = getPool();
+  await ensureAuditColumns(pool);
   const [result] = await pool.query(
     `INSERT INTO deal_requests
        (buyer_user_id, strategy, reference_brand_code, reference_vin, reference_year, reference_make, reference_model,
         reference_trim, reference_price, reference_msrp, reference_image_url, target_otd_price, target_discount_percent,
         payment_method, deal_structure_json, trade_in_json, buyer_zip, buyer_state, search_radius_miles, same_state_only,
-        buyer_comment, status, expires_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 90 DAY)`,
+        buyer_comment, status, expires_at, audit, audit_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 90 DAY, ?, ?)`,
     [
       buyerUserId,
       strategy,
@@ -624,6 +692,8 @@ async function handleCreateDealRequest(req, res) {
       searchRadiusMiles,
       sameStateOnly,
       buyerComment || null,
+      auditForced ? 1 : 0,
+      auditForced ? new Date() : null,
     ]
   );
 
@@ -643,9 +713,12 @@ async function handleGetDealRequest(req, res, id) {
 // exposed directly to a browser).
 async function handleListDealRequests(req, res, query) {
   const pool = getPool();
+  await ensureAuditColumns(pool);
   const status = query.get("status");
   const buyerUserId = query.get("buyerUserId");
-  const clauses = [];
+  // Audit requests stay out of the dealer-matching list (the full-key caller real dealers are matched
+  // from). The audit buyer key sees only its own audit requests; ?includeAudit=1 is for the full key.
+  const clauses = ["deleted_at IS NULL", isAuditBuyer(req) ? "audit = 1" : query.get("includeAudit") === "1" ? "1 = 1" : "audit = 0"];
   const params = [];
   if (status) {
     clauses.push("status = ?");
@@ -781,6 +854,7 @@ function publicDealBid(row, rank, leadingDiscountPercent = null) {
     rank,
     createdAt: row.created_at,
     isTopDeal: rank === 1,
+    audit: Boolean(row.audit),
     status: row.status,
     salesRep: row.sales_rep_name ? { name: row.sales_rep_name, title: row.sales_rep_title, phone: row.sales_rep_phone } : null,
     // The current best dealer_discount_percent across every active bid on
@@ -824,6 +898,10 @@ async function handleSubmitBid(req, res, dealRequestId) {
   const [reqRows] = await pool.query("SELECT * FROM deal_requests WHERE id = ?", [dealRequestId]);
   if (reqRows.length === 0) return sendJson(res, 404, { error: "Deal request not found" });
   const dealRequest = reqRows[0];
+  // Audit requests only take bids from is_test dealers, and is_test dealers only bid on audit requests (every key).
+  await ensureAuditColumns(pool);
+  const bidDenied = bidVerdict({ dealRequest, dealerName, testDealers: await loadTestDealers(pool), principal: req.audit?.kind || "full" });
+  if (bidDenied) return sendJson(res, bidDenied.status, { error: bidDenied.error });
   if (dealRequest.status !== "active" || new Date(dealRequest.expires_at).getTime() < Date.now()) {
     return sendJson(res, 409, { error: "This request is no longer accepting bids" });
   }
@@ -834,7 +912,7 @@ async function handleSubmitBid(req, res, dealRequestId) {
     "msrp", "dealer_discount_dollars", "dealer_discount_percent", "manufacturer_rebates", "selling_price",
     "sales_tax", "dmv_fees", "doc_fee", "dealer_accessories", "trade_in_allowance", "total_otd_price",
     "net_otd_with_trade_in", "finance_monthly_estimate", "lease_monthly_estimate", "notes",
-    "sales_rep_name", "sales_rep_title", "sales_rep_phone",
+    "sales_rep_name", "sales_rep_title", "sales_rep_phone", "audit", "audit_at",
   ];
   const values = [
     dealRequestId, dealerUserId, dealerName, body.dealerCity ?? null, body.dealerState ?? null, body.distanceMiles ?? null,
@@ -843,6 +921,7 @@ async function handleSubmitBid(req, res, dealRequestId) {
     Number(body.salesTax) || 0, Number(body.dmvFees) || 0, Number(body.docFee) || 0, Number(body.dealerAccessories) || 0, body.tradeInAllowance ?? null, Number(body.totalOtdPrice) || 0,
     body.netOtdWithTradeIn ?? null, body.financeMonthlyEstimate ?? null, body.leaseMonthlyEstimate ?? null, body.notes || "",
     body.salesRepName ?? null, body.salesRepTitle ?? null, body.salesRepPhone ?? null,
+    dealRequest.audit ? 1 : 0, dealRequest.audit ? new Date() : null,
   ];
   const updateAssignments = columns
     .filter((c) => c !== "deal_request_id" && c !== "dealer_user_id")
@@ -880,9 +959,10 @@ async function handleListBidsForRequest(req, res, dealRequestId) {
 // unlike handleListBidsForRequest's full unmasked rows.
 async function handleGetRequestMarket(req, res, dealRequestId) {
   const pool = getPool();
+  await ensureAuditColumns(pool);
   const [rows] = await pool.query(
-    "SELECT dealer_discount_percent, total_otd_price, sales_tax, dmv_fees FROM deal_bids WHERE deal_request_id = ? AND status != 'withdrawn'",
-    [dealRequestId]
+    "SELECT dealer_discount_percent, total_otd_price, sales_tax, dmv_fees FROM deal_bids WHERE deal_request_id = ? AND status != 'withdrawn' AND deleted_at IS NULL AND audit = (SELECT audit FROM deal_requests WHERE id = ?)",
+    [dealRequestId, dealRequestId]
   );
   if (rows.length === 0) {
     return sendJson(res, 200, { leadingDiscountPercent: null, bidCount: 0 });
@@ -912,8 +992,9 @@ async function handleListBidsForDealer(req, res, query) {
   if (!Number.isFinite(dealerUserId) || dealerUserId <= 0) return badRequest(res, "Invalid dealerUserId");
 
   const pool = getPool();
+  await ensureAuditColumns(pool);
   const [myRows] = await pool.query(
-    "SELECT * FROM deal_bids WHERE dealer_user_id = ? AND status != 'withdrawn' ORDER BY created_at DESC",
+    "SELECT * FROM deal_bids WHERE dealer_user_id = ? AND status != 'withdrawn' AND audit = 0 AND deleted_at IS NULL ORDER BY created_at DESC",
     [dealerUserId]
   );
   if (myRows.length === 0) return sendJson(res, 200, { bids: [] });
@@ -928,7 +1009,7 @@ async function handleListBidsForDealer(req, res, query) {
   const requestIds = [...new Set(myRows.map((r) => r.deal_request_id))];
   const placeholders = requestIds.map(() => "?").join(", ");
   const [allRows] = await pool.query(
-    `SELECT * FROM deal_bids WHERE deal_request_id IN (${placeholders}) AND status != 'withdrawn'`,
+    `SELECT * FROM deal_bids WHERE deal_request_id IN (${placeholders}) AND status != 'withdrawn' AND audit = 0 AND deleted_at IS NULL`,
     requestIds
   );
   const byRequest = new Map();
@@ -958,6 +1039,7 @@ async function handleDealerWonDeals(req, res, query) {
 
   const pool = getPool();
   await ensureTradeInColumns(pool);
+  await ensureAuditColumns(pool);
   // LEFT JOIN deals: a bid can be 'accepted' (the mark-paid cascade sets
   // that) slightly before/without a deals row in edge cases, so this must
   // not drop the won bid just because the deal row lookup comes back
@@ -971,7 +1053,7 @@ async function handleDealerWonDeals(req, res, query) {
      JOIN deal_requests dr ON dr.id = db.deal_request_id
      JOIN users u ON u.id = dr.buyer_user_id
      LEFT JOIN deals d ON d.bid_id = db.id
-     WHERE db.dealer_user_id = ? AND db.status = 'accepted'
+     WHERE db.dealer_user_id = ? AND db.status = 'accepted' AND db.audit = 0 AND db.deleted_at IS NULL
      ORDER BY db.created_at DESC`,
     [dealerUserId]
   );
@@ -1015,13 +1097,14 @@ async function handleGetDealerResponsiveness(req, res, query) {
   if (!dealerName) return badRequest(res, "dealerName is required");
 
   const pool = getPool();
+  await ensureAuditColumns(pool);
   const [rows] = await pool.query(
     `SELECT
        COUNT(*) AS bid_count,
        AVG(TIMESTAMPDIFF(SECOND, dr.created_at, db.created_at)) AS avg_response_seconds
      FROM deal_bids db
      JOIN deal_requests dr ON dr.id = db.deal_request_id
-     WHERE db.dealer_name = ? AND db.status != 'withdrawn'`,
+     WHERE db.dealer_name = ? AND db.status != 'withdrawn' AND db.audit = 0 AND db.deleted_at IS NULL`,
     [dealerName]
   );
   const row = rows[0];
@@ -1142,6 +1225,7 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS alternate_ask_json TEXT NULL");
   // Set when the scoped audit key created the row: the app layer must keep dealer mail on SAFE MODE for it.
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit_forced_safe TINYINT(1) NOT NULL DEFAULT 0");
+  await ensureAuditColumns(pool);
   await pool.query("ALTER TABLE rfq_requests MODIFY vin VARCHAR(17) NOT NULL DEFAULT ''");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS used_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
@@ -1198,6 +1282,7 @@ function publicRfqRequest(row, invites) {
     alternateAsk: parseJsonCol(row.alternate_ask_json) || null,
     // Created by the scoped audit key: dealer email stays on SAFE MODE (pausmi@outlook.com) no matter what.
     auditForcedSafeMode: Boolean(row.audit_forced_safe),
+    audit: Boolean(row.audit),
     // Admin gate: 'pending' until an admin releases it, 'approved' (released), or 'rejected' (reason to the buyer).
     approvalStatus: row.approval_status || "approved",
     approvalDecidedAt: row.approval_decided_at || null,
@@ -1247,7 +1332,7 @@ async function handleCreateRfq(req, res) {
   let buyerUserId = (body.buyerUserId || "").toString().trim();
   // The audit key can only create requests for its own test buyer; SAFE MODE is forced on
   // for everything it creates (audit_forced_safe), and approval stays 'pending' as for any RFQ.
-  const auditForced = Boolean(req.audit);
+  const auditForced = isAuditBuyer(req);
   if (auditForced) {
     if (buyerUserId && buyerUserId !== req.audit.buyerUserId) return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
     buyerUserId = req.audit.buyerUserId;
@@ -1294,9 +1379,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json, audit_forced_safe)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
-    [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null, auditForced ? 1 : 0]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json, audit_forced_safe, audit, audit_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)`,
+    [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null, auditForced ? 1 : 0, auditForced ? 1 : 0, auditForced ? new Date() : null]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
@@ -1322,10 +1407,11 @@ async function handleListRfqs(req, res, query) {
   const approval = (query.get("approval") || "").trim();
   const [rows] = all
     ? approval
-      ? await pool.query("SELECT * FROM rfq_requests WHERE approval_status = ? ORDER BY created_at ASC LIMIT ?", [approval, limit])
-      : await pool.query("SELECT * FROM rfq_requests ORDER BY created_at DESC LIMIT ?", [limit])
+      ? await pool.query("SELECT * FROM rfq_requests WHERE approval_status = ? AND deleted_at IS NULL ORDER BY created_at ASC LIMIT ?", [approval, limit])
+      : await pool.query("SELECT * FROM rfq_requests WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ?", [limit])
     : await pool.query(
-        "SELECT * FROM rfq_requests WHERE buyer_user_id = ? ORDER BY created_at DESC",
+        // The audit buyer key lists only audit RFQs, even if its test buyer id somehow owns a real one.
+        `SELECT * FROM rfq_requests WHERE buyer_user_id = ? AND deleted_at IS NULL${isAuditBuyer(req) ? " AND audit = 1" : ""} ORDER BY created_at DESC`,
         [buyerUserId]
       );
   const rfqs = [];
@@ -1354,6 +1440,10 @@ async function handleCreateRfqInvite(req, res, rfqId) {
   // Alternate lane: no car on the invite — the dealer names the VIN they propose when they quote.
   const inviteVehicle = (rfqRows[0].lane || "same_spec") === "alternate" && vehicle && !vehicle.vin ? null : vehicle;
 
+  // Audit RFQs only ever invite is_test dealers, and is_test dealers only ever get audit RFQs — for every key.
+  const inviteDenied = inviteCreationVerdict({ rfq: rfqRows[0], dealerName, dealerEmail: dealerContactEmail, testDealers: await loadTestDealers(pool) });
+  if (inviteDenied) return sendJson(res, inviteDenied.status, { error: inviteDenied.error });
+
   const [activeRows] = await pool.query(
     "SELECT COUNT(*) AS n FROM rfq_invites WHERE rfq_id = ? AND status NOT IN ('declined', 'expired')",
     [rfqId]
@@ -1378,9 +1468,9 @@ async function handleCreateRfqInvite(req, res, rfqId) {
 
   const viewToken = newViewToken();
   const [result] = await pool.query(
-    `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status, desk_json, vehicle_json, delivery_status, queued_at, view_token)
-     VALUES (?, ?, ?, 'invited', ?, ?, 'queued', NOW(), ?)`,
-    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, inviteVehicle ? JSON.stringify(inviteVehicle) : null, viewToken]
+    `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status, desk_json, vehicle_json, delivery_status, queued_at, view_token, audit, audit_at)
+     VALUES (?, ?, ?, 'invited', ?, ?, 'queued', NOW(), ?, ?, ?)`,
+    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, inviteVehicle ? JSON.stringify(inviteVehicle) : null, viewToken, rfqRows[0].audit ? 1 : 0, rfqRows[0].audit ? new Date() : null]
   );
   await logRfqEvent(pool, rfqId, "invite_queued", { dealerName, inviteId: result.insertId, vin: vehicle && vehicle.vin ? vehicle.vin : rfqRows[0].vin, stockNumber: rfqRows[0].stock_number, mustHaves: [] });
   const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
@@ -1590,9 +1680,9 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   try {
     await conn.beginTransaction();
     const [result] = await conn.query(
-      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json, used_json)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson, usedJson]
+      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json, used_json, audit, audit_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson, usedJson, rfqRows[0].audit ? 1 : 0, rfqRows[0].audit ? new Date() : null]
     );
     quoteId = result.insertId;
     await conn.query(
@@ -1757,9 +1847,10 @@ async function handleDeleteRfqInvite(req, res, rfqId, inviteId) {
 // by querying this table directly; see lib/rfqLogic.ts for the pure
 // functions that turn raw rows like these into those numbers.
 async function logRfqEvent(pool, rfqId, eventType, payload) {
+  // Events inherit the RFQ's audit flag so offline metric queries can exclude them (WHERE audit = 0).
   await pool.query(
-    "INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES (?, ?, ?)",
-    [rfqId, eventType, JSON.stringify(payload)]
+    "INSERT INTO rfq_events (rfq_id, event_type, payload_json, audit, audit_at) SELECT ?, ?, ?, COALESCE(MAX(audit), 0), IF(MAX(audit) = 1, NOW(), NULL) FROM rfq_requests WHERE id = ?",
+    [rfqId, eventType, JSON.stringify(payload), rfqId]
   );
 }
 
@@ -3464,13 +3555,19 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
 
-  // Scoped audit key: default-deny route allowlist + ownership of any :id, before any handler runs.
+  // Scoped audit keys: default-deny route allowlist + ownership/guard checks before any handler runs.
   if (req.audit) {
     try {
-      const verdict = authorizeAudit(req.method, pathname, url.searchParams, req.audit.buyerUserId);
+      const verdict = isAuditBuyer(req)
+        ? authorizeAudit(req.method, pathname, url.searchParams, req.audit.buyerUserId)
+        : authorizeAuditDealer(req.method, pathname, url.searchParams);
       if (!verdict.allowed) return sendJson(res, verdict.status, { error: verdict.error });
       if (verdict.ownership && !(await checkOwnership(verdict.ownership, req.audit.buyerUserId, lookupBuyerId))) {
         return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
+      }
+      if (verdict.guard) {
+        const denied = await evaluateGuard(verdict.guard, req.audit, auditDb(getPool()));
+        if (denied) return sendJson(res, denied.status, { error: denied.error });
       }
     } catch (err) {
       console.error(`${new Date().toISOString()} audit gate -> 500:`, err.message);

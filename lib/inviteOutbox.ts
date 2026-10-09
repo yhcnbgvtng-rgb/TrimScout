@@ -71,16 +71,18 @@ export async function sendQueuedInvite(
   invite: RfqInvite,
   deps: { directory?: Awaited<ReturnType<typeof listDealerships>>; send?: typeof sendQuoteInviteEmail; mark?: typeof markRfqInviteDelivery; emailEnabled?: () => boolean } = {}
 ): Promise<OutboxResult> {
+  // Requests created by the scoped audit key stay out of ops metrics (no email_* counters).
+  const count = rfq.auditForcedSafeMode ? () => {} : bump;
   if (invite.status !== "invited") return "already_sent";
   if ((invite.deliveryStatus ?? "queued") !== "queued") return "already_sent";
   // The admin gate comes before every other check: an unreleased request is
   // never sent — not by the buyer opening the deal page, not by "drain all".
   if (!rfqIsReleased(rfq)) {
-    bump("email_held_for_approval");
+    count("email_held_for_approval");
     return "held_for_approval";
   }
   if (!(deps.emailEnabled || (() => featureEnabled("outboundDealerEmail")))()) {
-    bump("email_parked_switch_off");
+    count("email_parked_switch_off");
     return "parked_switch_off";
   }
   const directory = deps.directory ?? (await listDealerships().catch(() => []));
@@ -92,14 +94,14 @@ export async function sendQueuedInvite(
     // to sendQuoteInviteEmail, it must be skipped for these requests (pinned by lib/auditKeyApp.test.ts).
     const ok = await (deps.send || sendQuoteInviteEmail)(mail.subject, mail.html);
     if (!ok) {
-      bump("email_failed");
+      count("email_failed");
       return "failed";
     }
     await (deps.mark || markRfqInviteDelivery)(rfq.id, invite.id, "sent").catch(() => null);
-    bump("email_sent");
+    count("email_sent");
     return "sent";
   } catch {
-    bump("email_failed");
+    count("email_failed");
     return "failed";
   }
 }

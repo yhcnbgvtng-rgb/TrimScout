@@ -335,6 +335,14 @@ async function ensureDealerDomainColumns(pool) {
   dealerDomainColumnsEnsured = true;
   console.log(`dealer domains: columns ensured, backfilled ${filled} of ${rows.length} rows`);
 }
+// Test dealerships (is_test = 1, created for the audit harness) must never surface in the real directory:
+// they are not invitable by real buyers and never get real mail. The deals API ensures this column too.
+let dealerTestColumnEnsured = false;
+async function ensureDealerTestColumn(pool) {
+  if (dealerTestColumnEnsured) return;
+  await pool.query("ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS is_test TINYINT(1) NOT NULL DEFAULT 0");
+  dealerTestColumnEnsured = true;
+}
 // dealer_inventory got composite indexes for its sort/filter columns back on
 // 2026-09-16 (see deals_api_server.js) — this table never did, and the
 // directory has grown a lot since via nationwide brand dealer-contact
@@ -420,7 +428,8 @@ async function handleListDealerships(req, res) {
   await ensureDealerDomainColumns(pool);
   await ensureDealerOptOutColumn(pool);
   await ensureDealerNameIndex(pool);
-  const [rows] = await pool.query("SELECT * FROM dealership_contacts ORDER BY dealer_name ASC");
+  await ensureDealerTestColumn(pool);
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE is_test = 0 ORDER BY dealer_name ASC");
   sendJson(res, 200, { dealerships: rows.map(publicDealership) });
 }
 
