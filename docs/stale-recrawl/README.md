@@ -24,7 +24,7 @@ A job is one state+brand, run as `CRAWLER_DEALERS_FILE=<subset file> CRAWLER_BRA
 ## Estimates (rates from last night's logs: box2 377, box3 481 pages per job-minute; box1/box4 assumed 430; +15% for retries, +0.4 min per dealer; requests = cars + 5 per dealer)
 See the table in the report; wall time shown for 4 and for 2 concurrent jobs per box (the nightly runs 2 states at once; 4 is the optimistic case on 4 vCPU). Sync after: ~11.5 ms of deals-API time per row (box logs: 10.2–12.9) + sweep of the touched stores ≈ 22 min for all four boxes, run one after another under the lock.
 
-## The eight unnamed dealers (all are real, named in `dealership_contacts`; the earlier lookup missed them because the admin API's in-stock filter hides them)
+## The eight unnamed dealers (all are real, named in `dealership_contacts`; the earlier admin-API lookup returned no rows for them; why was not investigated, the names here come straight from the database)
 | id | Dealer | Cars | Finding | Recommendation |
 |---|---|---|---|---|
 | 3902 | Dave Smith Motors, Kellogg ID (Ram 842, Jeep 138, Dodge 13, Chrysler 7) | 1,000 | single real store, no VIN overlap, first seen 9/23 | re-crawl |
