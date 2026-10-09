@@ -45,7 +45,7 @@ describe("one rule for contact on file", () => {
     assert.equal(searchSays(GLEN), true);
     const d = step3(GLEN);
     assert.equal(d.contactState, "email_only");
-    assert.equal(d.routing, "unassigned", "send routing is unchanged: ops hand-routes an unnamed personal mailbox");
+    assert.equal(d.routing, "rooftop_inbox", "the invite goes to the email on file, greeted as the Sales team");
     assert.equal(d.blockedReason, null);
     assert.equal(salesDeskLabel(d.contactState), SALES_DESK_NO_NAME_LABEL);
   });
