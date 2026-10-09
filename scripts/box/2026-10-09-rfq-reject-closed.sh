@@ -4,7 +4,7 @@
 # buyer who walked away left a card stuck in Pending approvals that could not be dismissed.
 # After: "rejected" is accepted on closed requests (clears the queue); "approved"/"pending" stay 409.
 #
-# Run on the deals box (ubuntu@3.208.49.1):
+# Run on the deals box (crawler-box-2, 52.202.234.65; pm2 process deals-api):
 #   curl -fsSL -o 2026-10-09-rfq-reject-closed.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-10-09-rfq-reject-closed.sh && bash 2026-10-09-rfq-reject-closed.sh
 # Idempotent. Backup, exact-replace with assert, node --check, pm2 restart.
 set -euo pipefail
@@ -33,7 +33,7 @@ open(p, "w").write(s.replace(old, new)); print("patched")
 PY
 
 node --check "$FILE"
-pm2 restart trimscout-deals >/dev/null 2>&1 || pm2 restart all
+pm2 restart deals-api
 sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3004/api/rfqs?all=1&approval=pending")
 echo "GET /api/rfqs?all=1&approval=pending without key -> $code (401 = server up and guarding)"
