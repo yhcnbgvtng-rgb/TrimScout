@@ -139,7 +139,8 @@ const LISTING_POSITION = /^(?:opt|option|code|pkg)[\s-]*\d+$/i;
 // ("heated mirrors"), a leading digit ("10-Speed Automatic") or a slash ("Radio: AM/FM/HD") — all real options.
 export const DENY_RULES = [
   // Cross-references: "See toyota", "See onstar", "See dealer or vw".
-  ["see-ref", /^see\s+[a-z]/i],
+  // (A footnote number can sit in front: "56 See toyota".)
+  ["see-ref", /^(?:\d{1,3}\s+)?see\s+[a-z]/i],
   // A screen size split at its decimal and left as a bare "<n> in": "3 In", "5 in", "9 in".
   ["bare-size", /^\d+(?:\.\d+)?\s*-?\s*(?:in|inch|inches)\.?$|^\d+(?:\.\d+)?\s*"$/i],
   // The ".com" tail of a URL split off at the dot: "com", "com or dealer for details", "com/connected-services ...".
@@ -162,6 +163,26 @@ export const DENY_RULES = [
   ["dangling", /\b(?:with|and|or|for|to|of|until)$/i],
   // Second-person marketing copy.
   ["marketing", /\b(?:you|your)\b|\bset the pace\b|\bcleaning and adjusting\b/i],
+
+  // ---- Added 2026-10-08: fragments split at a period, a .com or a comma that the first pass missed. Real strings from
+  // the live facet table (Toyota + Chevrolet, ranks 1-260 by vehicles). Same rule of thumb as above: anchored, narrow,
+  // and nothing here may match a real option ("2 USB Data Ports", "20 Inch Aluminum Wheels", "Sync 4" all stay).
+  // SiriusXM genre/channel words left over when its blurb was split: "artists" "creators" "comedy" "to comedy" "talk and sports".
+  ["siriusxm-genre", /^(?:to\s+)?(?:comedy|artists|creators|news|sports|talk|talk and (?:sports|news)|live sports|pop|rock|hip hop|country|jazz|classic rock)$|\bcurated by\b|\bpodcasts? and more\b|^car and driver$/i],
+  // Whole-label single words that are the leftovers of a split sentence or a list heading (exact match only).
+  ["stub-word-2", /^(?:panic|audio|side|quarter|lower|dust|rocks|uplevel|inside|tags|license|trucks|comfort|colors|packages|awards?:?|extra wide|neutral density|body side|fuel range|tire pressure|oil life|average fuel economy|www|nhtsa|canada)$/i],
+  // A length unit left alone when a size was split at its decimal: "-ft", "5-ft", "5 ft", "2 gal".
+  ["bare-unit", /^-?\s*\d*\s*-?\s*(?:ft|feet|gal|gallons?)\.?$/i],
+  // A one-digit engine displacement split at its decimal: "4L V6", "5L DOHC", "5L 4-Cylinder" (real ones read "2.5L").
+  ["split-displacement", /^\d\s*l\b/i],
+  // A spec label whose number was cut: "Torque: 170 lb", "Torque: 17", "Axle Ratio: 3", "583 Axle Ratio".
+  ["spec-cut", /^torque\b[^a-z]*\d*\s*(?:lb)?\.?$|^(?:\d+\s+)?axle ratio\W*\d*$/i],
+  // A screen size split at its decimal that kept the word "diagonal": "4 diagonal touch-screen display Use".
+  ["split-diagonal", /^\d\s*(?:"|in(?:ch)?)?\s*diagonal\b/i],
+  // Dealer-site boilerplate that landed in the options list.
+  ["dealer-boilerplate", /\btrade-?ins? accepted\b|\brecent arrival\b|\bdealer is not responsible\b|\btypographic(?:al)? errors\b|\bdmv paperwork\b|\btrouble-free handling\b|\bdealers in the continental\b|\bgold certified\b|^\W*certified\W*$|^\W*vehicle history\W*$|^\W*option packages\W*$|\bserving [a-z]+$|\b[a-z]+ county$/i],
+  // A sentence, not an option name: opens on a word no option name opens with.
+  ["sentence-lead", /^(?:when|if|it|they|these|those|there|such as|after|without|requires|includes|find the|pedestrians|forward collision mitigation is|horsepower calculations)\b/i],
 ];
 
 /** The deny rule a label trips, or null. Raw labels and normalized keys are both fine input. */
@@ -179,6 +200,10 @@ export function denyRuleFor(text) {
 // the comma-split parser used to cut "Multi-Information Display (MID, ...)" after "(MID".
 const TRUNCATION_REPAIRS = [
   [/^multi[\s-]*information display \(mid$/i, (l) => `${l})`],
+  // Toyota's footnote numbers glued in front of a feature name make ~60 spellings of one option: "21 Lane Departure Alert
+  // with Steering Assist (LDA w/SA)", "42 Lane Tracing Assist (LTA)". Stripped ONLY in front of these exact feature names, so
+  // "20 Inch Aluminum Wheels" or "2 USB Data Ports" are never touched.
+  [/^\d{1,3}\s+(?=(?:Lane (?:Departure|Tracing)|Road Sign Assist|Automatic High Beams|Full-Speed Range|Dynamic Radar|Proactive Driving|Traction Control|auto LSD))/i, (l) => l.replace(/^\d{1,3}\s+/, "")],
 ];
 
 /** Repairs a known truncated label; returns the label unchanged when there is nothing to repair. */

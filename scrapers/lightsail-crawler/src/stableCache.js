@@ -17,7 +17,7 @@
 
 import fs from "node:fs";
 
-export function createStableCache({ ttlMs, filePath = null, now = Date.now, maxEntries = 500, log = console }) {
+export function createStableCache({ ttlMs, filePath = null, now = Date.now, maxEntries = 500, log = console, runBackground = null }) {
   const entries = new Map(); // key -> { at, value }
   const inFlight = new Map(); // key -> Promise
   let writeTimer = null;
@@ -43,12 +43,13 @@ export function createStableCache({ ttlMs, filePath = null, now = Date.now, maxE
     writeTimer.unref?.();
   }
 
-  function refresh(key, compute) {
+  // background = an expired entry is being recomputed while the old copy is served (nobody waits on it); a cold key is not.
+  function refresh(key, compute, background = false) {
     const existing = inFlight.get(key);
     if (existing) return existing;
     const p = (async () => {
       try {
-        const value = await compute();
+        const value = await (background && runBackground ? runBackground(compute) : compute());
         entries.set(key, { at: now(), value });
         if (entries.size > maxEntries) entries.delete(entries.keys().next().value); // oldest inserted
         persistSoon();
@@ -64,7 +65,7 @@ export function createStableCache({ ttlMs, filePath = null, now = Date.now, maxE
       const e = entries.get(key);
       if (e && now() - e.at < ttlMs) return e.value;
       if (e) {
-        refresh(key, compute).catch((err) => log.error(`stable cache: background refresh of ${key} failed, still serving stale: ${err.message}`));
+        refresh(key, compute, true).catch((err) => log.error(`stable cache: background refresh of ${key} failed, still serving stale: ${err.message}`));
         return e.value;
       }
       return refresh(key, compute);

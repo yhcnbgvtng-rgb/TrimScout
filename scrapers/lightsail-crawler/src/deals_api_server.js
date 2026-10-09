@@ -35,6 +35,7 @@ import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, with
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
+import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
@@ -130,6 +131,10 @@ class PoolTimeoutError extends Error {}
 // above INV_LIST_STATEMENT_TIMEOUT_SECONDS so a query that DOES reach execution hits that more
 // specific, better-logged cap first — this only catches "still waiting for a connection."
 const POOL_WAIT_TIMEOUT_MS = 45_000;
+// Interactive budget for a buyer's request; a background cache refresh gets the longer one (refreshTimeouts.js).
+// Declared here, before the stable cache is built, because that cache is handed runBackground at construction.
+const INTERACTIVE_STATEMENT_SECONDS = 20;
+const { statementSeconds, waitMs, runBackground } = createRefreshTimeouts({ interactiveSeconds: INTERACTIVE_STATEMENT_SECONDS, interactiveWaitMs: POOL_WAIT_TIMEOUT_MS });
 function withPoolTimeout(promise, ms, message) {
   let timer;
   const timeout = new Promise((_, reject) => {
@@ -2081,6 +2086,7 @@ const invCached = async (key, fn) => {
 // their own stale-while-revalidate cache that writes do NOT invalidate and a restart does not lose —
 // see stableCache.js for why invCached cannot serve them while the crawl is writing.
 const stableCached = createStableCache({
+  runBackground,
   ttlMs: INV_CACHE_MS,
   filePath: process.env.INV_FACET_CACHE_FILE || "/opt/trimscout-deals/facet-cache.json",
 }).get;
@@ -2328,7 +2334,7 @@ async function handleInventorySweep(req, res) {
 // well under 1s once properly indexed) while still failing fast on anything pathological.
 // Not applied to handleExportInventory's streaming query — a whole-filter CSV export is expected to
 // run longer than this by design.
-const INV_LIST_STATEMENT_TIMEOUT_SECONDS = 20;
+const INV_LIST_STATEMENT_TIMEOUT_SECONDS = INTERACTIVE_STATEMENT_SECONDS;
 
 // At most this many list queries run at once; a caller that can't get a slot within the wait is
 // refused with a 503 instead of queueing behind slow queries (see searchGate.js). Env-tunable so
@@ -2366,20 +2372,20 @@ async function handleListInventory(req, res, params) {
   const result = await invSearchGate.run(async () => {
     const [rows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${countCap
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR ${countCap
           // Buyer search (countCap set): deferred join — page ids off the covering index first.
           ? deferredPageSql({ countSql, orderBy })
           : `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state ${sql} ORDER BY ${orderBy} LIMIT ? OFFSET ?`}`,
         [...args, limit, offset]
       ),
-      POOL_WAIT_TIMEOUT_MS,
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     const known = totalFromPage(offset, limit, rows.length);
     if (known !== null) return { rows, total: known, totalCapped: false };
     const [[{ total }]] = await withPoolTimeout(
-      pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${cappedCountSql || `SELECT COUNT(*) AS total ${countSql}`}`, args),
-      POOL_WAIT_TIMEOUT_MS,
+      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${cappedCountSql || `SELECT COUNT(*) AS total ${countSql}`}`, args),
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     return { rows, ...applyCountCap(total, countCap) };
@@ -2702,8 +2708,8 @@ async function handleInventoryMakes(req, res) {
     // runBuyerSearch()): after #322/#324 fixed the other two, this endpoint alone still hung the
     // full 60s caller-side abort under load, with nothing on either side to show for it.
     const [rows] = await withPoolTimeout(
-      pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`),
-      POOL_WAIT_TIMEOUT_MS,
+      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`),
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     return { makes: rows.map((r) => ({ make: r.make, n: Number(r.n) })) };
@@ -2737,8 +2743,8 @@ async function handleInventoryFacets(req, res, params) {
   sendJson(res, 200, await stableCached(cacheKey, async () => {
     const q = (sql, args) =>
       withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${sql}`, args),
-        POOL_WAIT_TIMEOUT_MS,
+        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args),
+        waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
     // States list: scoped by make= if set. idx_inv_facet_make_state_model (removed_at, make,
@@ -2805,8 +2811,8 @@ async function handleInventoryAdminFacets(req, res, params) {
     const q = (query) =>
       query
         ? withPoolTimeout(
-            pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR ${query.sql}`, query.args),
-            POOL_WAIT_TIMEOUT_MS,
+            pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${query.sql}`, query.args),
+            waitMs(),
             "Timed out waiting for an available database connection or a slow query"
           ).then(([rows]) => rows)
         : Promise.resolve([]);
@@ -3000,13 +3006,13 @@ async function handleInventoryCatalogOptions(req, res, params) {
     const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
     sendJson(res, 200, await stableCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
       const [optionRows] = await withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
-        POOL_WAIT_TIMEOUT_MS,
+        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
+        waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
       const [colorRows] = await withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
-        POOL_WAIT_TIMEOUT_MS,
+        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
+        waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
       return {
@@ -3060,18 +3066,18 @@ async function handleInventoryCatalogOptions(req, res, params) {
     // pool.query() calls, so it needed the same fix applied to it directly, not inherited.
     const [optionRows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
         args
       ),
-      POOL_WAIT_TIMEOUT_MS,
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     const [colorRows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT exterior_color, interior_color FROM dealer_inventory i ${makeColorsIndexHint} ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT exterior_color, interior_color FROM dealer_inventory i ${makeColorsIndexHint} ${whereSql} AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL) GROUP BY exterior_color, interior_color`,
         args
       ),
-      POOL_WAIT_TIMEOUT_MS,
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
@@ -3110,16 +3116,16 @@ async function handleGlobalCatalogOptions(req, res) {
   sendJson(res, 200, await invCached("catalog-options:global", async () => {
     const [optionRows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT canonical_key, MIN(label) AS label FROM dealer_inventory_options GROUP BY canonical_key ORDER BY canonical_key`
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label FROM dealer_inventory_options GROUP BY canonical_key ORDER BY canonical_key`
       ),
-      POOL_WAIT_TIMEOUT_MS,
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     const [colorRows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${INV_LIST_STATEMENT_TIMEOUT_SECONDS} FOR SELECT DISTINCT exterior_color, interior_color FROM dealer_inventory WHERE removed_at IS NULL AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)`
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT DISTINCT exterior_color, interior_color FROM dealer_inventory WHERE removed_at IS NULL AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)`
       ),
-      POOL_WAIT_TIMEOUT_MS,
+      waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
