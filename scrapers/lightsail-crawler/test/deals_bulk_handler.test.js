@@ -18,6 +18,7 @@ import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/invento
 import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
 import { resolveVehicleIds } from '../src/vehicleId.js';
 import { guardPrice } from '../src/ingestGuards.js';
+import { normalizeTransmission } from '../src/transmission.js';
 
 const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 const extractFunction = (name) => {
@@ -120,7 +121,7 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
-    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission,
     performance,
   };
   vm.createContext(ctx);

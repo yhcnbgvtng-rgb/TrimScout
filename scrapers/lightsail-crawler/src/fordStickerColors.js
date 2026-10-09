@@ -11,13 +11,18 @@
 // So the paint is whatever follows the seats/body/wheelbase words on the line after "... EXTERIOR", and the interior is whatever
 // follows the transmission words on the line after "... INTERIOR". Both lines are truncated by Ford to the column width
 // ("STAR WHITE MET TRI-COAT", "DARK SPACE GRAY CLTH TRIM S"); we keep them as printed and never complete or guess a word.
+// The transmission words come off the same interior line (no extra request); normalizeTransmissionStrict turns them into e.g.
+// "10-Speed Automatic", or null when they are not fully understood.
 // A line that does not fit the shape returns null for that field — a miss, not a best guess.
+
+import { normalizeTransmissionStrict } from "./transmission.js";
 
 // Words that end the "seats / body / wheelbase" lead-in on the paint line. The paint is what comes after the LAST one.
 // (4-PASSENGER SPORTS CAR <PAINT>, 119" WHEELBASE <PAINT>, XL 164" WB STYLESIDE <PAINT>, BIG BEND - 5 PASSENGER <PAINT>.)
 const PAINT_LEAD_END = /^(?:.*\b(?:PASSENGER|WHEELBASE|WB|STYLESIDE|FLARESIDE|SPORTS CAR|CAB)\b)\s+(.+)$/;
 // Where the transmission description ends on the interior line. Earliest match wins; longer phrases listed first.
-const TRANS_END = /^(?:.*?\b(?:TRANS W\/SLCTSHFT|TRANSMISSION|TRANS|TRAN|TORQSHIFT-G|TORQSHIFT|CVT)\b)\s+(.+)$/;
+// Group 1 is the transmission as printed (through its ending word), group 2 the interior that follows.
+const TRANS_END = /^(.*?\b(?:TRANS W\/SLCTSHFT|TRANSMISSION|TRANS|TRAN|TORQSHIFT-G|TORQSHIFT|CVT))\s+(.+)$/;
 
 const clean = (s) => s.replace(/\s+/g, " ").trim();
 // Printed upper case -> the Title Case the rest of our colour data uses ("Shadow Black"), splitting on spaces, "-" and "/".
@@ -66,17 +71,20 @@ export function normalizeInterior(raw) {
 export function parseStickerColors(text) {
   const all = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const start = all.findIndex((l) => l === "VEHICLE DESCRIPTION");
-  if (start < 0) return { exteriorColor: null, interiorColor: null, exteriorRaw: null, interiorRaw: null };
+  if (start < 0) return { exteriorColor: null, interiorColor: null, exteriorRaw: null, interiorRaw: null, transmission: null, transmissionRaw: null };
   const lines = all.slice(start + 1, start + 9);
   let exterior = null;
   const paintLine = lineAfter(lines, "EXTERIOR");
   const p = paintLine && PAINT_LEAD_END.exec(paintLine);
   if (p && SANE.test(p[1])) exterior = normalizeExterior(titleCase(p[1]));
   let interior = null;
+  let transmissionRaw = null;
   const interiorLine = lineAfter(lines, "INTERIOR");
   const t = interiorLine && TRANS_END.exec(interiorLine);
-  if (t && SANE.test(t[1])) interior = titleCase(t[1]);
-  return { exteriorColor: exterior, interiorColor: interior ? normalizeInterior(interior) : null, exteriorRaw: exterior, interiorRaw: interior };
+  if (t && SANE.test(t[2])) interior = titleCase(t[2]);
+  // The transmission words lead the same line (the printed text can carry a ® etc., so it is not held to SANE; the normalizer decides).
+  if (t) transmissionRaw = clean(t[1]) || null;
+  return { exteriorColor: exterior, interiorColor: interior ? normalizeInterior(interior) : null, exteriorRaw: exterior, interiorRaw: interior, transmission: normalizeTransmissionStrict(transmissionRaw), transmissionRaw };
 }
 
 /** Paint with any body/cab wording that rode along on the line removed ("Chassis Cab Oxford White" -> "Oxford White"). */

@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { easternDateStamp } from './date_utils.js';
 import { resolveMileage } from './ingestSanitize.js';
+import { normalizeTransmission } from './transmission.js';
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), '.env.trimscout-db');
@@ -462,7 +463,7 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           normalizeInventoryType(r.inventoryType),
           Number.isFinite(r.year) ? r.year : null,
           truncate(r.make, 64) || 'Unknown', truncate(r.model, 128), truncate(r.trim, 128), truncate(r.bodyStyle, 64),
-          truncate(r.transmission, 64), truncate(r.engine, 128), truncate(r.exteriorColor, 128), truncate(r.interiorColor, 128),
+          truncate(normalizeTransmission(r.transmission), 64), truncate(r.engine, 128), truncate(r.exteriorColor, 128), truncate(r.interiorColor, 128),
           // null (not 0) for a used/CPO row with no odometer — same rule as dealer_inventory; see ingestSanitize.js.
           resolveMileage(r.mileage, normalizeInventoryType(r.inventoryType)),
           r.price ?? null, r.oldPrice ?? null, r.priceDiff || 0, r.msrp ?? null, r.baseMsrp ?? null,
