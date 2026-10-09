@@ -87,6 +87,9 @@ export async function sendQueuedInvite(
   const mail = await buildInviteEmailFromStored(rfq, invite, directory);
   if (!mail) return "no_desk";
   try {
+    // Requests created by the scoped audit key (rfq.auditForcedSafeMode) must only ever go to
+    // SAFE_MODE_RECIPIENT. Today every send does; if a per-recipient test-mode override is ever added
+    // to sendQuoteInviteEmail, it must be skipped for these requests (pinned by lib/auditKeyApp.test.ts).
     const ok = await (deps.send || sendQuoteInviteEmail)(mail.subject, mail.html);
     if (!ok) {
       bump("email_failed");
