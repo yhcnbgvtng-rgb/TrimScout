@@ -1,7 +1,7 @@
-// Fills BLANK exterior_color / interior_color on Ford inventory from Ford's public window sticker (never overwrites a value).
+// Fills BLANK exterior_color / interior_color / transmission on Ford inventory from Ford's public window sticker (never overwrites a value).
 //
 // Source: https://www.windowsticker.forddirect.com/windowsticker.pdf?vin=<VIN> — Ford Direct's public lookup, no key or login.
-// The paint and interior lines are parsed by scrapers/lightsail-crawler/src/fordStickerColors.js (see its header for the layout).
+// Paint, interior and transmission all come off the same PDF in the same fetch (no extra request). They are parsed by scrapers/lightsail-crawler/src/fordStickerColors.js (see its header for the layout).
 //
 // Two stages, because only the first needs a PDF reader (unpdf, from the repo's node_modules) and only the second needs the DB:
 //
@@ -9,15 +9,17 @@
 //        ssh -N -L 3004:127.0.0.1:3004 ubuntu@52.202.234.65 &
 //        TRIMSCOUT_API_KEY=... node scripts/box/2026-10-08-ford-color-backfill.mjs --state NJ [--limit 200 | --sample 300]
 //      --limit takes the first N blank rows (model order); --sample takes N spread evenly across the state (a repeatable hash order).
-//      Lists in-stock Ford rows in the state whose exterior or interior colour is blank, looks each VIN up (one request at a time,
+//      Lists in-stock Ford rows in the state whose exterior colour, interior colour or transmission is blank, looks each VIN up (one request at a time,
 //      --delay-ms apart, each sticker cached by VIN in --cache-dir), and writes a plan (--out, default ford_color_plan_<STATE>.json)
 //      plus <plan>.misses.jsonl. Prints the counts. Touches nothing.
 //
 //   2. APPLY (run on the deals box, from /opt/trimscout-deals, after the plan is copied there; only on a GO in an idle window):
 //        node 2026-10-08-ford-color-backfill.mjs --apply --plan ford_color_plan_NJ.json --fleet-idle
 //      Takes the deals-API sync lock (own owner id, heartbeated, released at the end; exits 4 if held), saves the before-state of
-//      every row to <plan>.rollback-<ts>.json, then updates ONLY the fields that are still blank at write time (a value a crawl
-//      wrote since the dry run is left alone). Refuses to run against 3.237.204.55.
+//      every row (colours AND transmission) to <plan>.rollback-<ts>.json, then updates ONLY the fields that are still blank at write
+//      time (a value a crawl wrote since the dry run is left alone). Refuses to run against 3.237.204.55, refuses between 18:30 and
+//      06:00 America/New_York, and needs the sync lock free on two probes 30s apart before it takes the lock for real.
+//      It restarts nothing and rebuilds no facets.
 //
 // Respect for Ford: sequential requests with a delay, a descriptive User-Agent, no retries beyond one cached miss per day. A 403 / 429 /
 // 503 is a block: that VIN is skipped (not cached), and after 3 blocks in a row the run stops. Nothing here tries to get around one.
@@ -63,6 +65,7 @@ async function dryRun() {
   const apiKey = process.env.TRIMSCOUT_API_KEY || readEnvFile(path.resolve(".env")).TRIMSCOUT_API_KEY;
   if (deals.includes(FORBIDDEN_HOST)) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
   const { parseStickerColors, stickerUrlForVin, normalizeInterior, normalizeExterior } = await import("../../scrapers/lightsail-crawler/src/fordStickerColors.js");
+  const { normalizeTransmissionStrict } = await import("../../scrapers/lightsail-crawler/src/transmission.js");
   const { extractText } = await import("unpdf");
   fs.mkdirSync(cacheDir, { recursive: true });
 
@@ -83,15 +86,15 @@ async function dryRun() {
       for (const [field, val] of [["exterior", v.exteriorColor], ["interior", v.interiorColor]]) {
         if (isJunk(val)) { const d = (junk[v.dealerName] ||= { exterior: {}, interior: {} }); d[field][String(val).trim()] = (d[field][String(val).trim()] || 0) + 1; }
       }
-      if (blank(v.exteriorColor) || blank(v.interiorColor)) cands.push({ vin, dealerId: v.dealerId, dealerName: v.dealerName, condition: v.condition, year: v.year, model: v.model, exteriorColor: v.exteriorColor ?? null, interiorColor: v.interiorColor ?? null });
+      if (blank(v.exteriorColor) || blank(v.interiorColor) || blank(v.transmission)) cands.push({ vin, dealerId: v.dealerId, dealerName: v.dealerName, condition: v.condition, year: v.year, model: v.model, exteriorColor: v.exteriorColor ?? null, interiorColor: v.interiorColor ?? null, transmission: v.transmission ?? null });
     }
     if (page.length < 2000) break;
   }
   const hash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
   const work = (sample ? [...cands].sort((a, b) => hash(a.vin) - hash(b.vin)).slice(0, sample) : cands).slice(0, limit);
-  console.log(`${state} Ford: ${scanned} in-stock rows scanned, ${cands.length} with a blank colour, ${work.length} to look up (--limit ${Number.isFinite(limit) ? limit : "none"}${sample ? `, --sample ${sample}` : ""}).`);
+  console.log(`${state} Ford: ${scanned} in-stock rows scanned, ${cands.length} with a blank colour or transmission, ${work.length} to look up (--limit ${Number.isFinite(limit) ? limit : "none"}${sample ? `, --sample ${sample}` : ""}).`);
   const byCond = (rows) => rows.reduce((m, r) => ((m[r.condition || "?"] = (m[r.condition || "?"] || 0) + 1), m), {});
-  console.log(`  blank-colour rows by condition: ${JSON.stringify(byCond(cands))}   in this lookup: ${JSON.stringify(byCond(work))}`);
+  console.log(`  blank-field rows by condition: ${JSON.stringify(byCond(cands))}   in this lookup: ${JSON.stringify(byCond(work))}`);
 
   // 2. stickers, one at a time, cached by VIN.
   const stats = { cacheHit: 0, fetched: 0, ok: 0, blocked: 0, aborted: false };
@@ -104,7 +107,10 @@ async function dryRun() {
     const f = path.join(cacheDir, `${c.vin}.json`);
     let rec = null;
     try { rec = JSON.parse(fs.readFileSync(f, "utf-8")); } catch { /* not cached */ }
-    if (rec && rec.v === 2 && (rec.status === "ok" || Date.now() - rec.fetchedAt < day)) {
+    // v3 records carry the printed transmission. A v2 record (colours only) is still good for a row that needs no transmission;
+    // for a row with a blank transmission it is fetched again (once), because the old cache never kept that line.
+    const reusable = rec && (rec.v === 3 || (rec.v === 2 && !blank(c.transmission)));
+    if (reusable && (rec.status === "ok" || Date.now() - rec.fetchedAt < day)) {
       stats.cacheHit++;
     } else {
       stats.fetched++;
@@ -133,11 +139,11 @@ async function dryRun() {
             let text = "";
             try { const t = (await extractText(bytes, { mergePages: true })).text; text = Array.isArray(t) ? t.join("\n") : String(t || ""); } catch { /* unreadable */ }
             const p = parseStickerColors(text);
-            rec = p.exteriorRaw || p.interiorRaw ? { status: "ok", ...p, fetchedAt: Date.now() } : { status: "miss", reason: "no_vehicle_description", fetchedAt: Date.now() };
+            rec = p.exteriorRaw || p.interiorRaw || p.transmissionRaw ? { status: "ok", ...p, fetchedAt: Date.now() } : { status: "miss", reason: "no_vehicle_description", fetchedAt: Date.now() };
           }
         }
       }
-      fs.writeFileSync(f, JSON.stringify({ v: 2, vin: c.vin, ...rec }));
+      fs.writeFileSync(f, JSON.stringify({ v: 3, vin: c.vin, ...rec }));
       await sleep(delayMs + Math.floor(Math.random() * 400));
     }
     if (rec.status === "ok") { stats.ok++; colors.set(c.vin, rec); }
@@ -156,7 +162,11 @@ async function dryRun() {
     const ext = blank(c.exteriorColor) && sExt ? sExt : null;
     let int = blank(c.interiorColor) && sInt ? sInt : null;
     if (blank(c.interiorColor) && s.interiorRaw && !sInt) { misses.interior_unnormalized = (misses.interior_unnormalized || 0) + 1; missLog.push({ vin: c.vin, reason: "interior_unnormalized", raw: s.interiorRaw }); }
-    if (ext || int) rows.push({ vin: c.vin, dealerId: c.dealerId, dealerName: c.dealerName, condition: c.condition, year: c.year, model: c.model, fill: { exterior_color: ext, interior_color: int }, sticker: { exteriorRaw: s.exteriorRaw, interiorRaw: s.interiorRaw } });
+    // Transmission: re-derived from the printed words, planned only where the row's is blank, and only when the words are fully understood.
+    const sTrans = normalizeTransmissionStrict(s.transmissionRaw);
+    const trans = blank(c.transmission) && sTrans ? sTrans : null;
+    if (blank(c.transmission) && s.transmissionRaw && !sTrans) { misses.transmission_unnormalized = (misses.transmission_unnormalized || 0) + 1; missLog.push({ vin: c.vin, reason: "transmission_unnormalized", raw: s.transmissionRaw }); }
+    if (ext || int || trans) rows.push({ vin: c.vin, dealerId: c.dealerId, dealerName: c.dealerName, condition: c.condition, year: c.year, model: c.model, fill: { exterior_color: ext, interior_color: int, transmission: trans }, sticker: { exteriorRaw: s.exteriorRaw, interiorRaw: s.interiorRaw, transmissionRaw: s.transmissionRaw ?? null } });
   }
   fs.writeFileSync(outFile, JSON.stringify(rows, null, 1));
   fs.writeFileSync(`${outFile}.junk.json`, JSON.stringify(junk, null, 1));
@@ -169,6 +179,7 @@ async function dryRun() {
   console.log(`  sticker colours found:  ${stats.ok}`);
   console.log(`  misses:                 ${Object.entries(misses).map(([k, v]) => `${k} ${v}`).join(", ") || "0"}  blocked ${stats.blocked}`);
   console.log(`  filled rows by condition: ${JSON.stringify(byCond(rows))}`);
+  console.log(`  transmission filled in plan: ${rows.filter((r) => r.fill.transmission).length}  ${JSON.stringify(rows.reduce((m, r) => (r.fill.transmission && (m[r.fill.transmission] = (m[r.fill.transmission] || 0) + 1), m), {}))}`);
   console.log(`  rows the plan would fill: ${rows.length}  (both colours ${both}, exterior only ${extOnly}, interior only ${intOnly})`);
   const junkTotals = {}; for (const d of Object.values(junk)) for (const f of ["exterior", "interior"]) for (const [k, n] of Object.entries(d[f])) junkTotals[`${f}:${k}`] = (junkTotals[`${f}:${k}`] || 0) + n;
   console.log(`  junk values left alone (${Object.keys(junk).length} dealers): ${JSON.stringify(junkTotals)}`);
@@ -189,7 +200,7 @@ async function apply() {
   if ([DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST].some((h) => String(h || "").includes(FORBIDDEN_HOST))) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
   if (!API_KEY) { console.error("No TRIMSCOUT_API_KEY found: refusing to apply without being able to take the sync lock."); process.exit(3); }
   const plan = JSON.parse(fs.readFileSync(planFile, "utf-8"));
-  if (!Array.isArray(plan) || plan.some((r) => !VIN_RE.test(r.vin) || !Number.isInteger(Number(r.dealerId)) || !r.fill)) { console.error("plan must be an array of { vin, dealerId, fill: { exterior_color, interior_color } }"); process.exit(1); }
+  if (!Array.isArray(plan) || plan.some((r) => !VIN_RE.test(r.vin) || !Number.isInteger(Number(r.dealerId)) || !r.fill)) { console.error("plan must be an array of { vin, dealerId, fill: { exterior_color, interior_color, transmission } }"); process.exit(1); }
   const pool = mysql.createPool({ host: DB_HOST, port: Number(dbEnv.DB_PORT || process.env.DB_PORT) || 3306, database: dbEnv.DB_NAME || process.env.DB_NAME || "trimscout", user: dbEnv.DB_WRITER_USER || process.env.DB_WRITER_USER, password: dbEnv.DB_WRITER_PASSWORD || process.env.DB_WRITER_PASSWORD, connectionLimit: 2 });
   const lockCall = async (action, owner, extra = {}) => {
     const r = await fetch(`${DEALS}/api/ops/sync-lock/${action}`, { method: "POST", headers: { "X-Trimscout-Api-Key": API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ owner, ...extra }) });
@@ -197,6 +208,18 @@ async function apply() {
     return r.json();
   };
   const owner = `ford-color-backfill-${process.pid}`;
+  // Never in the overnight window: 18:30-06:00 America/New_York (crawls and the nightly sync live there).
+  const et = new Intl.DateTimeFormat("en-GB", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+  const hh = Number(et.find((x) => x.type === "hour").value) % 24, mm = Number(et.find((x) => x.type === "minute").value);
+  if (hh * 60 + mm >= 18 * 60 + 30 || hh * 60 + mm < 6 * 60) { console.error(`Refusing to apply: it is ${hh}:${String(mm).padStart(2, "0")} ET, inside the 18:30-06:00 no-apply window. Nothing was changed.`); await pool.end(); process.exit(5); }
+  // Two probes of the sync lock, 30s apart, both free, before the real acquire. (A probe is an acquire that is released at once.)
+  for (let i = 1; i <= 2; i++) {
+    const probe = await lockCall("acquire", `${owner}-probe${i}`);
+    if (!probe.acquired) { console.log(`HELD, LOCK BUSY on probe ${i} — ${JSON.stringify(probe)}. Nothing was changed.`); await pool.end(); process.exit(4); }
+    await lockCall("release", `${owner}-probe${i}`);
+    console.log(`  lock probe ${i}/2: free`);
+    if (i === 1) await sleep(30_000);
+  }
   const lock = await lockCall("acquire", owner, { heartbeat: true });
   if (!lock.acquired) { console.log(`HELD, LOCK BUSY — ${JSON.stringify(lock)}. Nothing was changed.`); await pool.end(); process.exit(4); }
   console.log(`Sync lock taken as ${owner}; ${plan.length} planned rows.`);
@@ -206,13 +229,13 @@ async function apply() {
   try {
     const before = [];
     for (const r of plan) {
-      const [rows] = await pool.query("SELECT vin, dealer_id, make, exterior_color, interior_color, removed_at FROM dealer_inventory WHERE vin = ? AND dealer_id = ?", [r.vin, Number(r.dealerId)]);
+      const [rows] = await pool.query("SELECT vin, dealer_id, make, exterior_color, interior_color, transmission, removed_at FROM dealer_inventory WHERE vin = ? AND dealer_id = ?", [r.vin, Number(r.dealerId)]);
       if (rows[0]) before.push(rows[0]);
     }
     const rb = `${planFile}.rollback-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
     fs.writeFileSync(rb, JSON.stringify(before, null, 1));
     console.log(`  before-state of ${before.length} rows saved to ${rb}`);
-    let ext = 0, int = 0;
+    let ext = 0, int = 0, trn = 0;
     for (const r of plan) {
       // Each column is only written where it is blank RIGHT NOW (guard in the WHERE of its own statement): a crawl that
       // filled it since the dry run wins, and nothing here can overwrite an existing value.
@@ -224,9 +247,13 @@ async function apply() {
         const [res] = await pool.query("UPDATE dealer_inventory SET interior_color = ? WHERE vin = ? AND dealer_id = ? AND (interior_color IS NULL OR interior_color = '')", [r.fill.interior_color, r.vin, Number(r.dealerId)]);
         int += res.affectedRows;
       }
+      if (r.fill.transmission) {
+        const [res] = await pool.query("UPDATE dealer_inventory SET transmission = ? WHERE vin = ? AND dealer_id = ? AND (transmission IS NULL OR transmission = '')", [r.fill.transmission, r.vin, Number(r.dealerId)]);
+        trn += res.affectedRows;
+      }
       await sleep(40);
     }
-    console.log(`exterior_color filled: ${ext}   interior_color filled: ${int}   (a field that was no longer blank was skipped)`);
+    console.log(`exterior_color filled: ${ext}   interior_color filled: ${int}   transmission filled: ${trn}   (a field that was no longer blank was skipped)`);
   } finally {
     await release();
     console.log("Sync lock released.");

@@ -5,7 +5,7 @@ import { normalizeExterior, normalizeInterior, parseStickerColors, stickerUrlFor
 
 // "VEHICLE DESCRIPTION" blocks cut from real Ford Direct stickers (fetched 2026-10-08), 47 VINs across Mustang, F-150, Super Duty,
 // Transit, Explorer, Expedition, Escape, Bronco, Bronco Sport, Ranger, Maverick and Mach-E.
-const NONE = { exteriorColor: null, interiorColor: null, exteriorRaw: null, interiorRaw: null };
+const NONE = { exteriorColor: null, interiorColor: null, exteriorRaw: null, interiorRaw: null, transmission: null, transmissionRaw: null };
 const FX = JSON.parse(fs.readFileSync(new URL("./fixtures_ford_sticker_descriptions.json", import.meta.url), "utf8"));
 
 test("the seven Mustangs from the bug report", () => {
