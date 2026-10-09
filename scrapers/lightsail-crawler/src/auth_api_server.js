@@ -335,6 +335,14 @@ async function ensureDealerDomainColumns(pool) {
   dealerDomainColumnsEnsured = true;
   console.log(`dealer domains: columns ensured, backfilled ${filled} of ${rows.length} rows`);
 }
+// Test dealerships (is_test = 1, created for the audit harness) must never surface in the real directory:
+// they are not invitable by real buyers and never get real mail. The deals API ensures this column too.
+let dealerTestColumnEnsured = false;
+async function ensureDealerTestColumn(pool) {
+  if (dealerTestColumnEnsured) return;
+  await pool.query("ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS is_test TINYINT(1) NOT NULL DEFAULT 0");
+  dealerTestColumnEnsured = true;
+}
 // dealer_inventory got composite indexes for its sort/filter columns back on
 // 2026-09-16 (see deals_api_server.js) — this table never did, and the
 // directory has grown a lot since via nationwide brand dealer-contact
@@ -403,8 +411,19 @@ async function handleSetDealershipOptOut(req, res, id) {
         [dealer.dealer_name]
       );
       // One event per affected request — the buyer-notify signal, deduped by the flag above.
-      const values = affectedRfqs.map((rfqId) => [rfqId, "dealer_unsubscribed", JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name })]);
-      await pool.query("INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES ?", [values]);
+      // Each event inherits the RFQ's audit flag (audit harness), so an unsubscribe on an audit RFQ stays
+      // out of metrics and gets cleaned up with it. The columns are ensured here too: this process can run
+      // before the deals API has restarted and added them.
+      await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0");
+      await pool.query("ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0");
+      await pool.query("ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit_at DATETIME NULL");
+      const payload = JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name });
+      for (const rfqId of affectedRfqs) {
+        await pool.query(
+          "INSERT INTO rfq_events (rfq_id, event_type, payload_json, audit, audit_at) SELECT id, ?, ?, audit, IF(audit = 1, NOW(), NULL) FROM rfq_requests WHERE id = ?",
+          ["dealer_unsubscribed", payload, rfqId]
+        );
+      }
     }
   } catch (err) {
     // A directory-only dealer with no RFQ tables yet, or an older schema: the opt-out
@@ -420,7 +439,8 @@ async function handleListDealerships(req, res) {
   await ensureDealerDomainColumns(pool);
   await ensureDealerOptOutColumn(pool);
   await ensureDealerNameIndex(pool);
-  const [rows] = await pool.query("SELECT * FROM dealership_contacts ORDER BY dealer_name ASC");
+  await ensureDealerTestColumn(pool);
+  const [rows] = await pool.query("SELECT * FROM dealership_contacts WHERE is_test = 0 ORDER BY dealer_name ASC");
   sendJson(res, 200, { dealerships: rows.map(publicDealership) });
 }
 

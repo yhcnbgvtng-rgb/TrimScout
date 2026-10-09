@@ -1,0 +1,242 @@
+[
+ {
+  "file": "deals",
+  "id": "deals-01",
+  "old": "import { randomBytes } from \"node:crypto\";",
+  "new": "import { randomBytes } from \"node:crypto\";\nimport { authenticate, authorizeAudit, authorizeAuditDealer, auditLogLine, bidVerdict, checkOwnership, createRateLimiter, dealVerdict, evaluateGuard, inviteCreationVerdict } from \"./auditKey.js\";"
+ },
+ {
+  "file": "deals",
+  "id": "deals-02",
+  "old": "\nfunction requireAuth(req, res) {\n  const key = req.headers[\"x-trimscout-api-key\"];\n  if (!API_KEY || key !== API_KEY) {",
+  "new": "\n// Three key types (see auditKey.js): the shared full key, a scoped audit BUYER key tied to one\n// test buyer, and a scoped audit TEST-DEALER key. requireAuth sets req.audit for the scoped ones; the\n// route gate below then confines them. Each scoped key has its own 60/min bucket.\nconst auditRateLimiters = { audit: createRateLimiter(), audit_dealer: createRateLimiter() };\nconst isAuditBuyer = (req) => req.audit?.kind === \"audit\";\nconst isAuditDealer = (req) => req.audit?.kind === \"audit_dealer\";\n\nfunction requireAuth(req, res) {\n  const principal = authenticate(req.headers[\"x-trimscout-api-key\"]);\n  if (!principal) {"
+ },
+ {
+  "file": "deals",
+  "id": "deals-03",
+  "old": "  }\n  return true;",
+  "new": "  }\n  if (principal.kind === \"audit\" || principal.kind === \"audit_dealer\") {\n    req.audit = principal;\n    const started = Date.now();\n    const pathname = new URL(req.url, \"http://x\").pathname;\n    // One log line per call (route template + status), written when the response finishes \u2014\n    // including 401-after-auth rejections below, 403s and 429s.\n    res.on(\"finish\", () => console.log(auditLogLine({ method: req.method, pathname, status: res.statusCode, ms: Date.now() - started, kind: principal.kind })));\n    const limit = auditRateLimiters[principal.kind].take();\n    if (!limit.ok) {\n      res.setHeader(\"Retry-After\", String(limit.retryAfterSeconds));\n      sendJson(res, 429, { error: \"Rate limit exceeded for this key (60 requests per minute)\" });\n      return false;\n    }\n  }\n  return true;"
+ },
+ {
+  "file": "deals",
+  "id": "deals-04",
+  "old": "\nfunction readBody(req, maxBytes = 1_000_000) {",
+  "new": "\n// Looks up the owner of a row for the audit-key ownership gate. Table names come only from the\n// fixed allowlist in auditKey.js, never from the request.\nasync function lookupBuyerId(table, id) {\n  if (table !== \"rfq_requests\" && table !== \"deal_requests\") return null;\n  await ensureAuditColumns(getPool());\n  // The audit buyer key only ever sees audit = 1 rows; soft-deleted ones are gone as far as it is concerned.\n  const [rows] = await getPool().query(`SELECT buyer_user_id FROM ${table} WHERE id = ? AND audit = 1 AND deleted_at IS NULL`, [id]);\n  return rows.length ? rows[0].buyer_user_id : null;\n}\n\n// Lookups for the audit guards (auditKey.js evaluateGuard). Rows are returned raw, deleted_at included,\n// and the verdicts treat a deleted row as missing.\nasync function loadTestDealers(pool) {\n  await ensureAuditColumns(pool);\n  const [rows] = await pool.query(\"SELECT dealer_name, contact_email FROM dealership_contacts WHERE is_test = 1\");\n  return rows;\n}\nfunction auditDb(pool) {\n  const one = async (sql, args) => (await pool.query(sql, args))[0][0] || null;\n  return {\n    testDealers: () => loadTestDealers(pool),\n    rfq: (id) => one(\"SELECT * FROM rfq_requests WHERE id = ?\", [id]),\n    invite: (id) => one(\"SELECT * FROM rfq_invites WHERE id = ?\", [id]),\n    inviteByToken: (token) => one(\"SELECT * FROM rfq_invites WHERE view_token = ?\", [token]),\n    invitesForRfq: async (rfqId) => (await pool.query(\"SELECT * FROM rfq_invites WHERE rfq_id = ? AND deleted_at IS NULL\", [rfqId]))[0],\n    dealRequest: (id) => one(\"SELECT * FROM deal_requests WHERE id = ?\", [id]),\n  };\n}\n\n// Columns every audit-flagged record carries. audit=1 marks a record created by (or hanging off one\n// created by) a scoped audit key; audit_at is when, so cleanup can age it; deleted_at is the soft delete.\n// Real-facing reads below filter audit = 0 / deleted_at IS NULL. dealership_contacts.is_test marks the\n// test dealers. Idempotent (ADD COLUMN IF NOT EXISTS), run lazily like ensureQuotePackageColumns.\nconst AUDIT_TABLES = [\"rfq_requests\", \"rfq_invites\", \"rfq_quotes\", \"rfq_events\", \"deal_requests\", \"deal_bids\", \"deals\"];\nlet auditColumnsEnsured = false;\nasync function ensureAuditColumns(pool) {\n  if (auditColumnsEnsured) return;\n  for (const t of AUDIT_TABLES) {\n    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0`);\n    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS audit_at DATETIME NULL`);\n    await pool.query(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL`);\n  }\n  await pool.query(\"ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS is_test TINYINT(1) NOT NULL DEFAULT 0\");\n  auditColumnsEnsured = true;\n}\n\nfunction readBody(req, maxBytes = 1_000_000) {"
+ },
+ {
+  "file": "deals",
+  "id": "deals-05",
+  "old": "    bidId: row.bid_id ? String(row.bid_id) : null,",
+  "new": "    bidId: row.bid_id ? String(row.bid_id) : null,\n    audit: Boolean(row.audit),"
+ },
+ {
+  "file": "deals",
+  "id": "deals-06",
+  "old": "\n  const pool = getPool();\n  const [result] = await pool.query(\n    `INSERT INTO deals (buyer_user_id, dealer_name, matched_vin, deal_request_id, bid_id, total_otd_price, platform_fee_cents, winning_bid_json, status)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment')`,\n    [buyerUserId, dealerName, matchedVin, dealRequestId, bidId, totalOtdPrice, platformFeeCents, JSON.stringify(winningBid)]",
+  "new": "\n  const pool = getPool();\n  await ensureAuditColumns(pool);\n  // The audit buyer key may only create a deal from its own audit request + that request's audit bid by a\n  // test dealer; for any other key the same pairing rule stops a real dealer's bid being tied to an audit\n  // request (and a test dealer's bid to a real one). The audit key can't mark the deal paid.\n  let dealRequestRow = null;\n  let bidRow = null;\n  if (dealRequestId) dealRequestRow = (await pool.query(\"SELECT * FROM deal_requests WHERE id = ?\", [dealRequestId]))[0][0] || null;\n  if (bidId) bidRow = (await pool.query(\"SELECT * FROM deal_bids WHERE id = ?\", [bidId]))[0][0] || null;\n  const dealDenied = dealVerdict({\n    buyerUserId: isAuditBuyer(req) ? req.audit.buyerUserId : null,\n    dealRequest: dealRequestRow,\n    bid: bidRow,\n    body,\n    testDealers: await loadTestDealers(pool),\n  });\n  if (dealDenied) return sendJson(res, dealDenied.status, { error: dealDenied.error });\n  const auditDeal = Boolean(dealRequestRow && dealRequestRow.audit);\n  const [result] = await pool.query(\n    `INSERT INTO deals (buyer_user_id, dealer_name, matched_vin, deal_request_id, bid_id, total_otd_price, platform_fee_cents, winning_bid_json, status, audit, audit_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending_payment', ?, ?)`,\n    [buyerUserId, dealerName, matchedVin, dealRequestId, bidId, totalOtdPrice, platformFeeCents, JSON.stringify(winningBid), auditDeal ? 1 : 0, auditDeal ? new Date() : null]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-07",
+  "old": "    buyerComment: row.buyer_comment,",
+  "new": "    buyerComment: row.buyer_comment,\n    audit: Boolean(row.audit),"
+ },
+ {
+  "file": "deals",
+  "id": "deals-08",
+  "old": "async function handleCreateDealRequest(req, res) {\n  const body = await readBody(req);\n  const buyerUserId = Number(body.buyerUserId);",
+  "new": "async function handleCreateDealRequest(req, res) {\n  const body = await readBody(req);\n  // The audit buyer key can only create requests for its own test buyer; they are audit=1, so they\n  // never reach real dealers (the dealer-matching list excludes them) or any metric.\n  const auditForced = isAuditBuyer(req);\n  if (auditForced) {\n    if (body.buyerUserId != null && String(body.buyerUserId).trim() !== req.audit.buyerUserId) return sendJson(res, 403, { error: \"Forbidden: this key is limited to its own test buyer\" });\n    body.buyerUserId = req.audit.buyerUserId;\n  }\n  const buyerUserId = Number(body.buyerUserId);"
+ },
+ {
+  "file": "deals",
+  "id": "deals-09",
+  "old": "\n  const pool = getPool();\n  const [result] = await pool.query(\n    `INSERT INTO deal_requests",
+  "new": "\n  const pool = getPool();\n  await ensureAuditColumns(pool);\n  const [result] = await pool.query(\n    `INSERT INTO deal_requests"
+ },
+ {
+  "file": "deals",
+  "id": "deals-10",
+  "old": "        buyer_comment, status, expires_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 90 DAY)`,",
+  "new": "        buyer_comment, status, expires_at, audit, audit_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW() + INTERVAL 90 DAY, ?, ?)`,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-11",
+  "old": "      buyerComment || null,",
+  "new": "      buyerComment || null,\n      auditForced ? 1 : 0,\n      auditForced ? new Date() : null,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-12",
+  "old": "  const pool = getPool();\n  const status = query.get(\"status\");",
+  "new": "  const pool = getPool();\n  await ensureAuditColumns(pool);\n  const status = query.get(\"status\");"
+ },
+ {
+  "file": "deals",
+  "id": "deals-13",
+  "old": "  const clauses = [];",
+  "new": "  // Audit requests stay out of the dealer-matching list (the full-key caller real dealers are matched\n  // from). The audit buyer key sees only its own audit requests; ?includeAudit=1 is for the full key.\n  const clauses = [\"deleted_at IS NULL\", isAuditBuyer(req) ? \"audit = 1\" : query.get(\"includeAudit\") === \"1\" ? \"1 = 1\" : \"audit = 0\"];"
+ },
+ {
+  "file": "deals",
+  "id": "deals-14",
+  "old": "    isTopDeal: rank === 1,",
+  "new": "    isTopDeal: rank === 1,\n    audit: Boolean(row.audit),"
+ },
+ {
+  "file": "deals",
+  "id": "deals-15",
+  "old": "  const dealRequest = reqRows[0];",
+  "new": "  const dealRequest = reqRows[0];\n  // Audit requests only take bids from is_test dealers, and is_test dealers only bid on audit requests (every key).\n  await ensureAuditColumns(pool);\n  const bidDenied = bidVerdict({ dealRequest, dealerName, testDealers: await loadTestDealers(pool), principal: req.audit?.kind || \"full\" });\n  if (bidDenied) return sendJson(res, bidDenied.status, { error: bidDenied.error });"
+ },
+ {
+  "file": "deals",
+  "id": "deals-16",
+  "old": "    \"sales_rep_name\", \"sales_rep_title\", \"sales_rep_phone\",",
+  "new": "    \"sales_rep_name\", \"sales_rep_title\", \"sales_rep_phone\", \"audit\", \"audit_at\","
+ },
+ {
+  "file": "deals",
+  "id": "deals-17",
+  "old": "    body.salesRepName ?? null, body.salesRepTitle ?? null, body.salesRepPhone ?? null,",
+  "new": "    body.salesRepName ?? null, body.salesRepTitle ?? null, body.salesRepPhone ?? null,\n    dealRequest.audit ? 1 : 0, dealRequest.audit ? new Date() : null,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-18",
+  "old": "async function handleGetRequestMarket(req, res, dealRequestId) {\n  const pool = getPool();\n  const [rows] = await pool.query(\n    \"SELECT dealer_discount_percent, total_otd_price, sales_tax, dmv_fees FROM deal_bids WHERE deal_request_id = ? AND status != 'withdrawn'\",\n    [dealRequestId]",
+  "new": "async function handleGetRequestMarket(req, res, dealRequestId) {\n  const pool = getPool();\n  await ensureAuditColumns(pool);\n  const [rows] = await pool.query(\n    \"SELECT dealer_discount_percent, total_otd_price, sales_tax, dmv_fees FROM deal_bids WHERE deal_request_id = ? AND status != 'withdrawn' AND deleted_at IS NULL AND audit = (SELECT audit FROM deal_requests WHERE id = ?)\",\n    [dealRequestId, dealRequestId]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-19",
+  "old": "  const pool = getPool();\n  const [myRows] = await pool.query(\n    \"SELECT * FROM deal_bids WHERE dealer_user_id = ? AND status != 'withdrawn' ORDER BY created_at DESC\",",
+  "new": "  const pool = getPool();\n  await ensureAuditColumns(pool);\n  const [myRows] = await pool.query(\n    \"SELECT * FROM deal_bids WHERE dealer_user_id = ? AND status != 'withdrawn' AND audit = 0 AND deleted_at IS NULL ORDER BY created_at DESC\","
+ },
+ {
+  "file": "deals",
+  "id": "deals-20",
+  "old": "    `SELECT * FROM deal_bids WHERE deal_request_id IN (${placeholders}) AND status != 'withdrawn'`,",
+  "new": "    `SELECT * FROM deal_bids WHERE deal_request_id IN (${placeholders}) AND status != 'withdrawn' AND audit = 0 AND deleted_at IS NULL`,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-21",
+  "old": "  await ensureTradeInColumns(pool);\n  // LEFT JOIN deals: a bid can be 'accepted' (the mark-paid cascade sets",
+  "new": "  await ensureTradeInColumns(pool);\n  await ensureAuditColumns(pool);\n  // LEFT JOIN deals: a bid can be 'accepted' (the mark-paid cascade sets"
+ },
+ {
+  "file": "deals",
+  "id": "deals-22",
+  "old": "     WHERE db.dealer_user_id = ? AND db.status = 'accepted'",
+  "new": "     WHERE db.dealer_user_id = ? AND db.status = 'accepted' AND db.audit = 0 AND db.deleted_at IS NULL"
+ },
+ {
+  "file": "deals",
+  "id": "deals-23",
+  "old": "\n  const pool = getPool();\n  const [rows] = await pool.query(\n    `SELECT",
+  "new": "\n  const pool = getPool();\n  await ensureAuditColumns(pool);\n  const [rows] = await pool.query(\n    `SELECT"
+ },
+ {
+  "file": "deals",
+  "id": "deals-24",
+  "old": "     WHERE db.dealer_name = ? AND db.status != 'withdrawn'`,",
+  "new": "     WHERE db.dealer_name = ? AND db.status != 'withdrawn' AND db.audit = 0 AND db.deleted_at IS NULL`,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-25",
+  "old": "  await pool.query(\"ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS alternate_ask_json TEXT NULL\");",
+  "new": "  await pool.query(\"ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS alternate_ask_json TEXT NULL\");\n  // Set when the scoped audit key created the row: the app layer must keep dealer mail on SAFE MODE for it.\n  await pool.query(\"ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit_forced_safe TINYINT(1) NOT NULL DEFAULT 0\");\n  await ensureAuditColumns(pool);"
+ },
+ {
+  "file": "deals",
+  "id": "deals-26",
+  "old": "    alternateAsk: parseJsonCol(row.alternate_ask_json) || null,",
+  "new": "    alternateAsk: parseJsonCol(row.alternate_ask_json) || null,\n    // Created by the scoped audit key: dealer email stays on SAFE MODE (pausmi@outlook.com) no matter what.\n    auditForcedSafeMode: Boolean(row.audit_forced_safe),\n    audit: Boolean(row.audit),"
+ },
+ {
+  "file": "deals",
+  "id": "deals-27",
+  "old": "  const buyerUserId = (body.buyerUserId || \"\").toString().trim();",
+  "new": "  let buyerUserId = (body.buyerUserId || \"\").toString().trim();\n  // The audit key can only create requests for its own test buyer; SAFE MODE is forced on\n  // for everything it creates (audit_forced_safe), and approval stays 'pending' as for any RFQ.\n  const auditForced = isAuditBuyer(req);\n  if (auditForced) {\n    if (buyerUserId && buyerUserId !== req.audit.buyerUserId) return sendJson(res, 403, { error: \"Forbidden: this key is limited to its own test buyer\" });\n    buyerUserId = req.audit.buyerUserId;\n  }"
+ },
+ {
+  "file": "deals",
+  "id": "deals-28",
+  "old": "    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,\n    [buyerUserId, vin || \"\", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === \"alternate\" ? \"Open\" : \"\"), vehicleModel || (lane === \"alternate\" ? \"to alternatives\" : \"\"), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === \"object\" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === \"object\" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null]",
+  "new": "    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json, audit_forced_safe, audit, audit_at)\n     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)`,\n    [buyerUserId, vin || \"\", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === \"alternate\" ? \"Open\" : \"\"), vehicleModel || (lane === \"alternate\" ? \"to alternatives\" : \"\"), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === \"object\" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === \"object\" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null, auditForced ? 1 : 0, auditForced ? 1 : 0, auditForced ? new Date() : null]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-29",
+  "old": "      ? await pool.query(\"SELECT * FROM rfq_requests WHERE approval_status = ? ORDER BY created_at ASC LIMIT ?\", [approval, limit])\n      : await pool.query(\"SELECT * FROM rfq_requests ORDER BY created_at DESC LIMIT ?\", [limit])",
+  "new": "      ? await pool.query(\"SELECT * FROM rfq_requests WHERE approval_status = ? AND deleted_at IS NULL ORDER BY created_at ASC LIMIT ?\", [approval, limit])\n      : await pool.query(\"SELECT * FROM rfq_requests WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ?\", [limit])"
+ },
+ {
+  "file": "deals",
+  "id": "deals-30",
+  "old": "        \"SELECT * FROM rfq_requests WHERE buyer_user_id = ? ORDER BY created_at DESC\",",
+  "new": "        // The audit buyer key lists only audit RFQs, even if its test buyer id somehow owns a real one.\n        `SELECT * FROM rfq_requests WHERE buyer_user_id = ? AND deleted_at IS NULL${isAuditBuyer(req) ? \" AND audit = 1\" : \"\"} ORDER BY created_at DESC`,"
+ },
+ {
+  "file": "deals",
+  "id": "deals-31",
+  "old": "\n  const [activeRows] = await pool.query(",
+  "new": "\n  // Audit RFQs only ever invite is_test dealers, and is_test dealers only ever get audit RFQs \u2014 for every key.\n  const inviteDenied = inviteCreationVerdict({ rfq: rfqRows[0], dealerName, dealerEmail: dealerContactEmail, testDealers: await loadTestDealers(pool) });\n  if (inviteDenied) return sendJson(res, inviteDenied.status, { error: inviteDenied.error });\n\n  const [activeRows] = await pool.query("
+ },
+ {
+  "file": "deals",
+  "id": "deals-32",
+  "old": "    `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status, desk_json, vehicle_json, delivery_status, queued_at, view_token)\n     VALUES (?, ?, ?, 'invited', ?, ?, 'queued', NOW(), ?)`,\n    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, inviteVehicle ? JSON.stringify(inviteVehicle) : null, viewToken]",
+  "new": "    `INSERT INTO rfq_invites (rfq_id, dealer_name, dealer_contact_email, status, desk_json, vehicle_json, delivery_status, queued_at, view_token, audit, audit_at)\n     VALUES (?, ?, ?, 'invited', ?, ?, 'queued', NOW(), ?, ?, ?)`,\n    [rfqId, dealerName, dealerContactEmail, desk ? JSON.stringify(desk) : null, inviteVehicle ? JSON.stringify(inviteVehicle) : null, viewToken, rfqRows[0].audit ? 1 : 0, rfqRows[0].audit ? new Date() : null]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-33",
+  "old": "      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json, used_json)\n       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson, usedJson]",
+  "new": "      `INSERT INTO rfq_quotes (rfq_id, invite_id, dealer_name, price, fees_json, total_otd_price, vin, stock_number, expires_at, must_have_acknowledgement, notes, lease_json, used_json, audit, audit_at)\n       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,\n      [rfqId, inviteId, inviteRows[0].dealer_name, price, JSON.stringify(fees), totalOtdPrice, vin, stockNumber, new Date(expiresAt), mustHaveAcknowledgement, notes, leaseJson, usedJson, rfqRows[0].audit ? 1 : 0, rfqRows[0].audit ? new Date() : null]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-34",
+  "old": "async function logRfqEvent(pool, rfqId, eventType, payload) {",
+  "new": "async function logRfqEvent(pool, rfqId, eventType, payload) {\n  // Events inherit the RFQ's audit flag so offline metric queries can exclude them (WHERE audit = 0)."
+ },
+ {
+  "file": "deals",
+  "id": "deals-35",
+  "old": "    \"INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES (?, ?, ?)\",\n    [rfqId, eventType, JSON.stringify(payload)]",
+  "new": "    \"INSERT INTO rfq_events (rfq_id, event_type, payload_json, audit, audit_at) SELECT ?, ?, ?, COALESCE(MAX(audit), 0), IF(MAX(audit) = 1, NOW(), NULL) FROM rfq_requests WHERE id = ?\",\n    [rfqId, eventType, JSON.stringify(payload), rfqId]"
+ },
+ {
+  "file": "deals",
+  "id": "deals-36",
+  "old": "const server = http.createServer((req, res) => {",
+  "new": "const server = http.createServer(async (req, res) => {"
+ },
+ {
+  "file": "deals",
+  "id": "deals-37",
+  "old": "\n  const run = (fn, ...args) => {",
+  "new": "\n  // Scoped audit keys: default-deny route allowlist + ownership/guard checks before any handler runs.\n  if (req.audit) {\n    try {\n      const verdict = isAuditBuyer(req)\n        ? authorizeAudit(req.method, pathname, url.searchParams, req.audit.buyerUserId)\n        : authorizeAuditDealer(req.method, pathname, url.searchParams);\n      if (!verdict.allowed) return sendJson(res, verdict.status, { error: verdict.error });\n      if (verdict.ownership && !(await checkOwnership(verdict.ownership, req.audit.buyerUserId, lookupBuyerId))) {\n        return sendJson(res, 403, { error: \"Forbidden: this key is limited to its own test buyer\" });\n      }\n      if (verdict.guard) {\n        const denied = await evaluateGuard(verdict.guard, req.audit, auditDb(getPool()));\n        if (denied) return sendJson(res, denied.status, { error: denied.error });\n      }\n    } catch (err) {\n      console.error(`${new Date().toISOString()} audit gate -> 500:`, err.message);\n      return sendJson(res, 500, { error: \"Internal server error\" });\n    }\n  }\n\n  const run = (fn, ...args) => {"
+ },
+ {
+  "file": "auth",
+  "id": "auth-01",
+  "old": "}\n// dealer_inventory got composite indexes for its sort/filter columns back on",
+  "new": "}\n// Test dealerships (is_test = 1, created for the audit harness) must never surface in the real directory:\n// they are not invitable by real buyers and never get real mail. The deals API ensures this column too.\nlet dealerTestColumnEnsured = false;\nasync function ensureDealerTestColumn(pool) {\n  if (dealerTestColumnEnsured) return;\n  await pool.query(\"ALTER TABLE dealership_contacts ADD COLUMN IF NOT EXISTS is_test TINYINT(1) NOT NULL DEFAULT 0\");\n  dealerTestColumnEnsured = true;\n}\n// dealer_inventory got composite indexes for its sort/filter columns back on"
+ },
+ {
+  "file": "auth",
+  "id": "auth-02",
+  "old": "      const values = affectedRfqs.map((rfqId) => [rfqId, \"dealer_unsubscribed\", JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name })]);\n      await pool.query(\"INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES ?\", [values]);",
+  "new": "      // Each event inherits the RFQ's audit flag (audit harness), so an unsubscribe on an audit RFQ stays\n      // out of metrics and gets cleaned up with it. The columns are ensured here too: this process can run\n      // before the deals API has restarted and added them.\n      await pool.query(\"ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0\");\n      await pool.query(\"ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0\");\n      await pool.query(\"ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit_at DATETIME NULL\");\n      const payload = JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name });\n      for (const rfqId of affectedRfqs) {\n        await pool.query(\n          \"INSERT INTO rfq_events (rfq_id, event_type, payload_json, audit, audit_at) SELECT id, ?, ?, audit, IF(audit = 1, NOW(), NULL) FROM rfq_requests WHERE id = ?\",\n          [\"dealer_unsubscribed\", payload, rfqId]\n        );\n      }"
+ },
+ {
+  "file": "auth",
+  "id": "auth-03",
+  "old": "  const [rows] = await pool.query(\"SELECT * FROM dealership_contacts ORDER BY dealer_name ASC\");",
+  "new": "  await ensureDealerTestColumn(pool);\n  const [rows] = await pool.query(\"SELECT * FROM dealership_contacts WHERE is_test = 0 ORDER BY dealer_name ASC\");"
+ }
+]

@@ -3,6 +3,7 @@ import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { sendQueuedInvite } from "./inviteOutbox";
+import { opsSnapshot, resetOpsMetricsForTests } from "./opsMetrics";
 import type { RfqInvite, RfqRequest } from "./rfq";
 
 const invite = { id: "14", dealerName: "Route 22 Toyota", dealerContactEmail: "grok.dealer@trimscout.test", status: "invited", deliveryStatus: "queued", viewToken: "tok", desk: { contactName: "Sales desk", role: "sales", emailMasked: "s••@r.com", source: "rooftop" }, vehicle: { vin: "2T36CRAVXTC39J403", year: 2026, make: "Toyota", model: "RAV4", trim: "XLE", vdpUrl: null }, quote: null } as unknown as RfqInvite;
@@ -24,5 +25,14 @@ describe("requests created by the audit key", () => {
     const deps = { directory: [], send: (async (s: string) => { sent.push(s); return true; }) as never, mark: (async () => {}) as never, emailEnabled: () => true };
     assert.equal(await sendQueuedInvite(rfq({ auditForcedSafeMode: true, approvalStatus: "pending" }), invite, deps), "held_for_approval");
     assert.equal(sent.length, 0);
+  });
+  it("stay out of ops metrics: no email_* counters move, while a real request's do", async () => {
+    resetOpsMetricsForTests();
+    const deps = { directory: [], send: (async () => true) as never, mark: (async () => {}) as never, emailEnabled: () => true };
+    await sendQueuedInvite(rfq({ auditForcedSafeMode: true }), invite, deps);
+    await sendQueuedInvite(rfq({ auditForcedSafeMode: true, approvalStatus: "pending" }), invite, deps);
+    assert.deepEqual(opsSnapshot().counters, {}, "audit sends/holds are not counted");
+    await sendQueuedInvite(rfq(), invite, deps);
+    assert.equal(opsSnapshot().counters.email_sent, 1);
   });
 });
