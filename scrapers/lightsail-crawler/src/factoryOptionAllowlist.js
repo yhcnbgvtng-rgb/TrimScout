@@ -195,10 +195,12 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
 export function resolvePolicyTrim(policy, rawTrim, model = null) {
   let key = normalizeOptionKey(rawTrim);
   if (!key) return null;
+  // A DB model that carries a trim word ("Highlander Hybrid" + "XLE" = the CSV's "Hybrid XLE"; "Tundra i-FORCE MAX" + "Limited" = "Limited i-FORCE MAX")
+  // may only resolve to the CSV trim that has that word (before or after the trim). No such trim -> untrusted; the plain trim is NOT assumed.
   const implied = model ? policy.modelImplied.get(normalizeOptionKey(model)) : null;
   if (implied && !` ${key} `.includes(` ${implied} `)) {
-    const withWord = policy.trims.get(`${implied} ${key}`);
-    if (withWord) return { trim: withWord, via: "model-implied" };
+    const withWord = policy.trims.get(`${implied} ${key}`) || policy.trims.get(`${key} ${implied}`);
+    return withWord ? { trim: withWord, via: "model-implied" } : null;
   }
   const direct = policy.trims.get(key);
   if (direct) return { trim: direct, via: "exact" };

@@ -29,14 +29,23 @@ const MODEL_NAMES = {
   "bZ (bZ4X)": { db: ["bz", "bz4x"] },
   "bZ Woodland": { db: ["bz", "bz4x", "bz4x woodland"] },
   "RAV4 Plug-in Hybrid": { db: ["rav4 prime", "rav4 phev"] },
-  "Prius Plug-in Hybrid": { db: ["prius prime", "prius phv"] },
+  "Prius Plug-in Hybrid": { db: ["prius prime", "prius plug in"] },
   "GR Supra": { db: ["supra"] },
-  "GR86": { db: ["gr 86", "86"] },
+  GR86: { db: ["gr 86", "86"] },
   "C-HR": { db: ["chr"] },
+  Camry: { db: ["camry hybrid"] }, // the Camry is hybrid-only in 2026; the CSV trims carry no Hybrid word
+  Sienna: { db: ["sienna hybrid", "sienna hv"] },
+  Sequoia: { db: ["sequoia hybrid", "sequoia hv"] },
+  "Crown Signia": { db: ["toyota crown signia"] },
+  Crown: { db: ["toyota crown"] },
   Highlander: { db: ["highlander hybrid"], implied: { "highlander hybrid": "hybrid" } },
   "Grand Highlander": { db: ["grand highlander hybrid"], implied: { "grand highlander hybrid": "hybrid" } },
   Corolla: { db: ["corolla hybrid"], implied: { "corolla hybrid": "hybrid" } },
   "Corolla Cross": { db: ["corolla cross hybrid"], implied: { "corolla cross hybrid": "hybrid" } },
+  // The i-FORCE MAX hybrid is its own CSV trim ("Limited i-FORCE MAX"); a DB model that says so carries that word.
+  Tundra: { db: ["tundra 4wd", "tundra 2wd", "tundra 4wd truck", "tundra 2wd truck", "tundra 4x4", "tundra 4x2", "tundra truck"], implied: { "tundra i force max": "i force max", "tundra hybrid": "i force max", "tundra hybrid max": "i force max" } },
+  Tacoma: { db: ["tacoma 4wd", "tacoma 2wd", "tacoma 4x4"], implied: { "tacoma i force max": "i force max", "tacoma hybrid": "i force max" } },
+  "4Runner": { db: ["4 runner"], implied: { "4runner i force max": "i force max", "4runner i force max hybrid": "i force max", "4runner hybrid": "i force max" } },
 };
 // A trim that opens with the model's own name ("bZ Limited", "GR Corolla Premium Plus") is also what a dealer writes without it.
 // Only generated when the shortened name is not already a trim that year, and every one is listed in the report.
@@ -128,7 +137,7 @@ for (const [g, rows] of [...groups].sort()) {
   const cat = buildCatalog(rows);
   report.conflicts.push(...cat.conflicts);
   const names = MODEL_NAMES[model] || { db: [] };
-  const models = [...new Set([slug(model), ...names.db.map(slug)])];
+  const models = [...new Set([slug(model), ...names.db.map(slug), ...Object.keys(names.implied || {}).map(slug)])];
   const trimAliases = {};
   for (const [tk, t] of Object.entries(cat.trims)) {
     for (const pre of TRIM_PREFIXES) {

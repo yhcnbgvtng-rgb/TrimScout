@@ -148,6 +148,16 @@ describe('rule 5: no trusted trim means no options; trusted = exact CSV trim, or
     const plain = run({ model: 'Highlander', trim: 'XLE' }, ['All-Wheel Drive']);
     assert.equal(plain.trimVia, 'exact');
   });
+  it('truck case: DB model "Tundra i-FORCE MAX" + trim "Limited" is the CSV "Limited i-FORCE MAX"; a trim with no such variant is untrusted, not guessed', () => {
+    const r = run({ model: 'Tundra i-FORCE MAX', trim: 'Limited' }, ['4WD', 'Cab/Bed']);
+    assert.equal(r.trimTrusted, true);
+    assert.equal(r.trimVia, 'model-implied');
+    assert.equal(r.rows[0].label, '4-Wheel Drive');
+    const noMax = run({ model: 'Tundra i-FORCE MAX', trim: 'SR5' }, ['4WD']); // there is no "SR5 i-FORCE MAX"
+    assert.equal(noMax.trimTrusted, false);
+    assert.deepEqual(noMax.rows, []);
+    assert.equal(run({ model: 'Tundra 4WD Truck', trim: 'SR5' }, ['4WD']).rows.length, 1); // drivetrain-suffixed DB spelling of the same model
+  });
   it('aliases exist only where the shortened name is not already a trim (bZ, GR) and are listed in the report', () => {
     const report = fs.readFileSync(path.join(repo, 'docs/toyota-2026-2027/POLICY_REPORT.md'), 'utf8');
     const p = modelPoliciesFor(ALLOW, { make: 'Toyota', model: 'bZ', year: 2027 });
