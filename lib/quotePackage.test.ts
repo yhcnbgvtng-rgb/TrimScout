@@ -195,7 +195,7 @@ describe("planInvites", () => {
     assert.equal(planInvites([paste({ dealerName: "Unknown Motors" })], deskFor)[0].blocked, null);
   });
 
-  it("deskFromRooftop: the shared inbox when the directory has one, else no address; never a person, never verified", () => {
+  it("deskFromRooftop: the dealer-domain address when the directory has one, else no address; never a person, never verified", () => {
     const withInbox = deskFromRooftop({ dealerName: "Route 22 Toyota", state: "nj", contactEmail: "Sales@route22toyota.com", emailOptOut: false });
     assert.equal(withInbox.email, "sales@route22toyota.com");
     assert.equal(withInbox.source, "rooftop");
@@ -203,12 +203,25 @@ describe("planInvites", () => {
     assert.equal(withInbox.contactName, "Sales desk");
     assert.equal(withInbox.dealerState, "NJ");
     assert.equal(inviteRouting(withInbox), "rooftop_inbox");
-    // A personal address that didn't qualify as a named contact is not turned into a "desk inbox".
+    // An email-only personal mailbox (no person's name on file) is the store's desk contact: the invite goes to it,
+    // greeted as "Sales team" — it used to queue for ops to hand-route even though /search and Step 3 said a contact existed.
     const personal = deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: "eruby@lexusofroute10.com", emailOptOut: false });
-    assert.equal(personal.email, "");
-    assert.equal(inviteRouting(personal), "unassigned");
+    assert.equal(personal.email, "eruby@lexusofroute10.com");
+    assert.equal(personal.knownNamed, false);
+    assert.equal(personal.contactName, "Sales desk");
+    assert.equal(inviteRouting(personal), "rooftop_inbox");
+    // Still no address to route to: a consumer-provider mailbox, a malformed one, or an unsubscribed dealer.
+    for (const contactEmail of ["someone@gmail.com", "not-an-email", ""]) assert.equal(inviteRouting(deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail, emailOptOut: false })), "unassigned", contactEmail);
+    assert.equal(deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: "a@lexusofroute10.com", emailOptOut: true }).email, "");
     assert.equal(inviteRouting(null), "unassigned");
     assert.equal(deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: null, emailOptOut: true }).emailOptOut, true);
+  });
+
+  it("an email-only contact is greeted as the Sales team in the invite email", async () => {
+    const { greetingName } = await import("./quoteInviteEmail");
+    const desk = deskFromRooftop({ dealerName: "Glen Motors, Inc.", state: "NJ", contactEmail: "jforkins@glentoyota.com", emailOptOut: false });
+    assert.equal(greetingName(desk.contactName), "Sales team");
+    assert.equal(inviteRouting(desk), "rooftop_inbox");
   });
 
   it("blocks an opted-out desk, a no-rooftop paste, and an already-invited desk", () => {
