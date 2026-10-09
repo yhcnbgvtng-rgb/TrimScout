@@ -1,6 +1,7 @@
 // bigJson.js: reading and writing the crawler's big per-state JSON files without one giant string.
 // The V8 string limit (~512 MB) can't be reached in a unit test, so the tests prove the property that matters instead:
 // the writer never stringifies more than one element at a time, and the reader never needs the whole file as one string.
+import { StringDecoder } from 'node:string_decoder';
 import { describe, it, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -188,7 +189,8 @@ describe('the new layout stays readable by the existing consumers', () => {
     const src = fs.readFileSync(path.resolve(here, '../../../scripts/box/inventory-sync.mjs'), 'utf8');
     const m = src.match(/function\* streamTopLevelObjects\(filePath\) \{[\s\S]*?\n\}\n/);
     assert.ok(m, 'could not find streamTopLevelObjects in scripts/box/inventory-sync.mjs');
-    const streamTopLevelObjects = new Function('fs', `${m[0]}; return streamTopLevelObjects;`)(fs);
+    // The extracted function runs outside the module, so hand it the same bindings the module imports.
+    const streamTopLevelObjects = new Function('fs', 'StringDecoder', `${m[0]}; return streamTopLevelObjects;`)(fs, StringDecoder);
     const file = path.join(dir, 'TX.json');
     const data = records(300);
     await writeJsonLarge(file, data);
