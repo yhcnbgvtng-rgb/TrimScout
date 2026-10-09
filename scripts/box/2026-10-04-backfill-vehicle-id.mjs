@@ -85,8 +85,9 @@ async function lockCall(action, owner, extra = {}) {
   return r.json();
 }
 
-// Read-only aggregates are capped so a busy database cannot be pinned by a status query.
-const capped = (sql) => pool.query(`SET STATEMENT max_statement_time=180 FOR ${sql}`);
+// Read-only aggregates are capped so a busy database cannot be pinned by a status query. COUNT_CAP_S=900 raises the cap (seconds)
+// for the full-table counts when the database is busy: the default 180 s timed out on 3.5M rows while another job was writing.
+const capped = (sql) => pool.query(`SET STATEMENT max_statement_time=${Number(process.env.COUNT_CAP_S) || 180} FOR ${sql}`);
 
 async function preflight() {
   const [[c]] = await pool.query("SELECT COUNT(*) AS n FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'dealer_inventory' AND COLUMN_NAME = 'vehicle_id'");
