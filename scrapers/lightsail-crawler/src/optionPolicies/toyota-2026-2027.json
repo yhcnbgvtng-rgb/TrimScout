@@ -13,6 +13,10 @@
       "4runner i force max hybrid": "i force max",
       "4runner hybrid": "i force max"
     },
+    "modelImpliedFallbackTrims": [
+      "trd pro",
+      "trailhunter"
+    ],
     "keepBare": [
       "siri",
       "google",
@@ -37,7 +41,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -529,7 +541,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -976,7 +996,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -1342,7 +1370,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -1518,14 +1554,24 @@
       "cvt",
       "ecvt",
       "natl",
-      "i force max"
+      "i force max",
+      "mt",
+      "dat"
     ],
     "trimNoisePhrases": [
       "front wheel drive",
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -1670,7 +1716,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -1845,7 +1899,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -2216,7 +2278,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -2506,7 +2576,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -2764,7 +2842,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3297,7 +3383,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3639,6 +3733,10 @@
       "tacoma i force max": "i force max",
       "tacoma hybrid": "i force max"
     },
+    "modelImpliedFallbackTrims": [
+      "trd pro",
+      "trailhunter"
+    ],
     "keepBare": [
       "siri",
       "google",
@@ -3663,7 +3761,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -4289,6 +4395,9 @@
       "tundra hybrid": "i force max",
       "tundra hybrid max": "i force max"
     },
+    "modelImpliedFallbackTrims": [
+      "trd pro"
+    ],
     "keepBare": [
       "siri",
       "google",
@@ -4313,7 +4422,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -5280,7 +5397,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -5457,7 +5582,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -5680,7 +5813,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6084,7 +6225,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6286,7 +6435,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6438,7 +6595,8 @@
       "alexa built in"
     ],
     "trimAliases": {
-      "1958": "land cruiser 1958"
+      "1958": "land cruiser 1958",
+      "base": "land cruiser 1958"
     },
     "trimNoise": [
       "awd",
@@ -6458,7 +6616,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6636,7 +6802,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6865,7 +7039,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -7221,7 +7403,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -7411,7 +7601,15 @@
       "all wheel drive",
       "four wheel drive",
       "two wheel drive",
-      "i force max"
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",

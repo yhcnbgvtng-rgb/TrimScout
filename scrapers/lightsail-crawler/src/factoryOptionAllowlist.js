@@ -161,6 +161,7 @@ export function buildModelPolicies(raw) {
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
       // DB model spelling -> a word its trims carry in the CSV ("highlander hybrid" -> "hybrid": the Highlander Hybrid's "XLE" is the CSV's "Hybrid XLE").
+      modelImpliedFallback: new Set((p.modelImpliedFallbackTrims || []).map(normalizeOptionKey)),
       modelImplied: new Map(Object.entries(p.modelImplied || {}).map(([m, w]) => [normalizeOptionKey(m), normalizeOptionKey(w)]).filter(([m, w]) => m && w)),
       trimNoisePhrases: (p.trimNoisePhrases || []).map(normalizeOptionKey).filter(Boolean),
       disclaimerPatterns: (p.disclaimerPatterns || []).map((x) => new RegExp(x, "i")),
@@ -193,14 +194,28 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
  * Everything else — "Trail", "LE AWD", "XLE Premium Plus" — stays untrusted.
  */
 export function resolvePolicyTrim(policy, rawTrim, model = null) {
-  let key = normalizeOptionKey(rawTrim);
+  const key = normalizeOptionKey(rawTrim);
   if (!key) return null;
+  const hit = resolveTrimKey(policy, key, model);
+  if (hit) return hit;
+  // A dealer who writes the model into the trim ("Tacoma TRD Off Road", "Tundra Platinum"): drop that leading model name and resolve the rest the
+  // same way. Tried only after the whole string failed, so a trim that really starts with the model's name ("GR Corolla Premium Plus") is untouched.
+  for (const m of [...policy.models].sort((a, b) => b.length - a.length)) {
+    if (key.startsWith(`${m} `)) { const rest = resolveTrimKey(policy, key.slice(m.length + 1), model); if (rest) return rest.via === "model-implied" ? rest : { ...rest, via: "model-prefix-stripped" }; }
+  }
+  return null;
+}
+
+function resolveTrimKey(policy, key, model) {
   // A DB model that carries a trim word ("Highlander Hybrid" + "XLE" = the CSV's "Hybrid XLE"; "Tundra i-FORCE MAX" + "Limited" = "Limited i-FORCE MAX")
   // may only resolve to the CSV trim that has that word (before or after the trim). No such trim -> untrusted; the plain trim is NOT assumed.
   const implied = model ? policy.modelImplied.get(normalizeOptionKey(model)) : null;
   if (implied && !` ${key} `.includes(` ${implied} `)) {
     const withWord = policy.trims.get(`${implied} ${key}`) || policy.trims.get(`${key} ${implied}`);
-    return withWord ? { trim: withWord, via: "model-implied" } : null;
+    if (withWord) return { trim: withWord, via: "model-implied" };
+    // TRD Pro / Trailhunter: the CSV has only the plain name for the hybrid trim, so an i-FORCE MAX/Hybrid model falls back to it (listed in the report).
+    const plain = policy.modelImpliedFallback.has(key) ? policy.trims.get(key) : null;
+    return plain ? { trim: plain, via: "model-implied-fallback" } : null;
   }
   const direct = policy.trims.get(key);
   if (direct) return { trim: direct, via: "exact" };

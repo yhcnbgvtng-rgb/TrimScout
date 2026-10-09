@@ -173,6 +173,49 @@ describe('rule 5: no trusted trim means no options; trusted = exact CSV trim, or
   });
 });
 
+describe('approved aliases (2026-10-09)', () => {
+  const label = (model, trim, year = 2026) => { const p = modelPoliciesFor(ALLOW, { make: 'Toyota', model, year })[0]; const r = p && resolvePolicyTrim(p, trim, model); return r ? `${r.trim.label}/${r.via}` : null; };
+  it('1: TRD Pro and Trailhunter on i-FORCE MAX / Hybrid model names are the CSV trim of the same name', () => {
+    assert.equal(label('Tundra i-FORCE MAX', 'TRD Pro'), 'TRD Pro/model-implied-fallback');
+    assert.equal(label('Tacoma i-FORCE MAX', 'TRD Pro'), 'TRD Pro/model-implied-fallback');
+    assert.equal(label('Tacoma i-FORCE MAX', 'Trailhunter'), 'Trailhunter/model-implied-fallback');
+    assert.equal(label('4Runner i-FORCE MAX', 'Trailhunter'), 'Trailhunter/model-implied-fallback');
+    assert.equal(label('4Runner Hybrid', 'TRD Pro'), 'TRD Pro/model-implied-fallback');
+  });
+  it('1: only those two names fall back: SR5 on an i-FORCE MAX Tundra (no such trim) stays untrusted, and the plain model name is unaffected', () => {
+    assert.equal(label('Tundra i-FORCE MAX', 'SR5'), null);
+    assert.equal(label('Tundra', 'TRD Pro'), 'TRD Pro/exact');
+    assert.equal(label('Tacoma i-FORCE MAX', 'Limited'), 'Limited i-FORCE MAX/model-implied'); // a real variant still wins over the fallback
+  });
+  it('2: a leading model name is stripped from the trim', () => {
+    assert.equal(label('Tacoma', 'Tacoma TRD Off Road'), 'TRD Off-Road/model-prefix-stripped');
+    assert.equal(label('Tundra', 'Tundra 1794 Edition'), '1794 Edition/model-prefix-stripped');
+    assert.equal(label('4Runner', '4Runner TRD Off-Road Premium'), 'TRD Off-Road Premium/model-prefix-stripped');
+    assert.equal(label('Tundra', 'Tundra Platinum'), 'Platinum/model-prefix-stripped');
+  });
+  it('2: ...together with the implied word, and never for a trim that really starts with the model name', () => {
+    assert.equal(label('Tundra i-FORCE MAX', 'Tundra Platinum'), 'Platinum i-FORCE MAX/model-implied');
+    assert.equal(label('Tacoma i-FORCE MAX', 'Tacoma TRD Off Road'), 'TRD Off-Road i-FORCE MAX/model-implied');
+    assert.equal(label('GR Corolla', 'GR Corolla Premium Plus'), 'GR Corolla Premium Plus/exact');
+    assert.equal(label('Tacoma', 'Tacoma Nonsense Edition'), null);
+  });
+  it('3: seating words are noise: "XLE 8 Passenger" is Sienna XLE; GR Corolla "Premium Plus MT/DAT" is Premium Plus', () => {
+    assert.equal(label('Sienna', 'XLE 8 Passenger'), 'XLE/exact');
+    assert.equal(label('Sienna', 'Limited 7 Passenger'), 'Limited/exact');
+    assert.equal(label('Highlander', 'XLE 8 Passenger'), 'XLE/exact');
+    assert.equal(label('GR Corolla', 'Premium Plus MT'), 'GR Corolla Premium Plus/alias');
+    assert.equal(label('GR Corolla', 'Premium Plus DAT'), 'GR Corolla Premium Plus/alias');
+    assert.equal(label('Camry', 'LE MT'), null); // MT/DAT are noise for the GR Corolla only
+  });
+  it('4: Land Cruiser "Base" is the 1958 only because the CSV shows 1958 as the entry trim', () => {
+    assert.equal(label('Land Cruiser', 'Base', 2027), 'Land Cruiser 1958/alias');
+    const csv = fs.readFileSync(path.join(repo, 'docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv'), 'utf8');
+    const msrp = (t) => Number(csv.match(new RegExp(`^2027,Land Cruiser,${t},[^,]*,(\\d+),Base`, 'm'))[1]);
+    assert.ok(msrp('Land Cruiser 1958') < msrp('Land Cruiser'), 'the alias is only valid while 1958 is the cheaper trim');
+  });
+  it('4: no other model gets a "Base" alias', () => assert.equal(label('Camry', 'Base'), null));
+});
+
 describe('rule 6: bare Siri / Google / Alexa Built In stay; bare unlock is dropped', () => {
   it('keeps the three, drops unlock', () => {
     const r = run({ model: 'Camry', trim: 'LE' }, ['Siri', 'Google', 'Alexa Built In', 'Unlock']);

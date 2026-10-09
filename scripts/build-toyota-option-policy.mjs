@@ -51,7 +51,14 @@ const MODEL_NAMES = {
 // Only generated when the shortened name is not already a trim that year, and every one is listed in the report.
 const TRIM_PREFIXES = ["bz woodland", "bz", "gr corolla", "gr supra", "gr86", "land cruiser"];
 const TRIM_NOISE = ["awd", "fwd", "4wd", "2wd", "4x4", "hybrid", "hev", "cvt", "ecvt", "natl", "i force max"];
-const TRIM_NOISE_PHRASES = ["front wheel drive", "all wheel drive", "four wheel drive", "two wheel drive", "i force max"];
+const TRIM_NOISE_PHRASES = ["front wheel drive", "all wheel drive", "four wheel drive", "two wheel drive", "i force max",
+  // seating variants ("XLE 8 Passenger"): the same trim, not a different one
+  "7 passenger", "8 passenger", "seven passenger", "eight passenger", "7 pass", "8 pass", "7 seater", "8 seater"];
+// Per-model extra trim noise: the GR Corolla's transmission suffix ("Premium Plus MT" / "Premium Plus DAT") is the same trim.
+const EXTRA_NOISE = { "GR Corolla": ["mt", "dat"] };
+// i-FORCE MAX / Hybrid DB model names ("Tundra i-FORCE MAX"): these CSV trims exist only as the plain name, and that plain trim IS the hybrid one
+// (no "TRD Pro i-FORCE MAX" exists), so the model's implied word may fall back to it. Only these two names, only when the variant does not exist.
+const IMPLIED_FALLBACK = ["trd pro", "trailhunter"];
 
 const decoration = (t) => t.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
 const clean = (t) => t.replace(/®|™/g, "").replace(/\s+/g, " ").trim();
@@ -146,13 +153,23 @@ for (const [g, rows] of [...groups].sort()) {
       if (short && !cat.trims[short] && !trimAliases[short]) { trimAliases[short] = tk; report.aliases.push([year, model, short, t.label]); }
     }
   }
+  // "Base" is the entry trim only where the CSV's lowest-priced trim is the 1958 (Land Cruiser): then a dealer's "Base" is that trim.
+  const msrpByTrim = {};
+  for (const r of rows) if (r.category === "Base" && r.trim && Number(r.trim_base_msrp) > 0) msrpByTrim[slug(r.trim)] = Number(r.trim_base_msrp);
+  const entry = Object.entries(msrpByTrim).sort((a, b) => a[1] - b[1])[0];
+  if (entry && /(^| )1958$/.test(entry[0]) && !cat.trims.base && !trimAliases.base && year === "2027" && model === "Land Cruiser") {
+    trimAliases.base = entry[0]; report.aliases.push([year, model, "base", cat.trims[entry[0]].label + " (entry trim, lowest base MSRP in the CSV)"]);
+  }
+  const impliedFallback = names.implied ? IMPLIED_FALLBACK.filter((k) => cat.trims[k] && Object.values(names.implied).every((w) => !cat.trims[`${k} ${w}`] && !cat.trims[`${w} ${k}`])) : [];
+  for (const k of impliedFallback) report.aliases.push([year, model, `${k} (on ${Object.keys(names.implied).filter((n) => /force|hybrid/.test(n)).join(" / ")})`, `${cat.trims[k].label} (the hybrid trim of the same name)`]);
   policies[`toyota|${slug(model)}|${year}`] = {
     source: `docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (${year} ${model})`,
     models,
     ...(names.implied ? { modelImplied: names.implied } : {}),
+    ...(impliedFallback.length ? { modelImpliedFallbackTrims: impliedFallback } : {}),
     keepBare: ["siri", "google", "alexa built in"], // bare "unlock" is dropped (a fragment of the standard keyless-entry line)
     trimAliases,
-    trimNoise: TRIM_NOISE,
+    trimNoise: [...TRIM_NOISE, ...(EXTRA_NOISE[model] || [])],
     trimNoisePhrases: TRIM_NOISE_PHRASES,
     disclaimerPatterns: DISCLAIMER_PATTERNS,
     trims: cat.trims,
@@ -192,7 +209,7 @@ md.push("## Model-name mapping (CSV model -> DB `model` spellings the policy mat
 for (const m of report.models) md.push(`| ${m.year} | ${m.model} | ${m.models.join(", ")} | ${m.implied ? Object.entries(m.implied).map(([k, v]) => `${k} -> ${v}`).join("; ") : ""} |`);
 md.push("", "## Trim aliases (only where the shortened name is not already a trim that year)", "", "| Year | Model | Alias | Resolves to |", "|---|---|---|---|");
 for (const a of report.aliases) md.push(`| ${a.join(" | ")} |`);
-md.push("", "Trusted trims are otherwise exactly the CSV's names, plus the same name followed only by AWD/FWD/4WD/2WD/4x4/Hybrid/HEV/CVT/ECVT/Natl/i-FORCE MAX/drivetrain words. The most specific CSV trim always wins (\"Limited i-FORCE MAX AWD\" is \"Limited i-FORCE MAX\", \"XLE Hybrid\" is \"Hybrid XLE\" where the CSV has one).", "");
+md.push("", "Trusted trims are otherwise exactly the CSV's names, plus the same name followed only by AWD/FWD/4WD/2WD/4x4/Hybrid/HEV/CVT/ECVT/Natl/i-FORCE MAX/drivetrain words and seating words (7/8 passenger); the GR Corolla also ignores MT/DAT. A leading model name in the trim (\"Tacoma TRD Off Road\", \"Tundra Platinum\") is stripped, but only after the whole string failed to resolve. The most specific CSV trim always wins (\"Limited i-FORCE MAX AWD\" is \"Limited i-FORCE MAX\", \"XLE Hybrid\" is \"Hybrid XLE\" where the CSV has one).", "");
 md.push("## Entries per trim (paid packages / paid options / paid powertrain+drivetrain / paid paints)", "", "| Year | Model | Trim | Packages | Options | Powertrain | Paints |", "|---|---|---|---|---|---|---|");
 for (const m of report.models) for (const c of m.counts) md.push(`| ${m.year} | ${m.model} | ${c.trim} | ${c.packages} | ${c.options} | ${c.powertrain} | ${c.paints} |`);
 md.push("", "## Not generated", "", ...report.skipped.map((s) => `- ${s}`), "");
