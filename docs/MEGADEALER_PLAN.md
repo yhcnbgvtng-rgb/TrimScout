@@ -12,7 +12,7 @@ Files in this PR:
 | File | What |
 |---|---|
 | [`megadealer_new_stores.csv`](megadealer_new_stores.csv) | 434 stores missing from our rosters, with fetch result, platform, parser and estimated cars |
-| [`megadealer_retry_candidates.csv`](megadealer_retry_candidates.csv) | 221 stores that crawled zero or were skipped (not by a bot block) 4+ nights running |
+| [`megadealer_retry_candidates.csv`](megadealer_retry_candidates.csv) | 234 stores that crawled zero or were skipped (not by a bot block) 3+ nights running |
 | [`megadealer_pilot_stores.csv`](megadealer_pilot_stores.csv) | the proposed 20-store pilot |
 | [`megadealer_stores.csv`](megadealer_stores.csv) | revision 1: 390 group stores that are **already crawled** (kept for reference) |
 
@@ -102,33 +102,34 @@ archive roster, 197 not in the crawl), Land Rover, Jaguar, Alfa Romeo, Maserati,
 Lamborghini, Ferrari, Aston Martin, Rolls-Royce, Polestar, Lotus. Only Genesis has a roster
 today; the others have no roster to diff against, so only the 13 NJ/NY/PA JLR stores are listed.
 
-## 2. Stores that crawled zero or were skipped, 4+ nights running
+## 2. Daytime retry list: zero or skipped 3+ nights in a row
 
 Source: per-dealer lines in the nightly logs on boxes 1/3/4 for nights 2026-10-03 to 10-07
 (3,076 dealer-brand records parsed). Bot-block skips (Cloudflare, 403, 429, challenge pages)
-are excluded. 221 stores had 4 or more bad nights in a row:
+are excluded. **234 stores** had 3 or more bad nights in a row (216 of them all 5):
 
 | Last-night result | Stores | Retry helps? |
 |---|---|---|
-| No inventory URLs detected | 97 | Rarely; sitemap or discovery problem, needs alt-discovery work |
+| No inventory URLs detected | 100 | Rarely; sitemap or discovery problem |
 | Extracted 0 vehicles | 38 | Rarely; may be genuinely empty |
-| Skipped: HTTP 5xx | 32 | **Yes, if transient** |
+| Skipped: HTTP 5xx | 42 | **Yes, if transient** |
 | Skipped: connection reset / timeout / TLS | 8 / 6 / 6 | **Yes, if transient** |
 | Skipped: DNS dead / HTTP 404 | 27 / 5 | **No**; roster fix, not a retry |
 | Skipped: other | 2 | Inspect |
 
-So the daytime retry list proper is the **52 transient skips** (5xx, reset, timeout, TLS) plus
-whatever of the 135 no-URL/zero stores a second pass recovers. 189 are marked retry-worthy in
-the CSV; if every one recovered at its brand's median, that is about 33,800 cars. That is a
-ceiling, not a forecast: most of the 135 are deterministic failures a retry won't fix.
+The daytime retry list proper is the **62 transient skips** (5xx, reset, timeout, TLS) plus
+whatever a second pass recovers from the 138 no-URL/zero stores. 202 are marked retry-worthy in
+[`megadealer_retry_candidates.csv`](megadealer_retry_candidates.csv).
 
-Limits: only boxes 1/3/4 logs (box 2's states are excluded), and only 5 nights of logs exist.
-NY 24, OH 18, NJ 17, IL 14, SC 13, CT 12 are the biggest states; Audi (36), Nissan (28) and
-Mercedes-Benz (16) the biggest brands.
+**Car counts.** `cars_last_good_crawl` is the active-row count from our shards, but only **18
+of the 202** could be matched to a shard record (4,475 cars); a store that has failed for days
+often has no surviving record, and box 2's states aren't readable. For the other 184 the CSV
+uses the brand median and says so in `cars_basis`. Total if everything recovered: about 37,600
+cars, a ceiling, not a forecast. Recovering only the 62 transient skips: about 13,200.
 
-Related finding, not acted on: the 2026-10-07 box 3 logs show **193 store crawls that hit the 1,000-vehicle cap**
-(`Found 1000 vehicle URLs`), so those stores are truncated. A daytime pass with a
-higher cap would add cars at stores we already crawl.
+Limits: boxes 1/3/4 logs only (box 2's states excluded), 5 nights of logs. Related, not acted
+on: the 2026-10-07 box 3 logs show **193 store crawls that hit the 1,000-vehicle cap**
+(`Found 1000 vehicle URLs`), so those stores are truncated.
 
 ## 3. Isolation design (unchanged) and the sync input directory, confirmed
 
@@ -200,6 +201,23 @@ nightly sync are the constraint, not crawl time.
 
 Proposed assignment: **box1 takes the new-store batches** (longest window, earliest nightly
 sync), **box3 takes the transient-retry list** (52 stores, about 1 h), box4 stays in reserve.
+
+## 4b. Top 20 new stores by estimated cars (not blocked, existing parser)
+
+Only stores that pass the plain fetch and run on DealerOn or Dealer.com. Blocked and
+Akamai-unknown sites are skipped, not worked around. Toyota rows are all the **same 248
+estimate** (median of our crawled Toyota stores), so their order among themselves is
+alphabetical by state, not a real ranking.
+
+| # | Store | State | Platform | Est. cars |
+|---|---|---|---|---|
+| 1 | J & S Autohaus (III + 6, one site) | NJ | Dealer.com | 512 (301 + 211, third-party) |
+| 2 | CarShop Hatfield | PA | Dealer.com | 332 (third-party) |
+| 3 | CarShop Chester Springs | PA | Dealer.com | 300 (third-party) |
+| 4 to 20 | Toyota: Sunny King, Toyota of Dothan (AL); Phil Wright (AR); Findlay Prescott (AZ); Chuck Patterson, Mid-City (CA); Bev Smith, Gettel Ocala, Marianna, Panama City, Vero Beach, Village (FL); Motor Inn Carroll (IA); Monken Mt. Vernon, Newbold, Woodrum Macomb (IL); Bob Rohrman (IN) | various | DealerOn / Dealer.com | 248 each (estimate) |
+
+CarShop's three stores share one site (`carshop.com`), so they are one crawl target with three
+inventories. Bruner and the other reachable TX Toyotas rank just below on the same 248 estimate.
 
 ## 5. Platform detection recap
 

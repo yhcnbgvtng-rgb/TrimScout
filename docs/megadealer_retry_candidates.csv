@@ -1,222 +1,235 @@
-state,brand,dealer,city,box,nights_oct3_to_oct7,consecutive_bad_nights,last_night_result,suggested_action,retry_worthwhile,est_cars_if_recovered
-AK,Toyota,Juneau Toyota,"Juneau, AK",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-AR,Honda,Floyd Traylor Honda,"Fort Smith, AR",box3,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,182
-AZ,Acura,Chapman Acura,"Tucson, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,130
-AZ,Audi,Audi Arrowhead,"Peoria, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-AZ,Audi,Audi Gilbert,"Gilbert, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-AZ,Audi,Audi Tucson,"Tucson, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-AZ,Bmw,Chapman BMW on Camelback,"Phoenix, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,
-AZ,Honda,"Anderson Honda (Kingman, AZ)","Kingman, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-AZ,Honda,Chapman Honda,"Tucson, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-AZ,Mercedes-Benz,Mercedes-Benz of Arrowhead,"Peoria, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,224
-AZ,Mercedes-Benz,Mercedes-Benz of Scottsdale,"Scottsdale, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,224
-AZ,Mitsubishi,Premier Mitsubishi,"Casa Grande, AZ",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,142
-AZ,Toyota,Berge Toyota,"Mesa, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CA,Lincoln,Cypress Coast Lincoln,"Seaside, CA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,90
-CT,Audi,Audi Danbury,"Danbury, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-CT,Audi,Audi Greenwich,"Greenwich, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-CT,Audi,Audi of Wallingford,"Wallingford, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-CT,Audi,Hoffman Audi,"East Hartford, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-CT,Honda,Honda of Stamford,"Stamford, CT",box1,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,182
-CT,Nissan,PAUL MILLER NISSAN,"FAIRFIELD, CT",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-CT,Toyota,Colonial Toyota,"Milford, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CT,Toyota,Crabtree Toyota,"Watertown, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CT,Toyota,Gale Toyota,"Enfield, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CT,Toyota,Greentree Toyota,"Danbury, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CT,Toyota,Lynch Toyota,"Manchester, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-CT,Volkswagen,"Valenti Motors, Inc.","Watertown, CT",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,139
-FL,Acura,Crown Acura,"Clearwater, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,130
-FL,Infiniti,INFINITI OF TALLAHASSEE,"TALLAHASSEE, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-FL,Lexus,Lexus of Orlando,"Orlando, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-FL,Lexus,Lexus of Winter Park,"Winter Park, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-FL,Porsche,Porsche Clearwater,"Clearwater, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-FL,Porsche,Porsche North Miami,"North Miami, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-FL,Porsche,Porsche Ocala,"Ocala, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-FL,Porsche,Porsche Pensacola,"Pensacola, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-FL,Porsche,Porsche Sarasota,"Sarasota, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-GA,Buick,"MASTER BUICK GMC, INC.","Augusta, GA",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,138
-HI,Nissan,KAMAAINA NISSAN,"HILO, HI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-HI,Nissan,KONA NISSAN,"KAILUA KONA, HI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-IA,Infiniti,WILLIS INFINITI,"DES MOINES, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-IA,Kia,Shottenkirk Kia,"West Burlington, IA",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,190
-IA,Lexus,Willis Lexus,"Clive, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-IA,Mini,MINI of Des Moines,"Des Moines, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,256
-IA,Nissan,KUNES NISSAN OF DAVENPORT,"DAVENPORT, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-IA,Nissan,WILLIS NISSAN,"DES MOINES, IA",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,189
-ID,Subaru,Twin Falls Subaru,"Twin Falls, ID",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,213
-IL,Acura,McGrath Acura of Downtown Chicago,"Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,130
-IL,Bmw,"Perillo BMW, Inc.","Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-IL,Infiniti,GREGORY INFINITI,"LIBERTYVILLE, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-IL,Infiniti,INFINITI OF CHICAGO,"CHICAGO, IL",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,112
-IL,Kia,Shottenkirk Kia of Quincy,"Quincy, IL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,190
-IL,Lexus,Lexus of Naperville,"Naperville, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-IL,Lexus,McGrath Lexus of Chicago,"Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-IL,Lexus,McGrath Lexus of Westmont,"Westmont, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-IL,Lincoln,Napleton Lincoln of Schaumburg,"Schaumburg, IL",box4,skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER,5,skipped: OTHER,inspect first,yes,90
-IL,Mercedes-Benz,Isringhausen Imports,"Springfield, IL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,224
-IL,Mercedes-Benz,Mercedes-Benz of Marion,"Marion, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-IL,Porsche,Porsche Naperville,"Naperville, IL",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,110
-IL,Subaru,Liberty Subaru,"Libertyville, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,213
-IL,Subaru,Subaru Evergreen Park,"Evergreen Park, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,213
-KS,Hyundai,Kansas City Hyundai,"Merriam, KS",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,262
-KY,Honda,Jeff Wyler Honda,"Florence, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,182
-KY,Honda,Jeff Wyler Honda Automall,"Louisville, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,182
-KY,Lincoln,Bruce Walters Ford Sales Inc,"Pikeville, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,90
-KY,Lincoln,Gates Lincoln,"Richmond, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,90
-KY,Nissan,DUTCH MILLER NISSAN OF ASHLAND,"ASHLAND, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-KY,Nissan,JEFF WYLER NISSAN OF LOUISVILLE,"LOUISVILLE, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-LA,Bmw,Brian Harris BMW,"Baton Rouge, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-LA,Bmw,Peake BMW,"Kenner, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-LA,Nissan,ORR NISSAN,"BOSSIER CITY, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-LA,Toyota,Toyota of New Orleans,"New Orleans, LA",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-MA,Kia,Kia of Attleboro,"South Attleboro, MA",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,190
-MA,Mazda,NORTH SHORE MAZDA,"Danvers, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,252
-MA,Mercedes-Benz,Mercedes-Benz of Burlington,"Burlington, MA",box3,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,224
-MA,Mercedes-Benz,Mercedes-Benz of Hanover,"Hanover, MA",box3,skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER,5,skipped: OTHER,inspect first,yes,224
-MA,Mitsubishi,Cornerstone Mitsubishi,"Wilmington, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,142
-MA,Mitsubishi,Icon Mitsubishi - Framingham,"Framingham, MA",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,142
-MA,Nissan,COLONIAL NISSAN/MEDFORD,"MEDFORD, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MA,Nissan,MCGOVERN NISSAN OF WELLESLEY,"WELLESLEY, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MI,Infiniti,LAFONTAINE INFINITI TROY,"TROY, MI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-MI,Nissan,FOX NISSAN OF GRAND RAPIDS,"KENTWOOD, MI",box4,ok zero zero zero zero,4,extracted 0 vehicles,daytime retry,yes,189
-MI,Nissan,LAFONTAINE NISSAN TROY,"TROY, MI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MI,Nissan,NISSAN OF MACOMB,"CLINTON TOWNSHIP, MI",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,189
-MN,Bmw,BMW of Minnetonka,"Minnetonka, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-MN,Honda,Tom Kadlec Honda,"Rochester, MN",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-MN,Infiniti,JIM LUPIENT INFINITI,"GOLDEN VALLEY, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-MN,Nissan,LUPIENT NISSAN,"BROOKLYN PARK, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MN,Toyota,Maplewood Toyota,"Maplewood, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,248
-MN,Toyota,Walser Bloomington Toyota,"Bloomington, MN",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-MO,Nissan,FRANK FLETCHER NISSAN,"JOPLIN, MO",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MO,Nissan,STATE LINE NISSAN,"KANSAS CITY, MO",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,189
-MS,Nissan,GRAY-DANIELS NISSAN BRANDON,"BRANDON, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,189
-MS,Nissan,GRAY-DANIELS NISSAN NORTH,"JACKSON, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,189
-MS,Nissan,GULFPORT NISSAN,"GULFPORT, MS",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-MS,Nissan,LANDERS NISSAN,"SOUTHAVEN, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,189
-NE,Bmw,BMW of Omaha,"Omaha, NE",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NH,Nissan,MCFARLAND NISSAN,"STRATHAM, NH",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-NH,Toyota,Canobie Lake Toyota,"Salem, NH",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-NH,Toyota,Toyota of Keene,"East Swanzey, NH",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-NJ,Audi,Audi Bridgewater,"Bridgewater, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Audi Cherry Hill,"Cherry Hill, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Audi Englewood,"Englewood, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Audi Flemington,"Flemington, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Audi Meadowlands,"Secaucus, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Audi Millburn,"Maplewood, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Audi,Bell Audi,"Edison, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NJ,Bmw,BMW of Morristown,"Morristown, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NJ,Bmw,BMW of Newton,"Newton, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NJ,Bmw,BMW of Roxbury,"Kenvil, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NJ,Infiniti,BRIDGEWATER INFINITI,"BRIDGEWATER, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-NJ,Infiniti,CIRCLE INFINITI,"WEST LONG BRANCH, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-NJ,Lexus,Lexus of Bridgewater,"Bridgewater, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NJ,Lexus,Lexus of Edison,"Edison, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NJ,Mercedes-Benz,Benzel-Busch Motor Car Corp.,"Englewood, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NJ,Mercedes-Benz,Mercedes-Benz of Atlantic City,"Egg Harbor Township, NJ",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,224
-NJ,Mercedes-Benz,Mercedes-Benz of Caldwell,"West Caldwell, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NY,Acura,Acura of Bedford Hills,"Bedford Hills, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,130
-NY,Acura,Advantage Acura,"Saint James, NY",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,130
-NY,Audi,Audi Albany,"Latham, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Audi,Audi Brooklyn,"Brooklyn, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Audi,Audi Buffalo,"Bowmansville, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Audi,Audi Cicero,"Cicero, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Audi,Audi Great Neck,"Great Neck, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Audi,Audi Manhattan,"New York, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX nourls zero,5,extracted 0 vehicles,daytime retry,yes,230
-NY,Audi,Audi New Rochelle,"New Rochelle, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,230
-NY,Audi,Audi Queens,"Flushing, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,230
-NY,Audi,Audi of Huntington,"Huntington Station, NY",box1,ok skipnb:HTTP_5XX skipnb:HTTP_5XX nourls skipnb:HTTP_5XX,4,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-NY,Bmw,BMW of Bay Shore,"Bay Shore, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NY,Bmw,BMW of Mt. Kisco,"Mount Kisco, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-NY,Infiniti,INFINITI OF LYNBROOK,"LYNBROOK, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-NY,Infiniti,INFINITI OF SMITHTOWN,"SAINT JAMES, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-NY,Infiniti,KINGS INFINITI,"BROOKLYN, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-NY,Kia,Kia of East Syracuse,"East Syracuse, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,190
-NY,Lexus,DARCARS Lexus of Mt. Kisco,"Mount Kisco, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NY,Mercedes-Benz,"Helms Bros., Inc.","Bayside, NY",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,224
-NY,Mercedes-Benz,Mercedes-Benz of Brooklyn,"Brooklyn, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-NY,Mercedes-Benz,Mercedes-Benz of Orange County,"Harriman, NY",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,224
-NY,Mitsubishi,Fx Caprara Mitsubishi,"Watertown, NY",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,142
-NY,Porsche,Porsche Albany,"Latham, NY",box1,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,daytime retry,yes,110
-NY,Porsche,Porsche Buffalo,"Williamsville, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,110
-OH,Acura,Acura Columbus,"Dublin, OH",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,130
-OH,Acura,Jeff Wyler Acura of Dayton,"Centerville, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,130
-OH,Acura,Jeff Wyler Acura of Fairfield,"Fairfield, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,130
-OH,Audi,Audi Cincinnati East,"Cincinnati, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-OH,Audi,Audi Columbus,"Columbus, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-OH,Audi,Audi Cuyahoga Falls,"Cuyahoga Falls, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-OH,Audi,Audi Middleburg Heights,"Middleburg Heights, OH",box1,ok nourls skipnb:HTTP_5XX skipnb:HTTP_5XX nourls,4,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,230
-OH,Audi,The Audi Connection,"Cincinnati, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-OH,Infiniti,INFINITI OF AKRON,"AKRON, OH",box1,nourls skipnb:DNS_DEAD nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-OH,Infiniti,INFINITI OF BEACHWOOD,"BEACHWOOD, OH",box1,nourls skipnb:DNS_DEAD skipnb:DNS_DEAD nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-OH,Infiniti,INFINITI OF CINCINNATI,"CINCINNATI, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-OH,Kia,Diehl Kia of Massillon,"Massillon, OH",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,190
-OH,Lexus,Classic Lexus,"Willoughby Hills, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-OH,Lexus,Germain Lexus of Easton,"Columbus, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-OH,Lexus,Lexus of Dayton,"Centerville, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-OH,Mercedes-Benz,Mercedes-Benz of Centerville,"Centerville, OH",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,224
-OH,Mercedes-Benz,Mercedes-Benz of Cincinnati,"Cincinnati, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-OH,Mercedes-Benz,Mercedes-Benz of West Chester,"West Chester, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-RI,Honda,Saccucci Honda,"Middletown, RI",box1,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-RI,Mitsubishi,Prestige Mitsubishi,"East Providence, RI",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,142
-SC,Audi,Audi Charleston – Charleston #1,"Charleston, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-SC,Audi,Audi Greenville – Greenville #2,"Greenville, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-SC,Audi,Audi Hilton Head,"Hardeeville, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-SC,Bmw,BMW of Florence,"Florence, SC",box3,ok nourls nourls nourls nourls,4,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-SC,Honda,Honda Cars of Aiken,"Warrenville, SC",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-SC,Lexus,Hilton Head Lexus,"Hardeeville, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-SC,Lexus,Lexus of Greenville,"Greenville, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,224
-SC,Nissan,HUDSON NISSAN OF NORTH CHARLESTON,"NORTH CHARLESTON, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-SC,Nissan,HUDSON NISSAN OF SUMMERVILLE,"SUMMERVILLE, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-SC,Nissan,MIRACLE NISSAN OF NORTH AUGUSTA,"BEECH ISLAND, SC",box3,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,daytime retry,yes,189
-SC,Nissan,NISSAN OF ORANGEBURG,"ORANGEBURG, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-SC,Nissan,NISSAN OF SUMTER,"SUMTER, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-SC,Toyota,Miracle Toyota of North Augusta,"North Augusta, SC",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,248
-UT,Nissan,TIM DAHLE NISSAN SOUTHTOWNE,"SOUTH JORDAN, UT",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-VA,Audi,Audi Arlington,"Arlington, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-VA,Audi,Audi Charlottesville,"Charlottesville, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-VA,Audi,Audi Hampton,"Hampton, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-VA,Audi,Audi Richmond,"Richmond, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-VA,Audi,Audi Roanoke,"Roanoke, VA",box1,ok zero skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,4,skipped: HTTP_5XX,daytime retry (server error may be transient),yes,230
-VA,Buick,JOYCE KOONS BUICK GMC,"Manassas, VA",box3,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,138
-VA,Kia,Safford Kia Manassas,"Manassas, VA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,190
-VA,Mazda,SAFFORD MAZDA FAIRFAX,"Fairfax, VA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,252
-VA,Mercedes-Benz,Mercedes-Benz of Lynchburg,"Lynchburg, VA",box1,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www host first, then retry",yes,224
-WA,Bmw,BMW Northwest,"Tacoma, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,
-WA,Honda,Interstate Honda,"Chehalis, WA",box4,zero zero zero zero zero,5,extracted 0 vehicles,daytime retry,yes,182
-WA,Honda,South Tacoma Honda,"Tacoma, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,182
-WA,Nissan,BILL ROBERTSON NISSAN,"PASCO, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,189
-WI,Honda,Rock County Honda,"Janesville, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,182
-WI,Honda,Zeigler Honda of Racine,"Mount Pleasant, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,182
-WI,Infiniti,INFINITI MILWAUKEE,"WEST ALLIS, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected (sitemap/discovery found nothing),daytime retry + check sitemap/alt discovery,yes,112
-AL,Buick,CARL CANNON INC.,"Jasper, AL",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,138
-AR,Porsche,Porsche Northwest Arkansas,"Rogers, AR",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-CT,Mercedes-Benz,Mercedes-Benz of New London,"New London, CT",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-CT,Volkswagen,Volkswagen of Old Saybrook (sat.),"Mystic, CT",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,139
-FL,Bmw,BMW of Pembroke Pines,"Pembroke Pines, FL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,
-FL,Porsche,Porsche St. Petersburg,"St. Petersburg, FL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-IA,Bmw,Dubuque BMW,"Dubuque, IA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,
-IA,Mercedes-Benz,Mercedes-Benz of Quad Cities,"Davenport, IA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-IL,Mercedes-Benz,Loeber Motors,"Lincolnwood, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-IL,Mercedes-Benz,Mercedes-Benz of Bloomington,"Normal, IL",box4,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix (sitemap path), not a retry",no,224
-IL,Mercedes-Benz,Mercedes-Benz of Orland Park,"Orland Park, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-IL,Mercedes-Benz,Mercedes-Benz of Westmont,"Westmont, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-IL,Porsche,Porsche Hoffman Estates,"Hoffman Estates, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-IL,Porsche,Porsche Westmont,"Westmont, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-MA,Mercedes-Benz,Mercedes-Benz of Shrewsbury,"Shrewsbury, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-MA,Mercedes-Benz,Mercedes-Benz of Sudbury,"Sudbury, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-MA,Porsche,Porsche Brookline,"Brookline, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-MA,Porsche,Porsche Cape Cod,"Hyannis, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-MI,Nissan,ZEIGLER NISSAN OF HOLLAND,"HOLLAND, MI",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,189
-MN,Mercedes-Benz,"Feldmann Imports, Inc.","Bloomington, MN",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix (sitemap path), not a retry",no,224
-NJ,Porsche,Porsche Bridgewater,"Bridgewater, NJ",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-NJ,Porsche,Porsche Millburn,"Millburn, NJ",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-NY,Porsche,Porsche Manhattan,"New York, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-NY,Porsche,Porsche Mt. Kisco,"Mount Kisco, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-NY,Porsche,Porsche Southampton,"Southampton, NY",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix (sitemap path), not a retry",no,110
-NY,Porsche,Porsche Syracuse,"East Syracuse, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,110
-OH,Mercedes-Benz,Canton Luxury LLC,"Canton, OH",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix (sitemap path), not a retry",no,224
-OH,Mercedes-Benz,Mercedes-Benz of Willoughby,"Willoughby, OH",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-VA,Kia,Nelson Kia,"Bassett, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,190
-VA,Mercedes-Benz,Mercedes-Benz of Alexandria,"Alexandria, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-VA,Mercedes-Benz,Mercedes-Benz of Arlington,"Arlington, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix (dead domain), not a retry",no,224
-WA,Porsche,Porsche Bellingham,"Bellingham, WA",box4,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix (sitemap path), not a retry",no,110
+state,brand,dealer,city,box,nights_oct3_to_oct7,consecutive_bad_nights,last_night_result,suggested_action,retry_worthwhile,cars_last_good_crawl,cars_basis,est_cars
+KY,Honda,Jeff Wyler Honda,"Florence, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,858,"our shard (active rows, last good crawl)",858
+UT,Nissan,TIM DAHLE NISSAN SOUTHTOWNE,"SOUTH JORDAN, UT",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,450,"our shard (active rows, last good crawl)",450
+NY,Audi,Audi New Rochelle,"New Rochelle, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,410,"our shard (active rows, last good crawl)",410
+NY,Audi,Audi Manhattan,"New York, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX nourls zero,5,extracted 0 vehicles,retry,yes,407,"our shard (active rows, last good crawl)",407
+NY,Audi,Audi of Huntington,"Huntington Station, NY",box1,ok skipnb:HTTP_5XX skipnb:HTTP_5XX nourls skipnb:HTTP_5XX,4,skipped: HTTP_5XX,retry (transient),yes,335,"our shard (active rows, last good crawl)",335
+NJ,Audi,Bell Audi,"Edison, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,298,"our shard (active rows, last good crawl)",298
+NJ,Audi,Audi Millburn,"Maplewood, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,288,"our shard (active rows, last good crawl)",288
+KS,Hyundai,Kansas City Hyundai,"Merriam, KS",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 262,262
+IA,Mini,MINI of Des Moines,"Des Moines, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 256,256
+VA,Mazda,SAFFORD MAZDA ALEXANDRIA,"Alexandria, VA",box1,nourls bot nourls nourls nourls,3,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 252,252
+VA,Mazda,SAFFORD MAZDA FAIRFAX,"Fairfax, VA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 252,252
+MA,Mazda,NORTH SHORE MAZDA,"Danvers, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 252,252
+AK,Toyota,Juneau Toyota,"Juneau, AK",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+AZ,Toyota,Berge Toyota,"Mesa, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+CT,Toyota,Colonial Toyota,"Milford, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+CT,Toyota,Crabtree Toyota,"Watertown, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+CT,Toyota,Gale Toyota,"Enfield, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+CT,Toyota,Greentree Toyota,"Danbury, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+CT,Toyota,Lynch Toyota,"Manchester, CT",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+LA,Toyota,Toyota of New Orleans,"New Orleans, LA",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+MN,Toyota,Maplewood Toyota,"Maplewood, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 248,248
+MN,Toyota,Walser Bloomington Toyota,"Bloomington, MN",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+NH,Toyota,Canobie Lake Toyota,"Salem, NH",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+NH,Toyota,Toyota of Keene,"East Swanzey, NH",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+SC,Toyota,Miracle Toyota of North Augusta,"North Augusta, SC",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 248,248
+AZ,Audi,Audi Arrowhead,"Peoria, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+AZ,Audi,Audi Gilbert,"Gilbert, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+AZ,Audi,Audi Tucson,"Tucson, AZ",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+CT,Audi,Audi Danbury,"Danbury, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+CT,Audi,Audi Greenwich,"Greenwich, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+CT,Audi,Audi of Wallingford,"Wallingford, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+CT,Audi,Hoffman Audi,"East Hartford, CT",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Albany,"Latham, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Brooklyn,"Brooklyn, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Buffalo,"Bowmansville, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Cicero,"Cicero, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Great Neck,"Great Neck, NY",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NY,Audi,Audi Queens,"Flushing, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 230,230
+OH,Audi,Audi Cincinnati East,"Cincinnati, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+OH,Audi,Audi Columbus,"Columbus, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+OH,Audi,Audi Cuyahoga Falls,"Cuyahoga Falls, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+OH,Audi,The Audi Connection,"Cincinnati, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+VA,Audi,Audi Arlington,"Arlington, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+VA,Audi,Audi Charlottesville,"Charlottesville, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+VA,Audi,Audi Hampton,"Hampton, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+VA,Audi,Audi Richmond,"Richmond, VA",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Brookline,"Brookline, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Burlington,"Burlington, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Cape Cod,"Hyannis, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Fall River,"Fall River, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Lenox,"Lenox, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi West Springfield,"West Springfield, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+MA,Audi,Audi Westwood,"Westwood, MA",box3,skipnb:HTTP_5XX - skipnb:HTTP_5XX - skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+SC,Audi,Audi Charleston – Charleston #1,"Charleston, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+SC,Audi,Audi Greenville – Greenville #2,"Greenville, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+SC,Audi,Audi Hilton Head,"Hardeeville, SC",box3,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NJ,Audi,Audi Bridgewater,"Bridgewater, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NJ,Audi,Audi Cherry Hill,"Cherry Hill, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NJ,Audi,Audi Englewood,"Englewood, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NJ,Audi,Audi Flemington,"Flemington, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+NJ,Audi,Audi Meadowlands,"Secaucus, NJ",box4,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,5,skipped: HTTP_5XX,retry (transient),yes,,none on boxes 1/3/4; brand median 230,230
+OH,Audi,Audi Dayton,"Dayton, OH",box1,skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX ok skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,228,"our shard (active rows, last good crawl)",228
+AZ,Mercedes-Benz,Mercedes-Benz of Arrowhead,"Peoria, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 224,224
+AZ,Mercedes-Benz,Mercedes-Benz of Scottsdale,"Scottsdale, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 224,224
+IA,Lexus,Willis Lexus,"Clive, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NY,Lexus,DARCARS Lexus of Mt. Kisco,"Mount Kisco, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NY,Mercedes-Benz,"Helms Bros., Inc.","Bayside, NY",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 224,224
+NY,Mercedes-Benz,Mercedes-Benz of Brooklyn,"Brooklyn, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NY,Mercedes-Benz,Mercedes-Benz of Orange County,"Harriman, NY",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 224,224
+OH,Audi,Audi Middleburg Heights,"Middleburg Heights, OH",box1,ok nourls skipnb:HTTP_5XX skipnb:HTTP_5XX nourls,4,no inventory URLs detected,"alt-discovery check, then retry",yes,224,"our shard (active rows, last good crawl)",224
+OH,Lexus,Classic Lexus,"Willoughby Hills, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+OH,Lexus,Germain Lexus of Easton,"Columbus, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+OH,Lexus,Lexus of Dayton,"Centerville, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+OH,Mercedes-Benz,Mercedes-Benz of Centerville,"Centerville, OH",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 224,224
+OH,Mercedes-Benz,Mercedes-Benz of Cincinnati,"Cincinnati, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+OH,Mercedes-Benz,Mercedes-Benz of West Chester,"West Chester, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+VA,Mercedes-Benz,Mercedes-Benz of Lynchburg,"Lynchburg, VA",box1,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+MA,Mercedes-Benz,Mercedes-Benz of Burlington,"Burlington, MA",box3,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+MA,Mercedes-Benz,Mercedes-Benz of Hanover,"Hanover, MA",box3,skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER,5,skipped: OTHER,inspect first,yes,,none on boxes 1/3/4; brand median 224,224
+SC,Lexus,Hilton Head Lexus,"Hardeeville, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+SC,Lexus,Lexus of Greenville,"Greenville, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+FL,Lexus,Lexus of Orlando,"Orlando, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+FL,Lexus,Lexus of Winter Park,"Winter Park, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+IL,Lexus,Lexus of Naperville,"Naperville, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+IL,Lexus,McGrath Lexus of Chicago,"Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+IL,Lexus,McGrath Lexus of Westmont,"Westmont, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Isringhausen Imports,"Springfield, IL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Mercedes-Benz of Marion,"Marion, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NJ,Lexus,Lexus of Bridgewater,"Bridgewater, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NJ,Lexus,Lexus of Edison,"Edison, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NJ,Mercedes-Benz,Benzel-Busch Motor Car Corp.,"Englewood, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NJ,Mercedes-Benz,Mercedes-Benz of Atlantic City,"Egg Harbor Township, NJ",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+NJ,Mercedes-Benz,Mercedes-Benz of Caldwell,"West Caldwell, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 224,224
+ID,Subaru,Twin Falls Subaru,"Twin Falls, ID",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 213,213
+IL,Subaru,Liberty Subaru,"Libertyville, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 213,213
+IL,Subaru,Subaru Evergreen Park,"Evergreen Park, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 213,213
+IA,Kia,Shottenkirk Kia,"West Burlington, IA",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 190,190
+OH,Kia,Diehl Kia of Massillon,"Massillon, OH",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 190,190
+VA,Kia,Safford Kia Manassas,"Manassas, VA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 190,190
+MA,Kia,Kia of Attleboro,"South Attleboro, MA",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 190,190
+IL,Kia,Shottenkirk Kia of Quincy,"Quincy, IL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 190,190
+CT,Nissan,PAUL MILLER NISSAN,"FAIRFIELD, CT",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+IA,Nissan,KUNES NISSAN OF DAVENPORT,"DAVENPORT, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+IA,Nissan,WILLIS NISSAN,"DES MOINES, IA",box1,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 189,189
+LA,Nissan,ORR NISSAN,"BOSSIER CITY, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MN,Nissan,LUPIENT NISSAN,"BROOKLYN PARK, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MA,Nissan,COLONIAL NISSAN/MEDFORD,"MEDFORD, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MA,Nissan,MCGOVERN NISSAN OF WELLESLEY,"WELLESLEY, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MO,Nissan,FRANK FLETCHER NISSAN,"JOPLIN, MO",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MO,Nissan,STATE LINE NISSAN,"KANSAS CITY, MO",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 189,189
+SC,Nissan,HUDSON NISSAN OF NORTH CHARLESTON,"NORTH CHARLESTON, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+SC,Nissan,HUDSON NISSAN OF SUMMERVILLE,"SUMMERVILLE, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+SC,Nissan,MIRACLE NISSAN OF NORTH AUGUSTA,"BEECH ISLAND, SC",box3,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 189,189
+SC,Nissan,NISSAN OF ORANGEBURG,"ORANGEBURG, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+SC,Nissan,NISSAN OF SUMTER,"SUMTER, SC",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+HI,Nissan,KAMAAINA NISSAN,"HILO, HI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+HI,Nissan,KONA NISSAN,"KAILUA KONA, HI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+KY,Nissan,DUTCH MILLER NISSAN OF ASHLAND,"ASHLAND, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+KY,Nissan,JEFF WYLER NISSAN OF LOUISVILLE,"LOUISVILLE, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MI,Nissan,LAFONTAINE NISSAN TROY,"TROY, MI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MI,Nissan,NISSAN OF MACOMB,"CLINTON TOWNSHIP, MI",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 189,189
+MS,Nissan,GRAY-DANIELS NISSAN BRANDON,"BRANDON, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 189,189
+MS,Nissan,GRAY-DANIELS NISSAN NORTH,"JACKSON, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 189,189
+MS,Nissan,GULFPORT NISSAN,"GULFPORT, MS",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+MS,Nissan,LANDERS NISSAN,"SOUTHAVEN, MS",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 189,189
+WA,Nissan,BILL ROBERTSON NISSAN,"PASCO, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 189,189
+AZ,Honda,"Anderson Honda (Kingman, AZ)","Kingman, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+AZ,Honda,Chapman Honda,"Tucson, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+CT,Honda,Honda of Stamford,"Stamford, CT",box1,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 182,182
+MN,Honda,Tom Kadlec Honda,"Rochester, MN",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+RI,Honda,Saccucci Honda,"Middletown, RI",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+AR,Honda,Floyd Traylor Honda,"Fort Smith, AR",box3,skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT skipnb:TIMEOUT,5,skipped: TIMEOUT,retry (transient),yes,,none on boxes 1/3/4; brand median 182,182
+SC,Honda,Honda Cars of Aiken,"Warrenville, SC",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+WI,Honda,Rock County Honda,"Janesville, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 182,182
+WI,Honda,Zeigler Honda of Racine,"Mount Pleasant, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 182,182
+KY,Honda,Jeff Wyler Honda Automall,"Louisville, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 182,182
+WA,Honda,Interstate Honda,"Chehalis, WA",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 182,182
+WA,Honda,South Tacoma Honda,"Tacoma, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 182,182
+NY,Kia,Kia of East Syracuse,"East Syracuse, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,172,"our shard (active rows, last good crawl)",172
+NY,Audi,Audi Mohegan Lake,"Mohegan Lake, NY",box1,skipnb:HTTP_5XX ok skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,171,"our shard (active rows, last good crawl)",171
+MI,Nissan,FOX NISSAN OF GRAND RAPIDS,"KENTWOOD, MI",box4,ok zero zero zero zero,4,extracted 0 vehicles,retry,yes,164,"our shard (active rows, last good crawl)",164
+AZ,Mitsubishi,Premier Mitsubishi,"Casa Grande, AZ",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 142,142
+NY,Mitsubishi,Fx Caprara Mitsubishi,"Watertown, NY",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 142,142
+RI,Mitsubishi,Prestige Mitsubishi,"East Providence, RI",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 142,142
+MA,Mitsubishi,Cornerstone Mitsubishi,"Wilmington, MA",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 142,142
+MA,Mitsubishi,Icon Mitsubishi - Framingham,"Framingham, MA",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 142,142
+CT,Volkswagen,"Valenti Motors, Inc.","Watertown, CT",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 139,139
+VA,Buick,JOYCE KOONS BUICK GMC,"Manassas, VA",box3,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 138,138
+GA,Buick,"MASTER BUICK GMC, INC.","Augusta, GA",box4,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 138,138
+AZ,Acura,Chapman Acura,"Tucson, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 130,130
+NY,Acura,Acura of Bedford Hills,"Bedford Hills, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+NY,Acura,Advantage Acura,"Saint James, NY",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 130,130
+OH,Acura,Acura Columbus,"Dublin, OH",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median 130,130
+OH,Acura,Jeff Wyler Acura of Dayton,"Centerville, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+OH,Acura,Jeff Wyler Acura of Fairfield,"Fairfield, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+FL,Acura,Atlantic Coast Acura,"Jacksonville, FL",box4,nourls nourls nourls bot nourls,3,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+FL,Acura,Crown Acura,"Clearwater, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+IL,Acura,McGrath Acura of Downtown Chicago,"Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 130,130
+IA,Infiniti,WILLIS INFINITI,"DES MOINES, IA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+MN,Infiniti,JIM LUPIENT INFINITI,"GOLDEN VALLEY, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NY,Infiniti,INFINITI OF LYNBROOK,"LYNBROOK, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NY,Infiniti,INFINITI OF SMITHTOWN,"SAINT JAMES, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NY,Infiniti,KINGS INFINITI,"BROOKLYN, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+OH,Infiniti,INFINITI OF AKRON,"AKRON, OH",box1,nourls skipnb:DNS_DEAD nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+OH,Infiniti,INFINITI OF CINCINNATI,"CINCINNATI, OH",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+WI,Infiniti,INFINITI MILWAUKEE,"WEST ALLIS, WI",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+FL,Infiniti,INFINITI OF TALLAHASSEE,"TALLAHASSEE, FL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+IL,Infiniti,GREGORY INFINITI,"LIBERTYVILLE, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+IL,Infiniti,INFINITI OF CHICAGO,"CHICAGO, IL",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+MI,Infiniti,LAFONTAINE INFINITI TROY,"TROY, MI",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NJ,Infiniti,BRIDGEWATER INFINITI,"BRIDGEWATER, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NJ,Infiniti,CIRCLE INFINITI,"WEST LONG BRANCH, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 112,112
+NY,Porsche,Porsche Albany,"Latham, NY",box1,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+NY,Porsche,Porsche Buffalo,"Williamsville, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche Clearwater,"Clearwater, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche North Miami,"North Miami, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche Ocala,"Ocala, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche Pensacola,"Pensacola, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche Sarasota,"Sarasota, FL",box4,skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET skipnb:CONN_RESET,5,skipped: CONN_RESET,retry (transient),yes,,none on boxes 1/3/4; brand median 110,110
+IL,Porsche,Porsche Naperville,"Naperville, IL",box4,skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS skipnb:TLS,5,skipped: TLS,"check cert/www, then retry",yes,,none on boxes 1/3/4; brand median 110,110
+CT,Audi,Hoffman Audi of New London,"New London, CT",box1,nourls nourls nourls ok skipnb:HTTP_5XX,3,skipped: HTTP_5XX,retry (transient),yes,106,"our shard (active rows, last good crawl)",106
+NH,Nissan,MCFARLAND NISSAN,"STRATHAM, NH",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,104,"our shard (active rows, last good crawl)",104
+CA,Lincoln,Cypress Coast Lincoln,"Seaside, CA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 90,90
+IL,Lincoln,Napleton Lincoln of Schaumburg,"Schaumburg, IL",box4,skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER skipnb:OTHER,5,skipped: OTHER,inspect first,yes,,none on boxes 1/3/4; brand median 90,90
+KY,Lincoln,Bruce Walters Ford Sales Inc,"Pikeville, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 90,90
+KY,Lincoln,Gates Lincoln,"Richmond, KY",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median 90,90
+IL,Bmw,Newbold BMW,"O Fallon, IL",box4,nourls nourls nourls ok nourls,3,no inventory URLs detected,"alt-discovery check, then retry",yes,80,"our shard (active rows, last good crawl)",80
+SC,Bmw,BMW of Florence,"Florence, SC",box3,ok nourls nourls nourls nourls,4,no inventory URLs detected,"alt-discovery check, then retry",yes,67,"our shard (active rows, last good crawl)",67
+VA,Audi,Audi Roanoke,"Roanoke, VA",box1,ok zero skipnb:HTTP_5XX skipnb:HTTP_5XX skipnb:HTTP_5XX,4,skipped: HTTP_5XX,retry (transient),yes,63,"our shard (active rows, last good crawl)",63
+OH,Infiniti,INFINITI OF BEACHWOOD,"BEACHWOOD, OH",box1,nourls skipnb:DNS_DEAD skipnb:DNS_DEAD nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,50,"our shard (active rows, last good crawl)",50
+AZ,Bmw,Chapman BMW on Camelback,"Phoenix, AZ",box1,zero zero zero zero zero,5,extracted 0 vehicles,retry,yes,,none on boxes 1/3/4; brand median ?,
+LA,Bmw,Brian Harris BMW,"Baton Rouge, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+LA,Bmw,Peake BMW,"Kenner, LA",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+MN,Bmw,BMW of Minnetonka,"Minnetonka, MN",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NY,Bmw,BMW of Bay Shore,"Bay Shore, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NY,Bmw,BMW of Mt. Kisco,"Mount Kisco, NY",box1,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NE,Bmw,BMW of Omaha,"Omaha, NE",box3,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+IL,Bmw,"Perillo BMW, Inc.","Chicago, IL",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NJ,Bmw,BMW of Morristown,"Morristown, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NJ,Bmw,BMW of Newton,"Newton, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+NJ,Bmw,BMW of Roxbury,"Kenvil, NJ",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+WA,Bmw,BMW Northwest,"Tacoma, WA",box4,nourls nourls nourls nourls nourls,5,no inventory URLs detected,"alt-discovery check, then retry",yes,,none on boxes 1/3/4; brand median ?,
+CT,Mercedes-Benz,Mercedes-Benz of New London,"New London, CT",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+IA,Mercedes-Benz,Mercedes-Benz of Quad Cities,"Davenport, IA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+MN,Mercedes-Benz,"Feldmann Imports, Inc.","Bloomington, MN",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+OH,Mercedes-Benz,Canton Luxury LLC,"Canton, OH",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+OH,Mercedes-Benz,Mercedes-Benz of Willoughby,"Willoughby, OH",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+VA,Mercedes-Benz,Mercedes-Benz of Alexandria,"Alexandria, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+VA,Mercedes-Benz,Mercedes-Benz of Arlington,"Arlington, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+MA,Mercedes-Benz,Mercedes-Benz of Shrewsbury,"Shrewsbury, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+MA,Mercedes-Benz,Mercedes-Benz of Sudbury,"Sudbury, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Loeber Motors,"Lincolnwood, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Mercedes-Benz of Bloomington,"Normal, IL",box4,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Mercedes-Benz of Orland Park,"Orland Park, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+IL,Mercedes-Benz,Mercedes-Benz of Westmont,"Westmont, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 224,224
+AL,Buick,CARL CANNON INC.,"Jasper, AL",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,205,"our shard (active rows, last good crawl)",205
+VA,Kia,Nelson Kia,"Bassett, VA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 190,190
+MI,Nissan,ZEIGLER NISSAN OF HOLLAND,"HOLLAND, MI",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 189,189
+CT,Volkswagen,Volkswagen of Old Saybrook (sat.),"Mystic, CT",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 139,139
+NY,Porsche,Porsche Manhattan,"New York, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+NY,Porsche,Porsche Mt. Kisco,"Mount Kisco, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+NY,Porsche,Porsche Southampton,"Southampton, NY",box1,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+NY,Porsche,Porsche Syracuse,"East Syracuse, NY",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+AR,Porsche,Porsche Northwest Arkansas,"Rogers, AR",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+MA,Porsche,Porsche Brookline,"Brookline, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+MA,Porsche,Porsche Cape Cod,"Hyannis, MA",box3,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+FL,Porsche,Porsche St. Petersburg,"St. Petersburg, FL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+IL,Porsche,Porsche Hoffman Estates,"Hoffman Estates, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+IL,Porsche,Porsche Westmont,"Westmont, IL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+NJ,Porsche,Porsche Bridgewater,"Bridgewater, NJ",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+NJ,Porsche,Porsche Millburn,"Millburn, NJ",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+WA,Porsche,Porsche Bellingham,"Bellingham, WA",box4,skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404 skipnb:HTTP_404,5,skipped: HTTP_404,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median 110,110
+IA,Bmw,Dubuque BMW,"Dubuque, IA",box1,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median ?,
+FL,Bmw,BMW of Pembroke Pines,"Pembroke Pines, FL",box4,skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD skipnb:DNS_DEAD,5,skipped: DNS_DEAD,"roster fix, not a retry",no,,none on boxes 1/3/4; brand median ?,
