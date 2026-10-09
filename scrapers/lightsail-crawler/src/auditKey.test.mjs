@@ -78,6 +78,7 @@ describe("buyer key: allowed routes", () => {
     ["GET", "/api/deal-requests/5/bids/77", ""],
     ["GET", "/api/deal-requests/5/market", ""],
     ["POST", "/api/rfqs/10/invites/20/buyer-counter", ""],
+    ["POST", "/api/rfqs/10/invites", ""],
     ["POST", "/api/deals", ""],
     ["GET", "/api/inventory", "make=Porsche&state=NJ"],
     ["GET", "/api/inventory/vin/WP0AB2A96NS123456", ""],
@@ -90,6 +91,8 @@ describe("buyer key: allowed routes", () => {
     assert.deepEqual(buyer("GET", "/api/deal-requests/5/bids/77").ownership, { table: "deal_requests", id: 5 });
     assert.deepEqual(buyer("POST", "/api/rfqs/10/invites/20/buyer-counter").guard, { kind: "buyer_counter", rfqId: 10, inviteId: 20 });
     assert.equal(buyer("POST", "/api/deals").bodyGuard, "deal_create");
+    assert.deepEqual(buyer("POST", "/api/rfqs/10/invites").guard, { kind: "buyer_rfq", rfqId: 10 });
+    assert.equal(buyer("POST", "/api/rfqs/10/invites").bodyGuard, "invite_create");
     assert.equal(buyer("POST", "/api/rfqs").forceBuyer, true);
     assert.equal(buyer("POST", "/api/deal-requests").forceBuyer, true);
   });
@@ -107,7 +110,7 @@ describe("buyer key: denied routes — every one is 403", () => {
     ["POST", "/api/deal-requests/5/expire"], ["POST", "/api/deal-requests/5/negotiation"], ["POST", "/api/rfqs/1/pick"], ["POST", "/api/rfqs/1/walk"],
     ["PATCH", "/api/rfqs/1/lease-prefs"], ["PUT", "/api/deal-engagement"], ["GET", "/api/deal-engagement"],
     // admin / ops
-    ["POST", "/api/rfqs/1/approval"], ["PATCH", "/api/rfqs/1"], ["POST", "/api/rfqs/1/invites"], ["POST", "/api/rfqs/1/invites/2/delivery"], ["DELETE", "/api/rfqs/1/invites/2"],
+    ["POST", "/api/rfqs/1/approval"], ["PATCH", "/api/rfqs/1"], ["GET", "/api/rfqs/1/invites"], ["PUT", "/api/rfqs/1/invites"], ["POST", "/api/rfqs/1/invites/2/delivery"], ["DELETE", "/api/rfqs/1/invites/2"],
     ["POST", "/api/ops/sync-lock/acquire"], ["POST", "/api/ops/crawl-claims/claim"], ["GET", "/api/ops/crawl-claims/status"],
     ["POST", "/api/inventory/bulk"], ["POST", "/api/inventory/sweep"], ["POST", "/api/inventory/catalog-facets/rebuild"], ["GET", "/api/inventory/export"], ["GET", "/api/inventory/stats"],
     // wrong verbs on allowed paths, unknown paths
@@ -195,6 +198,35 @@ describe("invites: audit RFQs only reach test dealers, test dealers only get aud
     assert.equal(v(realRfq, testInvite.dealer_name, testInvite.dealer_contact_email).status, 403);
     assert.equal(v(realRfq, "AUDIT TEST Dealer 2", "someone@else.com").status, 403);
     assert.equal(v(realRfq, "Route 22 Toyota", "audit-dealer-3@audit.trimscout.test").status, 403);
+  });
+});
+
+describe("buyer key inviting dealers: only its own audit RFQ, only the is_test dealers", () => {
+  const buyerPrincipal = { kind: "audit", buyerUserId: BUYER };
+  const invite = (rfq, d) => inviteCreationVerdict({ rfq, dealerName: d.dealer_name, dealerEmail: d.dealer_contact_email, testDealers: TEST_DEALERS });
+  it("own audit RFQ passes the route guard; real, foreign, missing or deleted RFQs are 403", async () => {
+    assert.equal(await evaluateGuard({ kind: "buyer_rfq", rfqId: 10 }, buyerPrincipal, WORLD), null);
+    assert.equal((await evaluateGuard({ kind: "buyer_rfq", rfqId: 11 }, buyerPrincipal, WORLD))?.status, 403); // real RFQ
+    assert.equal((await evaluateGuard({ kind: "buyer_rfq", rfqId: 999 }, buyerPrincipal, WORLD))?.status, 403);
+    const foreign = fakeDb({ rfqs: [{ ...auditRfq, buyer_user_id: "1" }], invites: [], requests: [] });
+    assert.equal((await evaluateGuard({ kind: "buyer_rfq", rfqId: 10 }, buyerPrincipal, foreign))?.status, 403);
+    const gone = fakeDb({ rfqs: [{ ...auditRfq, deleted_at: new Date() }], invites: [], requests: [] });
+    assert.equal((await evaluateGuard({ kind: "buyer_rfq", rfqId: 10 }, buyerPrincipal, gone))?.status, 403);
+    // owned by the test buyer but NOT flagged audit_forced_safe -> still 403
+    const unflagged = fakeDb({ rfqs: [{ ...auditRfq, audit_forced_safe: 0, audit: 0 }], invites: [], requests: [] });
+    assert.equal((await evaluateGuard({ kind: "buyer_rfq", rfqId: 10 }, buyerPrincipal, unflagged))?.status, 403);
+  });
+  it("each of the 3 test dealers can be invited; any other dealer is 403", () => {
+    for (const d of TEST_DEALERS) assert.equal(invite(auditRfq, { dealer_name: d.dealer_name, dealer_contact_email: d.contact_email }), null);
+    assert.equal(invite(auditRfq, realInvite).status, 403);
+    assert.equal(invite(auditRfq, { dealer_name: "AUDIT TEST Dealer 4", dealer_contact_email: "audit-dealer-4@audit.trimscout.test" }).status, 403);
+    assert.equal(invite(auditRfq, { dealer_name: "AUDIT TEST Dealer 1", dealer_contact_email: "sales@route22toyota.com" }).status, 403);
+    assert.equal(invite(auditRfq, { dealer_name: "AUDIT TEST Dealer 1", dealer_contact_email: null }).status, 403);
+  });
+  it("the handler runs the dealer check for every key, before inserting", () => {
+    const src = fs.readFileSync(fileURLToPath(new URL("./deals_api_server.js", import.meta.url)), "utf8");
+    const h = src.slice(src.indexOf("async function handleCreateRfqInvite"));
+    assert.ok(h.indexOf("inviteCreationVerdict(") > 0 && h.indexOf("inviteCreationVerdict(") < h.indexOf("INSERT INTO rfq_invites"));
   });
 });
 
@@ -371,7 +403,7 @@ describe("every route the server defines: no real dealer or real RFQ is reachabl
   it("the server wires every gate: audit flags on creates, audit/deleted filters on reads, per-key rate limit", () => {
     for (const re of [
       /authorizeAudit\(req\.method, pathname/, /authorizeAuditDealer\(req\.method, pathname/, /evaluateGuard\(verdict\.guard/,
-      /inviteCreationVerdict\(/, /bidVerdict\(\{/, /dealVerdict\(\{/,
+      /inviteCreationVerdict\(/, /AUDIT_ROUTES|authorizeAudit\(req\.method/, /bidVerdict\(\{/, /dealVerdict\(\{/,
       /auditRateLimiters\[principal\.kind\]\.take\(\)/,
       /WHERE id = \? AND audit = 1 AND deleted_at IS NULL/, // ownership lookup: audit rows only
       /AND deleted_at IS NULL\$\{isAuditBuyer\(req\) \? " AND audit = 1" : ""\}/, // buyer's RFQ list
@@ -399,6 +431,16 @@ describe("every route the server defines: no real dealer or real RFQ is reachabl
     const auth = fs.readFileSync(fileURLToPath(new URL("./auth_api_server.js", import.meta.url)), "utf8");
     assert.match(auth, /SELECT \* FROM dealership_contacts WHERE is_test = 0 ORDER BY dealer_name ASC/);
     assert.match(auth, /ADD COLUMN IF NOT EXISTS is_test TINYINT\(1\) NOT NULL DEFAULT 0/);
+  });
+});
+
+describe("unsubscribe cascade (auth box) tags its rfq_events with the RFQ's audit flag", () => {
+  const auth = fs.readFileSync(fileURLToPath(new URL("./auth_api_server.js", import.meta.url)), "utf8");
+  it("inserts via SELECT from rfq_requests so audit/audit_at are inherited, and ensures the columns first", () => {
+    assert.match(auth, /INSERT INTO rfq_events \(rfq_id, event_type, payload_json, audit, audit_at\) SELECT id, \?, \?, audit, IF\(audit = 1, NOW\(\), NULL\) FROM rfq_requests WHERE id = \?/);
+    assert.match(auth, /ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit TINYINT\(1\) NOT NULL DEFAULT 0/);
+    assert.match(auth, /ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit TINYINT\(1\) NOT NULL DEFAULT 0/);
+    assert.doesNotMatch(auth, /INSERT INTO rfq_events \(rfq_id, event_type, payload_json\) VALUES/);
   });
 });
 

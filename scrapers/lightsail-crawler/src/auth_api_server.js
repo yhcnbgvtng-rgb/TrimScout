@@ -411,8 +411,19 @@ async function handleSetDealershipOptOut(req, res, id) {
         [dealer.dealer_name]
       );
       // One event per affected request — the buyer-notify signal, deduped by the flag above.
-      const values = affectedRfqs.map((rfqId) => [rfqId, "dealer_unsubscribed", JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name })]);
-      await pool.query("INSERT INTO rfq_events (rfq_id, event_type, payload_json) VALUES ?", [values]);
+      // Each event inherits the RFQ's audit flag (audit harness), so an unsubscribe on an audit RFQ stays
+      // out of metrics and gets cleaned up with it. The columns are ensured here too: this process can run
+      // before the deals API has restarted and added them.
+      await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0");
+      await pool.query("ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit TINYINT(1) NOT NULL DEFAULT 0");
+      await pool.query("ALTER TABLE rfq_events ADD COLUMN IF NOT EXISTS audit_at DATETIME NULL");
+      const payload = JSON.stringify({ dealerId: String(id), dealerName: dealer.dealer_name });
+      for (const rfqId of affectedRfqs) {
+        await pool.query(
+          "INSERT INTO rfq_events (rfq_id, event_type, payload_json, audit, audit_at) SELECT id, ?, ?, audit, IF(audit = 1, NOW(), NULL) FROM rfq_requests WHERE id = ?",
+          ["dealer_unsubscribed", payload, rfqId]
+        );
+      }
     }
   } catch (err) {
     // A directory-only dealer with no RFQ tables yet, or an older schema: the opt-out

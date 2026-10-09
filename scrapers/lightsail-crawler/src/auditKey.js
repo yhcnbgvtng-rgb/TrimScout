@@ -83,6 +83,8 @@ export const AUDIT_ROUTES = [
   // buyer counter + deal: only on audit RFQs / audit requests whose dealers are all is_test
   { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/buyer-counter$/, label: "POST /api/rfqs/:id/invites/:inviteId/buyer-counter", guard: "buyer_counter" },
   { method: "POST", re: /^\/api\/deals$/, label: "POST /api/deals", bodyGuard: "deal_create" },
+  // invite its own audit RFQ to the is_test dealers (and only them: the handler's inviteCreationVerdict 403s any other dealer)
+  { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites$/, label: "POST /api/rfqs/:id/invites", guard: "buyer_rfq", bodyGuard: "invite_create" },
   // inventory search, so the auditor can pick a VIN for an RFQ (public listing data; no export/ops)
   { method: "GET", re: /^\/api\/inventory$/, label: "GET /api/inventory", anyParams: true },
   { method: "GET", re: /^\/api\/inventory\/vin\/[A-HJ-NPR-Z0-9]{17}$/i, label: "GET /api/inventory/vin/:vin" },
@@ -146,7 +148,7 @@ function authorizeIn(table, method, pathname, searchParams, buyerUserId) {
     out.guard =
       entry.guard === "dealer_token" ? { kind: entry.guard, token: m[1] }
       : entry.guard === "dealer_invite" || entry.guard === "buyer_counter" ? { kind: entry.guard, rfqId: Number(m[1]), inviteId: Number(m[2]) }
-      : entry.guard === "dealer_rfq" ? { kind: entry.guard, rfqId: Number(m[1]) }
+      : entry.guard === "dealer_rfq" || entry.guard === "buyer_rfq" ? { kind: entry.guard, rfqId: Number(m[1]) }
       : { kind: entry.guard, dealRequestId: Number(m[1]) };
   }
   return out;
@@ -234,6 +236,13 @@ export function counterVerdict({ buyerUserId, rfq, invite, testDealers }) {
   return dealerInviteVerdict({ rfq, invite, testDealers });
 }
 
+/** Buyer key inviting dealers: its own audit RFQ. Which dealers is checked per request by inviteCreationVerdict. */
+export function buyerRfqVerdict({ buyerUserId, rfq }) {
+  if (!live(rfq) || String(rfq.buyer_user_id) !== String(buyerUserId)) return forbid("this key is limited to its own test buyer");
+  if (!flagged(rfq.audit_forced_safe)) return forbid("not an audit RFQ");
+  return null;
+}
+
 /** Test-dealer key on a deal request (read it / bid on it): must be an audit request. */
 export function auditRequestVerdict({ dealRequest }) {
   if (!live(dealRequest) || !flagged(dealRequest.audit)) return forbid("not an audit request");
@@ -303,6 +312,8 @@ export async function evaluateGuard(guard, principal, db) {
       const [rfq, invite] = [await db.rfq(guard.rfqId), await db.invite(guard.inviteId)];
       return counterVerdict({ buyerUserId: principal.buyerUserId, rfq, invite, testDealers });
     }
+    case "buyer_rfq":
+      return buyerRfqVerdict({ buyerUserId: principal.buyerUserId, rfq: await db.rfq(guard.rfqId) });
     case "audit_request":
       return auditRequestVerdict({ dealRequest: await db.dealRequest(guard.dealRequestId) });
     default:
