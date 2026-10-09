@@ -11,6 +11,23 @@
       "unlock",
       "alexa built in"
     ],
+    "trimAliases": {
+      "xle": "xle premium",
+      "xle prem": "xle premium",
+      "xle premium": "xle premium",
+      "xle prem pkg": "xle premium",
+      "xle premium pkg": "xle premium",
+      "xle premium package": "xle premium"
+    },
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "hybrid",
+      "hev"
+    ],
     "trims": {
       "le": {
         "label": "LE",

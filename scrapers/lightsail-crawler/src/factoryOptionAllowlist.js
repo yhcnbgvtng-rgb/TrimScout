@@ -152,6 +152,8 @@ export function buildModelPolicies(raw) {
       scope, trims, elsewhere,
       models: new Set((p.models || []).map(normalizeOptionKey)), make: normalizeOptionKey(make), year: String(year),
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
+      trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
+      trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
       addonKeys: new Set(((p.dealerAddons || {}).keys || []).map(normalizeOptionKey)),
       addonPatterns: ((p.dealerAddons || {}).patterns || []).map((x) => new RegExp(x, "i")),
     });
@@ -171,6 +173,25 @@ export function modelPolicyFor(allowlist, vehicle) {
 const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
 
 /**
+ * The policy trim a vehicle's trim string stands for, or null (untrusted). A string that IS a policy trim (case/spacing-insensitive)
+ * is that trim. Otherwise only the policy's own shorthand list applies (trimAliases — for the 2026 RAV4, a bare "XLE" and its
+ * shorthand are XLE Premium, since there is no plain XLE), after stripping drivetrain words (AWD, Hybrid...) from the end.
+ * Everything else — "Trail", "LE AWD", "XLE Premium Plus" — stays untrusted.
+ */
+export function resolvePolicyTrim(policy, rawTrim) {
+  const key = normalizeOptionKey(rawTrim);
+  if (!key) return null;
+  const direct = policy.trims.get(key);
+  if (direct) return { trim: direct, via: "exact" };
+  if (!policy.trimAliases.size) return null;
+  const tokens = key.split(" ");
+  while (tokens.length > 1 && policy.trimNoise.has(tokens[tokens.length - 1])) tokens.pop();
+  const to = policy.trimAliases.get(tokens.join(" "));
+  const trim = to ? policy.trims.get(to) : null;
+  return trim ? { trim, via: "alias" } : null;
+}
+
+/**
  * Classifies one vehicle's raw options under a model policy.
  * -> { rows, dealerAddons, dropped, junkDropped, repaired, trim, trimTrusted, outcomes }
  *    rows          [{ key, label, code, kind, price, via: "kept"|"rolled_up" }] — the factory options, packages only
@@ -181,10 +202,11 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
 export function policyOptionRows(policy, vehicle, options) {
   const base = optionRowsFromOptions(options); // the existing junk/sentence/split rules still run first, unchanged
   const out = { rows: [], dealerAddons: [], dropped: [...base.dropped], junkDropped: base.junkDropped, repaired: base.repaired, outcomes: base.dropped.map((d) => ({ label: d.label, outcome: "dropped", rule: d.rule })) };
-  const trimKey = normalizeOptionKey(vehicle.trim);
-  const trim = trimKey ? policy.trims.get(trimKey) : null;
+  const resolved = resolvePolicyTrim(policy, vehicle.trim);
+  const trim = resolved ? resolved.trim : null;
   out.trim = vehicle.trim || null;
   out.trimTrusted = Boolean(trim);
+  out.trimVia = resolved ? resolved.via : null; // "exact" | "alias" (shorthand folded into its policy trim) | null
   const rows = new Map(), addons = new Map();
   const drop = (label, rule) => { out.dropped.push({ label, rule }); out.outcomes.push({ label, outcome: "dropped", rule }); };
   for (const r of base.rows) {

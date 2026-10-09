@@ -132,9 +132,39 @@ describe('rule 5: dealer/port add-ons and unlisted products go to dealer_addons,
   it('add-ons carry no factory price/kind: they never appear in rows', () => assert.ok(run('Limited', ['Roof Cargo Basket']).rows.length === 0));
 });
 
+describe('a bare "XLE" and its shorthand are XLE Premium (the 2026 RAV4 has no plain XLE)', () => {
+  const lines = ['Panoramic Moonroof Package', 'Weather Package', 'All-Wheel Drive', 'Wind Chill Pearl', 'Premium Audio'];
+  const want = labels(run('XLE Premium', lines));
+  for (const trim of ['XLE', 'xle', ' XLE ', 'XLE Prem', 'XLE Prem.', 'XLE Premium', 'XLE Premium AWD', 'XLE Premium Hybrid', 'XLE Premium Hybrid AWD', 'XLE Prem AWD', 'XLE AWD', 'XLE Hybrid', 'XLE Premium Pkg', 'XLE Premium Package', 'XLE-Premium']) {
+    it(`${JSON.stringify(trim)} -> the XLE Premium call`, () => {
+      const r = run(trim, lines);
+      assert.equal(r.trimTrusted, true);
+      assert.deepEqual(labels(r), want);
+      assert.ok(want.length >= 3, 'sanity: XLE Premium really keeps these');
+    });
+  }
+  it('says whether the trim was matched exactly or folded in (for reporting)', () => {
+    assert.equal(run('XLE Premium', lines).trimVia, 'exact');
+    assert.equal(run('XLE', lines).trimVia, 'alias');
+    assert.equal(run('XLE Prem AWD', lines).trimVia, 'alias');
+    assert.equal(run('Trail', lines).trimVia, null);
+  });
+  it('the options kept under XLE are priced as XLE Premium (not the other trims)', () => {
+    assert.equal(run('XLE', ['Panoramic Moonroof Package']).rows[0].price, 1850);
+  });
+  it('only the XLE shorthand moves: every other trim string keeps its old call', () => {
+    for (const trim of ['LE', 'SE', 'Woodland', 'XSE', 'Limited']) assert.equal(run(trim, lines).trimVia, 'exact');
+    for (const trim of ['LE AWD', 'SE AWD', 'XSE Hybrid', 'Limited AWD', 'Woodland AWD', 'Prem', 'Premium', 'XLE Premium Plus', 'XLE Limited', 'XLE Sport', 'Trail', 'Adventure']) assert.equal(run(trim, lines).trimTrusted, false, trim);
+  });
+  it('another year or model with an "XLE" trim is untouched (no policy at all)', () => {
+    assert.equal(optionRowsForVehicle(ALLOW, car('XLE', { year: 2025 }), [{ name: 'Weather Package' }]), null);
+    assert.equal(optionRowsForVehicle(ALLOW, car('XLE', { model: 'Camry' }), [{ name: 'Weather Package' }]), null);
+  });
+});
+
 describe('rule 6: no trim, or an untrusted trim, means no factory options', () => {
   const lines = ['Weather Package', 'Moonroof Package', 'AWD', 'Heated Steering Wheel', 'Siri', 'Ruby Flare Pearl'];
-  for (const trim of [null, '', undefined, 'Trail', 'XLE', 'Hybrid XSE Premium Plus', '   ']) {
+  for (const trim of [null, '', undefined, 'Trail', 'Hybrid XSE Premium Plus', 'XLE Premium Plus', 'LE AWD', 'Limited Hybrid', 'SE Hybrid', 'XSE Premium', 'XLE Sport', '   ']) {
     it(`trim ${JSON.stringify(trim)} -> empty options`, () => {
       const r = run(trim, lines);
       assert.deepEqual(r.rows, []);

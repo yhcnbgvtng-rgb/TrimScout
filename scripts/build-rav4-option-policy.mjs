@@ -121,6 +121,19 @@ const policy = {
     source: "docs/rav4-2026/rav4_2026_options_by_trim.csv (toyota.com configurator, 2026 RAV4 hybrid)",
     models: ["rav4", "rav4 hybrid"],
     keepBare: ["siri", "google", "unlock", "alexa built in"],
+    // The 2026 RAV4 has no plain XLE: its only XLE is "XLE Premium". A dealer's bare "XLE" and the obvious shorthand for it
+    // ("XLE Prem", "XLE Premium AWD", ...) are therefore XLE Premium. Only these strings: every other trim string keeps its
+    // old call (exactly LE, SE, XLE Premium, Woodland, XSE, Limited trusted; anything else untrusted -> no options).
+    // trimNoise: drivetrain / powertrain words stripped from the END of a trim string before the alias lookup.
+    trimAliases: {
+      "xle": "xle premium",
+      "xle prem": "xle premium",
+      "xle premium": "xle premium",
+      "xle prem pkg": "xle premium",
+      "xle premium pkg": "xle premium",
+      "xle premium package": "xle premium",
+    },
+    trimNoise: ["awd", "fwd", "4wd", "2wd", "4x4", "hybrid", "hev"],
     trims,
     dealerAddons: { keys: [...accessoryKeys].sort(), patterns: DEALER_ADDON_PATTERNS },
   },
