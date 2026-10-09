@@ -54,7 +54,7 @@ for a in anchors:
             fails += 1
             bad += 1
 total = len(anchors)
-print(f"\n{total - bad}/{total} anchors ok ({applied} already applied), {bad} FAIL" + (" (plus unreadable file)" if fails > bad else ""))
+print(f"\n{total - bad}/{total} anchors ok ({applied} already applied), {bad} FAIL" + (" (plus unreadable file)" if bad < fails else ""))
 print("Read-only check: no files were changed.")
 sys.exit(1 if fails else 0)
 PY
