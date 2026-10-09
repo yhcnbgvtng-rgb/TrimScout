@@ -162,6 +162,30 @@ describe('box_report.js (per-box nightly SLA report)', () => {
     assert.match(html, /<html>/);
   });
 
+  it('adds no liteShadow section (report key or HTML) when no brand ran in lite-crawl shadow mode', async () => {
+    const report = await buildBoxReport(fixtureDriverSummary(), {});
+    assert.equal('liteShadow' in report, false);
+    const html = renderBoxReportHtml(report);
+    assert.doesNotMatch(html, /Lite crawl/);
+    assert.match(html, /<\/table>\n<h2>Capacity<\/h2>/, 'the Quality and Capacity tables must stay adjacent exactly as before');
+  });
+
+  it('sums lite-crawl shadow totals across brands into the report and renders them', async () => {
+    const summary = fixtureDriverSummary();
+    const shadow = (n) => ({ urlsTotal: 10 * n, matched: 8 * n, liteEligible: 5 * n, liteEligibleProduced: 4 * n, indexMismatches: n, vehiclesExtracted: 9 * n, byPlatform: { ddc: { urls: 10 * n, matched: 8 * n, liteEligible: 5 * n, liteEligibleProduced: 4 * n, indexMismatches: n } } });
+    const brandsWithStats = Object.values(summary.states).flatMap((s) => Object.values(s.brands || {})).filter((b) => b.stats);
+    brandsWithStats.forEach((b, i) => { b.stats.liteShadow = shadow(i + 1); });
+    assert.ok(brandsWithStats.length >= 2, 'fixture needs at least two brands with stats');
+    const expectedN = brandsWithStats.reduce((s, _, i) => s + i + 1, 0);
+
+    const report = await buildBoxReport(summary, {});
+    assert.equal(report.liteShadow.urlsTotal, 10 * expectedN);
+    assert.equal(report.liteShadow.liteEligible, 5 * expectedN);
+    assert.equal(report.liteShadow.indexMismatches, expectedN);
+    assert.equal(report.liteShadow.byPlatform.ddc.liteEligibleProduced, 4 * expectedN);
+    assert.match(renderBoxReportHtml(report), /Lite crawl \(shadow\)/);
+  });
+
   describe('appendCapacityHistoryRow (recalibration data for capacity.js p50/p90)', () => {
     it('creates the CSV with a header on the first call, then appends without repeating the header', async () => {
       const csvPath = path.join(tmpDir, 'capacity_history.csv');

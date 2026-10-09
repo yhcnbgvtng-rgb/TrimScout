@@ -220,4 +220,18 @@ describe('daily_changes (bug 3: multi-brand, multi-state daily record)', () => {
     assert.equal(doc.date, todayDate);
     assert.equal(doc.brandsRun, 1);
   });
+
+  it('carries lite-crawl shadow totals in stats only when shadow mode ran — off-mode stats keep their exact old shape', () => {
+    const args = {
+      brand: 'Toyota', state: 'NJ', todayDate, todayIso, totalDealersConfigured: 1, activeDealersCount: 1, currentInventorySize: 10,
+      newArrivals: [], priceDrops: [], priceIncreases: [], soldVehicles: [], dealerStats: {}, skippedForBotProtection: 0,
+    };
+    const off = buildBrandChangeRecord({ ...args, liteShadow: null });
+    assert.deepEqual(Object.keys(off.stats), ['totalActiveInventory', 'totalNewArrivals', 'totalPriceDrops', 'totalPriceIncreases', 'totalSoldOrRemoved', 'skippedForBotProtection']);
+    assert.deepEqual(off, buildBrandChangeRecord(args));
+
+    const shadow = { urlsTotal: 5, matched: 4, liteEligible: 3, liteEligibleProduced: 3, indexMismatches: 0, vehiclesExtracted: 5, byPlatform: {} };
+    const on = buildBrandChangeRecord({ ...args, liteShadow: shadow });
+    assert.deepEqual(on.stats.liteShadow, shadow);
+  });
 });
