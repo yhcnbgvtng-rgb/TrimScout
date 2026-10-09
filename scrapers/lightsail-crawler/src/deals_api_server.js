@@ -28,6 +28,7 @@
 
 import http from "node:http";
 import { randomBytes } from "node:crypto";
+import { authenticate, authorizeAudit, auditLogLine, checkOwnership, createRateLimiter } from "./auditKey.js";
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
@@ -153,13 +154,39 @@ function badRequest(res, message) {
   sendJson(res, 400, { error: message });
 }
 
+// Two key types (see auditKey.js): the shared full key, and a scoped audit key tied to one
+// test buyer. requireAuth sets req.audit for the latter; the route gate below then confines it.
+const auditRateLimiter = createRateLimiter();
+
 function requireAuth(req, res) {
-  const key = req.headers["x-trimscout-api-key"];
-  if (!API_KEY || key !== API_KEY) {
+  const principal = authenticate(req.headers["x-trimscout-api-key"]);
+  if (!principal) {
     sendJson(res, 401, { error: "Unauthorized: missing or invalid X-Trimscout-Api-Key header" });
     return false;
   }
+  if (principal.kind === "audit") {
+    req.audit = principal;
+    const started = Date.now();
+    const pathname = new URL(req.url, "http://x").pathname;
+    // One log line per call (route template + status), written when the response finishes —
+    // including 401-after-auth rejections below, 403s and 429s.
+    res.on("finish", () => console.log(auditLogLine({ method: req.method, pathname, status: res.statusCode, ms: Date.now() - started })));
+    const limit = auditRateLimiter.take();
+    if (!limit.ok) {
+      res.setHeader("Retry-After", String(limit.retryAfterSeconds));
+      sendJson(res, 429, { error: "Rate limit exceeded for this key (60 requests per minute)" });
+      return false;
+    }
+  }
   return true;
+}
+
+// Looks up the owner of a row for the audit-key ownership gate. Table names come only from the
+// fixed allowlist in auditKey.js, never from the request.
+async function lookupBuyerId(table, id) {
+  if (table !== "rfq_requests" && table !== "deal_requests") return null;
+  const [rows] = await getPool().query(`SELECT buyer_user_id FROM ${table} WHERE id = ?`, [id]);
+  return rows.length ? rows[0].buyer_user_id : null;
 }
 
 function readBody(req, maxBytes = 1_000_000) {
@@ -1113,6 +1140,8 @@ async function ensureQuotePackageColumns(pool) {
   // Quote intent (2026-09-17): same_spec = this VIN/build; alternate = open to other vehicles, no VIN required.
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lane VARCHAR(16) NOT NULL DEFAULT 'same_spec'");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS alternate_ask_json TEXT NULL");
+  // Set when the scoped audit key created the row: the app layer must keep dealer mail on SAFE MODE for it.
+  await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS audit_forced_safe TINYINT(1) NOT NULL DEFAULT 0");
   await pool.query("ALTER TABLE rfq_requests MODIFY vin VARCHAR(17) NOT NULL DEFAULT ''");
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS used_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_requests ADD COLUMN IF NOT EXISTS lease_sheet_locked_at DATETIME NULL");
@@ -1167,6 +1196,8 @@ function publicRfqRequest(row, invites) {
     // same_spec (this VIN/build) or alternate (open to other vehicles — no VIN; every quote is an alternate).
     lane: row.lane || "same_spec",
     alternateAsk: parseJsonCol(row.alternate_ask_json) || null,
+    // Created by the scoped audit key: dealer email stays on SAFE MODE (pausmi@outlook.com) no matter what.
+    auditForcedSafeMode: Boolean(row.audit_forced_safe),
     // Admin gate: 'pending' until an admin releases it, 'approved' (released), or 'rejected' (reason to the buyer).
     approvalStatus: row.approval_status || "approved",
     approvalDecidedAt: row.approval_decided_at || null,
@@ -1213,7 +1244,14 @@ async function loadRfqInvitesWithQuotes(pool, rfqId) {
 // non-empty (an RFQ with zero must-haves recorded is never valid).
 async function handleCreateRfq(req, res) {
   const body = await readBody(req);
-  const buyerUserId = (body.buyerUserId || "").toString().trim();
+  let buyerUserId = (body.buyerUserId || "").toString().trim();
+  // The audit key can only create requests for its own test buyer; SAFE MODE is forced on
+  // for everything it creates (audit_forced_safe), and approval stays 'pending' as for any RFQ.
+  const auditForced = Boolean(req.audit);
+  if (auditForced) {
+    if (buyerUserId && buyerUserId !== req.audit.buyerUserId) return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
+    buyerUserId = req.audit.buyerUserId;
+  }
   const vin = (body.vin || "").trim().toUpperCase();
   const stockNumber = body.stockNumber ? String(body.stockNumber).trim() : null;
   const vehicleYear = Number(body.vehicleYear);
@@ -1256,9 +1294,9 @@ async function handleCreateRfq(req, res) {
   const pool = getPool();
   await ensureQuotePackageColumns(pool);
   const [result] = await pool.query(
-    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
-    [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null]
+    `INSERT INTO rfq_requests (buyer_user_id, vin, stock_number, vehicle_year, vehicle_make, vehicle_model, vehicle_trim, must_haves_json, status, package_kind, link_pastes_json, deal_reference, lease_prefs_json, quote_prefs_json, buyer_note, trade_in_expected, approval_status, lane, alternate_ask_json, audit_forced_safe)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+    [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null, auditForced ? 1 : 0]
   );
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
@@ -3420,11 +3458,25 @@ async function handleCrawlClaimsStatus(req, res, params) {
   });
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   if (!requireAuth(req, res)) return;
 
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
+
+  // Scoped audit key: default-deny route allowlist + ownership of any :id, before any handler runs.
+  if (req.audit) {
+    try {
+      const verdict = authorizeAudit(req.method, pathname, url.searchParams, req.audit.buyerUserId);
+      if (!verdict.allowed) return sendJson(res, verdict.status, { error: verdict.error });
+      if (verdict.ownership && !(await checkOwnership(verdict.ownership, req.audit.buyerUserId, lookupBuyerId))) {
+        return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
+      }
+    } catch (err) {
+      console.error(`${new Date().toISOString()} audit gate -> 500:`, err.message);
+      return sendJson(res, 500, { error: "Internal server error" });
+    }
+  }
 
   const run = (fn, ...args) => {
     fn(req, res, ...args).catch((err) => {

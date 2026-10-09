@@ -195,6 +195,8 @@ export interface RfqRequest extends RfqSpec {
   rejectionReason?: string | null;
   /** Corrections an admin made before release, oldest first. */
   adminEdits?: RfqAdminEdit[];
+  /** Created by the scoped audit API key: dealer email stays on SAFE MODE, test-mode recipient overrides never apply. */
+  auditForcedSafeMode?: boolean;
 }
 
 /**
