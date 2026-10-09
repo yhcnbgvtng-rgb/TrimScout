@@ -1,38 +1,43 @@
-/**
- * Which dealerships have a contact on file, for the buyer search table's "Contact" column. Server-only.
- * "Has a contact" = the directory row has a contact email (a way to reach the store); a name alone doesn't count.
- * The directory is ~18k rows, so it is fetched once and cached (single-flight, 10 minutes). If the directory can't be
- * reached the answer is "unknown" (null) and search carries on — a column must never break a search.
- */
 import { listDealerships, type Dealership } from "./dealershipsApi";
+import { normalizeDealerKey } from "./dealerName";
+import { hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
 
 const TTL_MS = 10 * 60 * 1000;
 
-export function dealerHasContact(d: Pick<Dealership, "contactEmail">): boolean {
-  return Boolean(d.contactEmail && d.contactEmail.trim());
-}
+/** Directory rows grouped by normalized dealership name — the same key Step 3's desk lookup matches on. */
+export type ContactIndex = Map<string, Dealership[]>;
 
-/** Dealer ids (as strings, matching InventoryVehicle.dealerId) that have a contact. */
-export function contactIdSet(dealers: Array<Pick<Dealership, "id" | "contactEmail">>): Set<string> {
-  const out = new Set<string>();
-  for (const d of dealers) if (dealerHasContact(d)) out.add(String(d.id));
+export function buildContactIndex(dealers: Dealership[]): ContactIndex {
+  const out: ContactIndex = new Map();
+  for (const d of dealers) {
+    const key = normalizeDealerKey(d.dealerName || "");
+    if (!key) continue;
+    const list = out.get(key);
+    if (list) list.push(d);
+    else out.set(key, [d]);
+  }
   return out;
 }
 
-/** true / false when the directory answered; null when it is unknown (no dealer id, or the directory is down). */
-export function contactStatus(index: Set<string> | null, dealerId: string | null | undefined): boolean | null {
-  if (!index || !dealerId) return null;
-  return index.has(String(dealerId));
+/**
+ * true / false when the directory answered; null when it is unknown (no dealer name, or the directory is down).
+ * Resolves the dealership exactly as Step 3 does (name + state, shared tie-break) and applies the shared
+ * contact-on-file rule, so the Contact column cannot say "Yes" where the quote request would find no one.
+ */
+export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null }): boolean | null {
+  const key = normalizeDealerKey(dealer.dealerName || "");
+  if (!index || !key) return null;
+  return hasContactOnFile(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));
 }
 
-let cache: { at: number; ids: Set<string> } | null = null;
-let inFlight: Promise<Set<string> | null> | null = null;
+let cache: { at: number; ids: ContactIndex } | null = null;
+let inFlight: Promise<ContactIndex | null> | null = null;
 
-export async function loadContactIndex(now: number = Date.now()): Promise<Set<string> | null> {
+export async function loadContactIndex(now: number = Date.now()): Promise<ContactIndex | null> {
   if (cache && now - cache.at < TTL_MS) return cache.ids;
   if (!inFlight) {
     inFlight = listDealerships()
-      .then((rows) => { cache = { at: Date.now(), ids: contactIdSet(rows) }; return cache.ids; })
+      .then((rows) => { cache = { at: Date.now(), ids: buildContactIndex(rows) }; return cache.ids; })
       .catch(() => cache?.ids ?? null) // a stale index beats none; no index at all = unknown
       .finally(() => { inFlight = null; });
   }
