@@ -107,7 +107,10 @@ export function loadAllowlistFromEnv(env = process.env) {
   const errors = [];
   let rawMakes = null, rawModels = null;
   if (makePath) { try { rawMakes = JSON.parse(fs.readFileSync(makePath, "utf8")); } catch (err) { errors.push(`${makePath}: ${err.message}`); } }
-  if (modelPath) { try { rawModels = JSON.parse(fs.readFileSync(modelPath, "utf8")); } catch (err) { errors.push(`${modelPath}: ${err.message}`); } }
+  // OPTION_MODEL_POLICY_PATH: one JSON file or several, comma-separated (their policy scopes are merged).
+  for (const f of modelPath.split(",").map((x) => x.trim()).filter(Boolean)) {
+    try { rawModels = { ...(rawModels || {}), ...JSON.parse(fs.readFileSync(f, "utf8")) }; } catch (err) { errors.push(`${f}: ${err.message}`); }
+  }
   return { allowlist: errors.length && !rawMakes && !rawModels ? EMPTY_ALLOWLIST : buildAllowlist(rawMakes, rawModels), error: errors.join("; ") || null };
 }
 
@@ -122,7 +125,10 @@ export function loadAllowlistFromEnv(env = process.env) {
 // A vehicle that matches no policy is untouched (policyOptionRows returns null), so other models and other years cost nothing.
 // Source of truth: docs/rav4-2026/*.csv -> scripts/build-rav4-option-policy.mjs -> src/optionPolicies/*.json.
 
-export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([fileURLToPath(new URL("./optionPolicies/toyota-rav4-2026.json", import.meta.url))]);
+export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
+  fileURLToPath(new URL("./optionPolicies/toyota-rav4-2026.json", import.meta.url)),
+  fileURLToPath(new URL("./optionPolicies/toyota-2026-2027.json", import.meta.url)),
+]);
 
 
 /** Raw policies -> lookup. Every entry/alias is re-normalized, so a hand-edited JSON can't break the key contract. */
@@ -154,6 +160,8 @@ export function buildModelPolicies(raw) {
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
+      // DB model spelling -> a word its trims carry in the CSV ("highlander hybrid" -> "hybrid": the Highlander Hybrid's "XLE" is the CSV's "Hybrid XLE").
+      modelImplied: new Map(Object.entries(p.modelImplied || {}).map(([m, w]) => [normalizeOptionKey(m), normalizeOptionKey(w)]).filter(([m, w]) => m && w)),
       trimNoisePhrases: (p.trimNoisePhrases || []).map(normalizeOptionKey).filter(Boolean),
       disclaimerPatterns: (p.disclaimerPatterns || []).map((x) => new RegExp(x, "i")),
       addonKeys: new Set(((p.dealerAddons || {}).keys || []).map(normalizeOptionKey)),
@@ -163,12 +171,16 @@ export function buildModelPolicies(raw) {
   return out;
 }
 
+/** Every policy whose make/model/year match this vehicle (two CSV models can share one DB model spelling, e.g. "bZ"). */
+export function modelPoliciesFor(allowlist, vehicle) {
+  if (!vehicle || !allowlist?.models?.size) return [];
+  const make = normalizeOptionKey(vehicle.make), model = normalizeOptionKey(vehicle.model), year = String(vehicle.year || "").trim();
+  return [...allowlist.models.values()].filter((p) => p.make === make && p.year === year && p.models.has(model));
+}
+
 /** The policy for this vehicle, or null (any other make, model or year). */
 export function modelPolicyFor(allowlist, vehicle) {
-  if (!vehicle || !allowlist?.models?.size) return null;
-  const make = normalizeOptionKey(vehicle.make), model = normalizeOptionKey(vehicle.model), year = String(vehicle.year || "").trim();
-  for (const p of allowlist.models.values()) if (p.make === make && p.year === year && p.models.has(model)) return p;
-  return null;
+  return modelPoliciesFor(allowlist, vehicle)[0] || null;
 }
 
 // "Weather Package $375" / "(CY)" style decoration around a package name.
@@ -180,22 +192,40 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
  * shorthand are XLE Premium, since there is no plain XLE), after stripping drivetrain words (AWD, Hybrid...) from the end.
  * Everything else — "Trail", "LE AWD", "XLE Premium Plus" — stays untrusted.
  */
-export function resolvePolicyTrim(policy, rawTrim) {
-  const key = normalizeOptionKey(rawTrim);
+export function resolvePolicyTrim(policy, rawTrim, model = null) {
+  let key = normalizeOptionKey(rawTrim);
   if (!key) return null;
+  const implied = model ? policy.modelImplied.get(normalizeOptionKey(model)) : null;
+  if (implied && !` ${key} `.includes(` ${implied} `)) {
+    const withWord = policy.trims.get(`${implied} ${key}`);
+    if (withWord) return { trim: withWord, via: "model-implied" };
+  }
   const direct = policy.trims.get(key);
   if (direct) return { trim: direct, via: "exact" };
   if (!policy.trimAliases.size && !policy.trimNoise.size) return null;
-  // Drivetrain / powertrain words ("AWD", "Hybrid", "Natl", "Front-Wheel Drive"...) are removed wherever they sit; the rest must be
-  // exactly a policy trim or the policy's own shorthand for one.
-  let rest = ` ${key} `;
-  for (const phrase of policy.trimNoisePhrases) rest = rest.split(` ${phrase} `).join("  ");
-  const tokens = rest.split(" ").filter((t) => t && !policy.trimNoise.has(t));
+  // Drivetrain / powertrain words ("AWD", "Hybrid", "Natl", "Front-Wheel Drive"...) are noise. A string is a policy trim T when removing
+  // T's own words leaves only noise; the MOST SPECIFIC such T (most words) wins, so "Limited i-FORCE MAX AWD" is "Limited i-FORCE MAX",
+  // never the cheaper "Limited" it also contains, and "XLE Hybrid" is "Hybrid XLE" where the CSV lists one. A tie is untrusted.
+  const stripNoise = (text) => {
+    let rest = ` ${text} `;
+    for (const phrase of policy.trimNoisePhrases) rest = rest.split(` ${phrase} `).join("  ");
+    return rest.split(" ").filter((t) => t && !policy.trimNoise.has(t));
+  };
+  let best = null, tie = false;
+  const inputTokens = key.split(" ");
+  for (const [tk, t] of policy.trims) {
+    const left = [...inputTokens];
+    let missing = false;
+    for (const w of tk.split(" ")) { const at = left.indexOf(w); if (at < 0) { missing = true; break; } left.splice(at, 1); }
+    if (missing || stripNoise(left.join(" ")).length) continue;
+    const size = tk.split(" ").length;
+    if (!best || size > best.size) { best = { trim: t, size }; tie = false; } else if (size === best.size) tie = true;
+  }
+  if (best && !tie) return { trim: best.trim, via: "exact" };
+  if (tie) return null;
+  const tokens = stripNoise(key);
   if (!tokens.length) return null;
-  const left = tokens.join(" ");
-  const exact = policy.trims.get(left);
-  if (exact) return { trim: exact, via: "exact" };
-  const to = policy.trimAliases.get(left);
+  const to = policy.trimAliases.get(tokens.join(" "));
   const trim = to ? policy.trims.get(to) : null;
   return trim ? { trim, via: "alias" } : null;
 }
@@ -211,7 +241,7 @@ export function resolvePolicyTrim(policy, rawTrim) {
 export function policyOptionRows(policy, vehicle, options) {
   const base = optionRowsFromOptions(options); // the existing junk/sentence/split rules still run first, unchanged
   const out = { rows: [], dealerAddons: [], dropped: [...base.dropped], junkDropped: base.junkDropped, repaired: base.repaired, outcomes: base.dropped.map((d) => ({ label: d.label, outcome: "dropped", rule: d.rule })) };
-  const resolved = resolvePolicyTrim(policy, vehicle.trim);
+  const resolved = resolvePolicyTrim(policy, vehicle.trim, vehicle.model);
   const trim = resolved ? resolved.trim : null;
   out.trim = vehicle.trim || null;
   out.trimTrusted = Boolean(trim);
@@ -257,11 +287,14 @@ export function policyOptionRows(policy, vehicle, options) {
 
 /** Convenience for the write path and the backfill: null when no policy applies to this vehicle. */
 export function optionRowsForVehicle(allowlist, vehicle, options) {
-  const policy = modelPolicyFor(allowlist, vehicle);
-  return policy ? policyOptionRows(policy, vehicle, options) : null;
+  const policies = modelPoliciesFor(allowlist, vehicle);
+  if (!policies.length) return null;
+  // Normally one. When two CSV models share a DB model spelling, the policy whose trim list the vehicle's trim resolves in is the one.
+  const policy = policies.find((p) => resolvePolicyTrim(p, vehicle.trim, vehicle.model)) || policies[0];
+  return policyOptionRows(policy, vehicle, options);
 }
 
-/** Reads the bundled RAV4 policy file; what OPTION_MODEL_POLICY_PATH should point at on a box until more models are added. */
+/** Reads the bundled policy files (RAV4 2026, then the other Toyota models); OPTION_MODEL_POLICY_PATH may point at any one JSON of the same shape. */
 export function loadBundledModelPoliciesRaw() {
   const raw = {};
   for (const f of BUNDLED_MODEL_POLICY_PATHS) Object.assign(raw, JSON.parse(fs.readFileSync(f, "utf8")));
