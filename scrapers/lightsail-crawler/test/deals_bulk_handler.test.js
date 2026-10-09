@@ -19,6 +19,7 @@ import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js
 import { resolveVehicleIds } from '../src/vehicleId.js';
 import { guardPrice } from '../src/ingestGuards.js';
 import { normalizeTransmission } from '../src/transmission.js';
+import { decideOptionsIngest, normalizeOptionsSource } from '../src/optionsCapture.js';
 
 const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 const extractFunction = (name) => {
@@ -58,16 +59,30 @@ function makeDb() {
       if (/^INSERT INTO dealer_inventory \(vin, dealer_id,/.test(sql)) {
         // The statement must list vehicle_id LAST, give every row that many values, and keep an existing id on update.
         const cols = sql.match(/^INSERT INTO dealer_inventory \(([^)]*)\)/)[1].split(',').map((c) => c.trim());
-        assert.equal(cols[cols.length - 1], 'vehicle_id', 'vehicle_id is the last column of the upsert');
+        // vehicle_id is the last of the row's own columns; the four options-capture columns follow it (optionsCapture.js).
+        assert.deepEqual(cols.slice(-5), ['vehicle_id', 'options_captured_at', 'options_source', 'options_attempts', 'options_checked_at']);
+        assert.match(sql, /options_captured_at = COALESCE\(VALUES\(options_captured_at\), options_captured_at\)/, 'a null capture column keeps what is stored');
         assert.match(sql, /vehicle_id = COALESCE\(vehicle_id, VALUES\(vehicle_id\)\)/, 'an update keeps the id already stored');
         for (const v of params[0]) {
           assert.equal(v.length, cols.length, 'every row carries one value per listed column');
           const prev = db.inv.get(`${v[0]}|${v[1]}`);
-          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1] });
+          const n = v.length;
+          db.inv.set(`${v[0]}|${v[1]}`, {
+            dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[n - 5],
+            // options_json [27] / options_total [28]: a null keeps the stored value (COALESCE); the capture columns are the last four, same rule.
+            optionsJson: v[27] ?? prev?.optionsJson ?? null, optionsTotal: v[28] ?? prev?.optionsTotal ?? null,
+            capturedAt: v[n - 4] ?? prev?.capturedAt ?? null, optionsSource: v[n - 3] ?? prev?.optionsSource ?? null, attempts: v[n - 2] ?? prev?.attempts ?? null, checkedAt: v[n - 1] ?? prev?.checkedAt ?? null,
+          });
         }
         db.n.upserts += params[0].length;
         db.rows.push(...params[0]);
         return [{ affectedRows: params[0].length }];
+      }
+      if (/^SELECT vin, dealer_id, options_captured_at, options_attempts, options_checked_at FROM dealer_inventory WHERE/.test(sql)) {
+        assert.equal((sql.match(/\(vin = \? AND dealer_id = \?\)/g) || []).length, params.length / 2, 'one PK probe per vehicle');
+        db.n.captureSelects = (db.n.captureSelects || 0) + 1;
+        const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
+        return [[...db.inv].filter(([k]) => want.has(k)).map(([k, r]) => ({ vin: k.split('|')[0], dealer_id: r.dealerId, options_captured_at: r.capturedAt, options_attempts: r.attempts, options_checked_at: r.checkedAt }))];
       }
       if (/^INSERT INTO dealer_inventory_days/.test(sql)) { for (const d of params[0]) db.days.set(`${d[0]}|${d[1]}|${d[2]}`, d); return [{ affectedRows: params[0].length }]; }
       if (/^SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE/.test(sql)) {
@@ -121,6 +136,8 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
+    OPTIONS_ONCE_PER_VIN: false, // the diff-write tests below are about the facet table; the once-per-VIN tests switch it on
+    decideOptionsIngest, normalizeOptionsSource,
     pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission,
     performance,
   };
@@ -416,5 +433,90 @@ describe('handleInventoryBulk — ingest guards (the real handler)', () => {
     const db = makeDb(); const h = loadHandlers(db);
     await h.bulk([veh(1, null, { make: 'LEXUS' }), veh(2, null, { make: 'Lexus' }), veh(3, null, { make: 'lexus' })]);
     assert.deepEqual([1, 2, 3].map((i) => sent(db, i)[COL.make]), ['Lexus', 'Lexus', 'Lexus']);
+  });
+});
+
+// ---- options once per VIN (optionsCapture.js), through the real handler --------------------------------------
+describe('handleInventoryBulk — options once per VIN (the real handler, in-memory pool)', () => {
+  const DAY = 24 * 3600 * 1000;
+  const T0 = Date.parse('2026-10-10T03:00:00Z');
+  const onAt = (h, ms) => {
+    h.ctx.OPTIONS_ONCE_PER_VIN = true;
+    // The handler reads "now" with new Date(); pin it (and Date.now) to the night under test.
+    h.ctx.Date = class extends Date { constructor(...a) { super(...(a.length ? a : [ms])); } static now() { return ms; } };
+  };
+  const row = (db, i) => db.inv.get(`${vin(i)}|${(i % 3) + 1}`);
+  const GOOD = [HEATED, ROOF, TOW];
+  const JUNK = [FEE, opt('See toyota'), opt('Heated Front Seats', 'OPT-3')]; // 2 of 3 labels are junk -> mostly junk
+
+  it('a new VIN with good options is captured: options + facet rows written, captured_at + source stamped', async () => {
+    const db = makeDb(); const h = loadHandlers(db); onAt(h, T0);
+    const r = await h.bulk([veh(1, GOOD, { optionsSource: 'sticker' })]);
+    assert.deepEqual({ cap: r.json.optionsCaptured, skip: r.json.optionsSkipped, rep: r.json.optionSetsReplaced }, { cap: 1, skip: 0, rep: 1 });
+    const s = row(db, 1);
+    assert.equal(s.capturedAt.getTime(), T0);
+    assert.equal(s.optionsSource, 'sticker');
+    assert.ok(s.optionsJson, 'options_json written');
+    assert.equal([...db.opts.values()].filter((o) => o.vin === vin(1)).length, 3);
+  });
+
+  it('later nights skip a captured VIN: its options_json and facet rows are untouched even when the page now says something else; price/last_seen still update', async () => {
+    const db = makeDb(); const h = loadHandlers(db); onAt(h, T0);
+    await h.bulk([veh(1, GOOD)]);
+    const jsonBefore = row(db, 1).optionsJson, tableBefore = db.pool.optionTable();
+    db.n.optionDeletes = db.n.optionInserts = 0; db.n.optionSelects = 0;
+    onAt(h, T0 + DAY);
+    const r = await h.bulk([veh(1, [HEATED], { price: 28999 })]); // tonight's parse lost two options
+    assert.deepEqual({ skip: r.json.optionsSkipped, rep: r.json.optionSetsReplaced, unch: r.json.optionSetsUnchanged }, { skip: 1, rep: 0, unch: 0 });
+    assert.equal(row(db, 1).optionsJson, jsonBefore, 'options_json kept');
+    assert.equal(db.pool.optionTable(), tableBefore, 'facet rows kept');
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts, sel: db.n.optionSelects }, { d: 0, i: 0, sel: 0 }, 'no option statements at all');
+    assert.equal(db.rows.at(-1)[12], 28999, 'the price still goes through');
+    assert.equal(row(db, 1).capturedAt.getTime(), T0, 'the capture time is the first capture, not rewritten');
+  });
+
+  it('an empty first capture is tried again once, no sooner than 7 days later, then never again', async () => {
+    const db = makeDb(); const h = loadHandlers(db); onAt(h, T0);
+    let r = await h.bulk([veh(1, null)]);
+    assert.equal(r.json.optionsFailedTry, 1);
+    assert.equal(row(db, 1).attempts, 1);
+    for (const d of [1, 3, 6]) { onAt(h, T0 + d * DAY); r = await h.bulk([veh(1, GOOD)]); assert.equal(r.json.optionsWaiting, 1, `day ${d}: waiting`); assert.equal(row(db, 1).optionsJson, null, 'good options offered too early are not taken'); }
+    onAt(h, T0 + 7 * DAY); r = await h.bulk([veh(1, GOOD)]);
+    assert.deepEqual({ cap: r.json.optionsCaptured, rep: r.json.optionSetsReplaced }, { cap: 1, rep: 1 }, 'day 7: the one retry is taken');
+    assert.ok(row(db, 1).capturedAt && row(db, 1).optionsJson);
+  });
+
+  it('two failed tries: the VIN is never tried again, however many nights pass', async () => {
+    const db = makeDb(); const h = loadHandlers(db); onAt(h, T0);
+    await h.bulk([veh(1, null)]);
+    onAt(h, T0 + 8 * DAY); let r = await h.bulk([veh(1, null)]);
+    assert.equal(r.json.optionsFailedTry, 1);
+    assert.equal(row(db, 1).attempts, 2);
+    for (const d of [9, 20, 90]) { onAt(h, T0 + d * DAY); r = await h.bulk([veh(1, GOOD)]); assert.equal(r.json.optionsWaiting, 1, `day ${d}: given up`); }
+    assert.equal(row(db, 1).optionsJson, null);
+    assert.equal(row(db, 1).capturedAt, null);
+  });
+
+  it('a mostly-junk capture is not "captured": the options that survive the deny rules are stored (as before), the try is counted, and it is retried once after 7 days', async () => {
+    const db = makeDb(); const h = loadHandlers(db); onAt(h, T0);
+    const r1 = await h.bulk([veh(1, JUNK)]);
+    assert.deepEqual({ cap: r1.json.optionsCaptured, fail: r1.json.optionsFailedTry, rep: r1.json.optionSetsReplaced }, { cap: 0, fail: 1, rep: 1 });
+    assert.equal(row(db, 1).capturedAt, null);
+    assert.equal([...db.opts.values()].filter((o) => o.vin === vin(1)).length, 1, 'the one real option is kept');
+    onAt(h, T0 + 2 * DAY);
+    assert.equal((await h.bulk([veh(1, GOOD)])).json.optionsWaiting, 1);
+    onAt(h, T0 + 7 * DAY);
+    const r2 = await h.bulk([veh(1, GOOD)]);
+    assert.equal(r2.json.optionsCaptured, 1);
+    assert.equal([...db.opts.values()].filter((o) => o.vin === vin(1)).length, 3);
+  });
+
+  it('OPTIONS_ONCE_PER_VIN off: every night\'s options overwrite, exactly as before (no capture state is read or written)', async () => {
+    const db = makeDb(); const h = loadHandlers(db); // flag stays false
+    await h.bulk([veh(1, GOOD)]);
+    const r = await h.bulk([veh(1, [HEATED])]);
+    assert.equal(r.json.optionSetsReplaced, 1);
+    assert.equal(db.n.captureSelects || 0, 0);
+    assert.equal(row(db, 1).capturedAt, null);
   });
 });

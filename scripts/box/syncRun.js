@@ -88,7 +88,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   const t0 = now();
   let upserted = 0;
   let skippedRows = 0;
-  const optionStats = { setsReplaced: 0, setsKept: 0, setsUnchanged: 0, rowsWritten: 0, junkDropped: 0 };
+  const optionStats = { setsReplaced: 0, setsKept: 0, setsUnchanged: 0, rowsWritten: 0, junkDropped: 0, onceSkipped: 0, onceCaptured: 0, onceFailedTry: 0, onceWaiting: 0 };
   const server = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, requests: 0 };
   const batchWallMs = [];
   let upsertMs = 0;
@@ -124,6 +124,12 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
       optionStats.setsUnchanged += r?.optionSetsUnchanged ?? 0;
       optionStats.rowsWritten += r?.optionRowsWritten ?? 0;
       optionStats.junkDropped += r?.optionJunkDropped ?? 0;
+      // Options once per VIN (optionsCapture.js): vehicles whose options were left alone (captured), taken for the first time,
+      // counted as a failed try, or waiting out the 7-day retry gap.
+      optionStats.onceSkipped += r?.optionsSkipped ?? 0;
+      optionStats.onceCaptured += r?.optionsCaptured ?? 0;
+      optionStats.onceFailedTry += r?.optionsFailedTry ?? 0;
+      optionStats.onceWaiting += r?.optionsWaiting ?? 0;
       if (r && r.timings) {
         server.requests++;
         for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) server[k] += Number(r.timings[k]) || 0;
@@ -148,6 +154,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   }
   const sortedBatchMs = batchWallMs.slice().sort((a, b) => a - b);
   log(`[sync] factory options: ${optionStats.setsReplaced} vehicles replaced (${optionStats.rowsWritten} rows, ${optionStats.junkDropped} junk sentences dropped), ${optionStats.setsUnchanged} unchanged (left as-is), ${optionStats.setsKept} kept as-is (no options extracted this run)`);
+  if (optionStats.onceSkipped || optionStats.onceCaptured || optionStats.onceFailedTry || optionStats.onceWaiting) log(`[sync] options once per VIN: ${optionStats.onceSkipped} already captured (options not re-taken), ${optionStats.onceCaptured} captured now, ${optionStats.onceFailedTry} empty/junk tries counted, ${optionStats.onceWaiting} waiting out the retry gap / given up`);
   if (batchWallMs.length) {
     log(`[sync] upsert phase: ${upserted} rows in ${fmtDur(upsertMs)} (${((upserted / Math.max(1, upsertMs)) * 1000).toFixed(1)} rows/s) over ${batchWallMs.length} requests; per-request p50 ${fmtDur(quantile(sortedBatchMs, 0.5))}, p95 ${fmtDur(quantile(sortedBatchMs, 0.95))}`);
   }
