@@ -6,12 +6,14 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
-  buildAllowlist, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, loadAllowlistFromEnv, modelPolicyFor, optionRowsForVehicle,
+  buildAllowlist, EMPTY_ALLOWLIST, loadAllowlistFromEnv, modelPolicyFor, optionRowsForVehicle,
 } from '../src/factoryOptionAllowlist.js';
 import { normalizeOptionKey, optionRowsFromOptions } from '../src/inventoryOptionRows.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const ALLOW = buildAllowlist(null, loadBundledModelPoliciesRaw());
+// The 2026 RAV4 policy on its own: these tests are about it, and the Toyota policies stacked on top (PR: toyota-2026-2027) cover other models.
+const RAV4_RAW = JSON.parse(fs.readFileSync(path.join(here, '../src/optionPolicies/toyota-rav4-2026.json'), 'utf8'));
+const ALLOW = buildAllowlist(null, RAV4_RAW);
 const car = (trim, extra = {}) => ({ make: 'Toyota', model: 'RAV4', year: 2026, trim, ...extra });
 const run = (trim, names, extra) => optionRowsForVehicle(ALLOW, car(trim, extra), names.map((name) => ({ name })));
 const labels = (r) => r.rows.map((x) => x.label).sort();
@@ -250,7 +252,7 @@ describe('rule 7: bare Siri / Google / Alexa Built In stay as they are (bare "un
       assert.equal(r.dealerAddons.length, 0);
       assert.ok(r.dropped.some((d) => d.label.toLowerCase() === 'unlock' && d.rule === 'standard-or-unknown'), trim);
     }
-    assert.ok(!loadBundledModelPoliciesRaw()['toyota|rav4|2026'].keepBare.includes('unlock'));
+    assert.ok(!RAV4_RAW['toyota|rav4|2026'].keepBare.includes('unlock'));
   });
   it('only the bare strings: longer variants are not bare names', () => assert.deepEqual(run('SE', ['Siri Eyes Free Wireless Charging Dock']).rows, []));
   it('with no trusted trim the row is empty (rule 6 wins)', () => assert.deepEqual(run(null, ['Siri']).rows, []));
@@ -258,7 +260,7 @@ describe('rule 7: bare Siri / Google / Alexa Built In stay as they are (bare "un
 
 describe('rule 8: plugged in through factoryOptionAllowlist.js, RAV4 only, keys from normalizeOptionKey()', () => {
   it('every policy key and alias is normalizeOptionKey output', () => {
-    const raw = loadBundledModelPoliciesRaw();
+    const raw = RAV4_RAW;
     for (const p of Object.values(raw)) for (const t of Object.values(p.trims)) for (const [k, o] of Object.entries(t.options)) {
       assert.equal(normalizeOptionKey(k), k);
       for (const a of o.aliases) assert.equal(normalizeOptionKey(a), a);
@@ -306,7 +308,7 @@ describe('rule 9: the policy is generated from the shipped source data', () => {
     for (const f of ['rav4_2026_vocabulary.md', 'rav4_option_normalization.csv', 'rav4_2026_options_by_trim.csv']) assert.ok(fs.existsSync(path.join(here, '../../../docs/rav4-2026', f)), f);
   });
   it('covers all six trims', () => {
-    const p = Object.values(loadBundledModelPoliciesRaw())[0];
+    const p = Object.values(RAV4_RAW)[0];
     assert.deepEqual(Object.values(p.trims).map((t) => t.label), ['LE', 'SE', 'XLE Premium', 'Woodland', 'XSE', 'Limited']);
   });
 });
