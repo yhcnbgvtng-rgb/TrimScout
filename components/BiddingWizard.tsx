@@ -30,6 +30,7 @@ import {
   type QuoteInviteStage,
 } from "../lib/quotePackage";
 import type { PublicDesk } from "../app/api/quote-desks/route";
+import { EMAIL_ONLY_HELPER, NO_CONTACT_HELPER, salesDeskLabel } from "../lib/deskCopy";
 import type { RfqInvite } from "../lib/rfq";
 import { newDealReference } from "../lib/dealReference";
 import { findContactInfo } from "../lib/piiFilter";
@@ -3180,7 +3181,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 </span>
                               ) : (
                                 <span className="shrink-0 rounded-lg bg-sky-500/15 px-2.5 py-1 text-[10px] font-extrabold text-sky-200" data-testid="contact-desk" data-routing={desk.routing}>
-                                  → Dealership sales desk
+                                  → {salesDeskLabel(desk.contactState)}
                                 </span>
                               )}
                             </div>
@@ -3199,7 +3200,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                       ? "This dealership asked us to stop emailing them. Add your own sales adviser's address to reach them."
                                       : desk.routing === "rooftop_inbox"
                                         ? "No named sales contact on file yet — the request goes to the dealership's sales desk, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them instead."
-                                        : "No sales contact on file yet — our team routes the request to this dealership by hand, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them directly."}
+                                        : desk.contactState === "none"
+                                          ? NO_CONTACT_HELPER
+                                          : EMAIL_ONLY_HELPER}
                                 </p>
                                 {toDesk ? <p className="text-[10px] text-ink-light">To: <span className="font-semibold">Sales desk</span> · {dealer.dealerName}</p> : null}
                                 <input
@@ -3681,7 +3684,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             if (!row?.checked) return desk.blockedReason === "dealer_opted_out" && !supplied ? "Opted out" : "Not sending";
                                             if (row.routing === "adviser") return "Adviser added";
                                             if (row.routing === "named") return "Named contact";
-                                            return "Dealership sales desk";
+                                            return salesDeskLabel(desk.contactState);
                                           }
                                           return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
                                         })()}

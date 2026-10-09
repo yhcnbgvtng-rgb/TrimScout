@@ -1,7 +1,7 @@
 import { searchInventory, type InventoryVehicle } from "./inventoryApi";
 import type { ParsedBuyerSearch } from "./buyerSearchQuery";
 import { calculateDistanceMiles } from "./otdCalculator";
-import { contactStatus, loadContactIndex } from "./dealerContactIndex";
+import { contactStatus, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
 import { sortByDistance } from "./buyerSort";
 
 /** Fields a buyer has no reason to see — crawl-pipeline provenance, not vehicle or deal facts. */
@@ -11,9 +11,9 @@ export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"
   dealerHasContact: boolean | null;
 };
 
-function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: Set<string> | null): BuyerVehicle {
+export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
   const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, ...rest } = v;
-  return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v.dealerId) };
+  return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v) };
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
