@@ -1,28 +1,28 @@
-# Toyota 2026-2027 policies: read-only before/after on box2 (2026-10-09 13:25-13:31 ET)
+# Toyota 2026-2027 policies: read-only before/after on box2 (rerun 2026-10-09 13:37-13:40 ET, after the approved trim aliases)
 
-In-stock Toyota rows for the DB models the policies cover: 195,039 fetched (matches the live count), 119,020 under a policy (the rest are other years, untouched). Old = today's facet rows (current generic rules on options_json); new = this policy. Columns after "new" are per-vehicle averages. 0 timeouts on the run that completed.
+In-stock Toyota rows for the DB models the policies cover: 195,039 fetched (matches the live count), 119,020 under a policy (the rest are other years, untouched). Old = today's facet rows (current generic rules on options_json); new = this policy. Columns after "new" are per-vehicle averages. 0 timeouts. Untrusted trims: 6,708 before the aliases, 3,256 after.
 
 | Policy | Vehicles | Old raw | Old | New | Kept | Rolled up | Dealer add-ons | Dropped | No trim | Untrusted trim |
 |---|---|---|---|---|---|---|---|---|---|---|
-| tacoma|2026 | 19057 | 7.32 | 4.34 | 0.05 | 0.04 | 0.01 | 0.07 | 7.15 | 60 | 1280 |
+| tacoma|2026 | 19057 | 7.32 | 4.34 | 0.05 | 0.04 | 0.01 | 0.07 | 7.15 | 60 | 354 |
 | rav4|2026 | 17777 | 14.63 | 9.66 | 0.04 | 0.03 | 0.01 | 0.06 | 14.49 | 786 | 240 |
-| tundra|2026 | 14787 | 7.00 | 4.51 | 0.10 | 0.10 | 0.00 | 0.07 | 6.81 | 1429 | 1428 |
+| tundra|2026 | 14787 | 7.00 | 4.51 | 0.10 | 0.10 | 0.00 | 0.07 | 6.80 | 1429 | 520 |
 | camry|2026 | 11474 | 7.81 | 5.42 | 0.08 | 0.08 | 0.01 | 0.05 | 7.72 | 657 | 110 |
 | corolla|2027 | 9954 | 9.69 | 6.65 | 0.00 | 0.00 | 0.00 | 0.04 | 9.77 | 255 | 243 |
-| sienna|2026 | 8212 | 10.92 | 7.73 | 0.01 | 0.01 | 0.00 | 0.05 | 10.62 | 395 | 536 |
+| sienna|2026 | 8212 | 10.92 | 7.73 | 0.01 | 0.01 | 0.00 | 0.05 | 10.62 | 395 | 101 |
 | grand highlander|2026 | 8118 | 11.07 | 8.61 | 0.01 | 0.01 | 0.00 | 0.05 | 10.98 | 499 | 416 |
-| 4runner|2026 | 6359 | 6.95 | 4.93 | 0.05 | 0.05 | 0.00 | 0.02 | 6.82 | 370 | 982 |
+| 4runner|2026 | 6359 | 6.95 | 4.93 | 0.05 | 0.05 | 0.00 | 0.02 | 6.81 | 370 | 304 |
 | corolla cross|2026 | 6143 | 9.23 | 6.05 | 0.04 | 0.04 | 0.00 | 0.09 | 8.86 | 9 | 59 |
 | rav4 plug in hybrid|2026 | 3273 | 15.25 | 10.06 | 0.06 | 0.04 | 0.02 | 0.07 | 15.10 | 8 | 36 |
 | highlander|2026 | 2548 | 11.47 | 9.59 | 0.00 | 0.00 | 0.00 | 0.03 | 11.64 | 166 | 78 |
 | sequoia|2026 | 2318 | 8.09 | 5.70 | 0.07 | 0.06 | 0.01 | 0.06 | 7.91 | 52 | 14 |
 | crown signia|2026 | 1730 | 7.01 | 4.83 | 0.01 | 0.00 | 0.00 | 0.05 | 7.02 | 98 | 20 |
-| land cruiser|2027 | 1685 | 7.72 | 5.77 | 0.01 | 0.01 | 0.00 | 0.05 | 7.66 | 332 | 512 |
+| land cruiser|2027 | 1685 | 7.72 | 5.77 | 0.02 | 0.02 | 0.00 | 0.05 | 7.65 | 332 | 208 |
 | prius|2027 | 1263 | 8.04 | 5.97 | 0.02 | 0.02 | 0.00 | 0.03 | 8.24 | 77 | 20 |
 | prius plug in hybrid|2027 | 811 | 8.31 | 6.01 | 0.05 | 0.04 | 0.01 | 0.02 | 8.46 | 32 | 6 |
 | bz bz4x|2027 | 713 | 11.85 | 9.05 | 0.00 | 0.00 | 0.00 | 0.02 | 12.14 | 0 | 41 |
 | corolla hatchback|2027 | 713 | 9.11 | 6.57 | 0.01 | 0.01 | 0.00 | 0.05 | 9.06 | 1 | 6 |
-| gr corolla|2026 | 654 | 12.14 | 9.02 | 0.00 | 0.00 | 0.00 | 0.02 | 12.36 | 12 | 365 |
+| gr corolla|2026 | 654 | 12.14 | 9.02 | 0.00 | 0.00 | 0.00 | 0.02 | 12.35 | 12 | 164 |
 | bz woodland|2027 | 499 | 11.68 | 8.97 | 0.00 | 0.00 | 0.00 | 0.00 | 11.68 | 17 | 142 |
 | crown|2027 | 324 | 8.25 | 5.36 | 0.01 | 0.01 | 0.00 | 0.01 | 8.54 | 12 | 9 |
 | gr86|2027 | 314 | 6.70 | 4.89 | 0.01 | 0.01 | 0.00 | 0.01 | 6.68 | 1 | 159 |
@@ -83,56 +83,56 @@ In-stock Toyota rows for the DB models the policies cover: 195,039 fetched (matc
 
 ## Top 20 raw trim strings among untrusted trims
 
-- 303 x 2027 Land Cruiser | Base
-- 300 x 2026 Tundra i-FORCE MAX | TRD Pro
-- 237 x 2026 Tacoma i-FORCE MAX | Tacoma TRD Off Road
-- 216 x 2026 4Runner i-FORCE MAX | TRD Pro
-- 179 x 2026 Tacoma i-FORCE MAX | TRD Pro
-- 178 x 2026 Tundra i-FORCE MAX | Tundra 1794 Edition
 - 167 x 2026 RAV4 | AWD
-- 164 x 2026 Tacoma i-FORCE MAX | Trailhunter
-- 141 x 2026 4Runner i-FORCE MAX | 4Runner TRD Off-Road Premium
-- 129 x 2026 Tundra i-FORCE MAX | Tundra Platinum
-- 127 x 2026 Tundra i-FORCE MAX | Tundra Limited
-- 124 x 2026 Tundra i-FORCE MAX | Tundra TRD Pro
 - 115 x 2026 Tundra i-FORCE MAX | Capstone
-- 112 x 2026 Tacoma i-FORCE MAX | Tacoma Limited
-- 107 x 2026 GR Corolla | Premium Plus MT
 - 106 x 2027 bZ Woodland | Base
-- 104 x 2026 Sienna | XLE 8 Passenger
 - 100 x 2027 Land Cruiser | 4WD Natl
-- 98 x 2026 4Runner i-FORCE MAX | Trailhunter
-- 94 x 2026 GR Corolla | Premium Plus DAT
+- 87 x 2026 4Runner i-FORCE MAX | TRD Off-Road Premium i-FORCE
+- 78 x 2027 GR86 | Premium AT
+- 74 x 2026 GR Corolla | MT
+- 70 x 2027 Corolla Hybrid | LE AWD
+- 68 x 2027 Land Cruiser | Four Wheel Drive 8-Speed
+- 66 x 2026 4Runner i-FORCE MAX | Platinum
+- 64 x 2026 Sienna | AWD
+- 62 x 2027 GR86 | Premium MT
+- 61 x 2026 GR Corolla | DAT
+- 58 x 2026 Grand Highlander Hybrid | Limited All Wheel Drive
+- 54 x 2027 Corolla | FWD
+- 54 x 2026 Grand Highlander Hybrid | Nightshade Edition
+- 53 x 2026 Tundra i-FORCE MAX | Tundra Capstone
+- 52 x 2027 Corolla Hybrid | SE AWD
+- 50 x 2026 RAV4 | AWD HYBRID AWD
+- 49 x 2026 4Runner i-FORCE MAX | 4runner Platinum
 
 ## Top 30 unmatched strings (not obviously standard equipment by a keyword filter; many are still standard-equipment fragments)
 
-- 16525 x unlock
-- 9201 x vehicle/trip information
+- 16871 x unlock
+- 10483 x vehicle/trip information
 - 7937 x front disc brakes
 - 7883 x voice-command
-- 7722 x outside temperature
+- 7803 x outside temperature
 - 7682 x tripmeters
 - 7207 x trip timer
 - 6831 x integrated multimedia information
 - 6831 x shift-position and scheduled maintenance indicators
 - 6733 x auto LSD/VSC
 - 6174 x unlock and panic functions
-- 5838 x individual temperature settings for driver
+- 5990 x individual temperature settings for driver
 - 5413 x voice command
-- 4341 x Eco
+- 4493 x Eco
+- 3675 x auto on/off feature
 - 3514 x solid 10
-- 3023 x auto on/off feature
+- 3106 x driving controls
 - 2881 x two-stage unlock
-- 2760 x driving controls
 - 2689 x rear disc brakesSafety and ConvenienceToyota Safety Sense™ 3
 - 2558 x pass-through
 - 2558 x illuminated storage compartment
 - 2558 x ECO
 - 2442 x solid 11
-- 1878 x Normal
+- 1918 x Normal
 - 1845 x sport-tuned shock absorbers and springs
 - 1775 x driver
 - 1756 x 169 hp Performance: LEV 3
+- 1485 x subwoofer and amplifier
+- 1477 x jam protection
 - 1320 x EV Mode
-- 1171 x jam protection
-- 1166 x satin black overfenders
