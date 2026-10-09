@@ -226,45 +226,107 @@ Dealer.com / 8 undetected; Genesis 34 DealerOn / 12 Team Velocity / 9 Dealer.com
 Inspire / 1 CDK / 9 undetected; Stellantis 5 Dealer.com / 2 undetected. DealerOn and Dealer.com
 (about 70% of passing stores) use existing parsers.
 
-## 6. Pilot (proposed, waiting for your GO)
+## 6. Pilot (GO given with changes; runs tomorrow, 2026-10-09)
 
-**20 new stores on box1**, all pass the plain fetch, all on DealerOn or Dealer.com except the two
-Team Velocity TX Toyotas (included on purpose, to test the generic fallback):
+**Changes applied:** 5 of the 9 Genesis stores swapped for Toyota (no Stellantis store passes the
+fetch except Carvana-owned ones, which I excluded), 4 Genesis kept to test the parser.
 
-- 3 TX Toyota that pass: Bruner (Early), Platinum Toyota of Texoma, Toyota of Del Rio
-- 7 other Toyota: Central City (PA), Sunny King and Toyota of Dothan (AL), Phil Wright (AR),
-  Findlay Prescott (AZ), Chuck Patterson and Mid-City (CA)
-- 9 Genesis: Cherry Hill (NJ); Brooklyn, Buffalo, Smithtown (NY); Monroeville (PA); Mesquite,
-  Clear Lake, NW San Antonio, Grubbs Grapevine (TX)
-- 1 independent: J & S Autohaus (NJ), two stores on one site
+| Group | Stores | Est. cars |
+|---|---|---|
+| Toyota (3 TX: Bruner, Platinum of Texoma, Del Rio; AL 2, AR, AZ, CA 2, PA, FL 5) | 15 | 15 x 248 = 3,720 |
+| Genesis (Cherry Hill NJ; Brooklyn, Buffalo, Smithtown NY) | 4 | 4 x 50 = 200 (assumed) |
+| J & S Autohaus (NJ, two stores on one site) | 1 | 512 (third-party counts) |
+| **Total** | **20** | **about 4,400** |
 
-Full list with URLs: [`megadealer_pilot_stores.csv`](megadealer_pilot_stores.csv).
+Crawl on box1 at concurrency 2: about 11 min p50 / 15 min p90 across 10 (state, brand) jobs.
+Sync: about 16 min. List: [`megadealer_pilot_stores.csv`](megadealer_pilot_stores.csv).
 
-| Item | Estimate |
+### Finding: 19 of the 20 are already in the dealer directory
+
+A read-only dry run of the directory step (`scripts/probes/megadealer-pilot-directory.mts`, which
+writes a local backup then reports) shows **19 pilot stores already match a live directory row**
+(from the earlier contact crawls), with ids: Platinum Toyota of Texoma 7048, Bruner 7083, Del Rio
+7103, Central City 6372, Sunny King 6619, Dothan 6653, Phil Wright 7003, Findlay Prescott 7152,
+Genesis Cherry Hill 4793, Brooklyn 4776, Buffalo 4813, Smithtown 4789, Chuck Patterson 7301,
+Mid-City 7299, Bev Smith 6661, Gettel Ocala 6652, Marianna 6651, Panama City 6650, Vero Beach 6660.
+The sync matches stores by domain, so these cars will file under those ids, not store 0. **Only
+J & S Autohaus III needs a new row.** A full backup (18,224 rows) was written today to
+`TrimScout-backups/dealerships-before-megadealer-pilot-2026-10-09T00-18-25-099Z.json`; the script
+takes a fresh one before any write. No write has been made.
+
+### Code added for the pilot (not deployed anywhere)
+
+- `src/brands.js`: `Genesis` and `Used` brand entries. The crawler throws on an unknown brand, so
+  Genesis and J & S could not have run without them. Neither is in a nightly brand set, so the
+  nightly crawl is unaffected; the daytime job runs from its **own copy** of `src/` and `scripts/`
+  under `~/megadealer/app`, so box1's nightly tree is not edited.
+- `scripts/megadealer/`: `build-dealers.mjs` (pilot CSV to per-state/brand dealer files),
+  `gate-check.mjs` (production probe), `new-vins.mjs` (truly-new VIN count), `day-job.sh`
+  (stages: precheck, setup, gate, crawl, dry) and `sync-real.sh` (refuses to run without `--go`).
+- `scripts/probes/megadealer-pilot-directory.mts`: directory add, dry run by default.
+
+### Gate check uses the production probe
+
+My earlier fetches used a Chrome user-agent; the nightly gate (`src/http_probe.js`) uses an
+honest `TrimScout-...-Probe` agent over plain `node:https` and probes the sitemap first. They
+disagree (Akamai on mine, pass on production for Asbury). The pilot's gate check uses the
+production probe, so a store my fetch called Akamai may pass. Locally, Bruner and Platinum Toyota
+of Texoma both returned `NONE 200`.
+
+### Runbook for tomorrow (each step waits for the one before)
+
+0. **Hold.** Nothing runs while tomorrow's option sequence holds the sync lock; the mega work goes
+   after it. The lock check below is a point-in-time test and can't see a sequence that releases the
+   lock between steps, so this needs your word that the option sequence is finished.
+1. **Precheck** (`day-job.sh precheck`): after 09:00 and before 18:30 ET; all four nightly syncs
+   finished (newest sync log on box1 has its summary line and is quiet 10+ min; check boxes 3 and 4
+   the same way); no nightly crawl active; `sync-lock-probe.mjs` reports FREE on two checks 2 min
+   apart (it takes and releases the lock with a throwaway owner). Any failure logs one line to
+   `~/megadealer/logs/megadealer-failures-<date>.log` and stops.
+2. **Directory:** back up, add J & S Autohaus III, report the new id
+   (`megadealer-pilot-directory.mts --apply`). Production write; needs the Mac's `.env.local`.
+3. **Setup** on box1 (`day-job.sh setup`): `~/megadealer/{app,run,dealers,logs,sync}`; a code copy; dealer files.
+4. **Gate** (`day-job.sh gate`) with the production probe; stores that fail are skipped, no bypass.
+5. **Crawl** (`day-job.sh crawl`): `cwd=~/megadealer/run`, lock `~/megadealer/megadealer-crawl.lock`,
+   heap 2 GB, concurrency 2, aborts at 19:45.
+6. **Sync dry run** (`day-job.sh dry`): `inventory-sync.mjs ~/megadealer/run/data/inventory --dry-run`
+   with `SYNC_CHECKPOINT_PATH=~/megadealer/sync/.checkpoint.json`,
+   `SWEEP_RETIRED_DIR=~/megadealer/sync/sweep-retired`, `TRIMSCOUT_BOX_LABEL=box1-day`; then
+   `new-vins.mjs` counts VINs not already live (same-store list plus a 40-VIN cross-store sample).
+7. **Report**, then **wait for your GO** before `sync-real.sh --go`.
+
+Hard limits baked in: nothing starts after 18:30, the crawl stops at 19:45, the real sync refuses
+to start after 20:15, everything done by 20:30, nothing between 21:30 and the nightly sync's end.
+
+**Scheduling caveat.** I can run steps 1 to 7 only while this session is open. An unattended
+scheduled task starts a fresh session that can hang on tool approvals (it did twice before), so
+say if you'd rather run the commands from your own terminal or tell me when to start.
+
+## 7. Transient-retry pilot (plan only, waiting for GO)
+
+**Scope:** the 62 stores that were skipped for non-bot reasons 3+ nights running and whose cause
+can be transient: HTTP 5xx 42, connection reset 8, timeout 6, TLS 6. List with last-night result and
+car counts: [`megadealer_retry_transient_62.csv`](megadealer_retry_transient_62.csv). Dead domains (27)
+and 404s (5) are roster fixes and are excluded. Bot-blocked stores are not on it and are not retried.
+
+| Item | Value |
 |---|---|
-| Estimated new cars | **about 3,400** (Toyota 10 x 248 = 2,480; Genesis 9 x 50 = 450 assumed; J&S 512) |
-| Confidence | Toyota medium (median of our crawled Toyota stores); Genesis low (assumed 50); J&S low (third-party count) |
-| Crawl | about 9 min p50, 13 min p90 on box1 at concurrency 2 |
-| Sync | about 16 min (4,400 rows, 20 stores, 15 min fixed) |
-| Window | gate 11:00 ET, finished well before 12:00 on a normal day |
+| Stores | 62 (box1 32, box4 17, box3 13 in the nightly) |
+| Est. cars if all recover | about 12,900 (a ceiling: mostly brand medians, 18 measured from our shards) |
+| Likely recovery | unknown; a 5xx on 3+ consecutive nights is not obviously transient. The run measures it |
+| Box | box3 (4 vCPU), gate opens 13:30 ET; box1 only after the new-stores pilot |
+| Crawl | about 13 min p50, 19 min p90 (62 x 27.5 s x 1.4 / 3) |
+| Sync | about 19 min (12,900 rows / 4,400 per min + 62 / 110 + 15 fixed) |
+| Heap / concurrency | 3 GB / 3 |
 
-Steps at GO, in order, each a separate approval:
-
-1. **Gate check** with the production bot-protection probe (not my Python probe) on the 20
-   domains, in the isolated dir. Any store the production client can't reach is swapped for the
-   next passing one.
-2. Create `~/megadealer/` on box1 (dirs, config, the overrides in section 3). `--dry-run` the
-   sync against an empty shard to confirm it touches nothing.
-3. Crawl the 20 stores into `~/megadealer/data/inventory`.
-4. **Dry-run the sync**; compare the VINs against `dealer_inventory` (read-only) to count how
-   many are actually new. This also settles whether any of the 20 are duplicate rooftops.
-5. Decide on adding the 20 rooftops to the dealership directory (production write) before the
-   real sync, so the cars aren't filed under store 0.
-6. Real sync, then check the nightly logs are unchanged.
-
-Not in the pilot: Cloudflare stores (no bypass), Akamai-unknown stores until step 1 clears them,
-EchoPark/CarMax (national sites, blocked, need their own parser work), and the retry list
-(second pilot).
+Design: same isolated job (its own dir `~/megadealer-retry`, lock, logs, failure log, sync input dir,
+checkpoint, sweep-retired dir, box label `box3-day`), same skip rules, nothing starts after 18:30,
+crawl stops 19:45, done by 20:30. These stores are **already in the nightly rosters and directory**,
+so no directory write is needed, and a retry that succeeds writes fresh rows for stores the nightly
+failed on. Risk to check first: their nightly shards may hold stale records from before the failures;
+the daytime sync sweeps only rows written by its own box label, so it cannot retire nightly rows.
+Success measure: stores recovered out of 62 and cars added. Stores that fail again are logged
+with the same cause and left alone.
 
 ## Open items
 
