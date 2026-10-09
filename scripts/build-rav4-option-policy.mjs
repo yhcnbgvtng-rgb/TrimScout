@@ -80,16 +80,25 @@ const FEATURES = {
   ],
 };
 
-// Dealer/port-installed products that are NOT in the configurator's Accessory list under the same name. Anchored on the product
-// words; the Accessory list itself is matched by exact key as well.
-const DEALER_ADDON_PATTERNS = [
-  "\\bnitrogen\\b", "\\bvin\\s*etch", "\\bappearance (package|pkg|protection)\\b", "\\bpaint (protection|sealant)\\b", "\\bfabric (protection|guard)\\b",
-  "\\bundercoat", "\\brust\\s*proof", "\\bwindow tint", "\\bpin\\s*stripe", "\\btow(ing)? hitch\\b", "\\btrailer hitch\\b", "\\bmud\\s*guards?\\b", "\\bsplash guards?\\b",
-  "\\bprotection (plus )?(package|pkg)\\b", "\\bwheel locks?\\b", "\\b(floor|carpet|cargo) (mats?|liners?)\\b", "\\ball weather (floor )?(mats?|liners?)\\b",
-  "\\bdoor (edge|sill)\\b", "\\bbody side moldings?\\b", "\\billuminat(ed|ion)\\b", "\\broof (rack|cargo basket)\\b", "\\bcross ?bars?\\b", "\\bkey glove\\b",
-  "\\bscreen protector\\b", "\\bcargo (net|tote)\\b", "\\bhood graphics\\b", "\\bblackout emblem\\b", "\\bgraphics (package|pkg)\\b", "\\bdealer (installed|added|accessor)",
-  "\\bport (installed|accessor)", "\\baccessor(y|ies)\\b", "\\bsplash\\b.*\\bguards?\\b", "\\bgap (insurance|coverage)\\b", "\\bpreferred accessory\\b",
+// Dealer/port-installed products that are NOT in the configurator's Accessory list under the same name. WHOLE PRODUCT NAMES ONLY:
+// each phrase must be the entire line (price / parenthetical decoration already stripped) apart from a few harmless words around it
+// ("Toyota", "set", "package"...). A product word buried in a longer sentence ("Does not include optional accessories of $799
+// Lifetime Oil", "Protection Package - Chrome Body Side feature…") never matches. The Accessory list itself is matched by exact key.
+const PRODUCT_PHRASES = [
+  "perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*",
+  "(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program)", "lifetime\\s+oil(?:\\s+change)?(?:\\s+(?:package|pkg|plan|program))?",
+  "nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?|tyres?))*",
+  "vin\\s*etch(?:ing)?(?:\\s+(?:protection|theft deterrent))?",
+  "protection\\s+(?:plus\\s+)?(?:package|pkg)(?:\\s+(?:black\\s+)?chrome(?:\\s+body\\s+side)?)?", "appearance\\s+(?:package|pkg|protection)", "paint\\s+(?:protection|sealant)", "fabric\\s+(?:protection|guard)", "undercoat(?:ing)?", "rust\\s*proof(?:ing)?",
+  "window\\s+tint(?:ing)?", "pin\\s*stripe[sd]?(?:ing)?", "wheel\\s+locks?", "gap\\s+(?:insurance|coverage)",
+  "mud\\s*guards?", "splash\\s+guards?", "(?:(?:floor|carpet|cargo)\\s+)+mats?(?:\\s*/\\s*(?:(?:floor|carpet|cargo)\\s+)*mats?)?", "(?:floor|cargo)\\s+liners?", "all\\s+weather\\s+(?:floor\\s+)?(?:mats?|liners?)(?:\\s+(?:and|&)\\s+cargo\\s+(?:tray|liner|mat))?",
+  "door\\s+(?:edge|sill)\\s+(?:guards?|protectors?)", "body\\s+side\\s+mold(?:ing|ings)", "roof\\s+(?:rack|cross\\s*bars?)", "(?:low\\s+profile\\s+)?cross\\s*bars?", "key\\s+glove",
+  "multimedia\\s+(?:glass\\s+)?screen\\s+protector", "cargo\\s+(?:net|tote)", "hood\\s+graphics", "blackout\\s+emblem\\s+overlays?", "tow(?:ing)?\\s+hitch(?:\\s+receiver)?", "trailer\\s+hitch",
 ];
+const AROUND = "(?:toyota|tms|genuine|dealer|port|installed)";
+const DEALER_ADDON_PATTERNS = PRODUCT_PHRASES.map((p) => `^(?:${AROUND}\\s+)*(?:${p})(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$`);
+// Lines that are disclaimers about price / what is included, not options or products: dropped outright, before anything else is tried.
+const DISCLAIMER_PATTERNS = ["^(?:does not|doesn t|do not|don t) include\\b", "^(?:prices?|msrp) excludes?\\b", "^excludes?\\b", "^not including\\b", "^plus\\b"];
 
 const rows = parseCsv(fs.readFileSync(CSV, "utf8"));
 const paid = (r) => Number(r.price_usd) > 0;
@@ -120,7 +129,8 @@ const policy = {
   "toyota|rav4|2026": {
     source: "docs/rav4-2026/rav4_2026_options_by_trim.csv (toyota.com configurator, 2026 RAV4 hybrid)",
     models: ["rav4", "rav4 hybrid"],
-    keepBare: ["siri", "google", "unlock", "alexa built in"],
+    // "unlock" is not here: bare "unlock" is a fragment of the standard remote keyless entry line ("...lock, unlock and panic functions").
+    keepBare: ["siri", "google", "alexa built in"],
     // The 2026 RAV4 has no plain XLE: its only XLE is "XLE Premium". A dealer's bare "XLE" and the obvious shorthand for it
     // ("XLE Prem", "XLE Premium AWD", ...) are therefore XLE Premium. Only these strings: every other trim string keeps its
     // old call (exactly LE, SE, XLE Premium, Woodland, XSE, Limited trusted; anything else untrusted -> no options).
@@ -133,7 +143,12 @@ const policy = {
       "xle premium pkg": "xle premium",
       "xle premium package": "xle premium",
     },
-    trimNoise: ["awd", "fwd", "4wd", "2wd", "4x4", "hybrid", "hev"],
+    // A trim followed only by drivetrain / powertrain words ("XLE Premium AWD Natl", "LE AWD HYBRID", "Woodland AWD", "XLE Premium Front-Wheel Drive")
+    // is that trim. Words are removed wherever they sit; what is left must be exactly a policy trim (or the XLE alias). Anything else
+    // left over ("Hendersonville NC", "1-owner nearly new") keeps the string untrusted, and so does nothing left ("AWD", "AWD HYBRID AWD").
+    trimNoise: ["awd", "fwd", "4wd", "2wd", "4x4", "hybrid", "hev", "cvt", "ecvt", "natl"],
+    trimNoisePhrases: ["front wheel drive", "all wheel drive", "four wheel drive", "two wheel drive"],
+    disclaimerPatterns: DISCLAIMER_PATTERNS,
     trims,
     dealerAddons: { keys: [...accessoryKeys].sort(), patterns: DEALER_ADDON_PATTERNS },
   },

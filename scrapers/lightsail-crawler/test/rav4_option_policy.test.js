@@ -132,6 +132,41 @@ describe('rule 5: dealer/port add-ons and unlisted products go to dealer_addons,
   it('add-ons carry no factory price/kind: they never appear in rows', () => assert.ok(run('Limited', ['Roof Cargo Basket']).rows.length === 0));
 });
 
+describe('dealer add-ons are whole product names only; disclaimers are dropped', () => {
+  const addon = (name) => run('XLE Premium', [name]);
+  it('PermaPlate, a Lifetime Oil package or plan, nitrogen, VIN etch (and spacing / price decoration variants) are dealer add-ons', () => {
+    for (const name of ['PermaPlate', '$895 PermaPlate', 'Perma Plate Paint Protection', 'Lifetime Oil Package', 'Lifetime Oil Change Plan', 'Oil Change Plan', 'Nitrogen', 'Nitrogen Filled Tires', 'Nitrogen Fill', 'VIN Etch', 'VIN Etching', 'Vin Etch Protection', 'Appearance Package', 'Paint Protection', 'Fabric Guard', 'Window Tint', 'Mud Guards', 'Toyota Mudguards Set', 'Protection Plus Package', 'Protection Package - Chrome Body Side', 'Carpet Floor Mats/Cargo Mat', 'Low Profile Cross Bars (TMS)', 'Body Side Moldings', 'Blackout Emblem Overlays', 'All Weather Floor Liner and Cargo Tray']) {
+      const r = addon(name);
+      assert.equal(r.dealerAddons.length, 1, name);
+      assert.deepEqual(r.rows, [], name);
+    }
+  });
+  it('the configurator Accessory list is still matched by its exact names', () => {
+    for (const name of ['Tow Hitch Receiver', 'Mudguards', 'Roof Cargo Basket', 'Illuminated Door Sills', 'All-Weather Floor Liners']) assert.equal(addon(name).dealerAddons.length, 1, name);
+  });
+  it('a product word inside a longer line is NOT enough (no loose matching)', () => {
+    for (const name of ['Does not include optional accessories of $799 Lifetime Oil', 'Nitrogen-filled tires and road hazard coverage included for 5 years', 'Includes PermaPlate paint and interior protection', 'Complimentary lifetime oil change for the first owner', 'Vehicles may have different accessories than seen in photos', 'Illuminated entry', 'Accessories available at your dealer']) {
+      assert.equal(addon(name).dealerAddons.length, 0, name);
+    }
+  });
+  it('lines starting with disclaimer wording are dropped as disclaimers, even when they name a product', () => {
+    for (const name of ['Does not include optional accessories of $799 Lifetime Oil', "Doesn't include dealer installed options", 'Price excludes tax, tag and PermaPlate', 'Prices exclude Nitrogen', 'Excludes VIN Etch', 'Not including destination', 'Plus tax, title and license', 'Plus $895 PermaPlate']) {
+      const r = addon(name);
+      assert.deepEqual(r.rows, [], name);
+      assert.deepEqual(r.dealerAddons, [], name);
+      assert.equal(r.dropped.length, 1, `${name}: dropped (by this rule, or by an older junk rule that already caught it)`);
+    }
+  });
+  it('the disclaimer rule itself (lines the older junk rules do not already catch)', () => {
+    for (const name of ['Does not include optional accessories of $799 Lifetime Oil', 'Prices exclude Nitrogen', 'Excludes VIN Etch', 'Not including destination']) assert.ok(addon(name).dropped.some((d) => d.rule === 'disclaimer'), name);
+  });
+  it('"plus" is only a disclaimer at the START of a line: "Premium Plus Package" and "Protection Plus Package" are not', () => {
+    assert.ok(!addon('Protection Plus Package').dropped.some((d) => d.rule === 'disclaimer'));
+    assert.equal(addon('Protection Plus Package').dealerAddons.length, 1);
+  });
+  it('factory options with the same words still win: the exact Weather Package is not an add-on', () => assert.deepEqual(labels(run('SE', ['Weather Package'])), ['Weather Package']));
+});
+
 describe('a bare "XLE" and its shorthand are XLE Premium (the 2026 RAV4 has no plain XLE)', () => {
   const lines = ['Panoramic Moonroof Package', 'Weather Package', 'All-Wheel Drive', 'Wind Chill Pearl', 'Premium Audio'];
   const want = labels(run('XLE Premium', lines));
@@ -154,7 +189,7 @@ describe('a bare "XLE" and its shorthand are XLE Premium (the 2026 RAV4 has no p
   });
   it('only the XLE shorthand moves: every other trim string keeps its old call', () => {
     for (const trim of ['LE', 'SE', 'Woodland', 'XSE', 'Limited']) assert.equal(run(trim, lines).trimVia, 'exact');
-    for (const trim of ['LE AWD', 'SE AWD', 'XSE Hybrid', 'Limited AWD', 'Woodland AWD', 'Prem', 'Premium', 'XLE Premium Plus', 'XLE Limited', 'XLE Sport', 'Trail', 'Adventure']) assert.equal(run(trim, lines).trimTrusted, false, trim);
+    for (const trim of ['Prem', 'Premium', 'XLE Premium Plus', 'XLE Limited', 'XLE Sport', 'Trail', 'Adventure', 'AWD', 'Base']) assert.equal(run(trim, lines).trimTrusted, false, trim);
   });
   it('another year or model with an "XLE" trim is untouched (no policy at all)', () => {
     assert.equal(optionRowsForVehicle(ALLOW, car('XLE', { year: 2025 }), [{ name: 'Weather Package' }]), null);
@@ -162,9 +197,33 @@ describe('a bare "XLE" and its shorthand are XLE Premium (the 2026 RAV4 has no p
   });
 });
 
+describe('a trim followed only by drivetrain / Hybrid / HEV / CVT / Natl words is that trim', () => {
+  const lines = ['Weather Package', 'Moonroof Package', 'All-Wheel Drive'];
+  const cases = {
+    'XLE Premium AWD Natl': 'XLE Premium', 'LE AWD HYBRID': 'LE', 'Woodland AWD': 'Woodland', 'XLE Premium Front-Wheel Drive': 'XLE Premium',
+    'LE AWD': 'LE', 'SE AWD': 'SE', 'XSE Hybrid': 'XSE', 'Limited AWD': 'Limited', 'Limited Hybrid': 'Limited', 'SE Hybrid': 'SE', 'LE AWD Natl': 'LE',
+    'XSE HEV': 'XSE', 'Limited CVT': 'Limited', 'SE ECVT AWD': 'SE', 'LE All Wheel Drive': 'LE', 'XLE Premium Hybrid AWD Natl': 'XLE Premium',
+    'Hybrid XSE': 'XSE', 'XLE AWD Natl': 'XLE Premium', 'Woodland Hybrid': 'Woodland', 'le awd hybrid': 'LE',
+  };
+  for (const [trim, want] of Object.entries(cases)) {
+    it(`${JSON.stringify(trim)} is ${want}`, () => {
+      const r = run(trim, lines);
+      assert.equal(r.trimTrusted, true);
+      assert.deepEqual(labels(r), labels(run(want, lines)));
+    });
+  }
+  it('anything else in the string keeps it untrusted, and so does nothing left once the drivetrain words are removed', () => {
+    for (const trim of ['AWD', 'AWD HYBRID AWD', 'FWD', 'All Wheel Drive CVT', 'Hybrid', 'Natl', 'LE Hybrid *1-OWNER! NEARLY', 'Hendersonville NC', 'XLE Premium Plus AWD', 'XSE Premium AWD', 'Limited Edition AWD', 'LE SE AWD']) assert.equal(run(trim, lines).trimTrusted, false, trim);
+  });
+  it('the trim a shorthand string resolves to is reported (exact vs folded into XLE Premium)', () => {
+    assert.equal(run('LE AWD HYBRID', lines).trimVia, 'exact');
+    assert.equal(run('XLE AWD Natl', lines).trimVia, 'alias');
+  });
+});
+
 describe('rule 6: no trim, or an untrusted trim, means no factory options', () => {
   const lines = ['Weather Package', 'Moonroof Package', 'AWD', 'Heated Steering Wheel', 'Siri', 'Ruby Flare Pearl'];
-  for (const trim of [null, '', undefined, 'Trail', 'Hybrid XSE Premium Plus', 'XLE Premium Plus', 'LE AWD', 'Limited Hybrid', 'SE Hybrid', 'XSE Premium', 'XLE Sport', '   ']) {
+  for (const trim of [null, '', undefined, 'Trail', 'Hybrid XSE Premium Plus', 'XLE Premium Plus', 'XSE Premium', 'XLE Sport', 'AWD', 'AWD HYBRID AWD', 'FWD', 'All Wheel Drive CVT', 'Base', 'Inventory', 'Hendersonville NC', 'LE Hybrid *1-OWNER! NEARLY', 'LE AWD Certified', 'Sport AWD', '   ']) {
     it(`trim ${JSON.stringify(trim)} -> empty options`, () => {
       const r = run(trim, lines);
       assert.deepEqual(r.rows, []);
@@ -178,11 +237,20 @@ describe('rule 6: no trim, or an untrusted trim, means no factory options', () =
   });
 });
 
-describe('rule 7: bare Siri / Google / Unlock / Alexa Built In stay as they are', () => {
+describe('rule 7: bare Siri / Google / Alexa Built In stay as they are (bare "unlock" does not)', () => {
   it('kept verbatim on a trusted trim, next to the real options', () => {
-    const r = run('SE', ['Siri', 'Google', 'Unlock', 'Alexa Built In', 'Weather Package']);
-    assert.deepEqual(labels(r), ['Alexa Built In', 'Google', 'Siri', 'Unlock', 'Weather Package']);
+    const r = run('SE', ['Siri', 'Google', 'Alexa Built In', 'Weather Package']);
+    assert.deepEqual(labels(r), ['Alexa Built In', 'Google', 'Siri', 'Weather Package']);
     assert.ok(r.rows.filter((x) => x.kind === 'bare').every((x) => x.via === 'kept'));
+  });
+  it('bare "unlock" is a fragment of the standard remote keyless entry line: dropped, never kept', () => {
+    for (const trim of ['LE', 'SE', 'XLE Premium', 'Woodland', 'XSE', 'Limited']) {
+      const r = run(trim, ['unlock', 'Unlock', 'remote keyless entry system with lock', 'unlock and panic functions']);
+      assert.deepEqual(r.rows, [], trim);
+      assert.equal(r.dealerAddons.length, 0);
+      assert.ok(r.dropped.some((d) => d.label.toLowerCase() === 'unlock' && d.rule === 'standard-or-unknown'), trim);
+    }
+    assert.ok(!loadBundledModelPoliciesRaw()['toyota|rav4|2026'].keepBare.includes('unlock'));
   });
   it('only the bare strings: longer variants are not bare names', () => assert.deepEqual(run('SE', ['Siri Eyes Free Wireless Charging Dock']).rows, []));
   it('with no trusted trim the row is empty (rule 6 wins)', () => assert.deepEqual(run(null, ['Siri']).rows, []));

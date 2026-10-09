@@ -8,7 +8,6 @@
     "keepBare": [
       "siri",
       "google",
-      "unlock",
       "alexa built in"
     ],
     "trimAliases": {
@@ -26,7 +25,23 @@
       "2wd",
       "4x4",
       "hybrid",
-      "hev"
+      "hev",
+      "cvt",
+      "ecvt",
+      "natl"
+    ],
+    "trimNoisePhrases": [
+      "front wheel drive",
+      "all wheel drive",
+      "four wheel drive",
+      "two wheel drive"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
     ],
     "trims": {
       "le": {
@@ -406,40 +421,37 @@
         "yakima offgrid cargo basket mounted"
       ],
       "patterns": [
-        "\\bnitrogen\\b",
-        "\\bvin\\s*etch",
-        "\\bappearance (package|pkg|protection)\\b",
-        "\\bpaint (protection|sealant)\\b",
-        "\\bfabric (protection|guard)\\b",
-        "\\bundercoat",
-        "\\brust\\s*proof",
-        "\\bwindow tint",
-        "\\bpin\\s*stripe",
-        "\\btow(ing)? hitch\\b",
-        "\\btrailer hitch\\b",
-        "\\bmud\\s*guards?\\b",
-        "\\bsplash guards?\\b",
-        "\\bprotection (plus )?(package|pkg)\\b",
-        "\\bwheel locks?\\b",
-        "\\b(floor|carpet|cargo) (mats?|liners?)\\b",
-        "\\ball weather (floor )?(mats?|liners?)\\b",
-        "\\bdoor (edge|sill)\\b",
-        "\\bbody side moldings?\\b",
-        "\\billuminat(ed|ion)\\b",
-        "\\broof (rack|cargo basket)\\b",
-        "\\bcross ?bars?\\b",
-        "\\bkey glove\\b",
-        "\\bscreen protector\\b",
-        "\\bcargo (net|tote)\\b",
-        "\\bhood graphics\\b",
-        "\\bblackout emblem\\b",
-        "\\bgraphics (package|pkg)\\b",
-        "\\bdealer (installed|added|accessor)",
-        "\\bport (installed|accessor)",
-        "\\baccessor(y|ies)\\b",
-        "\\bsplash\\b.*\\bguards?\\b",
-        "\\bgap (insurance|coverage)\\b",
-        "\\bpreferred accessory\\b"
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:lifetime\\s+oil(?:\\s+change)?(?:\\s+(?:package|pkg|plan|program))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?|tyres?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:vin\\s*etch(?:ing)?(?:\\s+(?:protection|theft deterrent))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:protection\\s+(?:plus\\s+)?(?:package|pkg)(?:\\s+(?:black\\s+)?chrome(?:\\s+body\\s+side)?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:appearance\\s+(?:package|pkg|protection))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:paint\\s+(?:protection|sealant))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:fabric\\s+(?:protection|guard))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:undercoat(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:rust\\s*proof(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:window\\s+tint(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:wheel\\s+locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:gap\\s+(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:mud\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:splash\\s+guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:(?:floor|carpet|cargo)\\s+)+mats?(?:\\s*/\\s*(?:(?:floor|carpet|cargo)\\s+)*mats?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:floor|cargo)\\s+liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:all\\s+weather\\s+(?:floor\\s+)?(?:mats?|liners?)(?:\\s+(?:and|&)\\s+cargo\\s+(?:tray|liner|mat))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:door\\s+(?:edge|sill)\\s+(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:body\\s+side\\s+mold(?:ing|ings))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:roof\\s+(?:rack|cross\\s*bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:low\\s+profile\\s+)?cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:key\\s+glove)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:multimedia\\s+(?:glass\\s+)?screen\\s+protector)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:cargo\\s+(?:net|tote))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:hood\\s+graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:blackout\\s+emblem\\s+overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:tow(?:ing)?\\s+hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:trailer\\s+hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$"
       ]
     }
   }

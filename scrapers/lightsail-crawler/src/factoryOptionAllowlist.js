@@ -154,6 +154,8 @@ export function buildModelPolicies(raw) {
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
+      trimNoisePhrases: (p.trimNoisePhrases || []).map(normalizeOptionKey).filter(Boolean),
+      disclaimerPatterns: (p.disclaimerPatterns || []).map((x) => new RegExp(x, "i")),
       addonKeys: new Set(((p.dealerAddons || {}).keys || []).map(normalizeOptionKey)),
       addonPatterns: ((p.dealerAddons || {}).patterns || []).map((x) => new RegExp(x, "i")),
     });
@@ -183,10 +185,17 @@ export function resolvePolicyTrim(policy, rawTrim) {
   if (!key) return null;
   const direct = policy.trims.get(key);
   if (direct) return { trim: direct, via: "exact" };
-  if (!policy.trimAliases.size) return null;
-  const tokens = key.split(" ");
-  while (tokens.length > 1 && policy.trimNoise.has(tokens[tokens.length - 1])) tokens.pop();
-  const to = policy.trimAliases.get(tokens.join(" "));
+  if (!policy.trimAliases.size && !policy.trimNoise.size) return null;
+  // Drivetrain / powertrain words ("AWD", "Hybrid", "Natl", "Front-Wheel Drive"...) are removed wherever they sit; the rest must be
+  // exactly a policy trim or the policy's own shorthand for one.
+  let rest = ` ${key} `;
+  for (const phrase of policy.trimNoisePhrases) rest = rest.split(` ${phrase} `).join("  ");
+  const tokens = rest.split(" ").filter((t) => t && !policy.trimNoise.has(t));
+  if (!tokens.length) return null;
+  const left = tokens.join(" ");
+  const exact = policy.trims.get(left);
+  if (exact) return { trim: exact, via: "exact" };
+  const to = policy.trimAliases.get(left);
   const trim = to ? policy.trims.get(to) : null;
   return trim ? { trim, via: "alias" } : null;
 }
@@ -211,6 +220,8 @@ export function policyOptionRows(policy, vehicle, options) {
   const drop = (label, rule) => { out.dropped.push({ label, rule }); out.outcomes.push({ label, outcome: "dropped", rule }); };
   for (const r of base.rows) {
     const label = r.label;
+    // Disclaimers about price / what is included ("Does not include optional accessories of $799 Lifetime Oil") are not options or products.
+    if (policy.disclaimerPatterns.some((re) => re.test(label.trim()))) { drop(label, "disclaimer"); continue; }
     if (policy.keepBare.has(r.key)) { // rule 7: bare Siri / Google / Unlock / Alexa Built In stay exactly as they are (still needs a trusted trim, rule 6)
       if (!trim) { drop(label, "no-trusted-trim"); continue; }
       if (!rows.has(r.key)) rows.set(r.key, { key: r.key, label, code: r.code, kind: "bare", price: 0, via: "kept" });
