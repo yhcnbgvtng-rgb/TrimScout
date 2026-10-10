@@ -15,6 +15,7 @@
  */
 
 import type { Dealership } from "./dealershipsApi";
+import { isPlausibleDealerEmail } from "./emailShape";
 import type { BuildConfidence } from "./types";
 import type { RfqRequest, RfqInvite, RfqQuote } from "./rfq";
 
@@ -136,13 +137,15 @@ export function deskFromDealership(row: Pick<Dealership, "dealerName" | "state" 
 
 /**
  * The dealership's own sales desk, for a rooftop with no named person on
- * file: the shared inbox the directory has (sales@, internet@ …) when
- * there is one, else no address — the invite queues for ops to route
+ * file: the address the directory has (a shared inbox like sales@, or a
+ * personal mailbox with no name beside it) when there is one, else no address — the invite queues for ops to route
  * (draft-then-approve, as every invite). Never "verified", never a person.
  */
 export function deskFromRooftop(row: Pick<Dealership, "dealerName" | "state" | "contactEmail" | "emailOptOut">): DealerDesk {
   const email = (row.contactEmail || "").trim().toLowerCase();
-  const inbox = email && isGenericMailbox(email) ? email : "";
+  // Any plausible directory address is the desk's contact — a shared inbox or an
+  // unnamed personal mailbox alike. The greeting stays "Sales team" either way.
+  const inbox = isPlausibleDealerEmail(email) ? email : "";
   return {
     dealerName: (row.dealerName || "").trim(),
     dealerState: (row.state || "").trim().toUpperCase() || null,
