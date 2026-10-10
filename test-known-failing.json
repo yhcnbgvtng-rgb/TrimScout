@@ -1,5 +1,1 @@
-{
-  "scrapers/lightsail-crawler/test/enricher_concurrency.test.js": "Imports src/enricher.js, which needs got-scraping; that dependency is only in scrapers/lightsail-crawler/package.json, not installed by the root npm ci.",
-  "scrapers/lightsail-crawler/test/inventory_ops.test.js": "Imports src/enricher.js, which needs got-scraping (crawler-only dependency, not installed by the root npm ci).",
-  "scrapers/lightsail-crawler/test/nhtsa_throttle.test.js": "Imports throttleNhtsaRequest from src/enricher.js, which needs got-scraping (crawler-only dependency, not installed by the root npm ci)."
-}
+{}
