@@ -46,7 +46,6 @@ import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLo
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
-import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -62,9 +61,6 @@ if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${option
 // already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
 // upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
 const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
-// The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
-// promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
-const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -2228,30 +2224,6 @@ const invInvalidate = () => {
   invGeneration++;
   invCache.clear();
 };
-// The wholesale cars in stock, as (make, state, model, trim) buckets — the small aggregate the buyer facet counts subtract (retailFacets.js).
-// Read as dealer ids first (a cond-grouped scan of the covering index) and then a few dealers at a time by (removed_at, dealer_id, cond):
-// a bare `WHERE cond = 'wholesale' GROUP BY make, state, ...` cannot use an index prefix and ran past the 20 s cap on the live table.
-// Its own stale-while-revalidate cache key. A failure is NOT cached: the caller falls back to the unadjusted counts.
-async function wholesaleBuckets(pool) {
-  return stableCached("wholesale-buckets", async () => {
-    const run = async (sql, args) => (await withPoolTimeout(
-      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args),
-      waitMs(),
-      "Timed out waiting for an available database connection or a slow query"
-    ))[0];
-    const dealers = (await run("SELECT dealer_id FROM dealer_inventory WHERE removed_at IS NULL AND cond = 'wholesale' GROUP BY dealer_id", [])).map((r) => r.dealer_id);
-    const buckets = [];
-    for (let i = 0; i < dealers.length; i += WHOLESALE_DEALERS_PER_QUERY) {
-      const rows = await run("SELECT make, state, model, trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_by_dealer_covering) WHERE removed_at IS NULL AND dealer_id IN (?) AND cond = 'wholesale' GROUP BY make, state, model, trim", [dealers.slice(i, i + WHOLESALE_DEALERS_PER_QUERY)]);
-      for (const r of rows) buckets.push({ make: r.make, state: r.state, model: r.model, trim: r.trim, n: Number(r.n) });
-    }
-    return buckets;
-  });
-}
-const wholesaleBucketsOrNull = async (pool) => {
-  if (!RETAIL_ONLY_FACETS) return null;
-  try { return await wholesaleBuckets(pool); } catch (err) { console.error(`${new Date().toISOString()} wholesale buckets unavailable, facet counts left unadjusted: ${err.message}`); return null; }
-};
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
 const INV_DEALER = (v) => INV_INT(v) || 0;
 
@@ -2870,9 +2842,7 @@ async function handleInventoryMakes(req, res) {
       waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
-    const makes = rows.map((r) => ({ make: r.make, n: Number(r.n) }));
-    const wb = await wholesaleBucketsOrNull(pool);
-    return { makes: wb ? adjustMakeList(makes, wb) : makes };
+    return { makes: rows.map((r) => ({ make: r.make, n: Number(r.n) })) };
   }));
 }
 
@@ -2949,14 +2919,12 @@ async function handleInventoryFacets(req, res, params) {
           )
         : Promise.resolve([[]]);
     const [[stateRows], [makeRows], [modelRows], [trimRows]] = await Promise.all([statesPromise, makesPromise, modelsPromise, trimsPromise]);
-    const lists = {
+    return {
       states: stateRows.map((r) => ({ state: r.state, n: Number(r.n) })),
       makes: makeRows.map((r) => ({ make: r.make, n: Number(r.n) })),
       models: modelRows.map((r) => ({ model: r.model, n: Number(r.n) })),
       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
     };
-    const wb = await wholesaleBucketsOrNull(pool);
-    return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
   }));
 }
 
@@ -3086,14 +3054,14 @@ async function rebuildCatalogFacets(pool, opts = {}) {
         `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
          FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
          JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
-         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}
+         WHERE i.removed_at IS NULL AND i.make = ?
          GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
         [make]
       );
       const [colorAgg] = await pool.query(
         `SELECT COALESCE(model, '') AS model, COALESCE(trim, '') AS trim, COALESCE(exterior_color, '') AS ext, COALESCE(interior_color, '') AS intr, COUNT(*) AS n
          FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim)
-         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)${RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : ""}
+         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)
          GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
         [make]
       );
@@ -3196,7 +3164,6 @@ async function handleInventoryCatalogOptions(req, res, params) {
   if (make) { where.push("i.make = ?"); args.push(make); }
   if (model) { where.push("i.model = ?"); args.push(model); }
   if (trim) { where.push("i.trim = ?"); args.push(trim); }
-  if (RETAIL_ONLY_FACETS) where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
   const whereSql = "WHERE " + where.join(" AND ");
   // Both queries below only get a FORCE INDEX when make= is set — mirrors inventoryListQuery.js's
   // own rule (a hint is only safe/helpful when the leading equality column it expects is actually
