@@ -1,0 +1,532 @@
+box,lane,job_order_in_lane,state,brand,dealer_id,dealer_name,stale_cars,last_crawled_box_from,moved_from,job_cars,job_est_minutes
+box1,1,1,NH,hyundai,12087,"Mcgovern Hyundai Of Concord",1401,log,,2384,8
+box1,1,1,NH,hyundai,12084,"Key Hyundai/salem Hyundai",589,log,,2384,8
+box1,1,1,NH,hyundai,12081,"Granite Hyundai",362,log,,2384,8
+box1,1,1,NH,hyundai,12086,"Mcgee Hyundai Of Lebanon",32,log,,2384,8
+box1,1,2,MI,toyota,6867,"Labadie Toyota",204,log,,1191,7
+box1,1,2,MI,toyota,6871,"Crown Toyota",202,log,,1191,7
+box1,1,2,MI,toyota,6860,"Suburban Toyota of Troy",180,log,,1191,7
+box1,1,2,MI,toyota,6870,"My Toyota of Muskegon",139,log,,1191,7
+box1,1,2,MI,toyota,6857,"Suburban Toyota of Farmington Hills",136,log,,1191,7
+box1,1,2,MI,toyota,6861,"Golling Toyota of Warren",116,log,,1191,7
+box1,1,2,MI,toyota,6862,"Fox Toyota",91,log,,1191,7
+box1,1,2,MI,toyota,6859,"Szott M-59 Toyota",70,log,,1191,7
+box1,1,2,MI,toyota,6856,"Sunshine Toyota",53,log,,1191,7
+box1,1,3,MO,subaru,13552,"Van Subaru",204,log,,702,3
+box1,1,3,MO,subaru,13550,"Subaru of Columbia",184,log,,702,3
+box1,1,3,MO,subaru,13549,"Reliable Subaru",166,log,,702,3
+box1,1,3,MO,subaru,13545,"Frank Fletcher Subaru",148,log,,702,3
+box1,1,4,MO,mazda,14173,"NORTHTOWNE MAZDA",234,log,,422,2
+box1,1,4,MO,mazda,14168,"JP SIDES MAZDA",121,log,,422,2
+box1,1,4,MO,mazda,14174,"RELIABLE MAZDA",67,log,,422,2
+box1,1,5,NE,subaru,13588,"Morrie's Bellevue Subaru",142,log,,265,2
+box1,1,5,NE,subaru,13587,"DuTeau Subaru",123,log,,265,2
+box1,1,6,TX,stellantis,3270,"Crenwelge Motor Sales Inc",187,db,,187,1
+box1,1,7,MO,mini,14773,"MINI of St. Louis",147,log,,147,1
+box1,1,8,WI,mini,14821,"International MINI",55,log,,55,1
+box1,2,1,MI,subaru,13520,"Fox Subaru",364,log,,1911,9
+box1,2,1,MI,subaru,13525,"My Lakeshore Subaru",348,log,,1911,9
+box1,2,1,MI,subaru,13521,"Fox Subaru Macomb",255,log,,1911,9
+box1,2,1,MI,subaru,13532,"Williams Subaru",200,log,,1911,9
+box1,2,1,MI,subaru,13530,"Suburban Subaru of Troy",193,log,,1911,9
+box1,2,1,MI,subaru,13523,"Hodges Subaru",176,log,,1911,9
+box1,2,1,MI,subaru,13519,"Fox Marquette Subaru",168,log,,1911,9
+box1,2,1,MI,subaru,13518,"Fox Maple Hill Subaru",124,log,,1911,9
+box1,2,1,MI,subaru,13527,"Subaru By-the-Bay",83,log,,1911,9
+box1,2,2,WI,subaru,13892,"Wilde Subaru",304,log,,1150,5
+box1,2,2,WI,subaru,13884,"Don Miller Subaru East",226,log,,1150,5
+box1,2,2,WI,subaru,13893,"Zeigler Subaru of Kenosha",181,log,,1150,5
+box1,2,2,WI,subaru,13885,"Don Miller Subaru West",169,log,,1150,5
+box1,2,2,WI,subaru,13888,"Kocourek Subaru",136,log,,1150,5
+box1,2,2,WI,subaru,13886,"Gustman Subaru",134,log,,1150,5
+box1,2,3,MO,lexus,7471,"Mungenast Lexus of St. Louis",334,log,,702,3
+box1,2,3,MO,lexus,7474,"Hendrick Lexus Kansas City North",276,log,,702,3
+box1,2,3,MO,lexus,7472,"Reliable Lexus",92,log,,702,3
+box1,2,4,NE,toyota,6880,"Corwin Toyota of Bellevue",367,log,,689,3
+box1,2,4,NE,toyota,6882,"Village Pointe Toyota",322,log,,689,3
+box1,2,5,MI,mercedes-benz,11353,"Betten Imports, Inc.",107,log,,329,2
+box1,2,5,MI,mercedes-benz,11360,"Mercedes-Benz of Rochester",96,log,,329,2
+box1,2,5,MI,mercedes-benz,11359,"Mercedes-Benz of Okemos",83,log,,329,2
+box1,2,5,MI,mercedes-benz,11362,"Mercedes-Benz of Traverse City",43,log,,329,2
+box1,2,6,MO,volkswagen,15588,"Northtowne Volkswagen",167,log,,167,1
+box1,2,7,SD,subaru,13779,"Courtesy Subaru",145,log,,145,1
+box1,2,8,SD,mazda,14339,"LIBERTY MAZDA",29,log,,29,0
+box1,3,1,WI,toyota,6884,"Wilde Toyota",457,log,,1615,6
+box1,3,1,WI,toyota,6897,"East Madison Toyota",395,log,,1615,6
+box1,3,1,WI,toyota,6883,"Toyota of Brookfield",311,log,,1615,6
+box1,3,1,WI,toyota,6896,"Kolosso Toyota",284,log,,1615,6
+box1,3,1,WI,toyota,6888,"Zeigler Toyota of Racine",168,log,,1615,6
+box1,3,2,WI,hyundai,12432,"Van Horn Hyundai Fond Du Lac",447,log,,1447,7
+box1,3,2,WI,hyundai,12433,"Zeigler Hyundai Of Racine",265,log,,1447,7
+box1,3,2,WI,hyundai,12434,"Zimbrick Eastside Hyundai",206,log,,1447,7
+box1,3,2,WI,hyundai,12428,"Rosen Hyundai Greenfield",199,log,,1447,7
+box1,3,2,WI,hyundai,12425,"Hyundai West Allis",164,log,,1447,7
+box1,3,2,WI,hyundai,12427,"Kocourek Hyundai",97,log,,1447,7
+box1,3,2,WI,hyundai,12431,"Van Horn Hyundai",69,log,,1447,7
+box1,3,3,MI,mazda,14155,"SUBURBAN MAZDA OF TROY",381,log,,969,5
+box1,3,3,MI,mazda,14154,"SUBURBAN MAZDA OF FARMINGTON H",238,log,,969,5
+box1,3,3,MI,mazda,14148,"FOX MAZDA",237,log,,969,5
+box1,3,3,MI,mazda,14147,"CROWN MAZDA",93,log,,969,5
+box1,3,3,MI,mazda,14146,"CRIPPEN MAZDA",20,log,,969,5
+box1,3,4,MO,toyota,6973,"Rusty Drewing Toyota",532,log,,532,2
+box1,3,5,MI,volkswagen,15546,"Fox Volkswagen",132,log,,402,3
+box1,3,5,MI,volkswagen,15554,"My Volkswagen of North Grand Rapids",99,log,,402,3
+box1,3,5,MI,volkswagen,15557,"Suburban VW of Farmington Hills",73,log,,402,3
+box1,3,5,MI,volkswagen,15563,"Williams Volkswagen, Inc.",61,log,,402,3
+box1,3,5,MI,volkswagen,15544,"Crown Volkswagen",37,log,,402,3
+box1,3,6,NE,mazda,14197,"ANDERSON MAZDA OF LINCOLN",160,log,,160,1
+box1,3,7,WI,mercedes-benz,11549,"Mercedes-Benz of Milwaukee",98,log,,98,1
+box1,3,8,WI,volkswagen,16065,"Volkswagen of Wausau",43,log,,43,1
+box1,4,1,MO,hyundai,12025,"Reliable Hyundai",371,log,,1581,7
+box1,4,1,MO,hyundai,12019,"Hyundai Of Jefferson City",338,log,,1581,7
+box1,4,1,MO,hyundai,12022,"Napleton Hyundai",265,log,,1581,7
+box1,4,1,MO,hyundai,12018,"Fletcher Hyundai",243,log,,1581,7
+box1,4,1,MO,hyundai,12023,"Northtowne Hyundai",196,log,,1581,7
+box1,4,1,MO,hyundai,12015,"Auffenberg Hyundai Cape Girardeau",168,log,,1581,7
+box1,4,2,CA,toyota,7199,"Envision Toyota of West Covina",416,log,,1307,5
+box1,4,2,CA,toyota,7257,"Envision Toyota of Milpitas",325,log,,1307,5
+box1,4,2,CA,toyota,7186,"Envision Toyota of Norwalk",281,log,,1307,5
+box1,4,2,CA,toyota,7177,"DCH Toyota of Torrance",234,log,,1307,5
+box1,4,2,CA,toyota,7269,"Downtown Toyota of Oakland",51,log,,1307,5
+box1,4,3,MI,hyundai,11990,"Fox Hyundai",206,log,,1024,6
+box1,4,3,MI,hyundai,12000,"Suburban Hyundai Of Troy",184,log,,1024,6
+box1,4,3,MI,hyundai,11987,"Elder Hyundai",157,log,,1024,6
+box1,4,3,MI,hyundai,11991,"Fox Maple Hill Hyundai",150,log,,1024,6
+box1,4,3,MI,hyundai,12001,"Williams Hyundai",118,log,,1024,6
+box1,4,3,MI,hyundai,11989,"Fox Ann Arbor Hyundai",86,log,,1024,6
+box1,4,3,MI,hyundai,11992,"Garber Hyundai",73,log,,1024,6
+box1,4,3,MI,hyundai,11999,"Signature Hyundai",50,log,,1024,6
+box1,4,4,MO,mercedes-benz,11370,"Mercedes-Benz of Creve Coeur",458,log,,458,2
+box1,4,5,WI,lexus,7582,"Lexus of Milwaukee",271,log,,332,2
+box1,4,5,WI,lexus,7580,"Lexus of Brookfield",61,log,,332,2
+box1,4,6,SD,hyundai,12454,"Liberty Hyundai",214,log,,214,1
+box1,4,7,NE,hyundai,12076,"Morries Bellevue Hyundai",186,log,,186,1
+box1,4,8,MI,mini,14771,"Motor City MINI",101,log,,101,1
+box1,4,9,SD,volkswagen,15884,"Liberty Volkswagen",55,log,,55,1
+box2,1,1,FL,hyundai,11784,"Jenkins Hyundai Of Jacksonville",1816,log,,7752,32
+box2,1,1,FL,hyundai,11758,"Coconut Creek Hyundai",849,log,,7752,32
+box2,1,1,FL,hyundai,11772,"Holler Hyundai",467,log,,7752,32
+box2,1,1,FL,hyundai,12448,"Rick Case Hyundai",457,log,,7752,32
+box2,1,1,FL,hyundai,11799,"Wallace Hyundai Of Fort Pierce",408,log,,7752,32
+box2,1,1,FL,hyundai,11761,"Crown Hyundai",378,log,,7752,32
+box2,1,1,FL,hyundai,11762,"Daytona Hyundai",372,log,,7752,32
+box2,1,1,FL,hyundai,11789,"Lakeland Hyundai",334,log,,7752,32
+box2,1,1,FL,hyundai,11787,"Key Hyundai",307,log,,7752,32
+box2,1,1,FL,hyundai,11801,"West Palm Beach Hyundai",304,log,,7752,32
+box2,1,1,FL,hyundai,11773,"Homestead Hyundai",287,log,,7752,32
+box2,1,1,FL,hyundai,11790,"Napletons North Palm Hyundai",263,log,,7752,32
+box2,1,1,FL,hyundai,11795,"Route 60 Hyundai",255,log,,7752,32
+box2,1,1,FL,hyundai,11757,"Cocoa Hyundai",239,log,,7752,32
+box2,1,1,FL,hyundai,11780,"Hyundai Of Venice",228,log,,7752,32
+box2,1,1,FL,hyundai,11756,"Coastal Hyundai",226,log,,7752,32
+box2,1,1,FL,hyundai,11770,"Hampton Hyundai",190,log,,7752,32
+box2,1,1,FL,hyundai,11793,"Red Hoagland Hyundai",174,log,,7752,32
+box2,1,1,FL,hyundai,11765,"Fitzgeralds Cntrysde Hyundai",121,log,,7752,32
+box2,1,1,FL,hyundai,11792,"Potamkin Hyundai",77,log,,7752,32
+box2,1,2,UT,toyota,7133,"Karl Malone Toyota",463,log,,1734,7
+box2,1,2,UT,toyota,7136,"Orem Toyota",387,log,,1734,7
+box2,1,2,UT,toyota,7131,"Larry H. Miller Toyota Murray",346,log,,1734,7
+box2,1,2,UT,toyota,7132,"Mark Miller Toyota",280,log,,1734,7
+box2,1,2,UT,toyota,7135,"Tony Divino Toyota",258,log,,1734,7
+box2,1,3,AR,kia,12483,"Crain Kia of Fort Smith",1246,log,,1410,5
+box2,1,3,AR,kia,12484,"Everett Kia",164,log,,1410,5
+box2,1,4,LA,kia,12761,"All Star Kia of Baton Rouge",500,log,,1155,5
+box2,1,4,LA,kia,12771,"Sterling Kia",439,log,,1155,5
+box2,1,4,LA,kia,12767,"Orr Kia of Bossier",193,log,,1155,5
+box2,1,4,LA,kia,12768,"Orr Kia of Shreveport",23,log,,1155,5
+box2,1,5,KY,toyota,6762,"Kerry Toyota",398,log,,926,4
+box2,1,5,KY,toyota,6722,"Toyota of Bowling Green",237,log,,926,4
+box2,1,5,KY,toyota,6755,"Toyota South",197,log,,926,4
+box2,1,5,KY,toyota,6771,"Don Moore Toyota",94,log,,926,4
+box2,1,6,NM,toyota,7160,"Larry H. Miller American Toyota Albuquerque",589,log,,829,3
+box2,1,6,NM,toyota,7161,"Toyota of Santa Fe",240,log,,829,3
+box2,1,7,MO,subaru,13551,"Sunset Hills Subaru",334,log,,752,3
+box2,1,7,MO,subaru,13546,"Lee's Summit Subaru",214,log,,752,3
+box2,1,7,MO,subaru,13544,"Dean Team Subaru",204,log,,752,3
+box2,1,8,UT,subaru,13823,"Mark Miller Subaru",260,log,,742,3
+box2,1,8,UT,subaru,13824,"Mark Miller Subaru South Towne",259,log,,742,3
+box2,1,8,UT,subaru,13821,"Doug Smith Subaru",223,log,,742,3
+box2,1,9,NM,hyundai,12115,"Larry H Miller Hyundai Albuquerque",236,log,,636,4
+box2,1,9,NM,hyundai,12116,"Larry H Miller Sw Hyundai Albuquerq",141,log,,636,4
+box2,1,9,NM,hyundai,12112,"Casa Hyundai Of Las Cruces",105,log,,636,4
+box2,1,9,NM,hyundai,12117,"Roswell Hyundai",84,log,,636,4
+box2,1,9,NM,hyundai,12114,"Hamilton Hyundai",45,log,,636,4
+box2,1,9,NM,hyundai,12111,"Animas Hyundai",25,log,,636,4
+box2,1,10,MN,kia,12844,"Kia of St. Cloud",323,log,,478,2
+box2,1,10,MN,kia,12842,"Kia of Duluth",155,log,,478,2
+box2,1,11,HI,hyundai,11834,"Tony Hyundai Waipio",155,log,,444,3
+box2,1,11,HI,hyundai,11835,"Windward Hyundai",124,log,,444,3
+box2,1,11,HI,hyundai,11831,"Jerry Vs Honolulu Hyundai",70,log,,444,3
+box2,1,11,HI,hyundai,11833,"Maui Hyundai",66,log,,444,3
+box2,1,11,HI,hyundai,11832,"Kuhio Hyundai",29,log,,444,3
+box2,1,12,MI,mazda,14150,"LAFONTAINE MAZDA OF LIVONIA",182,log,,416,3
+box2,1,12,MI,mazda,14145,"BORGMAN MAZDA",148,log,,416,3
+box2,1,12,MI,mazda,14152,"SESI MAZDA",52,log,,416,3
+box2,1,12,MI,mazda,14156,"THELEN MAZDA",34,log,,416,3
+box2,1,13,AR,toyota,7001,"Mark McLarty Toyota",198,log,,318,2
+box2,1,13,AR,toyota,7002,"Orr Toyota",68,log,,318,2
+box2,1,13,AR,toyota,7012,"Trotter Toyota",52,log,,318,2
+box2,1,14,UT,hyundai,12375,"Young Hyundai",274,log,,274,1
+box2,1,15,MI,volkswagen,15552,"Moran Volkswagen of Sterling Height",84,log,,251,3
+box2,1,15,MI,volkswagen,15549,"LaFontaine Volkswagen Dearborn",52,log,,251,3
+box2,1,15,MI,volkswagen,15551,"Mike Savoie Volkswagen of Troy",46,log,,251,3
+box2,1,15,MI,volkswagen,15550,"LaFontaine Volkswagen of Livonia",33,log,,251,3
+box2,1,15,MI,volkswagen,15562,"Volkswagen of Grand Blanc",24,log,,251,3
+box2,1,15,MI,volkswagen,15558,"Thelen  Volkswagen",12,log,,251,3
+box2,1,16,HI,mazda,14049,"CUTTER MAZDA OF HONOLULU",104,log,,181,1
+box2,1,16,HI,mazda,14050,"CUTTER MAZDA OF WAIPAHU",77,log,,181,1
+box2,1,17,CT,genesis,4795,"GENESIS OF AVON",140,db,,140,1
+box2,1,18,UT,mini,14814,"MINI of Murray",122,log,,122,1
+box2,1,19,NE,hyundai,12075,"Hyundai Of Grand Island",107,log,,107,1
+box2,1,20,NE,kia,12911,"Kia of Grand Island",92,log,,92,1
+box2,1,21,MS,kia,12867,"Kia of Laurel",84,log,,84,1
+box2,1,22,SD,mazda,14338,"BILLION MAZDA",55,log,,55,1
+box2,1,23,HI,genesis,4835,"GENESIS OF HONOLULU",18,db,,18,0
+box2,2,1,NJ,hyundai,12094,"Fred Beans Hyundai Of Flemington",855,log,,6159,26
+box2,2,1,NJ,hyundai,12108,"Towne Hyundai Of Hackettstown",755,log,,6159,26
+box2,2,1,NJ,hyundai,12103,"Maxon Hyundai",498,log,,6159,26
+box2,2,1,NJ,hyundai,12096,"Global Hyundai Of North Plainfield",441,log,,6159,26
+box2,2,1,NJ,hyundai,12095,"Freehold Hyundai",416,log,,6159,26
+box2,2,1,NJ,hyundai,12099,"Hyundai Of Turnersville",352,log,,6159,26
+box2,2,1,NJ,hyundai,12100,"Lester Glenn Hyundai",338,log,,6159,26
+box2,2,1,NJ,hyundai,12092,"Circle Hyundai",330,log,,6159,26
+box2,2,1,NJ,hyundai,12102,"Lynnes Hyundai Llc",322,log,,6159,26
+box2,2,1,NJ,hyundai,12097,"Hudson Hyundai",306,log,,6159,26
+box2,2,1,NJ,hyundai,12101,"Liberty Hyundai",299,log,,6159,26
+box2,2,1,NJ,hyundai,12090,"Burns Hyundai",225,log,,6159,26
+box2,2,1,NJ,hyundai,12106,"Sansones Route 1 Hyundai",216,log,,6159,26
+box2,2,1,NJ,hyundai,12089,"Burlington Hyundai",205,log,,6159,26
+box2,2,1,NJ,hyundai,12110,"Wayne Auto Mall Hyundai",185,log,,6159,26
+box2,2,1,NJ,hyundai,12093,"Franklin Sussex Hyundai",141,log,,6159,26
+box2,2,1,NJ,hyundai,12105,"Route 1 Hyundai",139,log,,6159,26
+box2,2,1,NJ,hyundai,12109,"Vineland Hyundai",130,log,,6159,26
+box2,2,1,NJ,hyundai,11604,"Towne Hyundai",6,log,,6159,26
+box2,2,2,MI,kia,12833,"Summit Place Kia",463,log,,1955,9
+box2,2,2,MI,kia,12827,"Lafontaine Kia",457,log,,1955,9
+box2,2,2,MI,kia,12826,"Kia of Lansing",208,log,,1955,9
+box2,2,2,MI,kia,12819,"Fox Kia South",194,log,,1955,9
+box2,2,2,MI,kia,12824,"Kia of Grand Blanc",193,log,,1955,9
+box2,2,2,MI,kia,12838,"Zeigler Kia of Holland",172,log,,1955,9
+box2,2,2,MI,kia,12825,"Kia of Jackson",137,log,,1955,9
+box2,2,2,MI,kia,12818,"Fox Kia North",131,log,,1955,9
+box2,2,3,AR,hyundai,11628,"Crain Hyundai Of Fort Smith",742,log,,1592,8
+box2,2,3,AR,hyundai,11623,"Chris Crain Hyundai",173,log,,1592,8
+box2,2,3,AR,hyundai,11624,"Crain Hyundai Little Rock",171,log,,1592,8
+box2,2,3,AR,hyundai,11629,"Orr Hyundai Of Russellville",131,log,,1592,8
+box2,2,3,AR,hyundai,11625,"Crain Hyundai North Little Rock",107,log,,1592,8
+box2,2,3,AR,hyundai,11626,"Crain Hyundai Of Bentonville",103,log,,1592,8
+box2,2,3,AR,hyundai,11627,"Crain Hyundai Of Fayetteville",100,log,,1592,8
+box2,2,3,AR,hyundai,11630,"Smart Hyundai",65,log,,1592,8
+box2,2,4,MS,hyundai,12031,"Hallmark Hyundai North",499,log,,1266,7
+box2,2,4,MS,hyundai,12037,"Matt Bowers Hyundai-gulfport",300,log,,1266,7
+box2,2,4,MS,hyundai,12035,"Jason Pilger Hyundai",156,log,,1266,7
+box2,2,4,MS,hyundai,12032,"Homer Skelton Hyundai",147,log,,1266,7
+box2,2,4,MS,hyundai,12036,"Mack Grubbs Hyundai",84,log,,1266,7
+box2,2,4,MS,hyundai,12029,"Columbus Hyundai",77,log,,1266,7
+box2,2,4,MS,hyundai,12030,"Hallmark Hyundai Flowood",3,log,,1266,7
+box2,2,5,WA,lexus,7573,"Lexus of Bellevue",483,log,,902,4
+box2,2,5,WA,lexus,7576,"Lexus of Tacoma at Fife",303,log,,902,4
+box2,2,5,WA,lexus,7575,"Findlay Lexus of Spokane",116,log,,902,4
+box2,2,6,KY,hyundai,11921,"Kerry Hyundai Of Florence",420,log,,798,5
+box2,2,6,KY,hyundai,11925,"Tim Short Hyundai",98,log,,798,5
+box2,2,6,KY,hyundai,11919,"Jim Johnson Hyundai",96,log,,798,5
+box2,2,6,KY,hyundai,11916,"Don Moore Hyundai",62,log,,798,5
+box2,2,6,KY,hyundai,11922,"Linwood Hyundai",62,log,,798,5
+box2,2,6,KY,hyundai,11917,"Gates Hyundai",54,log,,798,5
+box2,2,6,KY,hyundai,11920,"Kerry Hyundai",6,log,,798,5
+box2,2,7,WI,hyundai,12421,"Boucher Hyundai Of Janesville",211,log,,745,5
+box2,2,7,WI,hyundai,12419,"Bergstrom Hyundai Of Green Bay",157,log,,745,5
+box2,2,7,WI,hyundai,12435,"Zimbrick Hyundai West",137,log,,745,5
+box2,2,7,WI,hyundai,12418,"Bergstrom Hyundai",126,log,,745,5
+box2,2,7,WI,hyundai,12422,"Dahl Hyundai",65,log,,745,5
+box2,2,7,WI,hyundai,12430,"Stevens Point Hyundai",49,log,,745,5
+box2,2,8,MO,mazda,14167,"BOMMARITO MAZDA ST. PETERS",458,log,,633,4
+box2,2,8,MO,mazda,14172,"MAZDA OF COLUMBIA",100,log,,633,4
+box2,2,8,MO,mazda,14165,"BOMMARITO MAZDA OF WEST COUNTY",51,log,,633,4
+box2,2,8,MO,mazda,14166,"BOMMARITO MAZDA SOUTH",24,log,,633,4
+box2,2,9,WI,toyota,6910,"Markquart Toyota",234,log,,490,3
+box2,2,9,WI,toyota,6899,"Smart Motors Toyota",177,log,,490,3
+box2,2,9,WI,toyota,6894,"Bergstrom Toyota",79,log,,490,3
+box2,2,10,WA,mercedes-benz,11538,"Mercedes-Benz of Bellevue",391,log,,461,2
+box2,2,10,WA,mercedes-benz,11542,"Mercedes-Benz of Spokane",70,log,,461,2
+box2,2,11,MS,toyota,6736,"Toyota of Jackson",148,log,,422,2
+box2,2,11,MS,toyota,6747,"J. Allen Toyota",144,log,,422,2
+box2,2,11,MS,toyota,6711,"Cannon Toyota of Moss Point",130,log,,422,2
+box2,2,12,CT,kia,12588,"Kia of East Hartford",180,log,,357,2
+box2,2,12,CT,kia,12592,"Premier Kia",177,log,,357,2
+box2,2,13,WA,mazda,14431,"WEST HILLS MAZDA",147,log,,293,2
+box2,2,13,WA,mazda,14420,"DOUG'S LYNNWOOD MAZDA",80,log,,293,2
+box2,2,13,WA,mazda,14419,"ALAN WEBB MAZDA",66,log,,293,2
+box2,2,14,MS,mercedes-benz,11373,"Mercedes-Benz of Jackson",264,log,,264,1
+box2,2,15,AZ,genesis,4725,"GENESIS OF CHANDLER",210,db,,210,1
+box2,2,16,MI,lexus,7465,"Serra Lexus Lansing",207,log,,207,1
+box2,2,17,UT,mercedes-benz,11521,"Mercedes-Benz of Draper",198,log,,198,1
+box2,2,18,AZ,kia,12494,"Kia of Yuma",159,log,,159,1
+box2,2,19,KY,subaru,13467,"Joseph Subaru",156,log,,156,1
+box2,2,20,KS,kia,12750,"Oakes Kia of Olathe",134,log,,134,1
+box2,2,21,SD,hyundai,12451,"Billion Hyundai",108,log,,108,1
+box2,2,22,LA,genesis,4690,"GENESIS OF BATON ROUGE",95,db,,95,1
+box2,2,23,WI,mini,14822,"MINI of Madison",89,log,,89,1
+box2,2,24,MS,volkswagen,15598,"Volkswagen Jackson",75,log,,75,1
+box2,2,25,IA,genesis,4750,"GENESIS OF WATERLOO",24,db,,24,0
+box2,2,26,TN,honda,15901,"Wallace Volkswagen of Johnson City",5,db,,5,0
+box2,3,1,IL,hyundai,11849,"Auffenberg Hyundai",797,log,,4024,19
+box2,3,1,IL,hyundai,11856,"Elgin Hyundai",555,log,,4024,19
+box2,3,1,IL,hyundai,11861,"Green Hyundai",399,log,,4024,19
+box2,3,1,IL,hyundai,11877,"Napletons Valley Hyundai",344,log,,4024,19
+box2,3,1,IL,hyundai,11881,"Patriot Hyundai Of Tilton",308,log,,4024,19
+box2,3,1,IL,hyundai,11855,"Darcy Hyundai",264,log,,4024,19
+box2,3,1,IL,hyundai,11868,"Kunes Hyundai Of Sycamore",212,log,,4024,19
+box2,3,1,IL,hyundai,11869,"Mcgrath City Hyundai",211,log,,4024,19
+box2,3,1,IL,hyundai,11851,"Berman Hyundai Of Lincolnwood",162,log,,4024,19
+box2,3,1,IL,hyundai,11863,"Gurnee Hyundai",146,log,,4024,19
+box2,3,1,IL,hyundai,11876,"Napletons Hyundai Of Urbana",124,log,,4024,19
+box2,3,1,IL,hyundai,11883,"Schimmer Hyundai",112,log,,4024,19
+box2,3,1,IL,hyundai,11884,"Watermark Hyundai Of Marion",95,log,,4024,19
+box2,3,1,IL,hyundai,11867,"Kunes Country Hyundai Of Quincy",83,log,,4024,19
+box2,3,1,IL,hyundai,11866,"K.C. Summers Hyundai",81,log,,4024,19
+box2,3,1,IL,hyundai,11875,"Napletons Hyundai",71,log,,4024,19
+box2,3,1,IL,hyundai,11871,"Napleton Downtown Hyundai",55,log,,4024,19
+box2,3,1,IL,hyundai,11880,"Patriot Hyundai Of Bradley",5,log,,4024,19
+box2,3,2,WA,hyundai,12413,"Seattle Hyundai",639,log,,2180,10
+box2,3,2,WA,hyundai,12403,"Go Hyundai Of Renton",361,log,,2180,10
+box2,3,2,WA,hyundai,12405,"Hyundai Of Kirkland",333,log,,2180,10
+box2,3,2,WA,hyundai,12410,"Lee Johnson Hyundai Of Everett",318,log,,2180,10
+box2,3,2,WA,hyundai,12416,"Titus-will Hyundai",146,log,,2180,10
+box2,3,2,WA,hyundai,12407,"Jack Carrolls Skagit Hyundai",118,log,,2180,10
+box2,3,2,WA,hyundai,12404,"Haselwood Hyundai",111,log,,2180,10
+box2,3,2,WA,hyundai,12409,"Korum Hyundai",89,log,,2180,10
+box2,3,2,WA,hyundai,12414,"Speck Hyundai Of Tri-cities",65,log,,2180,10
+box2,3,3,WA,subaru,13877,"Subaru of Spokane",367,log,,1874,10
+box2,3,3,WA,subaru,13876,"Subaru of Puyallup",292,log,,1874,10
+box2,3,3,WA,subaru,13872,"Michael's Subaru of Bellevue",244,log,,1874,10
+box2,3,3,WA,subaru,13867,"Eastside Subaru",221,log,,1874,10
+box2,3,3,WA,subaru,13879,"Walker's Renton Subaru",217,log,,1874,10
+box2,3,3,WA,subaru,13874,"Peninsula Subaru",216,log,,1874,10
+box2,3,3,WA,subaru,13871,"McCurley Subaru of Yakima",111,log,,1874,10
+box2,3,3,WA,subaru,13863,"Cascade Subaru - Wenatchee",98,log,,1874,10
+box2,3,3,WA,subaru,13869,"Koenig Subaru",75,log,,1874,10
+box2,3,3,WA,subaru,13870,"McCurley Subaru",33,log,,1874,10
+box2,3,4,SC,hyundai,12277,"Myrtle Beach Hyundai",346,log,,1384,7
+box2,3,4,SC,hyundai,12276,"Hyundai Of North Charleston",256,log,,1384,7
+box2,3,4,SC,hyundai,12271,"Fort Mill Hyundai",232,log,,1384,7
+box2,3,4,SC,hyundai,12279,"Terry Lambert Hyundai",204,log,,1384,7
+box2,3,4,SC,hyundai,12275,"Hyundai Of Greenville",176,log,,1384,7
+box2,3,4,SC,hyundai,12272,"Fred Anderson Hyundai",165,log,,1384,7
+box2,3,4,SC,hyundai,12274,"Hyundai Of Charleston",5,log,,1384,7
+box2,3,5,WI,kia,13251,"Van Horn Kia of Sheboygan",255,log,,1137,6
+box2,3,5,WI,kia,13243,"Metro Kia of Madison",230,log,,1137,6
+box2,3,5,WI,kia,13235,"Bergstrom Kia Appleton",190,log,,1137,6
+box2,3,5,WI,kia,13240,"Janesville Kia",174,log,,1137,6
+box2,3,5,WI,kia,13247,"Rosen Kia",164,log,,1137,6
+box2,3,5,WI,kia,13236,"Bergstrom Kia of Oshkosh",124,log,,1137,6
+box2,3,6,NH,hyundai,12080,"Autofair Hyundai",416,log,,836,5
+box2,3,6,NH,hyundai,12085,"Mcfarland Hyundai",134,log,,836,5
+box2,3,6,NH,hyundai,12088,"Nashua Hyundai",101,log,,836,5
+box2,3,6,NH,hyundai,12082,"Hyundai Of Keene",94,log,,836,5
+box2,3,6,NH,hyundai,12083,"Irwin Hyundai",91,log,,836,5
+box2,3,7,MO,volkswagen,15584,"Bommarito Volkswagen of Hazelwood",211,log,,765,5
+box2,3,7,MO,volkswagen,15594,"Volkswagen of Lee's Summit",165,log,,765,5
+box2,3,7,MO,volkswagen,15583,"Bommarito Volkswagen St. Peters",133,log,,765,5
+box2,3,7,MO,volkswagen,15593,"The Dean Team of Kirkwood",107,log,,765,5
+box2,3,7,MO,volkswagen,15592,"The Dean Team of Ballwin",89,log,,765,5
+box2,3,7,MO,volkswagen,15587,"Molle Volkswagen",60,log,,765,5
+box2,3,8,WA,volkswagen,16046,"Volkswagen of Puyallup",168,log,,668,5
+box2,3,8,WA,volkswagen,16044,"Volkswagen of Kirkland",116,log,,668,5
+box2,3,8,WA,volkswagen,16045,"Volkswagen of Olympia",111,log,,668,5
+box2,3,8,WA,volkswagen,16028,"Campbell Volkswagen of Edmonds",81,log,,668,5
+box2,3,8,WA,volkswagen,16039,"Overturf Volkswagen",70,log,,668,5
+box2,3,8,WA,volkswagen,16035,"Haselwood Volkswagen of Bremerton",68,log,,668,5
+box2,3,8,WA,volkswagen,16043,"Volkswagen of Bellingham",28,log,,668,5
+box2,3,8,WA,volkswagen,16042,"University Volkswagen",26,log,,668,5
+box2,3,9,WI,volkswagen,16061,"Van Horn Volkswagen Sheboygan",90,log,,521,5
+box2,3,9,WI,volkswagen,16067,"Zimbrick Volkswagen",71,log,,521,5
+box2,3,9,WI,volkswagen,16062,"Volkswagen La Crosse",70,log,,521,5
+box2,3,9,WI,volkswagen,16051,"Bergstrom Volkswagen of Green Bay",61,log,,521,5
+box2,3,9,WI,volkswagen,16068,"Zimbrick Volkswagen of Madison",61,log,,521,5
+box2,3,9,WI,volkswagen,16055,"Ewald Volkswagen of Menomonee Falls",55,log,,521,5
+box2,3,9,WI,volkswagen,16050,"Bergstrom Volkswagen Appleton",53,log,,521,5
+box2,3,9,WI,volkswagen,16052,"Bergstrom Volkswagen of Oshkosh",36,log,,521,5
+box2,3,9,WI,volkswagen,16060,"Stevens Point Volkswagen",24,log,,521,5
+box2,3,10,UT,mazda,14398,"TIM DAHLE MAZDA SOUTHTOWNE",176,log,,443,3
+box2,3,10,UT,mazda,14397,"TIM DAHLE MAZDA MURRAY",107,log,,443,3
+box2,3,10,UT,mazda,14394,"BOUNTIFUL MAZDA",103,log,,443,3
+box2,3,10,UT,mazda,14396,"STEPHEN WADE MAZDA",57,log,,443,3
+box2,3,11,DE,kia,12597,"Selbyville Holly Kia",371,log,,371,2
+box2,3,12,KY,mazda,14097,"KERRY MAZDA OF FLORENCE",183,log,,342,2
+box2,3,12,KY,mazda,14102,"STUART POWELL MAZDA",127,log,,342,2
+box2,3,12,KY,mazda,14096,"CHAMPION MAZDA",32,log,,342,2
+box2,3,13,SD,kia,13109,"Billion Kia",157,log,,278,2
+box2,3,13,SD,kia,13110,"Billion Kia of Rapid City",121,log,,278,2
+box2,3,14,WI,lexus,7579,"Bergstrom Lexus of Appleton",124,log,,209,1
+box2,3,14,WI,lexus,7581,"Bergstrom Lexus of Madison",85,log,,209,1
+box2,3,15,WI,mercedes-benz,11547,"Mercedes-Benz of Elmbrook",116,log,,204,1
+box2,3,15,WI,mercedes-benz,11548,"Mercedes-Benz of Madison",88,log,,204,1
+box2,3,16,HI,mercedes-benz,11289,"Mercedes-Benz of Honolulu",174,log,,174,1
+box2,3,17,NM,volkswagen,15688,"University Volkswagen",104,log,,143,1
+box2,3,17,NM,volkswagen,15687,"Sisbarro Volkswagen",39,log,,143,1
+box2,3,18,MS,subaru,13553,"Paul Moak Subaru",122,log,,122,1
+box2,3,19,KY,volkswagen,15474,"Kerry Volkswagen",73,log,,108,1
+box2,3,19,KY,volkswagen,15473,"Don Jacobs Volkswagen",35,log,,108,1
+box2,3,20,SD,volkswagen,15885,"Volkswagen Sioux Falls",88,log,,88,1
+box2,3,21,MA,genesis,4802,"GENESIS OF FRAMINGHAM",70,db,,70,1
+box2,3,22,IL,genesis,4730,"GENESIS OF CALUMET CITY",21,db,,21,0
+box2,3,23,MD,cadillac,13500,"Fitzgerald Subaru",1,db,,1,0
+box2,4,1,WA,toyota,7310,"Vancouver Toyota",533,log,,3610,16
+box2,4,1,WA,toyota,7326,"Heartland Toyota",461,log,,3610,16
+box2,4,1,WA,toyota,7324,"Toyota of Puyallup",335,log,,3610,16
+box2,4,1,WA,toyota,7319,"Toyota of Kirkland",289,log,,3610,16
+box2,4,1,WA,toyota,7139,"Findlay Toyota Spokane",281,log,,3610,16
+box2,4,1,WA,toyota,7322,"Toyota of Lake City",272,log,,3610,16
+box2,4,1,WA,toyota,7323,"Swickard Toyota",267,log,,3610,16
+box2,4,1,WA,toyota,7325,"Titus-Will Toyota",261,log,,3610,16
+box2,4,1,WA,toyota,7317,"Toyota of Renton",244,log,,3610,16
+box2,4,1,WA,toyota,7316,"Michael's Toyota of Bellevue",218,log,,3610,16
+box2,4,1,WA,toyota,7318,"Toyota of Seattle",183,log,,3610,16
+box2,4,1,WA,toyota,7331,"I-5 Toyota",161,log,,3610,16
+box2,4,1,WA,toyota,7337,"Five Star Toyota",105,log,,3610,16
+box2,4,2,MA,hyundai,11953,"Mcgovern Hyundai Route 93",1230,log,,3543,17
+box2,4,2,MA,hyundai,11944,"Gary Rome Hyundai",399,log,,3543,17
+box2,4,2,MA,hyundai,11946,"Herb Chambers Hyundai Of Auburn",273,log,,3543,17
+box2,4,2,MA,hyundai,11958,"Route 44 Hyundai",245,log,,3543,17
+box2,4,2,MA,hyundai,11954,"Metrowest Hyundai",222,log,,3543,17
+box2,4,2,MA,hyundai,11952,"Mcgovern Hyundai Route 2",197,log,,3543,17
+box2,4,2,MA,hyundai,11939,"Balise Hyundai",173,log,,3543,17
+box2,4,2,MA,hyundai,11943,"First Hyundai",171,log,,3543,17
+box2,4,2,MA,hyundai,11940,"Balise Hyundai Of Cape Cod",135,log,,3543,17
+box2,4,2,MA,hyundai,11956,"Pride Hyundai Of Seekonk",133,log,,3543,17
+box2,4,2,MA,hyundai,11948,"Mcgovern Hyundai",123,log,,3543,17
+box2,4,2,MA,hyundai,11945,"Haddad Hyundai",112,log,,3543,17
+box2,4,2,MA,hyundai,11951,"Mcgovern Hyundai Of Milford",65,log,,3543,17
+box2,4,2,MA,hyundai,11949,"Mcgovern Hyundai Of Arlington",42,log,,3543,17
+box2,4,2,MA,hyundai,11950,"Mcgovern Hyundai Of Danvers",23,log,,3543,17
+box2,4,3,WI,subaru,13891,"Subaru City of Milwaukee",514,log,,1680,8
+box2,4,3,WI,subaru,13890,"Sommer's Subaru",356,log,,1680,8
+box2,4,3,WI,subaru,13889,"Morrie's Eau Claire Subaru",187,log,,1680,8
+box2,4,3,WI,subaru,13881,"Bergstrom Subaru - Green Bay",183,log,,1680,8
+box2,4,3,WI,subaru,13887,"Janesville Subaru",138,log,,1680,8
+box2,4,3,WI,subaru,13882,"Dahl Subaru",128,log,,1680,8
+box2,4,3,WI,subaru,13880,"Bergstrom Subaru",106,log,,1680,8
+box2,4,3,WI,subaru,13883,"Dahl Subaru Sheboygan",68,log,,1680,8
+box2,4,4,WA,kia,13225,"Go Kia Tacoma",464,log,,1283,6
+box2,4,4,WA,kia,13233,"Sunset Kia",340,log,,1283,6
+box2,4,4,WA,kia,13227,"Kia of Puyallup",265,log,,1283,6
+box2,4,4,WA,kia,13226,"Kia of Everett",214,log,,1283,6
+box2,4,5,MI,subaru,13528,"Subaru of Ann Arbor",358,log,,1106,5
+box2,4,5,MI,subaru,13522,"Glassman Subaru",244,log,,1106,5
+box2,4,5,MI,subaru,13524,"LaFontaine Subaru",223,log,,1106,5
+box2,4,5,MI,subaru,13529,"Subaru of Grand Blanc",176,log,,1106,5
+box2,4,5,MI,subaru,13531,"Thelen Subaru",105,log,,1106,5
+box2,4,6,AR,subaru,13271,"Subaru of Little Rock",440,log,,869,3
+box2,4,6,AR,subaru,13270,"Adventure Subaru",429,log,,869,3
+box2,4,7,MI,hyundai,11996,"Lafontaine Hyundai Of Livonia",189,log,,767,5
+box2,4,7,MI,hyundai,11988,"Feldman Hyundai Of New Hudson",171,log,,767,5
+box2,4,7,MI,hyundai,11997,"Randy Wise Hyundai",99,log,,767,5
+box2,4,7,MI,hyundai,12002,"Zeigler Hyundai Of Holland",94,log,,767,5
+box2,4,7,MI,hyundai,11993,"Glassman Hyundai",87,log,,767,5
+box2,4,7,MI,hyundai,11994,"Lafontaine Hyundai Commerce",82,log,,767,5
+box2,4,7,MI,hyundai,11995,"Lafontaine Hyundai Dearborn",45,log,,767,5
+box2,4,8,IA,kia,12681,"Billion Kia of Iowa City",473,log,,669,3
+box2,4,8,IA,kia,12688,"Smart Kia of Davenport",196,log,,669,3
+box2,4,9,MO,hyundai,12021,"Mccarthy Hyundai",561,log,,665,3
+box2,4,9,MO,hyundai,12017,"Dean Team Hyundai",104,log,,665,3
+box2,4,10,MI,toyota,6868,"Toyota of Grand Rapids",154,log,,575,4
+box2,4,10,MI,toyota,6863,"Randy Wise Toyota",148,log,,575,4
+box2,4,10,MI,toyota,6865,"Matick Toyota",114,log,,575,4
+box2,4,10,MI,toyota,6858,"Page Toyota",83,log,,575,4
+box2,4,10,MI,toyota,6803,"LaFontaine Toyota",76,log,,575,4
+box2,4,11,MO,kia,12857,"Kia of Columbia",328,log,,478,2
+box2,4,11,MO,kia,12854,"Ed Morse Kia Rolla",150,log,,478,2
+box2,4,12,NM,subaru,13627,"Garcia Subaru North",242,log,,434,2
+box2,4,12,NM,subaru,13628,"Subaru of Santa Fe",192,log,,434,2
+box2,4,13,AR,volkswagen,15145,"Volkswagen of Little Rock",113,log,,372,3
+box2,4,13,AR,volkswagen,15143,"Everett Volkswagen of Rogers",109,log,,372,3
+box2,4,13,AR,volkswagen,15141,"Bill White Volkswagen",90,log,,372,3
+box2,4,13,AR,volkswagen,15142,"Crain Volkswagen of Fayetteville",60,log,,372,3
+box2,4,14,HI,volkswagen,15397,"Honolulu Volkswagen",214,log,,287,2
+box2,4,14,HI,volkswagen,15400,"Tony Volkswagen",47,log,,287,2
+box2,4,14,HI,volkswagen,15399,"KarMART Volkswagen of Maui",26,log,,287,2
+box2,4,15,UT,kia,13187,"Findlay Kia",262,log,,262,1
+box2,4,16,SD,toyota,6877,"Billion Toyota",207,log,,207,1
+box2,4,17,WA,mini,14820,"Seattle MINI",207,log,,207,1
+box2,4,18,WI,mazda,14433,"BERGSTROM MAZDA - GREEN BAY",109,log,,186,1
+box2,4,18,WI,mazda,14432,"BERGSTROM MAZDA",77,log,,186,1
+box2,4,19,AK,hyundai,11605,"Lithia Hyundai Of Anchorage",157,db,,157,1
+box2,4,20,AR,mercedes-benz,11174,"Mercedes-Benz of Little Rock",137,log,,137,1
+box2,4,21,AR,genesis,4829,"GENESIS OF CONWAY",121,db,,121,1
+box2,4,22,KY,mercedes-benz,11323,"James Motor Company",105,log,,105,1
+box2,4,23,IL,mazda,14061,"AUFFENBERG MAZDA",92,log,,92,1
+box2,4,24,NM,mazda,14225,"UNIVERSITY MAZDA",80,log,,80,1
+box2,4,25,FL,genesis,4683,"HAMPTON GENESIS",29,db,,29,0
+box2,4,26,PA,ford,15837,"Garnet Volkswagen of West Chester",12,db,,12,0
+box3,1,1,HI,ford,1824,"Honolulu Ford",386,log,,769,3
+box3,1,1,HI,ford,1825,"Cutter Ford, Inc.",383,log,,769,3
+box3,1,2,NJ,stellantis,9103,"Lester Glenn Chevrolet of Old Bridge",144,db,,380,2
+box3,1,2,NJ,stellantis,15649,"Cherry Hill Volkswagen",136,none,,380,2
+box3,1,2,NJ,stellantis,1115,"Chapman Ford (Egg Harbor Township, NJ)",100,none,,380,2
+box3,1,3,PA,stellantis,3501,"C Harper Chrysler Dodge Jeep Ram",41,none,,41,0
+box3,1,4,HI,lincoln,16168,"Valley Isle Lincoln",3,log,,3,0
+box3,2,1,TX,stellantis,9611,"Hall Chevrolet GMC",331,db,,674,3
+box3,2,1,TX,stellantis,9793,"Bruner Auto Group",263,db,,674,3
+box3,2,1,TX,stellantis,11010,"Crenwelge Motors",70,db,,674,3
+box3,2,1,TX,stellantis,9707,"Kramer Chevrolet GMC",10,db,,674,3
+box3,2,2,MI,ford,1260,"Bob Maxey Ford of Howell, Inc.",209,db,,209,1
+box3,2,3,CA,genesis,4693,"GENESIS SANTA MONICA",159,none,,159,1
+box3,2,4,OH,ford,9324,"Coughlin Automotive, LLC",35,db,,35,0
+box3,2,5,LA,cadillac,8672,"All Star Chevrolet",2,db,,2,0
+box3,3,1,HI,chevrolet,8402,"Cutter Chevrolet",208,log,,610,3
+box3,3,1,HI,chevrolet,8406,"Servco Auto Waipahu",168,log,,610,3
+box3,3,1,HI,chevrolet,8401,"Tony Chevrolet Hilo",139,log,,610,3
+box3,3,1,HI,chevrolet,8405,"Kuhio Chevrolet",95,log,,610,3
+box3,3,2,IA,stellantis,8444,"Karl Chevrolet GMC",197,db,,255,1
+box3,3,2,IA,stellantis,8419,"Keast Auto Center",58,db,,255,1
+box3,3,3,HI,cadillac,16582,"HONOLULU CADILLAC",57,log,,109,1
+box3,3,3,HI,cadillac,8404,"JIM FALK MOTORS OF MAUI",52,log,,109,1
+box3,3,4,IN,gmc,8566,"Chevrolet of Columbus, INC.",1,db,,1,0
+box3,4,1,SC,acura,17722,"GRAND STRAND NISSAN",483,db,,483,2
+box3,4,2,OH,stellantis,3112,"Buckeye Chrysler Jeep Dodge Ram FIAT of Shelby",479,db,,479,2
+box3,4,3,HI,gmc,10213,"Honolulu GMC",152,log,,228,1
+box3,4,3,HI,gmc,10214,"Cutter GMC",76,log,,228,1
+box3,4,4,TX,chevrolet,9694,"Cecil Atkission Motors",129,db,,129,1
+box3,4,5,MI,stellantis,2971,"Champion Chrysler Jeep Dodge Ram of Brighton",3,db,,3,0
+box4,1,1,ID,stellantis,3902,"Dave Smith Motors",1000,log,,2369,11
+box4,1,1,ID,stellantis,3830,"Larry H. Miller Chrysler Jeep Dodge Ram Boise",294,log,,2369,11
+box4,1,1,ID,stellantis,3872,"Dillon Chrysler Dodge Jeep Ram",264,log,,2369,11
+box4,1,1,ID,stellantis,3477,"Tadd Jenkins Chrysler Dodge Jeep Ram",234,log,,2369,11
+box4,1,1,ID,stellantis,3437,"Sayer Chrysler Dodge Jeep Ram",221,log,,2369,11
+box4,1,1,ID,stellantis,3597,"Mountain West Chrylser Dodge Jeep Ram of Burley",123,log,,2369,11
+box4,1,1,ID,stellantis,3904,"Smith Chrysler Dodge Jeep Ram of Weiser",76,log,,2369,11
+box4,1,1,ID,stellantis,3971,"Pierce Auto Center",72,log,,2369,11
+box4,1,1,ID,stellantis,3355,"Liberty Chrysler Dodge Jeep Ram",63,log,,2369,11
+box4,1,1,ID,stellantis,3811,"Cascade Auto, Inc.",16,log,,2369,11
+box4,1,1,ID,stellantis,3879,"Hanson Garage Inc",6,log,,2369,11
+box4,2,1,ID,chevrolet,8445,"Peterson Chevrolet Buick Cadillac",417,log,,1508,7
+box4,2,1,ID,chevrolet,8457,"Knudtsen Chevrolet Co LLC",292,log,,1508,7
+box4,2,1,ID,chevrolet,8459,"Tadd Jenkins Chevrolet",250,log,,1508,7
+box4,2,1,ID,chevrolet,8458,"Taylor Chevrolet",204,log,,1508,7
+box4,2,1,ID,chevrolet,8449,"Smith Chevrolet Co., INC.",168,log,,1508,7
+box4,2,1,ID,chevrolet,8456,"Taylor & Sons Chevrolet",94,log,,1508,7
+box4,2,1,ID,chevrolet,8446,"Kim Hansen Chevrolet",42,log,,1508,7
+box4,2,1,ID,chevrolet,8448,"Gortsema Motors, INC.",41,log,,1508,7
+box4,2,2,MO,stellantis,10585,"Ed Morse Chevrolet GMC North",65,db,,65,1
+box4,2,3,FL,lexus,15340,"Napleton's Volkswagen of Orlando",4,db,,4,0
+box4,3,1,ID,gmc,10247,"Dillon GMC",342,log,,1148,7
+box4,3,1,ID,gmc,10249,"Robideaux Motors Co.",210,log,,1148,7
+box4,3,1,ID,gmc,10251,"Hirning Buick GMC",148,log,,1148,7
+box4,3,1,ID,gmc,8447,"Hometown Chevrolet GMC of Fruitland",122,log,,1148,7
+box4,3,1,ID,gmc,10255,"Rob Green GMC, LLC",121,log,,1148,7
+box4,3,1,ID,gmc,10253,"Liberty GMC",86,log,,1148,7
+box4,3,1,ID,gmc,10254,"St. Anthony Motors",54,log,,1148,7
+box4,3,1,ID,gmc,10252,"Alpine Motors Co., INC.",44,log,,1148,7
+box4,3,1,ID,gmc,8452,"Lewiston Chevrolet GMC",21,log,,1148,7
+box4,3,2,FL,gmc,8259,"Belle Glade Chevrolet, INC.",72,db,,72,1
+box4,3,3,FL,honda,11271,"Mercedes-Benz of Sarasota",57,db,,57,1
+box4,3,4,IL,cadillac,10315,"Arnie Bauer Chevrolet GMC",3,db,,3,0
+box4,4,1,IL,acura,17206,"BERMAN NISSAN OF CHICAGO",864,db,,864,3
+box4,4,2,CA,stellantis,8118,"American Chevrolet",528,db,,528,2
+box4,4,3,ID,ford,1907,"Mike White Ford of Coeur d'Alene",292,log,,292,1
+box4,4,4,FL,stellantis,8329,"Chevrolet GMC of Quincy INC.",160,db,,160,1
+box4,4,5,ID,cadillac,10250,"WACKERLI AUTO CENTER",88,log,,109,1
+box4,4,5,ID,cadillac,16591,"PETERSON CADILLAC",21,log,,109,1
+box4,4,6,ID,lincoln,16180,"Kendall Lincoln Treasure Valley",52,log,,52,1
+box4,4,7,FL,ford,4283,"Alan Jay Cdrj of Clewiston",2,db,,2,0

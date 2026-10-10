@@ -1,0 +1,458 @@
+{
+  "toyota|rav4|2026": {
+    "source": "docs/rav4-2026/rav4_2026_options_by_trim.csv (toyota.com configurator, 2026 RAV4 hybrid)",
+    "models": [
+      "rav4",
+      "rav4 hybrid"
+    ],
+    "keepBare": [
+      "siri",
+      "google",
+      "alexa built in"
+    ],
+    "trimAliases": {
+      "xle": "xle premium",
+      "xle prem": "xle premium",
+      "xle premium": "xle premium",
+      "xle prem pkg": "xle premium",
+      "xle premium pkg": "xle premium",
+      "xle premium package": "xle premium"
+    },
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "hybrid",
+      "hev",
+      "cvt",
+      "ecvt",
+      "natl"
+    ],
+    "trimNoisePhrases": [
+      "front wheel drive",
+      "all wheel drive",
+      "four wheel drive",
+      "two wheel drive"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "le": {
+        "label": "LE",
+        "options": {
+          "all wheel drive": {
+            "label": "All-Wheel Drive",
+            "kind": "option",
+            "price": 1400,
+            "aliases": [
+              "awd",
+              "all wheel drive awd",
+              "electronic on demand awd",
+              "electronic on demand all wheel drive"
+            ]
+          },
+          "ruby flare pearl": {
+            "label": "Ruby Flare Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          }
+        }
+      },
+      "se": {
+        "label": "SE",
+        "options": {
+          "all wheel drive": {
+            "label": "All-Wheel Drive",
+            "kind": "option",
+            "price": 1400,
+            "aliases": [
+              "awd",
+              "all wheel drive awd",
+              "electronic on demand awd",
+              "electronic on demand all wheel drive"
+            ]
+          },
+          "convenience package": {
+            "label": "Convenience Package",
+            "kind": "package",
+            "price": 400,
+            "aliases": [
+              "convenience pkg"
+            ],
+            "features": [
+              "^(height adjustable )?(hands free )?(power|electric) (liftgate|rear door|tailgate|hatch|back door)( with jam protection)?$"
+            ]
+          },
+          "weather package": {
+            "label": "Weather Package",
+            "kind": "package",
+            "price": 375,
+            "aliases": [
+              "weather pkg"
+            ],
+            "features": [
+              "^heated (leather )?steering wheel$",
+              "^rain sensing (variable intermittent )?(windshield )?wipers( with (windshield wiper )?de icer( function)?)?$",
+              "^(windshield )?wiper de icer( function)?$"
+            ]
+          },
+          "moonroof package": {
+            "label": "Moonroof Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "moonroof pkg"
+            ],
+            "features": [
+              "^(power )?(tilt (and )?slide )?(moonroof|sunroof)( with one touch (open close|operation))?$",
+              "^power tilt slide (moonroof|sunroof)( with one touch (open close|operation))?$"
+            ]
+          }
+        }
+      },
+      "xle premium": {
+        "label": "XLE Premium",
+        "options": {
+          "all wheel drive": {
+            "label": "All-Wheel Drive",
+            "kind": "option",
+            "price": 1400,
+            "aliases": [
+              "awd",
+              "all wheel drive awd",
+              "electronic on demand awd",
+              "electronic on demand all wheel drive"
+            ]
+          },
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "ruby flare pearl": {
+            "label": "Ruby Flare Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "weather package": {
+            "label": "Weather Package",
+            "kind": "package",
+            "price": 375,
+            "aliases": [
+              "weather pkg"
+            ],
+            "features": [
+              "^heated (leather )?steering wheel$",
+              "^rain sensing (variable intermittent )?(windshield )?wipers( with (windshield wiper )?de icer( function)?)?$",
+              "^(windshield )?wiper de icer( function)?$"
+            ]
+          },
+          "xle driver assist package": {
+            "label": "XLE Driver Assist Package",
+            "kind": "package",
+            "price": 650,
+            "aliases": [
+              "xle driver assist pkg",
+              "driver assist package",
+              "driver assist pkg"
+            ],
+            "features": [
+              "^front cross traffic alert( fcta)?$",
+              "^lane change assist( lca)?$",
+              "^traffic jam assist( tja)?$",
+              "^driver (attention )?monitor(ing system)?$"
+            ]
+          },
+          "panoramic moonroof package": {
+            "label": "Panoramic Moonroof Package",
+            "kind": "package",
+            "price": 1850,
+            "aliases": [
+              "panoramic moonroof pkg"
+            ],
+            "features": [
+              "^panoramic (glass roof|moonroof|sunroof|roof)( with front (power )?tilt slide (moonroof|sunroof))?$",
+              "^digital (rear ?view )?mirror( with homelink( garage door opener)?)?$",
+              "^digital rearview mirror w homelink garage door opener$"
+            ]
+          }
+        }
+      },
+      "woodland": {
+        "label": "Woodland",
+        "options": {
+          "moonroof package": {
+            "label": "Moonroof Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "moonroof pkg"
+            ],
+            "features": [
+              "^(power )?(tilt (and )?slide )?(moonroof|sunroof)( with one touch (open close|operation))?$",
+              "^power tilt slide (moonroof|sunroof)( with one touch (open close|operation))?$"
+            ]
+          }
+        }
+      },
+      "xse": {
+        "label": "XSE",
+        "options": {
+          "storm cloud with midnight black metallic roof": {
+            "label": "Storm Cloud with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "storm cloud w midnight black metallic roof",
+              "storm cloud with midnight black roof",
+              "storm cloud w midnight black roof",
+              "storm cloud with black roof",
+              "storm cloud two tone",
+              "storm cloud two tone midnight black roof"
+            ]
+          },
+          "wind chill pearl with midnight black metallic roof": {
+            "label": "Wind Chill Pearl with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl w midnight black metallic roof",
+              "wind chill pearl with midnight black roof",
+              "wind chill pearl w midnight black roof",
+              "wind chill pearl with black roof",
+              "wind chill pearl two tone",
+              "wind chill pearl two tone midnight black roof"
+            ]
+          },
+          "meteor shower with midnight black metallic roof": {
+            "label": "Meteor Shower with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "meteor shower w midnight black metallic roof",
+              "meteor shower with midnight black roof",
+              "meteor shower w midnight black roof",
+              "meteor shower with black roof",
+              "meteor shower two tone",
+              "meteor shower two tone midnight black roof"
+            ]
+          },
+          "weather package": {
+            "label": "Weather Package",
+            "kind": "package",
+            "price": 375,
+            "aliases": [
+              "weather pkg"
+            ],
+            "features": [
+              "^heated (leather )?steering wheel$",
+              "^rain sensing (variable intermittent )?(windshield )?wipers( with (windshield wiper )?de icer( function)?)?$",
+              "^(windshield )?wiper de icer( function)?$"
+            ]
+          },
+          "xse driver assist package": {
+            "label": "XSE Driver Assist Package",
+            "kind": "package",
+            "price": 420,
+            "aliases": [
+              "xse driver assist pkg",
+              "driver assist package",
+              "driver assist pkg"
+            ],
+            "features": [
+              "^(toyota )?advanced park$",
+              "^(toggle( switch)? )?shift by wire shifter$"
+            ]
+          },
+          "jbl premium audio package": {
+            "label": "JBL Premium Audio Package",
+            "kind": "package",
+            "price": 620,
+            "aliases": [
+              "jbl premium audio",
+              "jbl premium audio system",
+              "jbl premium audio pkg"
+            ],
+            "features": [
+              "^jbl\\b.{0,70}$"
+            ]
+          },
+          "panoramic moonroof package": {
+            "label": "Panoramic Moonroof Package",
+            "kind": "package",
+            "price": 700,
+            "aliases": [
+              "panoramic moonroof pkg"
+            ],
+            "features": [
+              "^panoramic (glass roof|moonroof|sunroof|roof)( with front (power )?tilt slide (moonroof|sunroof))?$",
+              "^digital (rear ?view )?mirror( with homelink( garage door opener)?)?$",
+              "^digital rearview mirror w homelink garage door opener$"
+            ]
+          }
+        }
+      },
+      "limited": {
+        "label": "Limited",
+        "options": {
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "ruby flare pearl": {
+            "label": "Ruby Flare Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "20 in wheel package": {
+            "label": "20-In. Wheel Package",
+            "kind": "package",
+            "price": 1240,
+            "aliases": [
+              "20 inch wheel package",
+              "20 in wheels package",
+              "20 inch wheels package",
+              "20 in wheel pkg"
+            ],
+            "features": [
+              "^20 (in|inch)( alloy| aluminum)? wheels?( with 235 50r20( all season tires)?)?$",
+              "^larger 165 90d18 spare tire wheel combo$",
+              "^165 90d18 spare( tire)?$"
+            ]
+          },
+          "10 in color head up display hud": {
+            "label": "10-In. Color Head-Up Display (HUD)",
+            "kind": "option",
+            "price": 600,
+            "aliases": [
+              "head up display",
+              "heads up display",
+              "head up display hud",
+              "10 in head up display",
+              "10 in color head up display",
+              "color head up display"
+            ]
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [
+        "all weather floor liners",
+        "all weather liner package",
+        "arb premium recovery kit",
+        "arb pump up kit",
+        "arb tred pro red",
+        "blackout emblem overlays",
+        "body side moldings",
+        "car mate dc4000ra dash cam 360",
+        "cargo liner",
+        "cargo net",
+        "cargo tote",
+        "carpet cargo mat",
+        "carpet floor mats",
+        "carpet mat package",
+        "coin holder ashtray cup",
+        "connected services trial offering 2 addt l yrs of drive connect remote connect",
+        "connected services trial offering 3 addt l of drive connect 2 addt l yrs of remo",
+        "console safe",
+        "dometic cfx5 55im protective cover",
+        "dometic recon hardside 16l glow",
+        "door edge film",
+        "door edge guards",
+        "door panel scuff protectors",
+        "door sill protectors",
+        "emergency assistance kit",
+        "first aid kit",
+        "fog light graphics gray and black",
+        "fog light graphics matte black",
+        "full graphics package gray or black",
+        "hood graphics gray or black",
+        "illuminated cargo sills",
+        "illuminated door sills",
+        "illuminated front badge",
+        "illumination package",
+        "kammok crosswing single panel 5",
+        "kammok outpost hammock stand",
+        "key glove",
+        "kurgo dog first aid kit",
+        "kurgo gourd water bottle bowl",
+        "kurgo heather dog booster seat",
+        "kurgo quantum dog leash blue",
+        "kurgo tru fit dog car harness",
+        "mudguards",
+        "paint protection film front bumper",
+        "paint protection film hood fenders mirror backs door cups",
+        "pelican 20qt elite cooler",
+        "pelican dayventure backpack cooler",
+        "pelican dayventure sling cooler",
+        "petsafe happy ride folding dog ramp",
+        "preferred accessory package w all weather floor liners",
+        "preferred accessory package w carpet mats",
+        "protection package black chrome",
+        "protection package chrome",
+        "quick charging cable package",
+        "ram x grip cup holder mount",
+        "rear bumper protector",
+        "roof cargo basket",
+        "side storage boot brush ice scraper",
+        "side storage case",
+        "side storage led lantern",
+        "side storage multi tool",
+        "siriusxm trial offering 33 months",
+        "tow hitch receiver",
+        "towing wire harness",
+        "trailer ball 2",
+        "universal tablet holder",
+        "yakima megawarrior",
+        "yakima offgrid cargo basket mounted"
+      ],
+      "patterns": [
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:lifetime\\s+oil(?:\\s+change)?(?:\\s+(?:package|pkg|plan|program))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?|tyres?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:vin\\s*etch(?:ing)?(?:\\s+(?:protection|theft deterrent))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:protection\\s+(?:plus\\s+)?(?:package|pkg)(?:\\s+(?:black\\s+)?chrome(?:\\s+body\\s+side)?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:appearance\\s+(?:package|pkg|protection))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:paint\\s+(?:protection|sealant))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:fabric\\s+(?:protection|guard))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:undercoat(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:rust\\s*proof(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:window\\s+tint(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:wheel\\s+locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:gap\\s+(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:mud\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:splash\\s+guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:(?:floor|carpet|cargo)\\s+)+mats?(?:\\s*/\\s*(?:(?:floor|carpet|cargo)\\s+)*mats?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:floor|cargo)\\s+liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:all\\s+weather\\s+(?:floor\\s+)?(?:mats?|liners?)(?:\\s+(?:and|&)\\s+cargo\\s+(?:tray|liner|mat))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:door\\s+(?:edge|sill)\\s+(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:body\\s+side\\s+mold(?:ing|ings))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:roof\\s+(?:rack|cross\\s*bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:low\\s+profile\\s+)?cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:key\\s+glove)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:multimedia\\s+(?:glass\\s+)?screen\\s+protector)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:cargo\\s+(?:net|tote))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:hood\\s+graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:blackout\\s+emblem\\s+overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:tow(?:ing)?\\s+hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:trailer\\s+hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$"
+      ]
+    }
+  }
+}
