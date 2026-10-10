@@ -47,6 +47,7 @@ import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, ZERO_SCRAPE_AGGREGATE_SQL } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
+import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
@@ -2167,6 +2168,9 @@ async function ensureInventoryTable(pool) {
     PRIMARY KEY (make, model, trim, exterior_color, interior_color)
   )`);
   await pool.query("CREATE TABLE IF NOT EXISTS inv_facet_meta (id TINYINT NOT NULL PRIMARY KEY, built_at DATETIME NOT NULL, duration_ms INT NOT NULL)");
+  // All-makes summary for the no-make /api/inventory/catalog call (catalogSummary.js); written by rebuildCatalogFacets.
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_option_summary (canonical_key VARCHAR(80) NOT NULL PRIMARY KEY, label VARCHAR(160) NOT NULL, vehicle_count INT NOT NULL)");
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_color_summary (kind VARCHAR(3) NOT NULL, color VARCHAR(96) NOT NULL, PRIMARY KEY (kind, color))");
   inventoryReady = true;
 }
 
@@ -3113,6 +3117,7 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     await ensureInventoryTable(pool);
     const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
     const makes = makeRows.map((r) => r.make);
+    const summary = createSummaryAccumulator();
     for (const make of makes) {
       const [optionAgg] = await pool.query(
         `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
@@ -3129,6 +3134,8 @@ async function rebuildCatalogFacets(pool, opts = {}) {
          GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
         [make]
       );
+      summary.addOptions(optionAgg);
+      summary.addColors(colorAgg);
       const conn = await pool.getConnection();
       try {
         await conn.beginTransaction();
@@ -3152,6 +3159,24 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     if (makes.length) {
       await pool.query("DELETE FROM inv_option_facets WHERE make NOT IN (?)", [makes]);
       await pool.query("DELETE FROM inv_color_facets WHERE make NOT IN (?)", [makes]);
+    }
+    // All-makes summary for the no-make catalog call: replaced in one transaction so a reader never sees it half-written.
+    {
+      const { optionRows, colorRows } = summary.result({ minVehicles: CATALOG_MIN_VEHICLES });
+      const sconn = await pool.getConnection();
+      try {
+        await sconn.beginTransaction();
+        await sconn.query("DELETE FROM inv_option_summary");
+        await sconn.query("DELETE FROM inv_color_summary");
+        if (optionRows.length) await sconn.query("INSERT INTO inv_option_summary (canonical_key, label, vehicle_count) VALUES ?", [optionRows]);
+        if (colorRows.length) await sconn.query("INSERT INTO inv_color_summary (kind, color) VALUES ?", [colorRows]);
+        await sconn.commit();
+      } catch (err) {
+        await sconn.rollback().catch(() => {});
+        throw err;
+      } finally {
+        sconn.release();
+      }
     }
     const durationMs = Date.now() - started;
     await pool.query("INSERT INTO inv_facet_meta (id, built_at, duration_ms) VALUES (1, NOW(), ?) ON DUPLICATE KEY UPDATE built_at = VALUES(built_at), duration_ms = VALUES(duration_ms)", [durationMs]);
@@ -3185,6 +3210,19 @@ async function handleCatalogFacetStatus(req, res) {
   sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });
 }
 
+// The rebuild's all-makes summary as the two row sets handleInventoryCatalogOptions already consumes, or null when it is missing/empty.
+async function readAllMakesSummary(pool) {
+  try {
+    const [options] = await pool.query("SELECT canonical_key, label, vehicle_count FROM inv_option_summary ORDER BY vehicle_count DESC");
+    if (!options.length) return null;
+    const [colors] = await pool.query("SELECT kind, color FROM inv_color_summary");
+    return summaryToQueryRows({ options, colors });
+  } catch (err) {
+    console.warn(`${new Date().toISOString()} catalog summary unavailable, using the full query: ${err.message}`);
+    return null;
+  }
+}
+
 async function handleInventoryCatalogOptions(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -3199,12 +3237,15 @@ async function handleInventoryCatalogOptions(req, res, params) {
     if (trim) { fWhere.push("trim = ?"); fArgs.push(trim); }
     const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
     sendJson(res, 200, await stableCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
-      const [optionRows] = await withPoolTimeout(
+      // No make/model/trim: read the rebuild's pre-aggregated all-makes summary (a few hundred rows) instead of grouping all of
+      // inv_option_facets; an empty/missing summary (not rebuilt yet) falls through to the old queries.
+      const fromSummary = !make && !model && !trim ? await readAllMakesSummary(pool) : null;
+      const [optionRows] = fromSummary ? [fromSummary.optionRows] : await withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
-      const [colorRows] = await withPoolTimeout(
+      const [colorRows] = fromSummary ? [fromSummary.colorRows] : await withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
