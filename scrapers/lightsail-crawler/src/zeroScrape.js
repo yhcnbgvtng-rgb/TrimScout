@@ -86,22 +86,38 @@ export const ZERO_SCRAPE_BATCH_SQL =
   "SELECT dealer_id AS dealerId, source_box AS sourceBox, make, MAX(last_seen_at) AS lastSeen, COUNT(*) AS live, MIN(stale_at IS NOT NULL) AS alreadyStale " +
   "FROM dealer_inventory FORCE INDEX (idx_inv_by_dealer_covering) WHERE removed_at IS NULL AND dealer_id IN (?) GROUP BY dealer_id, source_box, make";
 
+/** Batches in flight at once. Each is a small index range scan; measured on box2 the sequential run took 118.7 s for 372 batches. */
+export const ZERO_SCRAPE_CONCURRENCY = 4;
+
 /**
  * @param {(sql: string, args: any[]) => Promise<any[]>} run  runs one statement (the caller adds the per-query statement cap) and resolves to its rows
- * @param {{ now?: () => number, totalMs?: number, perQuery?: number }} [opts]
+ * @param {{ now?: () => number, totalMs?: number, perQuery?: number, concurrency?: number }} [opts]
  * @returns {Promise<{ dealerId:number, sourceBox:string|null, make:string|null, lastSeen:Date, live:number, alreadyStale:boolean }[]>}
  */
-export async function aggregateZeroScrape(run, { now = Date.now, totalMs = ZERO_SCRAPE_TOTAL_MS, perQuery = ZERO_SCRAPE_DEALERS_PER_QUERY } = {}) {
+export async function aggregateZeroScrape(run, { now = Date.now, totalMs = ZERO_SCRAPE_TOTAL_MS, perQuery = ZERO_SCRAPE_DEALERS_PER_QUERY, concurrency = ZERO_SCRAPE_CONCURRENCY } = {}) {
   const started = now();
   const overBudget = () => now() - started > totalMs;
   const dealerIds = (await run(ZERO_SCRAPE_DEALER_IDS_SQL, [])).map((r) => Number(r.dealer_id));
-  const stores = [];
-  for (let i = 0; i < dealerIds.length; i += perQuery) {
-    if (overBudget()) throw new Error(`zero-scrape aggregate exceeded ${totalMs}ms after ${i} of ${dealerIds.length} dealers`);
-    const rows = await run(ZERO_SCRAPE_BATCH_SQL, [dealerIds.slice(i, i + perQuery)]);
-    for (const r of rows) stores.push({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 });
-  }
+  const batches = [];
+  for (let i = 0; i < dealerIds.length; i += perQuery) batches.push(dealerIds.slice(i, i + perQuery));
+  const results = new Array(batches.length);
+  let next = 0, done = 0, failed = null;
+  // A small worker pool: each worker takes the next undispatched batch. The budget is checked before every dispatch, and the first
+  // failure stops further dispatches (in-flight batches finish; nothing is marked by the caller on a rejection).
+  const worker = async () => {
+    for (;;) {
+      if (failed) return;
+      const i = next++;
+      if (i >= batches.length) return;
+      if (overBudget()) { failed = new Error(`zero-scrape aggregate exceeded ${totalMs}ms after ${done} of ${batches.length} batches`); return; }
+      try { results[i] = await run(ZERO_SCRAPE_BATCH_SQL, [batches[i]]); done++; } catch (err) { failed = failed || err; return; }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(concurrency, batches.length || 1)) }, worker));
+  if (failed) throw failed;
   if (overBudget()) throw new Error(`zero-scrape aggregate exceeded ${totalMs}ms`);
+  const stores = [];
+  for (const rows of results) for (const r of rows) stores.push({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 });
   return stores;
 }
 
