@@ -6,7 +6,7 @@
 // plan.json = [{ "vin": "...", "dealerId": 123, "trim": "XLE Premium" }, ...]
 // Safety: each UPDATE has `WHERE vin = ? AND dealer_id = ? AND (trim IS NULL OR trim = '')` — a trim a crawl wrote since the dry run is never
 // overwritten; the before-state of every row is saved to <plan>.rollback-<ts>.json BEFORE the first UPDATE; --apply takes the deals-API sync
-// lock (own owner id, heartbeated, released at the end; exits 4 if held); refuses to run against 3.237.204.55; any error or timeout stops the run
+// lock (own owner id, heartbeated, released at the end; exits 4 if held); refuses to run against a retired box IP; any error or timeout stops the run
 // (no retry). No dealer page is fetched. Run on the deals box (box2) from /opt/trimscout-deals.
 import fs from "node:fs";
 import path from "node:path";
@@ -15,7 +15,11 @@ import mysql from "mysql2/promise";
 const args = process.argv.slice(2);
 const PLAN = args.find((a) => !a.startsWith("--"));
 const APPLY = args.includes("--apply");
-const FORBIDDEN_HOST = "3.237.204.55";
+// Retired-IP guard (docs/BOXES.md "Do not use"): in the repo at ../../config/, on a box next to this script. Fails closed.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 if (!PLAN) { console.error("usage: rav4-trim-fill.mjs <plan.json> [--apply --fleet-idle]"); process.exit(1); }
 if (APPLY && !args.includes("--fleet-idle")) { console.error("Refusing to --apply without --fleet-idle (confirm no crawl or sync is running on any box first)."); process.exit(1); }
 const TRUSTED = new Set(["LE", "SE", "XLE Premium", "Woodland", "XSE", "Limited"]);
@@ -30,7 +34,7 @@ const appEnv = readEnvFile(path.resolve(process.cwd(), ".env"));
 const API_KEY = process.env.TRIMSCOUT_API_KEY || appEnv.TRIMSCOUT_API_KEY || dbEnv.TRIMSCOUT_API_KEY || null;
 const DB_HOST = dbEnv.DB_HOST || process.env.DB_HOST;
 const DEALS = `http://127.0.0.1:${process.env.DEALS_API_PORT || dbEnv.DEALS_API_PORT || 3004}`;
-if ([DB_HOST, DEALS].some((h) => String(h || "").includes(FORBIDDEN_HOST))) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
+if (pointsAtDeadIp(DB_HOST, DEALS)) { console.error('Refusing to run: this points at a retired box IP (see docs/BOXES.md "Do not use").'); process.exit(1); }
 
 const plan = JSON.parse(fs.readFileSync(PLAN, "utf-8"));
 if (!Array.isArray(plan) || plan.some((r) => !/^[A-HJ-NPR-Z0-9]{17}$/.test(r.vin) || !Number.isInteger(Number(r.dealerId)) || !TRUSTED.has(r.trim))) { console.error("plan.json must be an array of { vin, dealerId, trim } with trim one of: " + [...TRUSTED].join(", ")); process.exit(1); }
