@@ -2,7 +2,7 @@
 
 > **Comprehensive Reference**: TrimScout Luxury Automotive Marketplace & Intelligence Platform  
 > **Framework**: Next.js 14 (App Router) + React + TailwindCSS + Lucide Icons  
-> **Crawler Infrastructure**: AWS Lightsail (`34.205.155.92`), Ubuntu 24.04 LTS, Node.js + Python
+> **Crawler Infrastructure**: AWS Lightsail (a retired Lightsail IP (see docs/BOXES.md)), Ubuntu 24.04 LTS, Node.js + Python
 
 ---
 
@@ -101,7 +101,7 @@ The enrichment engine cross-references scraped descriptions and specifications a
 
 ## ⚡ AWS Lightsail Crawler Operations
 
-- **Host**: `34.205.155.92` (User: `admin`)
+- **Host**: a retired Lightsail IP (see docs/BOXES.md) (User: `admin`)
 - **SSH Command**: `ssh lightsail`
 - **Remote Directory**: `/home/admin/porsche-tracker`
 - **Deploying Updates**:

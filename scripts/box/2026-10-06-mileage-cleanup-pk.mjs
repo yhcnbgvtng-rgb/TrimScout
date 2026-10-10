@@ -18,7 +18,7 @@
 //                          below the checkpoint; the walk only ever touches rows still matching, so it is always safe).
 // Resumable by construction: rows leave the WHERE once updated, so rerunning just walks again and finds fewer; the checkpoint
 // only skips the finished prefix.
-// Run on the deals box (box2) from /opt/trimscout-deals. Never against 3.237.204.55.
+// Run on the deals box (box2) from /opt/trimscout-deals. Never against a retired IP (docs/BOXES.md).
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -35,7 +35,12 @@ const MAX_MINUTES = Number(opt("max-minutes") || 60);
 const FROM_START = flag("from-start");
 const CHECKPOINT = opt("checkpoint") || path.join(os.homedir(), "mileage-cleanup-checkpoint.json");
 const PAUSE_MS = Number(process.env.MILEAGE_PAUSE_MS ?? 100); // between batches; the env var exists so the tests can run fast
-const FORBIDDEN_HOST = "3.237.204.55";
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 if (!Number.isInteger(RANGE) || RANGE < 1000) { console.error("--range must be an integer >= 1000"); process.exit(1); }
 if (STOP_AT && !/^\d{2}:\d{2}$/.test(STOP_AT)) { console.error("--stop-at must be HH:MM"); process.exit(1); }
 if (!Number.isFinite(MAX_MINUTES) || MAX_MINUTES < 0.05 || MAX_MINUTES > 720) { console.error("--max-minutes must be a number from 0.05 to 720"); process.exit(1); }
@@ -61,8 +66,8 @@ const appEnv = readEnvFile(path.resolve(process.cwd(), ".env"));
 const API_KEY = process.env.TRIMSCOUT_API_KEY || appEnv.TRIMSCOUT_API_KEY || dbEnv.TRIMSCOUT_API_KEY || null;
 const DB_HOST = dbEnv.DB_HOST || process.env.DB_HOST;
 const DEALS = `http://127.0.0.1:${process.env.DEALS_API_PORT || dbEnv.DEALS_API_PORT || 3004}`;
-if ([DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST].some((h) => String(h || "").includes(FORBIDDEN_HOST))) {
-  console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`);
+if (pointsAtDeadIp(DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST)) {
+  console.error(`Refusing to run: this points at a retired box IP (see docs/BOXES.md "Do not use").`);
   process.exit(1);
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

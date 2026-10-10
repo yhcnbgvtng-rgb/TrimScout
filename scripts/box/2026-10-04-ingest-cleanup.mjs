@@ -17,7 +17,7 @@
 //                          NEW and CPO rows qualify at any year. This keeps a real $900 older used car.
 //
 // WHEN TO APPLY (Paul's call, not the script's): only once the recovery crawl is done AND the sync lock on box2
-// (52.202.234.65) is free. Never against 3.237.204.55 — this refuses to run if the DB or deals API points there.
+// (52.202.234.65) is free. Never against a retired IP (docs/BOXES.md) — this refuses to run if the DB or deals API points there.
 //
 // Run on the deals box (box2) from /opt/trimscout-deals, with ingestSanitize.js copied next to this file (it is the same
 // predicate the scraper now uses for stickers, so the cleanup and the ingest rule cannot drift):
@@ -39,7 +39,12 @@ const MAX_PAYMENT = Number(opt("max-payment") || 1500);
 const USED_MIN_YEAR = Number(opt("used-min-year") || 2020);
 const BATCH = 2000;
 const PAUSE_MS = 150;
-const FORBIDDEN_HOST = "3.237.204.55";
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 if (!Number.isInteger(MAX_PAYMENT) || MAX_PAYMENT < 1 || !Number.isInteger(USED_MIN_YEAR)) { console.error("--max-payment and --used-min-year must be integers"); process.exit(1); }
 for (const k of ONLY) if (!["miles", "price", "sticker"].includes(k)) { console.error(`unknown --only value: ${k}`); process.exit(1); }
 if (APPLY && !FLEET_IDLE) { console.error("Refusing to --apply without --fleet-idle (confirm the recovery crawl is done and no sync is running on any box first)."); process.exit(1); }
@@ -64,8 +69,8 @@ const appEnv = readEnvFile(path.resolve(process.cwd(), ".env"));
 const API_KEY = process.env.TRIMSCOUT_API_KEY || appEnv.TRIMSCOUT_API_KEY || dbEnv.TRIMSCOUT_API_KEY || null;
 const DB_HOST = dbEnv.DB_HOST || process.env.DB_HOST;
 const DEALS = `http://127.0.0.1:${process.env.DEALS_API_PORT || dbEnv.DEALS_API_PORT || 3004}`;
-if ([DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST].some((h) => String(h || "").includes(FORBIDDEN_HOST))) {
-  console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}. This cleanup only ever targets box2 (52.202.234.65).`);
+if (pointsAtDeadIp(DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST)) {
+  console.error(`Refusing to run: this points at a retired box IP (see docs/BOXES.md "Do not use"). This cleanup only ever targets box2 (52.202.234.65).`);
   process.exit(1);
 }
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

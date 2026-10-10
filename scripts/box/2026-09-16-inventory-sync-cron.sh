@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Crawl box (ubuntu@98.92.140.11): install the nightly inventory → deals-box sync.
+# Crawl box (ubuntu@box1): install the nightly inventory → deals-box sync.
 # Pulls scripts/box/inventory-sync.mjs, does one sync now against the latest crawl output, and adds a
 # crontab line that re-syncs every night at 06:15 UTC (the run-daily-crawl cron finishes well before that).
 #

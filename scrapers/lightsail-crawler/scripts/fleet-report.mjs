@@ -21,6 +21,7 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { BOXES } from '../../../config/boxes.mjs';
 
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,12 +40,7 @@ const ROOT = path.resolve(__dirname, '..');
 // that was traced and fixed). Static IPs are free while attached to a
 // running instance and don't change across stop/start, so this list should
 // now be stable.
-export const BOXES = [
-  { label: 'box1', host: '34.203.148.79', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box2', host: '52.202.234.65', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box3', host: '184.73.158.210', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-  { label: 'box4', host: '100.50.85.234', sshUser: 'ubuntu', remoteDir: 'nj-scraper/scrapers/lightsail-crawler' },
-];
+export { BOXES };
 const DEFAULT_SSH_KEY = path.join(os.homedir(), '.ssh', 'LightsailDefaultKey-us-east-1.pem');
 
 function arg(name, fallback = null) {

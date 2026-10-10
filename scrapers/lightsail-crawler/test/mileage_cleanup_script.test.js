@@ -83,6 +83,7 @@ before(async () => {
   fs.writeFileSync(path.join(dir, 'node_modules/mysql2/promise.js'), STUB_MYSQL);
   fs.writeFileSync(path.join(dir, '.env.trimscout-db'), 'DB_HOST=stub-db\nDB_WRITER_USER=u\nDB_WRITER_PASSWORD=p\n');
   fs.copyFileSync(SCRIPT_SRC, path.join(dir, 'cleanup.mjs'));
+  for (const f of ['boxes.mjs', 'boxes.json']) fs.copyFileSync(path.resolve(here, '../../../config', f), path.join(dir, f)); // retired-IP guard, as on a box
   lockCalls = []; busy = false;
   api = http.createServer((req, res) => {
     const action = req.url.split('/').pop();
