@@ -2,6 +2,7 @@
  * Dealer inventory on the deals box — vehicles crawled nightly by the crawl box (run-daily-crawl.mjs) and
  * synced by scripts/box/inventory-sync.mjs, keyed by (VIN, store). Server-only (API key).
  */
+import { STALE_HIDE_DAYS } from "./lastConfirmed";
 import { LIGHTSAIL_HOST } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { DealerAnalytics } from "./dealerAnalytics";
@@ -135,6 +136,8 @@ export interface InventoryQuery {
   nullsLast?: boolean;
   /** Buyer search only: leave out cars whose condition is 'wholesale' (a dealer's wholesale lot is not retail stock). The admin sheet never sets it. */
   retailOnly?: boolean;
+  /** Buyer search only: leave out cars whose last_seen_at is older than this many days (STALE_HIDE_DAYS). The admin sheet never sets it. */
+  seenWithinDays?: number;
 }
 
 /** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
@@ -246,7 +249,7 @@ export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPa
  */
 export async function searchInventory(q: BuyerSearchQuery = {}): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
-  return listInventory({ ...rest, inStock: true, retailOnly: true });
+  return listInventory({ ...rest, inStock: true, retailOnly: true, seenWithinDays: STALE_HIDE_DAYS });
 }
 
 export interface CatalogOptions {
@@ -289,6 +292,7 @@ export async function inventoryFacets(f: { state?: string; make?: string; model?
   if (f.state) qs.set("state", f.state);
   if (f.make) qs.set("make", f.make);
   if (f.model) qs.set("model", f.model);
+  qs.set("seenWithinDays", String(STALE_HIDE_DAYS));
   const suffix = qs.toString();
   return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
 }
@@ -393,7 +397,7 @@ export async function inventoryStats(): Promise<InventoryStats> {
  * BUYER_SEARCH.md / handleInventoryMakes in deals_api_server.js.
  */
 export async function inventoryMakes(): Promise<{ makes: Array<{ make: string; n: number }> }> {
-  return request("GET", "/api/inventory/makes");
+  return request("GET", `/api/inventory/makes?seenWithinDays=${STALE_HIDE_DAYS}`);
 }
 
 export interface MarketPulseJustArrived {
