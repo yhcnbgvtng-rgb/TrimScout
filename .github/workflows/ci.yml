@@ -22,5 +22,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      # Every tracked *.test.* file must be run by `npm test` or be listed (with a reason) in test-known-failing.json.
+      - name: Check every test file is run
+        run: node scripts/check-test-coverage.mjs
+
       - name: Run tests
         run: npm test
