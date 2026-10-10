@@ -243,7 +243,7 @@ for (const shardFile of files) {
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
       windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
       priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
-      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL,
+      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL, state: /^[A-Za-z]{2}$/.test(String(v.state || "").trim()) ? String(v.state).trim().toUpperCase() : null,
     });
   }
 }

@@ -19,6 +19,7 @@ import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js
 import { resolveVehicleIds } from '../src/vehicleId.js';
 import { guardPrice } from '../src/ingestGuards.js';
 import { normalizeTransmission } from '../src/transmission.js';
+import { normalizeState } from '../src/invState.js';
 
 const SRC = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 const extractFunction = (name) => {
@@ -63,7 +64,7 @@ function makeDb() {
         for (const v of params[0]) {
           assert.equal(v.length, cols.length, 'every row carries one value per listed column');
           const prev = db.inv.get(`${v[0]}|${v[1]}`);
-          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1] });
+          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1], state: v[v.length - 2] });
         }
         db.n.upserts += params[0].length;
         db.rows.push(...params[0]);
@@ -121,7 +122,7 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
-    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
     performance,
   };
   vm.createContext(ctx);
