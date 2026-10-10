@@ -44,6 +44,7 @@ import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
 import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
@@ -2487,6 +2488,23 @@ async function handleInventorySweep(req, res) {
   sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
 }
 
+// POST /api/inventory/superseded { pairs: [[vin, storeId], ...], seenAfter, dryRun?, sourceBox?, foreignBefore? } — retires (removed_at) the
+// same VINs' rows under OTHER stores that the run did not refresh. See supersededRetire.js. One UPDATE per call, called by the sync after its sweep.
+async function handleInventorySuperseded(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseSupersedeRequest(await readBody(req), { toInt: INV_INT, toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const { sql, args } = buildSupersedeStatement(parsed);
+  if (parsed.dryRun) {
+    const [[row]] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sql}`, args);
+    return sendJson(res, 200, { dryRun: true, wouldRetire: Number(row?.n || 0) });
+  }
+  const [result] = await pool.query(sql, args);
+  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+  sendJson(res, 200, { dryRun: false, retired: result.affectedRows });
+}
+
 // POST /api/inventory/zero-scrape { runStart, nights?, dryRun? } — hides (stale_at) the live cars of stores that scraped zero
 // vehicles for `nights` nights running while their platform stayed healthy. Never touches removed_at. See zeroScrape.js.
 // The aggregate reads every live row, so the sync calls it once, after its sweep, while the fleet is otherwise quiet.
@@ -3720,6 +3738,7 @@ const server = http.createServer(async (req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/superseded") return run(handleInventorySuperseded);
   if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);

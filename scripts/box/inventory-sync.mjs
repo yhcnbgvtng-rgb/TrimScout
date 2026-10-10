@@ -45,6 +45,7 @@ import { createApi } from "./syncHttp.js";
 import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
+import { runSupersede } from "./syncSuperseded.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
@@ -315,6 +316,17 @@ try {
   writeRetired(r.failedStores || []);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
+  // Cars whose VIN this run uploaded under another store are retired from the stores that no longer list them (supersededRetire.js).
+  // OFF unless RETIRE_SUPERSEDED=1 (RETIRE_SUPERSEDED_DRY_RUN=1 only counts). Only after a complete run, like the zero-scrape step.
+  if (process.env.RETIRE_SUPERSEDED === "1" || process.env.RETIRE_SUPERSEDED_DRY_RUN === "1") {
+    if (skippedShards.length || (r.sweepFailed || 0) > 0) log("[sync] superseded-rows step skipped: this run was incomplete (skipped shard or failed sweep)");
+    else {
+      const dryRun = process.env.RETIRE_SUPERSEDED !== "1";
+      const foreignBefore = new Date(Date.parse(r.startedAt) - 48 * 3600_000).toISOString();
+      const sup = await runSupersede({ api: dealsApi, rows, seenAfter: r.startedAt, sourceBox: BOX_LABEL, foreignBefore, dryRun, log, isLockLost: () => lockHeartbeat?.isLost() === true });
+      log(`[sync] superseded rows${dryRun ? " (dry run)" : ""}: ${JSON.stringify(sup)}`);
+    }
+  }
   // Zero-scrape staleness (zeroScrape.js): stores that scraped nothing for 3 nights while their platform was healthy are hidden
   // from buyer search (stale_at; never removed). OFF unless ZERO_SCRAPE_STALE=1 — the server aggregate reads every live row, so it is
   // switched on deliberately — and only after a COMPLETE run: a skipped shard or failed sweep means "nothing scraped" proves nothing.
