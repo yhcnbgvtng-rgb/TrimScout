@@ -14,6 +14,11 @@ import mysql from "mysql2/promise";
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 if (args.includes("--apply")) { console.error("This script is a dry run only. The apply is written after the dry-run report is reviewed."); process.exit(1); }
+// Retired-IP guard (docs/BOXES.md "Do not use"): in the repo at ../../config/, on a box next to this script. Fails closed.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 const { planDedupe, MERGED_FEED_GROUPS } = await import(new URL("./dedupeMergedFeeds.js", import.meta.url));
 const tie = opt("tie", "review");
 if (!["review", "hub"].includes(tie)) { console.error("--tie must be review or hub"); process.exit(1); }
@@ -28,7 +33,7 @@ function readEnvFile(file) {
   return out;
 }
 const env = readEnvFile(path.resolve(process.cwd(), ".env.trimscout-db"));
-if (String(env.DB_HOST || "").includes("3.237.204.55")) { console.error("Refusing to run against 3.237.204.55."); process.exit(1); }
+if (pointsAtDeadIp(env.DB_HOST)) { console.error('Refusing to run: DB_HOST is a retired box IP (see docs/BOXES.md "Do not use").'); process.exit(1); }
 const pool = mysql.createPool({ host: env.DB_HOST, port: Number(env.DB_PORT) || 3306, database: env.DB_NAME, user: env.DB_READER_USER, password: env.DB_READER_PASSWORD, connectionLimit: 1 });
 const q = async (sql, params) => { try { const [r] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sql}`, params); return r; } catch (e) { console.error("STOP (no retry):", e.message.slice(0, 160)); process.exit(3); } };
 
