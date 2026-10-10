@@ -54,6 +54,9 @@ const CONTACT_SORT_EXPR = "(CASE WHEN d.id IS NULL THEN NULL WHEN d.contact_emai
 // Columns whose "blank" includes the empty string; the rest (numbers, the contact flag) are blank only when NULL.
 const TEXT_SORT_COLUMNS = new Set(["i.dealer_name", "i.make", "i.model", "i.trim", "i.vin", "i.exterior_color", "i.interior_color", "i.state", "i.vdp_url"]);
 
+const STATE_PAGE_HINT = "FORCE INDEX (idx_inv_stock_state)";
+const STATE_MAKE_COUNT_HINT = "FORCE INDEX (idx_inv_facet_state_make)";
+
 export function inventoryListQuery(params) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
@@ -302,7 +305,12 @@ export function inventoryListQuery(params) {
   // make=+model= case this fix targets.
   // Only a sort by the contact flag reads a d.* column inside the page's inner query (deferredPageSql builds that from countSql), so
   // exactly then countSql keeps the join; every other sort still drops it.
-  const countSql = /\bd\./.test(orderBy) ? sql : `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
+  // make+state (no model), in stock: idx_inv_stock_state has no make column, so counting a make's cars walks the state's cars in dealer
+  // order with a clustered-row read for each (NJ Toyota: ~12k reads for a capped 1,001, >20s for an exact count). The COUNT uses
+  // idx_inv_facet_state_make, (removed_at, state, make), where the make's range is contiguous. The PAGE keeps idx_inv_stock_state
+  // (deferredPageSql swaps it back): its dealer_name order stops after one page, 0.9s vs 3.4s for a filesort of the make's cars.
+  const countHint = indexHint === STATE_PAGE_HINT && hasMake && !hasModel ? STATE_MAKE_COUNT_HINT : indexHint;
+  const countSql = /\bd\./.test(orderBy) ? sql : `FROM dealer_inventory i ${countHint} ${optionJoin}${whereSql}`;
   // countCap: stop counting once this many matches are found. An exact COUNT(*) has to visit every
   // matching row — 186k+ for a bare make like Ford — and buyers never need that number: "1,000+" is
   // an honest answer, and the LIMIT inside the derived table lets MariaDB stop early (a plain
@@ -341,5 +349,5 @@ export function applyCountCap(rawCount, countCap) {
  * preserve the derived table's order.
  */
 export function deferredPageSql({ countSql, orderBy }) {
-  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${countSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
+  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${countSql.replace(STATE_MAKE_COUNT_HINT, STATE_PAGE_HINT)} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
 }
