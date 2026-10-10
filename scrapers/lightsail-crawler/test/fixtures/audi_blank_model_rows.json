@@ -1,0 +1,10 @@
+{
+  "_source": "dealer_inventory on box2, read-only, 2026-10-10: in-stock Audi rows first seen since 2026-10-07 20:00 with a NULL model/year/trim. Their shard records (e.g. WA11AAGU3T2003235 on box2) have year, model, trim, price and collectedAt all null: only the VIN taken from the URL.",
+  "rows": [
+    { "vin": "WA11AAGU3T2003235", "dealer": "Audi Pacific", "box": "box2", "url": "https://www.audipacific.com/en/inventory/vehicle/?isdealer&market=usuc&vehicleId=WA11AAGU3T2003235" },
+    { "vin": "WA11AAGU3T2090196", "dealer": "Audi Rochester – Rochester #2", "box": "box1", "url": "https://www.audirochester.com/en/inventory/vehicle/?isdealer&market=us&vehicleId=WA11AAGU3T2090196" },
+    { "vin": "WA1ABCFJXT1105802", "dealer": "Audi Millburn", "box": "box4", "url": "https://www.audimillburn.com/en/inventory/vehicle/?isdealer&market=us&vehicleId=WA1ABCFJXT1105802" },
+    { "vin": "WA14AAGE4RB035903", "dealer": "Audi Pasadena", "box": "box2", "url": "https://www.audipasadena.com/en/inventory/vehicle/?isdealer&market=usuc&vehicleId=WA14AAGE4RB035903" },
+    { "vin": "WA1AVBG9XVD001429", "dealer": "Audi Mechanicsburg", "box": "box2", "url": "https://www.mechanicsburgaudipa.com/en/inventory/vehicle/?isdealer&market=us&vehicleId=WA1AVBG9XVD001429" }
+  ]
+}
