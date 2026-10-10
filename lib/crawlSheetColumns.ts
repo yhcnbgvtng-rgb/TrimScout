@@ -243,3 +243,14 @@ export function vinTimeline(listing: Pick<VehicleRow, "dealerId" | "firstSeenAt"
   }
   return out;
 }
+
+/** The flag shown next to a dealer the crawl cannot read. Plain text so it is also what a title/tooltip or an export would say. */
+export const BLOCKED_NO_BYPASS_LABEL = "blocked, no bypass";
+
+export interface BlockedFlag { cls: string; vendor: string | null; lastBlockedOn: string }
+
+/** "blocked, no bypass" plus the evidence (class, vendor, last night it happened), or null when the dealer is not flagged. */
+export function blockedFlagText(flag: BlockedFlag | null | undefined): string | null {
+  if (!flag) return null;
+  return `${BLOCKED_NO_BYPASS_LABEL} — ${flag.cls}${flag.vendor ? ` (${flag.vendor})` : ""}, last blocked ${flag.lastBlockedOn}`;
+}

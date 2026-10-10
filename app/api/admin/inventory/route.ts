@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, exportInventory, inventoryStats, inventoryAdminFacets, adminListSort, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { inventoryBlockedStores, listInventory, exportInventory, inventoryStats, inventoryAdminFacets, adminListSort, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +35,8 @@ export async function GET(req: Request) {
         { headers: aggHeaders }
       );
     }
+    // Stores the crawl could not read because their sites block it (no bypass) — the sheet flags their rows.
+    if (sp.get("blocked") === "1") return NextResponse.json(await inventoryBlockedStores(), { headers: aggHeaders });
     if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer(), { headers: aggHeaders });
     if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
     // Dealership analytics for the Site Analytics page — aggregated and cached on the box.
