@@ -128,6 +128,7 @@ export function loadAllowlistFromEnv(env = process.env) {
 export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
   fileURLToPath(new URL("./optionPolicies/toyota-rav4-2026.json", import.meta.url)),
   fileURLToPath(new URL("./optionPolicies/toyota-2026-2027.json", import.meta.url)),
+  fileURLToPath(new URL("./optionPolicies/ford-2026.json", import.meta.url)),
 ]);
 
 
@@ -144,7 +145,7 @@ export function buildModelPolicies(raw) {
       for (const [rawKey, o] of Object.entries(t.options || {})) {
         const key = normalizeOptionKey(rawKey);
         if (!key) continue;
-        const entry = { key, label: o.label || rawKey, kind: o.kind || "option", price: Number(o.price) || 0, features: (o.features || []).map((f) => new RegExp(f)) };
+        const entry = { key, label: o.label || rawKey, kind: o.kind || "option", price: Number(o.price) || 0, code: o.code || null, rules: Array.isArray(o.rules) ? o.rules : [], features: (o.features || []).map((f) => new RegExp(f)) };
         entries.set(key, entry);
         index.set(key, entry);
         for (const a of o.aliases || []) { const ak = normalizeOptionKey(a); if (ak && !index.has(ak)) index.set(ak, entry); }
@@ -183,6 +184,10 @@ export function modelPoliciesFor(allowlist, vehicle) {
 export function modelPolicyFor(allowlist, vehicle) {
   return modelPoliciesFor(allowlist, vehicle)[0] || null;
 }
+
+// A feed option's own order code (Ford "301A", "202A") when it IS a policy entry's key: Ford packages are keyed on their code. Codes a feed invents for
+// itself ("PKG-73", "OPT-66") are not policy keys and never match.
+const byOrderCode = (trim, code) => (code && /^[0-9]{3}[A-Za-z]$/.test(String(code).trim()) ? trim.index.get(normalizeOptionKey(code)) || null : null);
 
 // "Weather Package $375" / "(CY)" style decoration around a package name.
 const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
@@ -280,11 +285,11 @@ export function policyOptionRows(policy, vehicle, options) {
     const colonHead = label.includes(":") ? normalizeOptionKey(decoration(label.split(":")[0])) : null;
     if (policy.addonKeys.has(cleaned) || policy.addonPatterns.some((re) => re.test(label) || re.test(cleaned))) { // rule 5
       // "Weather Package" (factory) vs "All-Weather Liner Package" (accessory): an exact factory name wins over a product-word pattern.
-      const exact = trim && (trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)));
+      const exact = trim && (trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(trim, r.code));
       if (!exact) { if (!addons.has(r.key)) addons.set(r.key, { key: r.key, label }); out.outcomes.push({ label, outcome: "dealer_addon", key: r.key }); continue; }
     }
     if (!trim) { drop(label, "no-trusted-trim"); continue; } // rule 6
-    const exact = trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead));
+    const exact = trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(trim, r.code);
     if (exact) { // rule 1: a paid package / option / paint this trim offers, under its canonical key
       if (!rows.has(exact.key)) rows.set(exact.key, { key: exact.key, label: exact.label, code: r.code, kind: exact.kind, price: exact.price, via: "kept" });
       out.outcomes.push({ label, outcome: "kept", key: exact.key });

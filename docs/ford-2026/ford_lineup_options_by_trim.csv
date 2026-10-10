@@ -1,0 +1,444 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2026,F-150,XL,101A,37290,Base,,Base MSRP,37290,,"Destination Charges $2,795 not included; Acquisition Fee $695 not included",models/f150_options.md:21
+2026,F-150,XL,101A,37290,Powertrain,Engine,3.5L V6 EcoBoost w/ Auto Start-Stop,2220,,,models/f150_options.md:24
+2026,F-150,XL,101A,37290,Powertrain,Engine,5.0L V8 w/ Auto Start-Stop,2595,,,models/f150_options.md:24
+2026,F-150,XL,101A,37290,Powertrain,Axle,3.73 Electronic Locking,570,,,models/f150_options.md:24
+2026,F-150,XL,101A,37290,Powertrain,Axle,3.55 Electronic Locking,470,,,models/f150_options.md:24
+2026,F-150,XL,101A,37290,Exterior color,,Argon Blue Metallic,395,,,models/f150_options.md:25
+2026,F-150,XL,101A,37290,Factory package,,XL High (103A),1195,". Contents: 17"" Silver Painted Aluminum Wheels; Chrome Bumpers; LED Fog Lamps; Electronic Rear-Window Defroster; Rear Privacy Glass; Interior Work Surface",key=103A,models/f150_options.md:29
+2026,F-150,XL,101A,37290,Factory option,,Bedliner – Tough Bed Spray-In,625,,,models/f150_options.md:42
+2026,F-150,XL,101A,37290,Factory option,,Engine Block Heater,190,,,models/f150_options.md:45
+2026,F-150,XL,101A,37290,Factory option,,Integrated Trailer Brake Controller,275,,,models/f150_options.md:47
+2026,F-150,STX,200B,44855,Base,,Base MSRP,44855,,"Destination Charges $2,795 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/f150_options.md:55
+2026,F-150,STX,200B,44855,Powertrain,Axle,3.73 Electronic Locking,570,,,models/f150_options.md:57
+2026,F-150,STX,200B,44855,Powertrain,Axle,3.55 Electronic Locking,470,,,models/f150_options.md:57
+2026,F-150,STX,200B,44855,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:57
+2026,F-150,STX,200B,44855,Powertrain,Axle,3.73 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:57
+2026,F-150,STX,200B,44855,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:58
+2026,F-150,STX,200B,44855,Exterior color,,Marsh Gray,395,,,models/f150_options.md:58
+2026,F-150,STX,200B,44855,Exterior color,,Avalanche,395,,,models/f150_options.md:58
+2026,F-150,STX,200B,44855,Exterior color,,Argon Blue Metallic,395,,,models/f150_options.md:58
+2026,F-150,STX,200B,44855,Factory package,,STX FX4 (201A),3885,"18"" Black Painted Aluminum Wheels; LT265/70/18 A/T BSW tires; 3.31 E-Locker (5.0L only); 3.55 E-Locker (2.7L only); off-road-tuned front shocks; monotube rear shocks; skid plates (fuel tank, transfer case, front differential); dual exhaust w/ black tips; 6"" black running boards; STX badge in fender vent; FX4 box decal; floor liner tray style (no carpet mats). Discount – STX FX4 (201A) line is ""Add"" (amount not shown)",key=201A,models/f150_options.md:62
+2026,F-150,STX,200B,44855,Factory package,,STX (200A),1705,"20"" Dark Gray Aluminum wheel; 275/60/20 A/S (4x2) / A/T (4x4); 12"" Center Display. Discount – STX (200A) line is ""Add"" (amount not shown)",key=200A,models/f150_options.md:63
+2026,F-150,STX,200B,44855,Factory option,Interior,Integrated Trailer Brake Controller,275,,,models/f150_options.md:59
+2026,F-150,STX,200B,44855,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:77
+2026,F-150,XLT,300A,45695,Base,,Base MSRP,45695,,"Destination Charges $2,795 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/f150_options.md:92
+2026,F-150,XLT,300A,45695,Powertrain,Engine,3.5L V6 EcoBoost w/ Auto Start-Stop,2220,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Powertrain,Engine,5.0L V8 w/ Auto Start-Stop,2595,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Powertrain,Axle,3.73 Electronic Locking,570,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Powertrain,Axle,3.55 Electronic Locking,470,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Powertrain,Axle,3.73 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:94
+2026,F-150,XLT,300A,45695,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:95
+2026,F-150,XLT,300A,45695,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:95
+2026,F-150,XLT,300A,45695,Exterior color,,Marsh Gray,395,,,models/f150_options.md:95
+2026,F-150,XLT,300A,45695,Exterior color,,Avalanche,395,,,models/f150_options.md:95
+2026,F-150,XLT,300A,45695,Exterior color,,Argon Blue Metallic,395,,,models/f150_options.md:95
+2026,F-150,XLT,300A,45695,Factory package,,XLT (301A),695,8-way power driver seat with power lumbar; Cloth 40/20/40 seats; armrest with storage; dual-zone electronic automatic temperature control (DEATC); wrapped steering wheel,key=301A,models/f150_options.md:99
+2026,F-150,XLT,300A,45695,Factory package,,XLT Mid (302A),7330,body-color door handles; black platform running boards; Connected Navigation (1-year included with Ford Connectivity Package); Ford Co-Pilot360 Assist 2.0; auto-dimming rearview mirror; manual-folding power-glass sideview mirrors w/ heat and turn signal; remote start with remote tailgate release; cloth 40/20/40 seats,key=302A,models/f150_options.md:100
+2026,F-150,XLT,300A,45695,Factory package,,XLT High (303A),11915,power-adjustable pedals; 40/console/40 seats; B&O Sound System by Bang & Olufsen with HD Radio (8-speaker incl. subwoofer); XLT Chrome Appearance Package; Mobile Office Package,key=303A,models/f150_options.md:101
+2026,F-150,XLT,300A,45695,Factory package,,Bed Utility Package,860,"bed storage boxes; tailgate step; tailgate work surface; four pickup box tie-down plates; LED box lighting (Lariat Mid/High add 6"" extended running boards and more)",key=name:bed utility package,models/f150_options.md:114
+2026,F-150,XLT,300A,45695,Factory option,Interior,Integrated Trailer Brake Controller,275,,,models/f150_options.md:96
+2026,F-150,XLT,300A,45695,Factory option,,Trailer Tow – Manual Folding and Telescoping mirrors,395,,,models/f150_options.md:119
+2026,F-150,XLT,300A,45695,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:122
+2026,F-150,XLT,300A,45695,Factory option,,SecuriCode Keyless-Entry – Driver's Side,455,,sidebar price; overlay not read,models/f150_options.md:124
+2026,F-150,Lariat,500A,59560,Base,,Base MSRP,59560,,"Destination Charges $2,795 not included",models/f150_options.md:134
+2026,F-150,Lariat,500A,59560,Powertrain,Engine,5.0L V8 w/ Auto Start-Stop,375,,,models/f150_options.md:136
+2026,F-150,Lariat,500A,59560,Powertrain,Axle,3.55 Electronic Locking,470,,,models/f150_options.md:136
+2026,F-150,Lariat,500A,59560,Powertrain,Axle,3.31 Electronic Locking,420,,,models/f150_options.md:136
+2026,F-150,Lariat,500A,59560,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:136
+2026,F-150,Lariat,500A,59560,Powertrain,Axle,3.73 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:136
+2026,F-150,Lariat,500A,59560,Exterior color,,Star White Metallic Tri-Coat,995,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Exterior color,,Marsh Gray,395,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Exterior color,,Avalanche,395,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Exterior color,,Argon Blue Metallic,395,,,models/f150_options.md:137
+2026,F-150,Lariat,500A,59560,Factory package,,Lariat Mid (501A),2670,"20"" Chrome-Like PVD wheels; 275/60/20 A/T tires; 6"" angular bright anodized step bar; power-adjustable pedals with memory; power-sliding rear window; illuminated visors (driver and front passenger)",key=501A,models/f150_options.md:141
+2026,F-150,Lariat,500A,59560,Factory package,,Lariat High (502A),6880,"6"" extended angular bright anodized step bar (requires 145"" WB); ambient lighting (ice blue only); second-row heated seats; B&O Unleashed sound system (14 speakers incl. subwoofer)","key=502A; requires 145"" WB",models/f150_options.md:142
+2026,F-150,Lariat,500A,59560,Factory package,,Mobile Office Package,780,console work surface; Pro Power Onboard 400W outlets (cab & bed) and related items,key=name:mobile office package,models/f150_options.md:144
+2026,F-150,Lariat,500A,59560,Factory package,,FX4 Off-Road Package,1320,3.31 electronic-locking rear axle (5.0L or 3.5L V6) and 3.55 electronic-locking rear axle (per overlay; further items not captured),key=name:fx4 off road package; requires 4x4,models/f150_options.md:145
+2026,F-150,Lariat,500A,59560,Factory package,,Lariat Black Appearance Package,1225,"dark interior appliqués; 20"" gloss black painted aluminum wheels; body-color front and rear bumpers; body-color skull caps and door handles; black grille; black taillamp bezels; black exterior badging",key=name:lariat black appearance package,models/f150_options.md:146
+2026,F-150,Lariat,500A,59560,Factory package,,BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase),2495,,key=name:bluecruise hands free highway driving equipped one time purchase,models/f150_options.md:149
+2026,F-150,Lariat,500A,59560,Factory package,,Tow/Haul Package,1010,integrated trailer brake controller; 3.55 and 3.73 electronic-locking rear axles; max-tow axle options,key=name:tow haul package,models/f150_options.md:153
+2026,F-150,Lariat,500A,59560,Factory package,,Bed Utility Package,860,"bed storage boxes; tailgate step; tailgate work surface; four pickup box tie-down plates; LED box lighting (Lariat Mid/High add 6"" extended running boards)",key=name:bed utility package,models/f150_options.md:154
+2026,F-150,Lariat,500A,59560,Factory option,,"Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",395,,,models/f150_options.md:158
+2026,F-150,Lariat,500A,59560,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:161
+2026,F-150,Lariat,500A,59560,Factory option,,"SecuriCode Keyless-Entry Keypad, Driver's Side",455,,sidebar price; overlay not read,models/f150_options.md:163
+2026,F-150,King Ranch,600A,65825,Base,,Base MSRP,65825,,"Destination Charges $2,795 not included",models/f150_options.md:171
+2026,F-150,King Ranch,600A,65825,Powertrain,Engine,3.5L PowerBoost Full Hybrid V6,1340,,sidebar price; overlay not read; requires 4x4 and Hybrid 10-speed per overlay,models/f150_options.md:173
+2026,F-150,King Ranch,600A,65825,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:173
+2026,F-150,King Ranch,600A,65825,Powertrain,Axle,3.73 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:173
+2026,F-150,King Ranch,600A,65825,Exterior color,,Star White Metallic Tri-Coat,995,,,models/f150_options.md:174
+2026,F-150,King Ranch,600A,65825,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:174
+2026,F-150,King Ranch,600A,65825,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:174
+2026,F-150,King Ranch,600A,65825,Factory package,,King Ranch High (601A),2065,power-deployable running boards; front multicontour leather bucket seats with Active Motion and King Ranch badge; B&O Unleashed sound system by Bang & Olufsen (14 speakers incl. subwoofer),key=601A,models/f150_options.md:178
+2026,F-150,King Ranch,600A,65825,Factory package,,FX4 Off-Road Package,1320,3.31 electronic-locking rear axle (5.0L or 3.5L V6) and 3.55 electronic-locking rear axle (further items per overlay),key=name:fx4 off road package; requires 4x4,models/f150_options.md:181
+2026,F-150,King Ranch,600A,65825,Factory option,,"Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",395,,,models/f150_options.md:192
+2026,F-150,King Ranch,600A,65825,Factory option,,Twin Panel Moonroof,1495,,sidebar price; overlay not read,models/f150_options.md:193
+2026,F-150,King Ranch,600A,65825,Factory option,,Pro Power Onboard 7.2 kW,850,,sidebar price; overlay not read,models/f150_options.md:194
+2026,F-150,King Ranch,600A,65825,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:197
+2026,F-150,Platinum,700A,68800,Base,,Base MSRP,68800,,"Destination Charges $2,795 not included",models/f150_options.md:206
+2026,F-150,Platinum,700A,68800,Powertrain,Engine,3.5L PowerBoost Full Hybrid V6,1340,,sidebar price; overlay not read; requires 4x4 and Hybrid 10-speed,models/f150_options.md:208
+2026,F-150,Platinum,700A,68800,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:208
+2026,F-150,Platinum,700A,68800,Powertrain,Axle,3.73 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:208
+2026,F-150,Platinum,700A,68800,Exterior color,,Star White Metallic Tri-Coat,995,,,models/f150_options.md:209
+2026,F-150,Platinum,700A,68800,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:209
+2026,F-150,Platinum,700A,68800,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:209
+2026,F-150,Platinum,700A,68800,Exterior color,,Marsh Gray,395,,,models/f150_options.md:209
+2026,F-150,Platinum,700A,68800,Exterior color,,Avalanche,395,,,models/f150_options.md:209
+2026,F-150,Platinum,700A,68800,Factory package,,Platinum Standard (701A),1350,power-deployable running boards; center high-mounted stop lamp (CHMSL) camera; unique leather multicontour bucket seats with Active Motion; flow-through console and floor shifter,key=701A,models/f150_options.md:213
+2026,F-150,Platinum,700A,68800,Factory package,,Platinum High (702A),6395,B&O Unleashed sound system by Bang & Olufsen with HD Radio (14 speakers incl. subwoofer); head-up display,key=702A,models/f150_options.md:214
+2026,F-150,Platinum,700A,68800,Factory package,,Platinum Plus (703A),14200,"3.5L PowerBoost Full Hybrid V6 engine (per overlay); available only with Agate Black Metallic, Carbonized Gray Metallic, Rapid Red Metallic Tinted Clearcoat, Marsh Gray, or Star White Metallic Tri-Coat paint","key=703A; only with Agate Black Metallic, Carbonized Gray Metallic, Rapid Red Metallic Tinted Clearcoat, Marsh Gray, or Star White Metallic Tri-Coat paint",models/f150_options.md:215
+2026,F-150,Platinum,700A,68800,Factory package,,Platinum Satin Appearance Package,395,"black/satin hood vents; luxurious chrome grille with Blue Oval; stainless door belt molding; satin exterior door handles; 20"" polished aluminum wheel; satin single exhaust; LED projector headlamps with dynamic bending",key=name:platinum satin appearance package,models/f150_options.md:216
+2026,F-150,Platinum,700A,68800,Factory package,,FX4 Off-Road Package,1320,,key=name:fx4 off road package; requires 4x4,models/f150_options.md:219
+2026,F-150,Platinum,700A,68800,Factory option,,"Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",395,,sidebar price; overlay not read; requires Tow/Haul,models/f150_options.md:230
+2026,F-150,Platinum,700A,68800,Factory option,,Pro Power Onboard 7.2 kW,850,,sidebar price; overlay not read,models/f150_options.md:233
+2026,F-150,Platinum,700A,68800,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:234
+2026,F-150,Platinum,700A,68800,Factory option,,"SecuriCode Keyless-Entry Keypad, Driver's Side",455,,sidebar price; overlay not read,models/f150_options.md:236
+2026,F-150,Tremor,401A,64915,Base,,Base MSRP,64915,,"Destination Charges $2,795 not included",models/f150_options.md:243
+2026,F-150,Tremor,401A,64915,Powertrain,Engine,5.0L V8 w/ Auto Start-Stop,375,,,models/f150_options.md:245
+2026,F-150,Tremor,401A,64915,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:246
+2026,F-150,Tremor,401A,64915,Exterior color,,Marsh Gray,395,,,models/f150_options.md:246
+2026,F-150,Tremor,401A,64915,Exterior color,,Avalanche,395,,,models/f150_options.md:246
+2026,F-150,Tremor,401A,64915,Factory package,,Tremor (402B),3995,front axle with Torsen differential; heated steering wheel; Hi-Lock transfer case; media bin door; power-adjustable pedals with memory; memory power-folding sideview mirrors,key=402B,models/f150_options.md:250
+2026,F-150,Tremor,401A,64915,Factory package,,Tremor High (402A),10865,two-speed automatic AWD with mechanical locking 4WD; modular front bumper; LED taillamps; second-row heated seats; B&O Unleashed sound system (14 speakers incl. subwoofer),key=402A,models/f150_options.md:251
+2026,F-150,Tremor,401A,64915,Factory package,,Mobile Office Package,780,console work surface; Pro Power Onboard 400W outlets (cab & bed) and related items,key=name:mobile office package,models/f150_options.md:253
+2026,F-150,Tremor,401A,64915,Factory package,,BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase),2495,,key=name:bluecruise hands free highway driving equipped one time purchase,models/f150_options.md:256
+2026,F-150,Tremor,401A,64915,Factory package,,Bed Utility Package,1575,bed storage boxes; tailgate step; tailgate work surface; four pickup box tie-down plates; LED box lighting,key=name:bed utility package,models/f150_options.md:260
+2026,F-150,Tremor,401A,64915,Factory package,,Tow/Haul Package,500,integrated trailer brake controller; 3.55 electronic-locking rear axle; 3.73 electronic-locking rear axle; max-tow options,key=name:tow haul package,models/f150_options.md:261
+2026,F-150,Tremor,401A,64915,Factory option,,Bedliner – Tough Bed Spray-In,625,,,models/f150_options.md:265
+2026,F-150,Tremor,401A,64915,Factory option,,"SecuriCode Keyless-Entry Keypad, Driver's Side",455,,,models/f150_options.md:267
+2026,F-150,Tremor,401A,64915,Factory option,,Retractable Rear Center Step,430,,,models/f150_options.md:268
+2026,F-150,Tremor,401A,64915,Factory option,,Engine Block Heater,190,,sidebar price; overlay not read,models/f150_options.md:270
+2026,F-150,Raptor,801A,79005,Base,,Base MSRP,79005,,"Destination Charges $2,795 not included; Acquisition Fee $695 not included",models/f150_options.md:277
+2026,F-150,Raptor,801A,79005,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/f150_options.md:280
+2026,F-150,Raptor,801A,79005,Exterior color,,Antimatter Blue Metallic,395,,,models/f150_options.md:280
+2026,F-150,Raptor,801A,79005,Exterior color,,Shelter Green,395,,,models/f150_options.md:280
+2026,F-150,Raptor,801A,79005,Exterior color,,Avalanche,395,,,models/f150_options.md:280
+2026,F-150,Raptor,801A,79005,Exterior color,,Argon Blue Metallic,395,,,models/f150_options.md:280
+2026,F-150,Raptor,801A,79005,Factory package,,Raptor R (803A),31925,"5.2L Supercharged V8 engine; front tow hooks in Code Orange; upgraded dual exhaust; 37x12.5R17 all-terrain tires; Raptor R unique 17"" forged aluminum bead-lock capable wheels; Raptor R exterior theme, interior theme, exterior graphics and unique hood vents",key=803A,models/f150_options.md:284
+2026,F-150,Raptor,801A,79005,Factory package,,Raptor 37 (802A),11470,"37x12.5 R17 all-terrain tires; Raptor 37 unique 17"" cast aluminum bead-lock capable wheels; dual-valve shocks; modular front bumper; black Alcantara suede and leather RECARO seats; carbon-fiber interior appliqués",key=802A,models/f150_options.md:285
+2026,F-150,Raptor,801A,79005,Factory option,,Twin Panel Moonroof,1495,,sidebar price; overlay not read,models/f150_options.md:295
+2026,F-150,Raptor,801A,79005,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:297
+2026,F-150,Raptor,801A,79005,Factory option,,"SecuriCode Keyless-Entry Keypad, Driver's Side",455,,sidebar price; overlay not read,models/f150_options.md:299
+2026,F-150,Raptor,801A,79005,Factory option,,Engine Block Heater,190,,sidebar price; overlay not read,models/f150_options.md:301
+2026,Maverick,XL,100A,28145,Base,,Base MSRP,28145,,"Destination Charges $1,845 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/maverick_options.md:21
+2026,Maverick,XL,100A,28145,Exterior color,,Orange Fury Metallic Tri-Coat,495,,,models/maverick_options.md:29
+2026,Maverick,XL,100A,28145,Factory package,,XL (101A) Equipment Group,2220,"2.5L Hybrid AWD"". Summary not shown (unticked by default)",key=101A,models/maverick_options.md:42
+2026,Maverick,XL,100A,28145,Factory package,,Ford Co-Pilot360,795,"Auto High Beams; BLIS® with Cross-Traffic Alert; Evasive Steering Assist; Lane-Keeping System (Lane-Keeping Alert, Lane-Keeping Aid, Driver Alert); Intersection Assist; Pre-Collision Assist® with Automatic Emergency Braking (Pedestrian Detection, Forward Collision Warning, Dynamic Brake Support, AEB Oncoming); Rear View Camera; Rear Parking Sensors. (Selected and then removed during research; default build restored to $29,685.)",key=name:ford co pilot360,models/maverick_options.md:44
+2026,Maverick,XL,100A,28145,Factory option,,Bedliner – Tough Bed spray-in,525,,,models/maverick_options.md:51
+2026,Maverick,XL,100A,28145,Factory option,,Engine Block Heater,190,,,models/maverick_options.md:56
+2026,Maverick,XL,100A,28145,Factory option,,2K Trailer Hitch Receiver with 4-Pin …,150,,name truncated in sidebar,models/maverick_options.md:58
+2026,Maverick,XL,100A,28145,Factory option,,"Conventional 17"" Spare Tire",115,,,models/maverick_options.md:60
+2026,Maverick,XLT,300A,30645,Base,,Base MSRP,30645,,"Destination Charges $1,845 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/maverick_options.md:75
+2026,Maverick,XLT,300A,30645,Exterior color,,Azure Gray Metallic Tri-Coat,495,,,models/maverick_options.md:82
+2026,Maverick,XLT,300A,30645,Exterior color,,Orange Fury Metallic Tri-Coat,495,,,models/maverick_options.md:83
+2026,Maverick,XLT,300A,30645,Exterior color,,Ruby Red Metallic Tinted Clearcoat,390,,,models/maverick_options.md:84
+2026,Maverick,XLT,300A,30645,Factory package,,XLT (301A) Equipment Group,2220,"AWD""",key=301A,models/maverick_options.md:99
+2026,Maverick,XLT,300A,30645,Factory package,,XLT Luxury Package,1890,8-Way Power Driver Seat; Pro Power Onboard™ - 400W; Heated Mirror with Painted Black Skull Caps; LED Box Lighting; Heated Seats; Remote Start System; Soft Vinyl Wrapped Heated Steering Wheel,key=name:xlt luxury package,models/maverick_options.md:101
+2026,Maverick,XLT,300A,30645,Factory package,,Ford Co-Pilot360,795,,key=name:ford co pilot360,models/maverick_options.md:105
+2026,Maverick,XLT,300A,30645,Factory option,Interior,Power Moonroof,995,,,models/maverick_options.md:96
+2026,Maverick,XLT,300A,30645,Factory option,Wheels,"19"" Black Painted Aluminum Wheels",100,,,models/maverick_options.md:109
+2026,Maverick,XLT,300A,30645,Factory option,,Bedliner – Tough Bed spray-in,525,,,models/maverick_options.md:115
+2026,Maverick,XLT,300A,30645,Factory option,,Power-Sliding Rear Window,350,,,models/maverick_options.md:119
+2026,Maverick,XLT,300A,30645,Factory option,,Engine Block Heater,190,,,models/maverick_options.md:121
+2026,Maverick,XLT,300A,30645,Factory option,,"Conventional 17"" Spare Tire",115,,,models/maverick_options.md:125
+2026,Maverick,Lobo,402A,35930,Base,,Base MSRP,35930,,"Destination Charges $1,845 not included; Acquisition Fee $695 not included",models/maverick_options.md:136
+2026,Maverick,Lobo,402A,35930,Factory option,Interior,Power Moonroof,995,,,models/maverick_options.md:153
+2026,Maverick,Lobo,402A,35930,Factory option,Wheels,"19"" Black Painted Aluminum Wheels",100,,,models/maverick_options.md:163
+2026,Maverick,Lobo,402A,35930,Factory option,,Bedliner – Tough Bed spray-in,525,,,models/maverick_options.md:167
+2026,Maverick,Lobo,402A,35930,Factory option,,Power-Sliding Rear Window,350,,,models/maverick_options.md:168
+2026,Maverick,Lobo,402A,35930,Factory option,,Engine Block Heater,190,,,models/maverick_options.md:169
+2026,Maverick,Lobo,402A,35930,Factory option,,"Conventional 17"" Spare Tire",115,,,models/maverick_options.md:169
+2026,Maverick,Lariat,502A,38090,Base,,Base MSRP,38090,,"Destination Charges $1,845 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/maverick_options.md:181
+2026,Maverick,Lariat,502A,38090,Exterior color,,Azure Gray Metallic Tri-Coat,495,,,models/maverick_options.md:188
+2026,Maverick,Lariat,502A,38090,Exterior color,,Orange Fury Metallic Tri-Coat,495,,,models/maverick_options.md:189
+2026,Maverick,Lariat,502A,38090,Exterior color,,Ruby Red Metallic Tinted Clearcoat,390,,,models/maverick_options.md:190
+2026,Maverick,Lariat,502A,38090,Factory package,,Black Appearance Package,1645,"19"" Black Painted Aluminum Wheels; 225/55R 19"" Tires; Black Edition Hood Decal; Painted Roof; Grille; Painted Mirrors; Seats; Interior Accents. (Default seat is Smoked Truffle, so Black Appearance requires the Navy Pier theme per overlay.)",key=name:black appearance package; requires the Navy Pier theme per overlay,models/maverick_options.md:206
+2026,Maverick,Lariat,502A,38090,Factory package,,4K Tow Package,745,"Trailer Brake Controller; Trailer Hitch (Class III) 2"" Receiver with 4-pin and 7-pin Connector; Transmission Oil Cooler; Higher Capacity Radiator (2.0L gas only); Upgraded Cooling Fan; Conventional 17"" Spare Tire (215/70R17)",key=name:4k tow package; Requires Ford Co-Pilot360® on XL and XLT,models/maverick_options.md:210
+2026,Maverick,Lariat,502A,38090,Factory option,Interior,Power Moonroof,995,,,models/maverick_options.md:202
+2026,Maverick,Lariat,502A,38090,Factory option,Wheels,"19"" Black Painted Aluminum Wheels",100,,,models/maverick_options.md:212
+2026,Maverick,Lariat,502A,38090,Factory option,,Power-Sliding Rear Window,350,,,models/maverick_options.md:218
+2026,Maverick,Lariat,502A,38090,Factory option,,Engine Block Heater,190,,,models/maverick_options.md:219
+2026,Maverick,Lariat,502A,38090,Factory option,,"Conventional 17"" Spare Tire",115,,,models/maverick_options.md:219
+2026,Maverick,Tremor,602A,40645,Base,,Base MSRP,40645,,"Destination Charges $1,845 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/maverick_options.md:241
+2026,Maverick,Tremor,602A,40645,Exterior color,,Azure Gray Metallic Tri-Coat,495,,,models/maverick_options.md:248
+2026,Maverick,Tremor,602A,40645,Exterior color,,Orange Fury Metallic Tri-Coat,495,,default-selected paint; its price is excluded from trim_base_msrp,models/maverick_options.md:249
+2026,Maverick,Tremor,602A,40645,Exterior color,,Ruby Red Metallic Tinted Clearcoat,390,,,models/maverick_options.md:250
+2026,Maverick,Tremor,602A,40645,Factory option,Interior,Power Moonroof,995,,,models/maverick_options.md:261
+2026,Maverick,Tremor,602A,40645,Factory option,,Power-Sliding Rear Window,350,,,models/maverick_options.md:277
+2026,Maverick,Tremor,602A,40645,Factory option,,Engine Block Heater,190,,,models/maverick_options.md:278
+2026,Ranger,XL,100A,33550,Base,,Base MSRP,33550,,"Destination Charges $1,895 not included; Acquisition Fee $695 not included",models/ranger_options.md:22
+2026,Ranger,XL,100A,33550,Powertrain,Axle,Electronic-Locking Rear Differential Axle,420,,,models/ranger_options.md:28
+2026,Ranger,XL,100A,33550,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/ranger_options.md:30
+2026,Ranger,XL,100A,33550,Exterior color,,Desert Sand,395,,,models/ranger_options.md:31
+2026,Ranger,XL,100A,33550,Exterior color,,Velocity Blue Metallic,395,,,models/ranger_options.md:32
+2026,Ranger,XL,100A,33550,Exterior color,,Marsh Gray,395,,,models/ranger_options.md:33
+2026,Ranger,XL,100A,33550,Factory package,,FX4 Off-Road Package,1195,"FX4® Off-Road Box Decal; Electronic-Locking Rear Differential; Exposed Steel Bash Plate, Engine and Transfer Case Shield, and Fuel Tank Guard; Off-Road Screen in Center Display; Off-Road Tuned Shocks; FX4 Selectable Drive Modes: Mud/Ruts, Sand; Trail Control™. Optional Equipment: LT 17"" Tire 255/70R A/T OWL — XLT Only (not available with Black Appearance Package)","key=name:fx4 off road package; Requires 4x4; Not available with 4x2 or 17"" Silver Painted Aluminum Wheels; not available with Black Appearance Package",models/ranger_options.md:45
+2026,Ranger,XL,100A,33550,Factory package,,Ford Co-Pilot360,625,BLIS® (Blind Spot Information System) w/ Cross Traffic Alert and Trailer Tow Coverage; Lane-Keeping System – Driver Alert System; Digital Rear View Camera; Rear Parking Sensors; Reverse Brake Assist,key=name:ford co pilot360,models/ranger_options.md:47
+2026,Ranger,XL,100A,33550,Factory package,,Trailer Tow Package,535,4-pin/7-pin wiring harness; Class IV Trailer Hitch Receiver. Included feature in Advanced Towing Package Plus Technology Package (XLT) and Advanced Towing Package (XLT and Lariat),key=name:trailer tow package,models/ranger_options.md:48
+2026,Ranger,XL,100A,33550,Factory option,Interior,Integrated Trailer Brake Controller,275,,,models/ranger_options.md:41
+2026,Ranger,XL,100A,33550,Factory option,Wheels,"17"" Silver Painted Aluminum Wheels",295,,,models/ranger_options.md:50
+2026,Ranger,XL,100A,33550,Factory option,,Black Running Boards,750,,,models/ranger_options.md:54
+2026,Ranger,XL,100A,33550,Factory option,,Bedliner – Tough Bed Spray-In,525,,,models/ranger_options.md:56
+2026,Ranger,XL,100A,33550,Factory option,,Pro Power Onboard – 400 W,225,,,models/ranger_options.md:60
+2026,Ranger,XL,100A,33550,Factory option,,Engine Block Heater,190,,,models/ranger_options.md:61
+2026,Ranger,XLT,300A,36075,Base,,Base MSRP,36075,,"Destination Charges $1,895 not included; Acquisition Fee $695 not included; trim MSRP before ""Your Configuration"" credit (credit excluded; picker Starting At is lower)",models/ranger_options.md:79
+2026,Ranger,XLT,300A,36075,Powertrain,Axle,Electronic-Locking Rear Differential Axle,420,,,models/ranger_options.md:87
+2026,Ranger,XLT,300A,36075,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/ranger_options.md:89
+2026,Ranger,XLT,300A,36075,Exterior color,,Desert Sand,395,,,models/ranger_options.md:90
+2026,Ranger,XLT,300A,36075,Exterior color,,Velocity Blue Metallic,395,,,models/ranger_options.md:91
+2026,Ranger,XLT,300A,36075,Exterior color,,Marsh Gray,395,,,models/ranger_options.md:92
+2026,Ranger,XLT,300A,36075,Exterior color,,Avalanche,395,,default-selected paint; its price is excluded from trim_base_msrp,models/ranger_options.md:93
+2026,Ranger,XLT,300A,36075,Factory package,,Equipment Group XLT High (301A),1250,"10-Way Power Driver Seat including Power Lumbar; 8-Way Power Front Passenger Seats including Power Lumbar; Heated Front Seats; Power-Sliding Rear Window; 12"" Center Display; Dual-Zone Electronic Climate Control",key=301A,models/ranger_options.md:104
+2026,Ranger,XLT,300A,36075,Factory package,,Convenience Package,570,Wireless Charging Pad; Pro Power Onboard™ - 400W; LED Bed Lighting,key=name:convenience package,models/ranger_options.md:105
+2026,Ranger,XLT,300A,36075,Factory package,,FX4 Off-Road Package,1195,"FX4® Off-Road Box Decal; Electronic-Locking Rear Differential; Exposed Steel Bash Plate, Engine and Transfer Case Shield, and Fuel Tank Guard; Off-Road Screen in Center Display; Off-Road Tuned Shocks; FX4 Selectable Drive Modes: Mud/Ruts, Sand; Trail Control™. Optional Equipment: LT 17"" Tire 255/70R A/T OWL — XLT only (not available with Black Appearance Package)","key=name:fx4 off road package; Requires 4x4; Not available with 4x2 or 17"" Silver Painted Aluminum Wheels; not available with Black Appearance Package",models/ranger_options.md:106
+2026,Ranger,XLT,300A,36075,Factory package,,Black Appearance Package,895,"18"" Black Wheels; Black Ford Ovals (Front/Rear); Black Rear Bumper; Body-Color Painted Front Fascia with Black Painted Lower Valance; Grille – Black Center Bar and Surround; Wheellip Molding – Painted Body-Color; Unique Carpet Mats. Optional Equipment: Black Appearance Graphics ($450 on Exterior). Not Available with Chrome Accent Package or Sport Appearance Package",key=name:black appearance package; Not Available with Chrome Accent Package or Sport Appearance Package,models/ranger_options.md:108
+2026,Ranger,XLT,300A,36075,Factory package,,Technology Package,1100,Ford Co-Pilot360®; Adaptive Cruise Control and Speed Sign Recognition; Front Parking Sensors; 360-Degree Camera. Not available with Advanced Towing Package or Advanced Towing Package Plus Technology Package,key=name:technology package; Not available with Advanced Towing Package or Advanced Towing Package Plus Technology Package,models/ranger_options.md:111
+2026,Ranger,XLT,300A,36075,Factory package,,Advanced Towing Package Plus Technology Package,1845,Trailer Tow Package; Trailer Brake Controller; Pro Trailer Backup Assist; Rear Parking Sensors with Trailer Guidance; Adaptive Cruise Control and Speed Sign Recognition; Front Parking Sensors; 360-Degree Camera. Not available with Technology Package or Advanced Towing Package,key=name:advanced towing package plus technology package; Not available with Technology Package or Advanced Towing Package,models/ranger_options.md:113
+2026,Ranger,XLT,300A,36075,Factory package,,Advanced Towing Package,865,Trailer Tow Package; Trailer Brake Controller; Pro Trailer Backup Assist. Not available with Technology Package or Advanced Towing Package Plus Technology Package,key=name:advanced towing package; Not available with Technology Package or Advanced Towing Package Plus Technology Package,models/ranger_options.md:114
+2026,Ranger,XLT,300A,36075,Factory package,,Trailer Tow Package,535,4-pin/7-pin wiring harness; Class IV Trailer Hitch Receiver,key=name:trailer tow package,models/ranger_options.md:115
+2026,Ranger,XLT,300A,36075,Factory option,Interior,Power Moonroof,1200,,,models/ranger_options.md:101
+2026,Ranger,XLT,300A,36075,Factory option,Interior,Power-Sliding Rear Window,380,,,models/ranger_options.md:101
+2026,Ranger,XLT,300A,36075,Factory option,Wheels,"18"" Chrome-Like PVD Wheels",550,,,models/ranger_options.md:118
+2026,Ranger,XLT,300A,36075,Factory option,Tires,LT 255/70R17 A/T OWL,295,,,models/ranger_options.md:119
+2026,Ranger,XLT,300A,36075,Factory option,,Black Running Boards,750,,,models/ranger_options.md:121
+2026,Ranger,XLT,300A,36075,Factory option,,Bedliner – Tough Bed Spray-In,525,,,models/ranger_options.md:121
+2026,Ranger,XLT,300A,36075,Factory option,,Black Appearance Graphics,450,,,models/ranger_options.md:121
+2026,Ranger,XLT,300A,36075,Factory option,,Integrated Box Side Step,215,,,models/ranger_options.md:121
+2026,Ranger,XLT,300A,36075,Factory option,,Engine Block Heater,190,,,models/ranger_options.md:121
+2026,Ranger,Lariat,500A,43955,Base,,Base MSRP,43955,,"Destination Charges $1,895 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/ranger_options.md:138
+2026,Ranger,Lariat,500A,43955,Powertrain,Axle,Electronic-Locking Rear Differential Axle,420,,,models/ranger_options.md:145
+2026,Ranger,Lariat,500A,43955,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,default-selected paint; its price is excluded from trim_base_msrp,models/ranger_options.md:147
+2026,Ranger,Lariat,500A,43955,Exterior color,,Desert Sand,395,,,models/ranger_options.md:148
+2026,Ranger,Lariat,500A,43955,Exterior color,,Velocity Blue Metallic,395,,,models/ranger_options.md:149
+2026,Ranger,Lariat,500A,43955,Exterior color,,Marsh Gray,395,,,models/ranger_options.md:150
+2026,Ranger,Lariat,500A,43955,Exterior color,,Avalanche,395,,,models/ranger_options.md:151
+2026,Ranger,Lariat,500A,43955,Factory package,,Convenience Package,570,Wireless Charging Pad; Pro Power Onboard™ - 400W; LED Bed Lighting,key=name:convenience package,models/ranger_options.md:162
+2026,Ranger,Lariat,500A,43955,Factory package,,FX4 Off-Road Package,1195,"FX4® Off-Road Box Decal; Electronic-Locking Rear Differential; Exposed Steel Bash Plate, Engine and Transfer Case Shield, and Fuel Tank Guard; Off-Road Screen in Center Display; Off-Road Tuned Shocks; FX4 Selectable Drive Modes: Mud/Ruts, Sand; Trail Control™. Optional equipment: LT 17"" Tire 255/70R A/T OWL — XLT only (not available with Black Appearance Package)","key=name:fx4 off road package; Requires 4x4; Not available with 4x2 or 17"" Silver Painted Aluminum Wheels; not available with Black Appearance Package",models/ranger_options.md:163
+2026,Ranger,Lariat,500A,43955,Factory package,,Black Appearance Package,895,"18"" Black Wheels; Black Ford Ovals (Front/Rear); Black Rear Bumper; Body-Color Painted Front Fascia with Black Painted Lower Valance; Grille – Black Center Bar and Surround; Wheellip Molding – Painted Body-Color; Unique Carpet Mats. Optional: Black Appearance Graphics ($450). Not available with Chrome Accent Package or Sport Appearance Package",key=name:black appearance package; Not available with Chrome Accent Package or Sport Appearance Package,models/ranger_options.md:165
+2026,Ranger,Lariat,500A,43955,Factory package,,Chrome Accent Package,680,"18"" Chrome-Like PVD Wheel; Chrome Rear Bumper; Grille – Chrome Center Bar and Chrome Surround; Wheellip Molding – Painted Body-Color. Not available with Black Appearance Package",key=name:chrome accent package; Requires Integrated Box Side Step; Not available with Black Appearance Package,models/ranger_options.md:166
+2026,Ranger,Lariat,500A,43955,Factory package,,Advanced Towing Package Plus Technology Package,865,"Trailer Tow Package; Trailer Brake Controller; Pro Trailer Backup Assist; Rear Parking Sensors with Trailer Guidance. (Note: this is $1,845 on XLT — see oddities.)",key=name:advanced towing package plus technology package,models/ranger_options.md:170
+2026,Ranger,Lariat,500A,43955,Factory package,,Trailer Tow Package,535,4-pin/7-pin wiring harness; Class IV Trailer Hitch Receiver,key=name:trailer tow package,models/ranger_options.md:171
+2026,Ranger,Lariat,500A,43955,Factory option,Interior,Power Moonroof,985,,,models/ranger_options.md:159
+2026,Ranger,Lariat,500A,43955,Factory option,,Black Running Boards,750,,,models/ranger_options.md:176
+2026,Ranger,Lariat,500A,43955,Factory option,,Bedliner – Tough Bed Spray-In,525,,,models/ranger_options.md:176
+2026,Ranger,Lariat,500A,43955,Factory option,,Black Appearance Graphics,450,,,models/ranger_options.md:176
+2026,Ranger,Lariat,500A,43955,Factory option,,Integrated Box Side Step,215,,,models/ranger_options.md:176
+2026,Ranger,Lariat,500A,43955,Factory option,,Engine Block Heater,190,,,models/ranger_options.md:176
+2026,Ranger,Raptor,800A,57270,Base,,Base MSRP,57270,,"Destination Charges $1,895 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/ranger_options.md:186
+2026,Ranger,Raptor,800A,57270,Exterior color,,Shelter Green Metallic,395,,default-selected paint; its price is excluded from trim_base_msrp,models/ranger_options.md:195
+2026,Ranger,Raptor,800A,57270,Exterior color,,Desert Sand,395,,,models/ranger_options.md:196
+2026,Ranger,Raptor,800A,57270,Exterior color,,Velocity Blue Metallic,395,,,models/ranger_options.md:197
+2026,Ranger,Raptor,800A,57270,Exterior color,,Marsh Gray,395,,,models/ranger_options.md:198
+2026,Ranger,Raptor,800A,57270,Exterior color,,Avalanche,395,,,models/ranger_options.md:199
+2026,Ranger,Raptor,800A,57270,Factory option,Wheels,"17"" Forged Beadlock Capable Wheels",1495,,,models/ranger_options.md:220
+2026,Ranger,Raptor,800A,57270,Factory option,Exterior,Raptor Exterior Graphics,750,,,models/ranger_options.md:225
+2026,Ranger,Raptor,800A,57270,Factory option,Exterior,Bedliner - Tough Bed Spray-In,525,,not available with Bedliner – Modular Drop-in,models/ranger_options.md:226
+2026,Ranger,Raptor,800A,57270,Factory option,Exterior,Engine Block Heater,190,,,models/ranger_options.md:228
+2026,Bronco Sport,Heritage,250A,33395,Base,,Base MSRP,33395,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included",models/broncosport_options.md:22
+2026,Bronco Sport,Heritage,250A,33395,Exterior color,,Robin's Egg Blue,995,,,models/broncosport_options.md:32
+2026,Bronco Sport,Heritage,250A,33395,Exterior color,,Azure Gray Metallic Tri-Coat,995,,,models/broncosport_options.md:33
+2026,Bronco Sport,Heritage,250A,33395,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/broncosport_options.md:34
+2026,Bronco Sport,Heritage,250A,33395,Factory package,,Convenience Package,1800,"LED Fog Lamps (Heritage only); 8-way Power Driver's Seat (Fore/Aft, Up/Down, Recline, Lumbar); Driver and Front Passenger Seat Back Map Pockets (Big Bend only); Heated Driver and Front Passenger Seat; Steering Wheel – Premium Wrapped; Flood Light Adjustable – Liftgate (Big Bend only). Required for Power Moonroof on Heritage",key=name:convenience package; Required for Power Moonroof on Heritage,models/broncosport_options.md:50
+2026,Bronco Sport,Heritage,250A,33395,Factory package,,Interior Protection Package,395,"Cargo Mat; Floor Liners, Front and Rear (without Carpet Mats); Second Row – Seatback Carpeted with Rubberized Seatback Mat. Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package",key=name:interior protection package; Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package,models/broncosport_options.md:51
+2026,Bronco Sport,Heritage,250A,33395,Factory package,,Class II Trailer Tow Package with Trailer Sway Control,690,Full Size Spare Wheel and Tire; Rubberized Cargo Floor; deletes standard Tire Inflator and Sealant Kit,key=name:class ii trailer tow package with trailer sway control; deletes standard Tire Inflator and Sealant Kit,models/broncosport_options.md:55
+2026,Bronco Sport,Heritage,250A,33395,Factory option,Interior,Power Moonroof,995,,"only with the Convenience Package; requires Tech Package+; requires Tech Package; Not available with Fender Flare Kit, Vented Wheel Arch Moldings, and",models/broncosport_options.md:41
+2026,Bronco Sport,Heritage,250A,33395,Factory option,Interior,Pro Power Onboard – 400 W,175,,,models/broncosport_options.md:44
+2026,Bronco Sport,Heritage,250A,33395,Factory option,Exterior,Mini Spare Wheel – Steel,395,,not available with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond® Off-Road Package; deletes standard Tire Inflator and Sealant Kit,models/broncosport_options.md:60
+2026,Bronco Sport,Heritage,250A,33395,Factory option,Exterior,Engine Block Heater,190,,,models/broncosport_options.md:62
+2026,Bronco Sport,Big Bend,200A,31845,Base,,Base MSRP,31845,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/broncosport_options.md:81
+2026,Bronco Sport,Big Bend,200A,31845,Exterior color,,Velocity Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/broncosport_options.md:89
+2026,Bronco Sport,Big Bend,200A,31845,Exterior color,,Azure Gray Metallic Tri-Coat,995,,,models/broncosport_options.md:90
+2026,Bronco Sport,Big Bend,200A,31845,Exterior color,,Orange Fury Metallic Tri-Coat,995,,,models/broncosport_options.md:91
+2026,Bronco Sport,Big Bend,200A,31845,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/broncosport_options.md:92
+2026,Bronco Sport,Big Bend,200A,31845,Exterior color,,Space White Metallic,495,,,models/broncosport_options.md:93
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Convenience Package,1800,"8-way Power Driver's Seat (Fore/Aft, Up/Down, Recline, Lumbar); Driver and Front Passenger Seat Back Map Pockets; Heated Driver and Front Passenger Seat; Steering Wheel – Premium Wrapped; Flood Light Adjustable – Liftgate. Required for Power Moonroof on Big Bend",key=name:convenience package; Required for Power Moonroof on Big Bend,models/broncosport_options.md:115
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Interior Protection Package,395,"Cargo Mat; Floor Liners, Front and Rear (without Carpet Mats); Second Row – Seatback Carpeted with Rubberized Seatback Mat. Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package",key=name:interior protection package; Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package,models/broncosport_options.md:116
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Black Diamond Off-Road Package,1500,"Front bumper black MIC with steel plates; rear bumper black MIC; Front Recovery Hooks D-Ring (2); Class II Trailer Tow Package with Trailer Sway Control; Steel Underbody Protection (under-engine skid plate; canister shield); 17"" Carbonized Gray-painted aluminum wheels; 225/65R17 A/T tires. Deletes standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage. Not available with Black Appearance Package or 18"" Dark Gravity wheels. The Black Diamond® Graphic Package requires this package","key=name:black diamond off road package; Deletes standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage; Not available with Black Appearance Package or 18"" Dark Gravity wheels; requires this package",models/broncosport_options.md:117
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Black Appearance Package,1600,"Cargo Mat; Floor Liners (without carpet mats); Matte Black Hood Graphic – Textured; Grille – Carbon Black with Black Painted ""BRONCO"" Lettering; Liftgate – Black Painted ""BRONCO SPORT"" Lettering; Painted Shadow Black Roof; Seats (map pockets, Sport Contour buckets, Premium-Trimmed); Unique Badges with Black Accents; 17"" Matte Black-Painted Aluminum Wheels; 225/65R17 102H A/S tires. Not available with Black Diamond Off-Road Package or 18"" Dark Gravity wheel","key=name:black appearance package; Not available with Black Diamond Off-Road Package or 18"" Dark Gravity wheel",models/broncosport_options.md:119
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Bronze Package,1500,"Bronze Badges; body-color door handles; Fender Vent (Bronze); Ebony Black grille with Bronze lettering; painted Shadow Black roof; Sport Contour buckets Premium-Trimmed with Bronze stitching; all-weather floor liners and cargo mat with Bronze accents; premium-wrapped steering wheel with Canyon (Bronze) stitching; 17"" Sinister Bronze-painted aluminum wheels; 225/65R17 A/S tires. Overlay: Big Bend includes heated front seats and 8-way driver seat when Convenience Package is selected. Not available with Black Diamond (Big Bend), Black Appearance (Big Bend), Badlands Sasquatch/Tech packages, Elevation Graphic, 18"" Dark Gravity wheel, Topo Graphic, or Orange Fury. Deletes Front Carpeted Floor Mats",key=name:bronze package; Not available with Black Diamond; Deletes Front Carpeted Floor Mats,models/broncosport_options.md:120
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Black Diamond Graphic Package,425,,key=name:black diamond graphic package; requires Black Diamond® Off-Road Package,models/broncosport_options.md:121
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Elevation Graphic Package,395,,key=name:elevation graphic package; not with Black Appearance or Topo Graphic,models/broncosport_options.md:122
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Topo Graphic Package,395,,key=name:topo graphic package; not with Elevation Graphic or Black Appearance,models/broncosport_options.md:123
+2026,Bronco Sport,Big Bend,200A,31845,Factory package,,Class II Trailer Tow Package with Trailer Sway Control,690,Full Size Spare Wheel and Tire; Rubberized Cargo Floor; deletes standard Tire Inflator and Sealant Kit,key=name:class ii trailer tow package with trailer sway control; deletes standard Tire Inflator and Sealant Kit,models/broncosport_options.md:127
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Interior,Power Moonroof,995,,"Require the Convenience Package; not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks-only accessories listed in overlay",models/broncosport_options.md:105
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Interior,Pro Power Onboard – 400 W,175,,,models/broncosport_options.md:108
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Interior,Aux Switches and Wiring,115,,Requires Sasquatch® Outer Banks® Package; deletes Overhead Console with Sunglasses Storage,models/broncosport_options.md:110
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Wheels,"18"" Dark Gravity Gray-painted Aluminum Wheels",715,,"not with Black Diamond, Bronze, Bronze + Black Diamond, or Black Appearance",models/broncosport_options.md:131
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Wheels,"17"" Carbonized Gray-Painted Aluminum Wheels",350,,,models/broncosport_options.md:132
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Exterior,Fender Tie Downs,495,,requires Black Diamond® Off-Road Package,models/broncosport_options.md:138
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Exterior,Front Brush Guard with Integrated Recovery Hooks,395,,requires Black Diamond® Off-Road Package,models/broncosport_options.md:139
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Exterior,Mini Spare Wheel – Steel,395,,not with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond Off-Road Package; deletes tire inflator and sealant kit,models/broncosport_options.md:140
+2026,Bronco Sport,Big Bend,200A,31845,Factory option,Exterior,Engine Block Heater,190,,,models/broncosport_options.md:142
+2026,Bronco Sport,Outer Banks,300A,35145,Base,,Base MSRP,35145,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/broncosport_options.md:161
+2026,Bronco Sport,Outer Banks,300A,35145,Exterior color,,Space White Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/broncosport_options.md:170
+2026,Bronco Sport,Outer Banks,300A,35145,Exterior color,,Azure Gray Metallic Tri-Coat,995,,,models/broncosport_options.md:171
+2026,Bronco Sport,Outer Banks,300A,35145,Exterior color,,Orange Fury Metallic Tri-Coat,995,,,models/broncosport_options.md:172
+2026,Bronco Sport,Outer Banks,300A,35145,Exterior color,,Velocity Blue Metallic,495,,,models/broncosport_options.md:173
+2026,Bronco Sport,Outer Banks,300A,35145,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/broncosport_options.md:174
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Interior Protection Package,395,"Cargo Mat; Floor Liners, Front and Rear (without Carpet Mats); Second Row – Seatback Carpeted with Rubberized Seatback Mat. Not with Bronze Package or Bronze + Black Diamond® Off-Road Package",key=name:interior protection package; Not with Bronze Package or Bronze + Black Diamond® Off-Road Package,models/broncosport_options.md:196
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Sasquatch Outer Banks Package,3300,"HOSS 2.0 Off-Road Suspension; Advanced 4X4; Twin Clutch Rear Drive Unit; Trail Control™ with Trail One-Pedal Drive. Exterior: Bumpers front and rear black MIC with steel plates; High Clearance Fender Flares; Class II Trailer Tow Package with Trailer Sway Control*; Front and Rear Recovery Hooks D-Ring (2); Steel Underbody Protection (under-engine skid plate, fuel tank shields, canister shield); 17"" Ebony Black-Painted Aluminum Wheels; P235/65R17 A/T tires. Interior: 12.3"" Cluster Display; Rubberized Flooring; Second Row – Seatback Carpeted with Rubberized Seatback Mat. Deletes Standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage. (*Trailer Tow contains Full Size Spare Wheel, Full Size Spare Tire and Rubberized Cargo Floor.)",key=name:sasquatch outer banks package; Requires Outer Banks® Tech Package+; Deletes Standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage,models/broncosport_options.md:197
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Sasquatch Graphic Package,525,,key=name:sasquatch graphic package; Requires the Sasquatch® Outer Banks® Package,models/broncosport_options.md:198
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Elevation Graphic Package,395,,key=name:elevation graphic package; not with Black Appearance or Topo Graphic,models/broncosport_options.md:199
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Topo Graphic Package,395,,key=name:topo graphic package; not with Elevation Graphic or Black Appearance,models/broncosport_options.md:200
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Outer Banks Tech Package+,2195,"Ford Co-Pilot360® Assist 2.0 (360-Degree Camera with Trail View*; Front Parking Sensors; Reverse Brake Assist); Connected Navigation (1-year included with Ford Connectivity Package); B&O® Sound System by Bang & Olufsen®, 10-Speakers and Subwoofer; HD Radio™. *Contains Mirrors, Sideview – Power and Heated Glass, Manual Fold, Memory",key=name:outer banks tech package,models/broncosport_options.md:203
+2026,Bronco Sport,Outer Banks,300A,35145,Factory package,,Class II Trailer Tow Package with Trailer Sway Control,690,Full Size Spare Wheel and Tire; Rubberized Cargo Floor,key=name:class ii trailer tow package with trailer sway control,models/broncosport_options.md:206
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Interior,Power Moonroof,995,,"Requires Outer Banks® Tech Package+; not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks accessories listed in overlay",models/broncosport_options.md:186
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Interior,Pro Power Onboard – 400 W,175,,,models/broncosport_options.md:189
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Interior,Aux Switches and Wiring,115,,Requires Black Diamond® Off-Road Package; deletes Overhead Console with Sunglasses Storage,models/broncosport_options.md:191
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Exterior,Fender Tie Downs,495,,Requires Sasquatch® Outer Banks® Package,models/broncosport_options.md:213
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Exterior,Front Brush Guard with Integrated Recovery Hooks,395,,Requires Sasquatch® Outer Banks® Package,models/broncosport_options.md:214
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Exterior,Mini Spare Wheel – Steel,395,,not with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond Off-Road Package,models/broncosport_options.md:215
+2026,Bronco Sport,Outer Banks,300A,35145,Factory option,Exterior,Engine Block Heater,190,,,models/broncosport_options.md:217
+2026,Bronco Sport,Badlands,400A,37265,Base,,Base MSRP,37265,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher)",models/broncosport_options.md:236
+2026,Bronco Sport,Badlands,400A,37265,Exterior color,,Orange Fury Metallic Tri-Coat,995,,default-selected paint; its price is excluded from trim_base_msrp,models/broncosport_options.md:244
+2026,Bronco Sport,Badlands,400A,37265,Exterior color,,Azure Gray Metallic Tri-Coat,995,,,models/broncosport_options.md:245
+2026,Bronco Sport,Badlands,400A,37265,Exterior color,,Velocity Blue Metallic,495,,,models/broncosport_options.md:246
+2026,Bronco Sport,Badlands,400A,37265,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/broncosport_options.md:247
+2026,Bronco Sport,Badlands,400A,37265,Exterior color,,Space White Metallic,495,,,models/broncosport_options.md:248
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Sasquatch Badlands Package,2395,"HOSS 3.0 Off-Road Suspension; Bilstein® Position Sensitive Dampers; 850W Engine Cooling Fan. Exterior: Rear Bumper – Black Molded-in-Color (MIC) with Steel Plates; High Clearance Fender Flares; Rear Recovery Hooks – D-Ring (2); 17"" Ebony Black-painted aluminum wheels; P235/65R17 All-Terrain (A/T) tires. Deletes Overhead Console with Sunglasses Storage. Not available with Branded Tool Kit, Roof Rail Crossbars, Fender Flare Kit, or Vented Wheel Arch Moldings","key=name:sasquatch badlands package; Deletes Overhead Console with Sunglasses Storage; Not available with Branded Tool Kit, Roof Rail Crossbars, Fender Flare Kit, or Vented Wheel Arch Moldings",models/broncosport_options.md:269
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Bronze Package,1500,"Bronze Badges; Door Handles – Body Color; Fender Vent (Bronze); Grille – Ebony Black with Bronze ""BRONCO"" Lettering; Painted Shadow Black Roof (not available with Shadow Black paint); Premium-Trimmed Sport Contour bucket seats with Bronze stitching; seat-back map pockets; All Weather Floor Liners with Bronze Accents; Cargo Mat with Bronze Accents; Premium-Wrapped Steering Wheel with Canyon (Bronze) stitching; 17"" Sinister Bronze-painted aluminum wheels; 225/65R17 102H All-Season (A/S) BSW tires. Not available with: Sasquatch® Badlands® Package; Badlands® Tech Package; Elevation Graphic Package; Topo Graphic Package; Orange Fury Metallic Tri-Coat; 18"" Dark Gravity Gray wheel; Black Diamond® Off-Road or Black Appearance (Big Bend). Deletes front carpeted floor mats",key=name:bronze package; not available with Shadow Black paint; Not available with: Sasquatch® Badlands® Package; Deletes front carpeted floor mats,models/broncosport_options.md:270
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Sasquatch Graphic Package,525,,key=name:sasquatch graphic package; Requires the Sasquatch® Badlands® Package,models/broncosport_options.md:271
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Elevation Graphic Package,395,,key=name:elevation graphic package; not with Black Appearance or Topo Graphic,models/broncosport_options.md:272
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Topo Graphic Package,395,,key=name:topo graphic package; not with Elevation Graphic or Black Appearance,models/broncosport_options.md:273
+2026,Bronco Sport,Badlands,400A,37265,Factory package,,Badlands Tech Package,2295,"Memory Driver's Seat and Sideview Mirrors; Six (6)-way Power Front Passenger Seat; Leather-Trimmed Seats with Mini-Perforation, Dove Gray Inserts with Orchid Yellow Accents and Stitching; Remote Start System (Key Fob Activated); Heated Steering Wheel; B&O® Sound System by Bang & Olufsen®, 10-Speakers with Subwoofer; Connected Navigation (1-year included with Ford Connectivity Package); HD Radio™; Noise Reduction Module",key=name:badlands tech package,models/broncosport_options.md:274
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Interior,Power Moonroof,995,,"Requires Badlands® Tech Package; not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks-only accessories listed in overlay",models/broncosport_options.md:260
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Interior,Pro Power Onboard – 400 W,175,,,models/broncosport_options.md:263
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Interior,Aux Switches and Wiring,115,,Requires Sasquatch® Badlands® Package; deletes Overhead Console with Sunglasses Storage,models/broncosport_options.md:265
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Exterior,Fender Tie Downs,495,,Requires Sasquatch® Badlands® Package,models/broncosport_options.md:285
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Exterior,Front Brush Guard with Integrated Recovery Hooks,395,,Requires Sasquatch® Badlands® Package,models/broncosport_options.md:286
+2026,Bronco Sport,Badlands,400A,37265,Factory option,Exterior,Engine Block Heater,190,,,models/broncosport_options.md:288
+2026,Bronco,Base,101A,41295,Base,,Base MSRP,41295,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:30
+2026,Bronco,Base,101A,41295,Powertrain,Transmission,10-Speed Automatic Transmission,1795,,,models/bronco_options.md:36
+2026,Bronco,Base,101A,41295,Exterior color,,Avalanche Gray,495,,,models/bronco_options.md:48
+2026,Bronco,Base,101A,41295,Exterior color,,Desert Sand,495,,,models/bronco_options.md:49
+2026,Bronco,Base,101A,41295,Exterior color,,Marsh Gray,495,,,models/bronco_options.md:50
+2026,Bronco,Base,101A,41295,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/bronco_options.md:51
+2026,Bronco,Base,101A,41295,Exterior color,,Velocity Blue Metallic,495,,,models/bronco_options.md:52
+2026,Bronco,Base,101A,41295,Factory package,,Sasquatch Package,8460,"Advanced 4x4 with Automatic On Demand Engagement; 17"" Matte Black Alloy Wheels; 4.7 Final Drive Ratio with Electronic-locking Front and Rear Axle; High Clearance Suspension; High Clearance Fender Flares; Position-sensitive Bilstein Shock Absorbers; Front Stabilizer Disconnect (Badlands®); 35"" LT315/70R17 Rugged-Terrain (R/T) Tires on Base, Big Bend®, Outer Banks® and Badlands®; Outer Banks® adds Interior Grab Handles, Front Row – One (1) in the Center Floor Console, Passenger Side",key=name:sasquatch package; Big Bend® requires Black Diamond® Package,models/bronco_options.md:71
+2026,Bronco,Base,101A,41295,Factory package,,Sasquatch Graphics Package,520,,"key=name:sasquatch graphics package; requires 4-Door and Sasquatch® Package; not with Black Appearance, Free Wheeling™ Package or Paint Protection Film",models/bronco_options.md:72
+2026,Bronco,Base,101A,41295,Factory option,Interior,Slide-Out Tailgate,600,,Requires 4-Door; not with Sasquatch at Big Bend®/Outer Banks® or Dual Tops at Outer Banks®/Heritage,models/bronco_options.md:62
+2026,Bronco,Base,101A,41295,Factory option,Roof,Dual Tops – Soft Top Add-In,1995,,"Requires 4-Door and Hard Top, Carbonized Gray MIC on Base",models/bronco_options.md:87
+2026,Bronco,Base,101A,41295,Factory option,Roof,Roof Rails with Crossbars Black,465,,requires Hard Top MIC or Dual Tops; requires Sasquatch® Package,models/bronco_options.md:92
+2026,Bronco,Base,101A,41295,Factory option,Exterior,Side Step,495,,requires Sasquatch® Package,models/bronco_options.md:94
+2026,Bronco,Base,101A,41295,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:97
+2026,Bronco,Big Bend,221A,41995,Base,,Base MSRP,41995,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher); Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:117
+2026,Bronco,Big Bend,221A,41995,Powertrain,Transmission,10-Speed Automatic Transmission,1795,,,models/bronco_options.md:123
+2026,Bronco,Big Bend,221A,41995,Exterior color,,Avalanche Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/bronco_options.md:133
+2026,Bronco,Big Bend,221A,41995,Exterior color,,Desert Sand,495,,,models/bronco_options.md:134
+2026,Bronco,Big Bend,221A,41995,Exterior color,,Marsh Gray,495,,,models/bronco_options.md:135
+2026,Bronco,Big Bend,221A,41995,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/bronco_options.md:136
+2026,Bronco,Big Bend,221A,41995,Exterior color,,Velocity Blue Metallic,495,,,models/bronco_options.md:137
+2026,Bronco,Big Bend,221A,41995,Factory package,Matte Film,Matte Film Protection Package – Body,4995,,key=name:matte film protection package body; sidebar price; overlay not read,models/bronco_options.md:140
+2026,Bronco,Big Bend,221A,41995,Factory package,,Big Bend Mid Package (222A),1540,2-Door Intelligent Access with Lock/Unlock (also locks/unlocks the Swing Gate); Dual-Zone Electronic Automatic Temperature Control (DEATC) – includes Air Conditioning; Ambient Footwell Lighting; Front Row Heated Seats; Illuminated Sliding Visor Vanity Mirrors (Driver and Front Passenger); Pro Power Onboard™ – 400w (back side of center floor console); Remote Start System (Automatic Transmission only); Rear Parking Sensors; Ford Co-Pilot360®; Connected Navigation (1-year included with Ford Connectivity Package); Dual Smart Charging USB Ports,key=222A,models/bronco_options.md:170
+2026,Bronco,Big Bend,221A,41995,Factory package,,Sasquatch Package,6175,"Advanced 4x4 with Automatic On Demand Engagement; 17"" Matte Black Alloy Wheels; 4.7 Final Drive Ratio with Electronic-locking Front and Rear Axle; High Clearance Suspension; High Clearance Fender Flares; Position-sensitive Bilstein Shock Absorbers; Front Stabilizer Disconnect (Badlands®); 35"" LT315/70R17 Rugged-Terrain (R/T) tires (wheel inclusions on Base, Big Bend®, Outer Banks® and Badlands®)",key=name:sasquatch package; Big Bend® requires Black Diamond® Package per overlay,models/bronco_options.md:171
+2026,Bronco,Big Bend,221A,41995,Factory package,,Black Diamond Package,4495,"Advanced 4x4 with Automatic On Demand Engagement; Auxiliary Switches with Pre-Run Accessory Wires in Overhead Console with Front Map Lights; Bumpers, Front and Rear – Powder Coated Steel; Full Vehicle Steel Bash Plates; Interior Grab Handles, Front Row – One (1) in the Center Floor Console, Passenger Side; LED Fog Lamps; Rock Rails; Rubberized Flooring – Washout capable with drain plugs; 17"" Black High Gloss-Painted Aluminum wheels; LT265/70R17 All-Terrain (A/T) tires",key=name:black diamond package,models/bronco_options.md:172
+2026,Bronco,Big Bend,221A,41995,Factory package,,Sasquatch Graphics Package,520,,"key=name:sasquatch graphics package; requires 4-Door and Sasquatch® Package; not available with Black Appearance, Free Wheeling™, or Paint Protection Film",models/bronco_options.md:173
+2026,Bronco,Big Bend,221A,41995,Factory package,,Free Wheeling Package,2495,"Door Handles – Painted Body Color; Floor Liners, Front and Rear (with Carpet Floor Mats); Free Wheeling™ Reflective Graphics Package; Grille – Iconic Silver-Painted with White ""BRONCO"" Lettering and Red Accents; Seats – Marine Grade Vinyl/Cloth; 17"" Black High Gloss-Painted Steel Wheels; LT265/70R17 All-Terrain (32"") tires and full-size spare with TPMS. With Sasquatch® selected, includes 17"" Bright Machined Black High Gloss-Painted Alloy wheels",key=name:free wheeling package,models/bronco_options.md:174
+2026,Bronco,Big Bend,221A,41995,Factory package,,Black Appearance Package,600,"Door Handles – Black MIC; Fender Flares – Black MIC; Grille – Black-Painted MIC with White ""BRONCO"" Lettering; Mirrors, Sideview – Black MIC Caps; Black Appearance Graphics Package; LT265/70R17 All-Terrain (32"") tires and full-size spare with TPMS. With Sasquatch® and Black Diamond® selected, includes 17"" Black High Gloss-Painted Aluminum wheels",key=name:black appearance package,models/bronco_options.md:175
+2026,Bronco,Big Bend,221A,41995,Factory package,,Black Diamond Graphics Package,520,,"key=name:black diamond graphics package; requires Black Diamond™ Package; not with Free Wheeling™, Black Appearance, or Paint Protection Package",models/bronco_options.md:176
+2026,Bronco,Big Bend,221A,41995,Factory option,Interior,Slide-Out Tailgate,600,,Requires 4-Door; not with Sasquatch® Package at Big Bend®/Outer Banks® or Dual Tops at Outer Banks®/Heritage,models/bronco_options.md:154
+2026,Bronco,Big Bend,221A,41995,Factory option,Roof,"Hard Top, Shadow Black-Painted",2495,,Requires 4-Door,models/bronco_options.md:195
+2026,Bronco,Big Bend,221A,41995,Factory option,Roof,Dual Tops – Soft Top Add-In,1995,,requires Hard Top on Big Bend®,models/bronco_options.md:196
+2026,Bronco,Big Bend,221A,41995,Factory option,Roof,"Hard Top, Carbonized Gray Molded-in-Color (MIC)",1795,,,models/bronco_options.md:197
+2026,Bronco,Big Bend,221A,41995,Factory option,Roof,Roof Rails with Crossbars Black,465,,requires Hard Top MIC or Dual Tops,models/bronco_options.md:200
+2026,Bronco,Big Bend,221A,41995,Factory option,Bumpers,Front Bumper – Ford Performance Heavy-Duty Modular,775,,Requires Black Diamond® Package on Big Bend®; deletes LED Fog Lamps,models/bronco_options.md:202
+2026,Bronco,Big Bend,221A,41995,Factory option,Exterior,Raptor-Style Running Board,755,,Requires Black Diamond® Package; replaces the standard Rock Rails on Badlands®,models/bronco_options.md:205
+2026,Bronco,Big Bend,221A,41995,Factory option,Exterior,Side Step,495,,,models/bronco_options.md:206
+2026,Bronco,Big Bend,221A,41995,Factory option,Exterior,Keyless Entry Keypad,195,,Requires 4-Door,models/bronco_options.md:209
+2026,Bronco,Big Bend,221A,41995,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:210
+2026,Bronco,Outer Banks,312A,48190,Base,,Base MSRP,48190,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher); Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:232
+2026,Bronco,Outer Banks,312A,48190,Powertrain,Engine,2.7L EcoBoost V6 Engine,3295,,,models/bronco_options.md:237
+2026,Bronco,Outer Banks,312A,48190,Exterior color,,Marsh Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/bronco_options.md:248
+2026,Bronco,Outer Banks,312A,48190,Exterior color,,Avalanche Gray,495,,,models/bronco_options.md:249
+2026,Bronco,Outer Banks,312A,48190,Exterior color,,Desert Sand,495,,,models/bronco_options.md:250
+2026,Bronco,Outer Banks,312A,48190,Exterior color,,Wimbledon White,495,,,models/bronco_options.md:251
+2026,Bronco,Outer Banks,312A,48190,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/bronco_options.md:252
+2026,Bronco,Outer Banks,312A,48190,Exterior color,Roof color,Marsh Gray Painted Roof,500,,,models/bronco_options.md:256
+2026,Bronco,Outer Banks,312A,48190,Exterior color,Roof color,Avalanche Gray Painted Roof,500,,,models/bronco_options.md:256
+2026,Bronco,Outer Banks,312A,48190,Exterior color,Roof color,Ruby Red Tinted Clearcoat Painted Roof,500,,,models/bronco_options.md:256
+2026,Bronco,Outer Banks,312A,48190,Exterior color,Roof color,Desert Sand Painted Roof,500,,,models/bronco_options.md:256
+2026,Bronco,Outer Banks,312A,48190,Factory package,Matte Film,Matte Film Protection Package – Body,4995,,key=name:matte film protection package body,models/bronco_options.md:255
+2026,Bronco,Outer Banks,312A,48190,Factory package,,Outer Banks - Lux Package (314A),2825,"360-Degree Camera; Adaptive Cruise Control; B&O® Sound System by Bang & Olufsen®, 12 Speakers incl. Subwoofer; Evasive Steering Assist; Front Parking Sensors; Information on Demand Panel (included in SYNC 4); Mirrors, Sideview – LED Approach Lamps and LED Spotlight",key=314A,models/bronco_options.md:285
+2026,Bronco,Outer Banks,312A,48190,Factory package,,Sasquatch Package,6465,"Advanced 4x4 with Automatic On Demand Engagement; 17"" Matte Black Alloy Wheels; 4.7 Final Drive Ratio with Electronic-locking Front and Rear Axle; High Clearance Suspension; High Clearance Fender Flares; Position-sensitive Bilstein Shock Absorbers; Outer Banks® Includes Interior Grab Handles, Front Row – One (1) in the Center Floor Console, Passenger Side",key=name:sasquatch package,models/bronco_options.md:286
+2026,Bronco,Outer Banks,312A,48190,Factory package,,Sasquatch Graphics Package,520,,key=name:sasquatch graphics package; sidebar price; overlay not read,models/bronco_options.md:287
+2026,Bronco,Outer Banks,312A,48190,Factory package,,60th Anniversary Package,5995,"Door Handles – Painted; Grille – Warm Alloy with Two Color ""BRONCO"" Lettering; Mirrors, Sideview – Black MIC Caps; Seats – Leather with Cashmere Inserts; Steel Front Bumper; 60th Anniversary Graphic Package; includes 17"" Gravity Gray-painted alloy wheels when Sasquatch selected",key=name:60th anniversary package; requires Sasquatch® Package; requires Ruby Red Metallic Tinted Clearcoat or Wimbledon White; requires Hard Top – Wimbledon White Painted; not with Black Appearance,models/bronco_options.md:288
+2026,Bronco,Outer Banks,312A,48190,Factory package,,Black Appearance Package,600,"Door Handles – Black MIC; Fender Flares – Black MIC; Grille – Black-Painted MIC with White ""BRONCO"" Lettering; Mirrors Sideview – Black MIC Caps; Black Appearance Graphics Package; LT265/70R17 A/T (32"") tires and full-size spare with TPMS; with Sasquatch and Black Diamond selected includes 17"" Black HG Aluminum with Black Beauty Ring wheels and High Clearance Fender Flares. Not with Free Wheeling™ Package",key=name:black appearance package; Not with Free Wheeling™ Package,models/bronco_options.md:289
+2026,Bronco,Outer Banks,312A,48190,Factory option,Interior,Slide-Out Tailgate,600,,,models/bronco_options.md:273
+2026,Bronco,Outer Banks,312A,48190,Factory option,Roof,"Hard Top, Painted",2695,,,models/bronco_options.md:308
+2026,Bronco,Outer Banks,312A,48190,Factory option,Roof,"Hard Top, Shadow Black-Painted",2495,,,models/bronco_options.md:309
+2026,Bronco,Outer Banks,312A,48190,Factory option,Roof,Dual Tops – Soft Top Add-In,1995,,,models/bronco_options.md:311
+2026,Bronco,Outer Banks,312A,48190,Factory option,Roof,"Hard Top, Carbonized Gray Molded-in-Color (MIC)",1795,,,models/bronco_options.md:312
+2026,Bronco,Outer Banks,312A,48190,Factory option,Roof,Roof Rails with Crossbars Black,465,,,models/bronco_options.md:315
+2026,Bronco,Outer Banks,312A,48190,Factory option,Exterior,Keyless Entry Keypad,195,,,models/bronco_options.md:321
+2026,Bronco,Outer Banks,312A,48190,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:322
+2026,Bronco,Badlands,331A,48890,Base,,Base MSRP,48890,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher); Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:346
+2026,Bronco,Badlands,331A,48890,Powertrain,Engine,2.7L EcoBoost V6 Engine,3295,,,models/bronco_options.md:351
+2026,Bronco,Badlands,331A,48890,Powertrain,Transmission,10-Speed Automatic Transmission,1795,,,models/bronco_options.md:353
+2026,Bronco,Badlands,331A,48890,Exterior color,,Avalanche Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/bronco_options.md:361
+2026,Bronco,Badlands,331A,48890,Exterior color,,Desert Sand,495,,,models/bronco_options.md:362
+2026,Bronco,Badlands,331A,48890,Exterior color,,Marsh Gray,495,,,models/bronco_options.md:363
+2026,Bronco,Badlands,331A,48890,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/bronco_options.md:364
+2026,Bronco,Badlands,331A,48890,Exterior color,,Velocity Blue Metallic,495,,,models/bronco_options.md:365
+2026,Bronco,Badlands,331A,48890,Exterior color,Roof color,Marsh Gray Painted Roof,500,,,models/bronco_options.md:370
+2026,Bronco,Badlands,331A,48890,Exterior color,Roof color,Avalanche Gray Painted Roof,500,,,models/bronco_options.md:370
+2026,Bronco,Badlands,331A,48890,Exterior color,Roof color,Ruby Red Tinted Clearcoat Painted Roof,500,,,models/bronco_options.md:370
+2026,Bronco,Badlands,331A,48890,Exterior color,Roof color,Velocity Blue Metallic Painted Roof,500,,,models/bronco_options.md:370
+2026,Bronco,Badlands,331A,48890,Exterior color,Roof color,Desert Sand Painted Roof,500,,,models/bronco_options.md:370
+2026,Bronco,Badlands,331A,48890,Factory package,Matte Film,Matte Film Protection Package – Body,4995,,key=name:matte film protection package body,models/bronco_options.md:369
+2026,Bronco,Badlands,331A,48890,Factory package,,Badlands - Mid Package (332A),1675,"2-Door Intelligent Access with Lock/Unlock (also Swing Gate); Connected Navigation (1-Year included with Ford Connectivity Package); Ambient Footwell Lighting; Dual Smart Charging USB Ports; Dual-Zone Electronic Automatic Temperature Control (DEATC), includes Air Conditioning; Front Row Heated Seats; Heated Steering Wheel; Illuminated Sliding Visor Vanity Mirrors (Driver and Front Passenger); Power Outlet – Back Side of Center Floor Console; Rear Parking Sensors; Remote Start System; Ford Co-Pilot360®",key=332A,models/bronco_options.md:399
+2026,Bronco,Badlands,331A,48890,Factory package,,Badlands - Lux Package (334A),4500,"360-Degree Camera; Adaptive Cruise Control; B&O® Sound System by Bang & Olufsen®, 12 Speakers incl. Subwoofer; Evasive Steering Assist; Front Parking Sensors; Information on Demand Panel (included in SYNC® 4); Mirrors, Sideview – LED Approach Lamps and LED Spotlight",key=334A,models/bronco_options.md:400
+2026,Bronco,Badlands,331A,48890,Factory package,,Sasquatch Package,6345,"Advanced 4x4 with Automatic On Demand Engagement; 17"" Matte Black Alloy Wheels; 4.7 Final Drive Ratio with Electronic-locking Front and Rear Axle; High Clearance Suspension; High Clearance Fender Flares; Position-sensitive Bilstein Shock Absorbers; Front Stabilizer Disconnect Included with Badlands®; Unique Wheel Inclusions: 35"" LT315/70R17 R/T tires on Base, Big Bend®, Outer Banks® and Badlands®. Outer Banks® adds Interior Grab Handles, Front Row – One (1) in the Center Floor Console, Passenger Side",key=name:sasquatch package; Requires Black Diamond® Package,models/bronco_options.md:401
+2026,Bronco,Badlands,331A,48890,Factory package,,Front Stabilizer Disconnect,1305,,key=name:front stabilizer disconnect,models/bronco_options.md:402
+2026,Bronco,Badlands,331A,48890,Factory package,,Sasquatch Graphics Package,520,,"key=name:sasquatch graphics package; Requires: 4-Door and Sasquatch® Package; not available with Black Appearance Package, Free Wheeling™ Package, or Paint Protection Film",models/bronco_options.md:403
+2026,Bronco,Badlands,331A,48890,Factory package,,Black Appearance Package,1850,"Door Handles – Black MIC; Grille – Black-Painted MIC with White ""BRONCO"" Lettering; Mirrors, Sideview – Black MIC Caps; Black Appearance Graphics Package; Painted Hard Top, Shadow Black-Painted; 17"" Carbonized Gray-Painted Aluminum Wheels; LT265/70R17 All-Terrain (A/T) (32"") tires and full-size spare with TPMS. Note: when Painted Dual Tops – Hard Top, Shadow Black-Painted + Black Soft Top is selected, it is replaced with Hard Top, Shadow Black-Painted. Not available with Free Wheeling™ Package. Roof pricing is not included in the package price",key=name:black appearance package; Not available with Free Wheeling™ Package,models/bronco_options.md:406
+2026,Bronco,Badlands,331A,48890,Factory option,Roof,Dual Tops – Soft Top Add-In,1995,,,models/bronco_options.md:423
+2026,Bronco,Badlands,331A,48890,Factory option,Roof,"Hard Top, Painted",1450,,,models/bronco_options.md:425
+2026,Bronco,Badlands,331A,48890,Factory option,Roof,"Hard Top, Shadow Black-Painted",1250,,,models/bronco_options.md:426
+2026,Bronco,Badlands,331A,48890,Factory option,Roof,Roof Rails with Crossbars Black,465,,,models/bronco_options.md:428
+2026,Bronco,Badlands,331A,48890,Factory option,Bumpers,Front Bumper – Ford Performance Heavy-Duty Modular,775,,,models/bronco_options.md:431
+2026,Bronco,Badlands,331A,48890,Factory option,Exterior,Raptor-Style Running Board,755,,replaces Rock Rails on Badlands®,models/bronco_options.md:436
+2026,Bronco,Badlands,331A,48890,Factory option,Exterior,Brush Guard,300,,,models/bronco_options.md:438
+2026,Bronco,Badlands,331A,48890,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:439
+2026,Bronco,Heritage Edition,662A,52125,Base,,Base MSRP,52125,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; default-selected paid paint excluded (picker Starting At is higher); Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:463
+2026,Bronco,Heritage Edition,662A,52125,Powertrain,Engine,2.7L EcoBoost V6 Engine,3295,,,models/bronco_options.md:468
+2026,Bronco,Heritage Edition,662A,52125,Powertrain,Transmission,10-Speed Automatic Transmission,1795,,,models/bronco_options.md:470
+2026,Bronco,Heritage Edition,662A,52125,Exterior color,,Avalanche Gray,495,,,models/bronco_options.md:476
+2026,Bronco,Heritage Edition,662A,52125,Exterior color,,Desert Sand,495,,,models/bronco_options.md:477
+2026,Bronco,Heritage Edition,662A,52125,Exterior color,,Marsh Gray,495,,,models/bronco_options.md:478
+2026,Bronco,Heritage Edition,662A,52125,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,default-selected paint; its price is excluded from trim_base_msrp,models/bronco_options.md:479
+2026,Bronco,Heritage Edition,662A,52125,Exterior color,,Velocity Blue Metallic,495,,,models/bronco_options.md:480
+2026,Bronco,Heritage Edition,662A,52125,Factory option,Interior,Slide-Out Tailgate,600,,,models/bronco_options.md:498
+2026,Bronco,Heritage Edition,662A,52125,Factory option,Roof,Dual Tops – Soft Top Add-In,1995,,requires Hard Top,models/bronco_options.md:516
+2026,Bronco,Heritage Edition,662A,52125,Factory option,Roof,Roof Rails with Crossbars Black,465,,,models/bronco_options.md:519
+2026,Bronco,Heritage Edition,662A,52125,Factory option,Exterior,Keyless Entry Keypad,195,,,models/bronco_options.md:525
+2026,Bronco,Heritage Edition,662A,52125,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:526
+2026,Bronco,Stroppe Edition,564A,69995,Base,,Base MSRP,69995,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included; Available Incentives -$500 (unnamed) excluded",models/bronco_options.md:548
+2026,Bronco,Stroppe Edition,564A,69995,Factory option,Exterior,Keyless Entry Keypad,195,,,models/bronco_options.md:596
+2026,Bronco,Stroppe Edition,564A,69995,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:597
+2026,Bronco,Raptor,374A,79995,Base,,Base MSRP,79995,,"Destination Charges $1,995 not included; Acquisition Fee $695 not included",models/bronco_options.md:637
+2026,Bronco,Raptor,374A,79995,Exterior color,,Shelter Green Metallic,995,,default-selected paint; its price is excluded from trim_base_msrp; only paint in Your Configuration,models/bronco_options.md:665
+2026,Bronco,Raptor,374A,79995,Exterior color,,Avalanche Gray,495,,,models/bronco_options.md:666
+2026,Bronco,Raptor,374A,79995,Exterior color,,Desert Sand,495,,,models/bronco_options.md:667
+2026,Bronco,Raptor,374A,79995,Exterior color,,Marsh Gray,495,,,models/bronco_options.md:668
+2026,Bronco,Raptor,374A,79995,Exterior color,,Ruby Red Metallic Tinted Clearcoat,495,,,models/bronco_options.md:669
+2026,Bronco,Raptor,374A,79995,Exterior color,,Velocity Blue Metallic,495,,,models/bronco_options.md:670
+2026,Bronco,Raptor,374A,79995,Exterior color,Roof color,Marsh Gray Painted Roof,500,,,models/bronco_options.md:674
+2026,Bronco,Raptor,374A,79995,Exterior color,Roof color,Avalanche Gray Painted Roof,500,,,models/bronco_options.md:675
+2026,Bronco,Raptor,374A,79995,Exterior color,Roof color,Ruby Red Tinted Clearcoat Painted Roof,500,,,models/bronco_options.md:676
+2026,Bronco,Raptor,374A,79995,Exterior color,Roof color,Desert Sand Painted Roof,500,,,models/bronco_options.md:677
+2026,Bronco,Raptor,374A,79995,Exterior color,Roof color,Shelter Green Metallic Roof color,500,,,models/bronco_options.md:678
+2026,Bronco,Raptor,374A,79995,Factory package,,Raptor Black Appearance Package,8945,"Unique Hood Matte Black Graphics Package; Interior Carbon Fiber Pack; Mirror, Sideview – Gloss Black Skull Caps; Hard Top, Shadow Black-Painted; 17"" Matte Black Alloy Painted, Beadlock Capable Forged Wheels. ""Not available with Shadow Black.""",key=name:raptor black appearance package; Not available with Shadow Black,models/bronco_options.md:700
+2026,Bronco,Raptor,374A,79995,Factory package,,Raptor Shadow Black Appearance Package,8945,"Interior Carbon Fiber Pack; Mirror, Sideview – Gloss Black Skull Caps; Hard Top, Shadow Black-Painted; 17"" Matte Black Alloy Painted, Beadlock Capable Forged Wheels. (Hood graphics not listed in this overlay.)",key=name:raptor shadow black appearance package; Requires Shadow Black,models/bronco_options.md:701
+2026,Bronco,Raptor,374A,79995,Factory package,,Raptor Code Orange Appearance Package,6175,"Code Orange Accent Seat Belts; Code Orange Beadlock Kit; Code Orange Tow Hooks; Code Orange Graphics Package; Interior Carbon Fiber Pack; Mirror, Sideview – Body-Color Painted Caps; 17"" Matte Black Alloy Painted, Beadlock Capable Forged Wheels; Hard Top, Body Color-Painted. ""Not available with Ruby Red Metallic Tinted Clearcoat.""",key=name:raptor code orange appearance package; Not available with Ruby Red Metallic Tinted Clearcoat,models/bronco_options.md:702
+2026,Bronco,Raptor,374A,79995,Factory package,,Raptor Graphic,1275,,key=name:raptor graphic; Not available with: Raptor® Code Orange Appearance Package,models/bronco_options.md:703
+2026,Bronco,Raptor,374A,79995,Factory package,,Black Appearance Raptor Side Graphic,500,,key=name:black appearance raptor side graphic; Requires Raptor® Black Appearance Package,models/bronco_options.md:704
+2026,Bronco,Raptor,374A,79995,Factory option,Interior,Interior Carbon Fiber Pack,1725,,,models/bronco_options.md:691
+2026,Bronco,Raptor,374A,79995,Factory option,Interior,Code Orange Accent Seat Belts,495,,,models/bronco_options.md:693
+2026,Bronco,Raptor,374A,79995,Factory option,Wheels,"17"" Matte Black Alloy Painted, Beadlock Capable Forged Wheels",1995,,,models/bronco_options.md:713
+2026,Bronco,Raptor,374A,79995,Factory option,Roof,"Hard Top, Painted",1450,,,models/bronco_options.md:716
+2026,Bronco,Raptor,374A,79995,Factory option,Roof,"Hard Top, Shadow Black-Painted",1250,,,models/bronco_options.md:717
+2026,Bronco,Raptor,374A,79995,Factory option,Exterior,Keyless Entry Keypad,195,,,models/bronco_options.md:724
+2026,Bronco,Raptor,374A,79995,Factory option,Exterior,Engine Block Heater,190,,,models/bronco_options.md:725
