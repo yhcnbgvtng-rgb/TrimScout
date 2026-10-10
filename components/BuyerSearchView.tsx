@@ -9,6 +9,7 @@ import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { lastConfirmedLabel } from "@/lib/lastConfirmed";
 import { useRouter } from "next/navigation";
 
 interface BuyerVehicle {
@@ -33,6 +34,8 @@ interface BuyerVehicle {
   priceDiff: number | null;
   distanceMiles: number | null;
   dealerHasContact?: boolean | null;
+  /** Last night the crawl saw this car; shown as "Last confirmed <date>" once 48+ hours old. */
+  lastConfirmedAt?: string | null;
 }
 
 interface SearchResults {
@@ -547,7 +550,7 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
   { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
   { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
-  { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
+  { key: "dealer", label: "Dealer", w: 340, show: (v) => { const c = lastConfirmedLabel(v.lastConfirmedAt); return c ? `${v.dealerName} · ${c}` : v.dealerName; } },
   { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
   { key: "contact", label: "Contact on file", w: 110, show: (v) => (v.dealerHasContact == null ? "" : v.dealerHasContact ? "Yes" : "No") },
   { key: "listing", label: "Listing link", w: 170 },

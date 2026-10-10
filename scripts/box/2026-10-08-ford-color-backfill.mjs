@@ -17,7 +17,7 @@
 //        node 2026-10-08-ford-color-backfill.mjs --apply --plan ford_color_plan_NJ.json --fleet-idle
 //      Takes the deals-API sync lock (own owner id, heartbeated, released at the end; exits 4 if held), saves the before-state of
 //      every row (colours AND transmission) to <plan>.rollback-<ts>.json, then updates ONLY the fields that are still blank at write
-//      time (a value a crawl wrote since the dry run is left alone). Refuses to run against 3.237.204.55, refuses between 18:30 and
+//      time (a value a crawl wrote since the dry run is left alone). Refuses to run against a retired IP (docs/BOXES.md), refuses between 18:30 and
 //      06:00 America/New_York, and needs the sync lock free on two probes 30s apart before it takes the lock for real.
 //      It restarts nothing and rebuilds no facets.
 //
@@ -31,7 +31,12 @@ const args = process.argv.slice(2);
 const flag = (n) => args.includes(`--${n}`);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 const APPLY = flag("apply");
-const FORBIDDEN_HOST = "3.237.204.55";
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 const blank = (v) => v == null || String(v).trim() === "";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -63,7 +68,7 @@ async function dryRun() {
   const outFile = path.resolve(opt("out", `ford_color_plan_${state}.json`));
   const deals = opt("deals", process.env.DEALS_URL || "http://127.0.0.1:3004");
   const apiKey = process.env.TRIMSCOUT_API_KEY || readEnvFile(path.resolve(".env")).TRIMSCOUT_API_KEY;
-  if (deals.includes(FORBIDDEN_HOST)) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
+  if (pointsAtDeadIp(deals)) { console.error(`Refusing to run: this points at a retired box IP (see docs/BOXES.md "Do not use").`); process.exit(1); }
   const { parseStickerColors, stickerUrlForVin, normalizeInterior, normalizeExterior } = await import("../../scrapers/lightsail-crawler/src/fordStickerColors.js");
   const { normalizeTransmissionStrict } = await import("../../scrapers/lightsail-crawler/src/transmission.js");
   const { extractText } = await import("unpdf");
@@ -197,7 +202,7 @@ async function apply() {
   const API_KEY = process.env.TRIMSCOUT_API_KEY || appEnv.TRIMSCOUT_API_KEY || dbEnv.TRIMSCOUT_API_KEY || null;
   const DB_HOST = dbEnv.DB_HOST || process.env.DB_HOST;
   const DEALS = `http://127.0.0.1:${process.env.DEALS_API_PORT || dbEnv.DEALS_API_PORT || 3004}`;
-  if ([DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST].some((h) => String(h || "").includes(FORBIDDEN_HOST))) { console.error(`Refusing to run: this points at ${FORBIDDEN_HOST}.`); process.exit(1); }
+  if (pointsAtDeadIp(DB_HOST, DEALS, process.env.TRIMSCOUT_DEALS_HOST)) { console.error(`Refusing to run: this points at a retired box IP (see docs/BOXES.md "Do not use").`); process.exit(1); }
   if (!API_KEY) { console.error("No TRIMSCOUT_API_KEY found: refusing to apply without being able to take the sync lock."); process.exit(3); }
   const plan = JSON.parse(fs.readFileSync(planFile, "utf-8"));
   if (!Array.isArray(plan) || plan.some((r) => !VIN_RE.test(r.vin) || !Number.isInteger(Number(r.dealerId)) || !r.fill)) { console.error("plan must be an array of { vin, dealerId, fill: { exterior_color, interior_color, transmission } }"); process.exit(1); }

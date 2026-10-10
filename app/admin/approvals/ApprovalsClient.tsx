@@ -194,6 +194,7 @@ function RequestCard({
   const [previewId, setPreviewId] = useState<string>("");
   const previewInvite = previewable.find((i) => String(i.id) === previewId) || previewable[0];
   const dealerPreviewUrl = previewInvite?.calculatorUrl ? `${previewInvite.calculatorUrl}&preview=1` : null;
+  const closedByBuyer = rfq.status === "walked" || rfq.status === "picked";
   const decidedTone = rfq.approvalStatus === "approved" ? "bg-positive-500/15 text-positive-300" : rfq.approvalStatus === "rejected" ? "bg-rose-500/15 text-rose-300" : "bg-amber-500/15 text-amber-300";
   return (
     <section id={`rfq-${rfq.id}`} className="rounded-2xl border border-border bg-surface p-4 space-y-3" data-testid="approval-rfq" data-approval={rfq.approvalStatus}>
@@ -203,6 +204,7 @@ function RequestCard({
             <span className="font-mono text-sm font-black text-brand-400">{rfqDealNumber(rfq)}</span>
             <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-sky-300">{rfqQuoteTypeLabel(rfq)}</span>
             <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${decidedTone}`}>{rfq.approvalStatus === "pending" ? "Pending review" : rfq.approvalStatus === "approved" ? "Released" : "Rejected"}</span>
+            {closedByBuyer ? <span className="rounded bg-zinc-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-zinc-300" data-testid="closed-badge">{rfq.status === "walked" ? "Buyer walked away" : "Buyer picked a quote"}</span> : null}
             <span className="text-[10px] text-ink-faint">submitted {relativeTime(rfq.createdAt)}{rfq.approvalDecidedAt ? ` · decided ${relativeTime(rfq.approvalDecidedAt)} by ${rfq.approvalDecidedBy || "admin"}` : ""}</span>
           </div>
           <p className="mt-1 text-sm font-semibold text-white">{rfqVehicleSummary(rfq)}</p>
@@ -262,13 +264,13 @@ function RequestCard({
       {isPending ? (
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" disabled={busy || rfq.invites.length === 0} onClick={() => onDecide("approved")} className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3.5 py-2 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="approve">
+            <button type="button" disabled={busy || rfq.invites.length === 0 || closedByBuyer} title={closedByBuyer ? "The buyer already closed this request — it can only be rejected." : undefined} onClick={() => onDecide("approved")} className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3.5 py-2 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="approve">
               <Check className="h-3.5 w-3.5" /> Approve &amp; release
             </button>
             <button type="button" onClick={onToggleEdit} className="inline-flex items-center gap-1 rounded-lg border border-border px-3.5 py-2 text-[11px] font-bold text-ink-light hover:text-white" data-testid="edit">
               <Pencil className="h-3.5 w-3.5" /> {editing ? "Done editing" : "Edit quote sheet"}
             </button>
-            <input value={rejectReason} onChange={(e) => onRejectReason(e.target.value)} placeholder="Reason the buyer will read (required to reject)" className="min-w-[260px] flex-1 rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-rose-500 focus:outline-none" data-testid="reject-reason" />
+            <input value={rejectReason} onChange={(e) => onRejectReason(e.target.value)} placeholder={closedByBuyer ? "Reason (e.g. Buyer walked away)" : "Reason the buyer will read (required to reject)"} className="min-w-[260px] flex-1 rounded-lg border border-border bg-background px-3 py-2 text-[11px] text-ink-light placeholder-ink-faint focus:border-rose-500 focus:outline-none" data-testid="reject-reason" />
             <button type="button" disabled={busy || !rejectReason.trim()} onClick={() => onDecide("rejected")} className="inline-flex items-center gap-1 rounded-lg border border-rose-500/60 px-3.5 py-2 text-[11px] font-bold text-rose-300 hover:bg-rose-950/40 disabled:opacity-50" data-testid="reject">
               <X className="h-3.5 w-3.5" /> Reject
             </button>

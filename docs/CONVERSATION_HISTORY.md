@@ -3,7 +3,7 @@
 > **Archive Scope**: All Antigravity AI pair programming sessions from August 20, 2026 to August 23, 2026.  
 > **Repository**: `https://github.com/yhcnbgvtng-rgb/TrimScout.git`  
 > **Target Production**: TrimScout Luxury Automotive Intelligence Platform  
-> **AWS Lightsail Crawler**: `34.205.155.92` (Ubuntu 24.04 LTS)
+> **AWS Lightsail Crawler**: a retired Lightsail IP (see docs/BOXES.md) (Ubuntu 24.04 LTS)
 
 ---
 
@@ -14,7 +14,7 @@ Over the course of 12 distinct conversations and over 190 user interaction cycle
 1. **Next.js 14 Frontend & Interactive Explorer**: Full vehicle explorer with dynamic filter chips, distance radius calculations, dealer website deep-linking, Monroney Window Sticker preview modals, and hidden administrative backends.
 2. **Multi-Platform Scraper Engines (Python & Node.js)**: High-performance sitemap and VDP scrapers targeting franchise dealerships across Dealer.com, DealerOn, CDK Global, and custom dealer platforms.
 3. **Nationwide Dealer Coverage**: Discovery and cataloging of all **218 official US Porsche Centers** spanning all 50 states.
-4. **Dedicated AWS Lightsail Distributed Crawler**: Scaled crawler from Apify to a dedicated, low-cost AWS Lightsail instance (`34.205.155.92`) running throttled, memory-safe multi-threaded crawls.
+4. **Dedicated AWS Lightsail Distributed Crawler**: Scaled crawler from Apify to a dedicated, low-cost AWS Lightsail instance (a retired Lightsail IP (see docs/BOXES.md)) running throttled, memory-safe multi-threaded crawls.
 5. **OEM & NHTSA VIN Enrichment Pipeline**: Cross-referencing 6,700+ scraped vehicle VINs with **NHTSA VPIC API** (origin plant, engine specifications) and the **Porsche Factory Options & Monroney Catalog** (extracting PR codes like `8LH` Sport Chrono, `2UH` Front Axle Lift, `1LX` PCCB, `9VJ` Burmester, `0P9` Sport Exhaust, `Q1J` 18-Way Seats).
 6. **Live Market Intelligence UI**: Dedicated `/intelligence` and home view with multi-faceted filtering (Model, Condition, Options, Price Sorting, Closest to ZIP code).
 
@@ -86,7 +86,7 @@ Over the course of 12 distinct conversations and over 190 user interaction cycle
 - **Apify Actor to AWS Lightsail Transition**:
   - Initially built an Apify Actor (`.actor/actor.json`, `src/main.js`) with Crawlee.
   - Cost analysis showed running 210+ dealerships daily on Apify would incur ongoing compute unit costs.
-  - Pivoted to a dedicated AWS Lightsail instance (Ubuntu 24.04 LTS, IP: `34.205.155.92`).
+  - Pivoted to a dedicated AWS Lightsail instance (Ubuntu 24.04 LTS, IP: a retired Lightsail IP (see docs/BOXES.md)).
 - **SSH & Server Provisioning**:
   - Configured SSH keys (`~/.ssh/config` alias `ssh lightsail`).
   - Created automated remote deployment script (`deploy.sh`).
@@ -139,7 +139,7 @@ Over the course of 12 distinct conversations and over 190 user interaction cycle
 | :--- | :--- | :--- | :--- |
 | **GitHub Remote** | `https://github.com/yhcnbgvtng-rgb/TrimScout.git` | `.git/config` | Main project repository |
 | **Auto.dev API** | `sk_ad_Xc5T6i3mwxFF1X8x_WbFNl5a` | `.env.local` | Vehicle inventory API key |
-| **AWS Lightsail** | `34.205.155.92` (User: `admin`) | `~/.ssh/config` (`lightsail`) | Dedicated crawler host |
+| **AWS Lightsail** | a retired Lightsail IP (see docs/BOXES.md) (User: `admin`) | `~/.ssh/config` (`lightsail`) | Dedicated crawler host |
 | **NHTSA VPIC API** | `https://vpic.nhtsa.dot.gov/api/` | `src/enricher.js` | Free federal VIN decoding API |
 | **Porsche Roster** | 218 Authorized Dealerships | `dealers.json` | Complete nationwide list |
 

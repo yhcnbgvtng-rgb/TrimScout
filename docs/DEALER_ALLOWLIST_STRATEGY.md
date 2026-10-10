@@ -1,6 +1,6 @@
 # Dealer allowlist strategy (detect only)
 
-NJ inventory crawls **report** bot protection and infra failures. They do **not** bypass WAFs, captchas, challenges, or fingerprint checks. A rooftop that answers 403 stays skipped until the dealer allowlists the Lightsail egress (`ubuntu@34.203.148.79`) or publishes a public inventory feed.
+NJ inventory crawls **report** bot protection and infra failures. They do **not** bypass WAFs, captchas, challenges, or fingerprint checks. A rooftop that answers 403 stays skipped until the dealer allowlists the Lightsail egress (`ubuntu@box1`) or publishes a public inventory feed.
 
 ## Why HTTP_403 is not CLOUDFLARE
 

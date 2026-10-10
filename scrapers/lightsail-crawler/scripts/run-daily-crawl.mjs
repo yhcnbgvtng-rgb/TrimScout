@@ -794,6 +794,10 @@ async function runState(state, date) {
     const { rel: dealersFile, count: dealerCount } = await dealerCountFor(state, brand);
     if (dealerCount === 0) {
       stateSummary.brands[brand] = { status: 'skipped', reason: `no dealers in ${dealersFile}` };
+      // Silent skips hid whole brands for days (Hyundai had no OEM dump; WI/WA/MI had no rows for
+      // Toyota/Subaru/...). Say so loudly, with the fix, so the morning log grep finds it.
+      console.error(`[driver] COVERAGE GAP ${state} ${brand}: 0 dealers in ${dealersFile} — brand NOT crawled. Check dealers/oem-dumps/${slugify(brand)}.json has ${state} rows (scripts/check-core-dealer-coverage.mjs --states=${state}).`);
+      (stateSummary.coverageGaps ||= []).push(brand);
       continue;
     }
 

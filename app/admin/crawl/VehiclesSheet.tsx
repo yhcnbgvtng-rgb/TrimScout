@@ -18,7 +18,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
-import { VEHICLE_SHEET_COLUMNS, vehicleRowCell, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
+import { BLOCKED_NO_BYPASS_LABEL, VEHICLE_SHEET_COLUMNS, blockedFlagText, vehicleRowCell, vehicleSheetFilename, type BlockedFlag, type VehicleRow } from "@/lib/crawlSheetColumns";
 import {
   EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, effectiveSort, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions,
   type Movement, type SortKey, type VehicleFilters, type VehicleSort,
@@ -50,6 +50,8 @@ type Applied = { filters: VehicleFilters; kind: "filters" | "all"; nonce: number
 
 export default function VehiclesSheet({ initialVin = null }: { initialVin?: string | null }) {
   const [stats, setStats] = useState<Stats | null>(null);
+  // dealerId -> why the crawl cannot read this dealer (its site blocks the crawler; there is no bypass). Best effort: the sheet works without it.
+  const [blocked, setBlocked] = useState<Map<string, BlockedFlag>>(new Map());
   const [rows, setRows] = useState<VehicleRow[]>([]);
   const [total, setTotal] = useState(0);
   const [totalCapped, setTotalCapped] = useState(false);
@@ -128,6 +130,18 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
     const res = await fetch("/api/admin/inventory?stats=1", { cache: "no-store" });
     const json = await res.json();
     if (res.ok) setStats(json);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/inventory?blocked=1", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: { stores?: Array<{ dealerId: number; cls: string; vendor: string | null; lastBlockedOn: string }> } | null) => {
+        if (cancelled || !j?.stores) return;
+        setBlocked(new Map(j.stores.map((b) => [String(b.dealerId), { cls: b.cls, vendor: b.vendor, lastBlockedOn: b.lastBlockedOn }])));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   const loadRequestRef = useRef(0);
@@ -357,10 +371,12 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                       : c.key === "condition" ? (r.condition === "new" ? "text-brand-300" : "text-amber-200")
                       : c.key === "changeType" ? (r.changeType === "NEW_ARRIVAL" ? "text-positive-300" : "text-ink-muted") : "text-ink-light";
                     const link = c.key === "vdpUrl" || c.key === "windowStickerUrl" ? raw : "";
+                    const blockedText = c.key === "dealerName" && r.dealerId ? blockedFlagText(blocked.get(String(r.dealerId))) : null;
                     return (
-                      <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={raw}>
+                      <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={blockedText ?? raw}>
                         {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{c.key === "windowStickerUrl" ? "sticker ↗" : link.replace(/^https?:\/\/(www\.)?/, "")}</a>
                           : c.key === "vin" ? <button type="button" onClick={() => setVinOpen(r.vin)} title="Day-by-day history" className="truncate font-mono text-sky-300 hover:underline">{r.vin}</button>
+                          : blockedText ? <><span className="truncate">{v}</span><span className="ml-2 shrink-0 rounded bg-amber-500/15 px-1.5 text-[10px] font-semibold text-amber-300" title={blockedText}>{BLOCKED_NO_BYPASS_LABEL}</span></>
                           : <span className="truncate">{v}</span>}
                       </div>
                     );

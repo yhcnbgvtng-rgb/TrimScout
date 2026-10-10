@@ -57,7 +57,14 @@ export function normalizeTransmission(raw) {
   return normalize(raw).value;
 }
 
+// Ford prints a bare "10-SPEED TRANSMISSION" (no AUTO/TORQSHIFT) on some stickers (22-88 per 1,000 stickers sampled in NJ/PA/FL, 2026-10-10). Ford sells no 10-speed manual
+// (every Ford 10-speed is an automatic), so for a sticker fill that one wording is read as an automatic. Only this exact shape: any other
+// "N-SPEED TRANSMISSION" (6-speed can be manual or automatic), "10-Speed" alone, or "HEV 10-SPEED TRANSMISSION" still returns null.
+const BARE_TEN_SPEED_RE = /^(?:10|ten)\s*-?\s*speed\s+transmission$/i;
+
 export function normalizeTransmissionStrict(raw) {
   const r = normalize(raw);
-  return r.known ? r.value : null;
+  if (r.known) return r.value;
+  if (BARE_TEN_SPEED_RE.test(String(raw ?? "").replace(/[®™]/g, "").replace(/\s+/g, " ").trim())) return "10-Speed Automatic";
+  return null;
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { listInventory, exportInventory, inventoryStats, inventoryAdminFacets, adminListSort, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
+import { inventoryBlockedStores, listInventory, exportInventory, inventoryStats, inventoryAdminFacets, adminListSort, inventoryByDealer, inventoryVin, inventoryAnalytics, InventoryApiError, type InventoryQuery } from "@/lib/inventoryApi";
 import { vehicleCsvHeader, vehicleCsvLine, vehicleSheetFilename, type VehicleRow } from "@/lib/crawlSheetColumns";
 
 export const dynamic = "force-dynamic";
@@ -35,13 +35,15 @@ export async function GET(req: Request) {
         { headers: aggHeaders }
       );
     }
+    // Stores the crawl could not read because their sites block it (no bypass) — the sheet flags their rows.
+    if (sp.get("blocked") === "1") return NextResponse.json(await inventoryBlockedStores(), { headers: aggHeaders });
     if (sp.get("byDealer") === "1") return NextResponse.json(await inventoryByDealer(), { headers: aggHeaders });
     if (sp.get("vin")) return NextResponse.json(await inventoryVin(sp.get("vin") || ""));
     // Dealership analytics for the Site Analytics page — aggregated and cached on the box.
     if (sp.get("analytics") === "1") return NextResponse.json(await inventoryAnalytics({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, dealerId: sp.get("dealerId") || null, model: sp.get("model") || undefined, from: sp.get("from") || undefined, to: sp.get("to") || undefined }));
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: all(sp, "state"), make: all(sp, "make"), model: all(sp, "model"),
-      trim: all(sp, "trim"), cond: all(sp, "cond"), q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
+      trim: all(sp, "trim"), cond: all(sp, "cond"), q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", includeStale: true, sort: sp.get("sort") || undefined,
       changeType: sp.get("changeType") || undefined, priceChange: (sp.get("priceChange") as "drop" | "increase") || undefined, removed: sp.get("removed") === "1", hasSticker: sp.get("hasSticker") === "1",
       minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined, possibleDemo: sp.get("possibleDemo") === "1",
     };

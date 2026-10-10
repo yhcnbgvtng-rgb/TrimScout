@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Dealership } from "@/lib/dealershipsApi";
 import { cachedDealerDirectory } from "@/lib/dealerDirectoryCache";
-import { matchDirectoryDealership } from "@/lib/dealerContactLookup";
-import { deskFromDealership, deskFromRooftop, inviteRouting, type InviteRouting, maskEmail, INVITE_BLOCK_MESSAGES, type DealerDesk } from "@/lib/quotePackage";
+import { publicDeskFor, type PublicDesk } from "@/lib/publicDesk";
 
 // The confirm step asks: for these dealerships, who would the quote request
 // go to? Answers with the named desk, masked — never the address itself.
@@ -11,20 +10,7 @@ import { deskFromDealership, deskFromRooftop, inviteRouting, type InviteRouting,
 
 const MAX = 3;
 
-export interface PublicDesk {
-  dealerName: string;
-  found: boolean;
-  knownNamed: boolean;
-  contactName: string | null;
-  role: DealerDesk["role"] | null;
-  emailMasked: string | null;
-  emailDomain: string | null;
-  emailOptOut: boolean;
-  blockedReason: keyof typeof INVITE_BLOCK_MESSAGES | null;
-  blockedMessage: string | null;
-  /** Where the request goes: a named person, the rooftop's shared inbox, or our routing queue. */
-  routing: InviteRouting;
-}
+export type { PublicDesk };
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -49,24 +35,6 @@ export async function POST(req: Request) {
     degraded = true;
   }
 
-  const desks: PublicDesk[] = dealers.map((d: { dealerName: string; state: string }) => {
-    const row = matchDirectoryDealership(rows, d);
-    const named = row ? deskFromDealership(row) : null;
-    const desk = named?.knownNamed ? named : row ? deskFromRooftop(row) : null;
-    const blocked: PublicDesk["blockedReason"] = desk?.emailOptOut ? "dealer_opted_out" : null;
-    return {
-      dealerName: d.dealerName,
-      found: Boolean(row),
-      knownNamed: Boolean(desk?.knownNamed),
-      contactName: desk?.contactName || null,
-      role: desk?.role || null,
-      emailMasked: desk?.knownNamed ? maskEmail(desk.email) : null,
-      emailDomain: desk?.knownNamed ? desk.emailDomain : null,
-      emailOptOut: Boolean(desk?.emailOptOut),
-      blockedReason: blocked,
-      blockedMessage: blocked ? INVITE_BLOCK_MESSAGES[blocked] : null,
-      routing: inviteRouting(desk),
-    };
-  });
+  const desks = dealers.map((d: { dealerName: string; state: string }) => publicDeskFor(rows, d));
   return NextResponse.json({ desks, degraded });
 }

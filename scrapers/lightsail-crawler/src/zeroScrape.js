@@ -1,0 +1,134 @@
+// Zero-scrape staleness: a store whose cars the crawl stopped seeing, while the rest of its platform is still being seen.
+//
+// The nightly sweep (inventorySweep.js) only runs for stores that scraped at least one vehicle that night — "this store's
+// listing no longer shows the car" is only a statement about a store we actually read. A store that scrapes ZERO is therefore
+// never swept, and its old cars stay in stock forever (found 2026-10-09: 300 stores / ~94.8k live cars last seen 6+ nights ago).
+//
+// We cannot retire those cars (zero can mean "the dealer's site broke", not "everything sold"), so the rule is softer:
+// after ZERO_SCRAPE_NIGHTS consecutive nights with nothing scraped, the store's live cars get `stale_at` set. A stale car stays
+// in the table (removed_at untouched, still in the admin sheet) but is hidden from buyer search. The next upsert of the car clears
+// stale_at (deals_api_server.js), so a store that comes back un-hides itself with no extra step.
+//
+// "Platform otherwise healthy": if the whole box or the whole make cohort scraped nothing, that is an outage of ours, not a
+// dead store, and nothing is marked. Cohort = stores on the same crawl box with the same make; a store needs enough peers for
+// the check to mean anything, else its box is the cohort.
+
+export const ZERO_SCRAPE_NIGHTS = 3;
+const NIGHT_MS = 24 * 3600_000;
+// The nightly syncs stamp last_seen_at at different clock times, so "N nights" is measured with half a night of grace.
+const GRACE_MS = 12 * 3600_000;
+export const MIN_PEERS = 5;
+export const HEALTHY_SHARE = 0.6;
+
+/** A store is zero-scrape if its newest last_seen_at is older than this. runStart = when tonight's sync started. */
+export function zeroScrapeCutoff(runStart, nights = ZERO_SCRAPE_NIGHTS) {
+  return new Date(runStart.getTime() - nights * NIGHT_MS + GRACE_MS);
+}
+
+/**
+ * @param {{ dealerId:number, sourceBox:string|null, make:string|null, lastSeen:Date, live:number, alreadyStale?:boolean }[]} stores one per (store, make)
+ * @param {{ runStart: Date, nights?: number }} opts
+ * @returns {{ stale: number[], held: { dealerId:number, reason:string }[], cutoff: Date }}
+ */
+export function classifyZeroScrape(stores, { runStart, nights = ZERO_SCRAPE_NIGHTS }) {
+  const cutoff = zeroScrapeCutoff(runStart, nights);
+  const recent = new Date(runStart.getTime() - NIGHT_MS); // "scraped last night" for the health check
+  // Per store: newest sighting across all its makes; per cohort: how many distinct stores were seen last night.
+  const byStore = new Map();
+  for (const s of stores) {
+    const cur = byStore.get(s.dealerId) || { dealerId: s.dealerId, sourceBox: s.sourceBox || "?", make: s.make || "?", lastSeen: 0, live: 0, liveByMake: new Map(), alreadyStale: true };
+    cur.lastSeen = Math.max(cur.lastSeen, s.lastSeen.getTime());
+    cur.live += s.live;
+    cur.liveByMake.set(s.make || "?", (cur.liveByMake.get(s.make || "?") || 0) + s.live);
+    cur.alreadyStale = cur.alreadyStale && !!s.alreadyStale;
+    byStore.set(s.dealerId, cur);
+  }
+  for (const st of byStore.values()) st.make = [...st.liveByMake.entries()].sort((a, b) => b[1] - a[1])[0][0]; // its main make
+  const cohort = (keyOf) => {
+    const m = new Map();
+    for (const st of byStore.values()) {
+      const k = keyOf(st);
+      const c = m.get(k) || { stores: 0, seen: 0 };
+      c.stores++;
+      if (st.lastSeen >= recent.getTime()) c.seen++;
+      m.set(k, c);
+    }
+    return m;
+  };
+  const byBoxMake = cohort((st) => `${st.sourceBox}|${st.make}`);
+  const byBox = cohort((st) => st.sourceBox);
+
+  const stale = [], held = [];
+  for (const st of byStore.values()) {
+    if (st.lastSeen >= cutoff.getTime() || st.alreadyStale) continue;
+    const bm = byBoxMake.get(`${st.sourceBox}|${st.make}`);
+    const c = bm.stores - 1 >= MIN_PEERS ? bm : byBox.get(st.sourceBox);
+    // The store itself is never "seen", so it is excluded from the peer count.
+    const peers = c.stores - 1;
+    const share = peers > 0 ? c.seen / peers : 0;
+    if (peers < MIN_PEERS || share < HEALTHY_SHARE) held.push({ dealerId: st.dealerId, reason: peers < MIN_PEERS ? "too few peers to judge platform health" : `platform unhealthy (${Math.round(share * 100)}% of peers scraped last night)` });
+    else stale.push(st.dealerId);
+  }
+  return { stale, held, cutoff };
+}
+
+/**
+ * The aggregate the classifier reads: one row per (store, make) of live cars. It used to be a single GROUP BY over every live car
+ * (3M rows), which ran past its 120 s cap on box2 on 2026-10-10. Now, like the wholesale buckets in deals_api_server.js, it reads the
+ * dealer ids first (one index-only GROUP BY), then a few dealers at a time by (removed_at, dealer_id) on idx_inv_by_dealer_covering, so
+ * no query touches more than ~25 stores' cars. Each query is capped at ZERO_SCRAPE_QUERY_SECONDS; the whole thing at ZERO_SCRAPE_TOTAL_MS.
+ */
+export const ZERO_SCRAPE_DEALERS_PER_QUERY = 25;
+export const ZERO_SCRAPE_QUERY_SECONDS = 20;
+export const ZERO_SCRAPE_TOTAL_MS = 120_000;
+export const ZERO_SCRAPE_DEALER_IDS_SQL = "SELECT dealer_id FROM dealer_inventory FORCE INDEX (idx_inv_stock_dealer_id) WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id";
+export const ZERO_SCRAPE_BATCH_SQL =
+  "SELECT dealer_id AS dealerId, source_box AS sourceBox, make, MAX(last_seen_at) AS lastSeen, COUNT(*) AS live, MIN(stale_at IS NOT NULL) AS alreadyStale " +
+  "FROM dealer_inventory FORCE INDEX (idx_inv_by_dealer_covering) WHERE removed_at IS NULL AND dealer_id IN (?) GROUP BY dealer_id, source_box, make";
+
+/** Batches in flight at once. Each is a small index range scan; measured on box2 the sequential run took 118.7 s for 372 batches. */
+export const ZERO_SCRAPE_CONCURRENCY = 4;
+
+/**
+ * @param {(sql: string, args: any[]) => Promise<any[]>} run  runs one statement (the caller adds the per-query statement cap) and resolves to its rows
+ * @param {{ now?: () => number, totalMs?: number, perQuery?: number, concurrency?: number }} [opts]
+ * @returns {Promise<{ dealerId:number, sourceBox:string|null, make:string|null, lastSeen:Date, live:number, alreadyStale:boolean }[]>}
+ */
+export async function aggregateZeroScrape(run, { now = Date.now, totalMs = ZERO_SCRAPE_TOTAL_MS, perQuery = ZERO_SCRAPE_DEALERS_PER_QUERY, concurrency = ZERO_SCRAPE_CONCURRENCY } = {}) {
+  const started = now();
+  const overBudget = () => now() - started > totalMs;
+  const dealerIds = (await run(ZERO_SCRAPE_DEALER_IDS_SQL, [])).map((r) => Number(r.dealer_id));
+  const batches = [];
+  for (let i = 0; i < dealerIds.length; i += perQuery) batches.push(dealerIds.slice(i, i + perQuery));
+  const results = new Array(batches.length);
+  let next = 0, done = 0, failed = null;
+  // A small worker pool: each worker takes the next undispatched batch. The budget is checked before every dispatch, and the first
+  // failure stops further dispatches (in-flight batches finish; nothing is marked by the caller on a rejection).
+  const worker = async () => {
+    for (;;) {
+      if (failed) return;
+      const i = next++;
+      if (i >= batches.length) return;
+      if (overBudget()) { failed = new Error(`zero-scrape aggregate exceeded ${totalMs}ms after ${done} of ${batches.length} batches`); return; }
+      try { results[i] = await run(ZERO_SCRAPE_BATCH_SQL, [batches[i]]); done++; } catch (err) { failed = failed || err; return; }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(concurrency, batches.length || 1)) }, worker));
+  if (failed) throw failed;
+  if (overBudget()) throw new Error(`zero-scrape aggregate exceeded ${totalMs}ms`);
+  const stores = [];
+  for (const rows of results) for (const r of rows) stores.push({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 });
+  return stores;
+}
+
+export function buildMarkStaleStatement(dealerIds, cutoff) {
+  return { sql: "UPDATE dealer_inventory SET stale_at = CURRENT_TIMESTAMP WHERE dealer_id IN (?) AND removed_at IS NULL AND stale_at IS NULL AND last_seen_at < ?", args: [dealerIds, cutoff] };
+}
+
+export function parseZeroScrapeRequest(body) {
+  const runStart = typeof body?.runStart === "string" ? new Date(body.runStart) : null;
+  if (!runStart || Number.isNaN(runStart.getTime())) return { ok: false, error: "runStart (ISO) is required" };
+  const nights = body.nights === undefined ? ZERO_SCRAPE_NIGHTS : Math.round(Number(body.nights));
+  if (!Number.isFinite(nights) || nights < 2 || nights > 14) return { ok: false, error: "nights must be 2..14" };
+  return { ok: true, runStart, nights, dryRun: body.dryRun === true };
+}
