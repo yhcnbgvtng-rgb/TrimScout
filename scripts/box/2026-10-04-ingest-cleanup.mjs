@@ -39,7 +39,12 @@ const MAX_PAYMENT = Number(opt("max-payment") || 1500);
 const USED_MIN_YEAR = Number(opt("used-min-year") || 2020);
 const BATCH = 2000;
 const PAUSE_MS = 150;
-import { pointsAtDeadIp } from "../../config/boxes.mjs"; // retired IPs (docs/BOXES.md "Do not use")
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 if (!Number.isInteger(MAX_PAYMENT) || MAX_PAYMENT < 1 || !Number.isInteger(USED_MIN_YEAR)) { console.error("--max-payment and --used-min-year must be integers"); process.exit(1); }
 for (const k of ONLY) if (!["miles", "price", "sticker"].includes(k)) { console.error(`unknown --only value: ${k}`); process.exit(1); }
 if (APPLY && !FLEET_IDLE) { console.error("Refusing to --apply without --fleet-idle (confirm the recovery crawl is done and no sync is running on any box first)."); process.exit(1); }

@@ -31,7 +31,12 @@ const args = process.argv.slice(2);
 const flag = (n) => args.includes(`--${n}`);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 const APPLY = flag("apply");
-import { pointsAtDeadIp } from "../../config/boxes.mjs"; // retired IPs (docs/BOXES.md "Do not use")
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 const blank = (v) => v == null || String(v).trim() === "";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

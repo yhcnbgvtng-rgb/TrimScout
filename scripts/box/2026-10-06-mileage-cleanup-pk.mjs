@@ -35,7 +35,12 @@ const MAX_MINUTES = Number(opt("max-minutes") || 60);
 const FROM_START = flag("from-start");
 const CHECKPOINT = opt("checkpoint") || path.join(os.homedir(), "mileage-cleanup-checkpoint.json");
 const PAUSE_MS = Number(process.env.MILEAGE_PAUSE_MS ?? 100); // between batches; the env var exists so the tests can run fast
-import { pointsAtDeadIp } from "../../config/boxes.mjs"; // retired IPs (docs/BOXES.md "Do not use")
+// Retired-IP guard (docs/BOXES.md "Do not use"). In the repo it lives at ../../config/; on a box copy config/boxes.mjs
+// and config/boxes.json next to this file. Fails closed: no guard, no run.
+const { pointsAtDeadIp } = await import("../../config/boxes.mjs").catch(() => import("./boxes.mjs")).catch(() => {
+  console.error("Refusing to run: config/boxes.mjs (+ boxes.json) not found next to this script, so the retired-IP guard cannot load.");
+  process.exit(1);
+});
 if (!Number.isInteger(RANGE) || RANGE < 1000) { console.error("--range must be an integer >= 1000"); process.exit(1); }
 if (STOP_AT && !/^\d{2}:\d{2}$/.test(STOP_AT)) { console.error("--stop-at must be HH:MM"); process.exit(1); }
 if (!Number.isFinite(MAX_MINUTES) || MAX_MINUTES < 0.05 || MAX_MINUTES > 720) { console.error("--max-minutes must be a number from 0.05 to 720"); process.exit(1); }
