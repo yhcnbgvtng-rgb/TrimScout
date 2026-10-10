@@ -315,6 +315,18 @@ try {
   writeRetired(r.failedStores || []);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
+  // Zero-scrape staleness (zeroScrape.js): stores that scraped nothing for 3 nights while their platform was healthy are hidden
+  // from buyer search (stale_at; never removed). OFF unless ZERO_SCRAPE_STALE=1 — the server aggregate reads every live row, so it is
+  // switched on deliberately — and only after a COMPLETE run: a skipped shard or failed sweep means "nothing scraped" proves nothing.
+  if (process.env.ZERO_SCRAPE_STALE === "1") {
+    if (skippedShards.length || (r.sweepFailed || 0) > 0) log("[sync] zero-scrape staleness skipped: this run was incomplete (skipped shard or failed sweep)");
+    else {
+      try {
+        const z = await dealsApi("/api/inventory/zero-scrape", { runStart: new Date(RUN_NOW_MS).toISOString(), dryRun: process.env.ZERO_SCRAPE_DRY_RUN === "1" });
+        log(`[sync] zero-scrape staleness: ${JSON.stringify(z)}`);
+      } catch (e) { log(`[sync] zero-scrape staleness failed (non-fatal): ${e.message}`); }
+    }
+  }
 } catch (err) {
   failed = true;
   if (err instanceof SweepAbortError || err instanceof LockLostError) {
