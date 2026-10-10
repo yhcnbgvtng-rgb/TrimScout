@@ -448,6 +448,22 @@ export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCou
   return request("GET", "/api/inventory/by-dealer");
 }
 
+/** A store whose site blocked the crawl (Cloudflare / Vercel challenge, Akamai-style 403, 429). The crawler never bypasses these. */
+export interface BlockedStore {
+  dealerId: number;
+  name: string;
+  cls: string;
+  vendor: string | null;
+  box: string;
+  firstBlockedOn: string;
+  lastBlockedOn: string;
+}
+
+/** Stores the nightly crawl logs flagged as blocked, for the admin Vehicles sheet. */
+export async function inventoryBlockedStores(): Promise<{ stores: BlockedStore[] }> {
+  return request("GET", "/api/inventory/blocked-stores");
+}
+
 export interface InventoryDay {
   dealerId: string | null;
   seenOn: string;
