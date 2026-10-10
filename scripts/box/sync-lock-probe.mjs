@@ -17,8 +17,9 @@
  * TRIMSCOUT_DEALS_HOST / TRIMSCOUT_DEALS_PORT (defaults: box2's deals API).
  */
 import { createApi, withRetry } from "./syncHttp.js";
+import { DEALS_HOST } from "../../config/boxes.mjs";
 
-const host = process.env.TRIMSCOUT_DEALS_HOST || "52.202.234.65";
+const host = DEALS_HOST;
 const port = process.env.TRIMSCOUT_DEALS_PORT || "3004";
 const key = process.env.TRIMSCOUT_API_KEY || process.env.LIGHTSAIL_API_KEY;
 if (!key) {

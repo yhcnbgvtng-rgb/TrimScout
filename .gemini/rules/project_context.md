@@ -8,7 +8,7 @@ globs: ["**/*"]
 ## Project Identity & Stack
 - **Project**: TrimScout – Luxury Automotive Marketplace & Market Intelligence Engine.
 - **Frontend**: Next.js 14 (App Router), React, TypeScript, TailwindCSS, Lucide Icons.
-- **Scraper & Crawler**: AWS Lightsail (`34.205.155.92`, Ubuntu 24.04 LTS), Node.js (Crawlee / Axios / Cheerio) + Python (BeautifulSoup / openpyxl / sqlite3).
+- **Scraper & Crawler**: AWS Lightsail (a retired Lightsail IP (see docs/BOXES.md), Ubuntu 24.04 LTS), Node.js (Crawlee / Axios / Cheerio) + Python (BeautifulSoup / openpyxl / sqlite3).
 - **GitHub**: `https://github.com/yhcnbgvtng-rgb/TrimScout.git`
 
 ## Core Rules & Architecture

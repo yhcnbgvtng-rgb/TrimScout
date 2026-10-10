@@ -96,6 +96,8 @@ export interface InventoryQuery {
   cond?: string | string[];
   q?: string;
   inStock?: boolean;
+  /** Admin only: also list in-stock cars hidden from buyers by the zero-scrape rule (zeroScrape.js, stale_at). The buyer search never sets this. */
+  includeStale?: boolean;
   changeType?: string;
   priceChange?: "drop" | "increase";
   /** Admin "Sold" movement filter — removed from the dealer's own site within the last 24h. See inventoryListQuery.js's own comment for why 24h (no crawl run-id exists in this schema). Never combined with inStock. */
@@ -131,6 +133,8 @@ export interface InventoryQuery {
   sort?: string;
   /** Opt-in: with a sort, blank values come after every real value in BOTH directions (the buyer table's header sort). */
   nullsLast?: boolean;
+  /** Buyer search only: leave out cars whose condition is 'wholesale' (a dealer's wholesale lot is not retail stock). The admin sheet never sets it. */
+  retailOnly?: boolean;
 }
 
 /** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
@@ -242,7 +246,7 @@ export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPa
  */
 export async function searchInventory(q: BuyerSearchQuery = {}): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
-  return listInventory({ ...rest, inStock: true });
+  return listInventory({ ...rest, inStock: true, retailOnly: true });
 }
 
 export interface CatalogOptions {
@@ -442,6 +446,22 @@ export async function marketPulse(state?: string): Promise<MarketPulse> {
 
 export async function inventoryByDealer(): Promise<{ dealers: InventoryDealerCount[] }> {
   return request("GET", "/api/inventory/by-dealer");
+}
+
+/** A store whose site blocked the crawl (Cloudflare / Vercel challenge, Akamai-style 403, 429). The crawler never bypasses these. */
+export interface BlockedStore {
+  dealerId: number;
+  name: string;
+  cls: string;
+  vendor: string | null;
+  box: string;
+  firstBlockedOn: string;
+  lastBlockedOn: string;
+}
+
+/** Stores the nightly crawl logs flagged as blocked, for the admin Vehicles sheet. */
+export async function inventoryBlockedStores(): Promise<{ stores: BlockedStore[] }> {
+  return request("GET", "/api/inventory/blocked-stores");
 }
 
 export interface InventoryDay {

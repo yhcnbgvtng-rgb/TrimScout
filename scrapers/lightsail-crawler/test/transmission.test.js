@@ -74,7 +74,7 @@ test("Ford sticker transmission wordings from 47 real stickers", () => {
     "ECVT TRANSMISSION": "CVT",
     "POWER-SPLIT ELECTRIC CVT": "CVT",
     "SINGLE-SPEED TRANSMISSION": "Single-Speed",
-    "10-SPEED TRANSMISSION": null, // type not printed: left blank rather than guessed
+    "10-SPEED TRANSMISSION": "10-Speed Automatic", // Ford sells no 10-speed manual: a bare 10-speed is an automatic
   });
 });
 
@@ -82,4 +82,21 @@ test("a sticker without the block has no transmission", () => {
   const r = parseStickerColors("nothing here");
   assert.equal(r.transmission, null);
   assert.equal(r.transmissionRaw, null);
+});
+
+test("a bare 10-SPEED TRANSMISSION is a 10-Speed Automatic for a sticker fill, in any case or spacing", () => {
+  for (const raw of ["10-SPEED TRANSMISSION", "10-speed transmission", "10-Speed Transmission", "10 SPEED TRANSMISSION", "10SPEED   TRANSMISSION", "  10-SPEED  TRANSMISSION  ", "TEN-SPEED TRANSMISSION"]) {
+    assert.equal(normalizeTransmissionStrict(raw), "10-Speed Automatic", raw);
+  }
+  // Ingest (lenient) is not changed: dealer feeds keep what they printed.
+  assert.equal(normalizeTransmission("10-SPEED TRANSMISSION"), "10-SPEED TRANSMISSION");
+});
+
+test("every other N-SPEED value without automatic or manual stays blank", () => {
+  for (const raw of ["6-SPEED TRANSMISSION", "6-speed transmission", "8-SPEED TRANSMISSION", "7-SPEED TRANSMISSION", "5-SPEED TRANSMISSION", "10-Speed", "10-SPEED", "HEV 10-SPEED TRANSMISSION", "10-SPEED TRANSMISSION W/OD", "10-SPEED TRANSMISSION PLUS", "10 TRANSMISSION"]) {
+    assert.equal(normalizeTransmissionStrict(raw), null, raw);
+  }
+  // Explicit types are unaffected.
+  assert.equal(normalizeTransmissionStrict("6-SPEED MANUAL"), "6-Speed Manual");
+  assert.equal(normalizeTransmissionStrict("6-SPEED AUTO TRANSMISSION"), "6-Speed Automatic");
 });

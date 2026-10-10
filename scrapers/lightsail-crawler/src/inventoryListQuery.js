@@ -54,6 +54,9 @@ const CONTACT_SORT_EXPR = "(CASE WHEN d.id IS NULL THEN NULL WHEN d.contact_emai
 // Columns whose "blank" includes the empty string; the rest (numbers, the contact flag) are blank only when NULL.
 const TEXT_SORT_COLUMNS = new Set(["i.dealer_name", "i.make", "i.model", "i.trim", "i.vin", "i.exterior_color", "i.interior_color", "i.state", "i.vdp_url"]);
 
+const STATE_PAGE_HINT = "FORCE INDEX (idx_inv_stock_state)";
+const STATE_MAKE_COUNT_HINT = "FORCE INDEX (idx_inv_facet_state_make)";
+
 export function inventoryListQuery(params) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
@@ -75,6 +78,11 @@ export function inventoryListQuery(params) {
   addIn("i.model", models);
   addIn("i.trim", trims);
   addIn("i.cond", conds);
+  // retailOnly=1 (sent by the buyer search only, never by the admin sheet): a dealer's wholesale lot is not retail stock a buyer can
+  // request a quote on — e.g. Mercedes-Benz of Coconut Creek lists 2,142 cars with cond 'wholesale' next to its 745 retail ones. The rows
+  // stay in the table (the admin Vehicles tab still shows them); this only keeps them out of buyer results. A NULL cond is kept (unknown is
+  // not wholesale). Added as a plain post-filter so every index choice and hint below is unchanged.
+  if (p("retailOnly") === "1") where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
@@ -282,6 +290,8 @@ export function inventoryListQuery(params) {
     : hasModel
       ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_make_model_trim)")
       : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
+  // Zero-scrape stale cars (zeroScrape.js) are still in stock as far as the table goes but hidden from buyers; the admin sheet asks for them with includeStale=1.
+  if (p("inStock") === "1" && p("includeStale") !== "1") where.push("i.stale_at IS NULL");
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
   // optionJoin's own placeholders appear in the SQL text before whereSql's, so its args must come
   // first in the flat array mysql2 binds positionally against.
@@ -295,7 +305,12 @@ export function inventoryListQuery(params) {
   // make=+model= case this fix targets.
   // Only a sort by the contact flag reads a d.* column inside the page's inner query (deferredPageSql builds that from countSql), so
   // exactly then countSql keeps the join; every other sort still drops it.
-  const countSql = /\bd\./.test(orderBy) ? sql : `FROM dealer_inventory i ${indexHint} ${optionJoin}${whereSql}`;
+  // make+state (no model), in stock: idx_inv_stock_state has no make column, so counting a make's cars walks the state's cars in dealer
+  // order with a clustered-row read for each (NJ Toyota: ~12k reads for a capped 1,001, >20s for an exact count). The COUNT uses
+  // idx_inv_facet_state_make, (removed_at, state, make), where the make's range is contiguous. The PAGE keeps idx_inv_stock_state
+  // (deferredPageSql swaps it back): its dealer_name order stops after one page, 0.9s vs 3.4s for a filesort of the make's cars.
+  const countHint = indexHint === STATE_PAGE_HINT && hasMake && !hasModel ? STATE_MAKE_COUNT_HINT : indexHint;
+  const countSql = /\bd\./.test(orderBy) ? sql : `FROM dealer_inventory i ${countHint} ${optionJoin}${whereSql}`;
   // countCap: stop counting once this many matches are found. An exact COUNT(*) has to visit every
   // matching row — 186k+ for a bare make like Ford — and buyers never need that number: "1,000+" is
   // an honest answer, and the LIMIT inside the derived table lets MariaDB stop early (a plain
@@ -334,5 +349,10 @@ export function applyCountCap(rawCount, countCap) {
  * preserve the derived table's order.
  */
 export function deferredPageSql({ countSql, orderBy }) {
-  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${countSql} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
+  // state+make counts through idx_inv_facet_state_make (see countHint). The page only goes back to idx_inv_stock_state for the default
+  // dealer_name ASC, vin ASC order, which that index delivers in order and stops after one page (0.9s). Any other sort has to order the
+  // whole make-in-state set, and on idx_inv_stock_state that is a walk of every car in the state with a row read each (NJ Honda
+  // price:asc >25s); on the facet index it is the make's own range (3.7s).
+  const pageFrom = /^i\.dealer_name ASC, i\.vin ASC$/.test(orderBy) ? countSql.replace(STATE_MAKE_COUNT_HINT, STATE_PAGE_HINT) : countSql;
+  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${pageFrom} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
 }

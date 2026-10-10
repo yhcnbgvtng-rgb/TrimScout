@@ -44,8 +44,14 @@ import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
+import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
+import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
+import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
+import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
+import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -61,6 +67,9 @@ if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${option
 // already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
 // upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
 const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
+// The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
+// promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
+const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -1773,7 +1782,7 @@ async function handleRfqApproval(req, res, rfqId) {
   await ensureQuotePackageColumns(pool);
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
   if (rows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
-  if (rows[0].status !== "collecting") return sendJson(res, 409, { error: "closed" });
+  if (rows[0].status !== "collecting" && decision !== "rejected") return sendJson(res, 409, { error: "closed" });
   await pool.query(
     "UPDATE rfq_requests SET approval_status = ?, approval_decided_at = ?, approval_decided_by = ?, rejection_reason = ? WHERE id = ?",
     [decision, decision === "pending" ? null : new Date(), decision === "pending" ? null : by, reason, rfqId]
@@ -1917,6 +1926,9 @@ async function ensureInventoryTable(pool) {
     "ADD COLUMN IF NOT EXISTS base_msrp INT NULL",
     "ADD COLUMN IF NOT EXISTS crawl_first_seen DATE NULL",
     "ADD COLUMN IF NOT EXISTS source_box VARCHAR(16) NULL",
+    // Set by the zero-scrape rule (zeroScrape.js): the store scraped nothing for several nights while its platform was healthy.
+    // Hidden from buyer search, never removed; any upsert of the car clears it again.
+    "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
     // state was never its own column — every state= filter had to JOIN dealership_contacts,
     // which has no index on state either, forcing a full scan of it plus a temp table +
@@ -2081,7 +2093,9 @@ async function ensureInventoryTable(pool) {
         -- dealership_contacts by dealer_id — a primary-key lookup per row, not the full-table
         -- JOIN this replaces at query time. NULL when dealer_id has no matching rooftop (the
         -- "no store matched" bucket, dealer_id 0) — matches the LEFT JOIN's own behavior today.
-        SET NEW.state = (SELECT state FROM dealership_contacts WHERE id = NEW.dealer_id LIMIT 1);
+        -- The directory wins; for a store the directory could not match (dealer_id 0) fall back to the state the crawl wrote on the row
+        -- itself (NEW.state, sent by the sync) instead of blanking it — 19.6k store-0 cars had no state and so no state= search hit.
+        SET NEW.state = COALESCE((SELECT state FROM dealership_contacts WHERE id = NEW.dealer_id LIMIT 1), NEW.state);
       END
     `);
   }
@@ -2155,7 +2169,11 @@ async function ensureInventoryTable(pool) {
     vehicle_count INT NOT NULL,
     PRIMARY KEY (make, model, trim, exterior_color, interior_color)
   )`);
+  await pool.query(BLOCKED_TABLE_DDL);
   await pool.query("CREATE TABLE IF NOT EXISTS inv_facet_meta (id TINYINT NOT NULL PRIMARY KEY, built_at DATETIME NOT NULL, duration_ms INT NOT NULL)");
+  // All-makes summary for the no-make /api/inventory/catalog call (catalogSummary.js); written by rebuildCatalogFacets.
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_option_summary (canonical_key VARCHAR(80) NOT NULL PRIMARY KEY, label VARCHAR(160) NOT NULL, vehicle_count INT NOT NULL)");
+  await pool.query("CREATE TABLE IF NOT EXISTS inv_color_summary (kind VARCHAR(3) NOT NULL, color VARCHAR(96) NOT NULL, PRIMARY KEY (kind, color))");
   inventoryReady = true;
 }
 
@@ -2224,6 +2242,30 @@ const invInvalidate = () => {
   invGeneration++;
   invCache.clear();
 };
+// The wholesale cars in stock, as (make, state, model, trim) buckets — the small aggregate the buyer facet counts subtract (retailFacets.js).
+// Read as dealer ids first (a cond-grouped scan of the covering index) and then a few dealers at a time by (removed_at, dealer_id, cond):
+// a bare `WHERE cond = 'wholesale' GROUP BY make, state, ...` cannot use an index prefix and ran past the 20 s cap on the live table.
+// Its own stale-while-revalidate cache key. A failure is NOT cached: the caller falls back to the unadjusted counts.
+async function wholesaleBuckets(pool) {
+  return stableCached("wholesale-buckets", async () => {
+    const run = async (sql, args) => (await withPoolTimeout(
+      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args),
+      waitMs(),
+      "Timed out waiting for an available database connection or a slow query"
+    ))[0];
+    const dealers = (await run("SELECT dealer_id FROM dealer_inventory WHERE removed_at IS NULL AND cond = 'wholesale' GROUP BY dealer_id", [])).map((r) => r.dealer_id);
+    const buckets = [];
+    for (let i = 0; i < dealers.length; i += WHOLESALE_DEALERS_PER_QUERY) {
+      const rows = await run("SELECT make, state, model, trim, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (idx_inv_by_dealer_covering) WHERE removed_at IS NULL AND dealer_id IN (?) AND cond = 'wholesale' GROUP BY make, state, model, trim", [dealers.slice(i, i + WHOLESALE_DEALERS_PER_QUERY)]);
+      for (const r of rows) buckets.push({ make: r.make, state: r.state, model: r.model, trim: r.trim, n: Number(r.n) });
+    }
+    return buckets;
+  });
+}
+const wholesaleBucketsOrNull = async (pool) => {
+  if (!RETAIL_ONLY_FACETS) return null;
+  try { return await wholesaleBuckets(pool); } catch (err) { console.error(`${new Date().toISOString()} wholesale buckets unavailable, facet counts left unadjusted: ${err.message}`); return null; }
+};
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
 const INV_DEALER = (v) => INV_INT(v) || 0;
 
@@ -2262,7 +2304,9 @@ async function handleInventoryBulk(req, res) {
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
-      INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16)]);
+      INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),
+      // The crawl's own state: only used when the directory has no store for the row (trg_inv_rev_*), so store-0 cars still have a state.
+      normalizeState(v.state)]);
     // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k and unsupported by its own MSRP, or ~10x the
     // row's MSRP) is written as null, and an MSRP that is the corrupt half of a ~10x pair is written as null instead of the price;
     // the upsert's COALESCE turns a null into "keep the stored value". Column order is the INSERT's below: year [4], make [5],
@@ -2290,11 +2334,11 @@ async function handleInventoryBulk(req, res) {
     const tUpsert = performance.now();
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
-        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, vehicle_id)
+        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, state, vehicle_id)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
         price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
-        price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
-        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
+        price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL, stale_at = NULL,
+        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), state = COALESCE(VALUES(state), state), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
       [values]
     );
     timings.upsertMs += performance.now() - tUpsert;
@@ -2444,6 +2488,65 @@ async function handleInventorySweep(req, res) {
   const [result] = await pool.query(sql, args);
   if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
   sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
+}
+
+// POST /api/inventory/superseded { pairs: [[vin, storeId], ...], seenAfter, dryRun?, sourceBox?, foreignBefore? } — retires (removed_at) the
+// same VINs' rows under OTHER stores that the run did not refresh. See supersededRetire.js. One UPDATE per call, called by the sync after its sweep.
+async function handleInventorySuperseded(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseSupersedeRequest(await readBody(req), { toInt: INV_INT, toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const { sql, args } = buildSupersedeStatement(parsed);
+  if (parsed.dryRun) {
+    const [[row]] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sql}`, args);
+    return sendJson(res, 200, { dryRun: true, wouldRetire: Number(row?.n || 0) });
+  }
+  const [result] = await pool.query(sql, args);
+  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+  sendJson(res, 200, { dryRun: false, retired: result.affectedRows });
+}
+
+// POST /api/inventory/blocked-stores { box, date, stores: [{ dealerId, name, cls, vendor }] } — a box's nightly list of stores whose sites blocked its
+// crawl (no bypass is attempted); replaces that box's earlier report. GET returns every flagged store. See blockedStores.js.
+async function handleBlockedStoresReport(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseBlockedReport(await readBody(req), { toInt: INV_INT, toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const up = buildBlockedUpsert(parsed);
+  if (up) await pool.query(up.sql, up.args);
+  const cl = buildBlockedCleanup(parsed);
+  const [del] = await pool.query(cl.sql, cl.args);
+  sendJson(res, 200, { stored: parsed.stores.length, cleared: del.affectedRows });
+}
+async function handleBlockedStoresList(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const [rows] = await pool.query("SELECT dealer_id, name, block_class, vendor, source_box, first_blocked_on, last_blocked_on FROM crawl_blocked_stores ORDER BY last_blocked_on DESC, dealer_id");
+  sendJson(res, 200, { stores: blockedRowsToJson(rows) });
+}
+
+// POST /api/inventory/zero-scrape { runStart, nights?, dryRun? } — hides (stale_at) the live cars of stores that scraped zero
+// vehicles for `nights` nights running while their platform stayed healthy. Never touches removed_at. See zeroScrape.js.
+// The aggregate reads every live row, so the sync calls it once, after its sweep, while the fleet is otherwise quiet.
+async function handleInventoryZeroScrape(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseZeroScrapeRequest(await readBody(req));
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const stores = await aggregateZeroScrape(async (sql, args) => (await pool.query(`SET STATEMENT max_statement_time=${ZERO_SCRAPE_QUERY_SECONDS} FOR ${sql}`, args))[0]);
+  const { stale, held, cutoff } = classifyZeroScrape(stores, parsed);
+  let marked = 0;
+  if (!parsed.dryRun) {
+    for (let i = 0; i < stale.length; i += 200) {
+      const { sql, args } = buildMarkStaleStatement(stale.slice(i, i + 200), cutoff);
+      const [r] = await pool.query(sql, args);
+      marked += r.affectedRows;
+    }
+    if (marked) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+  }
+  sendJson(res, 200, { dryRun: parsed.dryRun, cutoff: cutoff.toISOString(), staleStores: stale.length, marked, held: held.length, heldSample: held.slice(0, 20) });
 }
 
 // inventoryListQuery lives in its own module (inventoryListQuery.js) purely so it can be
@@ -2842,7 +2945,9 @@ async function handleInventoryMakes(req, res) {
       waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     );
-    return { makes: rows.map((r) => ({ make: r.make, n: Number(r.n) })) };
+    const makes = rows.map((r) => ({ make: r.make, n: Number(r.n) }));
+    const wb = await wholesaleBucketsOrNull(pool);
+    return { makes: wb ? adjustMakeList(makes, wb) : makes };
   }));
 }
 
@@ -2919,12 +3024,14 @@ async function handleInventoryFacets(req, res, params) {
           )
         : Promise.resolve([[]]);
     const [[stateRows], [makeRows], [modelRows], [trimRows]] = await Promise.all([statesPromise, makesPromise, modelsPromise, trimsPromise]);
-    return {
+    const lists = {
       states: stateRows.map((r) => ({ state: r.state, n: Number(r.n) })),
       makes: makeRows.map((r) => ({ make: r.make, n: Number(r.n) })),
       models: modelRows.map((r) => ({ model: r.model, n: Number(r.n) })),
       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
     };
+    const wb = await wholesaleBucketsOrNull(pool);
+    return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
   }));
 }
 
@@ -3049,22 +3156,25 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     await ensureInventoryTable(pool);
     const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
     const makes = makeRows.map((r) => r.make);
+    const summary = createSummaryAccumulator();
     for (const make of makes) {
       const [optionAgg] = await pool.query(
         `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
          FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
          JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
-         WHERE i.removed_at IS NULL AND i.make = ?
+         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}
          GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
         [make]
       );
       const [colorAgg] = await pool.query(
         `SELECT COALESCE(model, '') AS model, COALESCE(trim, '') AS trim, COALESCE(exterior_color, '') AS ext, COALESCE(interior_color, '') AS intr, COUNT(*) AS n
          FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim)
-         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)
+         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)${RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : ""}
          GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
         [make]
       );
+      summary.addOptions(optionAgg);
+      summary.addColors(colorAgg);
       const conn = await pool.getConnection();
       try {
         await conn.beginTransaction();
@@ -3088,6 +3198,24 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     if (makes.length) {
       await pool.query("DELETE FROM inv_option_facets WHERE make NOT IN (?)", [makes]);
       await pool.query("DELETE FROM inv_color_facets WHERE make NOT IN (?)", [makes]);
+    }
+    // All-makes summary for the no-make catalog call: replaced in one transaction so a reader never sees it half-written.
+    {
+      const { optionRows, colorRows } = summary.result({ minVehicles: CATALOG_MIN_VEHICLES });
+      const sconn = await pool.getConnection();
+      try {
+        await sconn.beginTransaction();
+        await sconn.query("DELETE FROM inv_option_summary");
+        await sconn.query("DELETE FROM inv_color_summary");
+        if (optionRows.length) await sconn.query("INSERT INTO inv_option_summary (canonical_key, label, vehicle_count) VALUES ?", [optionRows]);
+        if (colorRows.length) await sconn.query("INSERT INTO inv_color_summary (kind, color) VALUES ?", [colorRows]);
+        await sconn.commit();
+      } catch (err) {
+        await sconn.rollback().catch(() => {});
+        throw err;
+      } finally {
+        sconn.release();
+      }
     }
     const durationMs = Date.now() - started;
     await pool.query("INSERT INTO inv_facet_meta (id, built_at, duration_ms) VALUES (1, NOW(), ?) ON DUPLICATE KEY UPDATE built_at = VALUES(built_at), duration_ms = VALUES(duration_ms)", [durationMs]);
@@ -3121,6 +3249,19 @@ async function handleCatalogFacetStatus(req, res) {
   sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });
 }
 
+// The rebuild's all-makes summary as the two row sets handleInventoryCatalogOptions already consumes, or null when it is missing/empty.
+async function readAllMakesSummary(pool) {
+  try {
+    const [options] = await pool.query("SELECT canonical_key, label, vehicle_count FROM inv_option_summary ORDER BY vehicle_count DESC");
+    if (!options.length) return null;
+    const [colors] = await pool.query("SELECT kind, color FROM inv_color_summary");
+    return summaryToQueryRows({ options, colors });
+  } catch (err) {
+    console.warn(`${new Date().toISOString()} catalog summary unavailable, using the full query: ${err.message}`);
+    return null;
+  }
+}
+
 async function handleInventoryCatalogOptions(req, res, params) {
   const pool = getPool();
   await ensureInventoryTable(pool);
@@ -3135,12 +3276,15 @@ async function handleInventoryCatalogOptions(req, res, params) {
     if (trim) { fWhere.push("trim = ?"); fArgs.push(trim); }
     const fWhereSql = fWhere.length ? "WHERE " + fWhere.join(" AND ") : "";
     sendJson(res, 200, await stableCached(`catalog-facets:${make}|${model}|${trim}`, async () => {
-      const [optionRows] = await withPoolTimeout(
+      // No make/model/trim: read the rebuild's pre-aggregated all-makes summary (a few hundred rows) instead of grouping all of
+      // inv_option_facets; an empty/missing summary (not rebuilt yet) falls through to the old queries.
+      const fromSummary = !make && !model && !trim ? await readAllMakesSummary(pool) : null;
+      const [optionRows] = fromSummary ? [fromSummary.optionRows] : await withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
-      const [colorRows] = await withPoolTimeout(
+      const [colorRows] = fromSummary ? [fromSummary.colorRows] : await withPoolTimeout(
         pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
@@ -3164,6 +3308,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
   if (make) { where.push("i.make = ?"); args.push(make); }
   if (model) { where.push("i.model = ?"); args.push(model); }
   if (trim) { where.push("i.trim = ?"); args.push(trim); }
+  if (RETAIL_ONLY_FACETS) where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
   const whereSql = "WHERE " + where.join(" AND ");
   // Both queries below only get a FORCE INDEX when make= is set — mirrors inventoryListQuery.js's
   // own rule (a hint is only safe/helpful when the leading equality column it expects is actually
@@ -3615,6 +3760,10 @@ const server = http.createServer(async (req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/superseded") return run(handleInventorySuperseded);
+  if (req.method === "POST" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresReport);
+  if (req.method === "GET" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresList);
+  if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);

@@ -15,12 +15,28 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            scrapers/lightsail-crawler/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
+      # The crawler has its own package.json (got-scraping, patchright, ...). Its enricher/inventory-ops tests import those, and the
+      # root install does not provide them. Browser downloads are skipped: no test launches a browser.
+      - name: Install crawler dependencies
+        working-directory: scrapers/lightsail-crawler
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PATCHRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: npm ci
+
       - name: Type check
         run: npx tsc --noEmit
+
+      # Every tracked *.test.* file must be run by `npm test` or be listed (with a reason) in test-known-failing.json.
+      - name: Check every test file is run
+        run: node scripts/check-test-coverage.mjs
 
       - name: Run tests
         run: npm test

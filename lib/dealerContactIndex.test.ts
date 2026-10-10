@@ -1,22 +1,27 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { contactIdSet, contactStatus, dealerHasContact } from "./dealerContactIndex";
+import { buildContactIndex, contactStatus } from "./dealerContactIndex";
+import type { Dealership } from "./dealershipsApi";
 
-describe("dealer contact index", () => {
-  it("a contact means an email; blanks and whitespace don't count", () => {
-    assert.equal(dealerHasContact({ contactEmail: "gm@dealer.com" }), true);
-    assert.equal(dealerHasContact({ contactEmail: "  " }), false);
-    assert.equal(dealerHasContact({ contactEmail: null }), false);
-  });
-  it("builds the id set from dealers that have one", () => {
-    const set = contactIdSet([{ id: "1", contactEmail: "a@x.com" }, { id: "2", contactEmail: null }, { id: "3", contactEmail: "c@x.com" }]);
-    assert.deepEqual([...set].sort(), ["1", "3"]);
-  });
+function row(over: Partial<Dealership>): Dealership {
+  return { id: "1", dealerName: "Test Motors", address: null, city: "Town", state: "NJ", zipCode: null, phone: null, contactName: null, contactEmail: null, notes: null, website: null, domains: [], emailOptOut: false, createdAt: "", updatedAt: "", ...over };
+}
+
+describe("dealer contact index (search Contact column)", () => {
   it("yes / no / unknown", () => {
-    const set = new Set(["1"]);
-    assert.equal(contactStatus(set, "1"), true);
-    assert.equal(contactStatus(set, "2"), false);
-    assert.equal(contactStatus(set, null), null, "no dealer id is unknown, not 'no'");
-    assert.equal(contactStatus(null, "1"), null, "directory down is unknown, not 'no'");
+    const idx = buildContactIndex([row({ contactEmail: "a@testmotors.com" }), row({ id: "2", dealerName: "Empty Auto" })]);
+    assert.equal(contactStatus(idx, { dealerName: "Test Motors", dealerState: "NJ" }), true);
+    assert.equal(contactStatus(idx, { dealerName: "Empty Auto", dealerState: "NJ" }), false);
+    assert.equal(contactStatus(idx, { dealerName: "Not In Directory", dealerState: "NJ" }), false, "no row = no contact");
+    assert.equal(contactStatus(idx, { dealerName: "", dealerState: "NJ" }), null, "no dealer name is unknown, not 'no'");
+    assert.equal(contactStatus(null, { dealerName: "Test Motors" }), null, "directory down is unknown, not 'no'");
+  });
+  it("blank, malformed and unsubscribed emails are not a contact", () => {
+    const idx = buildContactIndex([
+      row({ id: "1", dealerName: "Blank Auto", contactEmail: "   " }),
+      row({ id: "2", dealerName: "Bad Auto", contactEmail: "not-an-email" }),
+      row({ id: "3", dealerName: "Gone Auto", contactEmail: "sales@gone.com", emailOptOut: true }),
+    ]);
+    for (const dealerName of ["Blank Auto", "Bad Auto", "Gone Auto"]) assert.equal(contactStatus(idx, { dealerName, dealerState: "NJ" }), false, dealerName);
   });
 });

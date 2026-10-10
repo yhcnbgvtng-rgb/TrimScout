@@ -481,3 +481,61 @@ describe('withExportFastSort — CSV export default for in-stock State+Make (no 
     assert.equal(p.get('sort'), null);
   });
 });
+
+describe('inventoryListQuery — retailOnly (buyer search keeps wholesale lots out)', () => {
+  const CLAUSE = "(i.cond IS NULL OR i.cond <> 'wholesale')";
+  it('adds exactly one post-filter, with no extra args', () => {
+    const { sql, args } = query({ retailOnly: '1', inStock: '1', state: 'FL', make: 'Mercedes-Benz' });
+    assert.ok(sql.includes(CLAUSE));
+    assert.deepEqual(args, ['FL', 'Mercedes-Benz']);
+  });
+  it('without the flag the SQL, args and order are byte-for-byte what they were (the admin sheet is untouched)', () => {
+    for (const pairs of [{}, { inStock: '1', state: 'FL', make: 'Mercedes-Benz' }, { inStock: '1', make: 'Toyota', model: 'RAV4', sort: 'trim:asc' }, { dealerId: '11249', inStock: '1' }]) {
+      const a = query(pairs), b = query({ ...pairs, retailOnly: '0' });
+      assert.deepEqual(b, a);
+      assert.ok(!a.sql.includes('wholesale'));
+    }
+  });
+  it('does not change which index hint or sort the query picks', () => {
+    for (const pairs of [{ inStock: '1', state: 'FL', make: 'Mercedes-Benz', sort: 'model:asc' }, { inStock: '1', make: 'Toyota', model: 'RAV4' }, { inStock: '1', state: 'NJ', make: 'Ford', model: 'F-150', sort: 'trim:asc' }]) {
+      const plain = query(pairs), retail = query({ ...pairs, retailOnly: '1' });
+      assert.equal(retail.orderBy, plain.orderBy);
+      assert.equal(retail.sql.replace(` AND ${CLAUSE}`, '').replace(`${CLAUSE} AND `, ''), plain.sql, JSON.stringify(pairs));
+    }
+  });
+  it('an explicit cond=wholesale together with retailOnly returns nothing (the buyer search cannot ask for it)', () => {
+    const { sql, args } = query({ retailOnly: '1', cond: 'wholesale' });
+    assert.ok(sql.includes('i.cond = ?') && sql.includes(CLAUSE));
+    assert.deepEqual(args, ['wholesale']);
+  });
+  it('works with the count cap and the export fast sort without touching them', () => {
+    const r = query({ retailOnly: '1', inStock: '1', state: 'FL', make: 'Mercedes-Benz', countCap: '1000' });
+    assert.ok(r.cappedCountSql.includes(CLAUSE));
+    assert.equal(withExportFastSort(new URLSearchParams({ inStock: '1', state: 'FL', make: 'Mercedes-Benz', retailOnly: '1' })).get('sort'), 'model:asc');
+  });
+
+  it('counts state+make (no model, in stock) through idx_inv_facet_state_make but pages through idx_inv_stock_state', () => {
+    const q = query({ state: 'NJ', make: 'Toyota', inStock: '1', countCap: '1000' });
+    assert.match(q.countSql, /FORCE INDEX \(idx_inv_facet_state_make\)/);
+    assert.match(q.cappedCountSql, /FORCE INDEX \(idx_inv_facet_state_make\)/);
+    const page = deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy });
+    assert.match(page, /FORCE INDEX \(idx_inv_stock_state\)/);
+    assert.doesNotMatch(page, /idx_inv_facet_state_make/);
+  });
+
+  it('leaves state-only and state+make+model hints alone', () => {
+    assert.match(query({ state: 'NJ', inStock: '1' }).countSql, /idx_inv_stock_state/);
+    assert.doesNotMatch(query({ state: 'NJ', make: 'Toyota', model: 'RAV4', inStock: '1' }).countSql, /idx_inv_facet_state_make/);
+  });
+
+  it('pages state+make through idx_inv_facet_state_make for every sort except the default dealer order', () => {
+    for (const sort of ['price:asc', 'mileage:desc', 'year:desc', 'dealer:desc']) {
+      const q = query({ state: 'NJ', make: 'Honda', inStock: '1', countCap: '1000', sort });
+      const page = deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy });
+      assert.match(page, /FORCE INDEX \(idx_inv_facet_state_make\)/, sort);
+      assert.doesNotMatch(page, /idx_inv_stock_state/, sort);
+    }
+    const q = query({ state: 'NJ', make: 'Honda', inStock: '1', countCap: '1000' });
+    assert.match(deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy }), /idx_inv_stock_state/);
+  });
+});

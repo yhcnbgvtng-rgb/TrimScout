@@ -45,6 +45,8 @@ import { createApi } from "./syncHttp.js";
 import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
+import { runSupersede } from "./syncSuperseded.js";
+import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
@@ -243,7 +245,7 @@ for (const shardFile of files) {
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
       windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
       priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,
-      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL,
+      options: options(v), optionsTotal: num(v.totalOptionsPrice), baseMsrp: num(v.baseMsrp), crawlFirstSeen: v.firstSeen || null, sourceBox: BOX_LABEL, state: /^[A-Za-z]{2}$/.test(String(v.state || "").trim()) ? String(v.state).trim().toUpperCase() : null,
     });
   }
 }
@@ -315,6 +317,38 @@ try {
   writeRetired(r.failedStores || []);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
+  // Cars whose VIN this run uploaded under another store are retired from the stores that no longer list them (supersededRetire.js).
+  // OFF unless RETIRE_SUPERSEDED=1 (RETIRE_SUPERSEDED_DRY_RUN=1 only counts). Only after a complete run, like the zero-scrape step.
+  if (process.env.RETIRE_SUPERSEDED === "1" || process.env.RETIRE_SUPERSEDED_DRY_RUN === "1") {
+    if (skippedShards.length || (r.sweepFailed || 0) > 0) log("[sync] superseded-rows step skipped: this run was incomplete (skipped shard or failed sweep)");
+    else {
+      const dryRun = process.env.RETIRE_SUPERSEDED !== "1";
+      const foreignBefore = new Date(Date.parse(r.startedAt) - 48 * 3600_000).toISOString();
+      const sup = await runSupersede({ api: dealsApi, rows, seenAfter: r.startedAt, sourceBox: BOX_LABEL, foreignBefore, dryRun, log, isLockLost: () => lockHeartbeat?.isLost() === true });
+      log(`[sync] superseded rows${dryRun ? " (dry run)" : ""}: ${JSON.stringify(sup)}`);
+    }
+  }
+  // Stores whose sites blocked tonight's crawl (no bypass), for the admin sheet's "blocked, no bypass" flag. Best effort; never fails the sync.
+  try {
+    const logDir = process.env.CRAWL_LOG_DIR || path.join(os.homedir(), "nj-scraper/scrapers/lightsail-crawler/logs");
+    const { stores: blocked, unmatched } = collectBlocked({ files: recentCrawlLogs(logDir, RUN_NOW_MS), dealerIdFor: (e) => dealerIdFor({ dealerName: e.name, url: e.url, state: "" }) });
+    if (blocked.length || unmatched) log(`[sync] blocked stores found in the crawl logs: ${blocked.length} matched to the directory, ${unmatched} not matched`);
+    await postBlocked({ api: dealsApi, box: BOX_LABEL, date: new Date(RUN_NOW_MS).toISOString().slice(0, 10), stores: blocked, log });
+  } catch (err) {
+    log(`[sync] blocked-stores step failed (non-fatal): ${err.message}`);
+  }
+  // Zero-scrape staleness (zeroScrape.js): stores that scraped nothing for 3 nights while their platform was healthy are hidden
+  // from buyer search (stale_at; never removed). OFF unless ZERO_SCRAPE_STALE=1 — the server aggregate reads every live row, so it is
+  // switched on deliberately — and only after a COMPLETE run: a skipped shard or failed sweep means "nothing scraped" proves nothing.
+  if (process.env.ZERO_SCRAPE_STALE === "1") {
+    if (skippedShards.length || (r.sweepFailed || 0) > 0) log("[sync] zero-scrape staleness skipped: this run was incomplete (skipped shard or failed sweep)");
+    else {
+      try {
+        const z = await dealsApi("/api/inventory/zero-scrape", { runStart: new Date(RUN_NOW_MS).toISOString(), dryRun: process.env.ZERO_SCRAPE_DRY_RUN === "1" });
+        log(`[sync] zero-scrape staleness: ${JSON.stringify(z)}`);
+      } catch (e) { log(`[sync] zero-scrape staleness failed (non-fatal): ${e.message}`); }
+    }
+  }
 } catch (err) {
   failed = true;
   if (err instanceof SweepAbortError || err instanceof LockLostError) {
