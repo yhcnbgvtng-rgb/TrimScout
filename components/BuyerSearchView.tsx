@@ -550,10 +550,9 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
   { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
   { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
-  { key: "dealer", label: "Dealer", w: 240, show: (v) => v.dealerName },
+  { key: "dealer", label: "Dealer", w: 340, show: (v) => { const c = lastConfirmedLabel(v.lastConfirmedAt); return c ? `${v.dealerName} · ${c}` : v.dealerName; } },
   { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
   { key: "contact", label: "Contact on file", w: 110, show: (v) => (v.dealerHasContact == null ? "" : v.dealerHasContact ? "Yes" : "No") },
-  { key: "confirmed", label: "Freshness", w: 190, show: (v) => lastConfirmedLabel(v.lastConfirmedAt) ?? "" },
   { key: "listing", label: "Listing link", w: 170 },
   // Only when the search was by ZIP — after the fixed fields so their order never moves.
   { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
