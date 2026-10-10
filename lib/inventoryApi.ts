@@ -133,6 +133,8 @@ export interface InventoryQuery {
   sort?: string;
   /** Opt-in: with a sort, blank values come after every real value in BOTH directions (the buyer table's header sort). */
   nullsLast?: boolean;
+  /** Buyer search only: leave out cars whose condition is 'wholesale' (a dealer's wholesale lot is not retail stock). The admin sheet never sets it. */
+  retailOnly?: boolean;
 }
 
 /** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
@@ -244,7 +246,7 @@ export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPa
  */
 export async function searchInventory(q: BuyerSearchQuery = {}): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
-  return listInventory({ ...rest, inStock: true });
+  return listInventory({ ...rest, inStock: true, retailOnly: true });
 }
 
 export interface CatalogOptions {
