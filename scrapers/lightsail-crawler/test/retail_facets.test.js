@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from '../src/retailFacets.js';
+import { staleSlices } from '../src/staleFacets.js';
+import { seenWithinDaysOf } from '../src/inventoryListQuery.js';
 
 const W = [
   { make: 'Mercedes-Benz', state: 'FL', model: 'GLC', trim: 'GLC 300', n: 40 },
@@ -67,8 +69,14 @@ const extractFunction = (name) => {
   return SRC.slice(start, end + 3);
 };
 
-function load({ retailOnly = true, failWholesale = false } = {}) {
-  const calls = { wholesaleDealerQueries: 0, wholesaleBucketQueries: 0, sql: [] };
+const extractConst = (name) => {
+  const start = SRC.indexOf(`const ${name} = async`);
+  assert.ok(start >= 0, `could not find "const ${name} = async" in deals_api_server.js`);
+  return SRC.slice(start, SRC.indexOf('\n};\n', start) + 4);
+};
+
+function load({ retailOnly = true, failWholesale = false, staleRows = [] } = {}) {
+  const calls = { wholesaleDealerQueries: 0, wholesaleBucketQueries: 0, staleQueries: 0, sql: [] };
   const wholesaleDealers = [11, 12, 13];
   const byDealer = { 11: [W[0], W[1]], 12: [W[2]], 13: [W[3]] };
   const pool = {
@@ -86,6 +94,8 @@ function load({ retailOnly = true, failWholesale = false } = {}) {
         assert.ok(args[0].length <= WHOLESALE_DEALERS_PER_QUERY);
         return [args[0].flatMap((d) => byDealer[d] || [])];
       }
+      if (/^SELECT DATEDIFF/.test(s)) return [[{ d: 8 }]];
+      if (/GROUP BY make, state, model, trim$/.test(s) && /last_seen_at < DATE_SUB/.test(s)) { calls.staleQueries++; return [calls.staleQueries === 1 ? staleRows : []]; }
       if (/^SELECT state, COUNT/.test(s)) return [LISTS.states];
       if (/^SELECT make, COUNT/.test(s)) return [LISTS.makes];
       if (/^SELECT model, COUNT/.test(s)) return [LISTS.models];
@@ -100,11 +110,11 @@ function load({ retailOnly = true, failWholesale = false } = {}) {
     sendJson: (res, status, obj) => { out.json = JSON.parse(JSON.stringify(obj)); },
     withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 1000,
     stableCached: async (key, fn) => { if (!cache.has(key)) cache.set(key, await fn()); return cache.get(key); },
-    adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY, RETAIL_ONLY_FACETS: retailOnly, console, Date, Promise,
+    adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY, staleSlices, seenWithinDaysOf, RETAIL_ONLY_FACETS: retailOnly, console, Date, Promise, URLSearchParams,
   };
   vm.createContext(ctx);
-  vm.runInContext(['wholesaleBuckets', 'handleInventoryMakes', 'handleInventoryFacets'].map(extractFunction).join('\n') +
-    `\nconst wholesaleBucketsOrNull = async (pool) => { if (!RETAIL_ONLY_FACETS) return null; try { return await wholesaleBuckets(pool); } catch (err) { console.error(String(err.message)); return null; } };`, ctx);
+  vm.runInContext(['wholesaleBuckets', 'staleBuckets', 'handleInventoryMakes', 'handleInventoryFacets'].map(extractFunction).join('\n') +
+    `\nconst wholesaleBucketsOrNull = async (pool) => { if (!RETAIL_ONLY_FACETS) return null; try { return await wholesaleBuckets(pool); } catch (err) { console.error(String(err.message)); return null; } };\n` + extractConst('hiddenBucketsOrNull'), ctx);
   return { ctx, out, calls, facets: (q) => ctx.handleInventoryFacets({}, {}, new URLSearchParams(q)), makes: () => ctx.handleInventoryMakes({}, {}) };
 }
 
@@ -165,5 +175,33 @@ describe('the option / colour catalog and the source-level guards', () => {
     assert.match(fn, /GROUP BY dealer_id/);
     assert.match(fn, /dealer_id IN \(\?\) AND cond = 'wholesale' GROUP BY make, state, model, trim/);
     assert.match(fn, /FORCE INDEX \(idx_inv_by_dealer_covering\)/);
+  });
+});
+
+describe('handleInventoryFacets / handleInventoryMakes — seenWithinDays also subtracts the stale cars', () => {
+  const STALE = [{ make: 'Ford', state: 'FL', model: 'F-150', trim: 'XLT', n: 7 }, { make: 'Mercedes-Benz', state: 'FL', model: 'GLC', trim: 'GLC 300', n: 5 }];
+  it('facets: wholesale and stale cars are both subtracted, once each', async () => {
+    const h = load({ staleRows: STALE });
+    await h.facets({ make: 'Mercedes-Benz', state: 'FL', seenWithinDays: '7' });
+    assert.deepEqual(h.out.json, adjustFacetLists({ ...LISTS, trims: [] }, [...W, ...STALE], { state: 'FL', make: 'Mercedes-Benz' }));
+    assert.equal(h.out.json.states.find((s) => s.state === 'FL').n, 500 - 65 - 5);
+  });
+  it('makes: the stale count comes off too', async () => {
+    const h = load({ staleRows: STALE });
+    await new Promise((r) => r()); await h.ctx.handleInventoryMakes({}, {}, new URLSearchParams({ seenWithinDays: '7' }));
+    assert.equal(h.out.json.makes.find((m) => m.make === 'Mercedes-Benz').n, 120 - 75 - 5);
+  });
+  it('without the param no stale query runs and the counts are the wholesale-only ones (admin and old callers unchanged)', async () => {
+    const h = load({ staleRows: STALE });
+    await h.facets({ make: 'Mercedes-Benz', state: 'FL' });
+    assert.equal(h.calls.staleQueries, 0);
+    assert.equal(h.out.json.states.find((s) => s.state === 'FL').n, 500 - 65);
+  });
+  it('a failed stale read leaves the counts unadjusted for age instead of failing the request', async () => {
+    const h = load({ staleRows: STALE });
+    const orig = h.ctx.stableCached;
+    h.ctx.stableCached = async (key, fn) => { if (String(key).startsWith('stale-buckets')) throw new Error('boom'); return orig(key, fn); };
+    await h.facets({ make: 'Mercedes-Benz', state: 'FL', seenWithinDays: '7' });
+    assert.equal(h.out.json.states.find((s) => s.state === 'FL').n, 500 - 65);
   });
 });

@@ -10,6 +10,13 @@
 // production six times across two days (five combinations on 2026-09-22, one more on 2026-09-25),
 // always the same shape — a filter combination the hand-tuned index hints didn't cover, found live
 // during an outage.
+/** `seenWithinDays` from a request: a whole number of days 1-365, else null (absent or junk -> no age filter). Lives here so the list query stays a single-file box patch. */
+export function seenWithinDaysOf(raw) {
+  const s = String(raw ?? "").trim();
+  if (!/^\d{1,3}$/.test(s)) return null;
+  const n = Number(s);
+  return n >= 1 && n <= 365 ? n : null;
+}
 /** Distinct, trimmed, non-empty values of a (possibly repeated) query param, capped so a hostile URL can't build a huge IN list. */
 export const MAX_MULTI_VALUES = 25;
 export function multiParam(params, key, normalize = (v) => v) {
@@ -83,6 +90,10 @@ export function inventoryListQuery(params) {
   // stay in the table (the admin Vehicles tab still shows them); this only keeps them out of buyer results. A NULL cond is kept (unknown is
   // not wholesale). Added as a plain post-filter so every index choice and hint below is unchanged.
   if (p("retailOnly") === "1") where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
+  // seenWithinDays=N (sent by the buyer search only, never by the admin sheet): a car the crawl last saw more than N days ago is not
+  // offered to buyers. The rows stay in the table; the admin Vehicles tab and a car's direct page still show them. Plain post-filter, like retailOnly.
+  const seenDays = seenWithinDaysOf(p("seenWithinDays"));
+  if (seenDays) { where.push("i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)"); args.push(seenDays); }
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
