@@ -3,45 +3,47 @@
 **Read this before touching any box.** Never trust IPs in old script comments. Work from a fresh worktree off `origin/main`.
 Machine-readable mirror: [`config/boxes.json`](../config/boxes.json) (loaded by `config/boxes.mjs`); `test/boxes_doc.test.mjs` fails if the two disagree or a retired IP appears anywhere else in the repo.
 
-Legend: **[given]** supplied by Paul 2026-10-10 · **[repo]** read from code/docs in this repo · **UNVERIFIED** not confirmed against the live machine (this doc was written read-only, no SSH).
+Legend: **[verified]** read-only check from Grok Bot's computer, 2026-10-10 08:15 ET · **[repo]** read from code/docs · **UNVERIFIED** not confirmed live.
 
-Last verified: **2026-10-10 against Paul's statement and the repo only — no box was contacted.** Update the date when someone re-checks a box live.
+Last verified: **2026-10-10 08:15 ET** (read-only, from Grok Bot's computer). Update the date when someone re-checks a box live.
 
 | | box1 | box2 (crawler + deals box) | box3 | box4 |
 |---|---|---|---|---|
-| Public IP | 34.203.148.79 [repo: fleet-report.mjs] | 52.202.234.65 [given] | 184.73.158.210 [repo] | 100.50.85.234 [repo] |
-| Private IP | 172.26.1.32 [given] | UNVERIFIED (not supplied) | 172.26.15.105 [given] | 172.26.11.241 [given] |
-| SSH user | `ubuntu` [repo] | `ubuntu` [repo] | `ubuntu` [repo] | `ubuntu` [repo] |
-| SSH alias | `box1` — ProxyJump via box2 [given] | `box2` — direct [given] | `box3` — ProxyJump via box2 [given] | `box4` — ProxyJump via box2 [given] |
-| Role | Crawl box (expansion/core state slices) [repo: CAPACITY_SLA.md] | Crawl box **and** the deals box: deals API `:3004`, auth/directory API `:3003`, MariaDB, crawl-claim queue [repo: SPIKE_RUNBOOK.md] | Crawl box; TX shard [repo: SYNC_FRESHNESS.md] | Crawl box; FL shard [repo] |
-| Last verified | 2026-10-10 (doc only) | 2026-10-10 (doc only) | 2026-10-10 (doc only) | 2026-10-10 (doc only) |
+| Public IP | 34.203.148.79 | 52.202.234.65 | 184.73.158.210 | 100.50.85.234 |
+| Private IP | 172.26.1.32 | 172.26.14.74 | 172.26.15.105 | 172.26.11.241 |
+| SSH user | `ubuntu` | `ubuntu` | `ubuntu` | `ubuntu` |
+| SSH alias | `box1`, ProxyJump via box2 (private IP) | `box2`, direct | `box3`, ProxyJump via box2 (private IP) | `box4`, ProxyJump via box2 (private IP) |
+| Role | Crawl box | Crawl box **and** the deals box: deals API `:3004`, auth/directory API `:3003`, MariaDB, crawl-claim queue [repo: SPIKE_RUNBOOK.md] | Crawl box (expansion + core chain) | Crawl box (expansion + core chain) |
+| Last verified | 2026-10-10 | 2026-10-10 | 2026-10-10 | 2026-10-10 |
 
-The "deals box" is **box2** — there is no separate machine (older scripts that said a different IP for "the deals box" were stale).
-SSH aliases live in each person's `~/.ssh/config`, not in this repo; the alias definitions above are **[given], UNVERIFIED** here.
+All values in the table are **[verified]** except Role text marked [repo]. SSH key (from Grok Bot's computer): `~/.ssh/lightsail_key.pem`, user `ubuntu`. The "deals box" is **box2** — there is no separate machine (older scripts naming another IP were stale).
 
 ## Checkout paths
 
-| Box | Path | Branch / state |
+| Box | Crawler path | Branch |
 |---|---|---|
-| box2 crawler | `/home/ubuntu/nj-scraper` | `cursor/nj-crawler-ops-36e4`, **150 commits behind `main` as of Oct 10** [given] — do not assume it has current code |
-| box2 deals API | `/opt/trimscout-deals` (server files in `/opt/trimscout-deals/src/`, pm2 `trimscout-deals-api`) | not a git checkout; files are copied in by box patch scripts [repo: docs/SPIKE_RUNBOOK.md, INVENTORY_SYNC_SPEED.md] |
-| box1, box3, box4 crawler | `~/nj-scraper` (`nj-scraper/scrapers/lightsail-crawler`) [repo: fleet-report.mjs] | branch UNVERIFIED |
-| Inventory sync client (all crawl boxes) | `~/inventory-sync/` [repo: INVENTORY_SYNC_SPEED.md] | a deploy dir; copy only on Paul's GO |
+| box1 | `/home/ubuntu/nj-scraper` | `cursor/nj-crawler-ops-36e4` |
+| box2 | `/home/ubuntu/nj-scraper` | `cursor/nj-crawler-ops-36e4` |
+| box3 | `/home/ubuntu/nj-scraper` | `expansion-brands` |
+| box4 | `/home/ubuntu/nj-scraper` | `expansion-brands` |
 
-## Cron and CRAWL_STATES
+- box2 deals API: `/opt/trimscout-deals` (server files in `src/`, pm2 `trimscout-deals-api`). Not a git checkout; patched by box patch scripts.
+- Inventory sync client: `~/inventory-sync/` (`run_sync_when_safe.sh`) on each crawl box. Copy into it only on Paul's GO.
 
-**UNVERIFIED for every box** — live crontabs are not in the repo and were not read. What the repo documents:
-- Each box's nightly crawl is one crontab line (or `scripts/run_nightly_chain.sh` with `CHAIN_EXPANSION_ENV` / `CHAIN_CORE_ENV`) that sets `CRAWL_STATES=<slice>`; `CRAWL_STATES` is the *order* of claims tried, not an exclusive allotment (CAPACITY_SLA.md).
-- Inventory → deals sync: nightly, ~06:15 ET on the crawl boxes [memory notes; UNVERIFIED].
-- Dual-crawled states per `docs/SYNC_FRESHNESS.md` (from the four crontabs at that time): AL, CA, GA, IA, IN, LA, MA, MI, MN, MO, NC, NJ, NY, OH, OK, PA, TN, TX, VA.
-- Do not copy state lists from this doc; run `crontab -l` on the box and paste the result here with the date when you verify.
+## Known drift
 
-| Box | Cron lines | CRAWL_STATES |
-|---|---|---|
-| box1 | UNVERIFIED | UNVERIFIED (13-state list as of 2026-09 per CAPACITY_SLA.md) |
-| box2 | UNVERIFIED | UNVERIFIED |
-| box3 | UNVERIFIED | UNVERIFIED (TX shard) |
-| box4 | UNVERIFIED | UNVERIFIED (FL shard) |
+All four crawler checkouts are at `b8ea6e3` (2026-09-22), **150 commits behind `origin/main`**, each with **560–860 uncommitted local files**. Crawler-side PRs merged after Sept 22 are **NOT running on the boxes** unless they were hand-copied. The deals-api in `/opt/trimscout-deals` is patched separately and **is current**. Before assuming a crawler change is live, check the file on the box.
+
+## Cron and CRAWL_STATES (all times ET, verified 2026-10-10)
+
+| Box | Cron | CRAWL_STATES | Settings |
+|---|---|---|---|
+| box1 | 22:00 `run-daily-crawl`; sync 22:05 via `~/inventory-sync/run_sync_when_safe.sh` | AK,AZ,CT,DE,IA,ID,KS,LA,MN,NY,OH,RI,VA | `CRAWLER_MAX_CONCURRENT_STATES=2`, P90=55, `CRAWLER_LITE_NIGHTLY=shadow` |
+| box2 | 22:00 `run-daily-crawl`; sync 22:10 | AL,CA,CO,GA,IN,MD,ME,MT,NC,ND,NV,OK,OR,PA,TN,TX,VT,WV,WY | concurrency 6, P90=30 |
+| box3 | 22:00 `run_nightly_chain.sh` | expansion: AL,IA,IN,LA,MI,NJ,OH,PA,TX,VA,WI; then core: AR,MA,MO,NH,SC,SD,NE,UT,WI | expansion concurrency 4, max 1000/dealer; core concurrency 6 |
+| box4 | 22:00 `run_nightly_chain.sh` | expansion: CA,FL,GA,IL,KY,MA,MN,MO,NC,NY,OK,TN; then core: FL,HI,IL,KY,MI,MS,NJ,NM,WA | not reported (concurrency/limits UNVERIFIED) |
+
+`CRAWL_STATES` order is the order claims are tried, not an exclusive allotment (CAPACITY_SLA.md). Re-verify with `crontab -l` before relying on these.
 
 ## Do not use
 

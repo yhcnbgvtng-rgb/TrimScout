@@ -3,7 +3,7 @@
   "sshUser": "ubuntu",
   "boxes": {
     "box1": { "host": "34.203.148.79", "privateIp": "172.26.1.32", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
-    "box2": { "host": "52.202.234.65", "privateIp": null, "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
+    "box2": { "host": "52.202.234.65", "privateIp": "172.26.14.74", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
     "box3": { "host": "184.73.158.210", "privateIp": "172.26.15.105", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
     "box4": { "host": "100.50.85.234", "privateIp": "172.26.11.241", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" }
   },
