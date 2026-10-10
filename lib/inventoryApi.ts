@@ -247,9 +247,29 @@ export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPa
  * has no per-dealer lat/lng). Callers enforce the "zip+radius needs make" guardrail themselves —
  * this function doesn't know about it.
  */
-export async function searchInventory(q: BuyerSearchQuery = {}): Promise<InventoryPage> {
+export async function searchInventory(q: BuyerSearchQuery = {}, contact?: { dealerIds: string[] }): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
-  return listInventory({ ...rest, inStock: true, retailOnly: true, seenWithinDays: STALE_HIDE_DAYS });
+  const full: InventoryQuery = { ...rest, inStock: true, retailOnly: true, seenWithinDays: STALE_HIDE_DAYS };
+  if (!contact) return listInventory(full);
+  // "Dealer contact on file": ~8k dealer ids do not fit a query string, so the box takes them in a POST body (deals-api /api/inventory/contact-search).
+  const page: InventoryPage & { contactFilter?: { dealers: number } } = await contactRequest("/api/inventory/contact-search", { query: inventoryQueryString(full).replace(/^\?/, ""), dealerIds: contact.dealerIds }, contact.dealerIds.length);
+  return page;
+}
+
+/**
+ * POST to a contact-filter endpoint. A box without the endpoint answers 404, and a box that ignored the filter would not echo `contactFilter`:
+ * both become an error, never an unfiltered answer dressed up as a filtered one.
+ */
+async function contactRequest(path: string, body: Record<string, unknown>, dealers: number): Promise<any> {
+  let json: any;
+  try {
+    json = await request("POST", path, body);
+  } catch (err) {
+    if (err instanceof InventoryApiError && err.status === 404) throw new InventoryApiError("The dealer-contact filter is not available yet on the inventory service.", 404);
+    throw err;
+  }
+  if (!json || json.contactFilter?.dealers !== dealers) throw new InventoryApiError("The inventory service did not apply the dealer-contact filter.", 502);
+  return json;
 }
 
 export interface CatalogOptions {
@@ -287,7 +307,11 @@ export interface InventoryFacets {
  * whole-table cache keys, which would mean two callers with different filters silently reading
  * each other's result.
  */
-export async function inventoryFacets(f: { state?: string; make?: string; model?: string } = {}): Promise<InventoryFacets> {
+export async function inventoryFacets(f: { state?: string; make?: string; model?: string } = {}, contact?: { dealerIds: string[] }): Promise<InventoryFacets> {
+  if (contact) {
+    // Same counts, restricted to the contact-on-file dealers: exactly the cars searchInventory(…, contact) lists.
+    return contactRequest("/api/inventory/contact-facets", { state: f.state, make: f.make, model: f.model, seenWithinDays: STALE_HIDE_DAYS, dealerIds: contact.dealerIds }, contact.dealerIds.length);
+  }
   const qs = new URLSearchParams();
   if (f.state) qs.set("state", f.state);
   if (f.make) qs.set("make", f.make);

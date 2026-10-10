@@ -9,6 +9,7 @@ import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { lastSeenLabel } from "@/lib/lastConfirmed";
 import { useRouter } from "next/navigation";
 
@@ -70,6 +71,8 @@ interface Filters {
   interiorColor: string;
   optionKeys: string[];
   possibleDemo: boolean;
+  /** Only cars whose dealer has a contact on file. Lives in the page URL as contactOnFile=1. */
+  contactOnFile: boolean;
   zip: string;
   radiusMiles: string;
   sort: string;
@@ -78,7 +81,7 @@ interface Filters {
 const EMPTY_FILTERS: Filters = {
   state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
   exteriorColor: "", interiorColor: "", optionKeys: [],
-  possibleDemo: false, zip: "", radiusMiles: "", sort: "",
+  possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "",
 };
 
 // A "More" filter is anything not always visible in the primary row — its own count so the
@@ -86,7 +89,8 @@ const EMPTY_FILTERS: Filters = {
 function countMoreFilters(f: Filters): number {
   return (
     [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles].filter(Boolean).length +
-    (f.possibleDemo ? 1 : 0)
+    (f.possibleDemo ? 1 : 0) +
+    (f.contactOnFile ? 1 : 0)
   );
 }
 
@@ -106,6 +110,7 @@ function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: numb
   if (f.interiorColor) sp.set("interiorColor", f.interiorColor);
   if (f.optionKeys.length) sp.set("optionKeys", f.optionKeys.join(","));
   if (f.possibleDemo) sp.set("possibleDemo", "1");
+  if (f.contactOnFile) sp.set("contactOnFile", "1");
   if (f.zip) sp.set("zip", f.zip);
   if (f.radiusMiles && f.make && f.zip) sp.set("radiusMiles", f.radiusMiles);
   if (f.sort) {
@@ -141,6 +146,21 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?
 
 export function BuyerSearchView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  // contactOnFile=1 in the page URL turns the filter on (a shared link); toggling it rewrites the URL without a navigation.
+  useEffect(() => {
+    if (!contactFilterEnabled()) return;
+    try {
+      if (new URLSearchParams(window.location.search).get("contactOnFile") === "1") setFilters((f) => ({ ...f, contactOnFile: true }));
+    } catch { /* no URL access: the filter just starts off */ }
+  }, []);
+  useEffect(() => {
+    if (!contactFilterEnabled()) return;
+    try {
+      const url = new URL(window.location.href);
+      if (filters.contactOnFile) url.searchParams.set("contactOnFile", "1"); else url.searchParams.delete("contactOnFile");
+      window.history.replaceState(window.history.state, "", url);
+    } catch { /* ignore */ }
+  }, [filters.contactOnFile]);
   const picksState = useBuyerSearchState();
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -182,6 +202,7 @@ export function BuyerSearchView() {
     if (filters.state) sp.set("state", filters.state);
     if (filters.make) sp.set("make", filters.make);
     if (filters.model) sp.set("model", filters.model);
+    if (filters.contactOnFile) sp.set("contactOnFile", "1");
     fetch(`/api/catalog/facets?${sp}`, { signal: controller.signal })
       .then((r) => {
         // An error body ({error}) used to be read as "no states/makes/…" and blank every list.
@@ -203,7 +224,7 @@ export function BuyerSearchView() {
       })
       .finally(() => setFacetsLoading(false));
     return () => controller.abort();
-  }, [filters.state, filters.make, filters.model]);
+  }, [filters.state, filters.make, filters.model, filters.contactOnFile]);
 
   // Factory options + colors, scoped to make/model/trim — unchanged from the pre-redesign panel.
   useEffect(() => {
@@ -348,7 +369,7 @@ export function BuyerSearchView() {
     setFilters((f) => ({
       ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
       // The header sort is kept (it is not a filter); only a Distance sort goes, because clearing the ZIP removes that column.
-      exteriorColor: "", interiorColor: "", possibleDemo: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
+      exteriorColor: "", interiorColor: "", possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
 
   // Counts are hidden while the facet request is in flight or has failed, so a stale number is never shown (#389).
@@ -430,6 +451,12 @@ export function BuyerSearchView() {
                     </select>
                   </div>
                 </div>
+                {contactFilterEnabled() && (
+                  <label className="flex items-center gap-2 text-xs text-ink-light" title="Only cars whose dealer has a named sales contact on file with us">
+                    <input type="checkbox" checked={filters.contactOnFile} onChange={(e) => setFilters((f) => ({ ...f, contactOnFile: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-brand-500" />
+                    Dealer contact on file
+                  </label>
+                )}
                 <label className="flex items-center gap-2 text-xs text-ink-light">
                   <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-brand-500" />
                   Include likely demo/loaner vehicles
