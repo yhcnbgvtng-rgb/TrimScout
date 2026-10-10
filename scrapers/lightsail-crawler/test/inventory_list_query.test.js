@@ -481,3 +481,36 @@ describe('withExportFastSort — CSV export default for in-stock State+Make (no 
     assert.equal(p.get('sort'), null);
   });
 });
+
+describe('inventoryListQuery — retailOnly (buyer search keeps wholesale lots out)', () => {
+  const CLAUSE = "(i.cond IS NULL OR i.cond <> 'wholesale')";
+  it('adds exactly one post-filter, with no extra args', () => {
+    const { sql, args } = query({ retailOnly: '1', inStock: '1', state: 'FL', make: 'Mercedes-Benz' });
+    assert.ok(sql.includes(CLAUSE));
+    assert.deepEqual(args, ['FL', 'Mercedes-Benz']);
+  });
+  it('without the flag the SQL, args and order are byte-for-byte what they were (the admin sheet is untouched)', () => {
+    for (const pairs of [{}, { inStock: '1', state: 'FL', make: 'Mercedes-Benz' }, { inStock: '1', make: 'Toyota', model: 'RAV4', sort: 'trim:asc' }, { dealerId: '11249', inStock: '1' }]) {
+      const a = query(pairs), b = query({ ...pairs, retailOnly: '0' });
+      assert.deepEqual(b, a);
+      assert.ok(!a.sql.includes('wholesale'));
+    }
+  });
+  it('does not change which index hint or sort the query picks', () => {
+    for (const pairs of [{ inStock: '1', state: 'FL', make: 'Mercedes-Benz', sort: 'model:asc' }, { inStock: '1', make: 'Toyota', model: 'RAV4' }, { inStock: '1', state: 'NJ', make: 'Ford', model: 'F-150', sort: 'trim:asc' }]) {
+      const plain = query(pairs), retail = query({ ...pairs, retailOnly: '1' });
+      assert.equal(retail.orderBy, plain.orderBy);
+      assert.equal(retail.sql.replace(` AND ${CLAUSE}`, '').replace(`${CLAUSE} AND `, ''), plain.sql, JSON.stringify(pairs));
+    }
+  });
+  it('an explicit cond=wholesale together with retailOnly returns nothing (the buyer search cannot ask for it)', () => {
+    const { sql, args } = query({ retailOnly: '1', cond: 'wholesale' });
+    assert.ok(sql.includes('i.cond = ?') && sql.includes(CLAUSE));
+    assert.deepEqual(args, ['wholesale']);
+  });
+  it('works with the count cap and the export fast sort without touching them', () => {
+    const r = query({ retailOnly: '1', inStock: '1', state: 'FL', make: 'Mercedes-Benz', countCap: '1000' });
+    assert.ok(r.cappedCountSql.includes(CLAUSE));
+    assert.equal(withExportFastSort(new URLSearchParams({ inStock: '1', state: 'FL', make: 'Mercedes-Benz', retailOnly: '1' })).get('sort'), 'model:asc');
+  });
+});
