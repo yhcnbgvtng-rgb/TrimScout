@@ -6,10 +6,10 @@ export const SALES_DESK_NO_NAME_LABEL = "Sales desk (no contact name on file)";
 /** The store has no deliverable email at all — the buyer may know an advisor from a visit. */
 export const NO_CONTACT_HELPER = "Went on a test drive? Enter the sales advisor's details below.";
 
-/** Shown when an email is on file but no person is named — the request goes to that address, greeted as the sales team. */
-export const EMAIL_ONLY_HELPER = "No named sales contact on file yet — our team routes the request to this dealership's sales desk by hand, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them directly.";
+/** The one field label/placeholder for a buyer-supplied advisor address (spelled "advisor" everywhere). */
+export const ADVISOR_EMAIL_PLACEHOLDER = "Sales advisor email (optional)";
 
-/** The label for a desk with no named person: the no-name wording when an email is on file, else the generic desk. */
-export function salesDeskLabel(contactState: "named" | "email_only" | "none" | undefined): string {
-  return contactState === "email_only" ? SALES_DESK_NO_NAME_LABEL : "Dealership sales desk";
+/** The label for any desk with no named person — same badge whether or not an unnamed email is on file. */
+export function salesDeskLabel(_contactState?: "named" | "email_only" | "none"): string {
+  return SALES_DESK_NO_NAME_LABEL;
 }

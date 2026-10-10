@@ -37,10 +37,11 @@ describe("matchDirectoryDealership", () => {
     assert.equal(match?.contactEmail, "nj@example.com");
   });
 
-  it("falls back to the first row when no state matches", () => {
+  it("never borrows another state's row for a same-named store; a row with no state still matches", () => {
     const dir = [row({ state: "PA", contactEmail: "pa@example.com" })];
-    const match = matchDirectoryDealership(dir, { dealerName: "Route 23 Auto Mall", state: "NJ" });
-    assert.equal(match?.contactEmail, "pa@example.com");
+    assert.equal(matchDirectoryDealership(dir, { dealerName: "Route 23 Auto Mall", state: "NJ" }), null);
+    assert.equal(matchDirectoryDealership([row({ state: null, contactEmail: "x@example.com" })], { dealerName: "Route 23 Auto Mall", state: "NJ" })?.contactEmail, "x@example.com");
+    assert.equal(matchDirectoryDealership(dir, { dealerName: "Route 23 Auto Mall" })?.contactEmail, "pa@example.com", "no state asked = any row");
   });
 
   it("returns null for an unknown or empty name", () => {

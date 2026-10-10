@@ -9,7 +9,7 @@ function row(over: Partial<Dealership>): Dealership {
 
 describe("dealer contact index (search Contact column)", () => {
   it("yes / no / unknown", () => {
-    const idx = buildContactIndex([row({ contactEmail: "a@testmotors.com" }), row({ id: "2", dealerName: "Empty Auto" })]);
+    const idx = buildContactIndex([row({ contactName: "Alex Lee", contactEmail: "alex@testmotors.com" }), row({ id: "2", dealerName: "Empty Auto" })]);
     assert.equal(contactStatus(idx, { dealerName: "Test Motors", dealerState: "NJ" }), true);
     assert.equal(contactStatus(idx, { dealerName: "Empty Auto", dealerState: "NJ" }), false);
     assert.equal(contactStatus(idx, { dealerName: "Not In Directory", dealerState: "NJ" }), false, "no row = no contact");
