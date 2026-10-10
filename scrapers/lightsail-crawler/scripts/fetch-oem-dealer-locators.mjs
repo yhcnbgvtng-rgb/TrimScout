@@ -7,6 +7,12 @@
 // brandofcity.com hosts.
 //
 // Writes dealers/oem-dumps/<brand>.json plus _status.json.
+// Flags (both optional; with neither, every brand and state is refreshed as before):
+//   --brands=hyundai,toyota   refresh only these dumps; the others and their _status entries are left alone
+//   --states=WI,WA,MI         keep only these states' fresh rows and leave every other state's rows in
+//                             the existing dump untouched
+// Either way a fetch that returns no rows (blocked locator, outage) never replaces a non-empty dump.
+//
 // Re-run on Lightsail if Honda/Acura/BMW/Nissan return 403/Access-Denied from
 // this IP (Honda/Nissan are confirmed Akamai-blocked even via patchright, as
 // of the 2026-09-14 rerun — worth re-testing from a different egress IP).
@@ -17,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'patchright';
 import { hostFromUrl, isOemMarketingHost } from '../src/oem_locator.js';
 import { normalizeDealerHost } from '../src/nj_verified_domains.js';
+import { mergeDumpRows, parseListArg } from '../src/oem_dump_merge.js';
 import { SUPPORTED_STATES } from '../src/states.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,7 +34,11 @@ const TIMEOUT_MS = 15000;
 // Every state this capture tool pulls real rows for — src/states.js is the
 // single source of truth (adding a state there needs a matching zip/city
 // seed added below, nothing else).
-const TARGET_STATES = SUPPORTED_STATES;
+const ONLY_STATES = (parseListArg(process.argv, 'states') || []).map((x) => x.toUpperCase());
+const badStates = ONLY_STATES.filter((x) => !SUPPORTED_STATES.includes(x));
+if (badStates.length) throw new Error(`--states has unsupported state(s): ${badStates.join(', ')}`);
+const ONLY_BRANDS = (parseListArg(process.argv, 'brands') || []).map((x) => x.toLowerCase());
+const TARGET_STATES = ONLY_STATES.length ? ONLY_STATES : SUPPORTED_STATES;
 
 function inTargetStates(state) {
   return TARGET_STATES.includes(String(state || '').toUpperCase());
@@ -630,8 +641,21 @@ function uniqRows(rows) {
 async function writeDump(brand, rows, status) {
   const slug = brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const dest = path.join(OUT_DIR, `${slug}.json`);
-  await fs.writeFile(dest, `${JSON.stringify(uniqRows(rows), null, 2)}\n`);
-  return { brand, dest: path.relative(ROOT, dest), count: uniqRows(rows).length, ...status };
+  let existing = [];
+  try {
+    const parsed = JSON.parse(await fs.readFile(dest, 'utf-8'));
+    if (Array.isArray(parsed)) existing = parsed;
+  } catch { /* first run for this brand */ }
+  const merged = mergeDumpRows({ existing, fresh: uniqRows(rows), states: ONLY_STATES });
+  const out = uniqRows(merged.rows);
+  await fs.writeFile(dest, `${JSON.stringify(out, null, 2)}\n`);
+  return {
+    brand,
+    dest: path.relative(ROOT, dest),
+    count: out.length,
+    ...status,
+    ...(merged.note ? { note: `${status.note || ''} [${merged.note}]`.trim() } : {}),
+  };
 }
 
 function parseToyotaCards(html, sourceUrl) {
@@ -1475,29 +1499,50 @@ const status = [];
 
 await fs.mkdir(OUT_DIR, { recursive: true });
 
-status.push(await copyInRepo('acura', 'acura-dealers.json', 'Acura'));
-status.push(await copyInRepo('porsche', 'dealers.json', 'Porsche'));
-status.push(await fetchLexus());
-status.push(await fetchToyota());
-status.push(await fetchMercedes());
-status.push(await fetchMitsubishi());
-status.push(await fetchHonda());
-status.push(await fetchBmw());
-status.push(await fetchMini());
-status.push(await fetchKia());
-status.push(await fetchNissan());
-status.push(await fetchInfiniti());
-status.push(await fetchSubaru());
-status.push(await fetchMazda());
-status.push(await fetchHyundai());
-status.push(await fetchVolkswagen());
-status.push(await fetchAudi());
-status.push(await fetchVolvo());
+const wanted = (slug) => ONLY_BRANDS.length === 0 || ONLY_BRANDS.includes(slug);
+const jobs = [
+  ['acura', () => copyInRepo('acura', 'acura-dealers.json', 'Acura')],
+  ['porsche', () => copyInRepo('porsche', 'dealers.json', 'Porsche')],
+  ['lexus', () => fetchLexus()],
+  ['toyota', () => fetchToyota()],
+  ['mercedes-benz', () => fetchMercedes()],
+  ['mitsubishi', () => fetchMitsubishi()],
+  ['honda', () => fetchHonda()],
+  ['bmw', () => fetchBmw()],
+  ['mini', () => fetchMini()],
+  ['kia', () => fetchKia()],
+  ['nissan', () => fetchNissan()],
+  ['infiniti', () => fetchInfiniti()],
+  ['subaru', () => fetchSubaru()],
+  ['mazda', () => fetchMazda()],
+  ['hyundai', () => fetchHyundai()],
+  ['volkswagen', () => fetchVolkswagen()],
+  ['audi', () => fetchAudi()],
+  ['volvo', () => fetchVolvo()],
+];
+if (ONLY_BRANDS.length) {
+  const unknown = ONLY_BRANDS.filter((b) => !jobs.some(([slug]) => slug === b));
+  if (unknown.length) throw new Error(`--brands has unknown brand(s): ${unknown.join(', ')}`);
+}
+
+for (const [slug, run] of jobs) {
+  if (wanted(slug)) status.push(await run());
+}
+
+// A partial run keeps the other brands' _status entries instead of dropping them.
+let allStatus = status;
+if (ONLY_BRANDS.length) {
+  try {
+    const prev = JSON.parse(await fs.readFile(path.join(OUT_DIR, '_status.json'), 'utf-8'));
+    const fresh = new Set(status.map((x) => x.brand));
+    allStatus = [...(prev.brands || []).filter((x) => !fresh.has(x.brand)), ...status];
+  } catch { /* no previous status file */ }
+}
 
 await fs.writeFile(path.join(OUT_DIR, '_status.json'), `${JSON.stringify({
   generatedAt: new Date().toISOString(),
   detectOnly: true,
-  brands: status,
+  brands: allStatus,
 }, null, 2)}\n`);
 
 for (const s of status) {
