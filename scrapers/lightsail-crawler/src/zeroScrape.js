@@ -72,10 +72,38 @@ export function classifyZeroScrape(stores, { runStart, nights = ZERO_SCRAPE_NIGH
   return { stale, held, cutoff };
 }
 
-/** The aggregate the classifier reads: one row per (store, make) of live cars. Heavy — run once, after the nightly sync. */
-export const ZERO_SCRAPE_AGGREGATE_SQL =
+/**
+ * The aggregate the classifier reads: one row per (store, make) of live cars. It used to be a single GROUP BY over every live car
+ * (3M rows), which ran past its 120 s cap on box2 on 2026-10-10. Now, like the wholesale buckets in deals_api_server.js, it reads the
+ * dealer ids first (one index-only GROUP BY), then a few dealers at a time by (removed_at, dealer_id) on idx_inv_by_dealer_covering, so
+ * no query touches more than ~25 stores' cars. Each query is capped at ZERO_SCRAPE_QUERY_SECONDS; the whole thing at ZERO_SCRAPE_TOTAL_MS.
+ */
+export const ZERO_SCRAPE_DEALERS_PER_QUERY = 25;
+export const ZERO_SCRAPE_QUERY_SECONDS = 20;
+export const ZERO_SCRAPE_TOTAL_MS = 120_000;
+export const ZERO_SCRAPE_DEALER_IDS_SQL = "SELECT dealer_id FROM dealer_inventory FORCE INDEX (idx_inv_stock_dealer_id) WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id";
+export const ZERO_SCRAPE_BATCH_SQL =
   "SELECT dealer_id AS dealerId, source_box AS sourceBox, make, MAX(last_seen_at) AS lastSeen, COUNT(*) AS live, MIN(stale_at IS NOT NULL) AS alreadyStale " +
-  "FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id, source_box, make";
+  "FROM dealer_inventory FORCE INDEX (idx_inv_by_dealer_covering) WHERE removed_at IS NULL AND dealer_id IN (?) GROUP BY dealer_id, source_box, make";
+
+/**
+ * @param {(sql: string, args: any[]) => Promise<any[]>} run  runs one statement (the caller adds the per-query statement cap) and resolves to its rows
+ * @param {{ now?: () => number, totalMs?: number, perQuery?: number }} [opts]
+ * @returns {Promise<{ dealerId:number, sourceBox:string|null, make:string|null, lastSeen:Date, live:number, alreadyStale:boolean }[]>}
+ */
+export async function aggregateZeroScrape(run, { now = Date.now, totalMs = ZERO_SCRAPE_TOTAL_MS, perQuery = ZERO_SCRAPE_DEALERS_PER_QUERY } = {}) {
+  const started = now();
+  const overBudget = () => now() - started > totalMs;
+  const dealerIds = (await run(ZERO_SCRAPE_DEALER_IDS_SQL, [])).map((r) => Number(r.dealer_id));
+  const stores = [];
+  for (let i = 0; i < dealerIds.length; i += perQuery) {
+    if (overBudget()) throw new Error(`zero-scrape aggregate exceeded ${totalMs}ms after ${i} of ${dealerIds.length} dealers`);
+    const rows = await run(ZERO_SCRAPE_BATCH_SQL, [dealerIds.slice(i, i + perQuery)]);
+    for (const r of rows) stores.push({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 });
+  }
+  if (overBudget()) throw new Error(`zero-scrape aggregate exceeded ${totalMs}ms`);
+  return stores;
+}
 
 export function buildMarkStaleStatement(dealerIds, cutoff) {
   return { sql: "UPDATE dealer_inventory SET stale_at = CURRENT_TIMESTAMP WHERE dealer_id IN (?) AND removed_at IS NULL AND stale_at IS NULL AND last_seen_at < ?", args: [dealerIds, cutoff] };

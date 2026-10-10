@@ -44,7 +44,7 @@ import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
-import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, ZERO_SCRAPE_AGGREGATE_SQL } from "./zeroScrape.js";
+import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
@@ -2495,8 +2495,7 @@ async function handleInventoryZeroScrape(req, res) {
   await ensureInventoryTable(pool);
   const parsed = parseZeroScrapeRequest(await readBody(req));
   if (!parsed.ok) return badRequest(res, parsed.error);
-  const [agg] = await pool.query({ sql: `SET STATEMENT max_statement_time=120 FOR ${ZERO_SCRAPE_AGGREGATE_SQL}` });
-  const stores = agg.map((r) => ({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 }));
+  const stores = await aggregateZeroScrape(async (sql, args) => (await pool.query(`SET STATEMENT max_statement_time=${ZERO_SCRAPE_QUERY_SECONDS} FOR ${sql}`, args))[0]);
   const { stale, held, cutoff } = classifyZeroScrape(stores, parsed);
   let marked = 0;
   if (!parsed.dryRun) {
