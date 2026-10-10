@@ -10,7 +10,8 @@
 //                   never kept (a row needs price > 0).
 //   rules           "Requires ...", "Not available with ...", "only with ...", "deletes ..." notes are combos Ford will not allow: stored under the option as
 //                   rules (with the option keys they name), never as options.
-//   not options     Base, price <= 0 / blank, standard / Included, items Ford's configurator tags "Interior" (see INTERIOR_SUBCATEGORIES), subscriptions
+//   not options     Base, price <= 0 / blank, standard / Included, interior colors / seats / trim choices (see INTERIOR_CHOICE_RE; the paid FUNCTIONAL options Ford
+//                   tags "Interior" - Power Moonroof, trailer brake controller, Pro Power Onboard... - are kept), subscriptions
 //                   (Connectivity, SiriusXM, BlueCruise plans), accessories (incl. dealer bed, cargo and protection items), cab / bed / door count / drivetrain
 //                   (configuration choices), and features inside a package. The Tough Bed spray-in bedliner (a factory option) is the one bedliner kept.
 //   no trusted trim -> no options (enforced at match time in factoryOptionAllowlist.js).
@@ -29,17 +30,21 @@ const REPORT = path.join(root, "docs/ford-2026/POLICY_REPORT.md");
 // "F-150 Lightning" and every other Ford model are deliberately NOT here: they keep today's behavior.
 const MODEL_NAMES = { "F-150": ["f150"], Maverick: [], Ranger: [], "Bronco Sport": [], Bronco: [] };
 
-// Ford's configurator tags these "Interior" (27 rows: Power Moonroof, Integrated Trailer Brake Controller, Pro Power Onboard, Slide-Out Tailgate, Aux Switches
-// and Wiring, Interior Carbon Fiber Pack, Code Orange Accent Seat Belts...). The approved rule drops interior items, and this CSV has no separate Interior
-// category, so the configurator's own subcategory tag is what is dropped. To keep one of them, remove "Interior" here; the report lists every dropped row.
-// Analysis only: `--keep-interior --out <file>` writes just the policy JSON (to <file>, never the repo files) with those items kept, to measure what the rule costs.
-const KEEP_INTERIOR = process.argv.includes("--keep-interior");
-const INTERIOR_SUBCATEGORIES = new Set(KEEP_INTERIOR ? [] : ["Interior"]);
+// Ford's configurator tags 11 priced options "Interior" (27 rows). Paul's rule: the paid FUNCTIONAL ones (Power Moonroof, Integrated Trailer Brake Controller,
+// Pro Power Onboard, Aux Switches and Wiring, Slide-Out Tailgate, Power-Sliding Rear Window) are options and stay; interior colors, seats and trim choices
+// do not. In this CSV the latter are exactly "Interior Carbon Fiber Pack" and "Code Orange Accent Seat Belts" - what this pattern drops from the Interior group.
+const INTERIOR_CHOICE_RE = /\bseats?\b|seat ?belts?|upholster|leather|\bcloth\b|\btrim\b|carbon fiber|headliner|interior (?:colou?r|pack|trim)/i;
+
+// Approved trim aliases (Paul), and nothing else. Maverick's Lobo is sold as "Lobo High" / "Lobo Standard" (equipment-group names); the CSV prices one "Lobo".
+// "Raptor R" is deliberately NOT here: it stays its own (untrusted) trim, not Raptor.
+const TRIM_ALIASES = { Maverick: { "lobo high": "lobo", "lobo standard": "lobo" } };
 
 // Trim words that describe the body / drivetrain, not the trim. Cab, bed, door count and drivetrain are configuration choices.
-const TRIM_NOISE = ["awd", "fwd", "rwd", "4wd", "2wd", "4x4", "4x2", "supercrew", "supercab", "reg", "hybrid", "hev"];
+// Status words (Demo, Fleet, In Transit) say where the car is in its life, not which trim it is; approved as noise. A trailing Ford order code ("XLT 302A") is
+// stripped by the policy flag trimStripOrderCodes (see factoryOptionAllowlist.js).
+const TRIM_NOISE = ["awd", "fwd", "rwd", "4wd", "2wd", "4x4", "4x2", "supercrew", "supercab", "reg", "hybrid", "hev", "demo", "fleet", "intransit"];
 const TRIM_NOISE_PHRASES = [
-  "super crew", "super cab", "regular cab", "crew cab", "extended cab", "4 door", "2 door", "4dr", "2dr",
+  "in transit", "super crew", "super cab", "regular cab", "crew cab", "extended cab", "4 door", "2 door", "4dr", "2dr",
   "four wheel drive", "all wheel drive", "front wheel drive", "rear wheel drive", "two wheel drive",
   "short bed", "long bed", "standard bed", "145 wb", "157 wb", "122 wb", "126 wb",
   ...["5 5", "6 5", "8", "5", "6"].flatMap((n) => [`${n} box`, `${n} bed`, `${n} ft box`, `${n} ft bed`, `${n} foot box`, `${n} foot bed`]),
@@ -77,7 +82,7 @@ function classify(r) {
   if (SUBSCRIPTION_RE.test(r.item)) return { kind: null, drop: "subscription" };
   if (ACCESSORY_RE.test(r.item) && !/tough bed/i.test(r.item)) return { kind: null, drop: "accessory" };
   if (CONFIGURATION_RE.test(r.item)) return { kind: null, drop: "configuration (cab / bed / doors / drivetrain)" };
-  if (r.category === "Factory option" && INTERIOR_SUBCATEGORIES.has(r.subcategory)) return { kind: null, drop: "interior item" };
+  if (r.category === "Factory option" && r.subcategory === "Interior" && INTERIOR_CHOICE_RE.test(r.item)) return { kind: null, drop: "interior color / seat / trim choice" };
   if (r.category === "Factory package") return { kind: "package" };
   if (r.category === "Factory option") return { kind: "option" };
   if (r.category === "Exterior color") return { kind: "paint" };
@@ -129,17 +134,22 @@ function aliasesFor(r, kind, key, code) {
 }
 
 function buildCatalog(rows) {
-  const trims = {}, drops = {}, conflicts = [], interiorDropped = [], keyMismatch = [];
+  const trims = {}, drops = {}, conflicts = [], interiorDropped = [], interiorKept = [], keyMismatch = [];
   for (const t of [...new Set(rows.map((r) => r.trim))]) if (t) trims[slug(t)] = { label: t, options: {} };
+  // Every item name the CSV lists for a trim, kept or dropped. A vehicle line equal to one of these is that standalone item (priced or not), never evidence of a
+  // package that merely lists it among its contents.
+  const catalogNames = {};
+  for (const r of rows) if (r.category !== "Base" && trims[slug(r.trim)]) (catalogNames[slug(r.trim)] ||= new Set()).add(normalizeOptionKey(decoration(clean(r.item))));
   for (const r of rows) {
     const tk = slug(r.trim);
     const { kind, drop } = classify(r);
     if (!kind || !trims[tk]) {
       drops[drop] = (drops[drop] || 0) + 1;
-      if (drop === "interior item") interiorDropped.push(`${r.model} ${r.trim}: ${clean(r.item)} ($${r.price_usd})`);
+      if (drop === "interior color / seat / trim choice") interiorDropped.push(`${r.model} ${r.trim}: ${clean(r.item)} ($${r.price_usd})`);
       continue;
     }
     const label = clean(r.item);
+    if (r.subcategory === "Interior") interiorKept.push(`${r.model} ${r.trim}: ${label} ($${r.price_usd})`);
     const code = codeOf(r);
     const key = code ? normalizeOptionKey(code) : normalizeOptionKey(label);
     if (!key) continue;
@@ -149,7 +159,7 @@ function buildCatalog(rows) {
     const rules = rulesOf(r);
     trims[tk].options[key] = { label, kind, price: price(r), ...(code ? { code } : {}), aliases: aliasesFor(r, kind, key, code), contents: r.contents || "", ...(rules.length ? { rules } : {}) };
   }
-  for (const t of Object.values(trims)) {
+  for (const [tkey, t] of Object.entries(trims)) {
     const names = new Set(Object.keys(t.options));
     const taken = new Map();
     for (const [k, o] of Object.entries(t.options)) o.aliases = o.aliases.filter((a) => { if (names.has(a) || taken.has(a)) return false; taken.set(a, k); return true; });
@@ -178,32 +188,38 @@ function buildCatalog(rows) {
       for (const ck of items) { if (ADDON_RES.some((re) => re.test(ck))) continue; if (!owners.has(ck)) owners.set(ck, new Set()); owners.get(ck).add(k); }
     }
     for (const [ck, ks] of owners) {
-      if (ks.size !== 1 || names.has(ck) || taken.has(ck)) continue;
+      if (ks.size !== 1 || names.has(ck) || taken.has(ck) || (catalogNames[tkey] || new Set()).has(ck)) continue;
       const o = t.options[[...ks][0]];
       (o.features ||= []).push(`^${ck}$`);
     }
     for (const o of Object.values(t.options)) { delete o.contents; if (o.features) o.features.sort(); }
   }
-  return { trims, drops, conflicts, interiorDropped, keyMismatch };
+  return { trims, drops, conflicts, interiorDropped, interiorKept, keyMismatch };
 }
 
 const all = parseCsv(fs.readFileSync(CSV, "utf8"));
 const byModel = new Map();
 for (const r of all) { const g = `${r.year}|${r.model}`; if (!byModel.has(g)) byModel.set(g, []); byModel.get(g).push(r); }
 
-const policies = {}, report = { models: [], conflicts: [], interior: [], keyMismatch: [], drops: {}, rulesCount: 0, codeKeys: [] };
+const policies = {}, report = { models: [], conflicts: [], interior: [], interiorKept: [], aliases: [], keyMismatch: [], drops: {}, rulesCount: 0, codeKeys: [] };
 for (const [g, rows] of [...byModel].sort()) {
   const [year, model] = g.split("|");
   if (!MODEL_NAMES[model]) throw new Error(`CSV has an unexpected model "${model}" - add it to MODEL_NAMES deliberately or remove it from the CSV`);
   const cat = buildCatalog(rows);
-  report.conflicts.push(...cat.conflicts); report.interior.push(...cat.interiorDropped); report.keyMismatch.push(...cat.keyMismatch);
+  report.conflicts.push(...cat.conflicts); report.interior.push(...cat.interiorDropped); report.interiorKept.push(...cat.interiorKept); report.keyMismatch.push(...cat.keyMismatch);
   for (const [k, v] of Object.entries(cat.drops)) report.drops[k] = (report.drops[k] || 0) + v;
+  for (const [from, to] of Object.entries(TRIM_ALIASES[model] || {})) {
+    if (!cat.trims[slug(to)]) throw new Error(`${model}: trim alias "${from}" -> "${to}" points at a trim the CSV does not have`);
+    if (cat.trims[slug(from)]) throw new Error(`${model}: "${from}" is already a trim in the CSV, so it cannot be an alias`);
+    report.aliases.push(`${model}: "${from}" -> ${cat.trims[slug(to)].label}`);
+  }
   const models = [...new Set([slug(model), ...MODEL_NAMES[model].map(slug)])];
   policies[`ford|${slug(model)}|${year}`] = {
     source: `docs/ford-2026/ford_lineup_options_by_trim.csv (${year} ${model})`,
     models,
     keepBare: [],
-    trimAliases: {},
+    trimAliases: TRIM_ALIASES[model] || {},
+    trimStripOrderCodes: true,
     trimNoise: TRIM_NOISE,
     trimNoisePhrases: TRIM_NOISE_PHRASES,
     disclaimerPatterns: DISCLAIMER_PATTERNS,
@@ -228,20 +244,14 @@ md.push("## Entries per trim (paid packages / paid options / paid powertrain / p
 for (const m of report.models) for (const c of m.counts) md.push(`| ${m.year} | ${m.model} | ${c.trim} | ${c.packages} | ${c.options} | ${c.powertrain} | ${c.paints} | ${c.rules} |`);
 md.push("", `Rules stored (combos Ford will not allow: requires / not available with / only with / deletes): ${report.rulesCount}. They are data under each option, never options.`, "");
 md.push("## CSV rows not kept (by rule)", "", ...Object.entries(report.drops).sort().map(([k, v]) => `- ${k}: ${v}`), "");
-md.push(`## Interior items dropped (${report.interior.length} rows - Ford's configurator subcategory "Interior")`, "", "These are priced factory options that Ford's own UI groups under Interior. They are dropped by the approved \"no interior items\" rule. To keep any of them, change `INTERIOR_SUBCATEGORIES` in the builder.", "", ...report.interior.map((x) => `- ${x}`), "");
+md.push(`## Interior-tagged options (Ford's configurator subcategory "Interior")`, "", `Kept (${report.interiorKept.length} rows, paid functional options):`, "", ...report.interiorKept.map((x) => `- ${x}`), "", `Dropped (${report.interior.length} rows, interior color / seat / trim choices):`, "", ...report.interior.map((x) => `- ${x}`), "");
+md.push("## Trim aliases and trim noise (approved; nothing else is aliased)", "", ...report.aliases.map((x) => `- ${x}`), "- a trailing Ford order code is stripped (`XLT 302A` -> `XLT`, `Big Bend 222A` -> `Big Bend`); a code on its own, or as the first word, is not", "- status words `Demo`, `Fleet`, `In Transit` / `Intransit` are ignored (`XLT Demo` -> `XLT`)", "- `Raptor R` is its own trim and is NOT aliased to `Raptor`", "");
 md.push(`## Keys that are Ford package codes (${report.codeKeys.length})`, "", ...report.codeKeys.map((x) => `- ${x}`), "", "Every other entry is keyed on its full normalized name.", "");
-md.push("## Judgment calls", "", "- `BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)` ($2,495, F-150 Lariat and Tremor) is kept: it is a priced factory package bought once, not a subscription plan. Subscription plans are dropped by name.", "- The default-selected paid paint on a trim (the CSV note \"default-selected paid paint excluded\") is kept at its price: it is a paid paint that the trim's base price leaves out.", "- Interior-tagged items are dropped (above).", "- `Interior Protection Package` ($395, Bronco Sport) and `Matte Film Protection Package - Body` ($4,995, Bronco) are listed in the CSV as factory packages, so they are kept. Dealer protection products (paint protection, fabric protection, floor mats, cargo liners) are add-ons and never reach the website. If Paul counts these two factory packages as protection items, add them to the accessory list in the builder.", "");
+md.push("## Judgment calls", "", "- `BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)` ($2,495, F-150 Lariat and Tremor) is kept: it is a priced factory package bought once, not a subscription plan. Subscription plans are dropped by name.", "- The default-selected paid paint on a trim (the CSV note \"default-selected paid paint excluded\") is kept at its price: it is a paid paint that the trim's base price leaves out.", "- Paid functional options Ford tags \"Interior\" are kept; interior colors, seats and trim choices are dropped (above).", "- `Interior Protection Package` ($395, Bronco Sport) and `Matte Film Protection Package - Body` ($4,995, Bronco) are listed in the CSV as factory packages, so they are kept. Dealer protection products (paint protection, fabric protection, floor mats, cargo liners) are add-ons and never reach the website. If Paul counts these two factory packages as protection items, add them to the accessory list in the builder.", "");
 if (report.keyMismatch.length) md.push("## Name keys that differ from the CSV's own key", "", ...report.keyMismatch.map((c) => `- ${c}`), "");
 if (report.conflicts.length) md.push("## Duplicate rows inside one trim (first kept)", "", ...report.conflicts.map((c) => `- ${c}`), "");
 
 const jsonText = `${JSON.stringify(policies, null, 2)}\n`;
-const outArg = process.argv.indexOf("--out");
-if (KEEP_INTERIOR) {
-  if (outArg < 0 || !process.argv[outArg + 1]) { console.error("--keep-interior is analysis-only and needs --out <file>"); process.exit(1); }
-  fs.writeFileSync(process.argv[outArg + 1], jsonText);
-  console.log(`analysis policy (interior items kept) written to ${process.argv[outArg + 1]}; repo files untouched`);
-  process.exit(0);
-}
 const mdText = `${md.join("\n")}\n`;
 if (process.argv.includes("--check")) {
   const bad = [];

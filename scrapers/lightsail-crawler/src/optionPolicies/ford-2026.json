@@ -6,6 +6,7 @@
     ],
     "keepBare": [],
     "trimAliases": {},
+    "trimStripOrderCodes": true,
     "trimNoise": [
       "awd",
       "fwd",
@@ -18,9 +19,13 @@
       "supercab",
       "reg",
       "hybrid",
-      "hev"
+      "hev",
+      "demo",
+      "fleet",
+      "intransit"
     ],
     "trimNoisePhrases": [
+      "in transit",
       "super crew",
       "super cab",
       "regular cab",
@@ -113,7 +118,9 @@
               {
                 "type": "requires",
                 "text": "Required for Power Moonroof on Heritage",
-                "refs": []
+                "refs": [
+                  "power moonroof"
+                ]
               }
             ],
             "features": [
@@ -158,6 +165,42 @@
               "^full size spare wheel and tire$",
               "^rubberized cargo floor$"
             ]
+          },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "onlyWith",
+                "text": "only with the Convenience Package",
+                "refs": [
+                  "convenience package"
+                ]
+              },
+              {
+                "type": "requires",
+                "text": "requires Tech Package+",
+                "refs": []
+              },
+              {
+                "type": "requires",
+                "text": "requires Tech Package",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Fender Flare Kit, Vented Wheel Arch Moldings, and",
+                "refs": []
+              }
+            ]
+          },
+          "pro power onboard 400 w": {
+            "label": "Pro Power Onboard – 400 W",
+            "kind": "option",
+            "price": 175,
+            "aliases": []
           },
           "mini spare wheel steel": {
             "label": "Mini Spare Wheel – Steel",
@@ -231,7 +274,9 @@
               {
                 "type": "requires",
                 "text": "Required for Power Moonroof on Big Bend",
-                "refs": []
+                "refs": [
+                  "power moonroof"
+                ]
               }
             ],
             "features": [
@@ -418,6 +463,50 @@
             "features": [
               "^full size spare wheel and tire$",
               "^rubberized cargo floor$"
+            ]
+          },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Require the Convenience Package",
+                "refs": [
+                  "convenience package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks-only accessories listed in overlay",
+                "refs": []
+              }
+            ]
+          },
+          "pro power onboard 400 w": {
+            "label": "Pro Power Onboard – 400 W",
+            "kind": "option",
+            "price": 175,
+            "aliases": []
+          },
+          "aux switches and wiring": {
+            "label": "Aux Switches and Wiring",
+            "kind": "option",
+            "price": 115,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Outer Banks® Package",
+                "refs": []
+              },
+              {
+                "type": "deletes",
+                "text": "deletes Overhead Console with Sunglasses Storage",
+                "refs": []
+              }
             ]
           },
           "18 dark gravity gray painted aluminum wheels": {
@@ -652,6 +741,50 @@
               "^rubberized cargo floor$"
             ]
           },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Outer Banks® Tech Package+",
+                "refs": [
+                  "outer banks tech package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks accessories listed in overlay",
+                "refs": []
+              }
+            ]
+          },
+          "pro power onboard 400 w": {
+            "label": "Pro Power Onboard – 400 W",
+            "kind": "option",
+            "price": 175,
+            "aliases": []
+          },
+          "aux switches and wiring": {
+            "label": "Aux Switches and Wiring",
+            "kind": "option",
+            "price": 115,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Black Diamond® Off-Road Package",
+                "refs": []
+              },
+              {
+                "type": "deletes",
+                "text": "deletes Overhead Console with Sunglasses Storage",
+                "refs": []
+              }
+            ]
+          },
           "fender tie downs": {
             "label": "Fender Tie Downs",
             "kind": "option",
@@ -863,6 +996,52 @@
               "^six way power front passenger seat$"
             ]
           },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Badlands® Tech Package",
+                "refs": [
+                  "badlands tech package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Fender Flare Kit, Vented Wheel Arch Moldings, or Outer Banks-only accessories listed in overlay",
+                "refs": []
+              }
+            ]
+          },
+          "pro power onboard 400 w": {
+            "label": "Pro Power Onboard – 400 W",
+            "kind": "option",
+            "price": 175,
+            "aliases": []
+          },
+          "aux switches and wiring": {
+            "label": "Aux Switches and Wiring",
+            "kind": "option",
+            "price": 115,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Badlands® Package",
+                "refs": [
+                  "sasquatch badlands package"
+                ]
+              },
+              {
+                "type": "deletes",
+                "text": "deletes Overhead Console with Sunglasses Storage",
+                "refs": []
+              }
+            ]
+          },
           "fender tie downs": {
             "label": "Fender Tie Downs",
             "kind": "option",
@@ -975,6 +1154,7 @@
     ],
     "keepBare": [],
     "trimAliases": {},
+    "trimStripOrderCodes": true,
     "trimNoise": [
       "awd",
       "fwd",
@@ -987,9 +1167,13 @@
       "supercab",
       "reg",
       "hybrid",
-      "hev"
+      "hev",
+      "demo",
+      "fleet",
+      "intransit"
     ],
     "trimNoisePhrases": [
+      "in transit",
       "super crew",
       "super cab",
       "regular cab",
@@ -1124,6 +1308,24 @@
               {
                 "type": "notAvailableWith",
                 "text": "not with Black Appearance, Free Wheeling™ Package or Paint Protection Film",
+                "refs": []
+              }
+            ]
+          },
+          "slide out tailgate": {
+            "label": "Slide-Out Tailgate",
+            "kind": "option",
+            "price": 600,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4-Door",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Sasquatch at Big Bend®/Outer Banks® or Dual Tops at Outer Banks®/Heritage",
                 "refs": []
               }
             ]
@@ -1362,6 +1564,26 @@
                 "type": "notAvailableWith",
                 "text": "not with Free Wheeling™, Black Appearance, or Paint Protection Package",
                 "refs": []
+              }
+            ]
+          },
+          "slide out tailgate": {
+            "label": "Slide-Out Tailgate",
+            "kind": "option",
+            "price": 600,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4-Door",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Sasquatch® Package at Big Bend®/Outer Banks® or Dual Tops at Outer Banks®/Heritage",
+                "refs": [
+                  "sasquatch package"
+                ]
               }
             ]
           },
@@ -1663,6 +1885,12 @@
               "^grille black painted mic with white bronco lettering$",
               "^lt265 70r17 a t tires and full size spare with tpms$"
             ]
+          },
+          "slide out tailgate": {
+            "label": "Slide-Out Tailgate",
+            "kind": "option",
+            "price": 600,
+            "aliases": []
           },
           "hard top painted": {
             "label": "Hard Top, Painted",
@@ -2013,6 +2241,12 @@
             "price": 495,
             "aliases": []
           },
+          "slide out tailgate": {
+            "label": "Slide-Out Tailgate",
+            "kind": "option",
+            "price": 600,
+            "aliases": []
+          },
           "dual tops soft top add in": {
             "label": "Dual Tops – Soft Top Add-In",
             "kind": "option",
@@ -2182,7 +2416,6 @@
               }
             ],
             "features": [
-              "^code orange accent seat belts$",
               "^code orange beadlock kit$",
               "^code orange graphics package$",
               "^code orange tow hooks$",
@@ -2317,6 +2550,7 @@
     ],
     "keepBare": [],
     "trimAliases": {},
+    "trimStripOrderCodes": true,
     "trimNoise": [
       "awd",
       "fwd",
@@ -2329,9 +2563,13 @@
       "supercab",
       "reg",
       "hybrid",
-      "hev"
+      "hev",
+      "demo",
+      "fleet",
+      "intransit"
     ],
     "trimNoisePhrases": [
+      "in transit",
       "super crew",
       "super cab",
       "regular cab",
@@ -2579,6 +2817,12 @@
               "^275 60 20 a s a t$"
             ]
           },
+          "integrated trailer brake controller": {
+            "label": "Integrated Trailer Brake Controller",
+            "kind": "option",
+            "price": 275,
+            "aliases": []
+          },
           "bedliner tough bed spray in": {
             "label": "Bedliner – Tough Bed Spray-In",
             "kind": "option",
@@ -2747,6 +2991,12 @@
               "^four pickup box tie down plates$",
               "^tailgate work surface$"
             ]
+          },
+          "integrated trailer brake controller": {
+            "label": "Integrated Trailer Brake Controller",
+            "kind": "option",
+            "price": 275,
+            "aliases": []
           },
           "trailer tow manual folding and telescoping mirrors": {
             "label": "Trailer Tow – Manual Folding and Telescoping mirrors",
@@ -3666,7 +3916,11 @@
       "maverick"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "lobo high": "lobo",
+      "lobo standard": "lobo"
+    },
+    "trimStripOrderCodes": true,
     "trimNoise": [
       "awd",
       "fwd",
@@ -3679,9 +3933,13 @@
       "supercab",
       "reg",
       "hybrid",
-      "hev"
+      "hev",
+      "demo",
+      "fleet",
+      "intransit"
     ],
     "trimNoisePhrases": [
+      "in transit",
       "super crew",
       "super cab",
       "regular cab",
@@ -3877,6 +4135,12 @@
             "price": 795,
             "aliases": []
           },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
           "19 black painted aluminum wheels": {
             "label": "19\" Black Painted Aluminum Wheels",
             "kind": "option",
@@ -3919,6 +4183,12 @@
       "lobo": {
         "label": "Lobo",
         "options": {
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
           "19 black painted aluminum wheels": {
             "label": "19\" Black Painted Aluminum Wheels",
             "kind": "option",
@@ -4022,6 +4292,12 @@
               "^upgraded cooling fan$"
             ]
           },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
           "19 black painted aluminum wheels": {
             "label": "19\" Black Painted Aluminum Wheels",
             "kind": "option",
@@ -4067,6 +4343,12 @@
             "label": "Ruby Red Metallic Tinted Clearcoat",
             "kind": "paint",
             "price": 390,
+            "aliases": []
+          },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "power sliding rear window": {
@@ -4157,6 +4439,7 @@
     ],
     "keepBare": [],
     "trimAliases": {},
+    "trimStripOrderCodes": true,
     "trimNoise": [
       "awd",
       "fwd",
@@ -4169,9 +4452,13 @@
       "supercab",
       "reg",
       "hybrid",
-      "hev"
+      "hev",
+      "demo",
+      "fleet",
+      "intransit"
     ],
     "trimNoisePhrases": [
+      "in transit",
       "super crew",
       "super cab",
       "regular cab",
@@ -4322,6 +4609,12 @@
               "^4 pin 7 pin wiring harness$"
             ]
           },
+          "integrated trailer brake controller": {
+            "label": "Integrated Trailer Brake Controller",
+            "kind": "option",
+            "price": 275,
+            "aliases": []
+          },
           "17 silver painted aluminum wheels": {
             "label": "17\" Silver Painted Aluminum Wheels",
             "kind": "option",
@@ -4421,8 +4714,7 @@
               "^12 center display$",
               "^8 way power front passenger seats including power lumbar$",
               "^dual zone electronic climate control$",
-              "^heated front seats$",
-              "^power sliding rear window$"
+              "^heated front seats$"
             ]
           },
           "convenience package": {
@@ -4565,6 +4857,18 @@
               "^4 pin 7 pin wiring harness$",
               "^class iv trailer hitch receiver$"
             ]
+          },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 1200,
+            "aliases": []
+          },
+          "power sliding rear window": {
+            "label": "Power-Sliding Rear Window",
+            "kind": "option",
+            "price": 380,
+            "aliases": []
           },
           "18 chrome like pvd wheels": {
             "label": "18\" Chrome-Like PVD Wheels",
@@ -4780,6 +5084,12 @@
               "^4 pin 7 pin wiring harness$",
               "^class iv trailer hitch receiver$"
             ]
+          },
+          "power moonroof": {
+            "label": "Power Moonroof",
+            "kind": "option",
+            "price": 985,
+            "aliases": []
           },
           "black running boards": {
             "label": "Black Running Boards",
