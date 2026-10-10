@@ -101,11 +101,38 @@ describe('aggregateZeroScrape', () => {
     let t = 0;
     await assert.rejects(
       aggregateZeroScrape(async (sql, args) => { t += 50_000; return fakeRun([1, 2, 3, 4])(sql, args); }, { now: () => t, perQuery: 1, totalMs: 120_000 }),
-      /exceeded 120000ms after \d+ of 4 dealers/,
+      /exceeded 120000ms after \d+ of 4 batches/,
     );
   });
 
   it('propagates a failing batch (the handler turns it into an error, nothing is marked)', async () => {
     await assert.rejects(aggregateZeroScrape(async (sql) => { if (sql === ZERO_SCRAPE_BATCH_SQL) throw new Error('max_statement_time exceeded'); return [{ dealer_id: 1 }]; }), /max_statement_time/);
+  });
+
+  it('runs up to `concurrency` batches at once, never more, and keeps results in dealer order', async () => {
+    let inFlight = 0, peak = 0;
+    const run = async (sql, args) => {
+      if (sql === ZERO_SCRAPE_DEALER_IDS_SQL) return Array.from({ length: 40 }, (_, i) => ({ dealer_id: i + 1 }));
+      inFlight++; peak = Math.max(peak, inFlight);
+      await new Promise((r) => setTimeout(r, args[0][0] % 2 ? 5 : 1)); // uneven latency: later batches can finish first
+      inFlight--;
+      return args[0].map((id) => row(id));
+    };
+    const stores = await aggregateZeroScrape(run, { perQuery: 5, concurrency: 4 });
+    assert.equal(peak, 4);
+    assert.deepEqual(stores.map((s) => s.dealerId), Array.from({ length: 40 }, (_, i) => i + 1));
+  });
+
+  it('stops dispatching after the first failing batch and rejects with its error', async () => {
+    let batchCalls = 0;
+    const run = async (sql, args) => {
+      if (sql === ZERO_SCRAPE_DEALER_IDS_SQL) return Array.from({ length: 100 }, (_, i) => ({ dealer_id: i + 1 }));
+      batchCalls++;
+      if (args[0][0] === 6) throw new Error('max_statement_time exceeded');
+      await new Promise((r) => setTimeout(r, 2));
+      return [];
+    };
+    await assert.rejects(aggregateZeroScrape(run, { perQuery: 5, concurrency: 3 }), /max_statement_time/);
+    assert.ok(batchCalls < 20, `dispatched ${batchCalls} of 20 batches after a failure`);
   });
 });
