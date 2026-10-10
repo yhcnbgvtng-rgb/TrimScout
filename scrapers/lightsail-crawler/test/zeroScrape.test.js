@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyZeroScrape, zeroScrapeCutoff, parseZeroScrapeRequest, buildMarkStaleStatement, MIN_PEERS } from '../src/zeroScrape.js';
+import { classifyZeroScrape, zeroScrapeCutoff, parseZeroScrapeRequest, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_DEALER_IDS_SQL, ZERO_SCRAPE_BATCH_SQL, MIN_PEERS } from '../src/zeroScrape.js';
 
 const RUN = new Date('2026-10-10T02:00:00Z');
 const hrsAgo = (h) => new Date(RUN.getTime() - h * 3600_000);
@@ -66,4 +66,46 @@ describe('buyer visibility', () => {
   it('in-stock listings hide stale cars by default', () => assert.match(sqlFor('inStock=1&make=BMW'), /stale_at IS NULL/));
   it('the admin sheet opts back in with includeStale=1', () => assert.doesNotMatch(sqlFor('inStock=1&make=BMW&includeStale=1'), /stale_at/));
   it('does not add the filter to a non-in-stock query', () => assert.doesNotMatch(sqlFor('make=BMW'), /stale_at/));
+});
+
+describe('aggregateZeroScrape', () => {
+  const row = (id, o = {}) => ({ dealerId: id, sourceBox: 'box2', make: 'BMW', lastSeen: '2026-10-09 04:00:00', live: '3', alreadyStale: 0, ...o });
+  const fakeRun = (ids, calls = []) => async (sql, args) => {
+    calls.push({ sql, args });
+    if (sql === ZERO_SCRAPE_DEALER_IDS_SQL) return ids.map((dealer_id) => ({ dealer_id }));
+    return args[0].map((id) => row(id));
+  };
+
+  it('reads dealer ids first, then batches of perQuery dealers, and never runs a whole-table GROUP BY', async () => {
+    const calls = [];
+    const stores = await aggregateZeroScrape(fakeRun(Array.from({ length: 60 }, (_, i) => i + 1), calls), { perQuery: 25 });
+    assert.equal(calls[0].sql, ZERO_SCRAPE_DEALER_IDS_SQL);
+    assert.deepEqual(calls.slice(1).map((c) => c.args[0].length), [25, 25, 10]);
+    assert.ok(calls.slice(1).every((c) => c.sql === ZERO_SCRAPE_BATCH_SQL && /dealer_id IN \(\?\)/.test(c.sql)));
+    assert.equal(stores.length, 60);
+  });
+
+  it('maps rows to numbers and Dates and keeps the stale flag', async () => {
+    const [s] = await aggregateZeroScrape(async (sql, args) => (sql === ZERO_SCRAPE_DEALER_IDS_SQL ? [{ dealer_id: '7' }] : [row(7, { live: '12', alreadyStale: '1' })]));
+    assert.equal(s.dealerId, 7);
+    assert.equal(s.live, 12);
+    assert.equal(s.alreadyStale, true);
+    assert.ok(s.lastSeen instanceof Date);
+  });
+
+  it('works with no dealers', async () => {
+    assert.deepEqual(await aggregateZeroScrape(async () => []), []);
+  });
+
+  it('gives up with a clear error once the overall budget is spent', async () => {
+    let t = 0;
+    await assert.rejects(
+      aggregateZeroScrape(async (sql, args) => { t += 50_000; return fakeRun([1, 2, 3, 4])(sql, args); }, { now: () => t, perQuery: 1, totalMs: 120_000 }),
+      /exceeded 120000ms after \d+ of 4 dealers/,
+    );
+  });
+
+  it('propagates a failing batch (the handler turns it into an error, nothing is marked)', async () => {
+    await assert.rejects(aggregateZeroScrape(async (sql) => { if (sql === ZERO_SCRAPE_BATCH_SQL) throw new Error('max_statement_time exceeded'); return [{ dealer_id: 1 }]; }), /max_statement_time/);
+  });
 });
