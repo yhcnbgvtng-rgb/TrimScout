@@ -1,0 +1,4963 @@
+{
+  "ford|bronco sport|2026": {
+    "source": "docs/ford-2026/ford_lineup_options_by_trim.csv (2026 Bronco Sport)",
+    "models": [
+      "bronco sport"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "supercrew",
+      "supercab",
+      "reg",
+      "hybrid",
+      "hev"
+    ],
+    "trimNoisePhrases": [
+      "super crew",
+      "super cab",
+      "regular cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "145 wb",
+      "157 wb",
+      "122 wb",
+      "126 wb",
+      "5 5 box",
+      "5 5 bed",
+      "5 5 ft box",
+      "5 5 ft bed",
+      "5 5 foot box",
+      "5 5 foot bed",
+      "6 5 box",
+      "6 5 bed",
+      "6 5 ft box",
+      "6 5 ft bed",
+      "6 5 foot box",
+      "6 5 foot bed",
+      "8 box",
+      "8 bed",
+      "8 ft box",
+      "8 ft bed",
+      "8 foot box",
+      "8 foot bed",
+      "5 box",
+      "5 bed",
+      "5 ft box",
+      "5 ft bed",
+      "5 foot box",
+      "5 foot bed",
+      "6 box",
+      "6 bed",
+      "6 ft box",
+      "6 ft bed",
+      "6 foot box",
+      "6 foot bed"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "heritage": {
+        "label": "Heritage",
+        "options": {
+          "robin s egg blue": {
+            "label": "Robin's Egg Blue",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "convenience package": {
+            "label": "Convenience Package",
+            "kind": "package",
+            "price": 1800,
+            "aliases": [
+              "convenience pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Required for Power Moonroof on Heritage",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^8 way power driver s seat$",
+              "^driver and front passenger seat back map pockets$",
+              "^heated driver and front passenger seat$",
+              "^led fog lamps$",
+              "^steering wheel premium wrapped$"
+            ]
+          },
+          "interior protection package": {
+            "label": "Interior Protection Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "interior protection pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^floor liners front and rear$"
+            ]
+          },
+          "class ii trailer tow package with trailer sway control": {
+            "label": "Class II Trailer Tow Package with Trailer Sway Control",
+            "kind": "package",
+            "price": 690,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "deletes",
+                "text": "deletes standard Tire Inflator and Sealant Kit",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^full size spare wheel and tire$",
+              "^rubberized cargo floor$"
+            ]
+          },
+          "mini spare wheel steel": {
+            "label": "Mini Spare Wheel – Steel",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond® Off-Road Package",
+                "refs": [
+                  "class ii trailer tow package with trailer sway control"
+                ]
+              },
+              {
+                "type": "deletes",
+                "text": "deletes standard Tire Inflator and Sealant Kit",
+                "refs": []
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "big bend": {
+        "label": "Big Bend",
+        "options": {
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "space white metallic": {
+            "label": "Space White Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "convenience package": {
+            "label": "Convenience Package",
+            "kind": "package",
+            "price": 1800,
+            "aliases": [
+              "convenience pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Required for Power Moonroof on Big Bend",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^8 way power driver s seat$",
+              "^driver and front passenger seat back map pockets$",
+              "^heated driver and front passenger seat$",
+              "^steering wheel premium wrapped$"
+            ]
+          },
+          "interior protection package": {
+            "label": "Interior Protection Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "interior protection pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Bronze Package or Bronze + Black Diamond® Off-Road Package",
+                "refs": [
+                  "black diamond off road package",
+                  "bronze package"
+                ]
+              }
+            ],
+            "features": [
+              "^floor liners front and rear$"
+            ]
+          },
+          "black diamond off road package": {
+            "label": "Black Diamond Off-Road Package",
+            "kind": "package",
+            "price": 1500,
+            "aliases": [
+              "black diamond off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "deletes",
+                "text": "Deletes standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Black Appearance Package or 18\" Dark Gravity wheels",
+                "refs": [
+                  "black appearance package"
+                ]
+              },
+              {
+                "type": "requires",
+                "text": "requires this package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^canister shield$",
+              "^front bumper black mic with steel plates$",
+              "^front recovery hooks d ring$",
+              "^rear bumper black mic$",
+              "^steel underbody protection under engine skid plate$"
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 1600,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Black Diamond Off-Road Package or 18\" Dark Gravity wheel",
+                "refs": [
+                  "black diamond off road package"
+                ]
+              }
+            ],
+            "features": [
+              "^17 matte black painted aluminum wheels$",
+              "^grille carbon black with black painted bronco lettering$",
+              "^liftgate black painted bronco sport lettering$",
+              "^matte black hood graphic textured$",
+              "^unique badges with black accents$"
+            ]
+          },
+          "bronze package": {
+            "label": "Bronze Package",
+            "kind": "package",
+            "price": 1500,
+            "aliases": [
+              "bronze pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Black Diamond",
+                "refs": []
+              },
+              {
+                "type": "deletes",
+                "text": "Deletes Front Carpeted Floor Mats",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 sinister bronze painted aluminum wheels$",
+              "^18 dark gravity wheel$",
+              "^all weather floor liners and cargo mat with bronze accents$",
+              "^badlands sasquatch tech packages$",
+              "^black appearance$",
+              "^body color door handles$",
+              "^bronze badges$",
+              "^ebony black grille with bronze lettering$",
+              "^elevation graphic$",
+              "^fender vent$",
+              "^heated front seats$",
+              "^premium wrapped steering wheel with canyon stitching$",
+              "^sport contour buckets premium trimmed with bronze stitching$",
+              "^topo graphic$"
+            ]
+          },
+          "black diamond graphic package": {
+            "label": "Black Diamond Graphic Package",
+            "kind": "package",
+            "price": 425,
+            "aliases": [
+              "black diamond graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Black Diamond® Off-Road Package",
+                "refs": [
+                  "black diamond off road package"
+                ]
+              }
+            ]
+          },
+          "elevation graphic package": {
+            "label": "Elevation Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "elevation graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Appearance or Topo Graphic",
+                "refs": []
+              }
+            ]
+          },
+          "topo graphic package": {
+            "label": "Topo Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "topo graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Elevation Graphic or Black Appearance",
+                "refs": []
+              }
+            ]
+          },
+          "class ii trailer tow package with trailer sway control": {
+            "label": "Class II Trailer Tow Package with Trailer Sway Control",
+            "kind": "package",
+            "price": 690,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "deletes",
+                "text": "deletes standard Tire Inflator and Sealant Kit",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^full size spare wheel and tire$",
+              "^rubberized cargo floor$"
+            ]
+          },
+          "18 dark gravity gray painted aluminum wheels": {
+            "label": "18\" Dark Gravity Gray-painted Aluminum Wheels",
+            "kind": "option",
+            "price": 715,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Diamond, Bronze, Bronze + Black Diamond, or Black Appearance",
+                "refs": []
+              }
+            ]
+          },
+          "17 carbonized gray painted aluminum wheels": {
+            "label": "17\" Carbonized Gray-Painted Aluminum Wheels",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "fender tie downs": {
+            "label": "Fender Tie Downs",
+            "kind": "option",
+            "price": 495,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Black Diamond® Off-Road Package",
+                "refs": [
+                  "black diamond off road package"
+                ]
+              }
+            ]
+          },
+          "front brush guard with integrated recovery hooks": {
+            "label": "Front Brush Guard with Integrated Recovery Hooks",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Black Diamond® Off-Road Package",
+                "refs": [
+                  "black diamond off road package"
+                ]
+              }
+            ]
+          },
+          "mini spare wheel steel": {
+            "label": "Mini Spare Wheel – Steel",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond Off-Road Package",
+                "refs": [
+                  "class ii trailer tow package with trailer sway control"
+                ]
+              },
+              {
+                "type": "deletes",
+                "text": "deletes tire inflator and sealant kit",
+                "refs": []
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "outer banks": {
+        "label": "Outer Banks",
+        "options": {
+          "space white metallic": {
+            "label": "Space White Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "interior protection package": {
+            "label": "Interior Protection Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "interior protection pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not with Bronze Package or Bronze + Black Diamond® Off-Road Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^floor liners front and rear$"
+            ]
+          },
+          "sasquatch outer banks package": {
+            "label": "Sasquatch Outer Banks Package",
+            "kind": "package",
+            "price": 3300,
+            "aliases": [
+              "sasquatch outer banks pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Outer Banks® Tech Package+",
+                "refs": [
+                  "outer banks tech package"
+                ]
+              },
+              {
+                "type": "deletes",
+                "text": "Deletes Standard Tire Inflator and Sealant Kit and Overhead Console with Sunglasses Storage",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 ebony black painted aluminum wheels$",
+              "^advanced 4x4$",
+              "^front and rear recovery hooks d ring$",
+              "^high clearance fender flares$",
+              "^hoss 2 0 off road suspension$",
+              "^p235 65r17 a t tires interior 12 3 cluster display$",
+              "^rubberized flooring$",
+              "^twin clutch rear drive unit$"
+            ]
+          },
+          "sasquatch graphic package": {
+            "label": "Sasquatch Graphic Package",
+            "kind": "package",
+            "price": 525,
+            "aliases": [
+              "sasquatch graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires the Sasquatch® Outer Banks® Package",
+                "refs": [
+                  "sasquatch outer banks package"
+                ]
+              }
+            ]
+          },
+          "elevation graphic package": {
+            "label": "Elevation Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "elevation graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Appearance or Topo Graphic",
+                "refs": []
+              }
+            ]
+          },
+          "topo graphic package": {
+            "label": "Topo Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "topo graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Elevation Graphic or Black Appearance",
+                "refs": []
+              }
+            ]
+          },
+          "outer banks tech package": {
+            "label": "Outer Banks Tech Package+",
+            "kind": "package",
+            "price": 2195,
+            "aliases": [
+              "outer banks tech pkg"
+            ],
+            "features": [
+              "^b o sound system by bang olufsen 10 speakers and subwoofer$",
+              "^connected navigation$",
+              "^ford co pilot360 assist 2 0 360 degree camera with trail view$",
+              "^front parking sensors$",
+              "^reverse brake assist$"
+            ]
+          },
+          "class ii trailer tow package with trailer sway control": {
+            "label": "Class II Trailer Tow Package with Trailer Sway Control",
+            "kind": "package",
+            "price": 690,
+            "aliases": [],
+            "features": [
+              "^full size spare wheel and tire$",
+              "^rubberized cargo floor$"
+            ]
+          },
+          "fender tie downs": {
+            "label": "Fender Tie Downs",
+            "kind": "option",
+            "price": 495,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Outer Banks® Package",
+                "refs": [
+                  "sasquatch outer banks package"
+                ]
+              }
+            ]
+          },
+          "front brush guard with integrated recovery hooks": {
+            "label": "Front Brush Guard with Integrated Recovery Hooks",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Outer Banks® Package",
+                "refs": [
+                  "sasquatch outer banks package"
+                ]
+              }
+            ]
+          },
+          "mini spare wheel steel": {
+            "label": "Mini Spare Wheel – Steel",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Class II Trailer Tow Package with Trailer Sway Control or Black Diamond Off-Road Package",
+                "refs": [
+                  "class ii trailer tow package with trailer sway control"
+                ]
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "badlands": {
+        "label": "Badlands",
+        "options": {
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "space white metallic": {
+            "label": "Space White Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "sasquatch badlands package": {
+            "label": "Sasquatch Badlands Package",
+            "kind": "package",
+            "price": 2395,
+            "aliases": [
+              "sasquatch badlands pkg"
+            ],
+            "rules": [
+              {
+                "type": "deletes",
+                "text": "Deletes Overhead Console with Sunglasses Storage",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Branded Tool Kit, Roof Rail Crossbars, Fender Flare Kit, or Vented Wheel Arch Moldings",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 ebony black painted aluminum wheels$",
+              "^bilstein position sensitive dampers$",
+              "^high clearance fender flares$",
+              "^hoss 3 0 off road suspension$",
+              "^rear recovery hooks d ring$"
+            ]
+          },
+          "bronze package": {
+            "label": "Bronze Package",
+            "kind": "package",
+            "price": 1500,
+            "aliases": [
+              "bronze pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Shadow Black paint",
+                "refs": []
+              },
+              {
+                "type": "deletes",
+                "text": "Deletes front carpeted floor mats",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 sinister bronze painted aluminum wheels$",
+              "^18 dark gravity gray wheel$",
+              "^all weather floor liners with bronze accents$",
+              "^bronze badges$",
+              "^cargo mat with bronze accents$",
+              "^door handles body color$",
+              "^fender vent$",
+              "^grille ebony black with bronze bronco lettering$",
+              "^premium trimmed sport contour bucket seats with bronze stitching$",
+              "^premium wrapped steering wheel with canyon stitching$",
+              "^seat back map pockets$"
+            ]
+          },
+          "sasquatch graphic package": {
+            "label": "Sasquatch Graphic Package",
+            "kind": "package",
+            "price": 525,
+            "aliases": [
+              "sasquatch graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires the Sasquatch® Badlands® Package",
+                "refs": [
+                  "sasquatch badlands package"
+                ]
+              }
+            ]
+          },
+          "elevation graphic package": {
+            "label": "Elevation Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "elevation graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Appearance or Topo Graphic",
+                "refs": []
+              }
+            ]
+          },
+          "topo graphic package": {
+            "label": "Topo Graphic Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "topo graphic pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not with Elevation Graphic or Black Appearance",
+                "refs": []
+              }
+            ]
+          },
+          "badlands tech package": {
+            "label": "Badlands Tech Package",
+            "kind": "package",
+            "price": 2295,
+            "aliases": [
+              "badlands tech pkg"
+            ],
+            "features": [
+              "^b o sound system by bang olufsen 10 speakers with subwoofer$",
+              "^connected navigation$",
+              "^hd radio$",
+              "^heated steering wheel$",
+              "^memory driver s seat and sideview mirrors$",
+              "^noise reduction module$",
+              "^remote start system$",
+              "^six way power front passenger seat$"
+            ]
+          },
+          "fender tie downs": {
+            "label": "Fender Tie Downs",
+            "kind": "option",
+            "price": 495,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Badlands® Package",
+                "refs": [
+                  "sasquatch badlands package"
+                ]
+              }
+            ]
+          },
+          "front brush guard with integrated recovery hooks": {
+            "label": "Front Brush Guard with Integrated Recovery Hooks",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Sasquatch® Badlands® Package",
+                "refs": [
+                  "sasquatch badlands package"
+                ]
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|spray\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "ford|bronco|2026": {
+    "source": "docs/ford-2026/ford_lineup_options_by_trim.csv (2026 Bronco)",
+    "models": [
+      "bronco"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "supercrew",
+      "supercab",
+      "reg",
+      "hybrid",
+      "hev"
+    ],
+    "trimNoisePhrases": [
+      "super crew",
+      "super cab",
+      "regular cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "145 wb",
+      "157 wb",
+      "122 wb",
+      "126 wb",
+      "5 5 box",
+      "5 5 bed",
+      "5 5 ft box",
+      "5 5 ft bed",
+      "5 5 foot box",
+      "5 5 foot bed",
+      "6 5 box",
+      "6 5 bed",
+      "6 5 ft box",
+      "6 5 ft bed",
+      "6 5 foot box",
+      "6 5 foot bed",
+      "8 box",
+      "8 bed",
+      "8 ft box",
+      "8 ft bed",
+      "8 foot box",
+      "8 foot bed",
+      "5 box",
+      "5 bed",
+      "5 ft box",
+      "5 ft bed",
+      "5 foot box",
+      "5 foot bed",
+      "6 box",
+      "6 bed",
+      "6 ft box",
+      "6 ft bed",
+      "6 foot box",
+      "6 foot bed"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "base": {
+        "label": "Base",
+        "options": {
+          "10 speed automatic transmission": {
+            "label": "10-Speed Automatic Transmission",
+            "kind": "powertrain",
+            "price": 1795,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "sasquatch package": {
+            "label": "Sasquatch Package",
+            "kind": "package",
+            "price": 8460,
+            "aliases": [
+              "sasquatch pkg"
+            ],
+            "features": [
+              "^17 matte black alloy wheels$",
+              "^4 7 final drive ratio with electronic locking front and rear axle$",
+              "^advanced 4x4 with automatic on demand engagement$",
+              "^front stabilizer disconnect$",
+              "^high clearance fender flares$",
+              "^high clearance suspension$",
+              "^position sensitive bilstein shock absorbers$"
+            ]
+          },
+          "sasquatch graphics package": {
+            "label": "Sasquatch Graphics Package",
+            "kind": "package",
+            "price": 520,
+            "aliases": [
+              "sasquatch graphics pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4-Door and Sasquatch® Package",
+                "refs": [
+                  "sasquatch package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Appearance, Free Wheeling™ Package or Paint Protection Film",
+                "refs": []
+              }
+            ]
+          },
+          "dual tops soft top add in": {
+            "label": "Dual Tops – Soft Top Add-In",
+            "kind": "option",
+            "price": 1995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4-Door and Hard Top, Carbonized Gray MIC on Base",
+                "refs": []
+              }
+            ]
+          },
+          "roof rails with crossbars black": {
+            "label": "Roof Rails with Crossbars Black",
+            "kind": "option",
+            "price": 465,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Hard Top MIC or Dual Tops",
+                "refs": []
+              },
+              {
+                "type": "requires",
+                "text": "requires Sasquatch® Package",
+                "refs": [
+                  "sasquatch package"
+                ]
+              }
+            ]
+          },
+          "side step": {
+            "label": "Side Step",
+            "kind": "option",
+            "price": 495,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Sasquatch® Package",
+                "refs": [
+                  "sasquatch package"
+                ]
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "big bend": {
+        "label": "Big Bend",
+        "options": {
+          "10 speed automatic transmission": {
+            "label": "10-Speed Automatic Transmission",
+            "kind": "powertrain",
+            "price": 1795,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "matte film protection package body": {
+            "label": "Matte Film Protection Package – Body",
+            "kind": "package",
+            "price": 4995,
+            "aliases": []
+          },
+          "222a": {
+            "label": "Big Bend Mid Package (222A)",
+            "kind": "package",
+            "price": 1540,
+            "code": "222A",
+            "aliases": [
+              "big bend mid package 222a",
+              "big bend mid package",
+              "equipment group 222a",
+              "222a equipment group",
+              "222a package",
+              "package 222a",
+              "order code 222a",
+              "option code 222a",
+              "pkg 222a"
+            ],
+            "features": [
+              "^air conditioning$",
+              "^ambient footwell lighting$",
+              "^connected navigation$",
+              "^dual smart charging usb ports$",
+              "^ford co pilot360$",
+              "^front row heated seats$",
+              "^illuminated sliding visor vanity mirrors$",
+              "^pro power onboard 400w$",
+              "^rear parking sensors$",
+              "^remote start system$"
+            ]
+          },
+          "sasquatch package": {
+            "label": "Sasquatch Package",
+            "kind": "package",
+            "price": 6175,
+            "aliases": [
+              "sasquatch pkg"
+            ],
+            "features": [
+              "^17 matte black alloy wheels$",
+              "^4 7 final drive ratio with electronic locking front and rear axle$",
+              "^front stabilizer disconnect$",
+              "^high clearance fender flares$",
+              "^high clearance suspension$",
+              "^position sensitive bilstein shock absorbers$"
+            ]
+          },
+          "black diamond package": {
+            "label": "Black Diamond Package",
+            "kind": "package",
+            "price": 4495,
+            "aliases": [
+              "black diamond pkg"
+            ],
+            "features": [
+              "^bumpers front and rear powder coated steel$",
+              "^full vehicle steel bash plates$",
+              "^led fog lamps$",
+              "^lt265 70r17 all terrain tires$",
+              "^rock rails$",
+              "^rubberized flooring washout capable with drain plugs$"
+            ]
+          },
+          "sasquatch graphics package": {
+            "label": "Sasquatch Graphics Package",
+            "kind": "package",
+            "price": 520,
+            "aliases": [
+              "sasquatch graphics pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4-Door and Sasquatch® Package",
+                "refs": [
+                  "sasquatch package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Black Appearance, Free Wheeling™, or Paint Protection Film",
+                "refs": []
+              }
+            ]
+          },
+          "free wheeling package": {
+            "label": "Free Wheeling Package",
+            "kind": "package",
+            "price": 2495,
+            "aliases": [
+              "free wheeling pkg"
+            ],
+            "features": [
+              "^17 black high gloss painted steel wheels$",
+              "^17 bright machined black high gloss painted alloy wheels$",
+              "^door handles painted body color$",
+              "^floor liners front and rear$",
+              "^free wheeling reflective graphics package$",
+              "^seats marine grade vinyl cloth$"
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 600,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "features": [
+              "^black appearance graphics package$",
+              "^door handles black mic$",
+              "^fender flares black mic$",
+              "^grille black painted mic with white bronco lettering$",
+              "^mirrors sideview black mic caps$"
+            ]
+          },
+          "black diamond graphics package": {
+            "label": "Black Diamond Graphics Package",
+            "kind": "package",
+            "price": 520,
+            "aliases": [
+              "black diamond graphics pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Black Diamond™ Package",
+                "refs": [
+                  "black diamond package"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Free Wheeling™, Black Appearance, or Paint Protection Package",
+                "refs": []
+              }
+            ]
+          },
+          "hard top shadow black painted": {
+            "label": "Hard Top, Shadow Black-Painted",
+            "kind": "option",
+            "price": 2495,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4-Door",
+                "refs": []
+              }
+            ]
+          },
+          "dual tops soft top add in": {
+            "label": "Dual Tops – Soft Top Add-In",
+            "kind": "option",
+            "price": 1995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Hard Top on Big Bend®",
+                "refs": []
+              }
+            ]
+          },
+          "hard top carbonized gray molded in color mic": {
+            "label": "Hard Top, Carbonized Gray Molded-in-Color (MIC)",
+            "kind": "option",
+            "price": 1795,
+            "aliases": [
+              "hard top carbonized gray molded in color"
+            ]
+          },
+          "roof rails with crossbars black": {
+            "label": "Roof Rails with Crossbars Black",
+            "kind": "option",
+            "price": 465,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Hard Top MIC or Dual Tops",
+                "refs": []
+              }
+            ]
+          },
+          "front bumper ford performance heavy duty modular": {
+            "label": "Front Bumper – Ford Performance Heavy-Duty Modular",
+            "kind": "option",
+            "price": 775,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Black Diamond® Package on Big Bend®",
+                "refs": [
+                  "black diamond package"
+                ]
+              },
+              {
+                "type": "deletes",
+                "text": "deletes LED Fog Lamps",
+                "refs": []
+              }
+            ]
+          },
+          "raptor style running board": {
+            "label": "Raptor-Style Running Board",
+            "kind": "option",
+            "price": 755,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Black Diamond® Package",
+                "refs": [
+                  "black diamond package"
+                ]
+              }
+            ]
+          },
+          "side step": {
+            "label": "Side Step",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "keyless entry keypad": {
+            "label": "Keyless Entry Keypad",
+            "kind": "option",
+            "price": 195,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4-Door",
+                "refs": []
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "outer banks": {
+        "label": "Outer Banks",
+        "options": {
+          "2 7l ecoboost v6 engine": {
+            "label": "2.7L EcoBoost V6 Engine",
+            "kind": "powertrain",
+            "price": 3295,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "wimbledon white": {
+            "label": "Wimbledon White",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray painted roof": {
+            "label": "Marsh Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "avalanche gray painted roof": {
+            "label": "Avalanche Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "ruby red tinted clearcoat painted roof": {
+            "label": "Ruby Red Tinted Clearcoat Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "desert sand painted roof": {
+            "label": "Desert Sand Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "matte film protection package body": {
+            "label": "Matte Film Protection Package – Body",
+            "kind": "package",
+            "price": 4995,
+            "aliases": []
+          },
+          "314a": {
+            "label": "Outer Banks - Lux Package (314A)",
+            "kind": "package",
+            "price": 2825,
+            "code": "314A",
+            "aliases": [
+              "outer banks lux package 314a",
+              "outer banks lux package",
+              "equipment group 314a",
+              "314a equipment group",
+              "314a package",
+              "package 314a",
+              "order code 314a",
+              "option code 314a",
+              "pkg 314a"
+            ],
+            "features": [
+              "^360 degree camera$",
+              "^adaptive cruise control$",
+              "^b o sound system by bang olufsen 12 speakers incl subwoofer$",
+              "^evasive steering assist$",
+              "^front parking sensors$",
+              "^information on demand panel$",
+              "^mirrors sideview led approach lamps and led spotlight$"
+            ]
+          },
+          "sasquatch package": {
+            "label": "Sasquatch Package",
+            "kind": "package",
+            "price": 6465,
+            "aliases": [
+              "sasquatch pkg"
+            ],
+            "features": [
+              "^17 matte black alloy wheels$",
+              "^4 7 final drive ratio with electronic locking front and rear axle$",
+              "^advanced 4x4 with automatic on demand engagement$",
+              "^front row one in the center floor console$",
+              "^high clearance fender flares$",
+              "^high clearance suspension$",
+              "^interior grab handles$",
+              "^passenger side$",
+              "^position sensitive bilstein shock absorbers$"
+            ]
+          },
+          "sasquatch graphics package": {
+            "label": "Sasquatch Graphics Package",
+            "kind": "package",
+            "price": 520,
+            "aliases": [
+              "sasquatch graphics pkg"
+            ]
+          },
+          "60th anniversary package": {
+            "label": "60th Anniversary Package",
+            "kind": "package",
+            "price": 5995,
+            "aliases": [
+              "60th anniversary pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Sasquatch® Package",
+                "refs": [
+                  "sasquatch package"
+                ]
+              },
+              {
+                "type": "requires",
+                "text": "requires Ruby Red Metallic Tinted Clearcoat or Wimbledon White",
+                "refs": [
+                  "ruby red metallic tinted clearcoat",
+                  "wimbledon white"
+                ]
+              },
+              {
+                "type": "requires",
+                "text": "requires Hard Top – Wimbledon White Painted",
+                "refs": [
+                  "wimbledon white"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not with Black Appearance",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 gravity gray painted alloy wheels when sasquatch selected$",
+              "^60th anniversary graphic package$",
+              "^door handles painted$",
+              "^grille warm alloy with two color bronco lettering$",
+              "^seats leather with cashmere inserts$",
+              "^steel front bumper$"
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 600,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not with Free Wheeling™ Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 black hg aluminum with black beauty ring wheels$",
+              "^black appearance graphics package$",
+              "^door handles black mic$",
+              "^fender flares black mic$",
+              "^grille black painted mic with white bronco lettering$",
+              "^lt265 70r17 a t tires and full size spare with tpms$"
+            ]
+          },
+          "hard top painted": {
+            "label": "Hard Top, Painted",
+            "kind": "option",
+            "price": 2695,
+            "aliases": []
+          },
+          "hard top shadow black painted": {
+            "label": "Hard Top, Shadow Black-Painted",
+            "kind": "option",
+            "price": 2495,
+            "aliases": []
+          },
+          "dual tops soft top add in": {
+            "label": "Dual Tops – Soft Top Add-In",
+            "kind": "option",
+            "price": 1995,
+            "aliases": []
+          },
+          "hard top carbonized gray molded in color mic": {
+            "label": "Hard Top, Carbonized Gray Molded-in-Color (MIC)",
+            "kind": "option",
+            "price": 1795,
+            "aliases": [
+              "hard top carbonized gray molded in color"
+            ]
+          },
+          "roof rails with crossbars black": {
+            "label": "Roof Rails with Crossbars Black",
+            "kind": "option",
+            "price": 465,
+            "aliases": []
+          },
+          "keyless entry keypad": {
+            "label": "Keyless Entry Keypad",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "badlands": {
+        "label": "Badlands",
+        "options": {
+          "2 7l ecoboost v6 engine": {
+            "label": "2.7L EcoBoost V6 Engine",
+            "kind": "powertrain",
+            "price": 3295,
+            "aliases": []
+          },
+          "10 speed automatic transmission": {
+            "label": "10-Speed Automatic Transmission",
+            "kind": "powertrain",
+            "price": 1795,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray painted roof": {
+            "label": "Marsh Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "avalanche gray painted roof": {
+            "label": "Avalanche Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "ruby red tinted clearcoat painted roof": {
+            "label": "Ruby Red Tinted Clearcoat Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "velocity blue metallic painted roof": {
+            "label": "Velocity Blue Metallic Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "desert sand painted roof": {
+            "label": "Desert Sand Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "matte film protection package body": {
+            "label": "Matte Film Protection Package – Body",
+            "kind": "package",
+            "price": 4995,
+            "aliases": []
+          },
+          "332a": {
+            "label": "Badlands - Mid Package (332A)",
+            "kind": "package",
+            "price": 1675,
+            "code": "332A",
+            "aliases": [
+              "badlands mid package 332a",
+              "badlands mid package",
+              "equipment group 332a",
+              "332a equipment group",
+              "332a package",
+              "package 332a",
+              "order code 332a",
+              "option code 332a",
+              "pkg 332a"
+            ],
+            "features": [
+              "^2 door intelligent access with lock unlock$",
+              "^air conditioning$",
+              "^ambient footwell lighting$",
+              "^connected navigation$",
+              "^dual smart charging usb ports$",
+              "^ford co pilot360$",
+              "^front row heated seats$",
+              "^heated steering wheel$",
+              "^illuminated sliding visor vanity mirrors$",
+              "^power outlet back side of center floor console$",
+              "^rear parking sensors$",
+              "^remote start system$"
+            ]
+          },
+          "334a": {
+            "label": "Badlands - Lux Package (334A)",
+            "kind": "package",
+            "price": 4500,
+            "code": "334A",
+            "aliases": [
+              "badlands lux package 334a",
+              "badlands lux package",
+              "equipment group 334a",
+              "334a equipment group",
+              "334a package",
+              "package 334a",
+              "order code 334a",
+              "option code 334a",
+              "pkg 334a"
+            ],
+            "features": [
+              "^360 degree camera$",
+              "^adaptive cruise control$",
+              "^b o sound system by bang olufsen 12 speakers incl subwoofer$",
+              "^evasive steering assist$",
+              "^front parking sensors$",
+              "^information on demand panel$",
+              "^mirrors sideview led approach lamps and led spotlight$"
+            ]
+          },
+          "sasquatch package": {
+            "label": "Sasquatch Package",
+            "kind": "package",
+            "price": 6345,
+            "aliases": [
+              "sasquatch pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Black Diamond® Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 matte black alloy wheels$",
+              "^4 7 final drive ratio with electronic locking front and rear axle$",
+              "^advanced 4x4 with automatic on demand engagement$",
+              "^front stabilizer disconnect included with badlands$",
+              "^high clearance fender flares$",
+              "^high clearance suspension$",
+              "^position sensitive bilstein shock absorbers$"
+            ]
+          },
+          "front stabilizer disconnect": {
+            "label": "Front Stabilizer Disconnect",
+            "kind": "package",
+            "price": 1305,
+            "aliases": []
+          },
+          "sasquatch graphics package": {
+            "label": "Sasquatch Graphics Package",
+            "kind": "package",
+            "price": 520,
+            "aliases": [
+              "sasquatch graphics pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Black Appearance Package, Free Wheeling™ Package, or Paint Protection Film",
+                "refs": [
+                  "black appearance package"
+                ]
+              }
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 1850,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Free Wheeling™ Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^17 carbonized gray painted aluminum wheels$",
+              "^black appearance graphics package$",
+              "^door handles black mic$",
+              "^grille black painted mic with white bronco lettering$",
+              "^mirrors sideview black mic caps$",
+              "^painted hard top shadow black painted$"
+            ]
+          },
+          "dual tops soft top add in": {
+            "label": "Dual Tops – Soft Top Add-In",
+            "kind": "option",
+            "price": 1995,
+            "aliases": []
+          },
+          "hard top painted": {
+            "label": "Hard Top, Painted",
+            "kind": "option",
+            "price": 1450,
+            "aliases": []
+          },
+          "hard top shadow black painted": {
+            "label": "Hard Top, Shadow Black-Painted",
+            "kind": "option",
+            "price": 1250,
+            "aliases": []
+          },
+          "roof rails with crossbars black": {
+            "label": "Roof Rails with Crossbars Black",
+            "kind": "option",
+            "price": 465,
+            "aliases": []
+          },
+          "front bumper ford performance heavy duty modular": {
+            "label": "Front Bumper – Ford Performance Heavy-Duty Modular",
+            "kind": "option",
+            "price": 775,
+            "aliases": []
+          },
+          "raptor style running board": {
+            "label": "Raptor-Style Running Board",
+            "kind": "option",
+            "price": 755,
+            "aliases": []
+          },
+          "brush guard": {
+            "label": "Brush Guard",
+            "kind": "option",
+            "price": 300,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "heritage edition": {
+        "label": "Heritage Edition",
+        "options": {
+          "2 7l ecoboost v6 engine": {
+            "label": "2.7L EcoBoost V6 Engine",
+            "kind": "powertrain",
+            "price": 3295,
+            "aliases": []
+          },
+          "10 speed automatic transmission": {
+            "label": "10-Speed Automatic Transmission",
+            "kind": "powertrain",
+            "price": 1795,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "dual tops soft top add in": {
+            "label": "Dual Tops – Soft Top Add-In",
+            "kind": "option",
+            "price": 1995,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Hard Top",
+                "refs": []
+              }
+            ]
+          },
+          "roof rails with crossbars black": {
+            "label": "Roof Rails with Crossbars Black",
+            "kind": "option",
+            "price": 465,
+            "aliases": []
+          },
+          "keyless entry keypad": {
+            "label": "Keyless Entry Keypad",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "stroppe edition": {
+        "label": "Stroppe Edition",
+        "options": {
+          "keyless entry keypad": {
+            "label": "Keyless Entry Keypad",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "raptor": {
+        "label": "Raptor",
+        "options": {
+          "shelter green metallic": {
+            "label": "Shelter Green Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "avalanche gray": {
+            "label": "Avalanche Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray painted roof": {
+            "label": "Marsh Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "avalanche gray painted roof": {
+            "label": "Avalanche Gray Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "ruby red tinted clearcoat painted roof": {
+            "label": "Ruby Red Tinted Clearcoat Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "desert sand painted roof": {
+            "label": "Desert Sand Painted Roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "shelter green metallic roof color": {
+            "label": "Shelter Green Metallic Roof color",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "raptor black appearance package": {
+            "label": "Raptor Black Appearance Package",
+            "kind": "package",
+            "price": 8945,
+            "aliases": [
+              "raptor black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Shadow Black",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^unique hood matte black graphics package$"
+            ]
+          },
+          "raptor shadow black appearance package": {
+            "label": "Raptor Shadow Black Appearance Package",
+            "kind": "package",
+            "price": 8945,
+            "aliases": [
+              "raptor shadow black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Shadow Black",
+                "refs": []
+              }
+            ]
+          },
+          "raptor code orange appearance package": {
+            "label": "Raptor Code Orange Appearance Package",
+            "kind": "package",
+            "price": 6175,
+            "aliases": [
+              "raptor code orange appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Ruby Red Metallic Tinted Clearcoat",
+                "refs": [
+                  "ruby red metallic tinted clearcoat"
+                ]
+              }
+            ],
+            "features": [
+              "^code orange accent seat belts$",
+              "^code orange beadlock kit$",
+              "^code orange graphics package$",
+              "^code orange tow hooks$",
+              "^mirror sideview body color painted caps$"
+            ]
+          },
+          "raptor graphic": {
+            "label": "Raptor Graphic",
+            "kind": "package",
+            "price": 1275,
+            "aliases": []
+          },
+          "black appearance raptor side graphic": {
+            "label": "Black Appearance Raptor Side Graphic",
+            "kind": "package",
+            "price": 500,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Raptor® Black Appearance Package",
+                "refs": [
+                  "raptor black appearance package"
+                ]
+              }
+            ]
+          },
+          "17 matte black alloy painted beadlock capable forged wheels": {
+            "label": "17\" Matte Black Alloy Painted, Beadlock Capable Forged Wheels",
+            "kind": "option",
+            "price": 1995,
+            "aliases": []
+          },
+          "hard top painted": {
+            "label": "Hard Top, Painted",
+            "kind": "option",
+            "price": 1450,
+            "aliases": []
+          },
+          "hard top shadow black painted": {
+            "label": "Hard Top, Shadow Black-Painted",
+            "kind": "option",
+            "price": 1250,
+            "aliases": []
+          },
+          "keyless entry keypad": {
+            "label": "Keyless Entry Keypad",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|spray\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "ford|f 150|2026": {
+    "source": "docs/ford-2026/ford_lineup_options_by_trim.csv (2026 F-150)",
+    "models": [
+      "f 150",
+      "f150"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "supercrew",
+      "supercab",
+      "reg",
+      "hybrid",
+      "hev"
+    ],
+    "trimNoisePhrases": [
+      "super crew",
+      "super cab",
+      "regular cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "145 wb",
+      "157 wb",
+      "122 wb",
+      "126 wb",
+      "5 5 box",
+      "5 5 bed",
+      "5 5 ft box",
+      "5 5 ft bed",
+      "5 5 foot box",
+      "5 5 foot bed",
+      "6 5 box",
+      "6 5 bed",
+      "6 5 ft box",
+      "6 5 ft bed",
+      "6 5 foot box",
+      "6 5 foot bed",
+      "8 box",
+      "8 bed",
+      "8 ft box",
+      "8 ft bed",
+      "8 foot box",
+      "8 foot bed",
+      "5 box",
+      "5 bed",
+      "5 ft box",
+      "5 ft bed",
+      "5 foot box",
+      "5 foot bed",
+      "6 box",
+      "6 bed",
+      "6 ft box",
+      "6 ft bed",
+      "6 foot box",
+      "6 foot bed"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "xl": {
+        "label": "XL",
+        "options": {
+          "3 5l v6 ecoboost w auto start stop": {
+            "label": "3.5L V6 EcoBoost w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 2220,
+            "aliases": []
+          },
+          "5 0l v8 w auto start stop": {
+            "label": "5.0L V8 w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 2595,
+            "aliases": []
+          },
+          "3 73 electronic locking": {
+            "label": "3.73 Electronic Locking",
+            "kind": "powertrain",
+            "price": 570,
+            "aliases": []
+          },
+          "3 55 electronic locking": {
+            "label": "3.55 Electronic Locking",
+            "kind": "powertrain",
+            "price": 470,
+            "aliases": []
+          },
+          "argon blue metallic": {
+            "label": "Argon Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "103a": {
+            "label": "XL High (103A)",
+            "kind": "package",
+            "price": 1195,
+            "code": "103A",
+            "aliases": [
+              "xl high 103a",
+              "xl high",
+              "equipment group 103a",
+              "103a equipment group",
+              "103a package",
+              "package 103a",
+              "order code 103a",
+              "option code 103a",
+              "pkg 103a"
+            ],
+            "features": [
+              "^chrome bumpers$",
+              "^contents 17 silver painted aluminum wheels$",
+              "^electronic rear window defroster$",
+              "^interior work surface$",
+              "^led fog lamps$",
+              "^rear privacy glass$"
+            ]
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          },
+          "integrated trailer brake controller": {
+            "label": "Integrated Trailer Brake Controller",
+            "kind": "option",
+            "price": 275,
+            "aliases": []
+          }
+        }
+      },
+      "stx": {
+        "label": "STX",
+        "options": {
+          "3 73 electronic locking": {
+            "label": "3.73 Electronic Locking",
+            "kind": "powertrain",
+            "price": 570,
+            "aliases": []
+          },
+          "3 55 electronic locking": {
+            "label": "3.55 Electronic Locking",
+            "kind": "powertrain",
+            "price": 470,
+            "aliases": []
+          },
+          "3 55 electronic locking with tow haul max tow": {
+            "label": "3.55 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "3 73 electronic locking with tow haul max tow": {
+            "label": "3.73 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "argon blue metallic": {
+            "label": "Argon Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "201a": {
+            "label": "STX FX4 (201A)",
+            "kind": "package",
+            "price": 3885,
+            "code": "201A",
+            "aliases": [
+              "stx fx4 201a",
+              "stx fx4",
+              "equipment group 201a",
+              "201a equipment group",
+              "201a package",
+              "package 201a",
+              "order code 201a",
+              "option code 201a",
+              "pkg 201a"
+            ],
+            "features": [
+              "^18 black painted aluminum wheels$",
+              "^3 31 e locker$",
+              "^3 55 e locker$",
+              "^6 black running boards$",
+              "^dual exhaust w black tips$",
+              "^fx4 box decal$",
+              "^lt265 70 18 a t bsw tires$",
+              "^monotube rear shocks$",
+              "^off road tuned front shocks$",
+              "^skid plates$",
+              "^stx badge in fender vent$"
+            ]
+          },
+          "200a": {
+            "label": "STX (200A)",
+            "kind": "package",
+            "price": 1705,
+            "code": "200A",
+            "aliases": [
+              "stx 200a",
+              "stx",
+              "equipment group 200a",
+              "200a equipment group",
+              "200a package",
+              "package 200a",
+              "order code 200a",
+              "option code 200a",
+              "pkg 200a"
+            ],
+            "features": [
+              "^20 dark gray aluminum wheel$",
+              "^275 60 20 a s a t$"
+            ]
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          }
+        }
+      },
+      "xlt": {
+        "label": "XLT",
+        "options": {
+          "3 5l v6 ecoboost w auto start stop": {
+            "label": "3.5L V6 EcoBoost w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 2220,
+            "aliases": []
+          },
+          "5 0l v8 w auto start stop": {
+            "label": "5.0L V8 w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 2595,
+            "aliases": []
+          },
+          "3 73 electronic locking": {
+            "label": "3.73 Electronic Locking",
+            "kind": "powertrain",
+            "price": 570,
+            "aliases": []
+          },
+          "3 55 electronic locking": {
+            "label": "3.55 Electronic Locking",
+            "kind": "powertrain",
+            "price": 470,
+            "aliases": []
+          },
+          "3 55 electronic locking with tow haul max tow": {
+            "label": "3.55 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "3 73 electronic locking with tow haul max tow": {
+            "label": "3.73 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "argon blue metallic": {
+            "label": "Argon Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "301a": {
+            "label": "XLT (301A)",
+            "kind": "package",
+            "price": 695,
+            "code": "301A",
+            "aliases": [
+              "xlt 301a",
+              "xlt",
+              "equipment group 301a",
+              "301a equipment group",
+              "301a package",
+              "package 301a",
+              "order code 301a",
+              "option code 301a",
+              "pkg 301a"
+            ],
+            "features": [
+              "^8 way power driver seat with power lumbar$",
+              "^armrest with storage$",
+              "^dual zone electronic automatic temperature control$",
+              "^wrapped steering wheel$"
+            ]
+          },
+          "302a": {
+            "label": "XLT Mid (302A)",
+            "kind": "package",
+            "price": 7330,
+            "code": "302A",
+            "aliases": [
+              "xlt mid 302a",
+              "xlt mid",
+              "equipment group 302a",
+              "302a equipment group",
+              "302a package",
+              "package 302a",
+              "order code 302a",
+              "option code 302a",
+              "pkg 302a"
+            ],
+            "features": [
+              "^auto dimming rearview mirror$",
+              "^black platform running boards$",
+              "^body color door handles$",
+              "^connected navigation$",
+              "^ford co pilot360 assist 2 0$",
+              "^manual folding power glass sideview mirrors w heat and turn signal$",
+              "^remote start with remote tailgate release$"
+            ]
+          },
+          "303a": {
+            "label": "XLT High (303A)",
+            "kind": "package",
+            "price": 11915,
+            "code": "303A",
+            "aliases": [
+              "xlt high 303a",
+              "xlt high",
+              "equipment group 303a",
+              "303a equipment group",
+              "303a package",
+              "package 303a",
+              "order code 303a",
+              "option code 303a",
+              "pkg 303a"
+            ],
+            "features": [
+              "^40 console 40 seats$",
+              "^mobile office package$",
+              "^power adjustable pedals$",
+              "^xlt chrome appearance package$"
+            ]
+          },
+          "bed utility package": {
+            "label": "Bed Utility Package",
+            "kind": "package",
+            "price": 860,
+            "aliases": [
+              "bed utility pkg"
+            ],
+            "features": [
+              "^bed storage boxes$",
+              "^four pickup box tie down plates$",
+              "^tailgate work surface$"
+            ]
+          },
+          "trailer tow manual folding and telescoping mirrors": {
+            "label": "Trailer Tow – Manual Folding and Telescoping mirrors",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "securicode keyless entry driver s side": {
+            "label": "SecuriCode Keyless-Entry – Driver's Side",
+            "kind": "option",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "lariat": {
+        "label": "Lariat",
+        "options": {
+          "5 0l v8 w auto start stop": {
+            "label": "5.0L V8 w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 375,
+            "aliases": []
+          },
+          "3 55 electronic locking": {
+            "label": "3.55 Electronic Locking",
+            "kind": "powertrain",
+            "price": 470,
+            "aliases": []
+          },
+          "3 31 electronic locking": {
+            "label": "3.31 Electronic Locking",
+            "kind": "powertrain",
+            "price": 420,
+            "aliases": []
+          },
+          "3 55 electronic locking with tow haul max tow": {
+            "label": "3.55 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "3 73 electronic locking with tow haul max tow": {
+            "label": "3.73 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "star white metallic tri coat": {
+            "label": "Star White Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "argon blue metallic": {
+            "label": "Argon Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "501a": {
+            "label": "Lariat Mid (501A)",
+            "kind": "package",
+            "price": 2670,
+            "code": "501A",
+            "aliases": [
+              "lariat mid 501a",
+              "lariat mid",
+              "equipment group 501a",
+              "501a equipment group",
+              "501a package",
+              "package 501a",
+              "order code 501a",
+              "option code 501a",
+              "pkg 501a"
+            ],
+            "features": [
+              "^20 chrome like pvd wheels$",
+              "^275 60 20 a t tires$",
+              "^6 angular bright anodized step bar$",
+              "^illuminated visors$",
+              "^power adjustable pedals with memory$",
+              "^power sliding rear window$"
+            ]
+          },
+          "502a": {
+            "label": "Lariat High (502A)",
+            "kind": "package",
+            "price": 6880,
+            "code": "502A",
+            "aliases": [
+              "lariat high 502a",
+              "lariat high",
+              "equipment group 502a",
+              "502a equipment group",
+              "502a package",
+              "package 502a",
+              "order code 502a",
+              "option code 502a",
+              "pkg 502a"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 145\" WB",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^ambient lighting$",
+              "^b o unleashed sound system$",
+              "^second row heated seats$"
+            ]
+          },
+          "mobile office package": {
+            "label": "Mobile Office Package",
+            "kind": "package",
+            "price": 780,
+            "aliases": [
+              "mobile office pkg"
+            ],
+            "features": [
+              "^console work surface$",
+              "^pro power onboard 400w outlets and related items$"
+            ]
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1320,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4x4",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^further items not captured$"
+            ]
+          },
+          "lariat black appearance package": {
+            "label": "Lariat Black Appearance Package",
+            "kind": "package",
+            "price": 1225,
+            "aliases": [
+              "lariat black appearance pkg"
+            ],
+            "features": [
+              "^20 gloss black painted aluminum wheels$",
+              "^black exterior badging$",
+              "^black grille$",
+              "^black taillamp bezels$",
+              "^body color front and rear bumpers$",
+              "^body color skull caps and door handles$",
+              "^dark interior appliqu s$"
+            ]
+          },
+          "bluecruise hands free highway driving equipped one time purchase": {
+            "label": "BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)",
+            "kind": "package",
+            "price": 2495,
+            "aliases": [
+              "bluecruise hands free highway driving equipped"
+            ]
+          },
+          "tow haul package": {
+            "label": "Tow/Haul Package",
+            "kind": "package",
+            "price": 1010,
+            "aliases": [
+              "tow haul pkg"
+            ],
+            "features": [
+              "^3 55 and 3 73 electronic locking rear axles$",
+              "^integrated trailer brake controller$",
+              "^max tow axle options$"
+            ]
+          },
+          "bed utility package": {
+            "label": "Bed Utility Package",
+            "kind": "package",
+            "price": 860,
+            "aliases": [
+              "bed utility pkg"
+            ],
+            "features": [
+              "^bed storage boxes$",
+              "^four pickup box tie down plates$",
+              "^led box lighting$",
+              "^tailgate work surface$"
+            ]
+          },
+          "trailer tow power folding powerscope telescoping mirrors": {
+            "label": "Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "securicode keyless entry keypad driver s side": {
+            "label": "SecuriCode Keyless-Entry Keypad, Driver's Side",
+            "kind": "option",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "king ranch": {
+        "label": "King Ranch",
+        "options": {
+          "3 5l powerboost full hybrid v6": {
+            "label": "3.5L PowerBoost Full Hybrid V6",
+            "kind": "powertrain",
+            "price": 1340,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4x4 and Hybrid 10-speed per overlay",
+                "refs": []
+              }
+            ]
+          },
+          "3 55 electronic locking with tow haul max tow": {
+            "label": "3.55 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "3 73 electronic locking with tow haul max tow": {
+            "label": "3.73 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "star white metallic tri coat": {
+            "label": "Star White Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "601a": {
+            "label": "King Ranch High (601A)",
+            "kind": "package",
+            "price": 2065,
+            "code": "601A",
+            "aliases": [
+              "king ranch high 601a",
+              "king ranch high",
+              "equipment group 601a",
+              "601a equipment group",
+              "601a package",
+              "package 601a",
+              "order code 601a",
+              "option code 601a",
+              "pkg 601a"
+            ],
+            "features": [
+              "^power deployable running boards$"
+            ]
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1320,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4x4",
+                "refs": []
+              }
+            ]
+          },
+          "trailer tow power folding powerscope telescoping mirrors": {
+            "label": "Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "twin panel moonroof": {
+            "label": "Twin Panel Moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "pro power onboard 7 2 kw": {
+            "label": "Pro Power Onboard 7.2 kW",
+            "kind": "option",
+            "price": 850,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          }
+        }
+      },
+      "platinum": {
+        "label": "Platinum",
+        "options": {
+          "3 5l powerboost full hybrid v6": {
+            "label": "3.5L PowerBoost Full Hybrid V6",
+            "kind": "powertrain",
+            "price": 1340,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4x4 and Hybrid 10-speed",
+                "refs": []
+              }
+            ]
+          },
+          "3 55 electronic locking with tow haul max tow": {
+            "label": "3.55 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "3 73 electronic locking with tow haul max tow": {
+            "label": "3.73 Electronic Locking with Tow Haul – Max Tow",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "star white metallic tri coat": {
+            "label": "Star White Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "701a": {
+            "label": "Platinum Standard (701A)",
+            "kind": "package",
+            "price": 1350,
+            "code": "701A",
+            "aliases": [
+              "platinum standard 701a",
+              "platinum standard",
+              "equipment group 701a",
+              "701a equipment group",
+              "701a package",
+              "package 701a",
+              "order code 701a",
+              "option code 701a",
+              "pkg 701a"
+            ],
+            "features": [
+              "^center high mounted stop lamp camera$",
+              "^flow through console and floor shifter$",
+              "^power deployable running boards$",
+              "^unique leather multicontour bucket seats with active motion$"
+            ]
+          },
+          "702a": {
+            "label": "Platinum High (702A)",
+            "kind": "package",
+            "price": 6395,
+            "code": "702A",
+            "aliases": [
+              "platinum high 702a",
+              "platinum high",
+              "equipment group 702a",
+              "702a equipment group",
+              "702a package",
+              "package 702a",
+              "order code 702a",
+              "option code 702a",
+              "pkg 702a"
+            ],
+            "features": [
+              "^head up display$"
+            ]
+          },
+          "703a": {
+            "label": "Platinum Plus (703A)",
+            "kind": "package",
+            "price": 14200,
+            "code": "703A",
+            "aliases": [
+              "platinum plus 703a",
+              "platinum plus",
+              "equipment group 703a",
+              "703a equipment group",
+              "703a package",
+              "package 703a",
+              "order code 703a",
+              "option code 703a",
+              "pkg 703a"
+            ],
+            "rules": [
+              {
+                "type": "onlyWith",
+                "text": "only with Agate Black Metallic, Carbonized Gray Metallic, Rapid Red Metallic Tinted Clearcoat, Marsh Gray, or Star White Metallic Tri-Coat paint",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^3 5l powerboost full hybrid v6 engine$"
+            ]
+          },
+          "platinum satin appearance package": {
+            "label": "Platinum Satin Appearance Package",
+            "kind": "package",
+            "price": 395,
+            "aliases": [
+              "platinum satin appearance pkg"
+            ],
+            "features": [
+              "^20 polished aluminum wheel$",
+              "^black satin hood vents$",
+              "^led projector headlamps with dynamic bending$",
+              "^luxurious chrome grille with blue oval$",
+              "^satin exterior door handles$",
+              "^satin single exhaust$",
+              "^stainless door belt molding$"
+            ]
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1320,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires 4x4",
+                "refs": []
+              }
+            ]
+          },
+          "trailer tow power folding powerscope telescoping mirrors": {
+            "label": "Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",
+            "kind": "option",
+            "price": 395,
+            "aliases": [],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires Tow/Haul",
+                "refs": []
+              }
+            ]
+          },
+          "pro power onboard 7 2 kw": {
+            "label": "Pro Power Onboard 7.2 kW",
+            "kind": "option",
+            "price": 850,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "securicode keyless entry keypad driver s side": {
+            "label": "SecuriCode Keyless-Entry Keypad, Driver's Side",
+            "kind": "option",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "tremor": {
+        "label": "Tremor",
+        "options": {
+          "5 0l v8 w auto start stop": {
+            "label": "5.0L V8 w/ Auto Start-Stop",
+            "kind": "powertrain",
+            "price": 375,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "402b": {
+            "label": "Tremor (402B)",
+            "kind": "package",
+            "price": 3995,
+            "code": "402B",
+            "aliases": [
+              "tremor 402b",
+              "tremor",
+              "equipment group 402b",
+              "402b equipment group",
+              "402b package",
+              "package 402b",
+              "order code 402b",
+              "option code 402b",
+              "pkg 402b"
+            ],
+            "features": [
+              "^front axle with torsen differential$",
+              "^heated steering wheel$",
+              "^hi lock transfer case$",
+              "^media bin door$",
+              "^memory power folding sideview mirrors$",
+              "^power adjustable pedals with memory$"
+            ]
+          },
+          "402a": {
+            "label": "Tremor High (402A)",
+            "kind": "package",
+            "price": 10865,
+            "code": "402A",
+            "aliases": [
+              "tremor high 402a",
+              "tremor high",
+              "equipment group 402a",
+              "402a equipment group",
+              "402a package",
+              "package 402a",
+              "order code 402a",
+              "option code 402a",
+              "pkg 402a"
+            ],
+            "features": [
+              "^b o unleashed sound system$",
+              "^led taillamps$",
+              "^modular front bumper$",
+              "^second row heated seats$",
+              "^two speed automatic awd with mechanical locking 4wd$"
+            ]
+          },
+          "mobile office package": {
+            "label": "Mobile Office Package",
+            "kind": "package",
+            "price": 780,
+            "aliases": [
+              "mobile office pkg"
+            ],
+            "features": [
+              "^console work surface$",
+              "^pro power onboard 400w outlets and related items$"
+            ]
+          },
+          "bluecruise hands free highway driving equipped one time purchase": {
+            "label": "BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)",
+            "kind": "package",
+            "price": 2495,
+            "aliases": [
+              "bluecruise hands free highway driving equipped"
+            ]
+          },
+          "bed utility package": {
+            "label": "Bed Utility Package",
+            "kind": "package",
+            "price": 1575,
+            "aliases": [
+              "bed utility pkg"
+            ],
+            "features": [
+              "^bed storage boxes$",
+              "^four pickup box tie down plates$",
+              "^led box lighting$",
+              "^tailgate work surface$"
+            ]
+          },
+          "tow haul package": {
+            "label": "Tow/Haul Package",
+            "kind": "package",
+            "price": 500,
+            "aliases": [
+              "tow haul pkg"
+            ],
+            "features": [
+              "^3 55 electronic locking rear axle$",
+              "^3 73 electronic locking rear axle$",
+              "^integrated trailer brake controller$",
+              "^max tow options$"
+            ]
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "securicode keyless entry keypad driver s side": {
+            "label": "SecuriCode Keyless-Entry Keypad, Driver's Side",
+            "kind": "option",
+            "price": 455,
+            "aliases": []
+          },
+          "retractable rear center step": {
+            "label": "Retractable Rear Center Step",
+            "kind": "option",
+            "price": 430,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "raptor": {
+        "label": "Raptor",
+        "options": {
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "antimatter blue metallic": {
+            "label": "Antimatter Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "shelter green": {
+            "label": "Shelter Green",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "argon blue metallic": {
+            "label": "Argon Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "803a": {
+            "label": "Raptor R (803A)",
+            "kind": "package",
+            "price": 31925,
+            "code": "803A",
+            "aliases": [
+              "raptor r 803a",
+              "raptor r",
+              "equipment group 803a",
+              "803a equipment group",
+              "803a package",
+              "package 803a",
+              "order code 803a",
+              "option code 803a",
+              "pkg 803a"
+            ],
+            "features": [
+              "^37x12 5r17 all terrain tires$",
+              "^5 2l supercharged v8 engine$",
+              "^front tow hooks in code orange$",
+              "^raptor r unique 17 forged aluminum bead lock capable wheels$",
+              "^upgraded dual exhaust$"
+            ]
+          },
+          "802a": {
+            "label": "Raptor 37 (802A)",
+            "kind": "package",
+            "price": 11470,
+            "code": "802A",
+            "aliases": [
+              "raptor 37 802a",
+              "raptor 37",
+              "equipment group 802a",
+              "802a equipment group",
+              "802a package",
+              "package 802a",
+              "order code 802a",
+              "option code 802a",
+              "pkg 802a"
+            ],
+            "features": [
+              "^37x12 5 r17 all terrain tires$",
+              "^black alcantara suede and leather recaro seats$",
+              "^carbon fiber interior appliqu s$",
+              "^dual valve shocks$",
+              "^modular front bumper$",
+              "^raptor 37 unique 17 cast aluminum bead lock capable wheels$"
+            ]
+          },
+          "twin panel moonroof": {
+            "label": "Twin Panel Moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 625,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "securicode keyless entry keypad driver s side": {
+            "label": "SecuriCode Keyless-Entry Keypad, Driver's Side",
+            "kind": "option",
+            "price": 455,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|spray\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "ford|maverick|2026": {
+    "source": "docs/ford-2026/ford_lineup_options_by_trim.csv (2026 Maverick)",
+    "models": [
+      "maverick"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "supercrew",
+      "supercab",
+      "reg",
+      "hybrid",
+      "hev"
+    ],
+    "trimNoisePhrases": [
+      "super crew",
+      "super cab",
+      "regular cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "145 wb",
+      "157 wb",
+      "122 wb",
+      "126 wb",
+      "5 5 box",
+      "5 5 bed",
+      "5 5 ft box",
+      "5 5 ft bed",
+      "5 5 foot box",
+      "5 5 foot bed",
+      "6 5 box",
+      "6 5 bed",
+      "6 5 ft box",
+      "6 5 ft bed",
+      "6 5 foot box",
+      "6 5 foot bed",
+      "8 box",
+      "8 bed",
+      "8 ft box",
+      "8 ft bed",
+      "8 foot box",
+      "8 foot bed",
+      "5 box",
+      "5 bed",
+      "5 ft box",
+      "5 ft bed",
+      "5 foot box",
+      "5 foot bed",
+      "6 box",
+      "6 bed",
+      "6 ft box",
+      "6 ft bed",
+      "6 foot box",
+      "6 foot bed"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "xl": {
+        "label": "XL",
+        "options": {
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "101a": {
+            "label": "XL (101A) Equipment Group",
+            "kind": "package",
+            "price": 2220,
+            "code": "101A",
+            "aliases": [
+              "xl 101a equipment group",
+              "xl equipment group",
+              "equipment group 101a",
+              "101a equipment group",
+              "101a package",
+              "package 101a",
+              "order code 101a",
+              "option code 101a",
+              "pkg 101a"
+            ]
+          },
+          "ford co pilot360": {
+            "label": "Ford Co-Pilot360",
+            "kind": "package",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^auto high beams$",
+              "^blis with cross traffic alert$",
+              "^default build restored to$",
+              "^evasive steering assist$",
+              "^intersection assist$",
+              "^rear parking sensors selected and then removed during research$",
+              "^rear view camera$"
+            ]
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed spray-in",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          },
+          "2k trailer hitch receiver with 4 pin": {
+            "label": "2K Trailer Hitch Receiver with 4-Pin …",
+            "kind": "option",
+            "price": 150,
+            "aliases": []
+          },
+          "conventional 17 spare tire": {
+            "label": "Conventional 17\" Spare Tire",
+            "kind": "option",
+            "price": 115,
+            "aliases": []
+          }
+        }
+      },
+      "xlt": {
+        "label": "XLT",
+        "options": {
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 390,
+            "aliases": []
+          },
+          "301a": {
+            "label": "XLT (301A) Equipment Group",
+            "kind": "package",
+            "price": 2220,
+            "code": "301A",
+            "aliases": [
+              "xlt 301a equipment group",
+              "xlt equipment group",
+              "equipment group 301a",
+              "301a equipment group",
+              "301a package",
+              "package 301a",
+              "order code 301a",
+              "option code 301a",
+              "pkg 301a"
+            ]
+          },
+          "xlt luxury package": {
+            "label": "XLT Luxury Package",
+            "kind": "package",
+            "price": 1890,
+            "aliases": [
+              "xlt luxury pkg"
+            ],
+            "features": [
+              "^8 way power driver seat$",
+              "^heated mirror with painted black skull caps$",
+              "^heated seats$",
+              "^led box lighting$",
+              "^pro power onboard 400w$",
+              "^remote start system$",
+              "^soft vinyl wrapped heated steering wheel$"
+            ]
+          },
+          "ford co pilot360": {
+            "label": "Ford Co-Pilot360",
+            "kind": "package",
+            "price": 795,
+            "aliases": []
+          },
+          "19 black painted aluminum wheels": {
+            "label": "19\" Black Painted Aluminum Wheels",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed spray-in",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "power sliding rear window": {
+            "label": "Power-Sliding Rear Window",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          },
+          "conventional 17 spare tire": {
+            "label": "Conventional 17\" Spare Tire",
+            "kind": "option",
+            "price": 115,
+            "aliases": []
+          }
+        }
+      },
+      "lobo": {
+        "label": "Lobo",
+        "options": {
+          "19 black painted aluminum wheels": {
+            "label": "19\" Black Painted Aluminum Wheels",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed spray-in",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "power sliding rear window": {
+            "label": "Power-Sliding Rear Window",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          },
+          "conventional 17 spare tire": {
+            "label": "Conventional 17\" Spare Tire",
+            "kind": "option",
+            "price": 115,
+            "aliases": []
+          }
+        }
+      },
+      "lariat": {
+        "label": "Lariat",
+        "options": {
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 390,
+            "aliases": []
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 1645,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "requires the Navy Pier theme per overlay",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^225 55r 19 tires$",
+              "^black edition hood decal$",
+              "^painted mirrors$",
+              "^painted roof$"
+            ]
+          },
+          "4k tow package": {
+            "label": "4K Tow Package",
+            "kind": "package",
+            "price": 745,
+            "aliases": [
+              "4k tow pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Ford Co-Pilot360® on XL and XLT",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^higher capacity radiator$",
+              "^trailer brake controller$",
+              "^trailer hitch 2 receiver with 4 pin and 7 pin connector$",
+              "^transmission oil cooler$",
+              "^upgraded cooling fan$"
+            ]
+          },
+          "19 black painted aluminum wheels": {
+            "label": "19\" Black Painted Aluminum Wheels",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          },
+          "power sliding rear window": {
+            "label": "Power-Sliding Rear Window",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          },
+          "conventional 17 spare tire": {
+            "label": "Conventional 17\" Spare Tire",
+            "kind": "option",
+            "price": 115,
+            "aliases": []
+          }
+        }
+      },
+      "tremor": {
+        "label": "Tremor",
+        "options": {
+          "azure gray metallic tri coat": {
+            "label": "Azure Gray Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "orange fury metallic tri coat": {
+            "label": "Orange Fury Metallic Tri-Coat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 390,
+            "aliases": []
+          },
+          "power sliding rear window": {
+            "label": "Power-Sliding Rear Window",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|spray\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "ford|ranger|2026": {
+    "source": "docs/ford-2026/ford_lineup_options_by_trim.csv (2026 Ranger)",
+    "models": [
+      "ranger"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "supercrew",
+      "supercab",
+      "reg",
+      "hybrid",
+      "hev"
+    ],
+    "trimNoisePhrases": [
+      "super crew",
+      "super cab",
+      "regular cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "145 wb",
+      "157 wb",
+      "122 wb",
+      "126 wb",
+      "5 5 box",
+      "5 5 bed",
+      "5 5 ft box",
+      "5 5 ft bed",
+      "5 5 foot box",
+      "5 5 foot bed",
+      "6 5 box",
+      "6 5 bed",
+      "6 5 ft box",
+      "6 5 ft bed",
+      "6 5 foot box",
+      "6 5 foot bed",
+      "8 box",
+      "8 bed",
+      "8 ft box",
+      "8 ft bed",
+      "8 foot box",
+      "8 foot bed",
+      "5 box",
+      "5 bed",
+      "5 ft box",
+      "5 ft bed",
+      "5 foot box",
+      "5 foot bed",
+      "6 box",
+      "6 bed",
+      "6 ft box",
+      "6 ft bed",
+      "6 foot box",
+      "6 foot bed"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "xl": {
+        "label": "XL",
+        "options": {
+          "electronic locking rear differential axle": {
+            "label": "Electronic-Locking Rear Differential Axle",
+            "kind": "powertrain",
+            "price": 420,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1195,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4x4",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with 4x2 or 17\" Silver Painted Aluminum Wheels",
+                "refs": [
+                  "17 silver painted aluminum wheels"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Black Appearance Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^electronic locking rear differential$",
+              "^fx4 off road box decal$",
+              "^fx4 selectable drive modes mud ruts sand$",
+              "^off road screen in center display$",
+              "^off road tuned shocks$"
+            ]
+          },
+          "ford co pilot360": {
+            "label": "Ford Co-Pilot360",
+            "kind": "package",
+            "price": 625,
+            "aliases": [],
+            "features": [
+              "^digital rear view camera$",
+              "^lane keeping system driver alert system$",
+              "^rear parking sensors$",
+              "^reverse brake assist$"
+            ]
+          },
+          "trailer tow package": {
+            "label": "Trailer Tow Package",
+            "kind": "package",
+            "price": 535,
+            "aliases": [
+              "trailer tow pkg"
+            ],
+            "features": [
+              "^4 pin 7 pin wiring harness$"
+            ]
+          },
+          "17 silver painted aluminum wheels": {
+            "label": "17\" Silver Painted Aluminum Wheels",
+            "kind": "option",
+            "price": 295,
+            "aliases": []
+          },
+          "black running boards": {
+            "label": "Black Running Boards",
+            "kind": "option",
+            "price": 750,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "pro power onboard 400 w": {
+            "label": "Pro Power Onboard – 400 W",
+            "kind": "option",
+            "price": 225,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "xlt": {
+        "label": "XLT",
+        "options": {
+          "electronic locking rear differential axle": {
+            "label": "Electronic-Locking Rear Differential Axle",
+            "kind": "powertrain",
+            "price": 420,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "301a": {
+            "label": "Equipment Group XLT High (301A)",
+            "kind": "package",
+            "price": 1250,
+            "code": "301A",
+            "aliases": [
+              "equipment group xlt high 301a",
+              "equipment group xlt high",
+              "equipment group 301a",
+              "301a equipment group",
+              "301a package",
+              "package 301a",
+              "order code 301a",
+              "option code 301a",
+              "pkg 301a"
+            ],
+            "features": [
+              "^10 way power driver seat including power lumbar$",
+              "^12 center display$",
+              "^8 way power front passenger seats including power lumbar$",
+              "^dual zone electronic climate control$",
+              "^heated front seats$",
+              "^power sliding rear window$"
+            ]
+          },
+          "convenience package": {
+            "label": "Convenience Package",
+            "kind": "package",
+            "price": 570,
+            "aliases": [
+              "convenience pkg"
+            ],
+            "features": [
+              "^led bed lighting$",
+              "^pro power onboard 400w$",
+              "^wireless charging pad$"
+            ]
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1195,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4x4",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with 4x2 or 17\" Silver Painted Aluminum Wheels",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Black Appearance Package",
+                "refs": [
+                  "black appearance package"
+                ]
+              }
+            ],
+            "features": [
+              "^electronic locking rear differential$",
+              "^fx4 off road box decal$",
+              "^fx4 selectable drive modes mud ruts sand$",
+              "^off road screen in center display$",
+              "^off road tuned shocks$"
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 895,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not Available with Chrome Accent Package or Sport Appearance Package",
+                "refs": []
+              }
+            ],
+            "features": [
+              "^18 black wheels$",
+              "^black ford ovals$",
+              "^black rear bumper$",
+              "^body color painted front fascia with black painted lower valance$",
+              "^grille black center bar and surround$",
+              "^wheellip molding painted body color$"
+            ]
+          },
+          "technology package": {
+            "label": "Technology Package",
+            "kind": "package",
+            "price": 1100,
+            "aliases": [
+              "technology pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Advanced Towing Package or Advanced Towing Package Plus Technology Package",
+                "refs": [
+                  "advanced towing package"
+                ]
+              }
+            ],
+            "features": [
+              "^ford co pilot360$"
+            ]
+          },
+          "advanced towing package plus technology package": {
+            "label": "Advanced Towing Package Plus Technology Package",
+            "kind": "package",
+            "price": 1845,
+            "aliases": [
+              "advanced towing package plus technology pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Technology Package or Advanced Towing Package",
+                "refs": [
+                  "advanced towing package",
+                  "technology package"
+                ]
+              }
+            ],
+            "features": [
+              "^pro trailer backup assist$",
+              "^rear parking sensors with trailer guidance$"
+            ]
+          },
+          "advanced towing package": {
+            "label": "Advanced Towing Package",
+            "kind": "package",
+            "price": 865,
+            "aliases": [
+              "advanced towing pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Technology Package or Advanced Towing Package Plus Technology Package",
+                "refs": [
+                  "technology package"
+                ]
+              }
+            ]
+          },
+          "trailer tow package": {
+            "label": "Trailer Tow Package",
+            "kind": "package",
+            "price": 535,
+            "aliases": [
+              "trailer tow pkg"
+            ],
+            "features": [
+              "^4 pin 7 pin wiring harness$",
+              "^class iv trailer hitch receiver$"
+            ]
+          },
+          "18 chrome like pvd wheels": {
+            "label": "18\" Chrome-Like PVD Wheels",
+            "kind": "option",
+            "price": 550,
+            "aliases": []
+          },
+          "lt 255 70r17 a t owl": {
+            "label": "LT 255/70R17 A/T OWL",
+            "kind": "option",
+            "price": 295,
+            "aliases": []
+          },
+          "black running boards": {
+            "label": "Black Running Boards",
+            "kind": "option",
+            "price": 750,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "black appearance graphics": {
+            "label": "Black Appearance Graphics",
+            "kind": "option",
+            "price": 450,
+            "aliases": []
+          },
+          "integrated box side step": {
+            "label": "Integrated Box Side Step",
+            "kind": "option",
+            "price": 215,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "lariat": {
+        "label": "Lariat",
+        "options": {
+          "electronic locking rear differential axle": {
+            "label": "Electronic-Locking Rear Differential Axle",
+            "kind": "powertrain",
+            "price": 420,
+            "aliases": []
+          },
+          "ruby red metallic tinted clearcoat": {
+            "label": "Ruby Red Metallic Tinted Clearcoat",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "convenience package": {
+            "label": "Convenience Package",
+            "kind": "package",
+            "price": 570,
+            "aliases": [
+              "convenience pkg"
+            ],
+            "features": [
+              "^led bed lighting$",
+              "^pro power onboard 400w$",
+              "^wireless charging pad$"
+            ]
+          },
+          "fx4 off road package": {
+            "label": "FX4 Off-Road Package",
+            "kind": "package",
+            "price": 1195,
+            "aliases": [
+              "fx4 off road pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires 4x4",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with 4x2 or 17\" Silver Painted Aluminum Wheels",
+                "refs": []
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Black Appearance Package",
+                "refs": [
+                  "black appearance package"
+                ]
+              }
+            ],
+            "features": [
+              "^electronic locking rear differential$",
+              "^fx4 off road box decal$",
+              "^fx4 selectable drive modes mud ruts sand$",
+              "^off road screen in center display$",
+              "^off road tuned shocks$"
+            ]
+          },
+          "black appearance package": {
+            "label": "Black Appearance Package",
+            "kind": "package",
+            "price": 895,
+            "aliases": [
+              "black appearance pkg"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Chrome Accent Package or Sport Appearance Package",
+                "refs": [
+                  "chrome accent package"
+                ]
+              }
+            ],
+            "features": [
+              "^18 black wheels$",
+              "^black ford ovals$",
+              "^black rear bumper$",
+              "^body color painted front fascia with black painted lower valance$",
+              "^grille black center bar and surround$",
+              "^wheellip molding painted body color$"
+            ]
+          },
+          "chrome accent package": {
+            "label": "Chrome Accent Package",
+            "kind": "package",
+            "price": 680,
+            "aliases": [
+              "chrome accent pkg"
+            ],
+            "rules": [
+              {
+                "type": "requires",
+                "text": "Requires Integrated Box Side Step",
+                "refs": [
+                  "integrated box side step"
+                ]
+              },
+              {
+                "type": "notAvailableWith",
+                "text": "Not available with Black Appearance Package",
+                "refs": [
+                  "black appearance package"
+                ]
+              }
+            ],
+            "features": [
+              "^18 chrome like pvd wheel$",
+              "^chrome rear bumper$",
+              "^grille chrome center bar and chrome surround$"
+            ]
+          },
+          "advanced towing package plus technology package": {
+            "label": "Advanced Towing Package Plus Technology Package",
+            "kind": "package",
+            "price": 865,
+            "aliases": [
+              "advanced towing package plus technology pkg"
+            ],
+            "features": [
+              "^pro trailer backup assist$",
+              "^trailer brake controller$"
+            ]
+          },
+          "trailer tow package": {
+            "label": "Trailer Tow Package",
+            "kind": "package",
+            "price": 535,
+            "aliases": [
+              "trailer tow pkg"
+            ],
+            "features": [
+              "^4 pin 7 pin wiring harness$",
+              "^class iv trailer hitch receiver$"
+            ]
+          },
+          "black running boards": {
+            "label": "Black Running Boards",
+            "kind": "option",
+            "price": 750,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner – Tough Bed Spray-In",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ]
+          },
+          "black appearance graphics": {
+            "label": "Black Appearance Graphics",
+            "kind": "option",
+            "price": 450,
+            "aliases": []
+          },
+          "integrated box side step": {
+            "label": "Integrated Box Side Step",
+            "kind": "option",
+            "price": 215,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      },
+      "raptor": {
+        "label": "Raptor",
+        "options": {
+          "shelter green metallic": {
+            "label": "Shelter Green Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "desert sand": {
+            "label": "Desert Sand",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "velocity blue metallic": {
+            "label": "Velocity Blue Metallic",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "marsh gray": {
+            "label": "Marsh Gray",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "avalanche": {
+            "label": "Avalanche",
+            "kind": "paint",
+            "price": 395,
+            "aliases": []
+          },
+          "17 forged beadlock capable wheels": {
+            "label": "17\" Forged Beadlock Capable Wheels",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "raptor exterior graphics": {
+            "label": "Raptor Exterior Graphics",
+            "kind": "option",
+            "price": 750,
+            "aliases": []
+          },
+          "bedliner tough bed spray in": {
+            "label": "Bedliner - Tough Bed Spray-In",
+            "kind": "option",
+            "price": 525,
+            "aliases": [
+              "tough bed spray in bedliner",
+              "tough bed bedliner",
+              "spray in bedliner tough bed",
+              "ford tough bed spray in bedliner",
+              "bedliner tough bed",
+              "tough bed"
+            ],
+            "rules": [
+              {
+                "type": "notAvailableWith",
+                "text": "not available with Bedliner – Modular Drop-in",
+                "refs": []
+              }
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine Block Heater",
+            "kind": "option",
+            "price": 190,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|spray\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?!.*tough bed)(?:(?:ford|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  }
+}
