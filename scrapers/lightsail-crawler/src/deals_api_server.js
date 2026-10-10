@@ -32,7 +32,7 @@ import { authenticate, authorizeAudit, authorizeAuditDealer, auditLogLine, bidVe
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
-import { seenWithinDaysOf, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
+import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
@@ -2614,10 +2614,10 @@ const invSearchGate = createGate({
   waitMs: Number(process.env.INV_SEARCH_QUEUE_WAIT_MS) || 3000,
 });
 
-async function handleListInventory(req, res, params) {
+async function handleListInventory(req, res, params, extra = {}) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params);
+  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2662,7 +2662,45 @@ async function handleListInventory(req, res, params) {
   });
   const body = { total: result.total, limit, offset, vehicles: result.rows.map(inventoryRowFromDb) };
   if (result.totalCapped) body.totalCapped = true;
+  // Echoed so the web app can tell a box that applied the contact filter from an older one that would silently ignore it.
+  if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
   sendJson(res, 200, body);
+}
+
+// POST /api/inventory/contact-search { query: "<the usual /api/inventory query string>", dealerIds: [..] } — the buyer search's
+// "Dealer contact on file" filter. The dealer set is decided by the web app (lib/contactFilter.ts, the same rule as Step 3 and the
+// Contact column) and is too big for a URL (~8k ids), hence POST. Same page, count and cap as GET /api/inventory plus
+// `i.dealer_id IN (...)`; the response carries contactFilter so an unpatched box (404) is never mistaken for an unfiltered answer.
+async function handleContactSearch(req, res) {
+  const body = await readBody(req, 2_000_000);
+  const ids = contactDealerIdsOf(body && body.dealerIds);
+  if (ids === null || (ids && ids.error)) return badRequest(res, ids ? ids.error : "dealerIds is required");
+  const params = new URLSearchParams(String((body && body.query) || ""));
+  return handleListInventory(req, res, params, { contactDealerIds: ids });
+}
+
+// POST /api/inventory/contact-facets { state?, make?, model?, seenWithinDays?, dealerIds: [..] } — the State/Make/Model/Trim counts for the
+// same filter, counting exactly the cars contact-search lists (contactFacetQueries). Not cached: the dealer set is part of the request.
+async function handleContactFacets(req, res) {
+  const body = await readBody(req, 2_000_000);
+  const ids = contactDealerIdsOf(body && body.dealerIds);
+  if (ids === null || (ids && ids.error)) return badRequest(res, ids ? ids.error : "dealerIds is required");
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const queries = contactFacetQueries({
+    state: String(body.state || "").trim().toUpperCase().slice(0, 2),
+    make: String(body.make || "").trim(),
+    model: String(body.model || "").trim(),
+    seenDays: seenWithinDaysOf(body.seenWithinDays == null ? null : String(body.seenWithinDays)),
+    dealerIds: ids,
+  });
+  const results = await Promise.all(queries.map((c) =>
+    withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${c.sql}`, c.args), waitMs(), "Timed out waiting for an available database connection or a slow query")
+  ));
+  const lists = { states: [], makes: [], models: [], trims: [] };
+  const field = { states: "state", makes: "make", models: "model", trims: "trim" };
+  queries.forEach((c, i) => { lists[c.key] = results[i][0].map((r) => ({ [field[c.key]]: r.v, n: Number(r.n) })); });
+  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length } });
 }
 
 // GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
@@ -3806,6 +3844,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
+  if (req.method === "POST" && pathname === "/api/inventory/contact-search") return run(handleContactSearch);
+  if (req.method === "POST" && pathname === "/api/inventory/contact-facets") return run(handleContactFacets);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);

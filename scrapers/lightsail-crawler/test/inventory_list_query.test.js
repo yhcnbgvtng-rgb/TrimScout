@@ -7,7 +7,7 @@
 // rediscover the same trap by hitting a slow query in production.
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from '../src/inventoryListQuery.js';
+import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort, contactDealerIdsOf, contactFacetQueries, MAX_CONTACT_DEALER_IDS } from '../src/inventoryListQuery.js';
 
 function query(pairs) {
   return inventoryListQuery(new URLSearchParams(pairs));
@@ -537,5 +537,85 @@ describe('inventoryListQuery — retailOnly (buyer search keeps wholesale lots o
     }
     const q = query({ state: 'NJ', make: 'Honda', inStock: '1', countCap: '1000' });
     assert.match(deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy }), /idx_inv_stock_state/);
+  });
+});
+
+describe('inventoryListQuery — contact-on-file dealer set (buyer "Dealer contact on file" filter)', () => {
+  const run = (pairs, ids) => inventoryListQuery(new URLSearchParams(pairs), { contactDealerIds: ids });
+  const buyer = { make: 'Toyota', inStock: '1', retailOnly: '1', seenWithinDays: '7', countCap: '1000' };
+
+  it('without a set nothing changes (the GET /api/inventory path is untouched)', () => {
+    assert.deepEqual(run(buyer), query(buyer));
+    assert.doesNotMatch(run(buyer).sql, /dealer_id IN/);
+  });
+
+  it('adds one dealer_id IN predicate; the page, the count and the capped count all carry it with the same args', () => {
+    const { sql, countSql, cappedCountSql, args } = run(buyer, [11, 22, 33]);
+    for (const s of [sql, countSql, cappedCountSql]) assert.match(s, /i\.dealer_id IN \(\?,\?,\?\)/);
+    assert.ok([11, 22, 33].every((id) => args.includes(id)));
+    assert.equal(args.length, query(buyer).args.length + 3);
+    // page and count are built from the same WHERE text, so list and total cannot disagree
+    assert.equal(sql.split('WHERE ')[1], countSql.split('WHERE ')[1]);
+  });
+
+  it('the deferred page query (the buyer list) filters on the same set inside its covering inner query', () => {
+    const { countSql, orderBy } = run(buyer, [11, 22]);
+    assert.match(deferredPageSql({ countSql, orderBy }), /FROM \(SELECT i\.vin, i\.dealer_id FROM dealer_inventory i .*i\.dealer_id IN \(\?,\?\).* LIMIT \? OFFSET \?\) pg/s);
+  });
+
+  it('an empty set matches nothing, never everything', () => {
+    const { sql, args } = run(buyer, []);
+    assert.match(sql, /1 = 0/);
+    assert.equal(args.length, query(buyer).args.length);
+  });
+
+  it('keeps the other buyer rules (stale, wholesale, in stock) alongside it', () => {
+    const { sql } = run(buyer, [1]);
+    assert.match(sql, /i\.removed_at IS NULL/);
+    assert.match(sql, /i\.cond <> 'wholesale'/);
+    assert.match(sql, /i\.last_seen_at >= /);
+    assert.match(sql, /i\.stale_at IS NULL/);
+  });
+});
+
+describe('contactDealerIdsOf', () => {
+  it('absent -> null (no filter); non-array / junk / too many -> error; ids de-duplicated', () => {
+    assert.equal(contactDealerIdsOf(undefined), null);
+    assert.ok(contactDealerIdsOf('5').error);
+    assert.ok(contactDealerIdsOf([1, 'x']).error);
+    assert.ok(contactDealerIdsOf([0]).error);
+    assert.ok(contactDealerIdsOf(new Array(MAX_CONTACT_DEALER_IDS + 1).fill(1)).error);
+    assert.deepEqual(contactDealerIdsOf(['7', 7, 8]), [7, 8]);
+    assert.deepEqual(contactDealerIdsOf([]), []);
+  });
+});
+
+describe('contactFacetQueries — the dropdown counts for the same set', () => {
+  const ids = [11, 22];
+  const byKey = (o) => Object.fromEntries(contactFacetQueries({ dealerIds: ids, seenDays: 7, ...o }).map((q) => [q.key, q]));
+
+  it('every list counts exactly what the contact-filtered list returns: in stock, not stale, retail, recent, dealer in set', () => {
+    for (const q of Object.values(byKey({ state: 'NJ', make: 'Toyota', model: 'RAV4' }))) {
+      for (const part of ['removed_at IS NULL', 'stale_at IS NULL', "cond <> 'wholesale'", 'dealer_id IN (?,?)', 'last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)']) assert.ok(q.sql.includes(part), `${q.key}: ${part}`);
+      assert.deepEqual(q.args.slice(0, 3), [11, 22, 7]);
+    }
+  });
+
+  it('models need a make and trims need make+model, like the unfiltered facets', () => {
+    assert.deepEqual(Object.keys(byKey({})), ['states', 'makes']);
+    assert.deepEqual(Object.keys(byKey({ make: 'Toyota' })), ['states', 'makes', 'models']);
+    assert.deepEqual(Object.keys(byKey({ make: 'Toyota', model: 'RAV4' })), ['states', 'makes', 'models', 'trims']);
+  });
+
+  it('cross-scopes like the unfiltered facets: states by make, makes by state, models/trims by their parents', () => {
+    const q = byKey({ state: 'NJ', make: 'Toyota', model: 'RAV4' });
+    assert.match(q.states.sql, /make = \?/); assert.doesNotMatch(q.states.sql, /state = \?/);
+    assert.match(q.makes.sql, /state = \?/); assert.doesNotMatch(q.makes.sql, /make = \?/);
+    assert.match(q.models.sql, /make = \? AND state = \?/);
+    assert.match(q.trims.sql, /make = \? AND model = \? AND state = \?/);
+  });
+
+  it('an empty set counts nothing', () => {
+    assert.match(contactFacetQueries({ dealerIds: [] })[0].sql, /1 = 0/);
   });
 });
