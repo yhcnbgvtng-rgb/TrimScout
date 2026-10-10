@@ -349,5 +349,10 @@ export function applyCountCap(rawCount, countCap) {
  * preserve the derived table's order.
  */
 export function deferredPageSql({ countSql, orderBy }) {
-  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${countSql.replace(STATE_MAKE_COUNT_HINT, STATE_PAGE_HINT)} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
+  // state+make counts through idx_inv_facet_state_make (see countHint). The page only goes back to idx_inv_stock_state for the default
+  // dealer_name ASC, vin ASC order, which that index delivers in order and stops after one page (0.9s). Any other sort has to order the
+  // whole make-in-state set, and on idx_inv_stock_state that is a walk of every car in the state with a row read each (NJ Honda
+  // price:asc >25s); on the facet index it is the make's own range (3.7s).
+  const pageFrom = /^i\.dealer_name ASC, i\.vin ASC$/.test(orderBy) ? countSql.replace(STATE_MAKE_COUNT_HINT, STATE_PAGE_HINT) : countSql;
+  return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${pageFrom} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
 }
