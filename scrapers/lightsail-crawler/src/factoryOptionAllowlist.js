@@ -322,6 +322,33 @@ export function optionRowsForVehicle(allowlist, vehicle, options) {
   return policyOptionRows(policy, vehicle, options);
 }
 
+/**
+ * The facet rows the nightly sync writes for a vehicle under a model policy, or null when no policy covers it (the caller then uses the
+ * generic rules, unchanged). The sync COALESCEs trim, so a payload with a blank trim says nothing about the stored trim: for a policy-covered
+ * vehicle that is { skip: true } (leave the stored rows alone) rather than "no trusted trim -> wipe". A non-blank trim the policy does not
+ * trust still yields zero rows, per the policy's rule 6.
+ * -> null | { skip: true } | { rows: [{ key, label, code }], junkDropped }
+ */
+export function policyFacetRows(allowlist, vehicle, options) {
+  if (!modelPoliciesFor(allowlist, vehicle).length) return null;
+  if (!String(vehicle.trim ?? "").trim()) return { skip: true };
+  const res = optionRowsForVehicle(allowlist, vehicle, Array.isArray(options) ? options : []);
+  if (!res) return null;
+  return { rows: res.rows.map((r) => ({ key: r.key, label: r.label, code: r.code ?? null })), junkDropped: res.junkDropped };
+}
+
+/**
+ * The per-vehicle options list /api/inventory returns, under a model policy: exactly the options the facet table holds for that vehicle
+ * (same engine, same input), as { code, name, price, kind } like the feed's own entries. A vehicle no policy covers, or one with no option
+ * list, gets its list back untouched (same array), so makes without a policy are byte-for-byte what they were.
+ */
+export function policyApiOptions(allowlist, vehicle, options) {
+  if (!Array.isArray(options) || !options.length) return options;
+  const res = optionRowsForVehicle(allowlist, vehicle, options);
+  if (!res) return options;
+  return res.rows.map((r) => ({ code: r.code ?? null, name: r.label, price: r.price ?? 0, kind: r.kind }));
+}
+
 /** Reads the bundled policy files (RAV4 2026, then the other Toyota models); OPTION_MODEL_POLICY_PATH may point at any one JSON of the same shape. */
 export function loadBundledModelPoliciesRaw() {
   const raw = {};

@@ -38,7 +38,7 @@ import { createGate, SearchBusyError } from "./searchGate.js";
 import { createStableCache } from "./stableCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
-import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
+import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
@@ -2315,7 +2315,7 @@ function inventoryRowFromDb(r) {
     dealerCity: r.dealer_city ?? null, dealerState: r.dealer_state ?? null,
     windowStickerUrl: r.window_sticker_url ?? null, engine: r.engine ?? null, transmission: r.transmission ?? null, daysOnLot: r.days_on_lot ?? null,
     oldPrice: r.old_price ?? null, priceDiff: r.price_diff ?? null, priceChangeType: r.price_change_type ?? null, changeType: r.change_type ?? null,
-    priceHistory: INV_JSON(r.price_history_json), options: INV_JSON(r.options_json), optionsTotal: r.options_total ?? null, baseMsrp: r.base_msrp ?? null,
+    priceHistory: INV_JSON(r.price_history_json), options: policyApiOptions(OPTION_ALLOWLIST, { make: r.make, model: r.model, year: r.year, trim: r.trim }, INV_JSON(r.options_json)), optionsTotal: r.options_total ?? null, baseMsrp: r.base_msrp ?? null,
     crawlFirstSeen: r.crawl_first_seen ?? null,
     sourceBox: r.source_box ?? null,
   };
@@ -2400,7 +2400,12 @@ async function handleInventoryBulk(req, res) {
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
         const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
+        // Model policy (OPTION_MODEL_POLICY_PATH, Toyota + Ford 2026-27): for a covered vehicle ONLY the policy's options are written, so a re-synced
+        // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
+        // (the upsert COALESCEs trim), so the stored rows are left alone.
+        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options);
+        if (pol && pol.skip) { optionSetsKept++; continue; }
+        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
         optionJunkDropped += junkDropped;
         desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows });
       }

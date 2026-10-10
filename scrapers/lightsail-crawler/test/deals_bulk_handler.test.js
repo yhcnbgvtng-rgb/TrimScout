@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOptionRows.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
-import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST } from '../src/factoryOptionAllowlist.js';
+import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, policyFacetRows, policyApiOptions } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
 import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
 import { resolveVehicleIds } from '../src/vehicleId.js';
@@ -119,7 +119,7 @@ function loadHandlers(db) {
     badRequest: (res, message) => { res.status = 400; res.json = { error: message }; },
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
-    normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted,
+    normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
     pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
@@ -417,5 +417,105 @@ describe('handleInventoryBulk — ingest guards (the real handler)', () => {
     const db = makeDb(); const h = loadHandlers(db);
     await h.bulk([veh(1, null, { make: 'LEXUS' }), veh(2, null, { make: 'Lexus' }), veh(3, null, { make: 'lexus' })]);
     assert.deepEqual([1, 2, 3].map((i) => sent(db, i)[COL.make]), ['Lexus', 'Lexus', 'Lexus']);
+  });
+});
+
+// ---- model option policies in the write path and in the /api/inventory options list --------------------------------------
+// The live car that prompted this: 2026 RAV4 XSE JTM6CRAV3TD314853 carried 11 dealer lines, of which only the Weather Package is a factory option.
+const POLICY = buildAllowlist(null, loadBundledModelPoliciesRaw());
+const RAV4_VIN = 'JTM6CRAV3TD314853';
+const RAV4_LINES = [
+  ['PKG-37', 'Weather Package', 375], ['OPT-54', 'Heated Leather Steering Wheel', 0], ['OPT-75', 'Rain Sensing Windshield Wipers', 0], ['OPT-41', 'Windshield De-Icer', 0],
+  ['OPT-20', 'Illuminated Front Emblem', 330], ['OPT-60', 'Mudguards', 160], ['OPT-44', 'Rear Bumper Protector', 130], ['OPT-8', 'All Weather Floor Liner and Cargo Tray', 339],
+  ['OPT-50', 'Illuminated Door Sills', 395], ['OPT-23', 'Multimedia Glass Screen Protector', 105], ['OPT-13', 'Rear Hatch Cargo Lamps', 425],
+].map(([code, name, price]) => ({ code, name, price, kind: 'dealer' }));
+const rav4 = (extra = {}) => ({ vin: RAV4_VIN, dealerId: 1614, dealerName: 'Dealer 1614', make: 'Toyota', model: 'RAV4', year: 2026, trim: 'XSE', source: 'nightly', price: 38000, options: RAV4_LINES, ...extra });
+const labelsIn = (db) => [...db.opts.values()].map((r) => r.label).sort();
+
+describe('model option policies — nightly sync write path (the real handler, in-memory pool)', () => {
+  it('JTM6CRAV3TD314853 (2026 RAV4 XSE): 11 options before, only the Weather Package is written with the policy loaded', async () => {
+    const generic = makeDb(); const g = loadHandlers(generic);
+    await g.bulk([rav4()]);
+    assert.equal(generic.opts.size, 11, 'without a policy the generic rules keep all 11 lines (the "before")');
+    const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTION_ALLOWLIST = POLICY;
+    const r = await h.bulk([rav4()]);
+    assert.deepEqual(labelsIn(db), ['Weather Package']);
+    assert.equal(r.json.optionRowsWritten, 1);
+  });
+
+  it('a re-synced car converges: generic rows already in the table are replaced by the policy rows, then the next night writes nothing', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([rav4()]);
+    assert.equal(db.opts.size, 11);
+    h.ctx.OPTION_ALLOWLIST = POLICY; // the deploy
+    await h.bulk([rav4()]);
+    assert.deepEqual(labelsIn(db), ['Weather Package']);
+    db.n.optionDeletes = db.n.optionInserts = 0;
+    const r = await h.bulk([rav4()]);
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts, unch: r.json.optionSetsUnchanged }, { d: 0, i: 0, unch: 1 });
+  });
+
+  it('a payload with a blank trim says nothing about the stored trim (the upsert COALESCEs it): the stored policy rows are left alone', async () => {
+    const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTION_ALLOWLIST = POLICY;
+    await h.bulk([rav4()]);
+    const before = db.pool.optionTable();
+    const r = await h.bulk([rav4({ trim: null }), rav4({ vin: '4T1DAACK0TU000001', trim: '' })]);
+    assert.equal(db.pool.optionTable(), before);
+    assert.equal(r.json.optionSetsReplaced, 0);
+  });
+
+  it('a trim the policy does not trust gets no options (rule 6); other years and models of the same make stay on the generic rules', async () => {
+    const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTION_ALLOWLIST = POLICY;
+    await h.bulk([rav4({ vin: '4T1DAACK0TU000002', trim: 'Mystery Trim' }), veh(1, [HEATED, ROOF]), rav4({ vin: '2T3W1RFV0PW000003', year: 2023 })]);
+    const mine = (v) => [...db.opts.values()].filter((r) => r.vin === v).length;
+    assert.equal(mine('4T1DAACK0TU000002'), 0);
+    assert.equal(mine(vin(1)), 2, 'a 2020s Camry with no year in the payload is not policy-covered: generic rows');
+    assert.equal(mine('2T3W1RFV0PW000003'), 11, '2023 RAV4: no policy for that year');
+  });
+
+  it('a make with no policy is byte-for-byte what it was, with or without the policy loaded', async () => {
+    const cars = [veh(1, [HEATED, ROOF], { make: 'Honda', model: 'Civic', year: 2026, trim: 'Sport' }), veh(2, [TOW, FEE], { make: 'Subaru', model: 'Outback', year: 2026, trim: 'Premium' })];
+    const a = makeDb(); await loadHandlers(a).bulk(cars);
+    const b = makeDb(); const hb = loadHandlers(b); hb.ctx.OPTION_ALLOWLIST = POLICY; await hb.bulk(cars);
+    assert.equal(b.pool.optionTable(), a.pool.optionTable());
+  });
+});
+
+describe('model option policies — the per-vehicle options list in /api/inventory', () => {
+  const veh2026 = { make: 'Toyota', model: 'RAV4', year: 2026, trim: 'XSE' };
+
+  it('JTM6CRAV3TD314853: the 11-line list becomes just the Weather Package, with the policy price and kind', () => {
+    const out = policyApiOptions(POLICY, veh2026, RAV4_LINES);
+    assert.equal(RAV4_LINES.length, 11);
+    assert.deepEqual(out.map((o) => o.name), ['Weather Package']);
+    assert.equal(out[0].code, 'PKG-37');
+    assert.ok(out[0].price > 0 && typeof out[0].kind === 'string');
+  });
+
+  it('the list equals the facet rows for the same car (what filters and facets see), for every line combination of the RAV4', () => {
+    for (const lines of [RAV4_LINES, RAV4_LINES.slice(0, 3), RAV4_LINES.slice(3), [RAV4_LINES[0]]]) {
+      const facet = policyFacetRows(POLICY, { ...veh2026 }, lines).rows.map((r) => r.label).sort();
+      assert.deepEqual(policyApiOptions(POLICY, veh2026, lines).map((o) => o.name).sort(), facet);
+    }
+  });
+
+  it('a make or year with no policy gets the very same array back; null / empty / unparseable stay as they are', () => {
+    const honda = [{ code: 'X', name: 'Heated Seats', price: 0, kind: 'dealer' }];
+    assert.equal(policyApiOptions(POLICY, { make: 'Honda', model: 'Civic', year: 2026, trim: 'Sport' }, honda), honda);
+    assert.equal(policyApiOptions(POLICY, { ...veh2026, year: 2023 }, RAV4_LINES), RAV4_LINES);
+    assert.equal(policyApiOptions(POLICY, veh2026, null), null);
+    assert.deepEqual(policyApiOptions(POLICY, veh2026, []), []);
+    assert.equal(policyApiOptions(EMPTY_ALLOWLIST, veh2026, RAV4_LINES), RAV4_LINES, 'no policy loaded (the env var unset) = nothing changes');
+  });
+
+  it('Ford is covered the same way (2026 F-150 XLT keeps its paid equipment group, drops the dealer lines)', () => {
+    const lines = [{ name: 'XLT Mid (302A)', code: '302A' }, { name: 'Pinstripe Kit' }, { name: 'Window Tint' }];
+    const out = policyApiOptions(POLICY, { make: 'Ford', model: 'F-150', year: 2026, trim: 'XLT' }, lines);
+    assert.ok(out.length === 1 && /302A|XLT Mid/i.test(out[0].name), JSON.stringify(out));
+  });
+
+  it('inventoryRowFromDb routes options_json through policyApiOptions (source check: the function is not extractable, the server starts on import)', () => {
+    const m = SRC.match(/function inventoryRowFromDb\(r\) \{[\s\S]*?\n\}\n/);
+    assert.ok(m && /options: policyApiOptions\(OPTION_ALLOWLIST, \{ make: r\.make, model: r\.model, year: r\.year, trim: r\.trim \}, INV_JSON\(r\.options_json\)\)/.test(m[0]));
   });
 });
