@@ -161,6 +161,8 @@ export function buildModelPolicies(raw) {
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
+      // Ford: a trailing order code on the trim string ("XLT 302A", "Big Bend 222A") is not part of the trim. See stripOrderCode.
+      stripOrderCodes: Boolean(p.trimStripOrderCodes),
       // DB model spelling -> a word its trims carry in the CSV ("highlander hybrid" -> "hybrid": the Highlander Hybrid's "XLE" is the CSV's "Hybrid XLE").
       modelImpliedFallback: new Set((p.modelImpliedFallbackTrims || []).map(normalizeOptionKey)),
       modelImplied: new Map(Object.entries(p.modelImplied || {}).map(([m, w]) => [normalizeOptionKey(m), normalizeOptionKey(w)]).filter(([m, w]) => m && w)),
@@ -198,8 +200,11 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
  * shorthand are XLE Premium, since there is no plain XLE), after stripping drivetrain words (AWD, Hybrid...) from the end.
  * Everything else — "Trail", "LE AWD", "XLE Premium Plus" — stays untrusted.
  */
+// A Ford order code is three digits and a letter ("302a" after normalization). Stripped only when it is NOT the first word: a trim is never just a code.
+const stripOrderCode = (key) => key.split(" ").filter((t, i) => !(i >= 1 && /^[0-9]{3}[a-z]$/.test(t))).join(" ");
+
 export function resolvePolicyTrim(policy, rawTrim, model = null) {
-  const key = normalizeOptionKey(rawTrim);
+  const key = policy.stripOrderCodes ? stripOrderCode(normalizeOptionKey(rawTrim)) : normalizeOptionKey(rawTrim);
   if (!key) return null;
   const hit = resolveTrimKey(policy, key, model);
   if (hit) return hit;

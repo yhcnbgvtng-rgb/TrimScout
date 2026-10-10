@@ -95,9 +95,20 @@ describe('what is never an option', () => {
     const r = run({ model: 'Ranger', trim: 'XLT' }, ['Apple CarPlay', 'SYNC 4', 'Cloth Seats', 'Automatic Headlamps', 'Convenience Package']);
     assert.deepEqual(labels(r), ['Convenience Package']);
   });
-  it('items Ford tags "Interior" are dropped, even priced ones (Bronco Sport Power Moonroof, Pro Power Onboard)', () => {
-    const r = run({ model: 'Bronco Sport', trim: 'Big Bend' }, ['Power Moonroof', 'Pro Power Onboard – 400 W', 'Aux Switches and Wiring', 'Convenience Package']);
-    assert.deepEqual(labels(r), ['Convenience Package']);
+  it('paid functional options Ford tags "Interior" are kept at their price (Power Moonroof, trailer brake controller, Pro Power Onboard, Slide-Out Tailgate...)', () => {
+    const bs = run({ model: 'Bronco Sport', trim: 'Big Bend' }, ['Power Moonroof', 'Pro Power Onboard – 400 W', 'Aux Switches and Wiring']);
+    assert.deepEqual(bs.rows.map((x) => [x.label, x.kind, x.price]).sort(), [['Aux Switches and Wiring', 'option', 115], ['Power Moonroof', 'option', 995], ['Pro Power Onboard – 400 W', 'option', 175]]);
+    assert.deepEqual(run({ model: 'F-150', trim: 'XLT' }, ['Integrated Trailer Brake Controller']).rows.map((x) => x.price), [275]);
+    assert.deepEqual(run({ model: 'Ranger', trim: 'XLT' }, ['Power Moonroof', 'Power-Sliding Rear Window']).rows.map((x) => x.price).sort((a, b) => a - b), [380, 1200]);
+    assert.deepEqual(run({ model: 'Bronco', trim: 'Outer Banks' }, ['Slide-Out Tailgate']).rows.map((x) => x.price), [600]);
+    assert.deepEqual(run({ model: 'Maverick', trim: 'XLT' }, ['Power Moonroof']).rows.map((x) => x.price), [995]);
+  });
+  it('interior colors, seats and trim choices are not options (the two interior trim/seat items in the CSV, and the usual feed lines)', () => {
+    const r = run({ model: 'Bronco', trim: 'Raptor' }, ['Interior Carbon Fiber Pack', 'Code Orange Accent Seat Belts', 'Black Cloth Seats', 'Leather-Trimmed Seats', 'Ebony Interior', 'Interior Trim', 'Cloth Front Bucket Seats']);
+    assert.deepEqual(r.rows, [], JSON.stringify(r.rows));
+    for (const p of Object.values(RAW)) for (const t of Object.values(p.trims)) for (const o of Object.values(t.options)) {
+      assert.doesNotMatch(o.label, /\bseats?\b|seat ?belts?|upholster|leather|\bcloth\b|carbon fiber|headliner/i, `${t.label} ${o.label}`);
+    }
   });
   it('subscriptions are never options (Connectivity, SiriusXM, BlueCruise plans)', () => {
     const r = run({ model: 'F-150', trim: 'Lariat' }, ['SiriusXM 360L Subscription', 'FordPass Connect Plan', 'Connectivity Package', 'BlueCruise Subscription', 'BlueCruise 1-Year Plan']);
@@ -170,8 +181,8 @@ describe('combos Ford will not allow are stored as rules, not options', () => {
 
 describe('no trusted trim means no options', () => {
   it('a blank, unknown or dealer-customized trim keeps nothing, even for names the model offers', () => {
-    for (const trim of ['', null, 'FORD CUSTOM GARAGE', 'Base FCTP LOANER VEHICLE', 'Big Bend SINISTER BRONZE', 'Lobo High', 'Premium']) {
-      const model = trim === 'Lobo High' ? 'Maverick' : 'Bronco';
+    for (const trim of ['', null, 'FORD CUSTOM GARAGE', 'Base FCTP LOANER VEHICLE', 'Big Bend SINISTER BRONZE', 'Lobo Premium', 'Premium']) {
+      const model = trim === 'Lobo Premium' ? 'Maverick' : 'Bronco';
       const r = run({ model, trim }, ['Convenience Package', 'Marsh Gray Painted Roof', 'Engine Block Heater']);
       assert.deepEqual(r.rows, [], String(trim));
       assert.equal(r.trimTrusted, false);
@@ -189,6 +200,59 @@ describe('no trusted trim means no options', () => {
     assert.equal(t('Bronco', 'Heritage Edition'), 'Heritage Edition');
     assert.equal(t('Bronco Sport', 'Heritage'), 'Heritage');
     assert.equal(t('Ranger', 'XLT 4WD SuperCrew'), 'XLT');
+  });
+  it('approved aliases: Maverick "Lobo High" and "Lobo Standard" are the Lobo trim, and only there', () => {
+    const t = (model, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Ford', year: 2026, model })[0]; const r = resolvePolicyTrim(p, trim, model); return r && r.trim.label; };
+    assert.equal(t('Maverick', 'Lobo High'), 'Lobo');
+    assert.equal(t('Maverick', 'Lobo Standard'), 'Lobo');
+    assert.equal(t('Maverick', 'LOBO HIGH'), 'Lobo');
+    assert.equal(t('Maverick', 'Lobo'), 'Lobo');
+    assert.equal(t('Maverick', 'Lobo Premium'), null);   // no other Lobo alias
+    assert.equal(t('Ranger', 'Lobo High'), null);        // the alias belongs to the Maverick policy
+    assert.equal(t('F-150', 'Lobo Standard'), null);
+    const r = run({ model: 'Maverick', trim: 'Lobo High' }, ['Power Moonroof', 'Engine Block Heater']);
+    assert.equal(r.trimTrusted, true);
+    assert.deepEqual(r.rows.map((x) => x.price).sort((a, b) => a - b), [190, 995]);
+  });
+  it('approved: a trailing order code is stripped ("XLT 302A" is XLT), but a code alone or as the first word is not a trim', () => {
+    const t = (model, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Ford', year: 2026, model })[0]; const r = resolvePolicyTrim(p, trim, model); return r && r.trim.label; };
+    assert.equal(t('F-150', 'XLT 302A'), 'XLT');
+    assert.equal(t('F-150', 'STX 200A'), 'STX');
+    assert.equal(t('F-150', 'xlt 302a'), 'XLT');
+    assert.equal(t('Bronco', 'Big Bend 222A'), 'Big Bend');
+    assert.equal(t('Bronco', 'Outer Banks 314A'), 'Outer Banks');
+    assert.equal(t('Bronco Sport', 'Big Bend 200A'), 'Big Bend');
+    assert.equal(t('Ranger', 'XL 100A'), 'XL');
+    assert.equal(t('Ranger', 'XLT 300A'), 'XLT');
+    assert.equal(t('Maverick', 'XLT 301A Hybrid'), 'XLT');
+    assert.equal(t('F-150', '302A'), null);
+    assert.equal(t('F-150', '302A XLT'), null);
+    const r = run({ model: 'F-150', trim: 'XLT 302A' }, ['XLT Mid (302A)']);
+    assert.deepEqual(r.rows.map((x) => x.key), ['302a']);
+  });
+  it('approved: the status words Demo, Fleet and In Transit are stripped', () => {
+    const t = (model, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Ford', year: 2026, model })[0]; const r = resolvePolicyTrim(p, trim, model); return r && r.trim.label; };
+    assert.equal(t('Maverick', 'XLT Demo'), 'XLT');
+    assert.equal(t('Bronco Sport', 'Big Bend Demo'), 'Big Bend');
+    assert.equal(t('Bronco Sport', 'Outer Banks Demo'), 'Outer Banks');
+    assert.equal(t('Maverick', 'XLT Fleet'), 'XLT');
+    assert.equal(t('F-150', 'XLT In Transit'), 'XLT');
+    assert.equal(t('F-150', 'XLT Intransit'), 'XLT');
+    assert.equal(t('Bronco Sport', 'Big Bend IN TRANSIT'), 'Big Bend');
+    assert.equal(t('F-150', 'XLT 302A Demo'), 'XLT');
+  });
+  it('"Raptor R" stays its own trim: it is not aliased to Raptor, so those cars still get no options', () => {
+    const t = (model, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Ford', year: 2026, model })[0]; const r = resolvePolicyTrim(p, trim, model); return r && r.trim.label; };
+    assert.equal(t('F-150', 'Raptor R'), null);
+    assert.equal(t('F-150', 'Raptor'), 'Raptor');
+    const r = run({ model: 'F-150', trim: 'Raptor R' }, ['Raptor R (803A)', 'Argon Blue Metallic']);
+    assert.deepEqual(r.rows, []);
+    assert.equal(r.trimTrusted, false);
+  });
+  it('no other aliases: dealer-customized and unknown suffixes are still untrusted', () => {
+    const t = (model, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Ford', year: 2026, model })[0]; const r = resolvePolicyTrim(p, trim, model); return r && r.trim.label; };
+    for (const [model, trim] of [['Maverick', 'XLT Crossroads Courtesy Demo'], ['Bronco Sport', 'Big Bend - Crossroads'], ['Ranger', 'XL STX'], ['Ranger', 'XLT Sport'], ['Maverick', 'Base'], ['F-150', '4WD Automatic'], ['Bronco', 'Badlands 4 Door Advanced'], ['Bronco', 'FORD CUSTOM GARAGE']]) assert.equal(t(model, trim), null, `${model} ${trim}`);
+    assert.deepEqual(Object.fromEntries(Object.entries(RAW).map(([k, p]) => [k, p.trimAliases])), { 'ford|bronco|2026': {}, 'ford|bronco sport|2026': {}, 'ford|f 150|2026': {}, 'ford|maverick|2026': { 'lobo high': 'lobo', 'lobo standard': 'lobo' }, 'ford|ranger|2026': {} });
   });
 });
 
