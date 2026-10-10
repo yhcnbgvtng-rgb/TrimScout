@@ -282,6 +282,8 @@ export function inventoryListQuery(params) {
     : hasModel
       ? (p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_model_trim)" : "FORCE INDEX (idx_inv_make_model_trim)")
       : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
+  // Zero-scrape stale cars (zeroScrape.js) are still in stock as far as the table goes but hidden from buyers; the admin sheet asks for them with includeStale=1.
+  if (p("inStock") === "1" && p("includeStale") !== "1") where.push("i.stale_at IS NULL");
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
   // optionJoin's own placeholders appear in the SQL text before whereSql's, so its args must come
   // first in the flat array mysql2 binds positionally against.

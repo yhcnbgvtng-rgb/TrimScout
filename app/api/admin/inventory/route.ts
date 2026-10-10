@@ -41,7 +41,7 @@ export async function GET(req: Request) {
     if (sp.get("analytics") === "1") return NextResponse.json(await inventoryAnalytics({ state: sp.get("state") || undefined, make: sp.get("make") || undefined, dealerId: sp.get("dealerId") || null, model: sp.get("model") || undefined, from: sp.get("from") || undefined, to: sp.get("to") || undefined }));
     const q: InventoryQuery = {
       dealerId: sp.get("dealerId") || undefined, state: all(sp, "state"), make: all(sp, "make"), model: all(sp, "model"),
-      trim: all(sp, "trim"), cond: all(sp, "cond"), q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", sort: sp.get("sort") || undefined,
+      trim: all(sp, "trim"), cond: all(sp, "cond"), q: sp.get("q") || undefined, inStock: sp.get("inStock") === "1", includeStale: true, sort: sp.get("sort") || undefined,
       changeType: sp.get("changeType") || undefined, priceChange: (sp.get("priceChange") as "drop" | "increase") || undefined, removed: sp.get("removed") === "1", hasSticker: sp.get("hasSticker") === "1",
       minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined, possibleDemo: sp.get("possibleDemo") === "1",
     };

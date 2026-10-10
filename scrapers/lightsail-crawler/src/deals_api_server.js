@@ -44,6 +44,7 @@ import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
+import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, ZERO_SCRAPE_AGGREGATE_SQL } from "./zeroScrape.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
@@ -1917,6 +1918,9 @@ async function ensureInventoryTable(pool) {
     "ADD COLUMN IF NOT EXISTS base_msrp INT NULL",
     "ADD COLUMN IF NOT EXISTS crawl_first_seen DATE NULL",
     "ADD COLUMN IF NOT EXISTS source_box VARCHAR(16) NULL",
+    // Set by the zero-scrape rule (zeroScrape.js): the store scraped nothing for several nights while its platform was healthy.
+    // Hidden from buyer search, never removed; any upsert of the car clears it again.
+    "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
     // state was never its own column — every state= filter had to JOIN dealership_contacts,
     // which has no index on state either, forcing a full scan of it plus a temp table +
@@ -2293,7 +2297,7 @@ async function handleInventoryBulk(req, res) {
         window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, vehicle_id)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
         price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
-        price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL,
+        price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL, stale_at = NULL,
         window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
       [values]
     );
@@ -2444,6 +2448,29 @@ async function handleInventorySweep(req, res) {
   const [result] = await pool.query(sql, args);
   if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
   sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
+}
+
+// POST /api/inventory/zero-scrape { runStart, nights?, dryRun? } — hides (stale_at) the live cars of stores that scraped zero
+// vehicles for `nights` nights running while their platform stayed healthy. Never touches removed_at. See zeroScrape.js.
+// The aggregate reads every live row, so the sync calls it once, after its sweep, while the fleet is otherwise quiet.
+async function handleInventoryZeroScrape(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseZeroScrapeRequest(await readBody(req));
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const [agg] = await pool.query({ sql: `SET STATEMENT max_statement_time=120 FOR ${ZERO_SCRAPE_AGGREGATE_SQL}` });
+  const stores = agg.map((r) => ({ dealerId: Number(r.dealerId), sourceBox: r.sourceBox, make: r.make, lastSeen: new Date(r.lastSeen), live: Number(r.live), alreadyStale: Number(r.alreadyStale) === 1 }));
+  const { stale, held, cutoff } = classifyZeroScrape(stores, parsed);
+  let marked = 0;
+  if (!parsed.dryRun) {
+    for (let i = 0; i < stale.length; i += 200) {
+      const { sql, args } = buildMarkStaleStatement(stale.slice(i, i + 200), cutoff);
+      const [r] = await pool.query(sql, args);
+      marked += r.affectedRows;
+    }
+    if (marked) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+  }
+  sendJson(res, 200, { dryRun: parsed.dryRun, cutoff: cutoff.toISOString(), staleStores: stale.length, marked, held: held.length, heldSample: held.slice(0, 20) });
 }
 
 // inventoryListQuery lives in its own module (inventoryListQuery.js) purely so it can be
@@ -3615,6 +3642,7 @@ const server = http.createServer(async (req, res) => {
   // dealer inventory (crawled vehicles)
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
+  if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
