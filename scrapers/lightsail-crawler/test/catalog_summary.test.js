@@ -37,4 +37,14 @@ describe('catalog all-makes summary', () => {
     assert.deepEqual(optionRows, [{ canonical_key: 'awd', label: 'AWD', vehicleCount: 20 }]);
     assert.deepEqual(colorRows, [{ exterior_color: 'Red', interior_color: null }, { exterior_color: null, interior_color: 'Tan' }]);
   });
+
+  it('folds keys that differ only by case/accent/trailing space (the table PK is case-insensitive)', () => {
+    const acc = createSummaryAccumulator();
+    acc.addOptions([{ canonical_key: 'Sunroof', label: 'A', n: 2 }, { canonical_key: 'sunroof ', label: 'B', n: 3 }]);
+    acc.addColors([{ ext: '01g3', intr: 'Café' }, { ext: '01G3', intr: 'Cafe' }]);
+    const r = acc.result({ minVehicles: 1 });
+    assert.equal(r.optionRows.length, 1);
+    assert.equal(r.optionRows[0][2], 5);
+    assert.deepEqual(r.colorRows, [['ext', '01g3'], ['int', 'Café']]);
+  });
 });

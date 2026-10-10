@@ -9,16 +9,21 @@
 // compared case-insensitively to follow the table's utf8mb4_general_ci collation.
 export const SUMMARY_OPTION_LIMIT = 400;
 
+// The summary tables' primary keys use the default utf8mb4_general_ci collation (case-, accent- and trailing-space-insensitive), so
+// two values that differ only that way are ONE key there; folding them here keeps the INSERT from hitting 'Duplicate entry'
+// (box2 2026-10-10: ext '01g3' vs '01G3').
+export const ciKey = (v) => String(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+$/, "");
+
 export function createSummaryAccumulator() {
-  const options = new Map(); // canonical_key -> { label, count }
-  const exterior = new Set();
-  const interior = new Set();
+  const options = new Map(); // ciKey(canonical_key) -> { key, label, count }
+  const exterior = new Map(); // ciKey(color) -> first-seen spelling
+  const interior = new Map();
   return {
     addOptions(rows) {
       for (const r of rows) {
-        const key = r.canonical_key, n = Number(r.n);
+        const key = ciKey(r.canonical_key), n = Number(r.n);
         const cur = options.get(key);
-        if (!cur) options.set(key, { label: r.label, count: n });
+        if (!cur) options.set(key, { key: r.canonical_key, label: r.label, count: n });
         else {
           cur.count += n;
           if (String(r.label).toLowerCase() < String(cur.label).toLowerCase()) cur.label = r.label;
@@ -27,8 +32,8 @@ export function createSummaryAccumulator() {
     },
     addColors(rows) {
       for (const r of rows) {
-        if (r.ext) exterior.add(r.ext);
-        if (r.intr) interior.add(r.intr);
+        if (r.ext && !exterior.has(ciKey(r.ext))) exterior.set(ciKey(r.ext), r.ext);
+        if (r.intr && !interior.has(ciKey(r.intr))) interior.set(ciKey(r.intr), r.intr);
       }
     },
     result({ minVehicles, limit = SUMMARY_OPTION_LIMIT }) {
@@ -36,8 +41,8 @@ export function createSummaryAccumulator() {
         .filter(([, v]) => v.count >= minVehicles)
         .sort((a, b) => b[1].count - a[1].count || (a[0] < b[0] ? -1 : 1))
         .slice(0, limit)
-        .map(([key, v]) => [key, v.label, v.count]);
-      const colorRows = [...[...exterior].sort().map((c) => ["ext", c]), ...[...interior].sort().map((c) => ["int", c])];
+        .map(([, v]) => [v.key, v.label, v.count]);
+      const colorRows = [...[...exterior.values()].sort().map((c) => ["ext", c]), ...[...interior.values()].sort().map((c) => ["int", c])];
       return { optionRows, colorRows };
     },
   };
