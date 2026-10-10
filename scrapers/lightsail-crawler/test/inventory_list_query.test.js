@@ -513,4 +513,18 @@ describe('inventoryListQuery — retailOnly (buyer search keeps wholesale lots o
     assert.ok(r.cappedCountSql.includes(CLAUSE));
     assert.equal(withExportFastSort(new URLSearchParams({ inStock: '1', state: 'FL', make: 'Mercedes-Benz', retailOnly: '1' })).get('sort'), 'model:asc');
   });
+
+  it('counts state+make (no model, in stock) through idx_inv_facet_state_make but pages through idx_inv_stock_state', () => {
+    const q = query({ state: 'NJ', make: 'Toyota', inStock: '1', countCap: '1000' });
+    assert.match(q.countSql, /FORCE INDEX \(idx_inv_facet_state_make\)/);
+    assert.match(q.cappedCountSql, /FORCE INDEX \(idx_inv_facet_state_make\)/);
+    const page = deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy });
+    assert.match(page, /FORCE INDEX \(idx_inv_stock_state\)/);
+    assert.doesNotMatch(page, /idx_inv_facet_state_make/);
+  });
+
+  it('leaves state-only and state+make+model hints alone', () => {
+    assert.match(query({ state: 'NJ', inStock: '1' }).countSql, /idx_inv_stock_state/);
+    assert.doesNotMatch(query({ state: 'NJ', make: 'Toyota', model: 'RAV4', inStock: '1' }).countSql, /idx_inv_facet_state_make/);
+  });
 });
