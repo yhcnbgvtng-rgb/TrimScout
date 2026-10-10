@@ -78,8 +78,27 @@ export function contactStateOf(row: DirectoryDealership | null | undefined): Con
   return named?.knownNamed ? "named" : "email_only";
 }
 
+/**
+ * "Contact on file" means a NAMED contact: a real person on a personal mailbox. A store with only an unnamed
+ * email is a sales desk (Step 3 routes to it) but has no contact on file, here and on /search alike.
+ */
 export function hasContactOnFile(row: DirectoryDealership | null | undefined): boolean {
-  return contactStateOf(row) !== "none";
+  return contactStateOf(row) === "named";
+}
+
+/**
+ * The key a vehicle's dealer name and a directory row are matched on. Like normalizeDealerKey, but a trailing
+ * "(City, ST)" tag the directory adds to tell same-named rooftops apart ("Bayside Chrysler Dodge Jeep Ram (Bayside, NY)")
+ * is dropped, so those rows compete on state instead of the tagged one being unreachable.
+ */
+export function dealerMatchKey(name: string): string {
+  return normalizeDealerKey((name || "").replace(/\s*\([^()]*\)\s*$/, ""));
+}
+
+/** Directory rows (by dealerMatchKey) for one dealer name — the one grouping both /search and Step 3 use. */
+export function directoryRowsFor<T extends DirectoryDealership>(directory: T[], dealerName: string): T[] {
+  const key = dealerMatchKey(dealerName);
+  return key ? directory.filter((d) => dealerMatchKey(d.dealerName || "") === key) : [];
 }
 
 const STATE_RANK: Record<ContactState, number> = { named: 2, email_only: 1, none: 0 };
@@ -92,8 +111,9 @@ const STATE_RANK: Record<ContactState, number> = { named: 2, email_only: 1, none
 export function pickDirectoryMatch<T extends DirectoryDealership>(matches: T[], state?: string | null): T | null {
   if (matches.length === 0) return null;
   const wanted = (state || "").trim().toUpperCase();
-  const inState = wanted ? matches.filter((d) => (d.state || "").trim().toUpperCase() === wanted) : [];
-  const pool = inState.length > 0 ? inState : matches;
+  // A row from another state is a different store that shares the name — never its contact. Rows with no state stay eligible.
+  const pool = wanted ? matches.filter((d) => { const s = (d.state || "").trim().toUpperCase(); return s === wanted || s === ""; }) : matches;
+  if (pool.length === 0) return null;
   return pool.reduce((best, d) => (STATE_RANK[contactStateOf(d)] > STATE_RANK[contactStateOf(best)] ? d : best), pool[0]);
 }
 
@@ -105,9 +125,7 @@ export function matchDirectoryDealership<T extends DirectoryDealership>(
   directory: T[],
   query: DealerContactQuery
 ): T | null {
-  const key = normalizeDealerKey(query.dealerName || "");
-  if (!key) return null;
-  return pickDirectoryMatch(directory.filter((d) => normalizeDealerKey(d.dealerName || "") === key), query.state);
+  return pickDirectoryMatch(directoryRowsFor(directory, query.dealerName), query.state);
 }
 
 /** "123 Main St, Butler, NJ 07405" from whichever parts the row actually has. */

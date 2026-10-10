@@ -1,6 +1,5 @@
 import { listDealerships, type Dealership } from "./dealershipsApi";
-import { normalizeDealerKey } from "./dealerName";
-import { hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
+import { dealerMatchKey, hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -10,7 +9,7 @@ export type ContactIndex = Map<string, Dealership[]>;
 export function buildContactIndex(dealers: Dealership[]): ContactIndex {
   const out: ContactIndex = new Map();
   for (const d of dealers) {
-    const key = normalizeDealerKey(d.dealerName || "");
+    const key = dealerMatchKey(d.dealerName || "");
     if (!key) continue;
     const list = out.get(key);
     if (list) list.push(d);
@@ -25,7 +24,7 @@ export function buildContactIndex(dealers: Dealership[]): ContactIndex {
  * contact-on-file rule, so the Contact column cannot say "Yes" where the quote request would find no one.
  */
 export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null }): boolean | null {
-  const key = normalizeDealerKey(dealer.dealerName || "");
+  const key = dealerMatchKey(dealer.dealerName || "");
   if (!index || !key) return null;
   return hasContactOnFile(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));
 }

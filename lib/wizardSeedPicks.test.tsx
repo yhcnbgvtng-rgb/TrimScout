@@ -37,7 +37,7 @@ function stubFetch() {
     if (url.startsWith("/api/rfqs")) { sent.push({ url, body }); return json({ rfq: { id: "rfq-test" }, invite: { stage: "sent" } }); }
     if (url.startsWith("/api/quote-desks")) {
       const asked = (JSON.parse(String(init?.body || "{}")).dealers || []) as Array<{ dealerName: string }>;
-      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
+      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, contactState: "named", knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
     }
     if (url.startsWith("/api/dealer-contact")) return json({ contacts: {} });
     return json({});

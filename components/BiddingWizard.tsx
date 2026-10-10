@@ -30,7 +30,7 @@ import {
   type QuoteInviteStage,
 } from "../lib/quotePackage";
 import type { PublicDesk } from "../app/api/quote-desks/route";
-import { EMAIL_ONLY_HELPER, NO_CONTACT_HELPER, salesDeskLabel } from "../lib/deskCopy";
+import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, salesDeskLabel } from "../lib/deskCopy";
 import type { RfqInvite } from "../lib/rfq";
 import { newDealReference } from "../lib/dealReference";
 import { findContactInfo } from "../lib/piiFilter";
@@ -611,7 +611,7 @@ function LinkConfirmPanel({
                 </span>
                 {contactNote === true ? <span className="text-brand-300"> · sales contact on file</span> : null}
                 {contactNote === false ? (
-                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales adviser&apos;s email on the Dealers step</span>
+                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
                 ) : null}
               </span>
               {shipToNote ? <span className="block text-[10px] text-ink-faint" data-testid="ship-to-note">{shipToNote}</span> : null}
@@ -3144,7 +3144,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         const typed = buyerDealerEmails[dealer.dealerName] || "";
                         const supplied = isPlausibleDealerEmail(typed);
                         const row = deskPlan.rows[dealer.dealerName];
-                        const onFile = Boolean(desk && desk.knownNamed && !desk.blockedReason);
+                        const onFile = Boolean(desk && desk.contactState === "named" && !desk.blockedReason);
                         const optedOut = desk?.blockedReason === "dealer_opted_out";
                         // No named person, not opted out: the request goes to the dealership's own sales desk.
                         const toDesk = Boolean(desk) && !onFile && !optedOut && !supplied;
@@ -3173,7 +3173,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 </span>
                               ) : supplied ? (
                                 <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
-                                  ✓ Adviser added
+                                  ✓ Advisor added
                                 </span>
                               ) : optedOut ? (
                                 <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
@@ -3195,14 +3195,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               <div className="space-y-1" data-testid="add-adviser">
                                 <p className="text-[10px] leading-snug text-ink-muted" data-testid="desk-routing-copy">
                                   {supplied
-                                    ? "The request goes to the adviser address you added."
+                                    ? "The request goes to the advisor address you added."
                                     : optedOut
-                                      ? "This dealership asked us to stop emailing them. Add your own sales adviser's address to reach them."
-                                      : desk.routing === "rooftop_inbox"
-                                        ? "No named sales contact on file yet — the request goes to the dealership's sales desk, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them instead."
-                                        : desk.contactState === "none"
-                                          ? NO_CONTACT_HELPER
-                                          : EMAIL_ONLY_HELPER}
+                                      ? "This dealership asked us to stop emailing them. Add your own sales advisor's address to reach them."
+                                      : NO_CONTACT_HELPER}
                                 </p>
                                 {toDesk ? <p className="text-[10px] text-ink-light">To: <span className="font-semibold">Sales desk</span> · {dealer.dealerName}</p> : null}
                                 <input
@@ -3211,8 +3207,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   autoComplete="off"
                                   value={typed}
                                   onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
-                                  placeholder={optedOut ? "Sales adviser email" : "Sales adviser email (optional)"}
-                                  aria-label={`Sales adviser email for ${dealer.dealerName}`}
+                                  placeholder={optedOut ? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER}
+                                  aria-label={`Sales advisor email for ${dealer.dealerName}`}
                                   className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                                 />
                                 {typed.trim() !== "" && !supplied ? <p className="text-[10px] text-rose-400">That doesn&apos;t look like an email address.</p> : null}
@@ -3416,7 +3412,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-contact">
                       {Object.values(deskPlan.rows).some((r) => r.selectable)
                         ? "Tick at least one dealership above to continue."
-                        : "This dealership has opted out of our emails — add your own sales adviser's address under it to reach them."}
+                        : "This dealership has opted out of our emails — add your own sales advisor's address under it to reach them."}
                     </p>
                   ) : null}
                   {importedDealerships.length === 0 ? (
@@ -3682,7 +3678,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             if (!desk) return "Checking";
                                             const row = deskPlan.rows[target!.dealerName!];
                                             if (!row?.checked) return desk.blockedReason === "dealer_opted_out" && !supplied ? "Opted out" : "Not sending";
-                                            if (row.routing === "adviser") return "Adviser added";
+                                            if (row.routing === "adviser") return "Advisor added";
                                             if (row.routing === "named") return "Named contact";
                                             return salesDeskLabel(desk.contactState);
                                           }

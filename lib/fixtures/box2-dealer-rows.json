@@ -1,0 +1,78 @@
+[
+ {
+  "id": "3753",
+  "dealerName": "Bayside Chrysler Dodge Jeep Ram",
+  "address": "16045 James Madison Pkwy",
+  "city": "King George",
+  "state": "VA",
+  "zipCode": "22485",
+  "phone": "540-775-5516",
+  "contactName": null,
+  "contactEmail": "leads@baysidecdjrva.com",
+  "notes": "Website: https://www.baysidecdjrva.com | Source: Stellantis (Chrysler/Dodge/Jeep/Ram) nationwide dealer locator API + staff-page crawl, 2026-09-06 | blocked even with TLS impersonation",
+  "website": "https://www.baysidecdjrva.com",
+  "domains": [
+   "baysidecdjrva.com"
+  ],
+  "emailOptOut": false,
+  "createdAt": "2026-09-06T23:16:03.000Z",
+  "updatedAt": "2026-09-14T20:31:26.000Z"
+ },
+ {
+  "id": "4046",
+  "dealerName": "Bayside Chrysler Dodge Jeep Ram (Bayside, NY)",
+  "address": "21219 Northern Blvd",
+  "city": "Bayside",
+  "state": "NY",
+  "zipCode": "11361",
+  "phone": "718-229-8700",
+  "contactName": null,
+  "contactEmail": null,
+  "notes": "Website: https://www.baysidechryslerjeepdodge.net | Source: Stellantis (Chrysler/Dodge/Jeep/Ram) nationwide dealer locator API + staff-page crawl, 2026-09-06 | no staff page found - even with TLS impersonation | Site harvest: https://www.baysidechryslerjeepdodge.net/contact-us/",
+  "website": "https://www.baysidechryslerjeepdodge.net",
+  "domains": [
+   "baysidechryslerjeepdodge.net"
+  ],
+  "emailOptOut": false,
+  "createdAt": "2026-09-06T23:16:04.000Z",
+  "updatedAt": "2026-09-16T01:38:11.000Z"
+ },
+ {
+  "id": "3799",
+  "dealerName": "Bayside Chrysler Dodge Jeep Ram Annapolis",
+  "address": "1797 West St",
+  "city": "Annapolis",
+  "state": "MD",
+  "zipCode": "21401",
+  "phone": "410-263-2341",
+  "contactName": "Kenny Cresswell",
+  "contactEmail": "leads@baysidecdjrmd.com",
+  "notes": "Title: General Manager | Website: https://www.baysidecdjrmd.com | Source: Stellantis (Chrysler/Dodge/Jeep/Ram) nationwide dealer locator API + staff-page crawl, 2026-09-06 | Site harvest: https://www.baysidecdjrmd.com/",
+  "website": "https://www.baysidecdjrmd.com",
+  "domains": [
+   "baysidecdjrmd.com"
+  ],
+  "emailOptOut": false,
+  "createdAt": "2026-09-06T23:16:04.000Z",
+  "updatedAt": "2026-09-16T01:38:11.000Z"
+ },
+ {
+  "id": "7632",
+  "dealerName": "BMW of Roseville",
+  "address": "500 Automall Drive",
+  "city": "Roseville",
+  "state": "CA",
+  "zipCode": "95661",
+  "phone": "(916) 782-9434",
+  "contactName": null,
+  "contactEmail": "branerl@autonation.com",
+  "notes": "Website: https://www.bmwroseville.com | Generic dealer contact email from BMW USA locator API (no named contact recovered)",
+  "website": "https://www.bmwroseville.com",
+  "domains": [
+   "bmwroseville.com"
+  ],
+  "emailOptOut": false,
+  "createdAt": "2026-09-07T13:33:04.000Z",
+  "updatedAt": "2026-09-12T21:27:09.000Z"
+ }
+]

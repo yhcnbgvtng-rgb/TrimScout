@@ -10,7 +10,7 @@ import { buildContactIndex } from "./dealerContactIndex";
 import { toBuyerVehicle } from "./buyerSearch";
 import { publicDeskFor } from "./publicDesk";
 import { contactStateOf, hasContactOnFile } from "./dealerContactLookup";
-import { NO_CONTACT_HELPER, SALES_DESK_NO_NAME_LABEL, salesDeskLabel } from "./deskCopy";
+import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, SALES_DESK_NO_NAME_LABEL, salesDeskLabel } from "./deskCopy";
 import type { Dealership } from "./dealershipsApi";
 import type { InventoryVehicle } from "./inventoryApi";
 
@@ -41,8 +41,8 @@ describe("one rule for contact on file", () => {
     assert.equal(d.routing, "named");
     assert.equal(d.knownNamed, true);
   });
-  it("email with no name: /search Yes, Step 3 sales desk (no name)", () => {
-    assert.equal(searchSays(GLEN), true);
+  it("email with no name: /search No, Step 3 sales desk (no name)", () => {
+    assert.equal(searchSays(GLEN), false);
     const d = step3(GLEN);
     assert.equal(d.contactState, "email_only");
     assert.equal(d.routing, "rooftop_inbox", "an unnamed personal mailbox is the dealer's contact: invite goes to it, not to ops");
@@ -54,16 +54,16 @@ describe("one rule for contact on file", () => {
     const d = step3(NONE);
     assert.equal(d.contactState, "none");
     assert.equal(d.routing, "unassigned");
-    assert.equal(salesDeskLabel(d.contactState), "Dealership sales desk");
+    assert.equal(salesDeskLabel(d.contactState), SALES_DESK_NO_NAME_LABEL);
   });
   it("Glen Motors data shape (regression): never Yes on /search while Step 3 finds no contact", () => {
     assert.equal(contactStateOf(GLEN), "email_only");
-    assert.equal(hasContactOnFile(GLEN), true);
+    assert.equal(hasContactOnFile(GLEN), false);
     assert.equal(searchSays(GLEN), hasContactOnFile(GLEN));
     assert.equal(step3(GLEN).contactState, "email_only", "Step 3 knows the email exists");
   });
   it("search and Step 3 agree for every state", () => {
-    for (const r of directory) assert.equal(searchSays(r), step3(r).contactState !== "none", r.dealerName);
+    for (const r of directory) assert.equal(searchSays(r), step3(r).contactState === "named", r.dealerName);
   });
   it("an unsubscribed dealer is No on /search and blocked in Step 3", () => {
     const gone = row({ id: "9", dealerName: "Gone Auto", contactEmail: "sales@gone.com", emailOptOut: true });
@@ -76,7 +76,7 @@ describe("one rule for contact on file", () => {
     const empty = row({ id: "10", dealerName: "Twin Ford" });
     const full = row({ id: "11", dealerName: "Twin Ford", contactEmail: "bob@twinford.com" });
     const dir = [empty, full];
-    assert.equal(toBuyerVehicle(vehicle(empty), null, buildContactIndex(dir)).dealerHasContact, true);
+    assert.equal(toBuyerVehicle(vehicle(empty), null, buildContactIndex(dir)).dealerHasContact, false);
     assert.equal(publicDeskFor(dir, { dealerName: "Twin Ford", state: "NJ" }).contactState, "email_only");
   });
 });
@@ -89,7 +89,47 @@ describe("Step 3 copy", () => {
   it("the wizard renders them for the right states", () => {
     const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
     assert.match(src, /→ \{salesDeskLabel\(desk\.contactState\)\}/);
-    assert.match(src, /desk\.contactState === "none"\s*\? NO_CONTACT_HELPER\s*: EMAIL_ONLY_HELPER/);
-    assert.doesNotMatch(src, /"Dealership sales desk"/, "the old label survives only inside salesDeskLabel");
+    assert.match(src, /: NO_CONTACT_HELPER\}/);
+    assert.match(src, /placeholder=\{optedOut \? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER\}/);
+    assert.equal(ADVISOR_EMAIL_PLACEHOLDER, "Sales advisor email (optional)");
+    assert.equal(salesDeskLabel("none"), SALES_DESK_NO_NAME_LABEL, "every non-named dealer gets the one badge");
+    assert.doesNotMatch(src, /"Dealership sales desk"/);
+  });
+});
+
+describe("real box2 rows (read-only snapshot 2026-10-10)", () => {
+  const rows = JSON.parse(fs.readFileSync(new URL("./fixtures/box2-dealer-rows.json", import.meta.url), "utf8")) as Dealership[];
+  const idx = buildContactIndex(rows);
+  const both = (dealerName: string, state: string) => ({
+    search: toBuyerVehicle({ dealerId: "x", dealerName, dealerCity: "", dealerState: state } as InventoryVehicle, null, idx).dealerHasContact,
+    step3: publicDeskFor(rows, { dealerName, state }),
+  });
+  it("Bayside CDJR (Bayside, NY): the VA store of the same name is not its contact", () => {
+    const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram", "NY");
+    assert.equal(search, false);
+    assert.equal(step3.contactState, "none");
+    assert.equal(salesDeskLabel(step3.contactState), SALES_DESK_NO_NAME_LABEL);
+  });
+  it("Bayside CDJR in VA still finds its own unnamed email as a desk, not a contact", () => {
+    const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram", "VA");
+    assert.equal(search, false);
+    assert.equal(step3.contactState, "email_only");
+  });
+  it("Bayside Annapolis (a name, but only a leads@ mailbox) is a desk on both sides", () => {
+    const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram Annapolis", "MD");
+    assert.equal(search, false);
+    assert.equal(step3.contactState, "email_only");
+  });
+  it("BMW of Roseville (email, no name): No on /search, sales desk in Step 3", () => {
+    const { search, step3 } = both("BMW of Roseville", "CA");
+    assert.equal(search, false);
+    assert.equal(step3.contactState, "email_only");
+    assert.equal(step3.knownNamed, false);
+  });
+  it("search and Step 3 agree for every row and every state", () => {
+    for (const r of rows) for (const st of [r.state || "", "NY", "CA"]) {
+      const { search, step3 } = both(r.dealerName, st);
+      assert.equal(search, step3.contactState === "named", `${r.dealerName} ${st}`);
+    }
   });
 });

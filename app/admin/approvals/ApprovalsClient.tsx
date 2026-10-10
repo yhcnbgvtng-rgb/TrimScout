@@ -400,7 +400,7 @@ function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         <input value={dealer.dealerName} onChange={(e) => setDealer((d) => ({ ...d, dealerName: e.target.value }))} placeholder="Add dealer — name (as in the directory)" className={`${field} sm:col-span-2`} />
         <input value={dealer.dealerState} onChange={(e) => setDealer((d) => ({ ...d, dealerState: e.target.value }))} placeholder="State" className={field} maxLength={2} />
-        <input value={dealer.providedEmail} onChange={(e) => setDealer((d) => ({ ...d, providedEmail: e.target.value }))} placeholder="Sales adviser email (optional)" className={field} />
+        <input value={dealer.providedEmail} onChange={(e) => setDealer((d) => ({ ...d, providedEmail: e.target.value }))} placeholder="Sales advisor email (optional)" className={field} />
         <button type="button" onClick={addDealer} disabled={busy || !dealer.dealerName.trim()} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="add-dealer">
           Add dealer
         </button>
