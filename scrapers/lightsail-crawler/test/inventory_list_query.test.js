@@ -527,4 +527,15 @@ describe('inventoryListQuery — retailOnly (buyer search keeps wholesale lots o
     assert.match(query({ state: 'NJ', inStock: '1' }).countSql, /idx_inv_stock_state/);
     assert.doesNotMatch(query({ state: 'NJ', make: 'Toyota', model: 'RAV4', inStock: '1' }).countSql, /idx_inv_facet_state_make/);
   });
+
+  it('pages state+make through idx_inv_facet_state_make for every sort except the default dealer order', () => {
+    for (const sort of ['price:asc', 'mileage:desc', 'year:desc', 'dealer:desc']) {
+      const q = query({ state: 'NJ', make: 'Honda', inStock: '1', countCap: '1000', sort });
+      const page = deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy });
+      assert.match(page, /FORCE INDEX \(idx_inv_facet_state_make\)/, sort);
+      assert.doesNotMatch(page, /idx_inv_stock_state/, sort);
+    }
+    const q = query({ state: 'NJ', make: 'Honda', inStock: '1', countCap: '1000' });
+    assert.match(deferredPageSql({ countSql: q.countSql, orderBy: q.orderBy }), /idx_inv_stock_state/);
+  });
 });
