@@ -13,10 +13,4 @@ What the data says: for these groups the shared rows are identical (same stock n
 
 Run it after the re-crawl with `--run-start <crawl start> --require-fresh-keeper` so a stale row is never kept over a fresh one. Right now Johnson Lexus Durham is fresh (seen 10/09) and Raleigh is not: `hub` would keep the stale Raleigh rows and retire the fresh Durham ones, which is why the real run waits for the re-crawl and Paul picks the tie policy.
 
-## Wholesale rule (`retailOnly`)
-`inventoryListQuery` takes `retailOnly=1` and adds `(i.cond IS NULL OR i.cond <> 'wholesale')`; `searchInventory` (the buyer /search call) always sends it; the admin sheet (`listInventory`) never does. The rows stay in the table. EXPLAIN on six real buyer-search shapes (state+make, make+model, state+make+model sorted by trim, make only, state only, used + make+model) shows the **same index and row estimate with and without the clause**.
-
-Scope to decide: the rule is by condition, not by dealer. In-stock cars by condition today: new 1,338,506, used 766,344, cpo 82,330, **wholesale 24,254 across 532 dealers**. Coconut Creek (11249) has 2,142, but Pompano (11270) has 2,890, House of Imports (CA) 1,125, South Bay 1,095, Stevens Creek 1,002, Houston North 752. If only Coconut Creek should be hidden, the clause becomes `NOT (i.dealer_id = 11249 AND i.cond = 'wholesale')`.
-Not covered yet: the buyer dropdown counts (`/api/inventory/facets`, catalog) still count wholesale cars; they are cached and use their own queries.
-
-Deploy later (needs a deals-api patch + restart, Paul's GO): the box copy of `inventoryListQuery.js` is a single-clause change.
+The wholesale rule (retailOnly, facet counts) moved to its own PR: see docs/wholesale-retail-only.md on main.

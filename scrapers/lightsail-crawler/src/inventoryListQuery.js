@@ -75,11 +75,6 @@ export function inventoryListQuery(params) {
   addIn("i.model", models);
   addIn("i.trim", trims);
   addIn("i.cond", conds);
-  // retailOnly=1 (sent by the buyer search only, never by the admin sheet): a dealer's wholesale lot is not retail stock a buyer can
-  // request a quote on — e.g. Mercedes-Benz of Coconut Creek lists 2,142 cars with cond 'wholesale' next to its 745 retail ones. The rows
-  // stay in the table (the admin Vehicles tab still shows them); this only keeps them out of buyer results. A NULL cond is kept (unknown is
-  // not wholesale). Added as a plain post-filter so every index choice and hint below is unchanged.
-  if (p("retailOnly") === "1") where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
