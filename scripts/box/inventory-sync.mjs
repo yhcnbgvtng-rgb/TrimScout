@@ -46,6 +46,7 @@ import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { runSupersede } from "./syncSuperseded.js";
+import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
@@ -326,6 +327,15 @@ try {
       const sup = await runSupersede({ api: dealsApi, rows, seenAfter: r.startedAt, sourceBox: BOX_LABEL, foreignBefore, dryRun, log, isLockLost: () => lockHeartbeat?.isLost() === true });
       log(`[sync] superseded rows${dryRun ? " (dry run)" : ""}: ${JSON.stringify(sup)}`);
     }
+  }
+  // Stores whose sites blocked tonight's crawl (no bypass), for the admin sheet's "blocked, no bypass" flag. Best effort; never fails the sync.
+  try {
+    const logDir = process.env.CRAWL_LOG_DIR || path.join(os.homedir(), "nj-scraper/scrapers/lightsail-crawler/logs");
+    const { stores: blocked, unmatched } = collectBlocked({ files: recentCrawlLogs(logDir, RUN_NOW_MS), dealerIdFor: (e) => dealerIdFor({ dealerName: e.name, url: e.url, state: "" }) });
+    if (blocked.length || unmatched) log(`[sync] blocked stores found in the crawl logs: ${blocked.length} matched to the directory, ${unmatched} not matched`);
+    await postBlocked({ api: dealsApi, box: BOX_LABEL, date: new Date(RUN_NOW_MS).toISOString().slice(0, 10), stores: blocked, log });
+  } catch (err) {
+    log(`[sync] blocked-stores step failed (non-fatal): ${err.message}`);
   }
   // Zero-scrape staleness (zeroScrape.js): stores that scraped nothing for 3 nights while their platform was healthy are hidden
   // from buyer search (stale_at; never removed). OFF unless ZERO_SCRAPE_STALE=1 — the server aggregate reads every live row, so it is

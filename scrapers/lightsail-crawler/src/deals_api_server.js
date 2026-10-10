@@ -45,6 +45,7 @@ import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
+import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
 import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
@@ -2168,6 +2169,7 @@ async function ensureInventoryTable(pool) {
     vehicle_count INT NOT NULL,
     PRIMARY KEY (make, model, trim, exterior_color, interior_color)
   )`);
+  await pool.query(BLOCKED_TABLE_DDL);
   await pool.query("CREATE TABLE IF NOT EXISTS inv_facet_meta (id TINYINT NOT NULL PRIMARY KEY, built_at DATETIME NOT NULL, duration_ms INT NOT NULL)");
   // All-makes summary for the no-make /api/inventory/catalog call (catalogSummary.js); written by rebuildCatalogFacets.
   await pool.query("CREATE TABLE IF NOT EXISTS inv_option_summary (canonical_key VARCHAR(80) NOT NULL PRIMARY KEY, label VARCHAR(160) NOT NULL, vehicle_count INT NOT NULL)");
@@ -2503,6 +2505,26 @@ async function handleInventorySuperseded(req, res) {
   const [result] = await pool.query(sql, args);
   if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
   sendJson(res, 200, { dryRun: false, retired: result.affectedRows });
+}
+
+// POST /api/inventory/blocked-stores { box, date, stores: [{ dealerId, name, cls, vendor }] } — a box's nightly list of stores whose sites blocked its
+// crawl (no bypass is attempted); replaces that box's earlier report. GET returns every flagged store. See blockedStores.js.
+async function handleBlockedStoresReport(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseBlockedReport(await readBody(req), { toInt: INV_INT, toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const up = buildBlockedUpsert(parsed);
+  if (up) await pool.query(up.sql, up.args);
+  const cl = buildBlockedCleanup(parsed);
+  const [del] = await pool.query(cl.sql, cl.args);
+  sendJson(res, 200, { stored: parsed.stores.length, cleared: del.affectedRows });
+}
+async function handleBlockedStoresList(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const [rows] = await pool.query("SELECT dealer_id, name, block_class, vendor, source_box, first_blocked_on, last_blocked_on FROM crawl_blocked_stores ORDER BY last_blocked_on DESC, dealer_id");
+  sendJson(res, 200, { stores: blockedRowsToJson(rows) });
 }
 
 // POST /api/inventory/zero-scrape { runStart, nights?, dryRun? } — hides (stale_at) the live cars of stores that scraped zero
@@ -3739,6 +3761,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
   if (req.method === "POST" && pathname === "/api/inventory/superseded") return run(handleInventorySuperseded);
+  if (req.method === "POST" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresReport);
+  if (req.method === "GET" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresList);
   if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
