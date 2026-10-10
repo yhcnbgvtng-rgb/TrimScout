@@ -1,0 +1,12 @@
+{
+  "_comment": "Single machine-readable source for box addresses. Keep in sync with docs/BOXES.md (test/boxes_doc.test.mjs enforces it).",
+  "sshUser": "ubuntu",
+  "boxes": {
+    "box1": { "host": "34.203.148.79", "privateIp": "172.26.1.32", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
+    "box2": { "host": "52.202.234.65", "privateIp": null, "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
+    "box3": { "host": "184.73.158.210", "privateIp": "172.26.15.105", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" },
+    "box4": { "host": "100.50.85.234", "privateIp": "172.26.11.241", "remoteDir": "nj-scraper/scrapers/lightsail-crawler" }
+  },
+  "dealsBox": "box2",
+  "deadIps": ["3.208.49.1", "3.237.204.55", "98.92.140.11", "34.205.155.92"]
+}
