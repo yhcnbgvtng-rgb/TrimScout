@@ -45,6 +45,7 @@ import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
 import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
+import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement } from "./vinKeeper.js";
 import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
 import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
@@ -2552,6 +2553,27 @@ async function handleInventorySuperseded(req, res) {
   sendJson(res, 200, { dryRun: false, retired: result.affectedRows });
 }
 
+// POST /api/inventory/duplicate-vins { vins: [vin, ...], foreignBefore, dryRun? } — for each VIN keeps ONE live nightly row and retires (removed_at)
+// the rest. See vinKeeper.js for the rule. Reads the VINs' rows by primary-key prefix, decides in JS, retires by primary key.
+async function handleInventoryDuplicateVins(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const parsed = parseDuplicateVinRequest(await readBody(req), { toStr: INV_STR });
+  if (!parsed.ok) return badRequest(res, parsed.error);
+  const sel = buildRowsSelect(parsed.vins);
+  const [found] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sel.sql}`, sel.args);
+  const plan = planVinKeepers(found.map((r) => ({ vin: r.vin, dealerId: r.dealerId, firstSeenAt: r.firstSeenAt, lastSeenAt: r.lastSeenAt, source: r.source })), { foreignBefore: parsed.foreignBefore });
+  if (parsed.dryRun || plan.retire.length === 0) return sendJson(res, 200, { dryRun: parsed.dryRun, vinsWithDuplicates: plan.vinsWithDuplicates, ...(parsed.dryRun ? { wouldRetire: plan.retire.length } : { retired: 0 }) });
+  let retired = 0;
+  for (let i = 0; i < plan.retire.length; i += 200) {
+    const st = buildRetireStatement(plan.retire.slice(i, i + 200));
+    const [result] = await pool.query(st.sql, st.args);
+    retired += result.affectedRows;
+  }
+  if (retired) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+  sendJson(res, 200, { dryRun: false, vinsWithDuplicates: plan.vinsWithDuplicates, retired });
+}
+
 // POST /api/inventory/blocked-stores { box, date, stores: [{ dealerId, name, cls, vendor }] } — a box's nightly list of stores whose sites blocked its
 // crawl (no bypass is attempted); replaces that box's earlier report. GET returns every flagged store. See blockedStores.js.
 async function handleBlockedStoresReport(req, res) {
@@ -3847,6 +3869,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/bulk") return run(handleInventoryBulk);
   if (req.method === "POST" && pathname === "/api/inventory/sweep") return run(handleInventorySweep);
   if (req.method === "POST" && pathname === "/api/inventory/superseded") return run(handleInventorySuperseded);
+  if (req.method === "POST" && pathname === "/api/inventory/duplicate-vins") return run(handleInventoryDuplicateVins);
   if (req.method === "POST" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresReport);
   if (req.method === "GET" && pathname === "/api/inventory/blocked-stores") return run(handleBlockedStoresList);
   if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);

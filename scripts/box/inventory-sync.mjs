@@ -45,7 +45,7 @@ import { createApi } from "./syncHttp.js";
 import { planBatches } from "./syncBatching.js";
 import { shardMileage } from "./shardMileage.js";
 import { runWritePhase, configFromEnv } from "./syncRun.js";
-import { runSupersede } from "./syncSuperseded.js";
+import { runSupersede, runDuplicateVins } from "./syncSuperseded.js";
 import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
@@ -326,6 +326,17 @@ try {
       const foreignBefore = new Date(Date.parse(r.startedAt) - 48 * 3600_000).toISOString();
       const sup = await runSupersede({ api: dealsApi, rows, seenAfter: r.startedAt, sourceBox: BOX_LABEL, foreignBefore, dryRun, log, isLockLost: () => lockHeartbeat?.isLost() === true });
       log(`[sync] superseded rows${dryRun ? " (dry run)" : ""}: ${JSON.stringify(sup)}`);
+    }
+  }
+  // One live row per VIN (vinKeeper.js): also covers a VIN this run itself uploaded under two stores. OFF unless RETIRE_DUPLICATE_VINS=1
+  // (RETIRE_DUPLICATE_VINS_DRY_RUN=1 only counts). Runs after the superseded step, only after a complete run.
+  if (process.env.RETIRE_DUPLICATE_VINS === "1" || process.env.RETIRE_DUPLICATE_VINS_DRY_RUN === "1") {
+    if (skippedShards.length || (r.sweepFailed || 0) > 0) log("[sync] duplicate-VIN step skipped: this run was incomplete (skipped shard or failed sweep)");
+    else {
+      const dryRun = process.env.RETIRE_DUPLICATE_VINS !== "1";
+      const foreignBefore = new Date(Date.parse(r.startedAt) - 48 * 3600_000).toISOString();
+      const dup = await runDuplicateVins({ api: dealsApi, rows, foreignBefore, dryRun, log, isLockLost: () => lockHeartbeat?.isLost() === true });
+      log(`[sync] duplicate VINs${dryRun ? " (dry run)" : ""}: ${JSON.stringify(dup)}`);
     }
   }
   // Stores whose sites blocked tonight's crawl (no bypass), for the admin sheet's "blocked, no bypass" flag. Best effort; never fails the sync.
