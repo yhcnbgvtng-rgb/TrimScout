@@ -1,0 +1,678 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2027,Escalade,Luxury 2WD,,102700,Base,,Standard Vehicle Price,102700,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: 4WD version of Luxury From $108,595 (+$3,000) (""Other Models"") (configuration; not a row: this trim key is its own drive build)",models/escalade_options.md:41
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Galactic Gray Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Sandstone,725,,,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:43
+2027,Escalade,Luxury 2WD,,102700,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escalade_options.md:50
+2027,Escalade,Luxury 2WD,,102700,Factory package,,Radiant Package,5750,"Black illuminated Cadillac emblem; Puddle lamp with Cadillac crest; 22"" 12-Spoke Chrome alloy wheels",key=name:radiant package,models/escalade_options.md:51
+2027,Escalade,Luxury 2WD,,102700,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish alloy wheels",4000,,,models/escalade_options.md:44
+2027,Escalade,Luxury 2WD,,102700,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:55
+2027,Escalade,Luxury 2WD,,102700,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escalade_options.md:55
+2027,Escalade,Luxury 2WD,,102700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:55
+2027,Escalade,Luxury 2WD,,102700,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escalade_options.md:56
+2027,Escalade,Sport 2WD,,103300,Base,,Standard Vehicle Price,103300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: SPORT 4WD From $109,195 (+$3,000) (""Other Models"") (configuration; not a row: this trim key is its own drive build)",models/escalade_options.md:71
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Galactic Gray Metallic,725,,default-selected paint (presumed in source from the matching Summary Exterior line); its price is excluded from trim_base_msrp,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Sandstone,725,,,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:73
+2027,Escalade,Sport 2WD,,103300,Factory package,,Onyx Lite Package,1110,Black illuminated Cadillac emblem; Gloss Black Escalade nameplate; Puddle lamp with Cadillac crest,"key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced) though its contents are accessory-tab items (emblem, nameplate, puddle lamp)",models/escalade_options.md:80
+2027,Escalade,Sport 2WD,,103300,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escalade_options.md:81
+2027,Escalade,Sport 2WD,,103300,Factory package,,Onyx Package,4250,"Black illuminated Cadillac emblem; 22"" (55.9 cm) steel interim wheels; Gloss Black Escalade nameplate",key=name:onyx package,models/escalade_options.md:82
+2027,Escalade,Sport 2WD,,103300,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish alloy wheels",4000,,,models/escalade_options.md:74
+2027,Escalade,Sport 2WD,,103300,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:86
+2027,Escalade,Sport 2WD,,103300,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:86
+2027,Escalade,Sport 2WD,,103300,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escalade_options.md:87
+2027,Escalade,Luxury 4WD,,105700,Base,,Standard Vehicle Price,105700,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: LUXURY 2WD From $105,595 (-$3,000). SPORT 4WD From $109,195 (configuration; not a row: this trim key is its own drive build)",models/escalade_options.md:103
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Galactic Gray Metallic,725,,default-selected paint (presumed in source from the matching Summary Exterior line); its price is excluded from trim_base_msrp,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Sandstone,725,,,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:105
+2027,Escalade,Luxury 4WD,,105700,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escalade_options.md:112
+2027,Escalade,Luxury 4WD,,105700,Factory package,,Radiant Package,5750,"Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem; 24"" (61 cm) steel interim wheels. (On Luxury 2WD the same-named package lists 22"" 12-Spoke Chrome wheels instead.)",key=name:radiant package,models/escalade_options.md:113
+2027,Escalade,Luxury 4WD,,105700,Factory option,Wheels,"24"" 10-Spoke alloy wheels with Polished finish, High Gloss Black and laser etching",1800,,,models/escalade_options.md:106
+2027,Escalade,Luxury 4WD,,105700,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish alloy wheels",4000,,,models/escalade_options.md:106
+2027,Escalade,Luxury 4WD,,105700,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:117
+2027,Escalade,Luxury 4WD,,105700,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escalade_options.md:117
+2027,Escalade,Luxury 4WD,,105700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:117
+2027,Escalade,Luxury 4WD,,105700,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escalade_options.md:118
+2027,Escalade,Sport 4WD,,106300,Base,,Standard Vehicle Price,106300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: SPORT 2WD From $106,195 (-$3,000) (configuration; not a row: this trim key is its own drive build)",models/escalade_options.md:134
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Galactic Gray Metallic,725,,default-selected paint (presumed in source from the matching Summary Exterior line); its price is excluded from trim_base_msrp,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Sandstone,725,,,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:136
+2027,Escalade,Sport 4WD,,106300,Factory package,,Onyx Lite Package,1110,Black illuminated Cadillac emblem; Gloss Black Escalade nameplate; Puddle lamp with Cadillac crest,"key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced) though its contents are accessory-tab items (emblem, nameplate, puddle lamp)",models/escalade_options.md:143
+2027,Escalade,Sport 4WD,,106300,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escalade_options.md:144
+2027,Escalade,Sport 4WD,,106300,Factory package,,Onyx Package,4250,"Black illuminated Cadillac emblem; 22"" (55.9 cm) steel interim wheels; Gloss Black Escalade nameplate",key=name:onyx package,models/escalade_options.md:145
+2027,Escalade,Sport 4WD,,106300,Factory option,Wheels,"24"" 7-Spoke alloy wheels with Pearl Nickel and High Gloss Black insert",1800,,,models/escalade_options.md:137
+2027,Escalade,Sport 4WD,,106300,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish alloy wheels",4000,,,models/escalade_options.md:137
+2027,Escalade,Sport 4WD,,106300,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:149
+2027,Escalade,Sport 4WD,,106300,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:149
+2027,Escalade,Sport 4WD,,106300,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escalade_options.md:150
+2027,Escalade,Platinum Luxury 4WD,,124200,Base,,Standard Vehicle Price,124200,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; AWD only (no other drive offered)",models/escalade_options.md:165
+2027,Escalade,Platinum Luxury 4WD,,124200,Exterior color,,Galactic Gray Metallic,725,,default-selected paint (presumed in source from the matching Summary Exterior line); its price is excluded from trim_base_msrp,models/escalade_options.md:167
+2027,Escalade,Platinum Luxury 4WD,,124200,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:167
+2027,Escalade,Platinum Luxury 4WD,,124200,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:167
+2027,Escalade,Platinum Luxury 4WD,,124200,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:167
+2027,Escalade,Platinum Luxury 4WD,,124200,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:167
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory package,,Radiant Package,5950,"24"" Bright alloy wheels; Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem",key=name:radiant package,models/escalade_options.md:174
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escalade_options.md:175
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory option,Wheels,"24"" 10-Spoke alloy wheels with Polished finish, High Gloss Black and laser etching",1800,,,models/escalade_options.md:168
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:179
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escalade_options.md:179
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:179
+2027,Escalade,Platinum Luxury 4WD,,124200,Factory option,Interior,Front center console refrigerator with freezer mode and covered storage,700,,,models/escalade_options.md:180
+2027,Escalade,Platinum Sport 4WD,,124700,Base,,Standard Vehicle Price,124700,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; AWD only (no other drive offered)",models/escalade_options.md:198
+2027,Escalade,Platinum Sport 4WD,,124700,Exterior color,,Galactic Gray Metallic,725,,default-selected paint (presumed in source from the matching Summary Exterior line); its price is excluded from trim_base_msrp,models/escalade_options.md:200
+2027,Escalade,Platinum Sport 4WD,,124700,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:200
+2027,Escalade,Platinum Sport 4WD,,124700,Exterior color,,Deep Sea Metallic,725,,,models/escalade_options.md:200
+2027,Escalade,Platinum Sport 4WD,,124700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escalade_options.md:200
+2027,Escalade,Platinum Sport 4WD,,124700,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:200
+2027,Escalade,Platinum Sport 4WD,,124700,Factory package,,Onyx Package,5200,"24"" Black alloy wheels; Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem",key=name:onyx package,models/escalade_options.md:207
+2027,Escalade,Platinum Sport 4WD,,124700,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escalade_options.md:208
+2027,Escalade,Platinum Sport 4WD,,124700,Factory option,Wheels,"24"" 7-Spoke alloy wheels with Pearl Nickel and High Gloss Black insert",1800,,,models/escalade_options.md:201
+2027,Escalade,Platinum Sport 4WD,,124700,Factory option,Performance,Engine block heater,100,,,models/escalade_options.md:212
+2027,Escalade,Platinum Sport 4WD,,124700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escalade_options.md:212
+2027,Escalade,Platinum Sport 4WD,,124700,Factory option,Interior,Front center console refrigerator with freezer mode and covered storage,700,,,models/escalade_options.md:213
+2027,Escalade,V-Series AWD,,169300,Base,,Standard Vehicle Price,169300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/escalade_options.md:231
+2027,Escalade,V-Series AWD,,169300,Exterior color,,Argent Silver Metallic,725,,,models/escalade_options.md:233
+2027,Escalade,V-Series AWD,,169300,Exterior color,,Sandstone,725,,,models/escalade_options.md:233
+2027,Escalade,V-Series AWD,,169300,Exterior color,,Radiant Red Tintcoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/escalade_options.md:233
+2027,Escalade,V-Series AWD,,169300,Exterior color,,Vibrant White Tricoat,1325,,,models/escalade_options.md:233
+2027,Escalade,V-Series AWD,,169300,Factory package,,Onyx Package,5200,"24"" Black alloy wheels; Black illuminated Cadillac emblem; 24"" (61 cm) steel interim wheels",key=name:onyx package,models/escalade_options.md:240
+2027,Escalade,V-Series AWD,,169300,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escalade_options.md:241
+2027,Escalade ESV,Luxury 2WD,,105700,Base,,Standard Vehicle Price,105700,,"Destination Freight Charge $2,895 not included; drive: LUXURY 4WD From $111,595 (+$3,000) under ""Other Models"" (configuration; not a row: this trim key is its own drive build)",models/escaladeesv_options.md:42
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Galactic Gray Metallic,725,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Deep Sea Metallic,725,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Sandstone,725,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:44
+2027,Escalade ESV,Luxury 2WD,,105700,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escaladeesv_options.md:49
+2027,Escalade ESV,Luxury 2WD,,105700,Factory package,,Radiant Package,5750,"Black illuminated Cadillac emblem; Puddle lamp with Cadillac crest; 22"" 12-Spoke Chrome alloy wheels",key=name:radiant package,models/escaladeesv_options.md:50
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish",4000,,,models/escaladeesv_options.md:45
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,Interior,"Renaissance Red with Black accents, faceted quilting",2000,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/escaladeesv_options.md:46
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:53
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escaladeesv_options.md:53
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:53
+2027,Escalade ESV,Luxury 2WD,,105700,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escaladeesv_options.md:54
+2027,Escalade ESV,Sport 2WD,,106300,Base,,Standard Vehicle Price,106300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: SPORT 4WD From $112,195 (+$3,000) under ""Other Models"" (configuration; not a row: this trim key is its own drive build)",models/escaladeesv_options.md:70
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Galactic Gray Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Deep Sea Metallic,725,,,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Sandstone,725,,,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:72
+2027,Escalade ESV,Sport 2WD,,106300,Factory package,,Onyx Lite Package,1110,Black illuminated Cadillac emblem; Gloss Black Escalade nameplate; Puddle lamp with Cadillac crest,"key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced) though its contents are accessory-tab items (emblem, nameplate, puddle lamp)",models/escaladeesv_options.md:77
+2027,Escalade ESV,Sport 2WD,,106300,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escaladeesv_options.md:78
+2027,Escalade ESV,Sport 2WD,,106300,Factory package,,Onyx Package,4250,Black illuminated Cadillac emblem; Gloss Black Escalade nameplate; Puddle lamp with Cadillac crest,key=name:onyx package,models/escaladeesv_options.md:79
+2027,Escalade ESV,Sport 2WD,,106300,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish",4000,,,models/escaladeesv_options.md:73
+2027,Escalade ESV,Sport 2WD,,106300,Factory option,Interior,"Renaissance Red with Black accents, faceted quilting",2000,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/escaladeesv_options.md:74
+2027,Escalade ESV,Sport 2WD,,106300,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:82
+2027,Escalade ESV,Sport 2WD,,106300,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:82
+2027,Escalade ESV,Sport 2WD,,106300,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escaladeesv_options.md:83
+2027,Escalade ESV,Luxury 4WD,,108700,Base,,Standard Vehicle Price,108700,,"Destination Freight Charge $2,895 not included; drive: LUXURY 2WD From $108,595 (-$3,000) under ""Other Models"" (configuration; not a row: this trim key is its own drive build)",models/escaladeesv_options.md:100
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Galactic Gray Metallic,725,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Deep Sea Metallic,725,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Sandstone,725,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:102
+2027,Escalade ESV,Luxury 4WD,,108700,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escaladeesv_options.md:107
+2027,Escalade ESV,Luxury 4WD,,108700,Factory package,,Radiant Package,5750,"Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem; 24"" (61 cm) steel interim wheels",key=name:radiant package,models/escaladeesv_options.md:108
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,Wheels,"24"" 10-Spoke alloy, Polished with High Gloss Black and laser etching",1800,,,models/escaladeesv_options.md:103
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish",4000,,,models/escaladeesv_options.md:103
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,Interior,"Renaissance Red with Black accents, faceted quilting",2000,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/escaladeesv_options.md:104
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:111
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escaladeesv_options.md:111
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:111
+2027,Escalade ESV,Luxury 4WD,,108700,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escaladeesv_options.md:112
+2027,Escalade ESV,Sport 4WD,,109300,Base,,Standard Vehicle Price,109300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; drive: SPORT 2WD From $109,195 (-$3,000) under ""Other Models"" (configuration; not a row: this trim key is its own drive build)",models/escaladeesv_options.md:129
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Galactic Gray Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Deep Sea Metallic,725,,,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Sandstone,725,,,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:131
+2027,Escalade ESV,Sport 4WD,,109300,Factory package,,Onyx Lite Package,1110,Black illuminated Cadillac emblem; Gloss Black Escalade nameplate; Puddle lamp with Cadillac crest,"key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced) though its contents are accessory-tab items (emblem, nameplate, puddle lamp)",models/escaladeesv_options.md:136
+2027,Escalade ESV,Sport 4WD,,109300,Factory package,,Touring Package,3950,Soft-close doors; Power open and close doors; Adaptive Air Ride suspension,key=name:touring package,models/escaladeesv_options.md:137
+2027,Escalade ESV,Sport 4WD,,109300,Factory package,,Onyx Package,4250,"Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem; Gloss Black Escalade nameplate",key=name:onyx package,models/escaladeesv_options.md:138
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,Wheels,"24"" 7-Spoke alloy, Pearl Nickel with High Gloss Black insert",1800,,,models/escaladeesv_options.md:132
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,Wheels,"22"" 12-Spoke Gloss Black finish",4000,,,models/escaladeesv_options.md:132
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,Interior,"Renaissance Red with Black accents, faceted quilting",2000,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/escaladeesv_options.md:133
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:141
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:141
+2027,Escalade ESV,Sport 4WD,,109300,Factory option,Interior,Rear Seat Entertainment system,2595,,,models/escaladeesv_options.md:142
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Base,,Standard Vehicle Price,127200,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; AWD only (no other drive offered)",models/escaladeesv_options.md:158
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Exterior color,,Galactic Gray Metallic,725,,,models/escaladeesv_options.md:160
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:160
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Exterior color,,Deep Sea Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeesv_options.md:160
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:160
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:160
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory package,,Radiant Package,5950,"24"" Bright alloy wheels; Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem",key=name:radiant package,models/escaladeesv_options.md:166
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeesv_options.md:167
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory option,Wheels,"24"" 10-Spoke alloy, Polished with High Gloss Black and laser etching",1800,,,models/escaladeesv_options.md:161
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:170
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory option,,Black exhaust tips,575,,flag: listed as a non-accessory Mechanical tile on Cadillac (exhaust tips are accessories on Chevy/GMC),models/escaladeesv_options.md:170
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:170
+2027,Escalade ESV,Platinum Luxury 4WD,,127200,Factory option,Interior,Front center console refrigerator with freezer mode and covered storage,700,,,models/escaladeesv_options.md:171
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Base,,Standard Vehicle Price,127700,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; see paint row; AWD only (no other drive offered)",models/escaladeesv_options.md:189
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Exterior color,,Galactic Gray Metallic,725,,,models/escaladeesv_options.md:191
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Exterior color,,Argent Silver Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeesv_options.md:191
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Exterior color,,Deep Sea Metallic,725,,,models/escaladeesv_options.md:191
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Exterior color,,Radiant Red Tintcoat,1325,,,models/escaladeesv_options.md:191
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:191
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory package,,Onyx Package,5200,"24"" Black alloy wheels; Tires, 285/40R24 all-season, blackwall; Black illuminated Cadillac emblem",key=name:onyx package,models/escaladeesv_options.md:197
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeesv_options.md:198
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory option,Wheels,"24"" 7-Spoke alloy, Pearl Nickel with High Gloss Black insert",1800,,,models/escaladeesv_options.md:192
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory option,Performance,Engine block heater,100,,,models/escaladeesv_options.md:201
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory option,,Cat-Back Performance Exhaust System,4320,,flag: listed as a non-accessory Mechanical tile on Cadillac (Cat-Back exhaust is an accessory on Chevy),models/escaladeesv_options.md:201
+2027,Escalade ESV,Platinum Sport 4WD,,127700,Factory option,Interior,Front center console refrigerator with freezer mode and covered storage,700,,,models/escaladeesv_options.md:202
+2027,Escalade ESV,V-Series AWD,,172300,Base,,Standard Vehicle Price,172300,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/escaladeesv_options.md:220
+2027,Escalade ESV,V-Series AWD,,172300,Exterior color,,Argent Silver Metallic,725,,,models/escaladeesv_options.md:222
+2027,Escalade ESV,V-Series AWD,,172300,Exterior color,,Sandstone,725,,,models/escaladeesv_options.md:222
+2027,Escalade ESV,V-Series AWD,,172300,Exterior color,,Radiant Red Tintcoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeesv_options.md:222
+2027,Escalade ESV,V-Series AWD,,172300,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeesv_options.md:222
+2027,Escalade ESV,V-Series AWD,,172300,Factory package,,Onyx Package,5200,"24"" Black alloy wheels; Black illuminated Cadillac emblem; 24"" (61 cm) steel interim wheels",key=name:onyx package,models/escaladeesv_options.md:226
+2027,Escalade ESV,V-Series AWD,,172300,Factory package,,Executive Second Row Seating Package,7500,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeesv_options.md:227
+2026,Escalade IQ,Luxury AWD,,127405,Base,,Standard Vehicle Price,127405,,"Destination Freight Charge $2,895 not included; AWD only (no other drive offered)",models/escaladeiq_options.md:38
+2026,Escalade IQ,Luxury AWD,,127405,Exterior color,,Sandstone,725,,,models/escaladeiq_options.md:40
+2026,Escalade IQ,Luxury AWD,,127405,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiq_options.md:40
+2026,Escalade IQ,Luxury AWD,,127405,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiq_options.md:40
+2026,Escalade IQ,Luxury AWD,,127405,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiq_options.md:41
+2026,Escalade IQ,Luxury AWD,,127405,Factory package,,Radiant Package,4775,"Bright wheel center cap; Perimeter Lighting; 24"" Bright alloy wheels",key=name:radiant package,models/escaladeiq_options.md:49
+2026,Escalade IQ,Luxury AWD,,127405,Factory option,Wheels,"24"" 7-Spoke alloy, mask and polish, machine face and high gloss Black pockets and inserts",1500,,,models/escaladeiq_options.md:42
+2026,Escalade IQ,Luxury AWD,,127405,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiq_options.md:53
+2026,Escalade IQ,Luxury AWD,,127405,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiq_options.md:53
+2026,Escalade IQ,Sport AWD,,127905,Base,,Standard Vehicle Price,127905,,"Destination Freight Charge $2,895 not included; AWD only (no other drive offered)",models/escaladeiq_options.md:72
+2026,Escalade IQ,Sport AWD,,127905,Exterior color,,Sandstone,725,,,models/escaladeiq_options.md:74
+2026,Escalade IQ,Sport AWD,,127905,Exterior color,,Monarch Orange,725,,,models/escaladeiq_options.md:74
+2026,Escalade IQ,Sport AWD,,127905,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiq_options.md:74
+2026,Escalade IQ,Sport AWD,,127905,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiq_options.md:74
+2026,Escalade IQ,Sport AWD,,127905,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiq_options.md:75
+2026,Escalade IQ,Sport AWD,,127905,Factory package,,Onyx Package,4295,Hudson Metallic nameplates; Black center caps; Perimeter Lighting,key=name:onyx package,models/escaladeiq_options.md:83
+2026,Escalade IQ,Sport AWD,,127905,Factory option,Wheels,"24"" 7-Spoke alloy, diamond-cut face, high gloss Black pockets and inserts with dark tintcoat",1500,,,models/escaladeiq_options.md:76
+2026,Escalade IQ,Sport AWD,,127905,Factory option,Wheels,"24"" Deep Space alloy wheels with reverse rim",3050,,,models/escaladeiq_options.md:76
+2026,Escalade IQ,Sport AWD,,127905,Factory option,Wheels,"24"" Low Gloss Black Reverse Rim Wheel with Tech Bronze overlay",3995,,,models/escaladeiq_options.md:76
+2026,Escalade IQ,Sport AWD,,127905,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiq_options.md:87
+2026,Escalade IQ,Sport AWD,,127905,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiq_options.md:87
+2026,Escalade IQ,Premium Luxury AWD,,147705,Base,,Standard Vehicle Price,147705,,"Destination Freight Charge $2,895 not included; AWD only (no other drive offered)",models/escaladeiq_options.md:105
+2026,Escalade IQ,Premium Luxury AWD,,147705,Exterior color,,Sandstone,725,,,models/escaladeiq_options.md:107
+2026,Escalade IQ,Premium Luxury AWD,,147705,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiq_options.md:107
+2026,Escalade IQ,Premium Luxury AWD,,147705,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiq_options.md:107
+2026,Escalade IQ,Premium Luxury AWD,,147705,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiq_options.md:108
+2026,Escalade IQ,Premium Luxury AWD,,147705,Factory package,,Radiant Package,4775,"Bright wheel center cap; Perimeter Lighting; 24"" Bright alloy wheels",key=name:radiant package,models/escaladeiq_options.md:115
+2026,Escalade IQ,Premium Luxury AWD,,147705,Factory package,,Executive Second Row Seating Package,7500,14-way power adjustable second row seats; second row 4-way power bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeiq_options.md:116
+2026,Escalade IQ,Premium Luxury AWD,,147705,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiq_options.md:120
+2026,Escalade IQ,Premium Luxury AWD,,147705,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiq_options.md:120
+2026,Escalade IQ,Premium Luxury AWD,,147705,Factory option,Trailering,Trailer Tire Pressure Monitor,150,,,models/escaladeiq_options.md:121
+2026,Escalade IQ,Premium Sport AWD,,148205,Base,,Standard Vehicle Price,148205,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/escaladeiq_options.md:140
+2026,Escalade IQ,Premium Sport AWD,,148205,Exterior color,,Sandstone,725,,,models/escaladeiq_options.md:142
+2026,Escalade IQ,Premium Sport AWD,,148205,Exterior color,,Monarch Orange,725,,,models/escaladeiq_options.md:142
+2026,Escalade IQ,Premium Sport AWD,,148205,Exterior color,,Black Cherry Tintcoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/escaladeiq_options.md:142
+2026,Escalade IQ,Premium Sport AWD,,148205,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiq_options.md:142
+2026,Escalade IQ,Premium Sport AWD,,148205,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiq_options.md:143
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory package,,Onyx Package,4295,Hudson Metallic nameplates; Black center caps; Perimeter Lighting,key=name:onyx package,models/escaladeiq_options.md:150
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory package,,Executive Second Row Seating Package,7500,14-way power adjustable second row seats; second row 4-way power bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeiq_options.md:151
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory option,Wheels,"24"" Deep Space alloy wheels with reverse rim",3050,,,models/escaladeiq_options.md:144
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory option,Wheels,"24"" Low Gloss Black Reverse Rim Wheel with Tech Bronze overlay",3995,,,models/escaladeiq_options.md:144
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiq_options.md:155
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiq_options.md:155
+2026,Escalade IQ,Premium Sport AWD,,148205,Factory option,Trailering,Trailer Tire Pressure Monitor,150,,,models/escaladeiq_options.md:156
+2026,Escalade IQL,Luxury AWD,,130405,Base,,Standard Vehicle Price,130405,,"Destination Freight Charge $2,895 not included; AWD only (no other drive offered)",models/escaladeiql_options.md:38
+2026,Escalade IQL,Luxury AWD,,130405,Exterior color,,Sandstone,725,,,models/escaladeiql_options.md:40
+2026,Escalade IQL,Luxury AWD,,130405,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiql_options.md:40
+2026,Escalade IQL,Luxury AWD,,130405,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiql_options.md:40
+2026,Escalade IQL,Luxury AWD,,130405,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiql_options.md:41
+2026,Escalade IQL,Luxury AWD,,130405,Factory package,,Radiant Package,4775,"Bright wheel center cap; Perimeter Lighting; 24"" Bright alloy wheels",key=name:radiant package,models/escaladeiql_options.md:48
+2026,Escalade IQL,Luxury AWD,,130405,Factory option,Wheels,"24"" 7-Spoke alloy, mask and polish, machine face, high gloss Black pockets and inserts",1500,,,models/escaladeiql_options.md:42
+2026,Escalade IQL,Luxury AWD,,130405,Factory option,Wheels,"24"" Deep Space alloy with reverse rim",3050,,,models/escaladeiql_options.md:42
+2026,Escalade IQL,Luxury AWD,,130405,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiql_options.md:52
+2026,Escalade IQL,Luxury AWD,,130405,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiql_options.md:52
+2026,Escalade IQL,Sport AWD,,130905,Base,,Standard Vehicle Price,130905,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; no paint row: that default paint is dropped (labelled ""No longer available to order"" or unpriced on its tile); AWD only (no other drive offered)",models/escaladeiql_options.md:70
+2026,Escalade IQL,Sport AWD,,130905,Exterior color,,Sandstone,725,,,models/escaladeiql_options.md:72
+2026,Escalade IQL,Sport AWD,,130905,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiql_options.md:72
+2026,Escalade IQL,Sport AWD,,130905,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiql_options.md:72
+2026,Escalade IQL,Sport AWD,,130905,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiql_options.md:73
+2026,Escalade IQL,Sport AWD,,130905,Factory package,,Onyx Package,4295,Hudson Metallic nameplates; Black center caps; Perimeter Lighting,key=name:onyx package,models/escaladeiql_options.md:80
+2026,Escalade IQL,Sport AWD,,130905,Factory option,Wheels,"24"" 7-Spoke alloy, diamond-cut face, high gloss Black pockets and inserts with dark tintcoat",1500,,,models/escaladeiql_options.md:74
+2026,Escalade IQL,Sport AWD,,130905,Factory option,Wheels,"24"" Deep Space alloy with reverse rim",3050,,,models/escaladeiql_options.md:74
+2026,Escalade IQL,Sport AWD,,130905,Factory option,Wheels,"24"" Low Gloss Black Reverse Rim Wheel with Tech Bronze overlay",3995,,,models/escaladeiql_options.md:74
+2026,Escalade IQL,Sport AWD,,130905,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiql_options.md:84
+2026,Escalade IQL,Sport AWD,,130905,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiql_options.md:84
+2026,Escalade IQL,Premium Luxury AWD,,150705,Base,,Standard Vehicle Price,150705,,"Destination Freight Charge $2,895 not included; AWD only (no other drive offered)",models/escaladeiql_options.md:102
+2026,Escalade IQL,Premium Luxury AWD,,150705,Exterior color,,Sandstone,725,,,models/escaladeiql_options.md:104
+2026,Escalade IQL,Premium Luxury AWD,,150705,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiql_options.md:104
+2026,Escalade IQL,Premium Luxury AWD,,150705,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiql_options.md:104
+2026,Escalade IQL,Premium Luxury AWD,,150705,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiql_options.md:105
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory package,,Radiant Package,4775,"Bright wheel center cap; Perimeter Lighting; 24"" Bright alloy wheels",key=name:radiant package,models/escaladeiql_options.md:109
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory package,,Executive Second Row Seating Package,7500,14-way power adjustable second row seats; second row 4-way power bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeiql_options.md:110
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory option,Wheels,"24"" Deep Space alloy with reverse rim",3050,,,models/escaladeiql_options.md:106
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiql_options.md:117
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiql_options.md:117
+2026,Escalade IQL,Premium Luxury AWD,,150705,Factory option,Trailering,Trailer Tire Pressure Monitor,150,,,models/escaladeiql_options.md:118
+2026,Escalade IQL,Premium Sport AWD,,151205,Base,,Standard Vehicle Price,151205,,"Destination Freight Charge $2,895 not included; default-selected paid paint (+$725) excluded; no paint row: that default paint is dropped (labelled ""No longer available to order"" or unpriced on its tile); AWD only (no other drive offered)",models/escaladeiql_options.md:137
+2026,Escalade IQL,Premium Sport AWD,,151205,Exterior color,,Sandstone,725,,,models/escaladeiql_options.md:139
+2026,Escalade IQL,Premium Sport AWD,,151205,Exterior color,,Black Cherry Tintcoat,1325,,,models/escaladeiql_options.md:139
+2026,Escalade IQL,Premium Sport AWD,,151205,Exterior color,,Vibrant White Tricoat,1325,,,models/escaladeiql_options.md:139
+2026,Escalade IQL,Premium Sport AWD,,151205,Exterior color,Roof color,Black painted roof,1100,,,models/escaladeiql_options.md:140
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory package,,Onyx Package,4295,Hudson Metallic nameplates; Black center caps; Perimeter Lighting,key=name:onyx package,models/escaladeiql_options.md:144
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory package,,Executive Second Row Seating Package,7500,14-way power adjustable second row seats; second row 4-way power bolster seat adjuster; Power second row massage,key=name:executive second row seating package; flag: seating hardware (Executive Second Row package; Paul 2026-10-11),models/escaladeiql_options.md:145
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory option,Wheels,"24"" Deep Space alloy with reverse rim",3050,,,models/escaladeiql_options.md:141
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory option,Wheels,"24"" Low Gloss Black Reverse Rim Wheel with Tech Bronze overlay",3995,,,models/escaladeiql_options.md:141
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory option,Interior,Console Refrigerated Cooler,1750,,,models/escaladeiql_options.md:152
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory option,Interior,Rear Seat Entertainment system,1995,,,models/escaladeiql_options.md:152
+2026,Escalade IQL,Premium Sport AWD,,151205,Factory option,Trailering,Trailer Tire Pressure Monitor,150,,,models/escaladeiql_options.md:153
+2027,Lyriq,Luxury AWD,,62900,Base,,Standard Vehicle Price,62900,,"Destination Freight Charge $1,795 not included; drive: RWD Luxury From $61,195 (Drive Type RWD toggle read once on the Model picker). AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:48
+2027,Lyriq,Luxury AWD,,62900,Exterior color,,Emerald Lake Metallic,725,,,models/lyriq_options.md:50
+2027,Lyriq,Luxury AWD,,62900,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:50
+2027,Lyriq,Luxury AWD,,62900,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:50
+2027,Lyriq,Luxury AWD,,62900,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:50
+2027,Lyriq,Luxury AWD,,62900,Exterior color,,Blue Graphite Tricoat,1325,,,models/lyriq_options.md:50
+2027,Lyriq,Luxury AWD,,62900,Exterior color,Roof color,Black painted roof,695,,,models/lyriq_options.md:51
+2027,Lyriq,Luxury AWD,,62900,Factory package,,Radiant Package,4450,"22"" all-season self-sealing, low-profile tires; Perimeter Illumination; 22"" Polished alloy wheels with Dark Android Pockets",key=name:radiant package,models/lyriq_options.md:63
+2027,Lyriq,Luxury AWD,,62900,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:67
+2027,Lyriq,Sport AWD,,63400,Base,,Standard Vehicle Price,63400,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$725) excluded; see paint row; drive: RWD Sport From $61,695. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:89
+2027,Lyriq,Sport AWD,,63400,Exterior color,,Stellar Black Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:91
+2027,Lyriq,Sport AWD,,63400,Exterior color,,Opulent Blue Metallic,725,,,models/lyriq_options.md:91
+2027,Lyriq,Sport AWD,,63400,Exterior color,,Cashmere,725,,,models/lyriq_options.md:91
+2027,Lyriq,Sport AWD,,63400,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:91
+2027,Lyriq,Sport AWD,,63400,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:91
+2027,Lyriq,Sport AWD,,63400,Exterior color,Roof color,Black painted roof,695,,,models/lyriq_options.md:92
+2027,Lyriq,Sport AWD,,63400,Factory package,,Onyx Package,4750,"Obsidian Chrome Mirror caps; 22"" all-season self-sealing, low-profile tires; Gloss Black Nameplates",key=name:onyx package,models/lyriq_options.md:104
+2027,Lyriq,Sport AWD,,63400,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:108
+2027,Lyriq,Premium Luxury AWD,,66900,Base,,Standard Vehicle Price,66900,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$1,325) excluded; see paint row; drive: RWD Premium Luxury From $65,195. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:127
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,,Emerald Lake Metallic,725,,,models/lyriq_options.md:129
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:129
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:129
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,,Vibrant White Tricoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:129
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,,Blue Graphite Tricoat,1325,,,models/lyriq_options.md:129
+2027,Lyriq,Premium Luxury AWD,,66900,Exterior color,Roof color,Black painted roof,695,,,models/lyriq_options.md:130
+2027,Lyriq,Premium Luxury AWD,,66900,Factory package,,Radiant Package,4450,"22"" all-season self-sealing, low-profile tires; Perimeter Illumination; 22"" Polished alloy wheels with Dark Android Pockets",key=name:radiant package,models/lyriq_options.md:142
+2027,Lyriq,Premium Luxury AWD,,66900,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/lyriq_options.md:134
+2027,Lyriq,Premium Luxury AWD,,66900,Factory option,Roof,Power SkyGlass roof,1600,,,models/lyriq_options.md:145
+2027,Lyriq,Premium Luxury AWD,,66900,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:146
+2027,Lyriq,Premium Sport AWD,,67400,Base,,Standard Vehicle Price,67400,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$1,420) excluded; see paint row; Summary Exterior $1,420 = default Cashmere $725 + default Black painted roof $695 (both default-selected; see paint and roof rows); drive: RWD Premium Sport From $65,695. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:165
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:167
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,,Opulent Blue Metallic,725,,,models/lyriq_options.md:167
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,,Cashmere,725,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:167
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:167
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:167
+2027,Lyriq,Premium Sport AWD,,67400,Exterior color,Roof color,Black painted roof,695,,default-selected roof color; its price is excluded from trim_base_msrp,models/lyriq_options.md:168
+2027,Lyriq,Premium Sport AWD,,67400,Factory package,,Onyx Package,4750,"Obsidian Chrome Mirror caps; 22"" all-season self-sealing, low-profile tires; Gloss Black Nameplates",key=name:onyx package,models/lyriq_options.md:180
+2027,Lyriq,Premium Sport AWD,,67400,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/lyriq_options.md:172
+2027,Lyriq,Premium Sport AWD,,67400,Factory option,Roof,Power SkyGlass roof,1600,,,models/lyriq_options.md:183
+2027,Lyriq,Premium Sport AWD,,67400,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:184
+2027,Lyriq,Signature Luxury AWD,,70300,Base,,Standard Vehicle Price,70300,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$725) excluded; see paint row; Summary Options $3,790 = default-included package (kept as its package row, flagged); not added to Base; drive: RWD Signature Luxury From $68,595. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:203
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,,Emerald Lake Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:206
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:206
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:206
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:206
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,,Blue Graphite Tricoat,1325,,,models/lyriq_options.md:206
+2027,Lyriq,Signature Luxury AWD,,70300,Exterior color,Roof color,Black painted roof,695,,,models/lyriq_options.md:207
+2027,Lyriq,Signature Luxury AWD,,70300,Factory package,,Nappa Leather Package,3790,,"key=name:nappa leather package; default-included: Summary Options $3,790 matches this package (auto-included on the default build); not added to Base; kept: paid sticker line (Paul 2026-10-11)",models/lyriq_options.md:213
+2027,Lyriq,Signature Luxury AWD,,70300,Factory package,,Radiant Package,4450,"Perimeter Illumination; 22"" Polished alloy wheels with Dark Android Pockets (no tires line on this trim)",key=name:radiant package,models/lyriq_options.md:220
+2027,Lyriq,Signature Luxury AWD,,70300,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/lyriq_options.md:211
+2027,Lyriq,Signature Luxury AWD,,70300,Factory option,Roof,Power SkyGlass roof,1600,,,models/lyriq_options.md:223
+2027,Lyriq,Signature Luxury AWD,,70300,Factory option,Interior,Augmented Reality Head-Up Display,1200,,,models/lyriq_options.md:224
+2027,Lyriq,Signature Luxury AWD,,70300,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:225
+2027,Lyriq,Signature Sport AWD,,70800,Base,,Standard Vehicle Price,70800,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$725) excluded; see paint row; drive: RWD Signature Sport From $69,095. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/lyriq_options.md:245
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:247
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,,Opulent Blue Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:247
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,,Cashmere,725,,,models/lyriq_options.md:247
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:247
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:247
+2027,Lyriq,Signature Sport AWD,,70800,Exterior color,Roof color,Black painted roof,695,,,models/lyriq_options.md:248
+2027,Lyriq,Signature Sport AWD,,70800,Factory package,,Nappa Leather Package,3790,,key=name:nappa leather package; kept: paid sticker line (Paul 2026-10-11) (optional here; default-included on Signature Luxury),models/lyriq_options.md:254
+2027,Lyriq,Signature Sport AWD,,70800,Factory package,,Onyx Package,4750,Obsidian Chrome Mirror caps; Gloss Black Nameplates; Perimeter Illumination (no tires line on this trim),key=name:onyx package,models/lyriq_options.md:261
+2027,Lyriq,Signature Sport AWD,,70800,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/lyriq_options.md:252
+2027,Lyriq,Signature Sport AWD,,70800,Factory option,Roof,Power SkyGlass roof,1600,,,models/lyriq_options.md:264
+2027,Lyriq,Signature Sport AWD,,70800,Factory option,Interior,Augmented Reality Head-Up Display,1200,,,models/lyriq_options.md:265
+2027,Lyriq,Signature Sport AWD,,70800,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:266
+2027,Lyriq,V-Series AWD,,78700,Base,,Standard Vehicle Price,78700,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/lyriq_options.md:285
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Emerald Lake Metallic,725,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Cashmere,725,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Radiant Red Tintcoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Blue Graphite Tricoat,1325,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Exterior color,,Midnight Stone Frost,3995,,,models/lyriq_options.md:287
+2027,Lyriq,V-Series AWD,,78700,Factory package,,Exterior Carbon Fiber Package,5700,,key=name:exterior carbon fiber package,models/lyriq_options.md:295
+2027,Lyriq,V-Series AWD,,78700,Factory package,,Onyx Lite Package,595,Obsidian Chrome Mirror caps; Gloss Black Nameplates,key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced),models/lyriq_options.md:299
+2027,Lyriq,V-Series AWD,,78700,Factory option,Tires,"22"" all-season self-sealing, low-profile tires",100,,,models/lyriq_options.md:290
+2027,Lyriq,V-Series AWD,,78700,Factory option,Exterior,Red brake calipers,595,,,models/lyriq_options.md:291
+2027,Lyriq,V-Series AWD,,78700,Factory option,Exterior,Blue brake calipers,595,,,models/lyriq_options.md:291
+2027,Lyriq,V-Series AWD,,78700,Factory option,,Performance low-metallic brake linings,100,,,models/lyriq_options.md:305
+2027,Lyriq,V-Series AWD,,78700,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:306
+2027,Lyriq,V-Series Premium AWD,,83900,Base,,Standard Vehicle Price,83900,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/lyriq_options.md:327
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Emerald Lake Metallic,725,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Stellar Black Metallic,725,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Cashmere,725,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Radiant Red Tintcoat,1325,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Vibrant White Tricoat,1325,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Blue Graphite Tricoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Exterior color,,Midnight Stone Frost,3995,,,models/lyriq_options.md:329
+2027,Lyriq,V-Series Premium AWD,,83900,Factory package,,Exterior Carbon Fiber Package,5700,,key=name:exterior carbon fiber package,models/lyriq_options.md:337
+2027,Lyriq,V-Series Premium AWD,,83900,Factory package,,Onyx Lite Package,595,Obsidian Chrome Mirror caps; Gloss Black Nameplates,key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced),models/lyriq_options.md:341
+2027,Lyriq,V-Series Premium AWD,,83900,Factory option,Tires,"22"" all-season self-sealing, low-profile tires",100,,,models/lyriq_options.md:332
+2027,Lyriq,V-Series Premium AWD,,83900,Factory option,Exterior,Red brake calipers,595,,,models/lyriq_options.md:333
+2027,Lyriq,V-Series Premium AWD,,83900,Factory option,Exterior,Blue brake calipers,595,,,models/lyriq_options.md:333
+2027,Lyriq,V-Series Premium AWD,,83900,Factory option,,Performance low-metallic brake linings,100,,,models/lyriq_options.md:348
+2027,Lyriq,V-Series Premium AWD,,83900,Factory option,Trailering,Trailer hitch,1170,,,models/lyriq_options.md:349
+2027,Optiq,Luxury AWD,,53495,Base,,Standard Vehicle Price,53495,,"Destination Freight Charge $1,795 not included; Select Market Purchase Allowance -$1,000 noted, excluded (offer, not an option; Paul 2026-10-11); drive: RWD Luxury From $51,790 (Drive Type RWD toggle read once on the Model picker). AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/optiq_options.md:45
+2027,Optiq,Luxury AWD,,53495,Exterior color,,Coastal Blue Metallic,725,,,models/optiq_options.md:48
+2027,Optiq,Luxury AWD,,53495,Exterior color,,Sandstone,725,,,models/optiq_options.md:48
+2027,Optiq,Luxury AWD,,53495,Exterior color,,Argent Silver Metallic,725,,,models/optiq_options.md:48
+2027,Optiq,Luxury AWD,,53495,Exterior color,,Vibrant White Tricoat,1325,,,models/optiq_options.md:48
+2027,Optiq,Luxury AWD,,53495,Exterior color,,Radiant Red Tintcoat,1325,,,models/optiq_options.md:48
+2027,Optiq,Luxury AWD,,53495,Exterior color,Roof color,Black roof,695,,,models/optiq_options.md:49
+2027,Optiq,Luxury AWD,,53495,Factory option,Charging,19.2 kW capable onboard charging module,1580,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/optiq_options.md:53
+2027,Optiq,Luxury AWD,,53495,Factory option,Trailering,Trailer hitch,1130,,,models/optiq_options.md:64
+2027,Optiq,Sport AWD,,54100,Base,,Standard Vehicle Price,54100,,"Destination Freight Charge $1,795 not included; Select Market Purchase Allowance -$1,000 noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$725) excluded; see paint row; drive: RWD Sport From $52,395. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/optiq_options.md:83
+2027,Optiq,Sport AWD,,54100,Exterior color,,Monarch Orange,725,,,models/optiq_options.md:86
+2027,Optiq,Sport AWD,,54100,Exterior color,,Argent Silver Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/optiq_options.md:86
+2027,Optiq,Sport AWD,,54100,Exterior color,,Citron Tricoat,1325,,,models/optiq_options.md:86
+2027,Optiq,Sport AWD,,54100,Exterior color,,Vibrant White Tricoat,1325,,,models/optiq_options.md:86
+2027,Optiq,Sport AWD,,54100,Exterior color,,Radiant Red Tintcoat,1325,,,models/optiq_options.md:86
+2027,Optiq,Sport AWD,,54100,Exterior color,Roof color,Black roof,695,,,models/optiq_options.md:87
+2027,Optiq,Sport AWD,,54100,Factory package,,Onyx Package,4425,"Obsidian Chrome Mirror caps; Black wheel center cap; Tires, 275/40R21 all-season, self-sealing",key=name:onyx package,models/optiq_options.md:94
+2027,Optiq,Sport AWD,,54100,Factory option,Wheels,"21"" Bronze alloy wheels",3025,,,models/optiq_options.md:88
+2027,Optiq,Sport AWD,,54100,Factory option,Charging,19.2 kW capable onboard charging module,1580,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/optiq_options.md:92
+2027,Optiq,Sport AWD,,54100,Factory option,Trailering,Trailer hitch,1130,,,models/optiq_options.md:104
+2027,Optiq,Premium Luxury AWD,,56700,Base,,Standard Vehicle Price,56700,,"Destination Freight Charge $1,795 not included; Select Market Purchase Allowance -$1,000 noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$725) excluded; see paint row; drive: RWD Premium Luxury From $54,995. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/optiq_options.md:123
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,,Coastal Blue Metallic,725,,default-selected paint; its price is excluded from trim_base_msrp,models/optiq_options.md:126
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,,Sandstone,725,,,models/optiq_options.md:126
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,,Argent Silver Metallic,725,,,models/optiq_options.md:126
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,,Vibrant White Tricoat,1325,,,models/optiq_options.md:126
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,,Radiant Red Tintcoat,1325,,,models/optiq_options.md:126
+2027,Optiq,Premium Luxury AWD,,56700,Exterior color,Roof color,Black roof,695,,,models/optiq_options.md:127
+2027,Optiq,Premium Luxury AWD,,56700,Factory option,Wheels,"21"" Dark Android full gloss painted alloy wheels",700,,,models/optiq_options.md:128
+2027,Optiq,Premium Luxury AWD,,56700,Factory option,Interior,"Autumn Canyon, Inteluxe Seats with Perforated inserts and embroidered embellishments seat trim",1100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/optiq_options.md:130
+2027,Optiq,Premium Luxury AWD,,56700,Factory option,Interior,"Phantom Blue, Inteluxe Seats with Perforated inserts and quilted embellishments seat trim",1100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/optiq_options.md:130
+2027,Optiq,Premium Luxury AWD,,56700,Factory option,Charging,19.2 kW capable onboard charging module,1580,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/optiq_options.md:131
+2027,Optiq,Premium Luxury AWD,,56700,Factory option,Trailering,Trailer hitch,1130,,,models/optiq_options.md:142
+2027,Optiq,Premium Sport AWD,,57200,Base,,Standard Vehicle Price,57200,,"Destination Freight Charge $1,795 not included; Select Market Purchase Allowance -$1,000 noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$725) excluded; see paint row; drive: RWD Premium Sport From $55,495. AWD is +$3,500 over RWD (configuration; not a row: this trim key is its own drive build)",models/optiq_options.md:161
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,,Monarch Orange,725,,default-selected paint; its price is excluded from trim_base_msrp,models/optiq_options.md:164
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,,Argent Silver Metallic,725,,,models/optiq_options.md:164
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,,Citron Tricoat,1325,,,models/optiq_options.md:164
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,,Vibrant White Tricoat,1325,,,models/optiq_options.md:164
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,,Radiant Red Tintcoat,1325,,,models/optiq_options.md:164
+2027,Optiq,Premium Sport AWD,,57200,Exterior color,Roof color,Black roof,695,,,models/optiq_options.md:165
+2027,Optiq,Premium Sport AWD,,57200,Factory package,,Onyx Package,4425,"Obsidian Chrome Mirror caps; Black wheel center cap; Tires, 275/40R21 all-season, self-sealing",key=name:onyx package,models/optiq_options.md:172
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Wheels,"21"" After Midnight painted alloy wheels",700,,,models/optiq_options.md:166
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Wheels,"21"" Bronze alloy wheels",3025,,,models/optiq_options.md:166
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Interior,"Autumn Canyon, Inteluxe Seats with Perforated inserts and embroidered embellishments seat trim",1100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/optiq_options.md:169
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Interior,"Phantom Blue, Inteluxe Seats with Perforated inserts and quilted embellishments seat trim",1100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/optiq_options.md:169
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Trailering,Trailer hitch,1130,,,models/optiq_options.md:182
+2027,Optiq,Premium Sport AWD,,57200,Factory option,Charging,19.2 kW capable onboard charging module,1580,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/optiq_options.md:183
+2027,Optiq,V-Series AWD,,67500,Base,,Standard Vehicle Price,67500,,"Destination Freight Charge $1,795 not included; Select Market Purchase Allowance -$1,000 noted, excluded (offer, not an option; Paul 2026-10-11); Summary Options $8,220 = default-included package (kept as its package row, flagged); not added to Base; AWD only (no other drive offered)",models/optiq_options.md:201
+2027,Optiq,V-Series AWD,,67500,Exterior color,,Monarch Orange,725,,,models/optiq_options.md:205
+2027,Optiq,V-Series AWD,,67500,Exterior color,,Argent Silver Metallic,725,,,models/optiq_options.md:205
+2027,Optiq,V-Series AWD,,67500,Exterior color,,Citron Tricoat,1325,,,models/optiq_options.md:205
+2027,Optiq,V-Series AWD,,67500,Exterior color,,Vibrant White Tricoat,1325,,,models/optiq_options.md:205
+2027,Optiq,V-Series AWD,,67500,Exterior color,,Radiant Red Tintcoat,1325,,,models/optiq_options.md:205
+2027,Optiq,V-Series AWD,,67500,Factory package,,Onyx Package,4425,"Obsidian Chrome Mirror caps; Black wheel center cap; Tires, 275/40R21 all-season, self-sealing",key=name:onyx package,models/optiq_options.md:214
+2027,Optiq,V-Series AWD,,67500,Factory package,,Deep Ocean Edition,8220,Santorini Blue Interior Package; Exterior Carbon Fiber Package; Deep Ocean Tintcoat (late and extremely limited availability),"key=name:deep ocean edition; default-included: Summary Options $8,220 matches this package (auto-included on the default build); not added to Base; contents include Deep Ocean Tintcoat (late and extremely limited availability)",models/optiq_options.md:221
+2027,Optiq,V-Series AWD,,67500,Factory option,Wheels,"21"" Bronze alloy wheels",3025,,,models/optiq_options.md:207
+2027,Optiq,V-Series AWD,,67500,Factory option,Exterior,Red brake calipers,595,,,models/optiq_options.md:209
+2027,Optiq,V-Series AWD,,67500,Factory option,Wheels,"21"" Dark Android wheels",300,,,models/optiq_options.md:224
+2027,Vistiq,Luxury AWD,,77500,Base,,Standard Vehicle Price,77500,,"Destination Freight Charge $1,995 not included; AWD only (no other drive offered)",models/vistiq_options.md:46
+2027,Vistiq,Luxury AWD,,77500,Exterior color,,Emerald Lake Metallic,725,,,models/vistiq_options.md:48
+2027,Vistiq,Luxury AWD,,77500,Exterior color,,Stellar Black Metallic,725,,,models/vistiq_options.md:48
+2027,Vistiq,Luxury AWD,,77500,Exterior color,,Vibrant White Tricoat,1325,,,models/vistiq_options.md:48
+2027,Vistiq,Luxury AWD,,77500,Exterior color,,Blue Graphite Tricoat,1325,,,models/vistiq_options.md:48
+2027,Vistiq,Luxury AWD,,77500,Exterior color,,Radiant Red Tintcoat,1325,,,models/vistiq_options.md:48
+2027,Vistiq,Luxury AWD,,77500,Exterior color,Roof color,Black painted roof,695,,,models/vistiq_options.md:49
+2027,Vistiq,Luxury AWD,,77500,Factory package,,Trailering Package,1185,Trailer hitch receiver plug; Trailer hitch; Trailer hitch trim bezel,key=name:trailering package,models/vistiq_options.md:59
+2027,Vistiq,Luxury AWD,,77500,Factory option,Interior,6-passenger seating with 2nd row Captain's Chairs,800,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/vistiq_options.md:53
+2027,Vistiq,Luxury AWD,,77500,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/vistiq_options.md:54
+2027,Vistiq,Sport AWD,,78000,Base,,Standard Vehicle Price,78000,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$1,325) excluded; see paint row; AWD only (no other drive offered)",models/vistiq_options.md:86
+2027,Vistiq,Sport AWD,,78000,Exterior color,,Stellar Black Metallic,725,,,models/vistiq_options.md:88
+2027,Vistiq,Sport AWD,,78000,Exterior color,,Opulent Blue Metallic,725,,,models/vistiq_options.md:88
+2027,Vistiq,Sport AWD,,78000,Exterior color,,Cashmere,725,,,models/vistiq_options.md:88
+2027,Vistiq,Sport AWD,,78000,Exterior color,,Vibrant White Tricoat,1325,,,models/vistiq_options.md:88
+2027,Vistiq,Sport AWD,,78000,Exterior color,,Radiant Red Tintcoat,1325,,default-selected paint; its price is excluded from trim_base_msrp,models/vistiq_options.md:88
+2027,Vistiq,Sport AWD,,78000,Exterior color,Roof color,Black painted roof,695,,,models/vistiq_options.md:89
+2027,Vistiq,Sport AWD,,78000,Factory package,,Trailering Package,1185,,key=name:trailering package,models/vistiq_options.md:99
+2027,Vistiq,Sport AWD,,78000,Factory option,Interior,6-passenger seating with 2nd row Captain's Chairs,800,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/vistiq_options.md:93
+2027,Vistiq,Sport AWD,,78000,Factory option,Charging,19.2 kW capable onboard charging module,1480,,kept: 19.2 kW onboard charging module restored as factory option (Paul 2026-10-11),models/vistiq_options.md:94
+2027,Vistiq,Premium Luxury AWD,,92000,Base,,Standard Vehicle Price,92000,,"Destination Freight Charge $1,995 not included; AWD only (no other drive offered)",models/vistiq_options.md:125
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,,Emerald Lake Metallic,725,,,models/vistiq_options.md:127
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,,Stellar Black Metallic,725,,,models/vistiq_options.md:127
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,,Cashmere,725,,,models/vistiq_options.md:127
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,,Vibrant White Tricoat,1325,,,models/vistiq_options.md:127
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,,Blue Graphite Tricoat,1325,,,models/vistiq_options.md:127
+2027,Vistiq,Premium Luxury AWD,,92000,Exterior color,Roof color,Black painted roof,695,,,models/vistiq_options.md:128
+2027,Vistiq,Premium Luxury AWD,,92000,Factory package,,Trailering Package,1185,,key=name:trailering package,models/vistiq_options.md:137
+2027,Vistiq,Premium Luxury AWD,,92000,Factory option,Wheels,"23"" Reverse Rim alloy wheels with Bright Polish",1000,,,models/vistiq_options.md:129
+2027,Vistiq,Platinum AWD,,96600,Base,,Standard Vehicle Price,96600,,"Destination Freight Charge $1,995 not included; AWD only (no other drive offered)",models/vistiq_options.md:162
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Emerald Lake Metallic,725,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Stellar Black Metallic,725,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Vibrant White Tricoat,1325,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Blue Graphite Tricoat,1325,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Radiant Red Tintcoat,1325,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Exterior color,,Adobe Frost,3995,,,models/vistiq_options.md:164
+2027,Vistiq,Platinum AWD,,96600,Factory package,,Trailering Package,1185,,key=name:trailering package,models/vistiq_options.md:175
+2027,Vistiq,Platinum AWD,,96600,Factory option,Wheels,"22"" Reverse Rim alloy wheels with Satin Graphite finish",600,,,models/vistiq_options.md:166
+2027,Vistiq,Platinum AWD,,96600,Factory option,Wheels,"23"" Reverse Rim alloy wheels with High Gloss Black finish",1000,,,models/vistiq_options.md:166
+2026,XT5,Luxury,,44800,Base,,Standard Vehicle Price,44800,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); Base = FWD build (AWD is a Powertrain row)",models/xt5_options.md:48
+2026,XT5,Luxury,,44800,Powertrain,Drivetrain,AWD (vs FWD),2000,,"AWD build: Standard Vehicle Price $44,800 -> $46,800 (same 2.0L Turbo, 9-speed)",models/xt5_options.md:47
+2026,XT5,Luxury,,44800,Exterior color,,Stellar Black Metallic,625,,,models/xt5_options.md:52
+2026,XT5,Luxury,,44800,Exterior color,,Opulent Blue Metallic,625,,,models/xt5_options.md:52
+2026,XT5,Luxury,,44800,Exterior color,,Emerald Lake Metallic,625,,,models/xt5_options.md:52
+2026,XT5,Luxury,,44800,Exterior color,,Crystal White Tricoat,1225,,,models/xt5_options.md:52
+2026,XT5,Luxury,,44800,Exterior color,,Radiant Red Tintcoat,1225,,,models/xt5_options.md:52
+2026,XT5,Luxury,,44800,Factory package,,Bronze Accent Package,2995,"Bronze wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:bronze accent package,models/xt5_options.md:60
+2026,XT5,Luxury,,44800,Factory package,,Red Accent Package,2995,"Red wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:red accent package,models/xt5_options.md:61
+2026,XT5,Luxury,,44800,Factory package,,Blue Accent Package,2995,"Blue wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:blue accent package,models/xt5_options.md:62
+2026,XT5,Luxury,,44800,Factory package,,Onyx Package,3695,Black wheel center cap; Gloss Black grille trim; Gloss Black XT5 nameplate,key=name:onyx package,models/xt5_options.md:63
+2026,XT5,Luxury,,44800,Factory option,Performance,Engine block heater,100,,,models/xt5_options.md:65
+2026,XT5,Luxury,,44800,Factory option,,Trailer hitch,550,,,models/xt5_options.md:65
+2026,XT5,Luxury,,44800,Factory option,,Trailer hitch cover,125,,,models/xt5_options.md:65
+2026,XT5,Premium Luxury,,53500,Base,,Standard Vehicle Price,53500,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$1,225) excluded; see paint row; Base = FWD 2.0L Turbo build (AWD and 3.6L V6 are Powertrain rows)",models/xt5_options.md:77
+2026,XT5,Premium Luxury,,53500,Powertrain,Drivetrain,AWD (vs FWD),2100,,"AWD build: Standard Vehicle Price $53,500 -> $55,600 (2.0L or 3.6L)",models/xt5_options.md:76
+2026,XT5,Premium Luxury,,53500,Powertrain,Engine,3.6L V6 engine,4075,,"engine upgrade over the 2.0L Turbo (+$4,075 on FWD and AWD; Summary Options line, not a named tile)",models/xt5_options.md:119
+2026,XT5,Premium Luxury,,53500,Exterior color,,Stellar Black Metallic,625,,,models/xt5_options.md:81
+2026,XT5,Premium Luxury,,53500,Exterior color,,Opulent Blue Metallic,625,,,models/xt5_options.md:81
+2026,XT5,Premium Luxury,,53500,Exterior color,,Emerald Lake Metallic,625,,,models/xt5_options.md:81
+2026,XT5,Premium Luxury,,53500,Exterior color,,Crystal White Tricoat,1225,,default-selected paint; its price is excluded from trim_base_msrp,models/xt5_options.md:81
+2026,XT5,Premium Luxury,,53500,Exterior color,,Radiant Red Tintcoat,1225,,,models/xt5_options.md:81
+2026,XT5,Premium Luxury,,53500,Factory package,,Bronze Accent Package,2995,"Bronze wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:bronze accent package,models/xt5_options.md:90
+2026,XT5,Premium Luxury,,53500,Factory package,,Red Accent Package,2995,"Red wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:red accent package,models/xt5_options.md:91
+2026,XT5,Premium Luxury,,53500,Factory package,,Blue Accent Package,2995,"Blue wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:blue accent package,models/xt5_options.md:92
+2026,XT5,Premium Luxury,,53500,Factory package,,Onyx Package,4075,"Gloss Black rear bumper molding; Black wheel center cap; Gloss Black grille trim. (Luxury's Onyx is $3,695 with Gloss Black XT5 nameplate instead of the bumper molding.)",key=name:onyx package,models/xt5_options.md:93
+2026,XT5,Premium Luxury,,53500,Factory option,Interior,Kona Brown Sauvage,1445,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/xt5_options.md:84
+2026,XT5,Premium Luxury,,53500,Factory option,Performance,Engine block heater,100,,,models/xt5_options.md:94
+2026,XT5,Premium Luxury,,53500,Factory option,,Trailer hitch,550,,,models/xt5_options.md:94
+2026,XT5,Premium Luxury,,53500,Factory option,,Trailer hitch cover,125,,,models/xt5_options.md:94
+2026,XT5,Premium Luxury,,53500,Factory option,,Smart Towing,575,,,models/xt5_options.md:94
+2026,XT5,Sport,,62800,Base,,Standard Vehicle Price,62800,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$625) excluded; see paint row; AWD only (3.6L V6)",models/xt5_options.md:129
+2026,XT5,Sport,,62800,Exterior color,,Stellar Black Metallic,625,,,models/xt5_options.md:132
+2026,XT5,Sport,,62800,Exterior color,,Opulent Blue Metallic,625,,default-selected paint; its price is excluded from trim_base_msrp,models/xt5_options.md:132
+2026,XT5,Sport,,62800,Exterior color,,Emerald Lake Metallic,625,,,models/xt5_options.md:132
+2026,XT5,Sport,,62800,Exterior color,,Crystal White Tricoat,1225,,,models/xt5_options.md:132
+2026,XT5,Sport,,62800,Exterior color,,Radiant Red Tintcoat,1225,,,models/xt5_options.md:132
+2026,XT5,Sport,,62800,Factory package,,Bronze Accent Package,2995,"Bronze wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:bronze accent package,models/xt5_options.md:140
+2026,XT5,Sport,,62800,Factory package,,Red Accent Package,2995,"Red wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:red accent package,models/xt5_options.md:141
+2026,XT5,Sport,,62800,Factory package,,Blue Accent Package,2995,"Blue wheel center cap; 20"" Gloss Black wheels; Body Decals",key=name:blue accent package,models/xt5_options.md:142
+2026,XT5,Sport,,62800,Factory package,,Onyx Lite Package,3495,Black wheel center cap; Gloss Black grille trim; Gloss Black XT5 nameplate,key=name:onyx lite package; flag: Onyx-named package kept (Paul: Onyx kept when priced),models/xt5_options.md:143
+2026,XT5,Sport,,62800,Factory option,Interior,Kona Brown Sauvage,1445,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/xt5_options.md:135
+2026,XT5,Sport,,62800,Factory option,Performance,Engine block heater,100,,,models/xt5_options.md:145
+2026,CT5,Premium Luxury RWD,,49200,Base,,Standard Vehicle Price,49200,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$1,225) excluded; see paint row; drive: see the AWD section (AWD picker From $52,995; Standard +$2,000) (configuration; not a row: this trim key is its own drive build)",models/ct5_options.md:49
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Typhoon Metallic,625,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Deep Space Metallic,625,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Coastal Blue Metallic,625,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Argent Silver Metallic,625,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Midnight Sky Metallic,625,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Radiant Red Tintcoat,1225,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Exterior color,,Vibrant White Tricoat,1225,,,models/ct5_options.md:52
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Technology Package,2595,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package,models/ct5_options.md:59
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Exterior Accent Package,3450,"Rear spoiler; 20"" transit steel wheels for LPO 20"" wheels and tires; 20"" all-season run-flat tires",key=name:exterior accent package,models/ct5_options.md:60
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:bronze accent package,models/ct5_options.md:61
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:red accent package,models/ct5_options.md:62
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:blue accent package,models/ct5_options.md:63
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Radiant Package,3550,"20"" transit steel wheels; 20"" all-season run-flat tires; 20"" alloy wheels with Polished/Dark Android Gloss finish",key=name:radiant package,models/ct5_options.md:64
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Onyx Package,4750,Black mirror caps; Rear spoiler; Black grille,key=name:onyx package,models/ct5_options.md:65
+2026,CT5,Premium Luxury RWD,,49200,Factory package,,Platinum Package,6795,Manual driver and front passenger cushion length adjustment; front passenger manual cushion length adjustment; Illuminating sill plates,key=name:platinum package,models/ct5_options.md:66
+2026,CT5,Premium Luxury RWD,,49200,Factory option,Wheels,"20"" Polished/Dark Android Gloss finish",800,,,models/ct5_options.md:53
+2026,CT5,Premium Luxury RWD,,49200,Factory option,Wheels,"19"" Diamond Cut/Midnight Silver finish",1100,,,models/ct5_options.md:53
+2026,CT5,Premium Luxury RWD,,49200,Factory option,Wheels,"20"" Gloss Black finish",2795,,,models/ct5_options.md:53
+2026,CT5,Premium Luxury RWD,,49200,Factory option,Wheels,"20"" Polished/Dark Android Gloss finish",2995,,,models/ct5_options.md:53
+2026,CT5,Premium Luxury RWD,,49200,Factory option,,Battery Protection Package,195,,,models/ct5_options.md:68
+2026,CT5,Premium Luxury RWD,,49200,Factory option,Roof,UltraView power sunroof,1450,,,models/ct5_options.md:68
+2026,CT5,Premium Luxury AWD,,51200,Base,,Standard Vehicle Price,51200,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$1,225) excluded; see paint row; drive: Standard Vehicle Price +$2,000 ($49,200 -> $51,200); picker From +$2,000 ($50,995 -> $52,995); Summary total $52,220 -> $54,220; Net $51,220 -> $53,220. Engine and transmission unchanged (2.0L + 10-speed auto on both). Options set matches RWD except Safety & Service (configuration; not a row: this trim key is its own drive build)",models/ct5_options.md:79
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Typhoon Metallic,625,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Deep Space Metallic,625,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Coastal Blue Metallic,625,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Argent Silver Metallic,625,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Midnight Sky Metallic,625,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Radiant Red Tintcoat,1225,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Exterior color,,Vibrant White Tricoat,1225,,,models/ct5_options.md:82
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Technology Package,2595,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:59
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Exterior Accent Package,3450,"Rear spoiler; 20"" transit steel wheels for LPO 20"" wheels and tires; 20"" all-season run-flat tires",key=name:exterior accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:60
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:bronze accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:61
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:red accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:62
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" transit steel wheels; 20"" all-season run-flat tires",key=name:blue accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:63
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Radiant Package,3550,"20"" transit steel wheels; 20"" all-season run-flat tires; 20"" alloy wheels with Polished/Dark Android Gloss finish",key=name:radiant package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:64
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Onyx Package,4750,Black mirror caps; Rear spoiler; Black grille,key=name:onyx package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:65
+2026,CT5,Premium Luxury AWD,,51200,Factory package,,Platinum Package,6795,Manual driver and front passenger cushion length adjustment; front passenger manual cushion length adjustment; Illuminating sill plates,key=name:platinum package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:66
+2026,CT5,Premium Luxury AWD,,51200,Factory option,Wheels,"20"" Polished/Dark Android Gloss",800,,,models/ct5_options.md:83
+2026,CT5,Premium Luxury AWD,,51200,Factory option,Wheels,"19"" Diamond Cut/Midnight Silver",1100,,,models/ct5_options.md:83
+2026,CT5,Premium Luxury AWD,,51200,Factory option,Wheels,"20"" Gloss Black",2795,,,models/ct5_options.md:83
+2026,CT5,Premium Luxury AWD,,51200,Factory option,Wheels,"20"" Polished/Dark Android Gloss",2995,,,models/ct5_options.md:83
+2026,CT5,Premium Luxury AWD,,51200,Factory option,,Battery Protection Package,195,,,models/ct5_options.md:87
+2026,CT5,Premium Luxury AWD,,51200,Factory option,Roof,UltraView power sunroof,1450,,,models/ct5_options.md:87
+2026,CT5,Sport RWD,,50200,Base,,Standard Vehicle Price,50200,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$1,225) excluded; see paint row",models/ct5_options.md:96
+2026,CT5,Sport RWD,,50200,Exterior color,,Typhoon Metallic,625,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Deep Space Metallic,625,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Coastal Blue Metallic,625,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Argent Silver Metallic,625,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Midnight Sky Metallic,625,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Radiant Red Tintcoat,1225,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Exterior color,,Vibrant White Tricoat,1225,,,models/ct5_options.md:99
+2026,CT5,Sport RWD,,50200,Factory package,,Technology Package,2695,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package,models/ct5_options.md:107
+2026,CT5,Sport RWD,,50200,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" transit steel wheels for LPO 20"" wheels and tires; 20"" all-season run-flat tires",key=name:red accent package,models/ct5_options.md:108
+2026,CT5,Sport RWD,,50200,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" transit steel wheels for LPO; 20"" all-season run-flat tires",key=name:blue accent package,models/ct5_options.md:109
+2026,CT5,Sport RWD,,50200,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" transit steel wheels for LPO; 20"" all-season run-flat tires",key=name:bronze accent package,models/ct5_options.md:110
+2026,CT5,Sport RWD,,50200,Factory package,,Onyx Package,3850,"Black mirror caps; Black grille; 20"" transit steel wheels for LPO 20"" wheels and tires",key=name:onyx package,models/ct5_options.md:111
+2026,CT5,Sport RWD,,50200,Factory package,,Platinum Package,6595,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:platinum package,models/ct5_options.md:112
+2026,CT5,Sport RWD,,50200,Factory option,Wheels,"19"" alloy with Satin Graphite finish",600,,,models/ct5_options.md:100
+2026,CT5,Sport RWD,,50200,Factory option,Wheels,"20"" alloy with Gloss Black finish",2795,,,models/ct5_options.md:100
+2026,CT5,Sport RWD,,50200,Factory option,Wheels,"20"" alloy with Polished/Dark Android Gloss finish",2995,,,models/ct5_options.md:100
+2026,CT5,Sport RWD,,50200,Factory option,Interior,"Jet Black with Jet Black Accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5_options.md:103
+2026,CT5,Sport RWD,,50200,Factory option,Interior,"Whisper Beige with Jet Black Accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5_options.md:103
+2026,CT5,Sport RWD,,50200,Factory option,Interior,Ventilated driver and front passenger seats,450,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/ct5_options.md:104
+2026,CT5,Sport RWD,,50200,Factory option,,Brembo V Performance front brakes,1000,,flag: listed as a non-accessory Mechanical tile on Cadillac,models/ct5_options.md:115
+2026,CT5,Sport RWD,,50200,Factory option,,Battery Protection Package,195,,,models/ct5_options.md:115
+2026,CT5,Sport RWD,,50200,Factory option,Roof,UltraView power sunroof,1450,,,models/ct5_options.md:115
+2026,CT5,Sport AWD,,52200,Base,,Standard Vehicle Price,52200,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$1,225) excluded; see paint row; drive: Standard Vehicle Price +$2,000 ($50,200 -> $52,200); picker From +$2,000 ($51,995 -> $53,995); Summary total $53,220 -> $55,220; Net $52,220 -> $54,220. Engine and transmission unchanged (configuration; not a row: this trim key is its own drive build)",models/ct5_options.md:126
+2026,CT5,Sport AWD,,52200,Exterior color,,Typhoon Metallic,625,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Deep Space Metallic,625,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Coastal Blue Metallic,625,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Argent Silver Metallic,625,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Midnight Sky Metallic,625,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Radiant Red Tintcoat,1225,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Exterior color,,Vibrant White Tricoat,1225,,,models/ct5_options.md:130
+2026,CT5,Sport AWD,,52200,Factory package,,Technology Package,2695,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:107
+2026,CT5,Sport AWD,,52200,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" transit steel wheels for LPO 20"" wheels and tires; 20"" all-season run-flat tires",key=name:red accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:108
+2026,CT5,Sport AWD,,52200,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" transit steel wheels for LPO; 20"" all-season run-flat tires",key=name:blue accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:109
+2026,CT5,Sport AWD,,52200,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" transit steel wheels for LPO; 20"" all-season run-flat tires",key=name:bronze accent package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:110
+2026,CT5,Sport AWD,,52200,Factory package,,Onyx Package,3850,"Black mirror caps; Black grille; 20"" transit steel wheels for LPO 20"" wheels and tires",key=name:onyx package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:111
+2026,CT5,Sport AWD,,52200,Factory package,,Platinum Package,6595,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:platinum package; package list identical to RWD (by reference in source; contents from the RWD section),models/ct5_options.md:112
+2026,CT5,Sport AWD,,52200,Factory option,Wheels,"19"" Satin Graphite",600,,,models/ct5_options.md:131
+2026,CT5,Sport AWD,,52200,Factory option,Wheels,"20"" Gloss Black",2795,,,models/ct5_options.md:131
+2026,CT5,Sport AWD,,52200,Factory option,Wheels,"20"" Polished/Dark Android Gloss",2995,,,models/ct5_options.md:131
+2026,CT5,Sport AWD,,52200,Factory option,Interior,"Jet Black with Jet Black Accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5_options.md:133
+2026,CT5,Sport AWD,,52200,Factory option,Interior,"Whisper Beige with Jet Black Accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5_options.md:133
+2026,CT5,Sport AWD,,52200,Factory option,Interior,Ventilated driver and front passenger seats,450,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/ct5_options.md:133
+2026,CT5,Sport AWD,,52200,Factory option,,Brembo V Performance front brakes,1000,,flag: listed as a non-accessory Mechanical tile on Cadillac,models/ct5_options.md:136
+2026,CT5,Sport AWD,,52200,Factory option,,Battery Protection Package,195,,,models/ct5_options.md:136
+2026,CT5,Sport AWD,,52200,Factory option,Roof,UltraView power sunroof,1450,,,models/ct5_options.md:136
+2026,CT5-V,V-Series RWD,,58300,Base,,Standard Vehicle Price,58300,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$625) excluded; see paint row",models/ct5v_options.md:40
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Drift Metallic,625,,,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Deep Space Metallic,625,,,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Typhoon Metallic,625,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Coastal Blue Metallic,625,,,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Argent Silver Metallic,625,,,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Exterior color,,Radiant Red Tintcoat,1225,,,models/ct5v_options.md:43
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Technology Package,2695,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package,models/ct5v_options.md:51
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Onyx Package,2995,"Black mirror caps; 20"" all-season, low profile, run-flat tires; Gloss Black Nameplates",key=name:onyx package,models/ct5v_options.md:52
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" all-season, low profile, run-flat tires; 20"" Low Gloss Black alloy wheels with Red accents",key=name:red accent package,models/ct5v_options.md:53
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" all-season, low profile, run-flat tires; Black lug nuts",key=name:blue accent package,models/ct5v_options.md:54
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" all-season, low profile, run-flat tires; 20"" Low Gloss Black alloy wheels with Bronze accents",key=name:bronze accent package,models/ct5v_options.md:55
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Platinum Package,7145,Illuminating sill plates; UltraView power sunroof; Rear Camera Mirror,key=name:platinum package,models/ct5v_options.md:56
+2026,CT5-V,V-Series RWD,,58300,Factory package,,Sueded Microfiber Wrapped Interior Trim Package,550,,key=name:sueded microfiber wrapped interior trim package; kept: paid sticker line (Paul 2026-10-11),models/ct5v_options.md:58
+2026,CT5-V,V-Series RWD,,58300,Factory option,Wheels,"19"" aluminum with Pearl Nickel finish",600,,,models/ct5v_options.md:44
+2026,CT5-V,V-Series RWD,,58300,Factory option,Wheels,"20"" aluminum with Gloss Black finish",2795,,,models/ct5v_options.md:44
+2026,CT5-V,V-Series RWD,,58300,Factory option,Wheels,"20"" aluminum with Polished/Dark Android Gloss finish",2995,,,models/ct5v_options.md:44
+2026,CT5-V,V-Series RWD,,58300,Factory option,Exterior,Blue brake calipers,595,,,models/ct5v_options.md:46
+2026,CT5-V,V-Series RWD,,58300,Factory option,Exterior,Red brake calipers,595,,,models/ct5v_options.md:46
+2026,CT5-V,V-Series RWD,,58300,Factory option,Interior,"Jet Black with Jet Black accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:47
+2026,CT5-V,V-Series RWD,,58300,Factory option,Interior,"Whisper Beige with Jet Black accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:47
+2026,CT5-V,V-Series RWD,,58300,Factory option,Interior,"Jet Black with Jet Black accents, Leather Seating Surfaces",2890,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:47
+2026,CT5-V,V-Series RWD,,58300,Factory option,Interior,Ventilated driver and front passenger seats,450,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/ct5v_options.md:48
+2026,CT5-V,V-Series RWD,,58300,Factory option,Interior,Torch Red seat belt color,400,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:48
+2026,CT5-V,V-Series RWD,,58300,Factory option,,Performance brake linings,100,,,models/ct5v_options.md:58
+2026,CT5-V,V-Series RWD,,58300,Factory option,,Performance data and video recorder,1600,,,models/ct5v_options.md:58
+2026,CT5-V,V-Series RWD,,58300,Factory option,Roof,UltraView power sunroof,1450,,,models/ct5v_options.md:58
+2026,CT5-V,V-Series AWD,,60300,Base,,Standard Vehicle Price,60300,,"Destination Freight Charge $1,795 not included; Purchase Allowance -$1,000 (2 lines of -$500) noted, excluded (offer, not an option; Paul 2026-10-11); default-selected paid paint (+$625) excluded; see paint row; drive: Standard Vehicle Price +$2,000 ($58,300 -> $60,300); picker From +$2,000 ($60,095 -> $62,095); Summary total $60,720 -> $62,720; Net $59,720 -> $61,720. Engine and transmission unchanged (3.0L Twin Turbo V6, 10-speed automatic) (configuration; not a row: this trim key is its own drive build)",models/ct5v_options.md:69
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Drift Metallic,625,,,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Deep Space Metallic,625,,,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Typhoon Metallic,625,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Coastal Blue Metallic,625,,,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Argent Silver Metallic,625,,,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Exterior color,,Radiant Red Tintcoat,1225,,,models/ct5v_options.md:73
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Technology Package,2695,"Illuminating sill plates; Rear Camera Mirror; body-color heated, power-adjustable, power-folding outside mirrors with driver-side auto-dimming, puddle lamps and memory",key=name:technology package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:51
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Onyx Package,2995,"Black mirror caps; 20"" all-season, low profile, run-flat tires; Gloss Black Nameplates",key=name:onyx package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:52
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Red Accent Package,3495,"Red wheel center cap; 20"" all-season, low profile, run-flat tires; 20"" Low Gloss Black alloy wheels with Red accents",key=name:red accent package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:53
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Blue Accent Package,3495,"Blue wheel center cap; 20"" all-season, low profile, run-flat tires; Black lug nuts",key=name:blue accent package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:54
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Bronze Accent Package,3495,"Bronze wheel center cap; 20"" all-season, low profile, run-flat tires; 20"" Low Gloss Black alloy wheels with Bronze accents",key=name:bronze accent package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:55
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Platinum Package,7145,Illuminating sill plates; UltraView power sunroof; Rear Camera Mirror,key=name:platinum package; inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:56
+2026,CT5-V,V-Series AWD,,60300,Factory package,,Sueded Microfiber Wrapped Interior Trim Package,550,,key=name:sueded microfiber wrapped interior trim package; kept: paid sticker line (Paul 2026-10-11); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:58
+2026,CT5-V,V-Series AWD,,60300,Factory option,Wheels,"19"" Pearl Nickel",600,,,models/ct5v_options.md:74
+2026,CT5-V,V-Series AWD,,60300,Factory option,Wheels,"20"" Gloss Black",2795,,,models/ct5v_options.md:74
+2026,CT5-V,V-Series AWD,,60300,Factory option,Wheels,"20"" Polished/Dark Android Gloss",2995,,,models/ct5v_options.md:74
+2026,CT5-V,V-Series AWD,,60300,Factory option,Exterior,Blue brake calipers,595,,inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:46
+2026,CT5-V,V-Series AWD,,60300,Factory option,Exterior,Red brake calipers,595,,inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:46
+2026,CT5-V,V-Series AWD,,60300,Factory option,Interior,"Jet Black with Jet Black accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:47
+2026,CT5-V,V-Series AWD,,60300,Factory option,Interior,"Whisper Beige with Jet Black accents, Leather Seating Surfaces",1500,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:47
+2026,CT5-V,V-Series AWD,,60300,Factory option,Interior,"Jet Black with Jet Black accents, Leather Seating Surfaces",2890,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:47
+2026,CT5-V,V-Series AWD,,60300,Factory option,Interior,Ventilated driver and front passenger seats,450,,"flag: seating hardware/configuration, separately priced (kept, GM rule); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11)",models/ct5v_options.md:48
+2026,CT5-V,V-Series AWD,,60300,Factory option,Interior,Torch Red seat belt color,400,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:48
+2026,CT5-V,V-Series AWD,,60300,Factory option,,Performance brake linings,100,,inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:58
+2026,CT5-V,V-Series AWD,,60300,Factory option,,Performance data and video recorder,1600,,inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:58
+2026,CT5-V,V-Series AWD,,60300,Factory option,Roof,UltraView power sunroof,1450,,inherited from V-Series RWD (AWD Options tab counts match RWD; copy confirmed by Paul 2026-10-11),models/ct5v_options.md:58
+2026,CT5-V,V-Series Blackwing RWD,,98900,Base,,Standard Vehicle Price,98900,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$625) excluded; see paint row; Gas guzzler tax $2,100 (6-speed manual) / $1,700 (10-speed automatic) on the Summary Options line: a tax, not an option (Paul 2026-10-11); Carbon Fiber seatback delete -$2,900 credit (Interior) noted, not a row; default paint Typhoon Metallic $625 on the 6-speed may be a session carry-over (10-speed build defaulted to Summit White $0); Base = 6-speed manual build; 10-speed automatic is a Powertrain row",models/ct5v_options.md:82
+2026,CT5-V,V-Series Blackwing RWD,,98900,Powertrain,Transmission,10-speed automatic transmission,3675,,"replaces the standard 6-speed manual; tile tagged Requires Package: selecting it auto-adds the Super Cruise 1 Package ($2,600, see package row); Gas guzzler tax drops to $1,700 (noted on Base)",models/ct5v_options.md:121
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Drift Metallic,625,,,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Deep Space Metallic,625,,,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Typhoon Metallic,625,,default-selected paint; its price is excluded from trim_base_msrp,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Coastal Blue Metallic,625,,,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Argent Silver Metallic,625,,,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Exterior color,,Radiant Red Tintcoat,1225,,,models/ct5v_options.md:86
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory package,,Deep Ocean Appearance Package,26995,Deep Ocean Tintcoat; Santorini seat belt color; Blue brake calipers,key=name:deep ocean appearance package,models/ct5v_options.md:95
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory package,,Precision Package,18000,Carbon Ceramic Brakes with cross-drilled rotors; Blue brake calipers; Red brake calipers,key=name:precision package,models/ct5v_options.md:96
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory package,,Carbon Fiber 1 Package,5750,Front Carbon Fiber splitter,key=name:carbon fiber 1 package,models/ct5v_options.md:97
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory package,,Super Cruise 1 Package,2600,Super Cruise steering wheel; Super Cruise driver assistance technology; Driver Attention Assist,"key=name:super cruise 1 package; default-included with the 10-speed automatic: auto-added to the Summary when the 10-speed is selected (10-speed tile tagged Requires Package); optional on the 6-speed; flag: Super Cruise hardware package, no OnStar plan term in its contents",models/ct5v_options.md:99
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Wheels,"19"" forged aluminum Satin Graphite dark finish",600,,,models/ct5v_options.md:87
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Wheels,"19"" forged aluminum Tech Bronze finish",1500,,,models/ct5v_options.md:87
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Exterior,Blue brake calipers,595,,,models/ct5v_options.md:89
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Exterior,Red brake calipers,595,,,models/ct5v_options.md:89
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Exterior,Bronze brake calipers,595,,,models/ct5v_options.md:89
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,"Jet Black with Jet Black accents, Leather Seating Surfaces",2890,,"second Interior tile with the same name as the $0 default (source: ""a second tile with the same name at $2,890""); paid interior/seat choice (Paul 2026-10-11: paid sticker line kept)",models/ct5v_options.md:90
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,"Sky Cool Gray with Jet Black accents, Leather Seating Surfaces",2890,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:90
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,"Jet Black with Jet Black accents, Full Semi-Aniline Leather Seats",8090,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:90
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,"Sky Cool Gray with Jet Black accents, Full Semi-Aniline Leather Seats",8090,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:90
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,"Natural Tan with Jet Black accents, Full Semi-Aniline Leather Seats",8090,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:90
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,Sueded microfiber steering wheel and shift knob,300,,,models/ct5v_options.md:93
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,,Carbon Ceramic Brakes with cross-drilled rotors,9000,,,models/ct5v_options.md:105
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,Interior,Torch Red seat belt color,400,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/ct5v_options.md:105
+2026,CT5-V,V-Series Blackwing RWD,,98900,Factory option,,Battery Protection Package,195,,,models/ct5v_options.md:105

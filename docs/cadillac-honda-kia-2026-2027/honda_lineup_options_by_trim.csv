@@ -1,0 +1,245 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2027,Civic Sedan,LX,,24995,Base,,Base Price (trim MSRP),24995,,"Destination & Handling $1,295 not included",models/civicsedan_options.md:28
+2027,Civic Sedan,LX,,24995,Exterior color,,Blue Lagoon Pearl,455,,,models/civicsedan_options.md:30
+2027,Civic Sedan,LX,,24995,Exterior color,,Platinum White,455,,,models/civicsedan_options.md:30
+2027,Civic Sedan,Sport,,26995,Base,,Base Price (trim MSRP),26995,,"Destination & Handling $1,295 not included",models/civicsedan_options.md:41
+2027,Civic Sedan,Sport,,26995,Exterior color,,Blue Lagoon Pearl,455,,,models/civicsedan_options.md:43
+2027,Civic Sedan,Sport,,26995,Exterior color,,Platinum White,455,,,models/civicsedan_options.md:43
+2027,Civic Sedan,Sport,,26995,Exterior color,,Urban Gray,455,,,models/civicsedan_options.md:43
+2027,Civic Sedan,Sport Hybrid,,29695,Base,,Base Price (trim MSRP),29695,,"Destination & Handling $1,295 not included",models/civicsedan_options.md:54
+2027,Civic Sedan,Sport Hybrid,,29695,Exterior color,,Blue Lagoon Pearl,455,,,models/civicsedan_options.md:56
+2027,Civic Sedan,Sport Hybrid,,29695,Exterior color,,Platinum White,455,,,models/civicsedan_options.md:56
+2027,Civic Sedan,Sport Hybrid,,29695,Exterior color,,Urban Gray,455,,,models/civicsedan_options.md:56
+2027,Civic Sedan,Sport Touring Hybrid,,32695,Base,,Base Price (trim MSRP),32695,,"Destination & Handling $1,295 not included",models/civicsedan_options.md:67
+2027,Civic Sedan,Sport Touring Hybrid,,32695,Exterior color,,Blue Lagoon Pearl,455,,,models/civicsedan_options.md:69
+2027,Civic Sedan,Sport Touring Hybrid,,32695,Exterior color,,Platinum White,455,,,models/civicsedan_options.md:69
+2027,Civic Sedan,Sport Touring Hybrid,,32695,Exterior color,,Urban Gray,455,,,models/civicsedan_options.md:69
+2026,Civic Hatchback,Sport,,27895,Base,,Base Price (trim MSRP),27895,,"Destination & Handling $1,295 not included",models/civichatchback_options.md:27
+2026,Civic Hatchback,Sport,,27895,Exterior color,,Boost Blue,455,,,models/civichatchback_options.md:29
+2026,Civic Hatchback,Sport,,27895,Exterior color,,Platinum White,455,,,models/civichatchback_options.md:29
+2026,Civic Hatchback,Sport,,27895,Exterior color,,Sand Dune,455,,,models/civichatchback_options.md:29
+2026,Civic Hatchback,Sport,,27895,Exterior color,,Urban Gray,455,,,models/civichatchback_options.md:29
+2026,Civic Hatchback,Sport Hybrid,,30595,Base,,Base Price (trim MSRP),30595,,"Destination & Handling $1,295 not included",models/civichatchback_options.md:41
+2026,Civic Hatchback,Sport Hybrid,,30595,Exterior color,,Boost Blue,455,,,models/civichatchback_options.md:43
+2026,Civic Hatchback,Sport Hybrid,,30595,Exterior color,,Platinum White,455,,,models/civichatchback_options.md:43
+2026,Civic Hatchback,Sport Hybrid,,30595,Exterior color,,Sand Dune,455,,,models/civichatchback_options.md:43
+2026,Civic Hatchback,Sport Hybrid,,30595,Exterior color,,Urban Gray,455,,,models/civichatchback_options.md:43
+2026,Civic Hatchback,Sport Touring Hybrid,,33595,Base,,Base Price (trim MSRP),33595,,"Destination & Handling $1,295 not included",models/civichatchback_options.md:55
+2026,Civic Hatchback,Sport Touring Hybrid,,33595,Exterior color,,Boost Blue,455,,,models/civichatchback_options.md:57
+2026,Civic Hatchback,Sport Touring Hybrid,,33595,Exterior color,,Platinum White,455,,,models/civichatchback_options.md:57
+2026,Civic Hatchback,Sport Touring Hybrid,,33595,Exterior color,,Sand Dune,455,,,models/civichatchback_options.md:57
+2026,Civic Hatchback,Sport Touring Hybrid,,33595,Exterior color,,Urban Gray,455,,,models/civichatchback_options.md:57
+2026,Civic Type R,Type R,,47395,Base,,Base Price (trim MSRP),47395,,"Destination & Handling $1,295 not included",models/civictyper_options.md:25
+2026,Civic Type R,Type R,,47395,Exterior color,,Boost Blue,455,,,models/civictyper_options.md:27
+2026,Civic Type R,Type R,,47395,Exterior color,,Championship White,455,,,models/civictyper_options.md:27
+2026,Civic Type R,Type R,,47395,Exterior color,,Sonic Gray,455,,,models/civictyper_options.md:27
+2026,Civic Si Sedan,Si,,31495,Base,,Base Price (trim MSRP),31495,,"Destination & Handling $1,295 not included",models/civicsisedan_options.md:25
+2026,Civic Si Sedan,Si,,31495,Exterior color,,Platinum White,455,,,models/civicsisedan_options.md:27
+2026,Civic Si Sedan,Si,,31495,Exterior color,,Urban Gray,455,,,models/civicsisedan_options.md:27
+2026,Accord,LX,,28395,Base,,Base Price (trim MSRP),28395,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:30
+2026,Accord,LX,,28395,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:32
+2026,Accord,LX,,28395,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:32
+2026,Accord,SE,,30695,Base,,Base Price (trim MSRP),30695,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:44
+2026,Accord,SE,,30695,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:46
+2026,Accord,SE,,30695,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:46
+2026,Accord,SE,,30695,Exterior color,,Urban Gray,455,,,models/accordsedan_options.md:46
+2026,Accord,Sport Hybrid,,33795,Base,,Base Price (trim MSRP),33795,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:58
+2026,Accord,Sport Hybrid,,33795,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:60
+2026,Accord,Sport Hybrid,,33795,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:60
+2026,Accord,Sport Hybrid,,33795,Exterior color,,Still Night,455,,,models/accordsedan_options.md:60
+2026,Accord,Sport Hybrid,,33795,Exterior color,,Urban Gray,455,,,models/accordsedan_options.md:60
+2026,Accord,EX-L Hybrid,,35095,Base,,Base Price (trim MSRP),35095,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:71
+2026,Accord,EX-L Hybrid,,35095,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:73
+2026,Accord,EX-L Hybrid,,35095,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:73
+2026,Accord,EX-L Hybrid,,35095,Exterior color,,Urban Gray,455,,,models/accordsedan_options.md:73
+2026,Accord,Sport-L Hybrid,,35495,Base,,Base Price (trim MSRP),35495,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:85
+2026,Accord,Sport-L Hybrid,,35495,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:87
+2026,Accord,Sport-L Hybrid,,35495,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:87
+2026,Accord,Sport-L Hybrid,,35495,Exterior color,,Still Night,455,,,models/accordsedan_options.md:87
+2026,Accord,Sport-L Hybrid,,35495,Exterior color,,Urban Gray,455,,,models/accordsedan_options.md:87
+2026,Accord,Touring Hybrid,,39495,Base,,Base Price (trim MSRP),39495,,"Destination & Handling $1,295 not included",models/accordsedan_options.md:98
+2026,Accord,Touring Hybrid,,39495,Exterior color,,Platinum White,455,,,models/accordsedan_options.md:100
+2026,Accord,Touring Hybrid,,39495,Exterior color,,Radiant Red,455,,,models/accordsedan_options.md:100
+2026,Accord,Touring Hybrid,,39495,Exterior color,,Urban Gray,455,,,models/accordsedan_options.md:100
+2027,HR-V,LX,,26600,Base,,Base Price (trim MSRP),26600,,"Destination & Handling $1,550 not included",models/hrv_options.md:28
+2027,HR-V,LX,,26600,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/hrv_options.md:29
+2027,HR-V,LX,,26600,Exterior color,,Nordic Forest,455,,,models/hrv_options.md:30
+2027,HR-V,LX,,26600,Exterior color,,Platinum White,455,,,models/hrv_options.md:30
+2027,HR-V,Sport,,28400,Base,,Base Price (trim MSRP),28400,,"Destination & Handling $1,550 not included",models/hrv_options.md:41
+2027,HR-V,Sport,,28400,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/hrv_options.md:42
+2027,HR-V,Sport,,28400,Exterior color,,Boost Blue,455,,,models/hrv_options.md:43
+2027,HR-V,Sport,,28400,Exterior color,,Nordic Forest,455,,,models/hrv_options.md:43
+2027,HR-V,Sport,,28400,Exterior color,,Platinum White,455,,,models/hrv_options.md:43
+2027,HR-V,Sport,,28400,Exterior color,,Urban Gray,455,,,models/hrv_options.md:43
+2027,HR-V,EX-L,,30450,Base,,Base Price (trim MSRP),30450,,"Destination & Handling $1,550 not included",models/hrv_options.md:54
+2027,HR-V,EX-L,,30450,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/hrv_options.md:55
+2027,HR-V,EX-L,,30450,Exterior color,,Nordic Forest,455,,,models/hrv_options.md:56
+2027,HR-V,EX-L,,30450,Exterior color,,Platinum White,455,,,models/hrv_options.md:56
+2027,HR-V,EX-L,,30450,Exterior color,,Urban Gray,455,,,models/hrv_options.md:56
+2027,CR-V,LX,,31520,Base,,Base Price (trim MSRP),31520,,"Destination & Handling $1,550 not included",models/crv_options.md:33
+2027,CR-V,LX,,31520,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/crv_options.md:34
+2027,CR-V,LX,,31520,Exterior color,,Platinum White,455,,,models/crv_options.md:35
+2027,CR-V,LX,,31520,Exterior color,,Radiant Red,455,,,models/crv_options.md:35
+2027,CR-V,LX,,31520,Exterior color,,Urban Gray,455,,,models/crv_options.md:35
+2027,CR-V,EX,,33550,Base,,Base Price (trim MSRP),33550,,"Destination & Handling $1,550 not included",models/crv_options.md:45
+2027,CR-V,EX,,33550,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/crv_options.md:46
+2027,CR-V,EX,,33550,Exterior color,,Platinum White,455,,,models/crv_options.md:47
+2027,CR-V,EX,,33550,Exterior color,,Radiant Red,455,,,models/crv_options.md:47
+2027,CR-V,EX,,33550,Exterior color,,Urban Gray,455,,,models/crv_options.md:47
+2027,CR-V,EX-L,,35800,Base,,Base Price (trim MSRP),35800,,"Destination & Handling $1,550 not included",models/crv_options.md:57
+2027,CR-V,EX-L,,35800,Powertrain,Drivetrain,AWD CVT,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/crv_options.md:58
+2027,CR-V,EX-L,,35800,Exterior color,,Platinum White,455,,,models/crv_options.md:59
+2027,CR-V,EX-L,,35800,Exterior color,,Radiant Red,455,,,models/crv_options.md:59
+2027,CR-V,EX-L,,35800,Exterior color,,Urban Gray,455,,,models/crv_options.md:59
+2027,CR-V,Sport Hybrid,,36030,Base,,Base Price (trim MSRP),36030,,"Destination & Handling $1,550 not included",models/crv_options.md:69
+2027,CR-V,Sport Hybrid,,36030,Powertrain,Drivetrain,AWD 2.0L L4 with 2-Motor Hybrid System,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/crv_options.md:70
+2027,CR-V,Sport Hybrid,,36030,Exterior color,,Platinum White,455,,,models/crv_options.md:71
+2027,CR-V,Sport Hybrid,,36030,Exterior color,,Radiant Red,455,,,models/crv_options.md:71
+2027,CR-V,Sport Hybrid,,36030,Exterior color,,Urban Gray,455,,,models/crv_options.md:71
+2027,CR-V,Sport-L Hybrid,,39125,Base,,Base Price (trim MSRP),39125,,"Destination & Handling $1,550 not included",models/crv_options.md:81
+2027,CR-V,Sport-L Hybrid,,39125,Powertrain,Drivetrain,AWD 2.0L L4 with 2-Motor Hybrid System,1500,,AWD upgrade over the default 2WD build (per-trim delta),models/crv_options.md:82
+2027,CR-V,Sport-L Hybrid,,39125,Exterior color,,Platinum White,455,,,models/crv_options.md:83
+2027,CR-V,Sport-L Hybrid,,39125,Exterior color,,Radiant Red,455,,,models/crv_options.md:83
+2027,CR-V,Sport-L Hybrid,,39125,Exterior color,,Urban Gray,455,,,models/crv_options.md:83
+2027,CR-V,TrailSport Hybrid,,39200,Base,,Base Price (trim MSRP),39200,,"Destination & Handling $1,550 not included; AWD only (included; no 2WD choice); default-selected paid paint Ash Green (+$455) excluded; see paint row",models/crv_options.md:93
+2027,CR-V,TrailSport Hybrid,,39200,Exterior color,,Ash Green,455,,default-selected paint; its price is excluded from trim_base_msrp,models/crv_options.md:95
+2027,CR-V,TrailSport Hybrid,,39200,Exterior color,,Platinum White,455,,,models/crv_options.md:95
+2027,CR-V,TrailSport Hybrid,,39200,Exterior color,,Radiant Red,455,,,models/crv_options.md:95
+2027,CR-V,TrailSport Hybrid,,39200,Exterior color,,Urban Gray,455,,,models/crv_options.md:95
+2027,CR-V,Sport Touring Hybrid,,42950,Base,,Base Price (trim MSRP),42950,,"Destination & Handling $1,550 not included; AWD only (included; no 2WD choice)",models/crv_options.md:105
+2027,CR-V,Sport Touring Hybrid,,42950,Exterior color,,Platinum White,455,,,models/crv_options.md:107
+2027,CR-V,Sport Touring Hybrid,,42950,Exterior color,,Radiant Red,455,,,models/crv_options.md:107
+2027,CR-V,Sport Touring Hybrid,,42950,Exterior color,,Urban Gray,455,,,models/crv_options.md:107
+2026,CR-V e:FCEV,e:FCEV,,50000,Base,,Base Price (trim MSRP),50000,,"Destination & Handling $1,450 not included",models/crvfcev_options.md:27
+2026,Pilot,Sport,,42395,Base,,Base Price (trim MSRP),42395,,"Destination & Handling $1,595 not included",models/pilot_options.md:34
+2026,Pilot,Sport,,42395,Powertrain,Drivetrain,AWD 10-Speed Automatic,2100,,AWD upgrade over the default 2WD build (per-trim delta),models/pilot_options.md:35
+2026,Pilot,Sport,,42395,Exterior color,,Platinum White,455,,,models/pilot_options.md:36
+2026,Pilot,Sport,,42395,Exterior color,,Radiant Red,455,,,models/pilot_options.md:36
+2026,Pilot,Sport,,42395,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:36
+2026,Pilot,Sport,,42395,Factory package,,Towing Package,895,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, and Trailer Hitch Panel, Black","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:44
+2026,Pilot,EX-L,,44695,Base,,Base Price (trim MSRP),44695,,"Destination & Handling $1,595 not included",models/pilot_options.md:52
+2026,Pilot,EX-L,,44695,Powertrain,Drivetrain,AWD 10-Speed Automatic,2100,,AWD upgrade over the default 2WD build (per-trim delta),models/pilot_options.md:53
+2026,Pilot,EX-L,,44695,Exterior color,,Platinum White,455,,,models/pilot_options.md:54
+2026,Pilot,EX-L,,44695,Exterior color,,Radiant Red,455,,,models/pilot_options.md:54
+2026,Pilot,EX-L,,44695,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:54
+2026,Pilot,EX-L,,44695,Factory package,,Towing Package,895,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, and Trailer Hitch Panel, Silver","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:63
+2026,Pilot,TrailSport,,50595,Base,,Base Price (trim MSRP),50595,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/pilot_options.md:71
+2026,Pilot,TrailSport,,50595,Exterior color,,Ash Green,455,,,models/pilot_options.md:73
+2026,Pilot,TrailSport,,50595,Exterior color,,Platinum White,455,,,models/pilot_options.md:73
+2026,Pilot,TrailSport,,50595,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:73
+2026,Pilot,Touring,,51295,Base,,Base Price (trim MSRP),51295,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/pilot_options.md:89
+2026,Pilot,Touring,,51295,Exterior color,,Platinum White,455,,,models/pilot_options.md:91
+2026,Pilot,Touring,,51295,Exterior color,,Radiant Red,455,,,models/pilot_options.md:91
+2026,Pilot,Touring,,51295,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:91
+2026,Pilot,Touring,,51295,Factory package,,Towing Package,1140,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, Trailer Hitch Panel, Silver, and Trailer Hitch, HFA Adaptor","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:100
+2026,Pilot,Touring Blackout,,52495,Base,,Base Price (trim MSRP),52495,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); Blackout Package included and selected by default ($0; not a row): 20-inch Black Alloy Wheels; Wheel Lug Nut Set, Black; Emblems - Rear H-Mark, Pilot and Touring, Gloss Black",models/pilot_options.md:108
+2026,Pilot,Touring Blackout,,52495,Exterior color,,Platinum White,455,,,models/pilot_options.md:110
+2026,Pilot,Touring Blackout,,52495,Exterior color,,Radiant Red,455,,,models/pilot_options.md:110
+2026,Pilot,Touring Blackout,,52495,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:110
+2026,Pilot,Touring Blackout,,52495,Factory package,,Towing Package,1140,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, Trailer Hitch Panel, Silver, and Trailer Hitch, HFA Adaptor","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:119
+2026,Pilot,Elite,,53695,Base,,Base Price (trim MSRP),53695,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/pilot_options.md:127
+2026,Pilot,Elite,,53695,Exterior color,,Platinum White,455,,,models/pilot_options.md:129
+2026,Pilot,Elite,,53695,Exterior color,,Radiant Red,455,,,models/pilot_options.md:129
+2026,Pilot,Elite,,53695,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:129
+2026,Pilot,Elite,,53695,Factory package,,Towing Package,1140,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, Trailer Hitch Panel, Silver, and Trailer Hitch, HFA Adaptor","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:138
+2026,Pilot,Black Edition,,55195,Base,,Base Price (trim MSRP),55195,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/pilot_options.md:146
+2026,Pilot,Black Edition,,55195,Exterior color,,Platinum White,455,,,models/pilot_options.md:148
+2026,Pilot,Black Edition,,55195,Exterior color,,Radiant Red,455,,,models/pilot_options.md:148
+2026,Pilot,Black Edition,,55195,Exterior color,,Sonic Gray,455,,,models/pilot_options.md:148
+2026,Pilot,Black Edition,,55195,Factory package,,Towing Package,1140,"Trailer Hitch Harness, Trailer Hitch, Trailer Hitch Ball Mount, Trailer Hitch Panel, Black, and Trailer Hitch, HFA Adaptor","key=name:towing package; kept: factory-installed trailer hitch receiver + harness (""From Honda to You"": pre-equipped); flag: hitch hardware, no cooling content",models/pilot_options.md:156
+2027,Passport,RTL,,45195,Base,,Base Price (trim MSRP),45195,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/passport_options.md:33
+2027,Passport,RTL,,45195,Exterior color,,Platinum White,455,,,models/passport_options.md:35
+2027,Passport,RTL,,45195,Exterior color,,Radiant Red,455,,,models/passport_options.md:35
+2027,Passport,RTL,,45195,Exterior color,,Sonic Gray,455,,,models/passport_options.md:35
+2027,Passport,RTL Towing,,45895,Base,,Base Price (trim MSRP),45895,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); Towing Package included and selected by default ($0; not a row): Trailer Hitch, Trailer Hitch Harness, and Trailer Hitch Panel, Silver",models/passport_options.md:50
+2027,Passport,RTL Towing,,45895,Exterior color,,Platinum White,455,,,models/passport_options.md:52
+2027,Passport,RTL Towing,,45895,Exterior color,,Radiant Red,455,,,models/passport_options.md:52
+2027,Passport,RTL Towing,,45895,Exterior color,,Sonic Gray,455,,,models/passport_options.md:52
+2027,Passport,TrailSport,,49995,Base,,Base Price (trim MSRP),49995,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/passport_options.md:69
+2027,Passport,TrailSport,,49995,Exterior color,,Ash Green,455,,,models/passport_options.md:71
+2027,Passport,TrailSport,,49995,Exterior color,,Platinum White,455,,,models/passport_options.md:71
+2027,Passport,TrailSport,,49995,Exterior color,,Radiant Red,455,,,models/passport_options.md:71
+2027,Passport,TrailSport,,49995,Exterior color,,Sonic Gray,455,,,models/passport_options.md:71
+2027,Passport,TrailSport,,49995,Exterior color,,Sunset Orange,455,,,models/passport_options.md:71
+2027,Passport,TrailSport Blackout,,51495,Base,,Base Price (trim MSRP),51495,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); Blackout Package included and selected by default ($0; not a row): 18-in Rugged Black Alloy Wheels, HPD Center Caps, and Gloss Black Front/Rear H-Mark Emblems",models/passport_options.md:87
+2027,Passport,TrailSport Blackout,,51495,Exterior color,,Ash Green,455,,,models/passport_options.md:89
+2027,Passport,TrailSport Blackout,,51495,Exterior color,,Platinum White,455,,,models/passport_options.md:89
+2027,Passport,TrailSport Blackout,,51495,Exterior color,,Radiant Red,455,,,models/passport_options.md:89
+2027,Passport,TrailSport Blackout,,51495,Exterior color,,Sonic Gray,455,,,models/passport_options.md:89
+2027,Passport,TrailSport Blackout,,51495,Exterior color,,Sunset Orange,455,,,models/passport_options.md:89
+2027,Passport,TrailSport Elite,,53695,Base,,Base Price (trim MSRP),53695,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); default-selected paid paint Ash Green (+$455) excluded; see paint row",models/passport_options.md:106
+2027,Passport,TrailSport Elite,,53695,Exterior color,,Ash Green,455,,default-selected paint; its price is excluded from trim_base_msrp,models/passport_options.md:108
+2027,Passport,TrailSport Elite,,53695,Exterior color,,Platinum White,455,,,models/passport_options.md:108
+2027,Passport,TrailSport Elite,,53695,Exterior color,,Radiant Red,455,,,models/passport_options.md:108
+2027,Passport,TrailSport Elite,,53695,Exterior color,,Sonic Gray,455,,,models/passport_options.md:108
+2027,Passport,TrailSport Elite,,53695,Exterior color,,Sunset Orange,455,,,models/passport_options.md:108
+2027,Passport,TrailSport Elite Blackout,,55195,Base,,Base Price (trim MSRP),55195,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); default-selected paid paint Sonic Gray (+$455) excluded; see paint row; Blackout Package included and selected by default ($0; not a row): 18-in Rugged Black Alloy Wheels, HPD Center Caps, and Gloss Black Front/Rear H-Mark Emblems",models/passport_options.md:124
+2027,Passport,TrailSport Elite Blackout,,55195,Exterior color,,Ash Green,455,,,models/passport_options.md:126
+2027,Passport,TrailSport Elite Blackout,,55195,Exterior color,,Platinum White,455,,,models/passport_options.md:126
+2027,Passport,TrailSport Elite Blackout,,55195,Exterior color,,Radiant Red,455,,,models/passport_options.md:126
+2027,Passport,TrailSport Elite Blackout,,55195,Exterior color,,Sonic Gray,455,,default-selected paint; its price is excluded from trim_base_msrp,models/passport_options.md:126
+2027,Passport,TrailSport Elite Blackout,,55195,Exterior color,,Sunset Orange,455,,,models/passport_options.md:126
+2026,Prologue,EX,,39900,Base,,Base Price (trim MSRP),39900,,"Destination & Handling $1,595 not included; Prologue Charging Packages: one included at no cost ($0 Home Charging Station + $1,250 install credit, or $500 sales credit); dropped, not rows",models/prologue_options.md:30
+2026,Prologue,EX,,39900,Powertrain,Drivetrain,AWD Dual Motor,3000,,AWD upgrade over the default 2WD build (per-trim delta),models/prologue_options.md:31
+2026,Prologue,EX,,39900,Exterior color,,Frostline White Pearl,455,,,models/prologue_options.md:32
+2026,Prologue,EX,,39900,Exterior color,,Pacific Blue,455,,,models/prologue_options.md:32
+2026,Prologue,EX,,39900,Exterior color,,Raven Black,455,,,models/prologue_options.md:32
+2026,Prologue,EX,,39900,Exterior color,,Scarlet Red,455,,,models/prologue_options.md:32
+2026,Prologue,Touring,,44200,Base,,Base Price (trim MSRP),44200,,"Destination & Handling $1,595 not included; default-selected paid paint Pacific Blue (+$455) excluded; see paint row; Prologue Charging Packages: one included at no cost ($0 Home Charging Station + $1,250 install credit, or $500 sales credit); dropped, not rows",models/prologue_options.md:45
+2026,Prologue,Touring,,44200,Powertrain,Drivetrain,AWD Dual Motor,3000,,AWD upgrade over the default 2WD build (per-trim delta),models/prologue_options.md:46
+2026,Prologue,Touring,,44200,Exterior color,,Frostline White Pearl,455,,,models/prologue_options.md:47
+2026,Prologue,Touring,,44200,Exterior color,,North Shore,455,,,models/prologue_options.md:47
+2026,Prologue,Touring,,44200,Exterior color,,Pacific Blue,455,,default-selected paint; its price is excluded from trim_base_msrp,models/prologue_options.md:47
+2026,Prologue,Touring,,44200,Exterior color,,Raven Black,455,,,models/prologue_options.md:47
+2026,Prologue,Touring,,44200,Exterior color,,Scarlet Red,455,,,models/prologue_options.md:47
+2026,Prologue,Touring,,44200,Exterior color,,Sonic Gray,455,,,models/prologue_options.md:47
+2026,Prologue,Elite,,50400,Base,,Base Price (trim MSRP),50400,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); default-selected paid paint North Shore (+$455) excluded; see paint row; Prologue Charging Packages: one included at no cost ($0 Home Charging Station + $1,250 install credit, or $500 sales credit); dropped, not rows",models/prologue_options.md:58
+2026,Prologue,Elite,,50400,Exterior color,,Frostline White Pearl,455,,,models/prologue_options.md:60
+2026,Prologue,Elite,,50400,Exterior color,,North Shore,455,,default-selected paint; its price is excluded from trim_base_msrp,models/prologue_options.md:60
+2026,Prologue,Elite,,50400,Exterior color,,Pacific Blue,455,,,models/prologue_options.md:60
+2026,Prologue,Elite,,50400,Exterior color,,Raven Black,455,,,models/prologue_options.md:60
+2026,Prologue,Elite,,50400,Exterior color,,Scarlet Red,455,,,models/prologue_options.md:60
+2026,Prologue,Elite,,50400,Exterior color,,Sonic Gray,455,,,models/prologue_options.md:60
+2026,Ridgeline,Sport,,40795,Base,,Base Price (trim MSRP),40795,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/ridgeline_options.md:32
+2026,Ridgeline,Sport,,40795,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:34
+2026,Ridgeline,Sport,,40795,Exterior color,,Sonic Gray,455,,,models/ridgeline_options.md:34
+2026,Ridgeline,RTL,,43595,Base,,Base Price (trim MSRP),43595,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/ridgeline_options.md:50
+2026,Ridgeline,RTL,,43595,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:52
+2026,Ridgeline,RTL,,43595,Exterior color,,Radiant Red Metallic II,455,,,models/ridgeline_options.md:52
+2026,Ridgeline,RTL,,43595,Exterior color,,Sonic Gray,455,,,models/ridgeline_options.md:52
+2026,Ridgeline,TrailSport,,45995,Base,,Base Price (trim MSRP),45995,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/ridgeline_options.md:68
+2026,Ridgeline,TrailSport,,45995,Exterior color,,Ash Green,455,,,models/ridgeline_options.md:70
+2026,Ridgeline,TrailSport,,45995,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:70
+2026,Ridgeline,TrailSport,,45995,Exterior color,,Radiant Red Metallic II,455,,,models/ridgeline_options.md:70
+2026,Ridgeline,TrailSport,,45995,Exterior color,,Sonic Gray,455,,,models/ridgeline_options.md:70
+2026,Ridgeline,TrailSport+HPD Wheels,,47195,Base,,Base Price (trim MSRP),47195,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); HPD 18-inch Black Alloy Wheel Package included and selected by default ($0; not a row)",models/ridgeline_options.md:86
+2026,Ridgeline,TrailSport+HPD Wheels,,47195,Exterior color,,Ash Green,455,,,models/ridgeline_options.md:88
+2026,Ridgeline,TrailSport+HPD Wheels,,47195,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:88
+2026,Ridgeline,TrailSport+HPD Wheels,,47195,Exterior color,,Radiant Red Metallic II,455,,,models/ridgeline_options.md:88
+2026,Ridgeline,TrailSport+HPD Wheels,,47195,Exterior color,,Sonic Gray,455,,,models/ridgeline_options.md:88
+2026,Ridgeline,Black Edition,,47395,Base,,Base Price (trim MSRP),47395,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice)",models/ridgeline_options.md:105
+2026,Ridgeline,Black Edition,,47395,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:107
+2026,Ridgeline,Black Edition,,47395,Exterior color,,Sonic Gray,455,,,models/ridgeline_options.md:107
+2026,Ridgeline,Black Edition Two-Tone,,47895,Base,,Base Price (trim MSRP),47895,,"Destination & Handling $1,595 not included; AWD only (included; no 2WD choice); default-selected paid paint Sonic Gray Pearl (+$455) excluded; see paint row",models/ridgeline_options.md:118
+2026,Ridgeline,Black Edition Two-Tone,,47895,Exterior color,,Platinum White,455,,,models/ridgeline_options.md:120
+2026,Ridgeline,Black Edition Two-Tone,,47895,Exterior color,,Sonic Gray Pearl,455,,default-selected paint; its price is excluded from trim_base_msrp,models/ridgeline_options.md:120
+2027,Odyssey,EX-L,,43195,Base,,Base Price (trim MSRP),43195,,"Destination & Handling $1,595 not included",models/odyssey_options.md:30
+2027,Odyssey,EX-L,,43195,Exterior color,,Platinum White,455,,,models/odyssey_options.md:32
+2027,Odyssey,EX-L,,43195,Exterior color,,Radiant Red,455,,,models/odyssey_options.md:32
+2027,Odyssey,Sport-L,,44295,Base,,Base Price (trim MSRP),44295,,"Destination & Handling $1,595 not included",models/odyssey_options.md:43
+2027,Odyssey,Sport-L,,44295,Exterior color,,Platinum White,455,,,models/odyssey_options.md:45
+2027,Odyssey,Sport-L,,44295,Exterior color,,Radiant Red,455,,,models/odyssey_options.md:45
+2027,Odyssey,Sport-L,,44295,Exterior color,,Sonic Gray,455,,,models/odyssey_options.md:45
+2027,Odyssey,Touring,,47895,Base,,Base Price (trim MSRP),47895,,"Destination & Handling $1,595 not included",models/odyssey_options.md:56
+2027,Odyssey,Touring,,47895,Exterior color,,Platinum White,455,,,models/odyssey_options.md:58
+2027,Odyssey,Touring,,47895,Exterior color,,Radiant Red,455,,,models/odyssey_options.md:58
+2027,Odyssey,Touring,,47895,Exterior color,,Sonic Gray,455,,,models/odyssey_options.md:58
+2027,Odyssey,Elite,,52095,Base,,Base Price (trim MSRP),52095,,"Destination & Handling $1,595 not included",models/odyssey_options.md:69
+2027,Odyssey,Elite,,52095,Exterior color,,Platinum White,455,,,models/odyssey_options.md:71
+2027,Odyssey,Elite,,52095,Exterior color,,Radiant Red,455,,,models/odyssey_options.md:71
+2027,Odyssey,Elite,,52095,Exterior color,,Sonic Gray,455,,,models/odyssey_options.md:71
+2027,Prelude,Hybrid,,42400,Base,,Base Price (trim MSRP),42400,,"Destination & Handling $1,295 not included",models/prelude_options.md:26
+2027,Prelude,Hybrid,,42400,Exterior color,,Boost Blue,455,,,models/prelude_options.md:28
+2027,Prelude,Hybrid,,42400,Exterior color,,Winter Frost,655,,,models/prelude_options.md:28
+2027,Prelude,Hybrid Two-Tone,,42900,Base,,Base Price (trim MSRP),42900,,"Destination & Handling $1,295 not included; default-selected paid paint Winter Frost Pearl (+$655) excluded; see paint row; single paint (Winter Frost Pearl +$655, default) carries the two-tone finish; no separate roof option",models/prelude_options.md:39
+2027,Prelude,Hybrid Two-Tone,,42900,Exterior color,,Winter Frost Pearl,655,,default-selected paint; its price is excluded from trim_base_msrp; only paint on this trim (two-tone white body / black roof finish); default-selected,models/prelude_options.md:41

@@ -1,0 +1,410 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2026,K4,LX,,22290,Base,,Base Price (trim MSRP),22290,,"Destination $1,245 not included",models/k4_options.md:32
+2026,K4,LX,,22290,Exterior color,,Snow White Pearl,395,,,models/k4_options.md:34
+2026,K4,LXS,,23390,Base,,Base Price (trim MSRP),23390,,"Destination $1,245 not included",models/k4_options.md:42
+2026,K4,LXS,,23390,Exterior color,,Snow White Pearl,395,,,models/k4_options.md:44
+2026,K4,LXS,,23390,Exterior color,,Currant Red,395,,,models/k4_options.md:44
+2026,K4,EX,,24490,Base,,Base Price (trim MSRP),24490,,"Destination $1,245 not included",models/k4_options.md:52
+2026,K4,EX,,24490,Exterior color,,Snow White Pearl,395,,,models/k4_options.md:54
+2026,K4,EX,,24490,Exterior color,,Currant Red,395,,,models/k4_options.md:54
+2026,K4,GT-Line,,25490,Base,,Base Price (trim MSRP),25490,,"Destination $1,245 not included",models/k4_options.md:62
+2026,K4,GT-Line,,25490,Exterior color,,Snow White Pearl,395,,,models/k4_options.md:64
+2026,K4,GT-Line,,25490,Exterior color,,Currant Red,395,,,models/k4_options.md:64
+2026,K4,GT-Line,,25490,Factory package,,Sunroof Package,900,Wide Sunroof,key=name:sunroof package,models/k4_options.md:68
+2026,K4,GT-Line,,25490,Factory package,,Premium Package,1200,Ventilated Front Seats; Driver's Memory Seat & Side View Mirror Integrated System; Harman Kardon Premium Audio System; Sound-Absorbing Windshield Glass; 12.3-in. Touchscreen Display w/ Navigation; 12.3-in. Instrument Display; Kia AI Assistant; Highway Driving Assist; Navigation-Based Smart Cruise Control w/ Stop & Go - Curve; Heated Steering Wheel,key=name:premium package,models/k4_options.md:69
+2026,K4,GT-Line Turbo,,28390,Base,,Base Price (trim MSRP),28390,,"Destination $1,245 not included",models/k4_options.md:74
+2026,K4,GT-Line Turbo,,28390,Exterior color,,Snow White Pearl,395,,,models/k4_options.md:76
+2026,K4,GT-Line Turbo,,28390,Exterior color,,Currant Red,395,,,models/k4_options.md:76
+2026,K4,GT-Line Turbo,,28390,Factory package,,Technology Package,2300,"Multicolor Ambient Mood Lighting; Enhanced Auto Emergency Braking Technology w/ Pedestrian, Cyclist, Junction Turning, Junction Crossing, Direct Oncoming, Lane Change Oncoming, Lane Change Side and Evasive Steering Assist Detection; Highway Driving Assist 2; Blind-Spot Collision-Avoidance Assist; Front, Rear & Side Parking Sensors; Rear Parking Collision-Avoidance Assist; 360 Surround View Monitor; Blind-Spot View Monitor; Ventilated Front Seats; Driver's Memory Seat & Side View Mirror Integrated System; Digital Key 2.0; Heated Steering Wheel",key=name:technology package,models/k4_options.md:80
+2026,K4 Hatchback,EX,,24990,Base,,Base Price (trim MSRP),24990,,"Destination $1,245 not included",models/k4hatchback_options.md:29
+2026,K4 Hatchback,EX,,24990,Exterior color,,Snow White Pearl,395,,,models/k4hatchback_options.md:31
+2026,K4 Hatchback,EX,,24990,Exterior color,,Currant Red,395,,,models/k4hatchback_options.md:31
+2026,K4 Hatchback,GT-Line,,25990,Base,,Base Price (trim MSRP),25990,,"Destination $1,245 not included",models/k4hatchback_options.md:39
+2026,K4 Hatchback,GT-Line,,25990,Exterior color,,Snow White Pearl,395,,,models/k4hatchback_options.md:41
+2026,K4 Hatchback,GT-Line,,25990,Exterior color,,Currant Red,395,,,models/k4hatchback_options.md:41
+2026,K4 Hatchback,GT-Line,,25990,Exterior color,,Sparkling Yellow,395,,,models/k4hatchback_options.md:41
+2026,K4 Hatchback,GT-Line,,25990,Factory package,,Premium Package,2100,Ventilated Front Seats; Driver's Memory Seat & Side View Mirror Integrated System; Harman Kardon Premium Audio System; Sound-Absorbing Windshield Glass; 12.3-in. Touchscreen Display w/ Navigation; 12.3-in. Instrument Display; Kia AI Assistant; Highway Driving Assist; Navigation-Based Smart Cruise Control w/ Stop & Go - Curve; Heated Steering Wheel; Wide Sunroof,key=name:premium package,models/k4hatchback_options.md:45
+2026,K4 Hatchback,GT-Line Turbo,,28890,Base,,Base Price (trim MSRP),28890,,"Destination $1,245 not included",models/k4hatchback_options.md:51
+2026,K4 Hatchback,GT-Line Turbo,,28890,Exterior color,,Snow White Pearl,395,,,models/k4hatchback_options.md:53
+2026,K4 Hatchback,GT-Line Turbo,,28890,Exterior color,,Currant Red,395,,,models/k4hatchback_options.md:53
+2026,K4 Hatchback,GT-Line Turbo,,28890,Exterior color,,Sparkling Yellow,395,,,models/k4hatchback_options.md:53
+2026,K4 Hatchback,GT-Line Turbo,,28890,Factory package,,Technology Package,2300,"Multicolor Ambient Mood Lighting; Enhanced Auto Emergency Braking Technology w/ Pedestrian, Cyclist, Junction Turning, Junction Crossing, Direct Oncoming, Lane Change Oncoming, Lane Change Side and Evasive Steering Assist Detection; Highway Driving Assist 2; Blind-Spot Collision-Avoidance Assist; Front, Rear & Side Parking Sensors; Rear Parking Collision-Avoidance Assist; 360 Surround View Monitor; Blind-Spot View Monitor; Ventilated Front Seats; Driver's Memory Seat & Side View Mirror Integrated System; Digital Key 2.0; Heated Steering Wheel",key=name:technology package,models/k4hatchback_options.md:57
+2027,K5,LXS,,27690,Base,,Base Price (trim MSRP),27690,,"Destination $1,245 not included",models/k5_options.md:30
+2027,K5,LXS,,27690,Exterior color,,Snow White Pearl,495,,,models/k5_options.md:32
+2027,K5,GT-Line,,28690,Base,,Base Price (trim MSRP),28690,,"Destination $1,245 not included",models/k5_options.md:40
+2027,K5,GT-Line,,28690,Powertrain,Drivetrain,AWD,1600,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/k5_options.md:42
+2027,K5,GT-Line,,28690,Exterior color,,Wolf Gray,495,,,models/k5_options.md:43
+2027,K5,GT-Line,,28690,Exterior color,,Steel Matte Gray,695,,matte paint,models/k5_options.md:43
+2027,K5,GT-Line,,28690,Exterior color,,Snow White Pearl,495,,,models/k5_options.md:43
+2027,K5,GT-Line,,28690,Exterior color,,Runway Red,495,,,models/k5_options.md:43
+2027,K5,GT-Line,,28690,Factory package,,GT-Line Premium Package,2200,18-in. Unique Design Alloy Wheels w/ Gloss Black Finish; Panoramic Sunroof; Bose Premium Audio System w/ 12 Speakers; Active Sound Design; LED Interior Lighting,key=name:gt line premium package,models/k5_options.md:47
+2027,K5,GT-Line,,28690,Factory package,,GT-Line Convenience Package,700,Driver's Memory Seat & Side View Mirrors System; 8-Way Power Passenger's Seat w/ 2-Way Power Lumbar Adjustment; Ventilated Front Seats; Heated Steering Wheel; Power-Folding Side View Mirrors,"key=name:gt line convenience package; price by drivetrain: FWD $700; AWD $700; merged from: GT-Line Convenience FWD Package, GT-Line Convenience AWD Package; requires: Premium Package; requires: Premium Package and GT-Line All-Wheel Drive; AWD version contents: Driver's Memory Seat & Side View Mirrors System; 8-Way Power Passenger's Seat w/ 2-Way Power Lumbar Adjustment; Ventilated Front Seats; Power-Folding Side View Mirrors",models/k5_options.md:48
+2027,K5,GT,,33790,Base,,Base Price (trim MSRP),33790,,"Destination $1,245 not included",models/k5_options.md:54
+2027,K5,GT,,33790,Exterior color,,Wolf Gray,495,,,models/k5_options.md:56
+2027,K5,GT,,33790,Exterior color,,Steel Matte Gray,695,,matte paint,models/k5_options.md:56
+2027,K5,GT,,33790,Exterior color,,Snow White Pearl,495,,,models/k5_options.md:56
+2027,K5,GT,,33790,Exterior color,,Runway Red,495,,,models/k5_options.md:56
+2027,K5,GT,,33790,Factory package,,GT1 Package,4400,19-in. Alloy Wheels w/ Gloss Black Finish; 360 Surround View Monitor; Blind-Spot View Monitor; 12.3-in. Curved Instrument Display; Integrated Memory Driver's Seat & Side View Mirrors; Power-Folding Side View Mirrors; 8-Way Power Passenger's Seat w/ 2-Way Power Lumbar Adjustment; Heated Steering Wheel; Ventilated Front Seats; Bose Premium Audio System w/ 12 Speakers; Active Sound Design; Digital Key 2.0; Rear Parking Collision-Avoidance Assist; Side Parking Sensors; Power Windows w/ One-Touch Auto-Up/Down,key=name:gt1 package,models/k5_options.md:60
+2027,Seltos,LX,,24990,Base,,Base Price (trim MSRP),24990,,"Destination $1,495 not included",models/seltos_options.md:32
+2027,Seltos,LX,,24990,Powertrain,Drivetrain,AWD,1700,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/seltos_options.md:33
+2027,Seltos,LX,,24990,Exterior color,,Snow White Pearl,445,,,models/seltos_options.md:35
+2027,Seltos,S,,26390,Base,,Base Price (trim MSRP),26390,,"Destination $1,495 not included",models/seltos_options.md:43
+2027,Seltos,S,,26390,Powertrain,Drivetrain,AWD,1700,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/seltos_options.md:44
+2027,Seltos,S,,26390,Exterior color,,Snow White Pearl,445,,,models/seltos_options.md:46
+2027,Seltos,S,,26390,Exterior color,,Pale Gray,445,,,models/seltos_options.md:46
+2027,Seltos,EX,,28390,Base,,Base Price (trim MSRP),28390,,"Destination $1,495 not included",models/seltos_options.md:54
+2027,Seltos,EX,,28390,Powertrain,Drivetrain,AWD,1700,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/seltos_options.md:55
+2027,Seltos,EX,,28390,Exterior color,,Snow White Pearl,445,,,models/seltos_options.md:57
+2027,Seltos,EX,,28390,Exterior color,,Pale Gray,445,,,models/seltos_options.md:57
+2027,Seltos,EX,,28390,Factory package,,EX Panoramic Sunroof Package,1500,"Panoramic Sunroof; Heated Steering Wheel; Roof Rails, Gloss Black","key=name:ex panoramic sunroof package; price by drivetrain: FWD $1,500; AWD $1,500; merged from: EX FWD Panoramic Sunroof Package, EX AWD Panoramic Sunroof Package",models/seltos_options.md:61
+2027,Seltos,X-Line S,,28990,Base,,Base Price (trim MSRP),28990,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/seltos_options.md:67
+2027,Seltos,X-Line S,,28990,Exterior color,,Snow White Pearl,445,,,models/seltos_options.md:70
+2027,Seltos,X-Line S,,28990,Exterior color,,Pale Gray,445,,,models/seltos_options.md:70
+2027,Seltos,X-Line S,,28990,Exterior color,,Magma Red Matte,545,,matte paint,models/seltos_options.md:70
+2027,Seltos,X-Line S,,28990,Factory package,,X-Line S Premium Package,2000,Dual-Zone Auto Climate Control w/ 5-in. Display; Rear Climate Vents; Panoramic Sunroof; Heated Steering Wheel; Smart Power Liftgate,key=name:x line s premium package,models/seltos_options.md:74
+2027,Seltos,X-Line SX,,32790,Base,,Base Price (trim MSRP),32790,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/seltos_options.md:79
+2027,Seltos,X-Line SX,,32790,Exterior color,,Snow White Pearl,445,,,models/seltos_options.md:82
+2027,Seltos,X-Line SX,,32790,Exterior color,,Pale Gray,445,,,models/seltos_options.md:82
+2027,Seltos,X-Line SX,,32790,Exterior color,,Magma Red Matte,545,,matte paint,models/seltos_options.md:82
+2027,Seltos,X-Line SX,,32790,Factory package,,X-Line SX Prestige Package,2500,"12.3-in. Dual Panoramic Displays w/ Navigation; Driver's Memory Seat & Side View Mirror Integrated System; 12-Way Power Driver's Seat w/ Premium Relaxation Comfort Setting; Ventilated Front Seats; Highway Driving Assist; Navigation-Based Smart Cruise Control; Front, Rear & Side Parking Sensors; Rear Parking Collision-Avoidance Assist; Harman Kardon Premium Audio System; Blind-Spot & 360 Surround View Monitor",key=name:x line sx prestige package,models/seltos_options.md:86
+2027,Sportage,LX,,28990,Base,,Base Price (trim MSRP),28990,,"Destination $1,495 not included",models/sportage_options.md:32
+2027,Sportage,LX,,28990,Powertrain,Drivetrain,AWD,1800,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sportage_options.md:33
+2027,Sportage,LX,,28990,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:34
+2027,Sportage,LX,,28990,Exterior color,,Snow White Pearl,495,,,models/sportage_options.md:34
+2027,Sportage,LX,,28990,Factory package,,LX Convenience Package,800,Blind-Spot Detection Technology; Rear Cross-Traffic Collision-Avoidance Assist; Safe Exit Warning; 10-Way Power Driver's Seat w/ 2-Way Power Lumbar Adjustment; Heated Front Seats; Heated Side View Mirrors w/ LED Turn Signals,"key=name:lx convenience package; price by drivetrain: FWD $800; AWD $800; merged from: LX FWD Convenience Package, LX AWD Convenience Package; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/sportage_options.md:38
+2027,Sportage,EX,,30790,Base,,Base Price (trim MSRP),30790,,"Destination $1,495 not included",models/sportage_options.md:44
+2027,Sportage,EX,,30790,Powertrain,Drivetrain,AWD,1800,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sportage_options.md:45
+2027,Sportage,EX,,30790,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:46
+2027,Sportage,EX,,30790,Exterior color,,Wolf Gray,495,,,models/sportage_options.md:46
+2027,Sportage,EX,,30790,Factory package,,EX Panoramic Sunroof Package,1000,"Panoramic Sunroof w/ Power Sunshade; LED Interior Lighting; Roof Rails, Low Profile Gloss Black","key=name:ex panoramic sunroof package; price by drivetrain: FWD $1,000; AWD $1,000; merged from: EX FWD Panoramic Sunroof Package, EX AWD Panoramic Sunroof Package; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/sportage_options.md:50
+2027,Sportage,SX,,34590,Base,,Base Price (trim MSRP),34590,,"Destination $1,495 not included",models/sportage_options.md:56
+2027,Sportage,SX,,34590,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:59
+2027,Sportage,SX,,34590,Exterior color,,Wolf Gray,495,,,models/sportage_options.md:59
+2027,Sportage,X-Line,,34790,Base,,Base Price (trim MSRP),34790,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportage_options.md:67
+2027,Sportage,X-Line,,34790,Exterior color,,Panthera Metal Matte,595,,matte paint,models/sportage_options.md:70
+2027,Sportage,X-Line,,34790,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:70
+2027,Sportage,X-Line,,34790,Exterior color,,Wolf Gray,495,,,models/sportage_options.md:70
+2027,Sportage,X-Line,,34790,Exterior color,,Glacial White Pearl w/ Ebony Black Roof,595,,two-tone roof paint,models/sportage_options.md:70
+2027,Sportage,X-Line,,34790,Exterior color,,Road Rider Brown w/ Ebony Black Roof,595,,two-tone roof paint,models/sportage_options.md:70
+2027,Sportage,X-Line,,34790,Factory package,,X-Line Technology Package,2500,"12.3-in. Dual Panoramic Displays w/ Navigation; Integrated Memory Driver's Seat & Side View Mirrors; LED Fog Lights; Power-Folding Side View Mirrors; Harman Kardon Premium Audio System w/ 8 speakers; Highway Driving Assist; Blind-Spot & 360° Surround View Monitor; Rear Parking Collision-Avoidance Assist; Front, Rear & Side Parking Sensors; Navigation-Based Smart Cruise Control w/ Stop & Go - Curve",key=name:x line technology package,models/sportage_options.md:74
+2027,Sportage,SX Prestige,,36590,Base,,Base Price (trim MSRP),36590,,"Destination $1,495 not included",models/sportage_options.md:79
+2027,Sportage,SX Prestige,,36590,Powertrain,Drivetrain,AWD,1800,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sportage_options.md:80
+2027,Sportage,SX Prestige,,36590,Exterior color,,Panthera Metal Matte,595,,matte paint,models/sportage_options.md:81
+2027,Sportage,SX Prestige,,36590,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:81
+2027,Sportage,SX Prestige,,36590,Exterior color,,Wolf Gray,495,,,models/sportage_options.md:81
+2027,Sportage,X-Pro Prestige,,39890,Base,,Base Price (trim MSRP),39890,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportage_options.md:89
+2027,Sportage,X-Pro Prestige,,39890,Exterior color,,Glacial White Pearl,495,,,models/sportage_options.md:92
+2027,Sportage,X-Pro Prestige,,39890,Exterior color,,Wolf Gray,495,,,models/sportage_options.md:92
+2027,Sportage,X-Pro Prestige,,39890,Exterior color,,Wolf Gray w/ Ebony Black Roof,595,,two-tone roof paint,models/sportage_options.md:92
+2027,Sportage Hybrid,LX,,30590,Base,,Base Price (trim MSRP),30590,,"Destination $1,495 not included",models/sportagehybrid_options.md:31
+2027,Sportage Hybrid,LX,,30590,Exterior color,,Snow White Pearl,495,,,models/sportagehybrid_options.md:33
+2027,Sportage Hybrid,S,,31290,Base,,Base Price (trim MSRP),31290,,"Destination $1,495 not included",models/sportagehybrid_options.md:41
+2027,Sportage Hybrid,S,,31290,Powertrain,Drivetrain,AWD,1600,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sportagehybrid_options.md:42
+2027,Sportage Hybrid,S,,31290,Exterior color,,Wolf Gray,495,,,models/sportagehybrid_options.md:43
+2027,Sportage Hybrid,S,,31290,Exterior color,,Snow White Pearl,495,,,models/sportagehybrid_options.md:43
+2027,Sportage Hybrid,EX,,32290,Base,,Base Price (trim MSRP),32290,,"Destination $1,495 not included",models/sportagehybrid_options.md:51
+2027,Sportage Hybrid,EX,,32290,Powertrain,Drivetrain,AWD,1600,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sportagehybrid_options.md:52
+2027,Sportage Hybrid,EX,,32290,Exterior color,,Wolf Gray,495,,,models/sportagehybrid_options.md:53
+2027,Sportage Hybrid,EX,,32290,Exterior color,,Snow White Pearl,495,,,models/sportagehybrid_options.md:53
+2027,Sportage Hybrid,EX,,32290,Factory package,,EX Panoramic Sunroof Package,1000,"Panoramic Sunroof w/ Power Sunshade; Roof Rails, Low Profile Gloss Black; LED Interior Lighting","key=name:ex panoramic sunroof package; price by drivetrain: FWD $1,000; AWD $1,000; merged from: EX FWD Panoramic Sunroof Package, EX AWD Panoramic Sunroof Package; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/sportagehybrid_options.md:57
+2027,Sportage Hybrid,X-Line,,35790,Base,,Base Price (trim MSRP),35790,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportagehybrid_options.md:63
+2027,Sportage Hybrid,X-Line,,35790,Exterior color,,Shadow Matte Gray,595,,matte paint,models/sportagehybrid_options.md:65
+2027,Sportage Hybrid,X-Line,,35790,Exterior color,,Wolf Gray,495,,,models/sportagehybrid_options.md:65
+2027,Sportage Hybrid,X-Line,,35790,Exterior color,,Snow White Pearl,495,,,models/sportagehybrid_options.md:65
+2027,Sportage Hybrid,X-Line,,35790,Factory package,,X-Line Technology Package,2500,"12.3-in. Dual Panoramic Displays w/ Navigation; Integrated Memory Driver's Seat & Side View Mirrors; LED Fog Lights; Power-Folding Side View Mirrors; Harman Kardon Premium Audio System w/ 8 speakers; Highway Driving Assist; Blind-Spot & 360° Surround View Monitor; Rear Parking Collision-Avoidance Assist; Front, Rear & Side Parking Sensors; Navigation-Based Smart Cruise Control w/ Stop & Go - Curve; Remote Smart Parking Assist",key=name:x line technology package,models/sportagehybrid_options.md:69
+2027,Sportage Hybrid,SX Prestige,,40690,Base,,Base Price (trim MSRP),40690,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportagehybrid_options.md:74
+2027,Sportage Hybrid,SX Prestige,,40690,Exterior color,,Shadow Matte Gray,595,,matte paint,models/sportagehybrid_options.md:76
+2027,Sportage Hybrid,SX Prestige,,40690,Exterior color,,Wolf Gray,495,,,models/sportagehybrid_options.md:76
+2027,Sportage Hybrid,SX Prestige,,40690,Exterior color,,Snow White Pearl,495,,,models/sportagehybrid_options.md:76
+2027,Sportage Plug-in Hybrid,X-Line,,40590,Base,,Base Price (trim MSRP),40590,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportagepluginhybrid_options.md:28
+2027,Sportage Plug-in Hybrid,X-Line,,40590,Exterior color,,Shadow Matte Gray,595,,matte paint,models/sportagepluginhybrid_options.md:30
+2027,Sportage Plug-in Hybrid,X-Line,,40590,Exterior color,,Wolf Gray,495,,,models/sportagepluginhybrid_options.md:30
+2027,Sportage Plug-in Hybrid,X-Line,,40590,Exterior color,,Snow White Pearl,495,,,models/sportagepluginhybrid_options.md:30
+2027,Sportage Plug-in Hybrid,X-Line Prestige,,47390,Base,,Base Price (trim MSRP),47390,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sportagepluginhybrid_options.md:38
+2027,Sportage Plug-in Hybrid,X-Line Prestige,,47390,Exterior color,,Shadow Matte Gray,595,,matte paint,models/sportagepluginhybrid_options.md:40
+2027,Sportage Plug-in Hybrid,X-Line Prestige,,47390,Exterior color,,Wolf Gray,495,,,models/sportagepluginhybrid_options.md:40
+2027,Sportage Plug-in Hybrid,X-Line Prestige,,47390,Exterior color,,Snow White Pearl,495,,,models/sportagepluginhybrid_options.md:40
+2027,Sorento,LX,,32590,Base,,Base Price (trim MSRP),32590,,"Destination $1,495 not included",models/sorento_options.md:34
+2027,Sorento,LX,,32590,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:36
+2027,Sorento,S,,35490,Base,,Base Price (trim MSRP),35490,,"Destination $1,495 not included",models/sorento_options.md:44
+2027,Sorento,S,,35490,Powertrain,Drivetrain,AWD,2000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sorento_options.md:45
+2027,Sorento,S,,35490,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:46
+2027,Sorento,S,,35490,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:46
+2027,Sorento,S,,35490,Factory package,,S Panoramic Sunroof Package,1300,Panoramic Sunroof w/ Sunshade; LED Interior Lighting,key=name:s panoramic sunroof package,models/sorento_options.md:49
+2027,Sorento,EX,,38690,Base,,Base Price (trim MSRP),38690,,"Destination $1,495 not included",models/sorento_options.md:54
+2027,Sorento,EX,,38690,Powertrain,Drivetrain,AWD,1500,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sorento_options.md:55
+2027,Sorento,EX,,38690,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:56
+2027,Sorento,EX,,38690,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:56
+2027,Sorento,EX,,38690,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:56
+2027,Sorento,EX,,38690,Factory package,,EX Premium Package,2000,"Panoramic Sunroof w/ Sunshade; Bose Premium Audio System, 12 Speakers; 2nd-row Captain's Chairs",key=name:ex premium package,models/sorento_options.md:60
+2027,Sorento,SX,,42490,Base,,Base Price (trim MSRP),42490,,"Destination $1,495 not included",models/sorento_options.md:66
+2027,Sorento,SX,,42490,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:68
+2027,Sorento,SX,,42490,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:68
+2027,Sorento,SX,,42490,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:68
+2027,Sorento,X-Line EX AWD,,42990,Base,,Base Price (trim MSRP),42990,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorento_options.md:76
+2027,Sorento,X-Line EX AWD,,42990,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:78
+2027,Sorento,X-Line EX AWD,,42990,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:78
+2027,Sorento,X-Line EX AWD,,42990,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:78
+2027,Sorento,X-Line SX AWD,,44290,Base,,Base Price (trim MSRP),44290,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorento_options.md:87
+2027,Sorento,X-Line SX AWD,,44290,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:89
+2027,Sorento,X-Line SX AWD,,44290,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:89
+2027,Sorento,X-Line SX AWD,,44290,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:89
+2027,Sorento,X-Line SX Prestige AWD,,46990,Base,,Base Price (trim MSRP),46990,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorento_options.md:98
+2027,Sorento,X-Line SX Prestige AWD,,46990,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:100
+2027,Sorento,X-Line SX Prestige AWD,,46990,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:100
+2027,Sorento,X-Line SX Prestige AWD,,46990,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:100
+2027,Sorento,X-Line SX Prestige AWD,,46990,Factory option,Interior,Olive Brown Leather Seat Trim,295,,paid interior color/material choice; exterior availability not stated (read on Road Rider Brown),models/sorento_options.md:101
+2027,Sorento,X-Pro SX Prestige AWD,,47990,Base,,Base Price (trim MSRP),47990,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorento_options.md:109
+2027,Sorento,X-Pro SX Prestige AWD,,47990,Exterior color,,Wolf Gray,495,,,models/sorento_options.md:111
+2027,Sorento,X-Pro SX Prestige AWD,,47990,Exterior color,,Glacial White Pearl,495,,,models/sorento_options.md:111
+2027,Sorento,X-Pro SX Prestige AWD,,47990,Exterior color,,Black Jade Green,495,,,models/sorento_options.md:111
+2027,Sorento,X-Pro SX Prestige AWD,,47990,Factory option,Interior,Olive Brown Leather Seat Trim,295,,paid interior color/material choice; exterior availability not stated (read on Road Rider Brown),models/sorento_options.md:112
+2027,Sorento Hybrid,EX,,39090,Base,,Base Price (trim MSRP),39090,,"Destination $1,495 not included",models/sorentohybrid_options.md:29
+2027,Sorento Hybrid,EX,,39090,Powertrain,Drivetrain,AWD,1800,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/sorentohybrid_options.md:30
+2027,Sorento Hybrid,EX,,39090,Exterior color,,Pale Gray,495,,,models/sorentohybrid_options.md:31
+2027,Sorento Hybrid,EX,,39090,Exterior color,,Snow White Pearl,495,,,models/sorentohybrid_options.md:31
+2027,Sorento Hybrid,EX,,39090,Factory package,,EX Premium Package,2000,Panoramic Sunroof w/ Sunshade; Bose Premium Audio System; 2nd-row Captain's Chairs,key=name:ex premium package,models/sorentohybrid_options.md:34
+2027,Sorento Hybrid,X-Line EX AWD,,43090,Base,,Base Price (trim MSRP),43090,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorentohybrid_options.md:39
+2027,Sorento Hybrid,X-Line EX AWD,,43090,Exterior color,,Pale Gray,495,,,models/sorentohybrid_options.md:41
+2027,Sorento Hybrid,X-Line EX AWD,,43090,Exterior color,,Snow White Pearl,495,,,models/sorentohybrid_options.md:41
+2027,Sorento Hybrid,X-Line SX Prestige AWD,,47590,Base,,Base Price (trim MSRP),47590,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorentohybrid_options.md:49
+2027,Sorento Hybrid,X-Line SX Prestige AWD,,47590,Exterior color,,Pale Gray,495,,,models/sorentohybrid_options.md:51
+2027,Sorento Hybrid,X-Line SX Prestige AWD,,47590,Exterior color,,Snow White Pearl,495,,,models/sorentohybrid_options.md:51
+2026,Sorento Plug-in Hybrid,EX AWD,,48290,Base,,Base Price (trim MSRP),48290,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorentopluginhybrid_options.md:28
+2026,Sorento Plug-in Hybrid,EX AWD,,48290,Exterior color,,Snow White Pearl,495,,,models/sorentopluginhybrid_options.md:29
+2026,Sorento Plug-in Hybrid,EX AWD,,48290,Factory package,,Premium Package,2000,Panoramic Sunroof w/ Power Shade; 2nd-row Captain's Chairs; Bose Premium Audio System,key=name:premium package,models/sorentopluginhybrid_options.md:31
+2026,Sorento Plug-in Hybrid,X-Line SX Prestige AWD,,53490,Base,,Base Price (trim MSRP),53490,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/sorentopluginhybrid_options.md:38
+2026,Sorento Plug-in Hybrid,X-Line SX Prestige AWD,,53490,Exterior color,,Snow White Pearl,495,,,models/sorentopluginhybrid_options.md:39
+2027,Telluride,LX,,39190,Base,,Base Price (trim MSRP),39190,,"Destination $1,545 not included",models/telluride_options.md:35
+2027,Telluride,LX,,39190,Exterior color,,Ebony Black,495,,,models/telluride_options.md:38
+2027,Telluride,LX,,39190,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:39
+2027,Telluride,LX,,39190,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""",models/telluride_options.md:41
+2027,Telluride,S,,42090,Base,,Base Price (trim MSRP),42090,,"Destination $1,545 not included",models/telluride_options.md:47
+2027,Telluride,S,,42090,Powertrain,Drivetrain,AWD,2000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/telluride_options.md:46
+2027,Telluride,S,,42090,Exterior color,,Ebony Black,495,,,models/telluride_options.md:52
+2027,Telluride,S,,42090,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:53
+2027,Telluride,S,,42090,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:56
+2027,Telluride,EX,,43790,Base,,Base Price (trim MSRP),43790,,"Destination $1,545 not included",models/telluride_options.md:62
+2027,Telluride,EX,,43790,Powertrain,Drivetrain,AWD,2000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/telluride_options.md:61
+2027,Telluride,EX,,43790,Exterior color,,Ebony Black,495,,,models/telluride_options.md:67
+2027,Telluride,EX,,43790,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:68
+2027,Telluride,EX,,43790,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:70
+2027,Telluride,EX,,43790,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:72
+2027,Telluride,EX,,43790,Factory option,Interior,Black & Butter Brown SynTex Seat Trim,295,,paid interior color/material choice; offered with all exteriors of this trim,models/telluride_options.md:71
+2027,Telluride,X-Line EX,,47290,Base,,Base Price (trim MSRP),47290,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:78
+2027,Telluride,X-Line EX,,47290,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluride_options.md:81
+2027,Telluride,X-Line EX,,47290,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:82
+2027,Telluride,X-Line EX,,47290,Exterior color,,Ebony Black,495,,,models/telluride_options.md:83
+2027,Telluride,X-Line EX,,47290,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:84
+2027,Telluride,X-Line EX,,47290,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:86
+2027,Telluride,X-Line EX,,47290,Exterior color,,Terrain Brown,495,,,models/telluride_options.md:87
+2027,Telluride,X-Line EX,,47290,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluride_options.md:88
+2027,Telluride,X-Line EX,,47290,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:90
+2027,Telluride,SX,,48790,Base,,Base Price (trim MSRP),48790,,"Destination $1,545 not included",models/telluride_options.md:96
+2027,Telluride,SX,,48790,Exterior color,,Ebony Black,495,,,models/telluride_options.md:100
+2027,Telluride,SX,,48790,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:101
+2027,Telluride,SX,,48790,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:103
+2027,Telluride,SX,,48790,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:105
+2027,Telluride,X-Line SX,,51790,Base,,Base Price (trim MSRP),51790,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:111
+2027,Telluride,X-Line SX,,51790,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluride_options.md:114
+2027,Telluride,X-Line SX,,51790,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:115
+2027,Telluride,X-Line SX,,51790,Exterior color,,Ebony Black,495,,,models/telluride_options.md:116
+2027,Telluride,X-Line SX,,51790,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:117
+2027,Telluride,X-Line SX,,51790,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:119
+2027,Telluride,X-Line SX,,51790,Exterior color,,Terrain Brown,495,,,models/telluride_options.md:120
+2027,Telluride,X-Line SX,,51790,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluride_options.md:121
+2027,Telluride,X-Line SX,,51790,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:125
+2027,Telluride,X-Line SX,,51790,Factory option,Interior,Black & Millstone SynTex Seat Trim,295,,"paid interior color/material choice; offered with Ebony Black, Glacial White Pearl, Black Jade Green only",models/telluride_options.md:124
+2027,Telluride,X-Pro SX,,53690,Base,,Base Price (trim MSRP),53690,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:131
+2027,Telluride,X-Pro SX,,53690,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:134
+2027,Telluride,X-Pro SX,,53690,Exterior color,,Ebony Black,495,,,models/telluride_options.md:135
+2027,Telluride,X-Pro SX,,53690,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:136
+2027,Telluride,X-Pro SX,,53690,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:137
+2027,Telluride,X-Pro SX,,53690,Exterior color,,Terrain Brown,495,,,models/telluride_options.md:138
+2027,Telluride,SX Prestige,,53890,Base,,Base Price (trim MSRP),53890,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:146
+2027,Telluride,SX Prestige,,53890,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:149
+2027,Telluride,SX Prestige,,53890,Exterior color,,Ebony Black,495,,,models/telluride_options.md:151
+2027,Telluride,SX Prestige,,53890,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:152
+2027,Telluride,SX Prestige,,53890,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:154
+2027,Telluride,SX Prestige,,53890,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:161
+2027,Telluride,X-Line SX Prestige,,54890,Base,,Base Price (trim MSRP),54890,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:167
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluride_options.md:170
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:171
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Ebony Black,495,,,models/telluride_options.md:172
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:173
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:175
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Terrain Brown,495,,,models/telluride_options.md:176
+2027,Telluride,X-Line SX Prestige,,54890,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluride_options.md:177
+2027,Telluride,X-Line SX Prestige,,54890,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluride_options.md:181
+2027,Telluride,X-Line SX Prestige,,54890,Factory option,Interior,Black & Millstone SynTex & SynTex Suede Seat Trim,295,,"paid interior color/material choice; offered with Ebony Black, Glacial White Pearl, Black Jade Green only",models/telluride_options.md:180
+2027,Telluride,X-Pro SX Prestige,,56790,Base,,Base Price (trim MSRP),56790,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluride_options.md:187
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluride_options.md:190
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Wolf Gray,495,,,models/telluride_options.md:191
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Ebony Black,495,,,models/telluride_options.md:192
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Glacial White Pearl,495,,,models/telluride_options.md:193
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Black Jade Green,495,,,models/telluride_options.md:194
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Terrain Brown,495,,,models/telluride_options.md:195
+2027,Telluride,X-Pro SX Prestige,,56790,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluride_options.md:196
+2027,Telluride,X-Pro SX Prestige,,56790,Factory option,Interior,Black & Millstone SynTex & SynTex Suede Seat Trim,295,,"paid interior color/material choice; offered with Ebony Black, Glacial White Pearl, Black Jade Green only",models/telluride_options.md:200
+2027,Telluride Hybrid,EX,,46490,Base,,Base Price (trim MSRP),46490,,"Destination $1,545 not included",models/telluridehybrid_options.md:30
+2027,Telluride Hybrid,EX,,46490,Powertrain,Drivetrain,AWD,2000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/telluridehybrid_options.md:29
+2027,Telluride Hybrid,EX,,46490,Exterior color,,Ebony Black,495,,,models/telluridehybrid_options.md:35
+2027,Telluride Hybrid,EX,,46490,Exterior color,,Glacial White Pearl,495,,,models/telluridehybrid_options.md:36
+2027,Telluride Hybrid,EX,,46490,Exterior color,,Black Jade Green,495,,,models/telluridehybrid_options.md:38
+2027,Telluride Hybrid,EX,,46490,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""",models/telluridehybrid_options.md:40
+2027,Telluride Hybrid,EX,,46490,Factory option,Interior,Black & Butter Brown SynTex Seat Trim,295,,paid interior color/material choice; offered with all exteriors of this trim,models/telluridehybrid_options.md:39
+2027,Telluride Hybrid,SX,,51490,Base,,Base Price (trim MSRP),51490,,"Destination $1,545 not included",models/telluridehybrid_options.md:48
+2027,Telluride Hybrid,SX,,51490,Exterior color,,Ebony Black,495,,,models/telluridehybrid_options.md:49
+2027,Telluride Hybrid,SX,,51490,Exterior color,,Glacial White Pearl,495,,,models/telluridehybrid_options.md:49
+2027,Telluride Hybrid,SX,,51490,Exterior color,,Black Jade Green,495,,,models/telluridehybrid_options.md:49
+2027,Telluride Hybrid,SX,,51490,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluridehybrid_options.md:51
+2027,Telluride Hybrid,X-Line SX,,54490,Base,,Base Price (trim MSRP),54490,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluridehybrid_options.md:57
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluridehybrid_options.md:60
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Wolf Gray,495,,,models/telluridehybrid_options.md:61
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Ebony Black,495,,,models/telluridehybrid_options.md:62
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Glacial White Pearl,495,,,models/telluridehybrid_options.md:63
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Black Jade Green,495,,,models/telluridehybrid_options.md:65
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Terrain Brown,495,,,models/telluridehybrid_options.md:66
+2027,Telluride Hybrid,X-Line SX,,54490,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluridehybrid_options.md:67
+2027,Telluride Hybrid,X-Line SX,,54490,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluridehybrid_options.md:69
+2027,Telluride Hybrid,X-Line SX,,54490,Factory option,Interior,Black & Millstone SynTex Seat Trim,295,,"paid interior color/material choice; offered with Ebony Black, Glacial White Pearl and Black Jade Green only",models/telluridehybrid_options.md:68
+2027,Telluride Hybrid,SX Prestige,,56590,Base,,Base Price (trim MSRP),56590,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluridehybrid_options.md:75
+2027,Telluride Hybrid,SX Prestige,,56590,Exterior color,,Wolf Gray,495,,,models/telluridehybrid_options.md:78
+2027,Telluride Hybrid,SX Prestige,,56590,Exterior color,,Ebony Black,495,,,models/telluridehybrid_options.md:80
+2027,Telluride Hybrid,SX Prestige,,56590,Exterior color,,Glacial White Pearl,495,,,models/telluridehybrid_options.md:81
+2027,Telluride Hybrid,SX Prestige,,56590,Exterior color,,Black Jade Green,495,,,models/telluridehybrid_options.md:83
+2027,Telluride Hybrid,SX Prestige,,56590,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluridehybrid_options.md:90
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Base,,Base Price (trim MSRP),57590,,"Destination $1,545 not included; AWD only (included; no FWD/RWD choice)",models/telluridehybrid_options.md:96
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Panthera Metal Matte,995,,matte paint,models/telluridehybrid_options.md:99
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Wolf Gray,495,,,models/telluridehybrid_options.md:100
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Ebony Black,495,,,models/telluridehybrid_options.md:101
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Glacial White Pearl,495,,,models/telluridehybrid_options.md:102
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Black Jade Green,495,,,models/telluridehybrid_options.md:104
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Terrain Brown,495,,,models/telluridehybrid_options.md:105
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Exterior color,,Terrain Brown Matte,995,,matte paint,models/telluridehybrid_options.md:106
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Factory package,,Towing Package,625,"Factory Installed OEM Tow Hitch can handle a range of trailers, boats, and gear with ease","key=name:towing package; card: ""Factory Installed OEM Tow Hitch""; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/telluridehybrid_options.md:108
+2027,Telluride Hybrid,X-Line SX Prestige,,57590,Factory option,Interior,Black & Millstone SynTex & SynTex Suede Seat Trim,295,,"paid interior color/material choice; offered with Ebony Black, Glacial White Pearl and Black Jade Green only",models/telluridehybrid_options.md:107
+2027,Carnival MPV,LX,,37490,Base,,Base Price (trim MSRP),37490,,"Destination $1,545 not included",models/carnivalmpv_options.md:30
+2027,Carnival MPV,LX,,37490,Exterior color,,Ceramic Silver,495,,,models/carnivalmpv_options.md:33
+2027,Carnival MPV,LX,,37490,Exterior color,,Snow White Pearl,495,,,models/carnivalmpv_options.md:34
+2027,Carnival MPV,LXS,,39490,Base,,Base Price (trim MSRP),39490,,"Destination $1,545 not included",models/carnivalmpv_options.md:43
+2027,Carnival MPV,LXS,,39490,Exterior color,,Ceramic Silver,495,,,models/carnivalmpv_options.md:46
+2027,Carnival MPV,LXS,,39490,Exterior color,,Snow White Pearl,495,,,models/carnivalmpv_options.md:47
+2027,Carnival MPV,EX,,41690,Base,,Base Price (trim MSRP),41690,,"Destination $1,545 not included",models/carnivalmpv_options.md:56
+2027,Carnival MPV,EX,,41690,Exterior color,,Ceramic Silver,495,,,models/carnivalmpv_options.md:60
+2027,Carnival MPV,EX,,41690,Exterior color,,Snow White Pearl,495,,,models/carnivalmpv_options.md:61
+2027,Carnival MPV,EX,,41690,Factory option,Interior,Off-Black SynTex Seat Trim,950,,paid interior color/material choice; offered with all exteriors of this trim,models/carnivalmpv_options.md:66
+2027,Carnival MPV,SX,,46590,Base,,Base Price (trim MSRP),46590,,"Destination $1,545 not included",models/carnivalmpv_options.md:73
+2027,Carnival MPV,SX,,46590,Exterior color,,Ceramic Silver,495,,,models/carnivalmpv_options.md:76
+2027,Carnival MPV,SX,,46590,Exterior color,,Snow White Pearl,495,,,models/carnivalmpv_options.md:77
+2027,Carnival MPV,SX,,46590,Exterior color,,Aurora Black Pearl,495,,,models/carnivalmpv_options.md:78
+2027,Carnival MPV,SX,,46590,Exterior color,,Astra Blue,495,,,models/carnivalmpv_options.md:79
+2027,Carnival MPV,SX,,46590,Factory option,Interior,Off-Black SynTex Seat Trim,950,,paid interior color/material choice; offered with all exteriors of this trim,models/carnivalmpv_options.md:83
+2027,Carnival MPV,SX Prestige,,51590,Base,,Base Price (trim MSRP),51590,,"Destination $1,545 not included",models/carnivalmpv_options.md:93
+2027,Carnival MPV,SX Prestige,,51590,Exterior color,,Ceramic Silver,495,,,models/carnivalmpv_options.md:96
+2027,Carnival MPV,SX Prestige,,51590,Exterior color,,Snow White Pearl,495,,,models/carnivalmpv_options.md:97
+2027,Carnival MPV,SX Prestige,,51590,Exterior color,,Aurora Black Pearl,495,,,models/carnivalmpv_options.md:98
+2027,Carnival MPV,SX Prestige,,51590,Exterior color,,Astra Blue,495,,,models/carnivalmpv_options.md:99
+2027,Carnival MPV Hybrid,LXS,,41490,Base,,Base Price (trim MSRP),41490,,"Destination $1,545 not included",models/carnivalmpvhybrid_options.md:29
+2027,Carnival MPV Hybrid,LXS,,41490,Exterior color,,Ceramic Silver,495,,,models/carnivalmpvhybrid_options.md:32
+2027,Carnival MPV Hybrid,LXS,,41490,Exterior color,,Snow White Pearl,495,,,models/carnivalmpvhybrid_options.md:33
+2027,Carnival MPV Hybrid,EX,,43690,Base,,Base Price (trim MSRP),43690,,"Destination $1,545 not included",models/carnivalmpvhybrid_options.md:42
+2027,Carnival MPV Hybrid,EX,,43690,Exterior color,,Ceramic Silver,495,,,models/carnivalmpvhybrid_options.md:46
+2027,Carnival MPV Hybrid,EX,,43690,Exterior color,,Snow White Pearl,495,,,models/carnivalmpvhybrid_options.md:47
+2027,Carnival MPV Hybrid,EX,,43690,Factory option,Interior,Off-Black SynTex Seat Trim,950,,paid interior color/material choice; offered with all exteriors of this trim,models/carnivalmpvhybrid_options.md:52
+2027,Carnival MPV Hybrid,SX,,48590,Base,,Base Price (trim MSRP),48590,,"Destination $1,545 not included",models/carnivalmpvhybrid_options.md:59
+2027,Carnival MPV Hybrid,SX,,48590,Exterior color,,Ceramic Silver,495,,,models/carnivalmpvhybrid_options.md:62
+2027,Carnival MPV Hybrid,SX,,48590,Exterior color,,Snow White Pearl,495,,,models/carnivalmpvhybrid_options.md:63
+2027,Carnival MPV Hybrid,SX,,48590,Exterior color,,Aurora Black Pearl,495,,,models/carnivalmpvhybrid_options.md:64
+2027,Carnival MPV Hybrid,SX,,48590,Exterior color,,Astra Blue,495,,,models/carnivalmpvhybrid_options.md:66
+2027,Carnival MPV Hybrid,SX,,48590,Factory option,Interior,Off-Black SynTex Seat Trim,950,,paid interior color/material choice; offered with all exteriors of this trim,models/carnivalmpvhybrid_options.md:69
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Base,,Base Price (trim MSRP),53590,,"Destination $1,545 not included",models/carnivalmpvhybrid_options.md:79
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Exterior color,,Ceramic Silver,495,,,models/carnivalmpvhybrid_options.md:82
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Exterior color,,Snow White Pearl,495,,,models/carnivalmpvhybrid_options.md:83
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Exterior color,,Aurora Black Pearl,495,,,models/carnivalmpvhybrid_options.md:84
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Exterior color,,Astra Blue,495,,,models/carnivalmpvhybrid_options.md:86
+2027,Carnival MPV Hybrid,SX Prestige,,53590,Factory package,,Rear Seat Entertainment Package,2500,Dual-Screen Rear Entertainment System,key=name:rear seat entertainment package,models/carnivalmpvhybrid_options.md:94
+2027,Niro,LX,,29890,Base,,Base Price (trim MSRP),29890,,"Destination $1,495 not included",models/niro_options.md:31
+2027,Niro,LX,,29890,Exterior color,,Aurora Black Pearl,395,,,models/niro_options.md:33
+2027,Niro,LX,,29890,Exterior color,,Snow White Pearl,395,,,models/niro_options.md:33
+2027,Niro,S,,30590,Base,,Base Price (trim MSRP),30590,,"Destination $1,495 not included",models/niro_options.md:41
+2027,Niro,S,,30590,Exterior color,,Aurora Black Pearl,395,,,models/niro_options.md:43
+2027,Niro,S,,30590,Exterior color,,Snow White Pearl,395,,,models/niro_options.md:43
+2027,Niro,EX,,31390,Base,,Base Price (trim MSRP),31390,,"Destination $1,495 not included",models/niro_options.md:51
+2027,Niro,EX,,31390,Exterior color,,Aurora Black Pearl,395,,,models/niro_options.md:53
+2027,Niro,EX,,31390,Exterior color,,Snow White Pearl,395,,,models/niro_options.md:53
+2027,Niro,EX,,31390,Factory package,,EX Premium Package,2000,Power Sunroof; Power Liftgate; Harman Kardon® Premium Audio System,key=name:ex premium package,models/niro_options.md:57
+2027,Niro,SX,,35440,Base,,Base Price (trim MSRP),35440,,"Destination $1,495 not included",models/niro_options.md:62
+2027,Niro,SX,,35440,Exterior color,,Aurora Black Pearl,395,,,models/niro_options.md:64
+2027,Niro,SX,,35440,Exterior color,,Snow White Pearl,395,,,models/niro_options.md:64
+2027,Niro,SX Touring,,38990,Base,,Base Price (trim MSRP),38990,,"Destination $1,495 not included",models/niro_options.md:72
+2027,Niro,SX Touring,,38990,Exterior color,,Aurora Black Pearl,395,,,models/niro_options.md:74
+2027,Niro,SX Touring,,38990,Exterior color,,Snow White Pearl,395,,,models/niro_options.md:74
+2026,Niro EV,Wind,,39700,Base,,Base Price (trim MSRP),39700,,"Destination $1,495 not included",models/niroev_options.md:28
+2026,Niro EV,Wind,,39700,Exterior color,,Aurora Black Pearl,395,,,models/niroev_options.md:30
+2026,Niro EV,Wind,,39700,Exterior color,,Snow White Pearl,395,,,models/niroev_options.md:30
+2026,Niro EV,Wind,,39700,Exterior color,,Runway Red,395,,,models/niroev_options.md:30
+2026,Niro EV,Wind,,39700,Factory package,,Wind Preserve Package,1300,Heat Pump System; Battery Heating System; Heated Outboard Rear Seats; Heated Steering Wheel,key=name:wind preserve package,models/niroev_options.md:34
+2026,Niro EV,Wave,,44700,Base,,Base Price (trim MSRP),44700,,"Destination $1,495 not included",models/niroev_options.md:39
+2026,Niro EV,Wave,,44700,Exterior color,,Aurora Black Pearl,395,,,models/niroev_options.md:41
+2026,Niro EV,Wave,,44700,Exterior color,,Snow White Pearl,395,,,models/niroev_options.md:41
+2026,Niro EV,Wave,,44700,Exterior color,,Runway Red,395,,,models/niroev_options.md:41
+2026,Niro EV,Wave,,44700,Exterior color,,Snow White Pearl w/ Steel Gray Aeroblade,590,,two-tone paint (Aeroblade accent),models/niroev_options.md:41
+2026,Niro EV,Wave,,44700,Factory package,,Wave Preserve Package,1300,Heat Pump System; Heated Outboard Rear Seats,key=name:wave preserve package; auto-added with Snow White Pearl w/ Steel Gray Aeroblade paint,models/niroev_options.md:46
+2027,EV3,Light,,29890,Base,,Base Price (trim MSRP),29890,,"Destination $1,495 not included",models/ev3_options.md:32
+2027,EV3,Light,,29890,Exterior color,,Snow White Pearl,445,,,models/ev3_options.md:36
+2027,EV3,Wind,,34990,Base,,Base Price (trim MSRP),34990,,"Destination $1,495 not included",models/ev3_options.md:44
+2027,EV3,Wind,,34990,Powertrain,Drivetrain,AWD,3700,,AWD upgrade over the default FWD/RWD build (per-trim delta); Wind includes the larger Extended Range battery (81.4 kWh) on FWD and AWD; AWD delta is drivetrain only,models/ev3_options.md:43
+2027,EV3,Wind,,34990,Exterior color,,Snow White Pearl,445,,,models/ev3_options.md:49
+2027,EV3,Wind,,34990,Factory package,,Wind Nightfall Package,1500,19-in. Alloy Wheels w/ Gloss Black Finish; Black Exterior Accents & Badging; Exclusive Dark Gray Interior w/ Black Cloth Headliner,"key=name:wind nightfall package; price by drivetrain: FWD $1,500; AWD $1,000; merged from: Wind AWD Nightfall Package, Wind FWD Nightfall Package; auto-added with Gray & Smoky Black SynTex Seat Trim interior; contents as listed for the same package elsewhere in this model (source says same card/contents)",models/ev3_options.md:58
+2027,EV3,Land,,38490,Base,,Base Price (trim MSRP),38490,,"Destination $1,495 not included",models/ev3_options.md:63
+2027,EV3,Land,,38490,Powertrain,Drivetrain,AWD,3200,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/ev3_options.md:63
+2027,EV3,Land,,38490,Exterior color,,Snow White Pearl,445,,,models/ev3_options.md:69
+2027,EV3,GT-Line,,43490,Base,,Base Price (trim MSRP),43490,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/ev3_options.md:79
+2027,EV3,GT-Line,,43490,Exterior color,,Snow White Pearl,445,,,models/ev3_options.md:83
+2027,EV3,GT-Line,,43490,Exterior color,,Frost Blue w/ Black Roof,545,,two-tone roof paint,models/ev3_options.md:84
+2027,EV3,GT-Line,,43490,Exterior color,,Snow White Pearl w/ Black Roof,545,,two-tone roof paint,models/ev3_options.md:85
+2027,EV3,GT,,45890,Base,,Base Price (trim MSRP),45890,,"Destination $1,495 not included; AWD only (included; no FWD/RWD choice)",models/ev3_options.md:93
+2027,EV3,GT,,45890,Exterior color,,Snow White Pearl,445,,,models/ev3_options.md:98
+2026,EV6,Light,,37900,Base,,Base Price (trim MSRP),37900,,"Destination $1,545 not included",models/ev6_options.md:33
+2026,EV6,Light,,37900,Exterior color,,Glacial White Pearl,495,,,models/ev6_options.md:36
+2026,EV6,Light Long Range,,41200,Base,,Base Price (trim MSRP),41200,,"Destination $1,545 not included",models/ev6_options.md:45
+2026,EV6,Light Long Range,,41200,Powertrain,Drivetrain,AWD,4000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/ev6_options.md:44
+2026,EV6,Light Long Range,,41200,Exterior color,,Glacial White Pearl,495,,,models/ev6_options.md:50
+2026,EV6,Wind,,44800,Base,,Base Price (trim MSRP),44800,,"Destination $1,545 not included",models/ev6_options.md:59
+2026,EV6,Wind,,44800,Powertrain,Drivetrain,AWD,4000,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/ev6_options.md:58
+2026,EV6,Wind,,44800,Exterior color,,Glacial White Pearl,495,,,models/ev6_options.md:64
+2026,EV6,Wind,,44800,Factory option,Interior,Saturn Black / Mild Toffee Brown SynTex Seat Trim,195,,paid interior color/material choice; exterior availability not stated (read on Midnight Lake Blue),models/ev6_options.md:68
+2026,EV6,GT-Line,,48700,Base,,Base Price (trim MSRP),48700,,"Destination $1,545 not included",models/ev6_options.md:76
+2026,EV6,GT-Line,,48700,Powertrain,Drivetrain,AWD,4300,,AWD upgrade over the default FWD/RWD build (per-trim delta),models/ev6_options.md:74
+2026,EV6,GT-Line,,48700,Exterior color,,Panthera Metal Matte,695,,matte paint,models/ev6_options.md:80
+2026,EV6,GT-Line,,48700,Exterior color,,Wolf Gray w/ Ebony Black Roof,695,,two-tone roof paint,models/ev6_options.md:81
+2026,EV6,GT-Line,,48700,Exterior color,,Glacial White Pearl,495,,,models/ev6_options.md:82
+2026,EV6,GT-Line,,48700,Exterior color,,Glacial White Pearl w/ Ebony Black Roof,695,,two-tone roof paint,models/ev6_options.md:83
+2026,EV6,GT-Line,,48700,Exterior color,,Ebony Black,495,,,models/ev6_options.md:84
+2026,EV6,GT-Line,,48700,Exterior color,,Nebular Blue,495,,,models/ev6_options.md:85
+2026,EV6,GT-Line,,48700,Factory option,Interior,Saturn Black Suede SynTex w/ Off-White Seat Trim,295,,paid interior color/material choice; exterior availability not stated (read on Nebular Blue),models/ev6_options.md:88
+2026,EV9,Light RWD,,54900,Base,,Base Price (trim MSRP),54900,,"Destination $1,645 not included",models/ev9_options.md:38
+2026,EV9,Light RWD,,54900,Exterior color,,Glacial White Pearl,695,,,models/ev9_options.md:42
+2026,EV9,Light RWD,,54900,Exterior color,,Ebony Black,695,,,models/ev9_options.md:43
+2026,EV9,Light Long Range RWD,,57900,Base,,Base Price (trim MSRP),57900,,"Destination $1,645 not included",models/ev9_options.md:51
+2026,EV9,Light Long Range RWD,,57900,Exterior color,,Glacial White Pearl,695,,,models/ev9_options.md:55
+2026,EV9,Light Long Range RWD,,57900,Exterior color,,Ebony Black,695,,,models/ev9_options.md:56
+2026,EV9,Wind AWD,,63900,Base,,Base Price (trim MSRP),63900,,"Destination $1,645 not included; AWD only (included; no FWD/RWD choice)",models/ev9_options.md:67
+2026,EV9,Wind AWD,,63900,Exterior color,,Glacial White Pearl,695,,,models/ev9_options.md:71
+2026,EV9,Wind AWD,,63900,Exterior color,,Ocean Blue,695,,,models/ev9_options.md:72
+2026,EV9,Wind AWD,,63900,Exterior color,,Ebony Black,695,,,models/ev9_options.md:73
+2026,EV9,Land AWD,,68900,Base,,Base Price (trim MSRP),68900,,"Destination $1,645 not included; AWD only (included; no FWD/RWD choice)",models/ev9_options.md:83
+2026,EV9,Land AWD,,68900,Exterior color,,Glacial White Pearl,695,,,models/ev9_options.md:88
+2026,EV9,Land AWD,,68900,Exterior color,,Ocean Blue,695,,,models/ev9_options.md:89
+2026,EV9,Land AWD,,68900,Exterior color,,Ebony Black,695,,,models/ev9_options.md:90
+2026,EV9,Land AWD,,68900,Factory package,,Nightfall Edition Package,1500,"20-in. Nightfall Exclusive Alloy Wheels w/ Black Finish; Boost Feature: Front & Rear Skid Plates, Gloss Black",key=name:nightfall edition package; auto-added with Road Rider Brown paint,models/ev9_options.md:97
+2026,EV9,GT-Line AWD,,71900,Base,,Base Price (trim MSRP),71900,,"Destination $1,645 not included; AWD only (included; no FWD/RWD choice)",models/ev9_options.md:103
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Glacial White Pearl,695,,,models/ev9_options.md:106
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Ocean Blue,695,,,models/ev9_options.md:108
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Panthera Metal Matte,995,,matte paint,models/ev9_options.md:109
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Ebony Black,695,,,models/ev9_options.md:110
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Wolf Gray w/ Ebony Black,995,,two-tone roof paint,models/ev9_options.md:111
+2026,EV9,GT-Line AWD,,71900,Exterior color,,Glacial White Pearl w/ Ebony Black,995,,two-tone roof paint,models/ev9_options.md:112
+2026,EV9,GT-Line AWD,,71900,Factory package,,Relaxation Captain's Chair Package,2000,"6-Passenger Seating; 2nd-row, 8-way Power Lounge Seats w/ Relaxation Mode & Comfort Headrest & Leg Extension",key=name:relaxation captain s chair package,models/ev9_options.md:117
+2026,EV9,GT-Line AWD,,71900,Factory option,Interior,Black & Brown GT-Line SynTex Seat Trim,495,,paid interior color/material choice; exterior availability not stated (read on Panthera Metal),models/ev9_options.md:115
