@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createStableCache } from '../src/stableCache.js';
+import { createStableCache, builtForOtherBuild } from '../src/stableCache.js';
 
 const quiet = { log() {}, error() {} };
 const tick = () => new Promise((r) => setImmediate(r));
@@ -81,5 +81,71 @@ describe('createStableCache — stale-while-revalidate', () => {
     const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'stable-')), 'cache.json');
     fs.writeFileSync(file, '{not json');
     assert.equal(createStableCache({ ttlMs: 1, filePath: file, log: quiet }).stats().entries, 0);
+  });
+});
+
+describe('createStableCache — entries built from an older facet build', () => {
+  const OLD = '2026-10-10T15:45:46.355Z', NEW = '2026-10-11T00:53:33.974Z';
+  const make = (extra = {}) => {
+    let build = OLD, t = 0;
+    const c = createStableCache({ ttlMs: 10 * 60_000, now: () => t, log: quiet, isOutdated: (v) => builtForOtherBuild(v, build), ...extra });
+    return { c, setBuild: (b) => { build = b; }, setNow: (n) => { t = n; } };
+  };
+
+  it('a fresh entry from the CURRENT build is served as before, without recomputing', async () => {
+    const { c } = make(); let calls = 0;
+    const compute = async () => ({ countsAsOf: OLD, n: ++calls });
+    await c.get('k', compute);
+    assert.equal((await c.get('k', compute)).n, 1);
+    assert.equal(calls, 1);
+  });
+
+  it('after a rebuild, an entry from the old build is expired at once (inside the ttl) and the caller gets the refreshed value', async () => {
+    const { c, setBuild } = make(); let build = OLD;
+    const compute = async () => ({ countsAsOf: build, junk: build === OLD });
+    assert.equal((await c.get('k', compute)).junk, true);
+    setBuild(NEW); build = NEW; // the rebuild finished; the entry is only seconds old
+    const v = await c.get('k', compute);
+    assert.deepEqual(v, { countsAsOf: NEW, junk: false });
+    assert.deepEqual(await c.get('k', async () => { throw new Error('should be cached now'); }), { countsAsOf: NEW, junk: false });
+  });
+
+  it('a refresh slower than outdatedWaitMs does not hold the caller: the old copy is served, the refresh still lands', async () => {
+    const { c, setBuild } = make({ outdatedWaitMs: 20 }); let release; let build = OLD;
+    const compute = () => (build === OLD ? Promise.resolve({ countsAsOf: OLD }) : new Promise((r) => { release = () => r({ countsAsOf: NEW }); }));
+    await c.get('k', compute);
+    setBuild(NEW); build = NEW;
+    assert.equal((await c.get('k', compute)).countsAsOf, OLD, 'served the old copy after the short wait');
+    release(); await tick(); await tick();
+    assert.equal((await c.get('k', compute)).countsAsOf, NEW);
+  });
+
+  it('a failing refresh keeps serving the old copy', async () => {
+    const { c, setBuild } = make();
+    await c.get('k', async () => ({ countsAsOf: OLD }));
+    setBuild(NEW);
+    assert.equal((await c.get('k', async () => { throw new Error('db timeout'); })).countsAsOf, OLD);
+  });
+
+  it('payloads without a countsAsOf stamp, and an unknown current build, are never outdated', () => {
+    assert.equal(builtForOtherBuild({ options: [] }, NEW), false);
+    assert.equal(builtForOtherBuild(null, NEW), false);
+    assert.equal(builtForOtherBuild({ countsAsOf: OLD }, null), false);
+    assert.equal(builtForOtherBuild({ countsAsOf: 'garbage' }, NEW), false);
+  });
+
+  it('compares instants, not spellings: a Date in memory equals the ISO string loaded after a restart', () => {
+    assert.equal(builtForOtherBuild({ countsAsOf: NEW }, new Date(NEW)), false);
+    assert.equal(builtForOtherBuild({ countsAsOf: new Date(NEW) }, NEW), false);
+    assert.equal(builtForOtherBuild({ countsAsOf: OLD }, new Date(NEW)), true);
+  });
+
+  it('without isOutdated nothing changes (the other users of the cache)', async () => {
+    let t = 0, calls = 0;
+    const c = createStableCache({ ttlMs: 1000, now: () => t, log: quiet });
+    const compute = async () => ({ countsAsOf: calls++ ? NEW : OLD });
+    await c.get('k', compute); t = 500;
+    assert.equal((await c.get('k', compute)).countsAsOf, OLD);
+    assert.equal(calls, 1);
   });
 });
