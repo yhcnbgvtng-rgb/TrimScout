@@ -10,7 +10,7 @@
 //   rules      "requires ...", "not available with ...", "only with ...", "deletes ..." notes are combos GM will not allow: stored under the option as rules
 //              (with the option keys they name), never as options.
 //   not options  Base, price <= 0 / blank, standard / Included, subscriptions, accessories (belt and braces: the CSVs hold none), features inside a package.
-//   Corvette   lean cut (Paul): only packages, paints, wheels, paid interior lines and performance items (Paul 2026-10-11: the paid-sticker rule covers interior); the $1,000 threshold (CORVETTE_MIN_PRICE) applies to performance items only. Everything else is dropped.
+//   Corvette   no lean cut (Paul 2026-10-11): every paid Factory row stays, in every subcategory (stripes, seats, roof, interior, wheels, performance ...), like any other model.
 //   no trusted trim -> no options (enforced at match time in factoryOptionAllowlist.js). Makes and model years without a policy are untouched.
 import fs from "node:fs";
 import path from "node:path";
@@ -31,10 +31,6 @@ const EXPECTED_MODELS = {
   buick: ["Enclave", "Encore GX", "Envision", "Envista"],
 };
 const MAKE = { chevrolet: "chevrolet", gmc: "gmc", buick: "buick" };
-
-// Corvette lean cut (Paul): packages, paints, wheels, paid interior lines and performance items. Only performance items must be priced over this.
-export const CORVETTE_MIN_PRICE = 1000;
-const CORVETTE_KEEP_SUB = new Set(["Wheels", "Performance"]);
 
 // Trim words that describe the body / drivetrain, not the trim. Cab, bed and drivetrain are configuration choices; status words say where the car is in
 // its life. No trim aliases are approved for GM: a trim the CSV does not list (e.g. an EV trim without its range suffix) is untrusted -> no options.
@@ -81,11 +77,6 @@ function classify(r) {
   else if (r.category === "Exterior color") kind = "paint";
   else if (r.category === "Powertrain") kind = "powertrain";
   else return { kind: null, drop: `category "${r.category}"` };
-  if (r.model === "Corvette") { // lean cut: packages, paints, wheels and performance items over the threshold, nothing else
-    const group = kind === "package" ? "package" : kind === "paint" ? "paint" : kind === "option" && r.subcategory === "Wheels" ? "wheel" : kind === "option" && r.subcategory === "Interior" ? "interior" : kind === "option" && r.subcategory === "Performance" ? "performance" : null;
-    if (!group) return { kind: null, drop: `Corvette lean cut: ${kind}${r.subcategory ? ` / ${r.subcategory}` : ""} is not a package, paint, wheel, interior or performance item` };
-    if (group === "performance" && !(price(r) > CORVETTE_MIN_PRICE)) return { kind: null, drop: `Corvette lean cut: ${group} item at or under $${CORVETTE_MIN_PRICE}` };
-  }
   return { kind };
 }
 
@@ -196,13 +187,12 @@ for (const brand of BRANDS) {
   for (const m of EXPECTED_MODELS[brand]) if (!seenModels.has(m)) throw new Error(`${brand} CSV is missing the expected model "${m}"`);
 
   const policies = {};
-  const report = { models: [], conflicts: [], defaultIncluded: [], drops: {}, rulesCount: 0, codeKeys: [], corvetteDropped: [] };
+  const report = { models: [], conflicts: [], defaultIncluded: [], drops: {}, rulesCount: 0, codeKeys: [] };
   for (const [g, rows] of [...byModel].sort()) {
     const [year, model] = g.split("|");
     const cat = buildCatalog(rows);
     report.conflicts.push(...cat.conflicts); report.defaultIncluded.push(...cat.defaultIncluded);
     for (const [k, v] of Object.entries(cat.drops)) report.drops[k] = (report.drops[k] || 0) + v;
-    if (model === "Corvette") report.corvetteDropped.push(...cat.dropRows.filter((d) => d.drop.startsWith("Corvette")));
     policies[`${MAKE[brand]}|${slug(model)}|${year}`] = {
       source: `docs/gm-2026-2027/${brand}_lineup_options_by_trim.csv (${year} ${model})`,
       models: [slug(model)],
@@ -242,12 +232,7 @@ for (const brand of BRANDS) {
   md.push(`## Keys that are GM RPO codes (${report.codeKeys.length})`, "", ...report.codeKeys.map((x) => `- ${x}`), "", "Every other entry is keyed on its full normalized name.", "");
   md.push("## Judgment calls", "", "- `4WD (vs 2WD)` / `AWD (vs FWD)` rows are CSV \"Powertrain\" upgrades with a price, so they are kept as powertrain options (a feed line `4WD` / `AWD` matches). They are drivetrain choices as much as upgrades; if Paul wants them treated as configuration (as Ford's 4x4 is), drop the Drivetrain subcategory in `classify`.");
   md.push("- Default-selected / default-included paid items (the CSV notes `default-selected paid paint`, `default-included`, `auto-included`) are kept at their price: the trim's base price leaves them out. Rows:", "", ...(report.defaultIncluded.length ? report.defaultIncluded.map((x) => `  - ${x}`) : ["  - none"]), "");
-  if (brand === "chevrolet") {
-    md.push(`## Corvette lean cut (Paul)`, "", `Kept only packages, paints, wheels, paid interior lines and performance items; the **$${CORVETTE_MIN_PRICE} threshold applies to performance items only** (every priced package, paint, wheel and interior line stays). Dropped ${report.corvetteDropped.length} priced rows:`, "");
-    const by = {};
-    for (const d of report.corvetteDropped) by[d.drop] = (by[d.drop] || 0) + 1;
-    md.push(...Object.entries(by).sort().map(([k, v]) => `- ${k}: ${v}`), "");
-  }
+  if (brand === "chevrolet") md.push("## Corvette (Paul)", "", "No lean cut: every paid Factory row (packages, options in any subcategory, paints, wheels, performance) is kept, priced per trim. Only \$0 rows, accessories, dealer add-ons and subscriptions are dropped, as for every other model.", "");
   md.push("## Factory editions kept (Paul)", "", "- `ZR2 Bison Edition` (Silverado 1500, Silverado 2500 HD, Colorado) and `AT4X AEV Edition` (GMC Canyon, Sierra 1500, Sierra 2500 HD) are kept as factory packages, AEV content included, priced per trim.", "");
   if (report.conflicts.length) md.push("## Duplicate rows inside one trim (first kept)", "", ...report.conflicts.map((c) => `- ${c}`), "");
   built[brand] = { jsonText: `${JSON.stringify(policies, null, 2)}\n`, mdText: `${md.join("\n")}\n`, totals };
