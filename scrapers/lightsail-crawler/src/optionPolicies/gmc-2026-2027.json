@@ -350,6 +350,17 @@
               "^black nameplates$"
             ]
           },
+          "at4x aev edition": {
+            "label": "AT4X AEV Edition",
+            "kind": "package",
+            "price": 10100,
+            "aliases": [],
+            "features": [
+              "^6 350 lbs gvwr$",
+              "^aev fuel tank skid plate$",
+              "^bed mounted vertical spare tire carrier$"
+            ]
+          },
           "17 beadlock capable wheels with grazen metallic decorative ring": {
             "label": "17\" Beadlock Capable Wheels with Grazen Metallic Decorative Ring",
             "kind": "option",
@@ -2180,6 +2191,17 @@
             "price": 375,
             "aliases": [
               "gooseneck hitch pkg"
+            ]
+          },
+          "at4x aev edition": {
+            "label": "AT4X AEV Edition",
+            "kind": "package",
+            "price": 9390,
+            "aliases": [],
+            "features": [
+              "^aev brand floor liners$",
+              "^stamped steel front approach skid plate$",
+              "^stamped steel transfer case skid plate$"
             ]
           },
           "gooseneck 5th wheel prep package": {
@@ -6121,6 +6143,17 @@
             "kind": "paint",
             "price": 695,
             "aliases": []
+          },
+          "at4x aev edition": {
+            "label": "AT4X AEV Edition",
+            "kind": "package",
+            "price": 6640,
+            "aliases": [],
+            "features": [
+              "^front skid plate$",
+              "^fuel tank skid plate$",
+              "^rear differential skid plate not marked$"
+            ]
           },
           "18 12 spoke high gloss black aluminum wheels with laser etching and gmc center c": {
             "label": "18\" 12-spoke High Gloss Black aluminum wheels with laser etching and GMC center cap",

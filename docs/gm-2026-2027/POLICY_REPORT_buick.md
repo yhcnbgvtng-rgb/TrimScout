@@ -58,7 +58,7 @@ Every other entry is keyed on its full normalized name.
   - 2027 Enclave Sport Touring: AWD (vs FWD) ($2000)
   - 2027 Enclave Avenir: AWD (vs FWD) ($2000)
 
-## Not in the CSVs (flagged)
+## Factory editions kept (Paul)
 
-- No `ZR2 Bison` rows (Silverado 1500, Silverado 2500 HD, Colorado) and no `AT4X AEV` rows (GMC Canyon, Sierra 1500, Sierra 2500 HD) exist in these CSV files, so the policies contain no Bison or AEV edition package. Brief says keep them as factory packages; they need name, trim, price and RPO code from Paul (or a corrected CSV) before they can be added.
+- `ZR2 Bison Edition` (Silverado 1500, Silverado 2500 HD, Colorado) and `AT4X AEV Edition` (GMC Canyon, Sierra 1500, Sierra 2500 HD) are kept as factory packages, AEV content included, priced per trim.
 

@@ -104,6 +104,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Silverado 1500,ZR2,,77200,Base,,Standard Vehicle Price,77200,,"Destination Freight Charge $2,795 not included",models/silverado1500_options.md:309
 2027,Silverado 1500,ZR2,,77200,Powertrain,Engine,6.6L V8 gas,2505,,,models/silverado1500_options.md:311
 2027,Silverado 1500,ZR2,,77200,Exterior color,,Trillium Green Metallic,395,,,models/silverado1500_options.md:312
+2027,Silverado 1500,ZR2,,77200,Factory package,,ZR2 Bison Edition,8020,"AEV front underbody skid plate; AEV front skid plate (stamped steel); AEV transfer case skid plate (stamped steel); AEV rear differential skid plate (hot-stamped Boron steel); AEV fuel tank skid plate (hot-stamped Boron steel); AEV underbody shield (hot-stamped Boron steel); AEV front bumper (stamped-steel high approach, heavy-duty cast recovery points, closed-type recovery hooks in Silver Tex) and AEV rear bumper (stamped steel, heavy-duty cast recovery points, two rear mounted D-ring recovery hooks); 18"" AEV aluminum spare wheel (18"" x 8.5"" aluminum spare); 18"" High Gloss Black Aluminum Beadlock Capable Wheels with Deep Void Matte Metallic decor; rocker protection; AEV branded floor liners",factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:zr2 bison edition,models/silverado1500_options.md:324
 2027,Silverado 1500,ZR2,,77200,Factory option,Wheels,"18"" High Gloss Black Aluminum Beadlock Capable Wheels",770,,,models/silverado1500_options.md:313
 2027,Silverado 1500,ZR2,,77200,Factory option,Wheels,Red Decorative Rings for Beadlock capable wheels,1650,,,models/silverado1500_options.md:313
 2027,Silverado 1500,ZR2,,77200,Factory option,Wheels,Silver Decorative Rings for Beadlock capable wheels,1650,,,models/silverado1500_options.md:313
@@ -165,6 +166,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Colorado,ZR2,,50700,Exterior color,,Radiant Red Tintcoat,495,,,models/colorado_options.md:335
 2026,Colorado,ZR2,,50700,Factory package,,Technology Package,1450,Adaptive Cruise Control; Rear Pedestrian Alert; Bose Premium Sound System,key=name:technology package,models/colorado_options.md:351
 2026,Colorado,ZR2,,50700,Factory package,,Midnight Edition,4650,"17"" LT285/70R17 blackwall 33"" OD MT tires; 17"" High gloss Black aluminum wheels; Black nameplates",key=name:midnight edition,models/colorado_options.md:356
+2026,Colorado,ZR2,,50700,Factory package,,ZR2 Bison Edition,11700,"6350 lbs. GVWR; Bed-Mounted Vertical Spare Tire Carrier; Fuel Tank Skid Plate, AEV hot-stamped Boron steel",factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:zr2 bison edition,models/colorado_options.md:357
 2026,Colorado,ZR2,,50700,Factory option,Wheels,"17"" aluminum wheels",2250,,,models/colorado_options.md:342
 2026,Colorado,ZR2,,50700,Factory option,Wheels,"17"" Beadlock capable wheels with Tech Bronze decorative ring",3695,,,models/colorado_options.md:343
 2026,Colorado,ZR2,,50700,Factory option,Performance,Multimatic Jounce Control Dampers,2750,,,models/colorado_options.md:359
@@ -465,6 +467,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Silverado 2500 HD,ZR2,,73500,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/silverado2500hd_options.md:218
 2026,Silverado 2500 HD,ZR2,,73500,Factory package,,Gooseneck / 5th Wheel Prep Package,545,,key=name:gooseneck 5th wheel prep package,models/silverado2500hd_options.md:220
 2026,Silverado 2500 HD,ZR2,,73500,Factory package,,Dark Essentials Package,595,Black Silverado 2500 HD and trim nameplates (card text only),key=name:dark essentials package,models/silverado2500hd_options.md:221
+2026,Silverado 2500 HD,ZR2,,73500,Factory package,,ZR2 Bison Edition,8875,"AEV brand floor liners; front skid plate (AEV stamped steel); transfer case skid plate (AEV stamped steel). Other AEV items listed on Options tab (no price): underbody skid plate, 18"" AEV spare, AEV front and rear bumpers",factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:zr2 bison edition,models/silverado2500hd_options.md:225
 2026,Silverado 2500 HD,ZR2,,73500,Factory option,Roof,Power sunroof,995,,,models/silverado2500hd_options.md:228
 2026,Silverado 2500 HD,ZR2,,73500,Factory option,Performance,Engine block heater,100,,,models/silverado2500hd_options.md:229
 2026,Silverado 2500 HD,ZR2,,73500,Factory option,Interior,Multi-Flex Audio System by Kicker,975,,,models/silverado2500hd_options.md:231
@@ -954,12 +957,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:82
 2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:85
 2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:85
-2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:88
-2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:88
 2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:88
 2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:88
-2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:88
-2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:88
 2027,Corvette,Stingray 2LT,,78400,Base,,Standard Vehicle Price,78400,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:99
 2027,Corvette,Stingray 2LT,,78400,Exterior color,,Roswell Green Metallic,500,,listed as identical to Stingray 1LT (line 101),models/corvette_options.md:53
 2027,Corvette,Stingray 2LT,,78400,Exterior color,,Admiral Blue Metallic,500,,listed as identical to Stingray 1LT (line 101),models/corvette_options.md:53
@@ -988,13 +987,9 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:127
-2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:130
-2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:130
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:130
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:130
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:130
-2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:130
-2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:130
 2027,Corvette,Stingray 3LT,,83050,Base,,Standard Vehicle Price,83050,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:141
 2027,Corvette,Stingray 3LT,,83050,Exterior color,,Roswell Green Metallic,500,,,models/corvette_options.md:143
 2027,Corvette,Stingray 3LT,,83050,Exterior color,,Admiral Blue Metallic,500,,,models/corvette_options.md:143
@@ -1023,13 +1018,9 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:168
-2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:171
-2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:171
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:171
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:171
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:171
-2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:171
-2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:171
 2027,Corvette,Z06 1LZ,,119200,Base,,Standard Vehicle Price,119200,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$995) excluded (paint name not shown in source; it is one of the paint rows at that price); auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:179
 2027,Corvette,Z06 1LZ,,119200,Exterior color,,Roswell Green Metallic,500,,,models/corvette_options.md:181
 2027,Corvette,Z06 1LZ,,119200,Exterior color,,Admiral Blue Metallic,500,,,models/corvette_options.md:181
@@ -1069,10 +1060,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Visible carbon fiber ground effects,4495,,,models/corvette_options.md:215
 2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:217
 2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:217
-2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:220
-2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:220
-2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:220
-2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Engine intake in Red,995,,,models/corvette_options.md:220
 2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Performance Brembo carbon ceramic antilock brakes,9000,,,models/corvette_options.md:220
 2027,Corvette,Z06 2LZ,,128100,Base,,Standard Vehicle Price,128100,,"Destination Freight Charge $2,495 not included; auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:230
 2027,Corvette,Z06 2LZ,,128100,Exterior color,,Roswell Green Metallic,500,,listed as identical to Z06 1LZ (line 232),models/corvette_options.md:181
@@ -1115,10 +1102,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:249
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:249
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:249
-2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:252
-2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:252
-2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:252
-2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Engine intake in Red,995,,,models/corvette_options.md:252
 2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:252
 2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Performance Brembo carbon ceramic antilock brakes,9000,,,models/corvette_options.md:252
 2027,Corvette,Z06 3LZ,,132750,Base,,Standard Vehicle Price,132750,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$995) excluded (paint name not shown in source; it is one of the paint rows at that price); auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:261
@@ -1164,10 +1147,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber display hood,795,,,models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:287
-2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:291
-2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:291
-2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:291
-2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Engine intake in Red,995,,,models/corvette_options.md:291
 2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:291
 2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Performance Brembo carbon ceramic antilock brakes,9000,,,models/corvette_options.md:291
 2027,Corvette,Grand Sport 1LT,,86300,Base,,Standard Vehicle Price,86300,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$500) excluded (paint name not shown in source; it is one of the paint rows at that price); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:300
@@ -1204,11 +1183,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Visible CF ground effects,4495,,,models/corvette_options.md:336
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:339
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:339
-2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:342
-2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:342
-2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:342
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:342
-2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:342
 2027,Corvette,Grand Sport 2LT,,93400,Base,,Standard Vehicle Price,93400,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:351
 2027,Corvette,Grand Sport 2LT,,93400,Exterior color,,Roswell Green Metallic,500,,listed as identical to Grand Sport 1LT (line 353),models/corvette_options.md:302
 2027,Corvette,Grand Sport 2LT,,93400,Exterior color,,Admiral Blue Metallic,500,,listed as identical to Grand Sport 1LT (line 353),models/corvette_options.md:302
@@ -1245,12 +1220,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:371
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:371
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:371
-2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:374
-2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:374
-2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:374
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:374
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:374
-2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:374
 2027,Corvette,Grand Sport 3LT,,98050,Base,,Standard Vehicle Price,98050,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$500) excluded (paint name not shown in source; it is one of the paint rows at that price); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:383
 2027,Corvette,Grand Sport 3LT,,98050,Exterior color,,Roswell Green Metallic,500,,listed as identical to Grand Sport 1LT (line 385),models/corvette_options.md:302
 2027,Corvette,Grand Sport 3LT,,98050,Exterior color,,Admiral Blue Metallic,500,,listed as identical to Grand Sport 1LT (line 385),models/corvette_options.md:302
@@ -1288,12 +1259,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:407
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:407
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:407
-2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile; listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
-2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Engine lighting,195,,listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
-2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Bright center quad exposed exhaust tips,395,,listed as identical to Grand Sport 2LT (line 410); flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:374
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Quad center exit exhaust,1995,,listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Front lift with memory,2995,,listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
-2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color); listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
 2027,Corvette,ZR1 1LZ,,195000,Base,,Standard Vehicle Price,195000,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$995) excluded (paint name not shown in source; it is one of the paint rows at that price); auto-included default options $3,000 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:418
 2027,Corvette,ZR1 1LZ,,195000,Exterior color,,Roswell Green Metallic,500,,,models/corvette_options.md:420
 2027,Corvette,ZR1 1LZ,,195000,Exterior color,,Admiral Blue Metallic,500,,,models/corvette_options.md:420
@@ -1314,8 +1281,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,,models/corvette_options.md:449
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:451
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:451
-2027,Corvette,ZR1 1LZ,,195000,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:454
-2027,Corvette,ZR1 1LZ,,195000,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:454
 2027,Corvette,ZR1 3LZ,,206000,Base,,Standard Vehicle Price,206000,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$995) excluded (paint name not shown in source; it is one of the paint rows at that price); auto-included default options $3,000 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:463
 2027,Corvette,ZR1 3LZ,,206000,Exterior color,,Roswell Green Metallic,500,,listed as identical to ZR1 1LZ (line 465),models/corvette_options.md:420
 2027,Corvette,ZR1 3LZ,,206000,Exterior color,,Admiral Blue Metallic,500,,listed as identical to ZR1 1LZ (line 465),models/corvette_options.md:420
@@ -1339,8 +1304,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:487
-2027,Corvette,ZR1 3LZ,,206000,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:490
-2027,Corvette,ZR1 3LZ,,206000,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:490
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:490
 2027,Corvette,ZR1X 1LZ,,225200,Base,,Standard Vehicle Price,225200,,"Destination Freight Charge $2,495 not included; auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:499
 2027,Corvette,ZR1X 1LZ,,225200,Exterior color,,Roswell Green Metallic,500,,listed as identical to ZR1 1LZ (line 501),models/corvette_options.md:420
@@ -1362,8 +1325,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,,models/corvette_options.md:528
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:530
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:530
-2027,Corvette,ZR1X 1LZ,,225200,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:533
-2027,Corvette,ZR1X 1LZ,,225200,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:533
 2027,Corvette,ZR1X 3LZ,,236200,Base,,Standard Vehicle Price,236200,,"Destination Freight Charge $2,495 not included; auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:542
 2027,Corvette,ZR1X 3LZ,,236200,Exterior color,,Roswell Green Metallic,500,,listed as identical to ZR1X 1LZ (line 544),models/corvette_options.md:420
 2027,Corvette,ZR1X 3LZ,,236200,Exterior color,,Admiral Blue Metallic,500,,listed as identical to ZR1X 1LZ (line 544),models/corvette_options.md:420
@@ -1387,8 +1348,6 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:562
-2027,Corvette,ZR1X 3LZ,,236200,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:565
-2027,Corvette,ZR1X 3LZ,,236200,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:565
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:565
 2027,Corvette,Grand Sport X 1LT,,110000,Base,,Standard Vehicle Price,110000,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:574
 2027,Corvette,Grand Sport X 1LT,,110000,Exterior color,,Roswell Green,500,,,models/corvette_options.md:576
@@ -1423,11 +1382,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Visible carbon fiber ground effects,4495,,,models/corvette_options.md:604
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:606
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:606
-2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:609
-2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:609
-2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:609
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:609
-2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:609
 2027,Corvette,Grand Sport X 2LT,,115500,Base,,Standard Vehicle Price,115500,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:618
 2027,Corvette,Grand Sport X 2LT,,115500,Exterior color,,Roswell Green,500,,listed as identical to Grand Sport X 1LT (line 620),models/corvette_options.md:576
 2027,Corvette,Grand Sport X 2LT,,115500,Exterior color,,Admiral Blue,500,,listed as identical to Grand Sport X 1LT (line 620),models/corvette_options.md:576
@@ -1463,12 +1418,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:637
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:637
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:637
-2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile,models/corvette_options.md:640
-2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Engine lighting,195,,,models/corvette_options.md:640
-2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Bright center quad exposed exhaust tips,395,,flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:640
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:640
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:640
-2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color),models/corvette_options.md:640
 2027,Corvette,Grand Sport X 3LT,,120650,Base,,Standard Vehicle Price,120650,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:649
 2027,Corvette,Grand Sport X 3LT,,120650,Exterior color,,Roswell Green,500,,listed as identical to Grand Sport X 1LT (line 651),models/corvette_options.md:576
 2027,Corvette,Grand Sport X 3LT,,120650,Exterior color,,Admiral Blue,500,,listed as identical to Grand Sport X 1LT (line 651),models/corvette_options.md:576
@@ -1499,12 +1450,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:668
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:668
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:668
-2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Battery (12-volt) Protection Package,100,,non-accessory factory tile; listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
-2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Engine lighting,195,,listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
-2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Bright center quad exposed exhaust tips,395,,listed as identical to Grand Sport X 2LT (line 670); flag: listed as a non-accessory factory tile here (exhaust tips are dropped as accessories on other models),models/corvette_options.md:640
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Quad center exit exhaust,1995,,listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Front lift with memory,2995,,listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
-2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,6.7L engine cover,695,"3 colors: Blue, Edge Red, Sterling Silver-painted",engine cover colors collapsed into one row (same price per color); listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
 2026,Express Cargo,WT,,42200,Base,,Standard Vehicle Price,42200,,"Destination Freight Charge $2,395 not included; configuration: wheelbase/series/GVWR (2500/3500, Regular/Extended) are configuration, not options; Base is the 2500 Regular Wheelbase default build; 2500 Extended WB +$1,900, 3500 Regular WB +$3,950, 3500 Extended WB +$4,750 (picker deltas); default Driver and front passenger visors $10 (Summary Options) excluded, not a row",models/expresscargo_options.md:37
 2026,Express Cargo,WT,,42200,Powertrain,Engine,"6.6L V8 Gas, 8-speed heavy-duty automatic",1970,,,models/expresscargo_options.md:40
 2026,Express Cargo,WT,,42200,Exterior color,,Silver Ice Metallic,495,,,models/expresscargo_options.md:41

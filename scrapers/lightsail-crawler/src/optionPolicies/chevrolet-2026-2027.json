@@ -886,6 +886,17 @@
               "^black nameplates$"
             ]
           },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 11700,
+            "aliases": [],
+            "features": [
+              "^6350 lbs gvwr$",
+              "^bed mounted vertical spare tire carrier$",
+              "^fuel tank skid plate aev hot stamped boron steel$"
+            ]
+          },
           "17 aluminum wheels": {
             "label": "17\" aluminum wheels",
             "kind": "option",
@@ -2601,6 +2612,16 @@
             ],
             "features": [
               "^black silverado 2500 hd and trim nameplates$"
+            ]
+          },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 8875,
+            "aliases": [],
+            "features": [
+              "^aev brand floor liners$",
+              "^front skid plate$"
             ]
           },
           "power sunroof": {
@@ -5601,6 +5622,36 @@
       "stingray 1lt": {
         "label": "Stingray 1LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "z51 performance package": {
             "label": "Z51 Performance Package",
             "kind": "package",
@@ -5636,6 +5687,12 @@
             "label": "10-spoke Gloss Black forged",
             "kind": "option",
             "price": 1095,
+            "aliases": []
+          },
+          "5 split spoke satin graphite machined edge forged": {
+            "label": "5-split-spoke Satin Graphite machined edge forged",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "20 spoke midnight gray w red stripe forged": {
@@ -5667,6 +5724,36 @@
       "stingray 2lt": {
         "label": "Stingray 2LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "z51 performance package": {
             "label": "Z51 Performance Package",
             "kind": "package",
@@ -5702,6 +5789,12 @@
             "label": "10-spoke Gloss Black forged",
             "kind": "option",
             "price": 1095,
+            "aliases": []
+          },
+          "5 split spoke satin graphite machined edge forged": {
+            "label": "5-split-spoke Satin Graphite machined edge forged",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "20 spoke midnight gray w red stripe forged": {
@@ -5739,6 +5832,36 @@
       "stingray 3lt": {
         "label": "Stingray 3LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "z51 performance package": {
             "label": "Z51 Performance Package",
             "kind": "package",
@@ -5776,6 +5899,12 @@
             "price": 1095,
             "aliases": []
           },
+          "5 split spoke satin graphite machined edge forged": {
+            "label": "5-split-spoke Satin Graphite machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
           "20 spoke midnight gray w red stripe forged": {
             "label": "20-spoke Midnight Gray w/ Red stripe forged",
             "kind": "option",
@@ -5811,6 +5940,36 @@
       "z06 1lz": {
         "label": "Z06 1LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -5819,6 +5978,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -5885,6 +6045,24 @@
             "aliases": [
               "z07 visible carbon aero and wheel pkg"
             ]
+          },
+          "10 spoke pearl nickel forged": {
+            "label": "10-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "spider design black forged": {
             "label": "Spider-design Black forged",
@@ -5945,6 +6123,36 @@
       "z06 2lz": {
         "label": "Z06 2LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -5953,6 +6161,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6019,6 +6228,24 @@
             "aliases": [
               "z07 visible carbon aero and wheel pkg"
             ]
+          },
+          "10 spoke pearl nickel forged": {
+            "label": "10-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "spider design black forged": {
             "label": "Spider-design Black forged",
@@ -6085,6 +6312,36 @@
       "z06 3lz": {
         "label": "Z06 3LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6093,6 +6350,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6156,6 +6414,24 @@
             "aliases": [
               "z07 visible carbon aero and wheel pkg"
             ]
+          },
+          "10 spoke pearl nickel forged": {
+            "label": "10-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "spider design black forged": {
             "label": "Spider-design Black forged",
@@ -6222,6 +6498,36 @@
       "grand sport 1lt": {
         "label": "Grand Sport 1LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6230,6 +6536,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6274,6 +6581,18 @@
             "features": [
               "^performance brembo carbon ceramic antilock brakes$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -6334,6 +6653,36 @@
       "grand sport 2lt": {
         "label": "Grand Sport 2LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6342,6 +6691,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6386,6 +6736,18 @@
             "features": [
               "^performance brembo carbon ceramic antilock brakes$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -6452,6 +6814,36 @@
       "grand sport 3lt": {
         "label": "Grand Sport 3LT",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6460,6 +6852,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6514,6 +6907,18 @@
               "^napa leather with perforated inserts$",
               "^santorini blue dipped with torch red accents$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -6580,6 +6985,36 @@
       "zr1 1lz": {
         "label": "ZR1 1LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "ztk track performance package": {
             "label": "ZTK Track Performance Package",
             "kind": "package",
@@ -6632,6 +7067,36 @@
       "zr1 3lz": {
         "label": "ZR1 3LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "ztk track performance package": {
             "label": "ZTK Track Performance Package",
             "kind": "package",
@@ -6690,6 +7155,36 @@
       "zr1x 1lz": {
         "label": "ZR1X 1LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "ztk track performance package": {
             "label": "ZTK Track Performance Package",
             "kind": "package",
@@ -6741,6 +7236,36 @@
       "zr1x 3lz": {
         "label": "ZR1X 3LZ",
         "options": {
+          "roswell green metallic": {
+            "label": "Roswell Green Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue metallic": {
+            "label": "Admiral Blue Metallic",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat metallic": {
+            "label": "Competition Yellow Tintcoat Metallic",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist metallic tintcoat": {
+            "label": "Red Mist Metallic Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
           "ztk track performance package": {
             "label": "ZTK Track Performance Package",
             "kind": "package",
@@ -6798,6 +7323,47 @@
       "grand sport x 1lt": {
         "label": "Grand Sport X 1LT",
         "options": {
+          "roswell green": {
+            "label": "Roswell Green",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue": {
+            "label": "Admiral Blue",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat": {
+            "label": "Competition Yellow Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist tintcoat": {
+            "label": "Red Mist Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sport performance package": {
+            "label": "Sport Performance Package",
+            "kind": "package",
+            "price": 500,
+            "aliases": [
+              "sport performance pkg"
+            ],
+            "features": [
+              "^michelin pilot sport 4s 275 30zr20 front 345 25zr21 rear run flat$"
+            ]
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6806,8 +7372,21 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -6868,6 +7447,47 @@
       "grand sport x 2lt": {
         "label": "Grand Sport X 2LT",
         "options": {
+          "roswell green": {
+            "label": "Roswell Green",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue": {
+            "label": "Admiral Blue",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat": {
+            "label": "Competition Yellow Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist tintcoat": {
+            "label": "Red Mist Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sport performance package": {
+            "label": "Sport Performance Package",
+            "kind": "package",
+            "price": 500,
+            "aliases": [
+              "sport performance pkg"
+            ],
+            "features": [
+              "^michelin pilot sport 4s 275 30zr20 front 345 25zr21 rear run flat$"
+            ]
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6876,8 +7496,21 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -6944,6 +7577,47 @@
       "grand sport x 3lt": {
         "label": "Grand Sport X 3LT",
         "options": {
+          "roswell green": {
+            "label": "Roswell Green",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "admiral blue": {
+            "label": "Admiral Blue",
+            "kind": "paint",
+            "price": 500,
+            "aliases": []
+          },
+          "competition yellow tintcoat": {
+            "label": "Competition Yellow Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sebring orange tintcoat": {
+            "label": "Sebring Orange Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "red mist tintcoat": {
+            "label": "Red Mist Tintcoat",
+            "kind": "paint",
+            "price": 995,
+            "aliases": []
+          },
+          "sport performance package": {
+            "label": "Sport Performance Package",
+            "kind": "package",
+            "price": 500,
+            "aliases": [
+              "sport performance pkg"
+            ],
+            "features": [
+              "^michelin pilot sport 4s 275 30zr20 front 345 25zr21 rear run flat$"
+            ]
+          },
           "coupe engine appearance package": {
             "label": "Coupe Engine Appearance Package",
             "kind": "package",
@@ -6952,6 +7626,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6964,6 +7639,18 @@
               "^napa leather w perforated inserts$",
               "^santorini blue dipped with torch red accents$"
             ]
+          },
+          "5 spoke pearl nickel forged": {
+            "label": "5-spoke Pearl Nickel forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "5 spoke carbon flash w machined edge forged": {
+            "label": "5-spoke Carbon Flash w/ machined edge forged",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
           },
           "10 spoke gloss black forged": {
             "label": "10-spoke Gloss Black forged",
@@ -8680,6 +9367,23 @@
             "kind": "paint",
             "price": 395,
             "aliases": []
+          },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 8020,
+            "aliases": [],
+            "features": [
+              "^18 aev aluminum spare wheel$",
+              "^aev branded floor liners$",
+              "^aev front skid plate$",
+              "^aev front underbody skid plate$",
+              "^aev fuel tank skid plate$",
+              "^aev rear differential skid plate$",
+              "^aev transfer case skid plate$",
+              "^aev underbody shield$",
+              "^rocker protection$"
+            ]
           },
           "18 high gloss black aluminum beadlock capable wheels": {
             "label": "18\" High Gloss Black Aluminum Beadlock Capable Wheels",
