@@ -831,6 +831,22 @@ describe('run-daily-crawl driver', () => {
       assert.equal(result.stats.totalActiveInventory, 60, 'must be the SUM of all 3 shards (10+20+30), not just the last shard (30)');
     });
 
+    it('sums lite-crawl shadow blocks across shards, and adds no liteShadow key when no shard reported one', async () => {
+      const runStepFn = async () => ({ startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), durationMs: 500, exitCode: 0, signal: null, timedOut: false, logFile: 'fake.log' });
+      const base = { totalActiveInventory: 10, totalNewArrivals: 0, totalPriceDrops: 0, totalPriceIncreases: 0, totalSoldOrRemoved: 0, skippedForBotProtection: 0 };
+      const shadow = { urlsTotal: 20, matched: 15, liteEligible: 8, liteEligibleProduced: 7, indexMismatches: 1, vehiclesExtracted: 10, byPlatform: { ddc: { urls: 20, matched: 15, liteEligible: 8, liteEligibleProduced: 7, indexMismatches: 1 } } };
+
+      const withShadow = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, async () => ({ ...base, liteShadow: shadow }), tmpDir);
+      assert.equal(withShadow.stats.totalActiveInventory, 30);
+      assert.equal(withShadow.stats.liteShadow.urlsTotal, 60);
+      assert.equal(withShadow.stats.liteShadow.liteEligible, 24);
+      assert.equal(withShadow.stats.liteShadow.byPlatform.ddc.indexMismatches, 3);
+
+      const without = await runBrandSharded('FL', 'Honda', dealersRelPath, 55, '2026-09-26', runStepFn, async () => ({ ...base }), tmpDir);
+      assert.equal('liteShadow' in without.stats, false);
+      assert.equal(without.stats.totalActiveInventory, 30);
+    });
+
     it('reports overall status "timeout" if any single shard times out, even when the others succeed', async () => {
       let call = 0;
       const runStepFn = async () => {
