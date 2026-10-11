@@ -56,8 +56,16 @@ export function prefillTax(before: UsedCashQuote, after: UsedCashQuote): number 
   return r2(Math.max(0, rate * taxableBase(after)));
 }
 
+/** Add-ons the dealer agreed to strike sit at $0 in the counter; accepting removes them, and a quote left with none confirms "no add-ons". */
+function withoutStruckAddOns(q: UsedCashQuote): UsedCashQuote {
+  const addOns = (q.addOns || []).filter((a) => Number(a?.amount) >= 0.005);
+  if (addOns.length === (q.addOns || []).length) return q;
+  return { ...q, addOns, noAddOns: addOns.length === 0 ? true : q.noAddOns };
+}
+
 /** The counter's sheet with the tax line set to `tax` and the acceptance stamped — what the dealer reviews and what gets stored. */
-export function buildAcceptedQuote(after: UsedCashQuote, tax: number, counterSentAt: string, now: Date = new Date()): UsedCashQuote {
+export function buildAcceptedQuote(counterAfter: UsedCashQuote, tax: number, counterSentAt: string, now: Date = new Date()): UsedCashQuote {
+  const after = withoutStruckAddOns(counterAfter);
   let placed = false;
   const dueAtSigning = after.dueAtSigning.map((l) => {
     if (placed || !isTaxLine(l.name)) return l;
@@ -78,7 +86,8 @@ const canon = (lines: LineItem[] | undefined | null) =>
  * tax amounts equals the buyer's counter. Returns the reasons it doesn't.
  */
 export function verifyAcceptedQuote(submitted: Partial<UsedQuote> | null | undefined, counter: BuyerCounter): string[] {
-  const after = counter.sheet?.after as UsedCashQuote | undefined;
+  const rawAfter = counter.sheet?.after as UsedCashQuote | undefined;
+  const after = rawAfter?.kind === "cash" ? withoutStruckAddOns(rawAfter) : rawAfter;
   if (!submitted || !after || counter.sheet?.kind !== "cash" || after.kind !== "cash") return ["There is no cash counter to accept."];
   const errors: string[] = [];
   const diff = (what: string) => errors.push(`${what} must match the buyer's counter exactly — only sales tax can change.`);

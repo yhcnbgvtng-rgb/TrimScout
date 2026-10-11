@@ -4,7 +4,7 @@ import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, original
 import { applyCashCounter } from "./counterSheet";
 import { buildDealerUnsubscribedNotice, buildCounterAcceptedNotice } from "./dealerEmail";
 import type { BuyerCounter } from "./rfq";
-import type { UsedCashQuote } from "./usedQuote";
+import { validateUsedQuote, type UsedCashQuote } from "./usedQuote";
 
 // 6.625% NJ tax on price + add-ons: (30,000 + 1,000) × 0.06625 = 2,053.75
 const quoted: UsedCashQuote = {
@@ -70,5 +70,13 @@ describe("accepting a buyer's counter", () => {
     assert.match(n.html, /\$33,157\.00/);
     assert.match(n.html, /SAFE MODE/);
     assert.match(buildDealerUnsubscribedNotice("x").subject, /SAFE MODE/);
+  });
+  it("a struck add-on ($0 in the counter) is dropped, so the accepted quote validates", () => {
+    const c = counterOf({ addOns: [{ name: "Nitrogen tires", amount: 0 }] });
+    const q = asSubmitted(c, 1900);
+    assert.deepEqual(q.addOns, []);
+    assert.equal(q.noAddOns, true);
+    assert.deepEqual(verifyAcceptedQuote(q, c), []);
+    assert.equal(validateUsedQuote(q, { quoteType: "cash" } as never, { vin: "1".repeat(17), stockNumber: "T123", condition: "new" }).errors.length, 0);
   });
 });
