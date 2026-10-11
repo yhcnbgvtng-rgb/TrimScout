@@ -74,12 +74,13 @@ export function parseCounterEdits(raw: unknown, kind: CounterKind): CounterEdits
 export function buildCounterFromEdits(
   quote: { lease?: LeaseQuote | null; used?: UsedQuote | null },
   payload: CounterEditsPayload,
-  now = new Date()
+  now = new Date(),
+  zip?: string | null
 ): { counter: BuyerCounter | null; errors: string[] } {
   let sheet: Omit<CounterSheet, "changed"> | null = null;
   if (quote.lease) sheet = { kind: "lease", before: quote.lease, after: applyLeaseCounter(quote.lease, payload.edits as LeaseCounterEdits) };
-  else if (quote.used?.kind === "finance") sheet = { kind: "finance", before: quote.used, after: applyFinanceCounter(quote.used, payload.edits as UsedCounterEdits) };
-  else if (quote.used?.kind === "cash") sheet = { kind: "cash", before: quote.used, after: applyCashCounter(quote.used, payload.edits as UsedCounterEdits) };
+  else if (quote.used?.kind === "finance") sheet = { kind: "finance", before: quote.used, after: applyFinanceCounter(quote.used, payload.edits as UsedCounterEdits, zip) };
+  else if (quote.used?.kind === "cash") sheet = { kind: "cash", before: quote.used, after: applyCashCounter(quote.used, payload.edits as UsedCounterEdits, zip) };
   if (!sheet) return { counter: null, errors: ["This dealer has no current quote to counter."] };
   const errors = validateCounterSheet(sheet);
   if (errors.length) return { counter: null, errors };

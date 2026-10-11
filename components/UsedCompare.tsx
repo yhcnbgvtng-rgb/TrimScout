@@ -237,7 +237,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
       {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} Sales tax is as each dealer quoted it, on the full price.</p> : null}
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
-        <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
+        <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} zip={finance ? prefs.finance.zip : prefs.cash.zip} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
       ) : null}
       {collecting ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-4 py-3">

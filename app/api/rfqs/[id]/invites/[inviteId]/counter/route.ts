@@ -40,7 +40,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const payload = parseCounterEdits(body?.counter, kind);
     if (!payload) return NextResponse.json({ error: "Change at least one number on the dealer's quote to counter it." }, { status: 400 });
     if (invite.quote.id !== payload.againstQuoteId) return NextResponse.json({ error: "That quote has been replaced — reload and counter the current one." }, { status: 409 });
-    const built = buildCounterFromEdits(invite.quote, payload);
+    const built = buildCounterFromEdits(invite.quote, payload, new Date(), rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : null);
     if (!built.counter) return NextResponse.json({ error: built.errors.join(" ") }, { status: 400 });
     const counter = built.counter;
 
