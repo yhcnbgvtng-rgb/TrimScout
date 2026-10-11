@@ -17,7 +17,9 @@
 //   - only a model the database already uses for that make is written, so a fill never adds a new value to the
 //     model dropdown. vPIC spells some models differently from what dealers send ("Q6" vs "Q6 e-tron",
 //     "GLE-Class" vs "GLE"): those are written under a name someone approved (APPROVED_MODEL_ALIASES) or held;
-//   - VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST) are never filled.
+//   - VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST) never take vPIC's model. An Audi row in one of
+//     them takes the model from its own listing URL / title instead (audiModelFromListing, tier "L"), and only when that
+//     names exactly one of Q5 Sportback, SQ5 Sportback, Q5, SQ5; anything else stays blank.
 
 export const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 
@@ -51,6 +53,38 @@ export const VPIC_PATTERN_BLOCKLIST = new Map([
   ['WA1FAAGUT', '2026 Audi Q5 Sportback: vPIC says SQ5 (3.0T V6); dealers send Q5 Sportback (2.0T, 4 cylinders)'],
   ['JTJHY7AXK', '2019 Lexus LX 570: vPIC says GX; the dealer listing and other dealers say LX 570'],
 ]);
+
+export const isBlockedPattern = (vin) => VIN_RE.test(vin || "") && VPIC_PATTERN_BLOCKLIST.has(vinPatternKey(vin));
+
+/**
+ * The Audi model a dealer's own listing names, for rows whose VIN pattern vPIC decodes wrongly. Reads the listing URL (VIN removed
+ * first) and the title, if the row has one. Accepts only an exact known model: "Q5 Sportback", "SQ5 Sportback", "Q5", "SQ5".
+ * SQ5 is returned only when the text says SQ5 (a bare "Q5" never becomes SQ5). Returns null when the text names none, names two
+ * different ones, or says "Sportback" without it directly following Q5/SQ5 (e.g. "q5-45-tfsi-sportback"): guessing "Q5" there
+ * would be wrong for a Sportback.
+ * @returns {{model: string, evidence: string} | null}
+ */
+export function audiModelFromListing(row) {
+  const found = new Map(); // model -> the text it came from
+  let sawSportback = false;
+  const vin = String(row.vin || "").toUpperCase();
+  const sources = [["url", row.vdpUrl ? String(row.vdpUrl) : ""], ["title", row.title ? String(row.title) : ""]];
+  for (const [label, raw] of sources) {
+    const text = vin ? raw.toUpperCase().split(vin).join(" ") : raw.toUpperCase();
+    const tokens = text.split(/[^A-Z0-9]+/).filter(Boolean);
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i] === "SPORTBACK" || tokens[i].endsWith("SPORTBACK")) sawSportback = true;
+      const m = /^(SQ5|Q5)(SPORTBACK)?$/.exec(tokens[i]);
+      if (!m) continue;
+      const sport = Boolean(m[2]) || tokens[i + 1] === "SPORTBACK";
+      found.set(`${m[1]}${sport ? " Sportback" : ""}`, `${label}: ${raw}`);
+    }
+  }
+  if (found.size !== 1) return null;
+  const [[model, evidence]] = found;
+  if (sawSportback && !model.endsWith("Sportback")) return null;
+  return { model, evidence };
+}
 
 const TRANSLITERATION = { A: 1, B: 2, C: 3, D: 4, E: 5, F: 6, G: 7, H: 8, J: 1, K: 2, L: 3, M: 4, N: 5, P: 7, R: 9, S: 2, T: 3, U: 4, V: 5, W: 6, X: 7, Y: 8, Z: 9 };
 const WEIGHTS = [8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2];
@@ -188,12 +222,20 @@ export function canonicalModel(spellings, rowMake, decodedModel, aliases = DEFAU
  * @param {Map<string, Map<string, string>>} spellings  from buildSpellings
  * @param {{aliases?: Map<string, string>, allowNewSpellings?: boolean}} [opts]  aliases default to APPROVED_MODEL_ALIASES; a model the database
  *   has never used for the make (and no alias covers) is held unless allowNewSpellings
- * @returns {{action: 'fill', model: string, tier: 'A'|'B', seenInDb: boolean, aliased: boolean} | {action: 'skip', reason: string, detail?: string}}
+ * @returns {{action: 'fill', model: string, tier: 'A'|'B'|'L', evidence?: string, seenInDb: boolean, aliased: boolean} | {action: 'skip', reason: string, detail?: string}}
  */
 export function decideRow(row, verdict, spellings, { aliases = DEFAULT_ALIASES, allowNewSpellings = false } = {}) {
   if (!VIN_RE.test(row.vin || "")) return { action: "skip", reason: "not a 17-character VIN" };
   const blocked = VPIC_PATTERN_BLOCKLIST.get(vinPatternKey(row.vin));
-  if (blocked) return { action: "skip", reason: "vPIC is known to decode this VIN pattern wrongly", detail: blocked };
+  if (blocked) {
+    const skip = { action: "skip", reason: "vPIC is known to decode this VIN pattern wrongly", detail: blocked };
+    if (!makesMatch(row.make, "Audi")) return skip;
+    const listed = audiModelFromListing(row);
+    if (!listed) return skip;
+    const c = canonicalModel(spellings, row.make, listed.model, aliases);
+    if (!c.seenInDb) return skip; // a spelling the database has never used for Audi is not written
+    return { action: "fill", model: c.model, tier: "L", seenInDb: true, aliased: c.aliased, evidence: listed.evidence };
+  }
   if (!row.make || !row.make.trim()) return { action: "skip", reason: "row has no make, so the decoded make cannot be checked" };
   if (!verdict) return { action: "skip", reason: "vPIC lookup failed (not decoded)" };
   if (verdict.status === "inconsistent") return { action: "skip", reason: "VINs of this pattern decode to different models" };
@@ -215,10 +257,10 @@ export function summarize(rows, decisions) {
   for (let i = 0; i < rows.length; i++) {
     const make = rows[i].make || "(no make)";
     const d = decisions[i];
-    if (!byMake.has(make)) byMake.set(make, { blank: 0, fillA: 0, fillB: 0, skipped: 0 });
+    if (!byMake.has(make)) byMake.set(make, { blank: 0, fillA: 0, fillB: 0, fillL: 0, skipped: 0 });
     const m = byMake.get(make);
     m.blank++;
-    if (d.action === "fill") m[d.tier === "A" ? "fillA" : "fillB"]++;
+    if (d.action === "fill") m[d.tier === "A" ? "fillA" : d.tier === "L" ? "fillL" : "fillB"]++;
     else { m.skipped++; reasons.set(d.reason.replace(/\(row ".*"\)/, "(row vs vPIC)"), (reasons.get(d.reason.replace(/\(row ".*"\)/, "(row vs vPIC)")) || 0) + 1); }
   }
   return {

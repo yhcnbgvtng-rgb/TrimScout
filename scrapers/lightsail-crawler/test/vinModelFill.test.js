@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   VIN_RE, checkDigitValid, vinPatternKey, makesMatch, urlNamesModel, parseVpicResult, planDecodeTargets,
-  patternConsensus, buildSpellings, canonicalModel, decideRow, summarize,
+  patternConsensus, buildSpellings, canonicalModel, decideRow, summarize, audiModelFromListing, isBlockedPattern,
   APPROVED_MODEL_ALIASES, VPIC_PATTERN_BLOCKLIST, buildAliasMap,
 } from '../src/vinModelFill.js';
 
@@ -234,6 +234,67 @@ describe('decideRow: names the database does not use yet, approved aliases, know
   });
 });
 
+describe('Audi Q5 family from the dealer listing (blocked vPIC patterns)', () => {
+  const vin = 'WA1EAAGU0T2003324';
+  const url = (slug) => `https://www.audidealer.example/inventory/new/2026/${slug}/${vin}`;
+  const row = (extra = {}) => ({ vin, dealerId: 7, make: 'Audi', vdpUrl: null, ...extra });
+  const spellings = buildSpellings([{ make: 'Audi', model: 'Q5 Sportback', n: 40 }, { make: 'Audi', model: 'SQ5 Sportback', n: 9 }, { make: 'Audi', model: 'Q5', n: 900 }, { make: 'Audi', model: 'SQ5', n: 500 }]);
+  const sqDecode = { status: 'ok', make: 'AUDI', model: 'SQ5' }; // what vPIC wrongly says for these VINs
+
+  it('reads exactly the four known models from the URL, SQ5 only when the listing says SQ5', () => {
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q5-sportback-premium') })).model, 'Q5 Sportback');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('new-2026-audi-sq5-sportback-prestige') })).model, 'SQ5 Sportback');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q5-premium-plus') })).model, 'Q5');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-sq5-prestige') })).model, 'SQ5');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q5sportback-premium') })).model, 'Q5 Sportback');
+  });
+
+  it('reads the title when the URL says nothing, and reports the evidence', () => {
+    const r = audiModelFromListing(row({ vdpUrl: url('vehicle-detail'), title: 'New 2026 Audi Q5 Sportback 2.0T Premium' }));
+    assert.equal(r.model, 'Q5 Sportback');
+    assert.match(r.evidence, /^title: /);
+  });
+
+  it('never turns a bare Q5 into SQ5, nor matches Q5 inside another word, nor the VIN serial', () => {
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q5-premium') })).model, 'Q5');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q50-premium') })), null);
+    assert.equal(audiModelFromListing(row({ vdpUrl: 'https://x.example/vehicle/?vehicleId=WA1EAAGU0TQ5003324', vin: 'WA1EAAGU0TQ5003324' })), null, 'the VIN is removed before reading');
+  });
+
+  it('returns nothing when the listing is silent, conflicting, or says Sportback away from the model name', () => {
+    assert.equal(audiModelFromListing(row()), null);
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('vehicle-detail') })), null);
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-sq5-prestige'), title: '2026 Audi Q5 Premium' })), null);
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-q5-45-tfsi-sportback-premium') })), null, 'would be Q5, but it is a Sportback');
+    assert.equal(audiModelFromListing(row({ vdpUrl: url('2026-audi-a5-sportback') })), null, 'a different model');
+  });
+
+  it('fills a blocked-pattern Audi from the listing (tier L) even though vPIC says SQ5', () => {
+    assert.ok(isBlockedPattern(vin));
+    const d = decideRow(row({ vdpUrl: url('2026-audi-q5-sportback-premium') }), sqDecode, spellings);
+    assert.equal(d.action, 'fill');
+    assert.equal(d.model, 'Q5 Sportback');
+    assert.equal(d.tier, 'L');
+    assert.match(d.evidence, /q5-sportback/);
+    const sq = decideRow(row({ vdpUrl: url('2026-audi-sq5-sportback-prestige') }), sqDecode, spellings);
+    assert.equal(sq.model, 'SQ5 Sportback');
+  });
+
+  it('keeps the row blank when the listing gives no exact model, when the make is not Audi, or when the DB has never used that spelling', () => {
+    assert.equal(decideRow(row({ vdpUrl: url('vehicle-detail') }), sqDecode, spellings).action, 'skip');
+    assert.equal(decideRow(row({ make: 'Lexus', vdpUrl: url('2026-audi-q5-sportback') }), sqDecode, spellings).action, 'skip');
+    const noSportback = buildSpellings([{ make: 'Audi', model: 'Q5', n: 900 }]);
+    assert.equal(decideRow(row({ vdpUrl: url('2026-audi-q5-sportback-premium') }), sqDecode, noSportback).action, 'skip');
+  });
+
+  it('does not touch other blocked patterns (Lexus LX 570 stays blank) and counts tier L in the summary', () => {
+    const lx = { vin: 'JTJHY7AX3K4308370', dealerId: 7, make: 'Lexus', vdpUrl: 'https://x.example/2019-audi-q5-sportback' };
+    assert.equal(decideRow(lx, { status: 'ok', make: 'LEXUS', model: 'GX' }, spellings).action, 'skip');
+    const s = summarize([{ make: 'Audi' }], [{ action: 'fill', tier: 'L' }]);
+    assert.deepEqual(s.byMake[0], { make: 'Audi', blank: 1, fillA: 0, fillB: 0, fillL: 1, skipped: 0 });
+  });
+});
+
 describe('summarize', () => {
   it('counts blank rows, fills by tier and skips by reason, per make', () => {
     const rows = [{ make: 'Toyota' }, { make: 'Toyota' }, { make: 'Toyota' }, { make: 'Ford' }, { make: null }];
@@ -243,7 +304,7 @@ describe('summarize', () => {
     ];
     const s = summarize(rows, decisions);
     assert.deepEqual(s.totals, { blank: 5, fills: 2, skipped: 3 });
-    assert.deepEqual(s.byMake.find((m) => m.make === 'Toyota'), { make: 'Toyota', blank: 3, fillA: 1, fillB: 1, skipped: 1 });
+    assert.deepEqual(s.byMake.find((m) => m.make === 'Toyota'), { make: 'Toyota', blank: 3, fillA: 1, fillB: 1, fillL: 0, skipped: 1 });
     assert.equal(s.reasons.length, 3);
   });
 });
