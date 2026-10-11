@@ -8,6 +8,8 @@ import { useSearchParams } from "next/navigation";
 import { LEASE_NON_BINDING_COPY, type LeaseQuote, type LeaseRequestPrefs } from "../../../lib/leaseQuote";
 import { LeaseCalculatorForm } from "../../../components/LeaseCalculatorForm";
 import { counterSummary } from "../../../lib/buyerCounter";
+import { acceptableCashCounter, COUNTER_ACCEPTED_HEADLINE } from "../../../lib/acceptCounter";
+import { AcceptCounterPanel } from "../../../components/AcceptCounterPanel";
 import { CounterComparison } from "../../../components/CounterComparison";
 import type { UsedQuote } from "../../../lib/usedQuote";
 import type { BuyerCounter } from "../../../lib/rfq";
@@ -82,6 +84,8 @@ function ReceivedBody() {
   const [done, setDone] = useState<{ warnings: string[]; dueAtSigningTotal: number } | null>(null);
   const [declined, setDeclined] = useState(false);
   const [declining, setDeclining] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [acceptedOtd, setAcceptedOtd] = useState<number | null>(null);
 
   const decline = async () => {
     setDeclining(true);
@@ -105,6 +109,7 @@ function ReceivedBody() {
       .catch((e) => setError(e instanceof Error ? e.message : "This link is no longer valid."));
   }, [token, preview]);
 
+  const acceptCounter = ctx ? acceptableCashCounter(ctx.quotePrefs, ctx.buyerCounter) : null;
   const title = ctx?.vehicle ? [ctx.vehicle.year, ctx.vehicle.make, ctx.vehicle.model, ctx.vehicle.trim].filter(Boolean).join(" ") : car;
 
   return (
@@ -154,6 +159,11 @@ function ReceivedBody() {
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-1 text-sm text-ink-light">
               <p className="font-bold text-white">Recorded — the buyer will see you couldn&apos;t go further on this one.</p>
               <p className="text-xs text-ink-muted">Your earlier quote stays on their compare for reference. Thanks for looking.</p>
+            </div>
+          ) : acceptedOtd != null ? (
+            <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-1 text-sm text-ink-light" data-testid="counter-accepted-done">
+              <p className="font-bold text-white">Counter accepted. Thank you.</p>
+              <p>The buyer is told: &ldquo;{COUNTER_ACCEPTED_HEADLINE}&rdquo; — final out-the-door <span className="font-mono">${acceptedOtd.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>. They pick it or walk away.</p>
             </div>
           ) : done ? (
             <>
@@ -210,6 +220,12 @@ function ReceivedBody() {
                   <button type="button" onClick={decline} disabled={declining} className="rounded-lg border border-amber-500/40 px-3 py-1.5 text-xs font-bold text-amber-100 hover:bg-amber-500/10 disabled:opacity-50" data-testid="decline-counter">
                     {declining ? "Recording…" : "I can't do better than my quote"}
                   </button>
+                  {acceptCounter ? (
+                    <button type="button" onClick={() => setAccepting(true)} disabled={declining || accepting} className="ml-2 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-50" data-testid="accept-counter">
+                      Accept buyer&apos;s counter
+                    </button>
+                  ) : null}
+                  {acceptCounter && accepting ? <AcceptCounterPanel token={token} counter={acceptCounter} onAccepted={setAcceptedOtd} onCancel={() => setAccepting(false)} /> : null}
                 </div>
               ) : null}
               <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">

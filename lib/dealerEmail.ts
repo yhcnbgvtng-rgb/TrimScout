@@ -260,6 +260,39 @@ export function buildDealerUnsubscribedNotice(dealerName: string, rfqUrl?: strin
   return { subject, html };
 }
 
+/**
+ * Buyer notice: the dealer accepted their counter, with the final
+ * out-the-door. Same SAFE MODE sender as every email in this module (see the
+ * header) — it lands at SAFE_MODE_RECIPIENT, never at a buyer or dealer.
+ */
+export function buildCounterAcceptedNotice(input: { dealerName: string; vehicle: string; outTheDoor: number; rfqUrl?: string | null }): { subject: string; html: string } {
+  const otd = `$${input.outTheDoor.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const subject = `[SAFE MODE] Dealer accepted your counter — ${otd} out the door`;
+  const cta = input.rfqUrl
+    ? `<a href="${escapeHtml(input.rfqUrl)}" style="display:inline-block;margin-top:16px;padding:10px 18px;border-radius:10px;background:#22c55e;color:#000;font-weight:800;text-decoration:none;">See it on your compare</a>`
+    : "";
+  const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;color:#111;">
+    <p style="font-size:12px;color:#a16207;background:#fef9c3;border-radius:8px;padding:8px 10px;">
+      <strong>SAFE MODE:</strong> this buyer notification was redirected here for approval instead of the buyer, per site-owner override.
+    </p>
+    <h1 style="font-size:18px;margin:16px 0 8px;">Dealer accepted your counter</h1>
+    <p style="font-size:14px;line-height:1.6;color:#374151;">${escapeHtml(input.dealerName || "The dealer")} accepted your counter on the ${escapeHtml(input.vehicle)}. Final out-the-door: <strong>${escapeHtml(otd)}</strong> (sales tax updated to the new price). It is a revised quote on your compare — you pick it, or walk away.</p>
+    ${cta}
+  </div>`.trim();
+  return { subject, html };
+}
+
+/** Sends the counter-accepted notice through the SAFE MODE sender. Never throws. */
+export async function sendCounterAcceptedNotice(input: Parameters<typeof buildCounterAcceptedNotice>[0]): Promise<boolean> {
+  try {
+    const { subject, html } = buildCounterAcceptedNotice(input);
+    return await sendViaResend(subject, html);
+  } catch (err) {
+    console.error("dealerEmail: counter-accepted notice send failed —", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
 /** Sends the buyer-unsubscribed notice through the SAFE MODE sender. Never throws. */
 export async function sendDealerUnsubscribedNotice(dealerName: string, rfqUrl?: string | null): Promise<boolean> {
   try {

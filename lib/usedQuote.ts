@@ -87,6 +87,8 @@ interface UsedQuoteBase {
 }
 export interface UsedCashQuote extends UsedQuoteBase {
   kind: "cash";
+  /** Set by the server when this revised quote is the dealer accepting the buyer's counter (lib/acceptCounter.ts). */
+  counterAccepted?: { counterSentAt: string; acceptedAt: string } | null;
 }
 export interface UsedFinanceQuote extends UsedQuoteBase {
   kind: "finance";
