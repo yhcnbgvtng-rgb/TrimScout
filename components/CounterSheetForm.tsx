@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { COUNTER_COPY, type CounterEditsPayload } from "../lib/buyerCounter";
-import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
+import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, isTaxLine, zipStateTax, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
 import type { LeaseQuote, LineItem } from "../lib/leaseQuote";
 import type { UsedQuote } from "../lib/usedQuote";
 import { CounterComparison } from "./CounterComparison";
@@ -27,12 +27,15 @@ const fromLines = (lines: Line[]): LineItem[] => lines.map((l) => ({ name: l.nam
 export function CounterSheetForm({
   dealerName,
   quote,
+  zip,
   quoteId,
   onSubmit,
   onCancel,
 }: {
   dealerName: string;
   quote: { lease?: LeaseQuote | null; used?: UsedQuote | null };
+  /** Buyer ZIP — sales tax on a cash/finance counter is recalculated from its state. */
+  zip?: string | null;
   quoteId: string;
   onSubmit: (payload: CounterEditsPayload) => Promise<void>;
   onCancel: () => void;
@@ -65,10 +68,12 @@ export function CounterSheetForm({
   const sheet = useMemo<CounterSheet | null>(() => {
     let base: Omit<CounterSheet, "changed"> | null = null;
     if (lease) base = { kind: "lease", before: lease, after: applyLeaseCounter(lease, edits as LeaseCounterEdits) };
-    else if (used?.kind === "finance") base = { kind: "finance", before: used, after: applyFinanceCounter(used, edits as UsedCounterEdits) };
-    else if (used?.kind === "cash") base = { kind: "cash", before: used, after: applyCashCounter(used, edits as UsedCounterEdits) };
+    else if (used?.kind === "finance") base = { kind: "finance", before: used, after: applyFinanceCounter(used, edits as UsedCounterEdits, zip) };
+    else if (used?.kind === "cash") base = { kind: "cash", before: used, after: applyCashCounter(used, edits as UsedCounterEdits, zip) };
     return base ? { ...base, changed: changedKeys(base) } : null;
-  }, [lease, used, edits]);
+  }, [lease, used, edits, zip]);
+  const taxInfo = kind === "lease" ? null : zipStateTax(zip);
+  const autoTax = (name: string) => !!taxInfo && isTaxLine(name);
   const errors = sheet ? validateCounterSheet(sheet) : ["No quote to counter."];
 
   const input = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
@@ -99,7 +104,7 @@ export function CounterSheetForm({
       <div>
         <p className="text-xs font-bold text-white">Counter {dealerName}&apos;s quote — edit only the lines you&apos;re asking about</p>
         <p className="text-[10px] text-ink-muted" data-testid="counter-header-copy">
-          Sales tax, title &amp; registration and doc fee stay as quoted. Price and other fees can only go down, add-ons can be lowered or struck, rebates added.
+          {taxInfo ? `Sales tax recalculates from your ZIP (${taxInfo.state}) on price + add-ons; title & registration and doc fee stay as quoted. Price and other fees can only go down, add-ons can be lowered or struck, rebates added.` : <>Sales tax, title &amp; registration and doc fee stay as quoted. Price and other fees can only go down, add-ons can be lowered or struck, rebates added.</>}
         </p>
       </div>
 
@@ -107,7 +112,7 @@ export function CounterSheetForm({
         <label className="space-y-1">
           <span className={label}>{priceLabel} <span className="normal-case font-normal text-ink-muted">— quoted ${(lease ? lease.capCost : used!.sellingPrice).toLocaleString()}</span></span>
           <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" className={input} data-testid="counter-price" />
-          {sheet && counterPriceChanged(sheet) ? <span className="block text-[10px] font-normal normal-case text-sky-200" data-testid="tax-update-note">{TAX_UPDATE_NOTE}</span> : null}
+          {sheet && !taxInfo && counterPriceChanged(sheet) ? <span className="block text-[10px] font-normal normal-case text-sky-200" data-testid="tax-update-note">{TAX_UPDATE_NOTE}</span> : null}
         </label>
         {kind !== "cash" ? (
           <label className="space-y-1">
@@ -139,8 +144,8 @@ export function CounterSheetForm({
           ) : null}
           {fees.map((l, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
-              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{feeEditable(l.name) ? "" : " (fixed)"}</span>
-              <input value={l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{autoTax(l.name) ? ` (auto · ${taxInfo!.state} ${(taxInfo!.rate * 100).toFixed(2)}% of price + add-ons)` : feeEditable(l.name) ? "" : " (fixed)"}</span>
+              <input value={autoTax(l.name) && sheet && sheet.kind !== "lease" ? String((sheet.after as UsedQuote).dueAtSigning.find((x) => x.name === l.name)?.amount ?? l.amount) : l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name) || autoTax(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
               {feeEditable(l.name) ? <button type="button" onClick={() => strike(fees, setFees, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this fee">strike</button> : null}
             </div>
           ))}

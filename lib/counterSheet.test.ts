@@ -76,9 +76,20 @@ describe("finance counter — amount financed moves by the delta, payment at the
     assert.deepEqual(validateCounterSheet({ kind: "finance", before: fin, after }), []);
     assert.deepEqual(changedKeys({ kind: "finance", before: fin, after }).sort(), ["addOn:Etch", "downPayment", "fee:Electronic filing fee", "sellingPrice"]);
   });
-  it("tax and title are locked; APR/term can't move; a raised price is refused", () => {
-    const tax = applyFinanceCounter(fin, { dueAtSigning: [{ name: "Sales tax", amount: 1000 }, { name: "Doc fee", amount: 699 }, { name: "Title & registration", amount: 380 }] });
-    assert.match(validateCounterSheet({ kind: "finance", before: fin, after: tax }).join(" "), /Fee: Sales tax is set by the lender or the state/);
+  it("sales tax is recalculated at the ZIP's state rate on price + add-ons; without a ZIP a typed tax can't move it", () => {
+    const taxOf = (q: { dueAtSigning: { name: string; amount: number }[] }) => q.dueAtSigning.find((l) => l.name === "Sales tax")!.amount;
+    const typed = fin.dueAtSigning.map((l) => (l.name === "Sales tax" ? { ...l, amount: 1000 } : l));
+    assert.equal(taxOf(applyFinanceCounter(fin, { dueAtSigning: typed })), taxOf(fin));
+    const nj = applyFinanceCounter(fin, { sellingPrice: 41000, addOns: [{ name: "Etch", amount: 0 }], dueAtSigning: typed }, "07405");
+    assert.equal(taxOf(nj), Math.round(41000 * 0.06625 * 100) / 100);
+    const ca = applyFinanceCounter(fin, {}, "94107");
+    assert.equal(taxOf(ca), Math.round((42000 + 399) * 0.0882 * 100) / 100);
+    assert.equal(nj.amountFinanced, Math.round((fin.amountFinanced - 1000 - 399 + (taxOf(nj) - taxOf(fin))) * 100) / 100, "the tax change rolls into amount financed");
+    const cashTax = applyCashCounter(cash, { sellingPrice: 57000 }, "77001");
+    assert.equal(cashTax.dueAtSigning.find((l) => l.name === "Sales tax")!.amount, Math.round((57000 + 499) * 0.082 * 100) / 100);
+    assert.deepEqual(validateCounterSheet({ kind: "cash", before: cash, after: cashTax }), []);
+  });
+  it("APR/term can't move; a raised price is refused", () => {
     assert.match(validateCounterSheet({ kind: "finance", before: fin, after: { ...fin, apr: 3.9 } }).join(" "), /APR is set by the lender/);
     assert.match(validateCounterSheet({ kind: "finance", before: fin, after: applyFinanceCounter(fin, { sellingPrice: 43000 }) }).join(" "), /Selling price: a counter can lower this/);
   });
@@ -94,7 +105,8 @@ describe("cash counter — OTD = selling price + add-ons + mandatory fees + tax 
     const otd = rows.find((r) => r.key === "otd")!;
     assert.equal(otd.before, cashOutTheDoor(cash));
     assert.equal(otd.delta, -(1400 + 499 + 500));
-    assert.equal(rows.find((r) => r.key === "fee:Sales tax")!.locked, true);
+    assert.equal(rows.find((r) => r.key === "fee:Sales tax")!.locked, false);
+    assert.equal(rows.find((r) => r.key === "fee:Sales tax")!.derived, true, "tax follows price + add-ons, never policed as a lock");
     assert.equal(rows.find((r) => r.key === "fee:Doc fee")!.locked, true, "doc fee is fixed now");
     assert.equal(rows.find((r) => r.key === "fee:Electronic filing fee")!.locked, false);
     assert.deepEqual(validateCounterSheet({ kind: "cash", before: cash, after }), []);
@@ -107,7 +119,7 @@ describe("cash counter — OTD = selling price + add-ons + mandatory fees + tax 
 });
 
 describe("locked lines — sales tax, title & registration and the doc fee are fixed, on the client sheet and the server check", () => {
-  for (const name of ["Sales tax", "Title & registration", "Doc fee"]) {
+  for (const name of ["Title & registration", "Doc fee"]) {
     it(`${name}: lowering, raising or striking it is refused (cash)`, () => {
       const base = cash.dueAtSigning.find((l) => l.name === name)!.amount;
       for (const amount of [base - 100, base + 100, 0]) {
