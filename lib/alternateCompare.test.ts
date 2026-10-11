@@ -191,3 +191,54 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
     assert.doesNotMatch(wizard, /advertisedOrStickerPrice|shopperPriceSourceLabel|Advertised price/);
   });
 });
+
+describe("mustHaveReport — color and engine read the car's own fields", () => {
+  const VINS = ["1FTEW1K52TKF58640", "1FTEW1K8XTKE03988", "1FTEW1LP2TKE57971"];
+  const f150 = (vin: string, o: Partial<Vehicle> = {}) =>
+    car({
+      vin,
+      model: "F-150",
+      trim: "XL",
+      exteriorColor: "OXFORD WHITE",
+      engine: "5.0L V8",
+      transmission: "10-Speed Automatic",
+      options: [{ code: "99Z", name: "Tow Hooks", price: 0, category: "standalone" }],
+      ...o,
+    });
+
+  for (const vin of VINS) {
+    it(`${vin}: Exterior color OXFORD WHITE is present from the color field`, () => {
+      const r = mustHaveReport([{ name: "Exterior color: OXFORD WHITE" }], f150(vin));
+      assert.equal(r.kind === "scored" && r.present[0], "Exterior color: OXFORD WHITE");
+      assert.equal(r.kind === "scored" && r.missing.length, 0);
+    });
+  }
+
+  it("ignores Metallic / Pearl / Tri-coat suffixes, case-insensitively", () => {
+    const r = mustHaveReport(
+      [{ name: "Exterior color: Ruby Red Metallic Tinted Clearcoat" }, { name: "Exterior color: Wind Chill Pearl" }],
+      f150(VINS[0], { exteriorColor: "ruby red" }),
+    );
+    assert.equal(r.kind === "scored" && r.present.length, 1);
+    const t = mustHaveReport([{ name: "Exterior color: Wind Chill Pearl" }], f150("TOY", { make: "Toyota", exteriorColor: "WIND CHILL" }));
+    assert.equal(t.kind === "scored" && t.present.length, 1);
+  });
+
+  it("a different color is Missing; a blank color is Unknown, not Missing", () => {
+    const other = mustHaveReport([{ name: "Exterior color: Race Red" }], f150(VINS[0]));
+    assert.equal(other.kind === "scored" && other.missing[0], "Exterior color: Race Red");
+    const blank = mustHaveReport([{ name: "Exterior color: OXFORD WHITE" }], f150(VINS[0], { exteriorColor: "" }));
+    assert.equal(blank.kind === "scored" && blank.missing.length, 0);
+    assert.equal(blank.kind === "scored" && blank.unknown.length, 1);
+    assert.equal(mustHaveHeadline(blank), "Unknown: Exterior color: OXFORD WHITE");
+  });
+
+  it("a 5.0L V8 must-have is met by the engine field even with no option row", () => {
+    const r = mustHaveReport([{ name: "5.0L V8 Engine" }], f150(VINS[1]));
+    assert.equal(r.kind === "scored" && r.present.length, 1);
+    const wrong = mustHaveReport([{ name: "3.5L V6 EcoBoost Engine" }], f150(VINS[1]));
+    assert.equal(wrong.kind === "scored" && wrong.missing.length, 1);
+    const blank = mustHaveReport([{ name: "5.0L V8 Engine" }], f150(VINS[1], { engine: "", transmission: "" }));
+    assert.equal(blank.kind === "scored" && blank.unknown.length, 1);
+  });
+});
