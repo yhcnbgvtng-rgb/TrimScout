@@ -3,10 +3,10 @@
 // No policy for the car (other make/model/year, or a trim the policy doesn't trust) -> the current list, glyphs stripped.
 import {
   buildAllowlist,
-  loadBundledModelPoliciesRaw,
   modelPoliciesFor,
   optionRowsForVehicle,
 } from "../scrapers/lightsail-crawler/src/factoryOptionAllowlist.js";
+import fordPolicies from "../scrapers/lightsail-crawler/src/optionPolicies/ford-2026.json";
 import { cleanOptionNames, stripNonPrinting } from "./mustHaveOptions";
 
 export interface MustHaveOption {
@@ -27,7 +27,7 @@ interface PolicyVehicle {
 
 let allowlist: unknown = null;
 function fordAllowlist() {
-  if (!allowlist) allowlist = buildAllowlist(null, loadBundledModelPoliciesRaw() as never);
+  if (!allowlist) allowlist = buildAllowlist(null, fordPolicies as never);
   return allowlist;
 }
 
