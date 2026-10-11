@@ -20,12 +20,13 @@ import { bump } from "@/lib/opsMetrics";
 import { approvalAlertHtml, approvalAlertSubject } from "@/lib/approvalAlertEmail";
 import { sendAdminApprovalAlert, sendQuoteInviteEmail } from "@/lib/dealerEmail";
 import { guestTrackerPath, rfqCreateActor } from "@/lib/buyerAccess";
+import { blocksSecondRequest, isBuyerTestMode, testRequestIsFlagged } from "@/lib/buyerTestMode";
 import { guestTrackerEmailHtml, guestTrackerEmailSubject } from "@/lib/guestTrackerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user?.id || (session.user as any).role !== "buyer") {
+  if (!session?.user?.id || ((session.user as any).role !== "buyer" && !isBuyerTestMode(session.user))) {
     return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
   }
   try {
@@ -52,6 +53,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: DEGRADE_COPY.rfqSendOff, paused: true }, { status: 503, headers: { "Retry-After": "120" } });
   }
   const ownerId = actor.ownerId;
+  // Buyer test mode: only the owner's allowlisted account (BUYER_TEST_MODE_EMAILS) — no one-active limit, always SAFE MODE + audit=1.
+  const testMode = actor.kind === "buyer" && actor.testMode === true;
   const guestEmail = actor.kind === "guest" ? actor.email : null;
   if (actor.kind === "guest") {
     // Guests have no account to hold accountable, so they get their own, tighter per-IP and per-email caps.
@@ -67,7 +70,7 @@ export async function POST(req: Request) {
   } else {
     // Hard caps per IP, per account and per instance-global — 429 + Retry-After.
     // Test / admin accounts are never capped — see isRateLimitExempt.
-    const tripped = isRateLimitExempt(session!.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
+    const tripped = testMode || isRateLimitExempt(session!.user as { id?: unknown; email?: string | null; role?: unknown }) ? null : firstTrippedLimit([
       { name: "rfq_create_ip", subject: clientIpFromHeaders(req.headers) },
       { name: "rfq_create_user", subject: ownerId },
       { name: "rfq_create_global", subject: "all" },
@@ -133,7 +136,7 @@ export async function POST(req: Request) {
     // finish (pick) or walk away from the current one before starting
     // another.
     const existing = await listRfqsForBuyer(ownerId);
-    if (hasActiveRfq(existing)) {
+    if (blocksSecondRequest(existing, testMode)) {
       // Idempotent double-submit: the same buyer re-sending the same car
       // (a retry, a double click, a refresh) gets the request that already
       // exists — one row, not an error and not a second row.
@@ -177,7 +180,13 @@ export async function POST(req: Request) {
       tradeInExpected: tradeReady ? true : typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
       lane,
       alternateAsk,
+      ...(testMode ? { buyerTestMode: true } : {}),
     });
+    if (testMode && !testRequestIsFlagged(rfq)) {
+      // The box did not flag it audit=1 (not patched yet). Test mode must never create an unflagged request: close it and say why.
+      await walkAwayFromRfq(rfq.id).catch(() => undefined);
+      return NextResponse.json({ error: "Test mode needs the deals-box patch (audit flag) before it can send. Nothing was sent." }, { status: 503 });
+    }
     if (tradeReady) {
       try {
         const record = await adoptDraftIntoRfq(s3Storage, tradeReady.draft, tradeReady.record, rfq.id);
@@ -188,12 +197,14 @@ export async function POST(req: Request) {
         return tradeErrorResponse(err);
       }
     }
-    recordQuoteRequest();
-    bump("rfq_create");
+    if (!testMode) {
+      recordQuoteRequest();
+      bump("rfq_create");
+    }
     // The admin gate: every new request waits for approval. Tell the admin
     // now (after the response), with the summary and a link to the desk.
     after(async () => {
-      await sendAdminApprovalAlert(approvalAlertSubject(rfq), approvalAlertHtml(rfq)).catch(() => false);
+      await sendAdminApprovalAlert(`${testMode ? "[TEST] " : ""}${approvalAlertSubject(rfq)}`, approvalAlertHtml(rfq)).catch(() => false);
     });
     if (guestEmail) {
       bump("rfq_guest_create");

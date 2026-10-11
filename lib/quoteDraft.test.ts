@@ -74,7 +74,10 @@ describe("wizard wiring — discreet auth on every step, draft survives every pa
   it("the Step 4 gate never closes the wizard to sign in, and the banner reinforces the header link", () => {
     assert.doesNotMatch(wizard, /if \(!currentUser\) \{\s*onClose\(\);/);
     assert.match(wizard, /Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are/);
-    assert.match(wizard, /currentUser\.role !== "buyer"[\s\S]*?openAuth\("switch_account"\)/);
+    // A signed-in non-buyer is told, never signed out by the submit itself: only the header button switches accounts.
+    const branch = wizard.match(/else if \(authState !== "buyer"\) \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    assert.match(branch, /Use "Sign in as buyer" above/);
+    assert.doesNotMatch(branch, /openAuth|onSwitchToBuyer|signOut/);
   });
 
   it("every auth path parks the draft first; sign-in from the wizard doesn't yank the page to a dashboard", () => {

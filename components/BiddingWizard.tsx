@@ -2,6 +2,8 @@
 
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
+import { getSession } from "next-auth/react";
+import { TestModeBar } from "./TestModeBar";
 import { type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
@@ -1296,14 +1298,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // One active request per buyer (the server refuses a second): say so up front, with the way to it, instead of at Send.
   const [activeRfq, setActiveRfq] = useState<{ id: string; dealReference: string | null } | null>(null);
   useEffect(() => {
-    if (!isOpen || currentUser?.role !== "buyer") { setActiveRfq(null); return; }
+    // Test mode has no one-request limit, so no banner either.
+    if (!isOpen || currentUser?.role !== "buyer" || currentUser.testMode) { setActiveRfq(null); return; }
     let cancelled = false;
     fetch("/api/rfqs")
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => { if (!cancelled) setActiveRfq(activeRfqSummary(j?.rfqs)); })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [isOpen, currentUser?.role]);
+  }, [isOpen, currentUser?.role, currentUser?.testMode]);
   useEffect(() => {
     if (!isOpen) return;
     fetch("/api/status/features")
@@ -1623,6 +1626,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     window.location.assign("/signup");
   };
   const authState = wizardAuthState(currentUser);
+  const liveSessionIsBuyer = async () => {
+    try {
+      const live = await getSession();
+      const u = live?.user as { role?: string; testMode?: boolean } | undefined;
+      return Boolean(u && (u.role === "buyer" || u.testMode === true));
+    } catch {
+      return false;
+    }
+  };
   const guestMode = !requireLogin && authState === "signed_out";
 
   useEffect(() => {
@@ -2595,14 +2607,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         return;
       }
     } else if (!currentUser) {
-      // Stay put: the sign-in modal stacks over the wizard and the draft
-      // survives it. Closing here used to throw the whole request away.
-      setSubmitError("Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are.");
-      openAuth("sign_in");
-      return;
-    } else if (currentUser.role !== "buyer") {
-      setSubmitError(`You're signed in as a ${currentUser.role}. Sign in as a buyer to send this request.`);
-      openAuth("switch_account");
+      // The page's copy of the user lags the session (first paint, a window-focus refetch). Ask the session
+      // itself before prompting: a buyer who is signed in must never be asked to sign in again.
+      if (!(await liveSessionIsBuyer())) {
+        // Stay put: the sign-in modal stacks over the wizard and the draft
+        // survives it. Closing here used to throw the whole request away.
+        setSubmitError("Sign in as a buyer to send this request — your vehicle, preferences and dealers stay as they are.");
+        openAuth("sign_in");
+        return;
+      }
+    } else if (authState !== "buyer") {
+      // Say it; never sign the account out for them. The "Sign in as buyer" button in the header is the explicit way.
+      setSubmitError(`You're signed in as a ${currentUser.role}. Use "Sign in as buyer" above to send this request as a buyer.`);
       return;
     }
     if (intent !== "alternate" && !selectedVehicle) return;
@@ -2755,6 +2771,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
         {/* Wizard Body */}
         <div className="p-5 space-y-4 max-h-[68vh] overflow-y-auto">
+          {currentUser?.testMode ? <TestModeBar /> : null}
           {activeRfq ? (
             <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3.5 py-2.5 text-[11px] text-amber-200" role="status" data-testid="active-request-notice">
               You already have an active request{activeRfq.dealReference ? <> (<span className="font-mono">{activeRfq.dealReference}</span>)</> : null}. Only one can be out at a time, so finish it or walk away from it before sending this one — you can set this one up now.{" "}

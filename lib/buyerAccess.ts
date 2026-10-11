@@ -18,6 +18,7 @@
 import { env } from "node:process";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { serverSecret } from "./serverSecret";
+import { isBuyerTestMode } from "./buyerTestMode";
 
 export const GUEST_PREFIX = "guest:";
 export const GUEST_TOKEN_HEADER = "x-guest-token";
@@ -106,7 +107,7 @@ export function hasBuyerCredential(session: SessionLike | null | undefined, req:
 }
 
 export type RfqCreateActor =
-  | { kind: "buyer"; ownerId: string }
+  | { kind: "buyer"; ownerId: string; testMode?: boolean }
   | { kind: "guest"; ownerId: string; email: string }
   | { kind: "deny"; status: number; error: string; code?: string };
 
@@ -116,6 +117,8 @@ export type RfqCreateActor =
  */
 export function rfqCreateActor(session: SessionLike | null | undefined, body: { guestEmail?: unknown } | null | undefined, source?: Record<string, string | undefined>): RfqCreateActor {
   const u = session?.user;
+  // Buyer test mode (BUYER_TEST_MODE_EMAILS): the owner's own account sends as a buyer whatever its stored role.
+  if (u?.id && isBuyerTestMode(u, source)) return { kind: "buyer", ownerId: String(u.id), testMode: true };
   if (u?.id && u.role === "buyer") return { kind: "buyer", ownerId: String(u.id) };
   if (u || requireBuyerLogin(source)) return { kind: "deny", status: 401, error: "You must be signed in as a buyer to send an RFQ." };
   const email = normalizeGuestEmail(body?.guestEmail);

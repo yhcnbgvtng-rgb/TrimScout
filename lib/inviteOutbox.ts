@@ -20,6 +20,7 @@ import { matchDirectoryDealership } from "./dealerContactLookup";
 import { sendQuoteInviteEmail } from "./dealerEmail";
 import { dealerReference } from "./dealerReference";
 import { featureEnabled } from "./featureFlags";
+import { rfqIsTestOrAudit } from "./buyerTestMode";
 import { bump } from "./opsMetrics";
 import { quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInviteEmailInput } from "./quoteInviteEmail";
 import { markRfqInviteDelivery } from "./rfqApi";
@@ -71,8 +72,8 @@ export async function sendQueuedInvite(
   invite: RfqInvite,
   deps: { directory?: Awaited<ReturnType<typeof listDealerships>>; send?: typeof sendQuoteInviteEmail; mark?: typeof markRfqInviteDelivery; emailEnabled?: () => boolean } = {}
 ): Promise<OutboxResult> {
-  // Requests created by the scoped audit key stay out of ops metrics (no email_* counters).
-  const count = rfq.auditForcedSafeMode ? () => {} : bump;
+  // Requests created by the scoped audit key or by buyer test mode stay out of ops metrics (no email_* counters).
+  const count = rfqIsTestOrAudit(rfq) ? () => {} : bump;
   if (invite.status !== "invited") return "already_sent";
   if ((invite.deliveryStatus ?? "queued") !== "queued") return "already_sent";
   // The admin gate comes before every other check: an unreleased request is
@@ -89,7 +90,7 @@ export async function sendQueuedInvite(
   const mail = await buildInviteEmailFromStored(rfq, invite, directory);
   if (!mail) return "no_desk";
   try {
-    // Requests created by the scoped audit key (rfq.auditForcedSafeMode) must only ever go to
+    // Requests created by the scoped audit key or buyer test mode (rfq.audit / rfq.auditForcedSafeMode) must only ever go to
     // SAFE_MODE_RECIPIENT. Today every send does; if a per-recipient test-mode override is ever added
     // to sendQuoteInviteEmail, it must be skipped for these requests (pinned by lib/auditKeyApp.test.ts).
     const ok = await (deps.send || sendQuoteInviteEmail)(mail.subject, mail.html);
