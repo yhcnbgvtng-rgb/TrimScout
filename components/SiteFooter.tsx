@@ -10,6 +10,10 @@ import Link from "next/link";
 export function SiteFooter({ showCopyright = true, className = "" }: { showCopyright?: boolean; className?: string }) {
   return (
     <footer className={`border-t border-border/60 py-6 text-center text-xs text-ink-faint ${className}`.trim()}>
+      <p className="mb-4 pb-4 border-b border-border/60 text-[11px]">
+        Are you a dealer? Learn how to get your vehicles visible on the site.{" "}
+        <a href="mailto:dealers@trimscout.com" className="underline hover:text-white transition-colors">Get in touch</a>
+      </p>
       {showCopyright ? (
         <p>© 2026 LyDar Enterprises LLC. Built for honest option matches and real dealer quotes.</p>
       ) : null}
