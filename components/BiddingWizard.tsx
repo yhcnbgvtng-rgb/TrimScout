@@ -678,7 +678,14 @@ function LinkConfirmPanel({
           : "The build comes from the factory record for this VIN; you're vouching that this VIN at this store is the car."}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg border border-border px-3.5 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all"
+        >
+          Cancel
+        </button>
         <button
           type="button"
           onClick={() =>
@@ -692,13 +699,6 @@ function LinkConfirmPanel({
           className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-brand-400 transition-all disabled:opacity-50"
         >
           {busy ? "Adding…" : shown ? "Confirm & add" : "Add without a dealership"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg border border-border px-3.5 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all"
-        >
-          Cancel
         </button>
       </div>
       {error && <p className="text-[10px] text-rose-400">{error}</p>}
