@@ -39,9 +39,9 @@ always goes to `SAFE_MODE_RECIPIENT`, subject tagged `[SAFE MODE]`), so real, au
 No contact details are included. Copy: "A request, not a bid."
 
 ## Trade tax note
-`TRADE_TAX_CREDIT_STATES` in `dealStages.js` is deliberately short (states where a trade-in lowers the taxable amount).
-Outside it the app counts no saving and says the dealer's paperwork confirms the tax. Verify per state before extending.
-The saving is shown, not subtracted: `trueOtd = otd - trade value`.
+No tax amount is shown. After the trade locks, buyer and dealer see "Trade-in may lower your sales tax — dealer will confirm"
+(and the email says the same). `TRADE_TAX_CREDIT_STATES` / `tradeTaxSavings` remain in `dealStages.js` only as unverified
+data and are not displayed; verify each state from an official source before ever using them. `trueOtd = otd - trade value`.
 
 ## Rollout: the website ships first, the stages stay OFF until the box is patched
 The web changes (two-tile Step 2, stage panels, tracker bar) are safe to ship on their own. New "Cash / Finance" requests only

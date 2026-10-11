@@ -42,7 +42,7 @@ function body(i: StageNoticeInput): { headline: string; text: string; cta: strin
       return { headline: "Buyer countered the trade value", text: `The buyer asked for ${usd(s.trade.counter?.value)} for their trade-in (you offered ${usd(s.trade.offer?.value)}).${s.trade.counter?.note ? ` Their note: ${s.trade.counter.note}` : ""} You can accept it or send one revised offer.`, cta: "Answer the counter" };
     case "trade_accept":
     case "trade_accept_counter": {
-      const saving = s.trade.taxSavings ? ` Estimated sales-tax saving from the trade: ${usd(s.trade.taxSavings)} (your final paperwork confirms it).` : "";
+      const saving = (s.trade.value ?? 0) > 0 ? " Trade-in may lower your sales tax — dealer will confirm." : "";
       return { headline: "Trade-in locked", text: `Trade value ${usd(s.trade.value)}. True out-the-door = ${usd(s.otd.amount)} - ${usd(s.trade.value)} = ${usd(s.trueOtd)}.${saving}${toDealer ? " The buyer picks cash or financing next." : " Next you can pay cash or ask for financing."}`, cta: toDealer ? "Open the quote page" : "Choose how to pay" };
     }
     case "choose_cash":

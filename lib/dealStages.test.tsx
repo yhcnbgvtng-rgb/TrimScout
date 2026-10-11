@@ -128,10 +128,10 @@ describe("notice emails: SAFE MODE, to the other side, never a bid", () => {
     assert.match(n("buyer", { type: "finance_accept" }, go(quoted, { type: "finance_accept" }, "buyer"))!.html, /accepted your financing quote/);
     assert.match(n("dealer", { type: "walk" }, go(atTrade(), { type: "walk", reason: "price" }, "dealer"))!.html, /Dealer walked away|ended this deal/);
   });
-  it("shows the trade tax saving only where the state credits it", () => {
-    assert.match(n("buyer", { type: "trade_accept" }, atPayment())!.html, /sales-tax saving/);
-    const noCredit = (() => { const o = go(atTrade(), { type: "trade_offer", value: 9000 }, "dealer"); const r = applyStageAction(o, { type: "trade_accept", actor: "buyer" }, { ...ctx, state: "CA" }); return (r as { state: DealStageState }).state; })();
-    assert.doesNotMatch(n("buyer", { type: "trade_accept" }, noCredit)!.html, /sales-tax saving/);
+  it("never states a calculated tax saving: only that the trade may lower sales tax and the dealer confirms", () => {
+    const h = n("buyer", { type: "trade_accept" }, atPayment())!.html;
+    assert.match(h, /Trade-in may lower your sales tax — dealer will confirm/);
+    assert.doesNotMatch(h, /\$795|sales-tax saving/);
   });
   it("sends nothing for an action that needs no email, and never includes contact details", () => {
     assert.equal(n("buyer", { type: "bogus" as never }, atTrade()), null);
@@ -230,7 +230,7 @@ describe("rendered panels", () => {
   });
   it("stage 3: locked numbers with the true OTD and tax saving; pay cash or ask for financing", () => {
     const h = html(atPayment());
-    assert.match(h, /data-testid="true-otd"[^>]*>\$34,749/); assert.match(h, /data-testid="trade-tax-savings"/);
+    assert.match(h, /data-testid="true-otd"[^>]*>\$34,749/); assert.match(h, /Trade-in may lower your sales tax — dealer will confirm/); assert.doesNotMatch(h, /trade-tax-savings|saving from trade/i);
     assert.match(h, /data-testid="choose-cash"/); assert.match(h, /data-testid="request-financing"/);
     assert.match(h, /outside financing to compare/);
   });

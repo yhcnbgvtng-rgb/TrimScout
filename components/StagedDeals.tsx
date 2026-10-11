@@ -58,11 +58,10 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
           {stage.otd.amount != null ? <div><dt className="text-ink-faint">Agreed out-the-door</dt><dd className="font-bold text-white">{usd(stage.otd.amount)}</dd></div> : null}
           {t.value != null ? <div><dt className="text-ink-faint">Trade value</dt><dd className="font-bold text-white">{usd(t.value)}</dd></div> : null}
           {stage.trueOtd != null ? <div><dt className="text-ink-faint">True out-the-door</dt><dd className="font-bold text-emerald-300" data-testid="true-otd">{usd(stage.trueOtd)}</dd></div> : null}
-          {t.taxSavings ? <div><dt className="text-ink-faint">Est. sales-tax saving from trade</dt><dd className="font-bold text-white" data-testid="trade-tax-savings">{usd(t.taxSavings)}</dd></div> : null}
         </dl>
       ) : null}
-      {t.status === "locked" && !t.taxSavings ? (
-        <p className="text-[10px] text-ink-faint">{t.taxCreditState === false ? "Your state may not reduce sales tax for a trade-in, so no saving is counted. The dealer's paperwork confirms the final tax." : "The dealer confirms the tax effect of your trade in the final paperwork."}</p>
+      {t.status === "locked" && (t.value ?? 0) > 0 ? (
+        <p className="text-[10px] text-ink-faint" data-testid="trade-tax-note">Trade-in may lower your sales tax — dealer will confirm</p>
       ) : null}
 
       {open && stage.stage === "otd" ? (
