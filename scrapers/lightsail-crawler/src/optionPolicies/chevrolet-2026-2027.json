@@ -5755,6 +5755,39 @@
             "price": 1995,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "performance data and video recorder": {
+            "label": "Performance data and video recorder",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
           "magnetic selective ride control": {
             "label": "Magnetic Selective Ride Control",
             "kind": "option",
@@ -5855,6 +5888,69 @@
             "label": "20-spoke Bright machined-face forged",
             "kind": "option",
             "price": 1995,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
             "aliases": []
           },
           "magnetic selective ride control": {
@@ -5963,6 +6059,69 @@
             "label": "20-spoke Bright machined-face forged",
             "kind": "option",
             "price": 1995,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
             "aliases": []
           },
           "magnetic selective ride control": {
@@ -6160,6 +6319,39 @@
             "price": 15500,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "performance data and video recorder": {
+            "label": "Performance data and video recorder",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
           "performance brembo carbon ceramic antilock brakes": {
             "label": "Performance Brembo carbon ceramic antilock brakes",
             "kind": "option",
@@ -6341,6 +6533,69 @@
             "label": "5-spoke Visible carbon fiber w/ Red stripe",
             "kind": "option",
             "price": 15500,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
             "aliases": []
           },
           "front lift with memory": {
@@ -6529,6 +6784,81 @@
             "price": 15500,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "carbon fiber and sueded microfiber wrapped steering wheel": {
+            "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 895,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "carbon fiber display hood": {
+            "label": "Carbon Fiber display hood",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
+          "carbon fiber interior package level 2": {
+            "label": "Carbon Fiber Interior Package Level 2",
+            "kind": "option",
+            "price": 5295,
+            "aliases": []
+          },
           "front lift with memory": {
             "label": "Front lift with memory",
             "kind": "option",
@@ -6690,6 +7020,39 @@
             "price": 15500,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "performance data and video recorder": {
+            "label": "Performance data and video recorder",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
           "quad center exit exhaust": {
             "label": "Quad center exit exhaust",
             "kind": "option",
@@ -6843,6 +7206,69 @@
             "label": "5-spoke Visible carbon fiber w/ Red stripe",
             "kind": "option",
             "price": 15500,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
             "aliases": []
           },
           "quad center exit exhaust": {
@@ -7016,6 +7442,69 @@
             "price": 15500,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
           "quad center exit exhaust": {
             "label": "Quad center exit exhaust",
             "kind": "option",
@@ -7109,6 +7598,39 @@
             "kind": "option",
             "price": 15995,
             "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
           }
         }
       },
@@ -7190,6 +7712,75 @@
             "label": "10-spoke Visible carbon fiber",
             "kind": "option",
             "price": 15995,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "carbon fiber and sueded microfiber wrapped steering wheel": {
+            "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 895,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
+          "carbon fiber interior package level 2": {
+            "label": "Carbon Fiber Interior Package Level 2",
+            "kind": "option",
+            "price": 5295,
             "aliases": []
           },
           "front lift with memory": {
@@ -7278,6 +7869,39 @@
             "kind": "option",
             "price": 15995,
             "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
           }
         }
       },
@@ -7358,6 +7982,75 @@
             "label": "10-spoke Visible carbon fiber",
             "kind": "option",
             "price": 15995,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "carbon fiber and sueded microfiber wrapped steering wheel": {
+            "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 895,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
+            "aliases": []
+          },
+          "carbon fiber interior package level 2": {
+            "label": "Carbon Fiber Interior Package Level 2",
+            "kind": "option",
+            "price": 5295,
             "aliases": []
           },
           "front lift with memory": {
@@ -7484,6 +8177,39 @@
             "price": 15500,
             "aliases": []
           },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "performance data and video recorder": {
+            "label": "Performance data and video recorder",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
           "quad center exit exhaust": {
             "label": "Quad center exit exhaust",
             "kind": "option",
@@ -7606,6 +8332,69 @@
             "label": "5-spoke Visible carbon fiber w/ Red stripe",
             "kind": "option",
             "price": 15500,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
             "aliases": []
           },
           "quad center exit exhaust": {
@@ -7746,6 +8535,69 @@
             "label": "5-spoke Visible carbon fiber w/ Red stripe",
             "kind": "option",
             "price": 15500,
+            "aliases": []
+          },
+          "seat belt color": {
+            "label": "Seat belt color",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^5 colors orange natural santorini blue torch red yellow$"
+            ]
+          },
+          "sueded microfiber wrapped steering wheel": {
+            "label": "Sueded microfiber-wrapped steering wheel",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "personalized interior plaque": {
+            "label": "Personalized interior plaque",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "santorini blue custom leather stitching": {
+            "label": "Santorini Blue custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "adrenaline red custom leather stitching": {
+            "label": "Adrenaline Red custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "competition yellow custom leather stitching": {
+            "label": "Competition Yellow custom leather stitching",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "two tone seats": {
+            "label": "Two-tone seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
+          "stealth interior trim package": {
+            "label": "Stealth Interior Trim Package",
+            "kind": "option",
+            "price": 695,
+            "aliases": []
+          },
+          "color combination override": {
+            "label": "Color Combination Override",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "carbon fiber interior trim": {
+            "label": "Carbon Fiber interior trim",
+            "kind": "option",
+            "price": 1795,
             "aliases": []
           },
           "quad center exit exhaust": {

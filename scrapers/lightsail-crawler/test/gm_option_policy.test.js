@@ -32,7 +32,7 @@ describe('what is covered: model + year + trim, per brand', () => {
   });
   it('policy sizes (entries per brand) match the generated report', () => {
     const size = (b) => Object.values(RAW[b]).reduce((n, p) => n + Object.values(p.trims).reduce((m, t) => m + Object.keys(t.options).length, 0), 0);
-    assert.deepEqual(BRANDS.map(size), [1236, 925, 99]);
+    assert.deepEqual(BRANDS.map(size), [1370, 925, 99]);
   });
   it('another model year, another model and another make are untouched (no policy)', () => {
     for (const v of [
@@ -82,7 +82,7 @@ describe('rule 1: only paid packages, standalone options, paints and powertrain 
         if (r.category === 'Base' || !(price > 0)) continue;
         if (!['Factory package', 'Factory option', 'Exterior color', 'Powertrain'].includes(r.category)) continue;
         if (r.model === 'Corvette') {
-          const grp = r.category === 'Factory package' || r.category === 'Exterior color' || (r.category === 'Factory option' && ['Wheels', 'Performance'].includes(r.subcategory));
+          const grp = r.category === 'Factory package' || r.category === 'Exterior color' || (r.category === 'Factory option' && ['Wheels', 'Performance', 'Interior'].includes(r.subcategory));
           if (!grp || (r.subcategory === 'Performance' && !(price > 1000))) continue;
         }
         const m = /(?:^|;\s*)key=([^;]+)/.exec(r.notes || '');
@@ -193,15 +193,19 @@ describe('factory editions are kept as packages (Paul): ZR2 Bison and AT4X AEV',
   });
 });
 
-describe('Corvette lean cut: only packages, paints, wheels and performance items; the $1,000 threshold is for performance items only', () => {
+describe('Corvette lean cut: only packages, paints, wheels, paid interior lines and performance items; the $1,000 threshold is for performance items only', () => {
   const vette = (names, trim = 'Stingray 1LT') => run('Chevrolet', { model: 'Corvette', year: 2027, trim }, names);
   it('keeps every priced package, paint and wheel, and performance items over $1,000', () => {
     const r = vette(['Z51 Performance Package', '20-spoke Gloss Black forged', 'Magnetic Selective Ride Control', 'Quad center exit exhaust', 'Roswell Green Metallic', '5-split-spoke Satin Graphite machined edge forged']);
     assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]).sort(), [['20-spoke Gloss Black forged', 'option', 1095], ['5-split-spoke Satin Graphite machined edge forged', 'option', 995], ['Magnetic Selective Ride Control', 'option', 1895], ['Quad center exit exhaust', 'option', 1995], ['Roswell Green Metallic', 'paint', 500], ['Z51 Performance Package', 'package', 5395]].sort());
   });
-  it('drops everything else: exterior stripes, seats, roof, interior items, and performance items at or under $1,000', () => {
-    const r = vette(['Stinger stripe', 'Full-length dual racing stripes', 'Competition Sport bucket seats', 'Transparent roof panel', 'Visible carbon-fiber roof panel with body-color surround', 'Personalized interior plaque', 'Performance data and video recorder', 'Engine lighting', 'Battery (12-volt) Protection Package', '6.7L engine cover']);
+  it('drops everything else: exterior stripes, seats, roof, and performance items at or under $1,000', () => {
+    const r = vette(['Stinger stripe', 'Full-length dual racing stripes', 'Competition Sport bucket seats', 'Transparent roof panel', 'Visible carbon-fiber roof panel with body-color surround',  'Engine lighting', 'Battery (12-volt) Protection Package', '6.7L engine cover']);
     assert.deepEqual(r.rows, [], JSON.stringify(r.rows));
+  });
+  it('keeps paid Corvette interior lines (Paul 2026-10-11), priced per trim', () => {
+    const r = vette(['Personalized interior plaque', 'Performance data and video recorder']);
+    assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]).sort(), [['Performance data and video recorder', 'option', 1495], ['Personalized interior plaque', 'option', 395]]);
   });
   it('the whole Corvette policy obeys the cut and no non-Corvette Chevrolet policy does', () => {
     let vetteEntries = 0, cheap = 0;
@@ -258,9 +262,10 @@ describe('paid interior lines (option bot, Paul 2026-10-11: every paid factory l
     return p?.trims[slug(r.trim)];
   };
   for (const b of ['chevrolet', 'gmc']) {
-    it(`${b}: every paid interior row (except Corvette's lean cut) is in its trim's policy at the CSV price, as an option`, () => {
-      const rows = interior(b).filter((r) => Number(r.price_usd) > 0 && r.model !== 'Corvette');
+    it(`${b}: every paid interior row (Corvette included) is in its trim's policy at the CSV price, as an option`, () => {
+      const rows = interior(b).filter((r) => Number(r.price_usd) > 0);
       assert.ok(rows.length > 20);
+      if (b === 'chevrolet') assert.ok(rows.filter((r) => r.model === 'Corvette').length >= 88, 'every paid Corvette interior row is checked');
       for (const r of rows) {
         const t = policyFor(b, r);
         assert.ok(t, `${r.model} ${r.trim}`);
@@ -269,11 +274,11 @@ describe('paid interior lines (option bot, Paul 2026-10-11: every paid factory l
         assert.deepEqual([e.kind, e.price], ['option', Number(r.price_usd)], r.item);
       }
     });
-    it(`${b}: no $0 interior row and no Corvette interior row becomes an option`, () => {
-      for (const r of interior(b).filter((x) => !(Number(x.price_usd) > 0) || x.model === 'Corvette')) {
+    it(`${b}: no $0 interior row becomes an option`, () => {
+      for (const r of interior(b).filter((x) => !(Number(x.price_usd) > 0))) {
         const t = policyFor(b, r);
         if (!t) continue;
-        assert.ok(!Object.values(t.options).some((o) => o.label === r.item && o.kind === 'option' && (r.model === 'Corvette' || o.price === 0)), `${r.model} ${r.trim}: ${r.item}`);
+        assert.ok(!Object.values(t.options).some((o) => o.label === r.item && o.kind === 'option' && o.price === 0), `${r.model} ${r.trim}: ${r.item}`);
       }
     });
   }
@@ -286,10 +291,6 @@ describe('paid interior lines (option bot, Paul 2026-10-11: every paid factory l
   it('GMC Sierra 1500 PRO gets wrapped steering wheel $75 and carpeted floor covering $100', () => {
     const r = run('GMC', { model: 'Sierra 1500', trim: 'PRO', year: 2027 }, ['Wrapped steering wheel', 'Carpeted floor covering']);
     assert.deepEqual(r.rows.map((x) => [x.label, x.price]).sort(), [['Carpeted floor covering', 100], ['Wrapped steering wheel', 75]]);
-  });
-  it('Corvette keeps its lean cut: an interior line is still dropped', () => {
-    const r = run('Chevrolet', { model: 'Corvette', trim: '1LT', year: 2026 }, ['Wrapped steering wheel']);
-    assert.deepEqual(r?.rows ?? [], []);
   });
   it('Cadillac: the paid interior lines (65 CSV rows) are already in its policy and the CSV is unchanged', () => {
     const rows = parseCsv(fs.readFileSync(path.join(repo, 'docs/cadillac-honda-kia-2026-2027/cadillac_lineup_options_by_trim.csv'), 'utf8'));
