@@ -2,7 +2,7 @@
 
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
-import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
+import { type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -3423,14 +3423,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              <WizardSection title="Trade-in" hint="Optional. Dealers appraise it as its own line next to the price; nothing is binding." className="pt-6">
-                <TradeInStep
-                  enabled={Boolean(tradeInExpected)}
-                  onToggle={(on) => { setTradeInExpected(on); if (!on) setTradeAttempted(false); }}
-                  defaultZip={zipOk ? huntZip.trim() : null}
-                  attempted={tradeAttempted}
-                  onState={setTradeStep}
-                />
+              <WizardSection title="Trade-in" className="pt-6">
+                <p className="text-xs text-ink-light" data-testid="trade-in-note">
+                  Trade-ins will be completed once we have aligned on the purchase price of the vehicle.
+                </p>
               </WizardSection>
 
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
