@@ -113,8 +113,9 @@ describe("buyer search seed -> Step 1", () => {
       if (send) {
         const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')!;
         await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
-        // The trade-in toggle defaults off, so there is nothing to answer on Step 3.
-        assert.equal(doc.querySelector('[data-testid="trade-toggle"]')?.getAttribute("aria-checked"), "false");
+        // Trade-in is a note only on Step 3 (no toggle), so there is nothing to answer.
+        assert.equal(doc.querySelector('[data-testid="trade-toggle"]'), null);
+        assert.ok(doc.querySelector('[data-testid="trade-in-note"]'));
         const cont = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
         await act(async () => { cont.click(); });
         await tick();
