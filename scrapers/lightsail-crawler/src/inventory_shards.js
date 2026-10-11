@@ -40,28 +40,71 @@ function requireState(state, fnName) {
   return state.toUpperCase();
 }
 
+// Per-brand shards (2026-10-11). One file per (state, brand) — <ST>__<brand-slug>.json — so a brand-run only ever
+// loads/merges/writes its own brand's records. The state-wide file (<ST>.json, "legacy") grew to ~400 MB for TX/FL
+// and its parsed form pushed the crawl to ~3.3 GB of a 3.6 GB heap. The inventory sync reads every *.json in
+// data/inventory, so per-brand files need no sync change; a brand's records are removed from the legacy file when
+// its brand shard is first written (see legacyShardSplit.js) so the same VIN is never in two files.
+export const BRAND_SEPARATOR = '__';
+
+export function brandSlug(brandName) {
+  const slug = String(brandName || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!slug) throw new Error('brandSlug requires a non-empty brand name');
+  return slug;
+}
+
+// 'TX__ford.json' -> { state: 'TX', slug: 'ford' }; 'TX.json' -> { state: 'TX', slug: null }.
+export function parseShardFileName(file) {
+  if (!file.endsWith('.json')) return null;
+  const stem = file.slice(0, -'.json'.length);
+  const i = stem.indexOf(BRAND_SEPARATOR);
+  if (i === -1) return { state: stem, slug: null };
+  return { state: stem.slice(0, i), slug: stem.slice(i + BRAND_SEPARATOR.length) || null };
+}
+
+function shardFile(state, fnName, brand) {
+  const st = requireState(state, fnName);
+  return brand ? `${st}${BRAND_SEPARATOR}${brandSlug(brand)}.json` : `${st}.json`;
+}
+
 export function inventoryShardsDir(cwd = process.cwd()) {
   return path.join(path.resolve(cwd, 'data'), 'inventory');
 }
 
-export function inventoryShardPath(state, cwd = process.cwd()) {
-  return path.join(inventoryShardsDir(cwd), `${requireState(state, 'inventoryShardPath')}.json`);
+// `brand` (a brand name) selects the per-brand shard; omitted = the legacy state-wide file.
+export function inventoryShardPath(state, cwd = process.cwd(), brand = null) {
+  return path.join(inventoryShardsDir(cwd), shardFile(state, 'inventoryShardPath', brand));
 }
 
 export function snapshotShardsDir(cwd = process.cwd()) {
   return path.join(path.resolve(cwd, 'data'), 'snapshots');
 }
 
-export function snapshotShardPath(state, cwd = process.cwd()) {
-  return path.join(snapshotShardsDir(cwd), `${requireState(state, 'snapshotShardPath')}.json`);
+export function snapshotShardPath(state, cwd = process.cwd(), brand = null) {
+  return path.join(snapshotShardsDir(cwd), shardFile(state, 'snapshotShardPath', brand));
 }
 
 export function cacheShardsDir(cwd = process.cwd()) {
   return path.join(path.resolve(cwd, 'data'), 'enriched_cache');
 }
 
-export function cacheShardPath(state, cwd = process.cwd()) {
-  return path.join(cacheShardsDir(cwd), `${requireState(state, 'cacheShardPath')}.json`);
+export function cacheShardPath(state, cwd = process.cwd(), brand = null) {
+  return path.join(cacheShardsDir(cwd), shardFile(state, 'cacheShardPath', brand));
+}
+
+// Every inventory shard file on disk (legacy and per-brand), as { state, slug, file }.
+export async function listInventoryShardFiles(cwd = process.cwd()) {
+  let entries;
+  try {
+    entries = await fs.readdir(inventoryShardsDir(cwd));
+  } catch {
+    return [];
+  }
+  return entries
+    .map((f) => ({ file: f, parsed: parseShardFileName(f) }))
+    .filter((e) => e.parsed)
+    .map((e) => ({ file: path.join(inventoryShardsDir(cwd), e.file), state: e.parsed.state, slug: e.parsed.slug }))
+    .sort((a, b) => a.file.localeCompare(b.file));
 }
 
 // Every state that currently has an inventory shard on disk — the
@@ -71,16 +114,8 @@ export function cacheShardPath(state, cwd = process.cwd()) {
 // (not the cache or snapshot dirs) since inventory is what every one of
 // those callers actually wants a state list for.
 export async function listShardedStates(cwd = process.cwd()) {
-  let entries;
-  try {
-    entries = await fs.readdir(inventoryShardsDir(cwd));
-  } catch {
-    return [];
-  }
-  return entries
-    .filter((f) => f.endsWith('.json'))
-    .map((f) => f.slice(0, -'.json'.length))
-    .sort();
+  const files = await listInventoryShardFiles(cwd);
+  return [...new Set(files.map((f) => f.state))].sort();
 }
 
 // Concatenates every state's inventory shard into one array, for the few
@@ -90,11 +125,11 @@ export async function listShardedStates(cwd = process.cwd()) {
 // the same fault-tolerance the old single-file readers already had via
 // their own try/catch around one file, just applied per-shard now.
 export async function readAllInventoryShards(cwd = process.cwd()) {
-  const states = await listShardedStates(cwd);
+  const files = await listInventoryShardFiles(cwd);
   const all = [];
-  for (const state of states) {
+  for (const { file } of files) {
     try {
-      const records = await readJsonLarge(inventoryShardPath(state, cwd));
+      const records = await readJsonLarge(file);
       // A loop, not all.push(...records): spreading a six-figure array into one call overflows the argument limit.
       if (Array.isArray(records)) for (const r of records) all.push(r);
     } catch {
