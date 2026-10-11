@@ -1,0 +1,968 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2026,Canyon,Elevation,,38900,Base,,Standard Vehicle Price,38900,,"Destination Freight Charge $2,095 not included; default-selected paid paint (+$495) excluded; see paint row",models/canyon_options.md:29
+2026,Canyon,Elevation,,38900,Powertrain,Drivetrain,4WD (vs 2WD),3300,,,models/canyon_options.md:26
+2026,Canyon,Elevation,,38900,Exterior color,,Coastal Dune,495,,,models/canyon_options.md:30
+2026,Canyon,Elevation,,38900,Exterior color,,Onyx Black,495,,,models/canyon_options.md:30
+2026,Canyon,Elevation,,38900,Exterior color,,Sterling Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/canyon_options.md:30
+2026,Canyon,Elevation,,38900,Exterior color,,Rapids Metallic,495,,,models/canyon_options.md:30
+2026,Canyon,Elevation,,38900,Exterior color,,Volcanic Red Tintcoat,645,,,models/canyon_options.md:30
+2026,Canyon,Elevation,,38900,Factory package,,Black Badging Package,595,Black Nameplates; Black GMC Emblems,key=name:black badging package,models/canyon_options.md:36
+2026,Canyon,Elevation,,38900,Factory package,,Technology Package,950,Tailgate keyed cylinder lock; Adaptive Cruise Control; Rear Pedestrian Alert,key=name:technology package,models/canyon_options.md:40
+2026,Canyon,Elevation,,38900,Factory package,,Convenience Package,1435,Tailgate keyed cylinder lock; MultiStow Tailgate™; Remote Start,key=name:convenience package,models/canyon_options.md:42
+2026,Canyon,AT4,,45500,Base,,Standard Vehicle Price,45500,,"Destination Freight Charge $2,095 not included",models/canyon_options.md:79
+2026,Canyon,AT4,,45500,Exterior color,,Coastal Dune,495,,,models/canyon_options.md:80
+2026,Canyon,AT4,,45500,Exterior color,,Onyx Black,495,,,models/canyon_options.md:80
+2026,Canyon,AT4,,45500,Exterior color,,Sterling Metallic,495,,,models/canyon_options.md:80
+2026,Canyon,AT4,,45500,Exterior color,,Desert Sun,495,,,models/canyon_options.md:80
+2026,Canyon,AT4,,45500,Exterior color,,Volcanic Red Tintcoat,645,,,models/canyon_options.md:80
+2026,Canyon,AT4,,45500,Factory package,,Nightfall Essentials Package,1295,"20"" aluminum full-size spare wheel; 20"" 275/60R20SL AT blackwall tires; 20"" Machine Faced Aluminum Wheels with Dark Pockets",key=name:nightfall essentials package,models/canyon_options.md:90
+2026,Canyon,AT4,,45500,Factory package,,Off Road Lift Package,2395,Suspension Lift Kit; Black Off-Road assist steps,"key=name:off road lift package; contents: Suspension Lift Kit; Black Off-Road assist steps (kept: mainly suspension hardware, per the Off-Road Package call; flagged)",models/canyon_options.md:93
+2026,Canyon,AT4,,45500,Factory package,,Technology Plus Package,3050,Acoustic laminated windshield; Power sunroof; Adaptive Cruise Control,key=name:technology plus package,models/canyon_options.md:94
+2026,Canyon,AT4,,45500,Factory package,,Nightfall Edition,4395,"20"" aluminum full-size spare wheel; 20"" 275/60R20SL AT blackwall tires; 20"" Machine Faced Aluminum Wheels with Dark Pockets",key=name:nightfall edition,models/canyon_options.md:96
+2026,Canyon,AT4,,45500,Factory option,Wheels,"20"" Black aluminum wheels",2695,,,models/canyon_options.md:81
+2026,Canyon,AT4,,45500,Factory option,Tires,"18"" LT275/65R18C MT blackwall tires",695,,,models/canyon_options.md:82
+2026,Canyon,AT4,,45500,Factory option,Performance,Engine block heater,100,,,models/canyon_options.md:108
+2026,Canyon,AT4,,45500,Factory option,Interior,Audio System by Kicker,925,,,models/canyon_options.md:109
+2026,Canyon,Denali,,53300,Base,,Standard Vehicle Price,53300,,"Destination Freight Charge $2,095 not included; default-selected paid paint (+$495) excluded; see paint row",models/canyon_options.md:134
+2026,Canyon,Denali,,53300,Exterior color,,Coastal Dune,495,,,models/canyon_options.md:135
+2026,Canyon,Denali,,53300,Exterior color,,Onyx Black,495,,default-selected paint; its price is excluded from trim_base_msrp,models/canyon_options.md:135
+2026,Canyon,Denali,,53300,Exterior color,,Sterling Metallic,495,,,models/canyon_options.md:135
+2026,Canyon,Denali,,53300,Exterior color,,Glacier Metallic,495,,,models/canyon_options.md:135
+2026,Canyon,Denali,,53300,Exterior color,,Volcanic Red Tintcoat,645,,,models/canyon_options.md:135
+2026,Canyon,Denali,,53300,Factory package,,Black Badging Package,595,Black Nameplates; Black GMC Emblems,key=name:black badging package,models/canyon_options.md:142
+2026,Canyon,Denali,,53300,Factory package,,Denali Black Edition,3850,All-weather floor liners; Black Nameplates; Black GMC Emblems,key=name:denali black edition,models/canyon_options.md:144
+2026,Canyon,Denali,,53300,Factory option,Wheels,"22"" Low Gloss Black with machined outer spokes",4595,,,models/canyon_options.md:136
+2026,Canyon,Denali,,53300,Factory option,Roof,Power sunroof,1000,,,models/canyon_options.md:149
+2026,Canyon,Denali,,53300,Factory option,Interior,Underbody Cameras,500,,,models/canyon_options.md:150
+2026,Canyon,Denali,,53300,Factory option,Interior,Audio System by Kicker,925,,,models/canyon_options.md:150
+2026,Canyon,Denali,,53300,Factory option,Performance,Engine block heater,100,,,models/canyon_options.md:151
+2026,Canyon,AT4X,,57300,Base,,Standard Vehicle Price,57300,,"Destination Freight Charge $2,095 not included",models/canyon_options.md:173
+2026,Canyon,AT4X,,57300,Exterior color,,Coastal Dune,495,,,models/canyon_options.md:174
+2026,Canyon,AT4X,,57300,Exterior color,,Onyx Black,495,,,models/canyon_options.md:174
+2026,Canyon,AT4X,,57300,Exterior color,,Sterling Metallic,495,,,models/canyon_options.md:174
+2026,Canyon,AT4X,,57300,Exterior color,,Desert Sun,495,,,models/canyon_options.md:174
+2026,Canyon,AT4X,,57300,Exterior color,,Volcanic Red Tintcoat,645,,,models/canyon_options.md:174
+2026,Canyon,AT4X,,57300,Factory package,,Black Badging Package,595,Black Nameplates; Black GMC Emblems,key=name:black badging package,models/canyon_options.md:181
+2026,Canyon,AT4X,,57300,Factory option,Wheels,"17"" Beadlock Capable Wheels with Grazen Metallic Decorative Ring",3695,,,models/canyon_options.md:175
+2026,Canyon,AT4X,,57300,Factory option,Performance,Multimatic Jounce Control Dampers,2750,,,models/canyon_options.md:197
+2026,Canyon,AT4X,,57300,Factory option,Performance,Engine block heater,100,,,models/canyon_options.md:197
+2026,Canyon,AT4X,,57300,Factory option,Interior,Audio System by Kicker,925,,,models/canyon_options.md:198
+2027,Sierra 1500,PRO,,45200,Base,,Standard Vehicle Price,45200,,"Destination Freight Charge $2,795 not included; Package Discount -$1,350 (unitemized) excluded; default-selected paid paint (+$495) excluded; see paint row; configuration: Crew Cab Short Bed default build; Crew Cab Standard Bed (4WD only, +$300 to +$700 picker) is configuration, not an option",models/sierra1500_options.md:33
+2027,Sierra 1500,PRO,,45200,Powertrain,Drivetrain,4WD (vs 2WD),3300,,,models/sierra1500_options.md:32
+2027,Sierra 1500,PRO,,45200,Powertrain,Engine,5.7L V8 gas,2690,,,models/sierra1500_options.md:36
+2027,Sierra 1500,PRO,,45200,Powertrain,Engine,3.0L Duramax Turbo Diesel,3035,,,models/sierra1500_options.md:36
+2027,Sierra 1500,PRO,,45200,Exterior color,,Cardinal Red,495,,,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Exterior color,,Coastal Dune,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Exterior color,,Sterling Metallic,495,,,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Exterior color,,Mesa Red,695,,,models/sierra1500_options.md:37
+2027,Sierra 1500,PRO,,45200,Factory package,,GMC Black Package,1650,All-weather floor liners; Black nameplates; Second row all-weather mat,key=name:gmc black package,models/sierra1500_options.md:47
+2027,Sierra 1500,PRO,,45200,Factory package,,Convenience Package,1175,Deep-tinted glass; Remote Start; Rear window defogger (card);,key=name:convenience package,models/sierra1500_options.md:49
+2027,Sierra 1500,PRO,,45200,Factory package,,Chrome Exterior Package,200,Chrome front bumper; Chrome rear bumper,key=name:chrome exterior package,models/sierra1500_options.md:53
+2027,Sierra 1500,PRO,,45200,Factory option,Wheels,"17"" 6-spoke Bright Silver painted aluminum wheels",350,,,models/sierra1500_options.md:38
+2027,Sierra 1500,PRO,,45200,Factory option,Tires,"17"" LT265/70R17C all-terrain, blackwall",395,,,models/sierra1500_options.md:39
+2027,Sierra 1500,PRO,,45200,Factory option,Interior,Heated steering wheel,150,,,models/sierra1500_options.md:42
+2027,Sierra 1500,PRO,,45200,Factory option,Performance,Fuel Tank,445,,,models/sierra1500_options.md:60
+2027,Sierra 1500,PRO,,45200,Factory option,Performance,Automatic locking rear differential,395,,,models/sierra1500_options.md:60
+2027,Sierra 1500,PRO,,45200,Factory option,Performance,250-amp alternator,150,,,models/sierra1500_options.md:60
+2027,Sierra 1500,PRO,,45200,Factory option,Performance,Engine block heater,100,,,models/sierra1500_options.md:60
+2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Black outside vertical trailering mirrors,90,,,models/sierra1500_options.md:61
+2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:61
+2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:61
+2027,Sierra 1500,Elevation,,53200,Base,,Standard Vehicle Price,53200,,"Destination Freight Charge $2,795 not included; Package Discount -$1,350 (unitemized) excluded; default-selected paid paint (+$695) excluded; see paint row; configuration: Crew Cab Short Bed default build; Crew Cab Standard Bed (4WD only, +$300 to +$700 picker) is configuration, not an option",models/sierra1500_options.md:78
+2027,Sierra 1500,Elevation,,53200,Powertrain,Drivetrain,4WD (vs 2WD),4000,,,models/sierra1500_options.md:77
+2027,Sierra 1500,Elevation,,53200,Powertrain,Engine,3.0L Duramax Turbo Diesel,2640,,,models/sierra1500_options.md:81
+2027,Sierra 1500,Elevation,,53200,Powertrain,Engine,5.7L V8 gas,2690,,,models/sierra1500_options.md:81
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Cardinal Red,495,,,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Coastal Dune,495,,,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Sterling Metallic,495,,,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Exterior color,,Mesa Red,695,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:82
+2027,Sierra 1500,Elevation,,53200,Factory package,,Elevation Bright Package,4300,"22"" Bright PVD wheel; 6"" Chrome rectangular assist steps; 22"" 275/50R22SL all-season tires",key=name:elevation bright package,models/sierra1500_options.md:90
+2027,Sierra 1500,Elevation,,53200,Factory package,,Texas Edition,1935,All-weather floor liners; Second row all-weather mat; Texas Edition badge,key=name:texas edition,models/sierra1500_options.md:93
+2027,Sierra 1500,Elevation,,53200,Factory package,,GMC Black Package,1650,All-weather floor liners; Black nameplates; Second row all-weather mat,key=name:gmc black package,models/sierra1500_options.md:96
+2027,Sierra 1500,Elevation,,53200,Factory option,Tires,"20"" 275/60R20SL all-terrain, blackwall",400,,,models/sierra1500_options.md:84
+2027,Sierra 1500,Elevation,,53200,Factory option,Performance,Fuel Tank,445,,,models/sierra1500_options.md:110
+2027,Sierra 1500,Elevation,,53200,Factory option,Performance,250-amp alternator,150,,,models/sierra1500_options.md:110
+2027,Sierra 1500,Elevation,,53200,Factory option,Performance,Engine block heater,100,,,models/sierra1500_options.md:110
+2027,Sierra 1500,Elevation,,53200,Factory option,Exterior,MultiPro Audio System by Kicker,1055,,"kept: GMC source lists it under Priced non-accessory options (Exterior), not in an accessory group; differs from Chevy Silverado 1500, where Audio System by Kicker $1,055 was listed in the Accessories group and dropped",models/sierra1500_options.md:113
+2027,Sierra 1500,Elevation,,53200,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:113
+2027,Sierra 1500,Elevation,,53200,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:113
+2027,Sierra 1500,Denali,,70900,Base,,Standard Vehicle Price,70900,,"Destination Freight Charge $2,795 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: Crew Cab Short Bed default build; Crew Cab Standard Bed (4WD only, +$300 to +$700 picker) is configuration, not an option",models/sierra1500_options.md:129
+2027,Sierra 1500,Denali,,70900,Powertrain,Drivetrain,4WD (vs 2WD),3100,,,models/sierra1500_options.md:128
+2027,Sierra 1500,Denali,,70900,Powertrain,Engine,3.0L Duramax Turbo Diesel,2985,,,models/sierra1500_options.md:132
+2027,Sierra 1500,Denali,,70900,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Exterior color,,Coastal Dune,495,,,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Exterior color,,Sterling Metallic,495,,,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Exterior color,,Azurite Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Exterior color,,Glacier White Tricoat,1095,,,models/sierra1500_options.md:133
+2027,Sierra 1500,Denali,,70900,Factory package,,Technology Package,1295,"GMC Illuminated puddle lamp emblem; 11.5"" diagonal color front passenger screen",key=name:technology package,models/sierra1500_options.md:142
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" Split 6-spoke Machined aluminum wheels with After Midnight accents",1700,,,models/sierra1500_options.md:134
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" Low Gloss Black wheel with selective machined accents",3750,,,models/sierra1500_options.md:150
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" PVD Bright V-Spoke Wheels",3450,,,models/sierra1500_options.md:150
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" Bright PVD wheel",3450,,,models/sierra1500_options.md:150
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" High Gloss Black V-Spoke wheels",3250,,,models/sierra1500_options.md:150
+2027,Sierra 1500,Denali,,70900,Factory option,Wheels,"22"" High Gloss Black wheels",3250,,,models/sierra1500_options.md:150
+2027,Sierra 1500,Denali,,70900,Factory option,Performance,Fuel Tank,445,,,models/sierra1500_options.md:151
+2027,Sierra 1500,Denali,,70900,Factory option,Performance,Engine block heater,100,,,models/sierra1500_options.md:151
+2027,Sierra 1500,Denali,,70900,Factory option,Exterior,MultiPro Audio System by Kicker,1055,,"kept: GMC source lists it under Priced non-accessory options (Exterior), not in an accessory group; differs from Chevy Silverado 1500, where Audio System by Kicker $1,055 was listed in the Accessories group and dropped",models/sierra1500_options.md:152
+2027,Sierra 1500,Denali,,70900,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:152
+2027,Sierra 1500,Denali,,70900,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:152
+2027,Sierra 1500,AT4,,70700,Base,,Standard Vehicle Price,70700,,"Destination Freight Charge $2,795 not included; configuration: Crew Cab Short Bed default build; Crew Cab Standard Bed (4WD only, +$300 to +$700 picker) is configuration, not an option",models/sierra1500_options.md:170
+2027,Sierra 1500,AT4,,70700,Powertrain,Engine,3.0L Duramax Turbo Diesel,2490,,,models/sierra1500_options.md:173
+2027,Sierra 1500,AT4,,70700,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:174
+2027,Sierra 1500,AT4,,70700,Exterior color,,Coastal Dune,495,,,models/sierra1500_options.md:174
+2027,Sierra 1500,AT4,,70700,Exterior color,,Sterling Metallic,495,,,models/sierra1500_options.md:174
+2027,Sierra 1500,AT4,,70700,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:174
+2027,Sierra 1500,AT4,,70700,Exterior color,,Mesa Red,695,,,models/sierra1500_options.md:174
+2027,Sierra 1500,AT4,,70700,Factory package,,AT4 Premium Package,3400,Off-Road A-Pillar Lights; Sport Pedal Cover Kit; Power distribution box,key=name:at4 premium package,models/sierra1500_options.md:181
+2027,Sierra 1500,AT4,,70700,Factory package,,Technology Package,2435,"Rear Camera Mirror; GMC Illuminated puddle lamp emblem; 11.5"" diagonal color front passenger screen",key=name:technology package,models/sierra1500_options.md:182
+2027,Sierra 1500,AT4,,70700,Factory option,Wheels,"18"" High gloss Black wheels with machined cut areas",2625,,,models/sierra1500_options.md:194
+2027,Sierra 1500,AT4,,70700,Factory option,Performance,Fuel Tank,445,,,models/sierra1500_options.md:196
+2027,Sierra 1500,AT4,,70700,Factory option,Performance,Engine block heater,100,,,models/sierra1500_options.md:196
+2027,Sierra 1500,AT4,,70700,Factory option,Exterior,MultiPro Audio System by Kicker,1055,,"kept: GMC source lists it under Priced non-accessory options (Exterior), not in an accessory group; differs from Chevy Silverado 1500, where Audio System by Kicker $1,055 was listed in the Accessories group and dropped",models/sierra1500_options.md:197
+2027,Sierra 1500,AT4,,70700,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:197
+2027,Sierra 1500,AT4,,70700,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:197
+2027,Sierra 1500,AT4X,,82700,Base,,Standard Vehicle Price,82700,,"Destination Freight Charge $2,795 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: Crew Cab Short Bed only",models/sierra1500_options.md:213
+2027,Sierra 1500,AT4X,,82700,Powertrain,Engine,6.6L V8 gas,2355,,,models/sierra1500_options.md:216
+2027,Sierra 1500,AT4X,,82700,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Exterior color,,Coastal Dune,495,,,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Exterior color,,Sterling Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Exterior color,,Mesa Red,695,,,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,"18"" 12-spoke High Gloss Black aluminum wheels with laser etching and GMC center cap",800,,,models/sierra1500_options.md:218
+2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,Red Decorative Rings for Beadlock capable wheels,1650,,,models/sierra1500_options.md:218
+2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,Silver Decorative Rings for Beadlock capable wheels,1650,,,models/sierra1500_options.md:218
+2027,Sierra 1500,AT4X,,82700,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:234
+2027,Sierra 1500,AT4X,,82700,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:234
+2027,Sierra 1500,Denali Ultimate,,85100,Base,,Standard Vehicle Price,85100,,"Destination Freight Charge $2,795 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: Crew Cab Short Bed only",models/sierra1500_options.md:252
+2027,Sierra 1500,Denali Ultimate,,85100,Powertrain,Engine,3.0L Duramax Turbo Diesel,3085,,,models/sierra1500_options.md:255
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Onyx Black,495,,,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Coastal Dune,495,,,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Sterling Metallic,495,,,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Dark Ridge Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Azurite Blue Metallic,495,,,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Exterior color,,Glacier White Tricoat,1095,,,models/sierra1500_options.md:256
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Wheels,"22"" Low Gloss Black wheel with selective machined accents",3750,,,models/sierra1500_options.md:270
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Wheels,"22"" PVD Bright V-Spoke Wheels",3450,,,models/sierra1500_options.md:270
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Wheels,"22"" Bright PVD wheel",3450,,,models/sierra1500_options.md:270
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Wheels,"22"" High Gloss Black V-Spoke wheels",3250,,,models/sierra1500_options.md:270
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Wheels,"22"" High Gloss Black wheels",3250,,,models/sierra1500_options.md:270
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:272
+2027,Sierra 1500,Denali Ultimate,,85100,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:272
+2026,Sierra 2500 HD,PRO,,51000,Base,,Standard Vehicle Price,51000,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:29
+2026,Sierra 2500 HD,PRO,,51000,Powertrain,Drivetrain,4WD (vs 2WD),2800,,,models/sierra2500hd_options.md:27
+2026,Sierra 2500 HD,PRO,,51000,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:28
+2026,Sierra 2500 HD,PRO,,51000,Powertrain,Engine,Duramax with integrated Power Take-Off,10985,,"4WD only: PTO engine listed on the PRO 4WD card only (+$10,985 over the 6.6L gas)",models/sierra2500hd_options.md:28
+2026,Sierra 2500 HD,PRO,,51000,Exterior color,,Coastal Dune,495,,,models/sierra2500hd_options.md:30
+2026,Sierra 2500 HD,PRO,,51000,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:30
+2026,Sierra 2500 HD,PRO,,51000,Exterior color,,Cardinal Red,495,,,models/sierra2500hd_options.md:30
+2026,Sierra 2500 HD,PRO,,51000,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:30
+2026,Sierra 2500 HD,PRO,,51000,Exterior color,,Downpour Metallic,495,,,models/sierra2500hd_options.md:30
+2026,Sierra 2500 HD,PRO,,51000,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:36
+2026,Sierra 2500 HD,PRO,,51000,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:37
+2026,Sierra 2500 HD,PRO,,51000,Factory package,,PRO Convenience Package,910,Deep-tinted glass; Rear window defogger; Black outside power-adjustable vertical trailering mirrors,key=name:pro convenience package,models/sierra2500hd_options.md:39
+2026,Sierra 2500 HD,PRO,,51000,Factory package,,Max Trailering Package,2085,Spray-on bedliner; Gooseneck / 5th Wheel Prep Package,"key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:41
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Wheels,"18"" steel painted Silver wheels",300,,,models/sierra2500hd_options.md:31
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Wheels,"17"" machined aluminum wheels",350,,,models/sierra2500hd_options.md:31
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Tires,"17"" LT265/70R17E all-terrain blackwall",200,,,models/sierra2500hd_options.md:32
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Tires,"18"" LT275/70R18E all-terrain blackwall",200,,,models/sierra2500hd_options.md:32
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,,E85 FlexFuel capable,100,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:48
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:49
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Exterior,Deep-tinted glass,200,,,models/sierra2500hd_options.md:50
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Interior,Rear window defogger,225,,,models/sierra2500hd_options.md:51
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Interior,Adaptive Cruise Control,500,,,models/sierra2500hd_options.md:51
+2026,Sierra 2500 HD,PRO,,51000,Factory option,Interior,Universal Vehicle Module,295,,,models/sierra2500hd_options.md:51
+2026,Sierra 2500 HD,PRO,,51000,Factory option,,Bed View Camera,250,,,models/sierra2500hd_options.md:53
+2026,Sierra 2500 HD,SLE,,58200,Base,,Standard Vehicle Price,58200,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:68
+2026,Sierra 2500 HD,SLE,,58200,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:67
+2026,Sierra 2500 HD,SLE,,58200,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8 with integrated Power Take-Off,10985,,,models/sierra2500hd_options.md:67
+2026,Sierra 2500 HD,SLE,,58200,Exterior color,,Coastal Dune,495,,,models/sierra2500hd_options.md:69
+2026,Sierra 2500 HD,SLE,,58200,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:69
+2026,Sierra 2500 HD,SLE,,58200,Exterior color,,Cardinal Red,495,,,models/sierra2500hd_options.md:69
+2026,Sierra 2500 HD,SLE,,58200,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:69
+2026,Sierra 2500 HD,SLE,,58200,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:69
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:75
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Snow Plow Prep / Camper Package,300,220-amp alternator; Skid plates,key=name:snow plow prep camper package,models/sierra2500hd_options.md:76
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:77
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Remote Start Package,525,Remote Start; Rear window defogger; Theft-deterrent unauthorized entry system,key=name:remote start package,models/sierra2500hd_options.md:80
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,X31 Off-Road Package,525,Off-Road suspension; Hill Descent Control; Skid plates,key=name:x31 off road package,models/sierra2500hd_options.md:81
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Sierra HD PRO Safety Plus Package,1335,Trailering camera provisions; Front and Rear Park Assist; In-Vehicle Trailering App. (Different from the PRO trim's PRO Safety Plus Package.),key=name:sierra hd pro safety plus package,models/sierra2500hd_options.md:84
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,X31 Off-Road and Protection Package,1635,Off-Road suspension; Spray-on bedliner; Hill Descent Control,key=name:x31 off road and protection package,models/sierra2500hd_options.md:86
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,Max Trailering Package,2085,"Spray-on bedliner; 11,750 lbs. GVWR; Gooseneck / 5th Wheel Prep Package","key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:87
+2026,Sierra 2500 HD,SLE,,58200,Factory package,,SLE Value Package,2385,10-way power driver seat with power lumbar; Remote Start; Rear window defogger,key=name:sle value package,models/sierra2500hd_options.md:88
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Wheels,"18"" machined aluminum wheels with Dark Grey metallic accents",300,,,models/sierra2500hd_options.md:70
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Wheels,"20"" Bright face wheels with dark painted pockets",1400,,,models/sierra2500hd_options.md:70
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Tires,"17"" LT265/70R17E all-terrain blackwall",200,,,models/sierra2500hd_options.md:71
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Tires,"18"" LT275/70R18E all-terrain blackwall",200,,,models/sierra2500hd_options.md:71
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Tires,"20"" LT275/65R20 all-terrain blackwall",400,,,models/sierra2500hd_options.md:71
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra2500hd_options.md:92
+2026,Sierra 2500 HD,SLE,,58200,Factory option,,Power Take-Off,995,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,,Autotrac 2-speed transfer case with push-button controls,200,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Performance,Dual 220 amp primary and 170 auxiliary amp alternators,380,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,,Skid plates,150,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:93
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:94
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Interior,MultiPro Audio System by Kicker,975,,,models/sierra2500hd_options.md:95
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Interior,Universal Vehicle Module,295,,,models/sierra2500hd_options.md:95
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Interior,Rear window defogger,225,,,models/sierra2500hd_options.md:95
+2026,Sierra 2500 HD,SLE,,58200,Factory option,Interior,Upfitter switches,150,,,models/sierra2500hd_options.md:95
+2026,Sierra 2500 HD,SLT,,65500,Base,,Standard Vehicle Price,65500,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:111
+2026,Sierra 2500 HD,SLT,,65500,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:110
+2026,Sierra 2500 HD,SLT,,65500,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:112
+2026,Sierra 2500 HD,SLT,,65500,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:112
+2026,Sierra 2500 HD,SLT,,65500,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:112
+2026,Sierra 2500 HD,SLT,,65500,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra2500hd_options.md:112
+2026,Sierra 2500 HD,SLT,,65500,Exterior color,,Glacier White Tricoat,1095,,,models/sierra2500hd_options.md:112
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:118
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,Snow Plow Prep / Camper Package,300,220-amp alternator; Skid plates,key=name:snow plow prep camper package,models/sierra2500hd_options.md:119
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,X31 Off-Road Package,325,Off-Road suspension; Hill Descent Control; Skid plates,key=name:x31 off road package,models/sierra2500hd_options.md:120
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:121
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,SLT Convenience Package,1610,Front bucket seats; Front center console; Wireless Charging,key=name:slt convenience package,models/sierra2500hd_options.md:127
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,Max Trailering Package,2085,"Spray-on bedliner; 11,750 lbs. GVWR; Gooseneck / 5th Wheel Prep Package","key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:128
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,X31 Off-Road and Protection Package,2435,Off-Road suspension; Spray-on bedliner; Hill Descent Control,key=name:x31 off road and protection package,models/sierra2500hd_options.md:129
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,SLT Premium Package,5245,"Power sliding rear window with rear defogger; Front bucket seats; 6"" Chrome rectangular assist steps (factory installed)",key=name:slt premium package,models/sierra2500hd_options.md:130
+2026,Sierra 2500 HD,SLT,,65500,Factory package,,Texas Edition SLT Premium Package,5245,,key=name:texas edition slt premium package,models/sierra2500hd_options.md:131
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Wheels,"20"" Bright face wheels with dark painted pockets",1100,,,models/sierra2500hd_options.md:113
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Tires,"20"" LT275/65R20 all-terrain blackwall",200,,,models/sierra2500hd_options.md:114
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra2500hd_options.md:135
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,,Skid plates,150,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:136
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:137
+2026,Sierra 2500 HD,SLT,,65500,Factory option,Interior,MultiPro Audio System by Kicker,975,,,models/sierra2500hd_options.md:138
+2026,Sierra 2500 HD,AT4,,72500,Base,,Standard Vehicle Price,72500,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:153
+2026,Sierra 2500 HD,AT4,,72500,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:152
+2026,Sierra 2500 HD,AT4,,72500,Exterior color,,Coastal Dune,495,,,models/sierra2500hd_options.md:154
+2026,Sierra 2500 HD,AT4,,72500,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:154
+2026,Sierra 2500 HD,AT4,,72500,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:154
+2026,Sierra 2500 HD,AT4,,72500,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:154
+2026,Sierra 2500 HD,AT4,,72500,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra2500hd_options.md:154
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:160
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/sierra2500hd_options.md:161
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:162
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,AT4 Preferred Package,405,Power sliding rear window with rear defogger; Smoked Amber LED roof marker lamps; Universal Home Remote,key=name:at4 preferred package,models/sierra2500hd_options.md:163
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,Max Trailering Package,1540,"11,750 lbs. GVWR; Gooseneck / 5th Wheel Prep Package","key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:166
+2026,Sierra 2500 HD,AT4,,72500,Factory package,,AT4 Premium Plus Package,4035,Power sliding rear window with rear defogger; Power sunroof; Rear Camera Mirror,key=name:at4 premium plus package,models/sierra2500hd_options.md:167
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra2500hd_options.md:155
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Wheels,"20"" High gloss Black aluminum wheels with machined accents",3050,,,models/sierra2500hd_options.md:155
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Wheels,"22"" Gloss Black aluminum wheels",3150,,,models/sierra2500hd_options.md:155
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra2500hd_options.md:155
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Wheels,"22"" High Gloss Black aluminum wheels with machined accents",3450,,,models/sierra2500hd_options.md:155
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Tires,"18"" LT275/70R18E all-terrain blackwall",200,,,models/sierra2500hd_options.md:156
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Tires,"22"" LT265/60R22E all-terrain blackwall",200,,,models/sierra2500hd_options.md:156
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Tires,"20"" LT275/65R20 BFGoodrich off-road T/A K blackwall",295,,,models/sierra2500hd_options.md:156
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:172
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:173
+2026,Sierra 2500 HD,AT4,,72500,Factory option,Interior,MultiPro Audio System by Kicker,975,,,models/sierra2500hd_options.md:175
+2026,Sierra 2500 HD,Denali,,75200,Base,,Standard Vehicle Price,75200,,"Destination Freight Charge $2,795 not included; Bonus Cash -$2,000 excluded; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:191
+2026,Sierra 2500 HD,Denali,,75200,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:190
+2026,Sierra 2500 HD,Denali,,75200,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:192
+2026,Sierra 2500 HD,Denali,,75200,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:192
+2026,Sierra 2500 HD,Denali,,75200,Exterior color,,Downpour Metallic,495,,,models/sierra2500hd_options.md:192
+2026,Sierra 2500 HD,Denali,,75200,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:192
+2026,Sierra 2500 HD,Denali,,75200,Exterior color,,Glacier White Tricoat,1095,,,models/sierra2500hd_options.md:192
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:198
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/sierra2500hd_options.md:199
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:200
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Technology Package,1340,Rear Camera Mirror; Head-Up Display,key=name:technology package,models/sierra2500hd_options.md:204
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Max Trailering Package,1540,"11,750 lbs. GVWR; Gooseneck / 5th Wheel Prep Package","key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:205
+2026,Sierra 2500 HD,Denali,,75200,Factory package,,Denali Reserve Package,2335,Power sunroof; Rear Camera Mirror; Head-Up Display,key=name:denali reserve package,models/sierra2500hd_options.md:206
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"20"" High gloss Black aluminum wheels with machined accents",3050,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"22"" Gloss Black aluminum wheels",3150,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"22"" High Gloss Black aluminum wheels with machined accents",3450,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Wheels,"22"" Bright finish aluminum wheels",3850,,,models/sierra2500hd_options.md:193
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Tires,"22"" LT265/60R22E all-terrain blackwall",200,,,models/sierra2500hd_options.md:194
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Interior,MultiPro Audio System by Kicker,975,,,models/sierra2500hd_options.md:210
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:211
+2026,Sierra 2500 HD,Denali,,75200,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:212
+2026,Sierra 2500 HD,AT4X,,85500,Base,,Standard Vehicle Price,85500,,"Destination Freight Charge $2,795 not included; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:226
+2026,Sierra 2500 HD,AT4X,,85500,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra2500hd_options.md:225
+2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Coastal Dune,495,,,models/sierra2500hd_options.md:227
+2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:227
+2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:227
+2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:227
+2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra2500hd_options.md:227
+2026,Sierra 2500 HD,AT4X,,85500,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/sierra2500hd_options.md:233
+2026,Sierra 2500 HD,AT4X,,85500,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:234
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,Performance,220-amp alternator,150,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,Performance,Engine block heater,100,,,models/sierra2500hd_options.md:239
+2026,Sierra 2500 HD,AT4X,,85500,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:240
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Base,,Standard Vehicle Price,94200,,"Destination Freight Charge $2,795 not included; configuration: Crew Cab Standard Bed default build; cab/box deltas (Regular Cab LB -$3,700, Double Cab Std -$1,800, Double Cab LB -$1,600, Crew Cab LB +$200; PRO picker) are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/sierra2500hd_options.md:255
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Exterior color,,Onyx Black,495,,,models/sierra2500hd_options.md:256
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Exterior color,,Sterling Metallic,495,,,models/sierra2500hd_options.md:256
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Exterior color,,Downpour Metallic,495,,,models/sierra2500hd_options.md:256
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Exterior color,,Titanium Rush Metallic,495,,,models/sierra2500hd_options.md:256
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Exterior color,,Glacier White Tricoat,1095,,,models/sierra2500hd_options.md:256
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory package,,Heavy Duty Front Spring / Camper Package,45,,key=name:heavy duty front spring camper package,models/sierra2500hd_options.md:262
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory package,,Snow Plow Prep / Camper Package,150,,key=name:snow plow prep camper package,models/sierra2500hd_options.md:263
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:264
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory package,,Max Trailering Package,1540,"11,750 lbs. GVWR; Gooseneck / 5th Wheel Prep Package","key=name:max trailering package; package content includes Spray-on bedliner and Gooseneck / 5th Wheel Prep Package (mixed factory/accessory content; kept as a priced trailering package, as Chevy)",models/sierra2500hd_options.md:268
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"20"" high gloss Black aluminum wheels with machined accents",3050,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"22"" Gloss Black aluminum wheels",3150,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"22"" High Gloss Black aluminum wheels with machined accents",3450,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Wheels,"22"" Bright finish aluminum wheels",3850,,,models/sierra2500hd_options.md:257
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Tires,"22"" LT265/60R22E all-terrain blackwall",200,,,models/sierra2500hd_options.md:258
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra2500hd_options.md:271
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",230,,,models/sierra2500hd_options.md:271
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:271
+2026,Sierra 2500 HD,Denali Ultimate,,94200,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra2500hd_options.md:272
+2026,Sierra 3500 HD,PRO,,55000,Base,,Standard Vehicle Price,55000,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Dual Rear Wheel +$1,400 (Regular/Double/Crew LB); 2WD (-$2,800) only on Regular/Double Cab LB and Crew Cab LB DRW, so the 2WD/4WD choice is configuration here; Regular Cab LB -$3,700, Double Cab LB -$1,600, Crew Cab LB +$200",models/sierra3500hd_options.md:59
+2026,Sierra 3500 HD,PRO,,55000,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra3500hd_options.md:58
+2026,Sierra 3500 HD,PRO,,55000,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8 with integrated Power Take-Off,10985,,,models/sierra3500hd_options.md:58
+2026,Sierra 3500 HD,PRO,,55000,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:60
+2026,Sierra 3500 HD,PRO,,55000,Exterior color,,Cardinal Red,495,,,models/sierra3500hd_options.md:60
+2026,Sierra 3500 HD,PRO,,55000,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:60
+2026,Sierra 3500 HD,PRO,,55000,Exterior color,,Downpour Metallic,495,,,models/sierra3500hd_options.md:60
+2026,Sierra 3500 HD,PRO,,55000,Exterior color,,Coastal Dune,495,,,models/sierra3500hd_options.md:60
+2026,Sierra 3500 HD,PRO,,55000,Factory package,,Snow Plow Prep / Camper Package,300,220-amp alternator; Skid plates,key=name:snow plow prep camper package,models/sierra3500hd_options.md:66
+2026,Sierra 3500 HD,PRO,,55000,Factory package,,X31 Off-Road Package,325,Off-Road suspension; Hill Descent Control; Skid plates,key=name:x31 off road package,models/sierra3500hd_options.md:67
+2026,Sierra 3500 HD,PRO,,55000,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:68
+2026,Sierra 3500 HD,PRO,,55000,Factory package,,PRO Convenience Package,910,Deep-tinted glass; Rear window defogger; Black outside power-adjustable vertical trailering mirrors,key=name:pro convenience package,models/sierra3500hd_options.md:70
+2026,Sierra 3500 HD,PRO,,55000,Factory package,,PRO Safety Plus Package,1320,Inside rearview auto-dimming mirror; Black outside power-adjustable vertical trailering mirrors with power folding/manual extending auto-dimming driver upper glass; Front and Rear Park Assist,key=name:pro safety plus package,models/sierra3500hd_options.md:71
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Wheels,"18"" machined aluminum wheels with Dark Grey metallic accents",350,,,models/sierra3500hd_options.md:61
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,Power Take-Off,995,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Performance,220-amp alternator,150,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,E85 FlexFuel capable,100,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Performance,Engine block heater,100,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:74
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:75
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra3500hd_options.md:76
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Exterior,Black outside power-adjustable vertical trailering mirrors with power folding/manual extending auto-dimming driver upper glass,725,,,models/sierra3500hd_options.md:76
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Exterior,Black outside power-adjustable mirrors,50,,,models/sierra3500hd_options.md:76
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Exterior,Deep-tinted glass,200,,,models/sierra3500hd_options.md:76
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Interior,Rear window defogger,225,,,models/sierra3500hd_options.md:77
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Interior,120-volt power outlet,225,,,models/sierra3500hd_options.md:77
+2026,Sierra 3500 HD,PRO,,55000,Factory option,Interior,Adaptive Cruise Control,500,,,models/sierra3500hd_options.md:77
+2026,Sierra 3500 HD,PRO,,55000,Factory option,,Bed View Camera,250,,,models/sierra3500hd_options.md:79
+2026,Sierra 3500 HD,SLE,,59400,Base,,Standard Vehicle Price,59400,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Dual Rear Wheel +$1,300 to +$1,500; Regular/Double/Crew LB cabs offered",models/sierra3500hd_options.md:94
+2026,Sierra 3500 HD,SLE,,59400,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra3500hd_options.md:93
+2026,Sierra 3500 HD,SLE,,59400,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8 with integrated Power Take-Off,10985,,,models/sierra3500hd_options.md:93
+2026,Sierra 3500 HD,SLE,,59400,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:95
+2026,Sierra 3500 HD,SLE,,59400,Exterior color,,Cardinal Red,495,,,models/sierra3500hd_options.md:95
+2026,Sierra 3500 HD,SLE,,59400,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:95
+2026,Sierra 3500 HD,SLE,,59400,Exterior color,,Coastal Dune,495,,,models/sierra3500hd_options.md:95
+2026,Sierra 3500 HD,SLE,,59400,Exterior color,,Titanium Rush Metallic,495,,,models/sierra3500hd_options.md:95
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,Snow Plow Prep / Camper Package,300,220-amp alternator; Skid plates,key=name:snow plow prep camper package,models/sierra3500hd_options.md:101
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,X31 Off-Road Package,325,Off-Road suspension; Hill Descent Control; Skid plates,key=name:x31 off road package,models/sierra3500hd_options.md:102
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:103
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,Heat Package,400,Heated driver and front outboard passenger seats; Heated steering wheel,key=name:heat package,models/sierra3500hd_options.md:104
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,Remote Start Package,525,Remote Start; Rear window defogger; Theft-deterrent unauthorized entry system,key=name:remote start package,models/sierra3500hd_options.md:106
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,SLE Convenience Package,915,10-way power driver seat with power lumbar; Dual-zone automatic climate control; Manual tilt and telescoping steering column,key=name:sle convenience package,models/sierra3500hd_options.md:107
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,X31 Off-Road and Protection Package,1135,Off-Road suspension; Spray-on bedliner; Hill Descent Control,key=name:x31 off road and protection package,models/sierra3500hd_options.md:109
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,Sierra HD PRO Safety Plus Package,1335,Trailering camera provisions; Front and Rear Park Assist; In-Vehicle Trailering App,key=name:sierra hd pro safety plus package,models/sierra3500hd_options.md:110
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,SLE Preferred Package,1415,Power sliding rear window with rear defogger; Adaptive Cruise Control; Hitch View,key=name:sle preferred package,models/sierra3500hd_options.md:111
+2026,Sierra 3500 HD,SLE,,59400,Factory package,,SLE Value Package,2385,10-way power driver seat with power lumbar; Remote Start; Rear window defogger,key=name:sle value package,models/sierra3500hd_options.md:112
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Wheels,"20"" Bright face wheels with dark painted pockets",1100,,,models/sierra3500hd_options.md:96
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Tires,"20"" LT275/65R20 all-terrain blackwall",200,,,models/sierra3500hd_options.md:97
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,Power Take-Off,995,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,Autotrac 2-speed transfer case with push button controls,200,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Performance,220-amp alternator,150,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Performance,Engine block heater,100,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:115
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:116
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,Black outside power-adjustable vertical trailering mirrors with power folding/manual extending auto-dimming driver upper glass,515,,,models/sierra3500hd_options.md:117
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra3500hd_options.md:117
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,Black Badging Package,595,,,models/sierra3500hd_options.md:117
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,MultiPro Audio System by Kicker,975,,,models/sierra3500hd_options.md:117
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Interior,Rear window defogger,225,,,models/sierra3500hd_options.md:118
+2026,Sierra 3500 HD,SLE,,59400,Factory option,,Bed View Camera,250,,,models/sierra3500hd_options.md:120
+2026,Sierra 3500 HD,SLT,,66700,Base,,Standard Vehicle Price,66700,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Crew Cab LB +$200; Dual Rear Wheel +$1,400 (Crew Cab LB)",models/sierra3500hd_options.md:136
+2026,Sierra 3500 HD,SLT,,66700,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra3500hd_options.md:135
+2026,Sierra 3500 HD,SLT,,66700,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:137
+2026,Sierra 3500 HD,SLT,,66700,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:137
+2026,Sierra 3500 HD,SLT,,66700,Exterior color,,Titanium Rush Metallic,495,,,models/sierra3500hd_options.md:137
+2026,Sierra 3500 HD,SLT,,66700,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra3500hd_options.md:137
+2026,Sierra 3500 HD,SLT,,66700,Exterior color,,Glacier White Tricoat,1095,,,models/sierra3500hd_options.md:137
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,Snow Plow Prep / Camper Package,300,220-amp alternator; Skid plates,key=name:snow plow prep camper package,models/sierra3500hd_options.md:143
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,X31 Off-Road Package,325,Off-Road suspension; Hill Descent Control; Skid plates,key=name:x31 off road package,models/sierra3500hd_options.md:144
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:145
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,SLT Preferred Package,1050,Power sliding rear window with rear defogger; Heated rear outboard seats; Adaptive Cruise Control,key=name:slt preferred package,models/sierra3500hd_options.md:149
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,Sierra HD PRO Safety Plus Package,1245,Safety Alert Seat; Trailering camera provisions; Front and Rear Park Assist,key=name:sierra hd pro safety plus package,models/sierra3500hd_options.md:150
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,SLT Convenience Package,1610,Front bucket seats; Front center console; Wireless Charging,key=name:slt convenience package,models/sierra3500hd_options.md:151
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,X31 Off-Road and Protection Package,2435,Off-Road suspension; Spray-on bedliner; Hill Descent Control,key=name:x31 off road and protection package,models/sierra3500hd_options.md:152
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,SLT Premium Package,5245,"Power sliding rear window with rear defogger; Front bucket seats; 6"" Chrome rectangular assist steps (factory installed)",key=name:slt premium package,models/sierra3500hd_options.md:153
+2026,Sierra 3500 HD,SLT,,66700,Factory package,,Texas Edition SLT Premium Package,5245,,key=name:texas edition slt premium package,models/sierra3500hd_options.md:154
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Wheels,"20"" Bright face wheels with dark painted pockets",1100,,,models/sierra3500hd_options.md:138
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Tires,"20"" LT275/65R20 all-terrain blackwall",200,,,models/sierra3500hd_options.md:139
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra3500hd_options.md:157
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Exterior,Black Badging Package,595,,,models/sierra3500hd_options.md:157
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Exterior,MultiPro Audio System by Kicker,975,,,models/sierra3500hd_options.md:157
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,1090,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Performance,220-amp alternator,150,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Performance,Engine block heater,100,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:159
+2026,Sierra 3500 HD,SLT,,66700,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:160
+2026,Sierra 3500 HD,AT4,,73700,Base,,Standard Vehicle Price,73700,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Crew Cab LB +$200; no Dual Rear Wheel on AT4",models/sierra3500hd_options.md:178
+2026,Sierra 3500 HD,AT4,,73700,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra3500hd_options.md:177
+2026,Sierra 3500 HD,AT4,,73700,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:179
+2026,Sierra 3500 HD,AT4,,73700,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:179
+2026,Sierra 3500 HD,AT4,,73700,Exterior color,,Coastal Dune,495,,,models/sierra3500hd_options.md:179
+2026,Sierra 3500 HD,AT4,,73700,Exterior color,,Titanium Rush Metallic,495,,,models/sierra3500hd_options.md:179
+2026,Sierra 3500 HD,AT4,,73700,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra3500hd_options.md:179
+2026,Sierra 3500 HD,AT4,,73700,Factory package,,Snow Plow Prep / Camper Package,150,"220-amp alternator (no skid plates on this tile, unlike PRO/SLE/SLT at $300)",key=name:snow plow prep camper package,models/sierra3500hd_options.md:185
+2026,Sierra 3500 HD,AT4,,73700,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:186
+2026,Sierra 3500 HD,AT4,,73700,Factory package,,AT4 Preferred Package,405,Power sliding rear window with rear defogger; Smoked Amber LED roof marker lamps; Universal Home Remote,key=name:at4 preferred package,models/sierra3500hd_options.md:187
+2026,Sierra 3500 HD,AT4,,73700,Factory package,,Technology Package,1340,Rear Camera Mirror; Head-Up Display,key=name:technology package,models/sierra3500hd_options.md:189
+2026,Sierra 3500 HD,AT4,,73700,Factory package,,AT4 Premium Plus Package,4035,Power sliding rear window with rear defogger; Power sunroof; Rear Camera Mirror,key=name:at4 premium plus package,models/sierra3500hd_options.md:190
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra3500hd_options.md:180
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Wheels,"20"" high gloss Black aluminum wheels with machined accents",3050,,,models/sierra3500hd_options.md:180
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra3500hd_options.md:180
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Tires,"20"" LT275/65R20 BF Goodrich off-road T/A K blackwall",295,,,models/sierra3500hd_options.md:181
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Exterior,MultiPro Audio System by Kicker,975,,,models/sierra3500hd_options.md:193
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Performance,220-amp alternator,150,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Performance,Engine block heater,100,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:195
+2026,Sierra 3500 HD,AT4,,73700,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:196
+2026,Sierra 3500 HD,Denali,,76300,Base,,Standard Vehicle Price,76300,,"Destination Freight Charge $2,795 not included; Bonus Cash -$2,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Crew Cab LB +$200; Dual Rear Wheel +$2,800 (Crew Cab LB)",models/sierra3500hd_options.md:214
+2026,Sierra 3500 HD,Denali,,76300,Powertrain,Engine,6.6L Duramax Turbo-Diesel V8,9990,,,models/sierra3500hd_options.md:213
+2026,Sierra 3500 HD,Denali,,76300,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:215
+2026,Sierra 3500 HD,Denali,,76300,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:215
+2026,Sierra 3500 HD,Denali,,76300,Exterior color,,Downpour Metallic,495,,,models/sierra3500hd_options.md:215
+2026,Sierra 3500 HD,Denali,,76300,Exterior color,,Titanium Rush Metallic,495,,,models/sierra3500hd_options.md:215
+2026,Sierra 3500 HD,Denali,,76300,Exterior color,,Glacier White Tricoat,1095,,,models/sierra3500hd_options.md:215
+2026,Sierra 3500 HD,Denali,,76300,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/sierra3500hd_options.md:221
+2026,Sierra 3500 HD,Denali,,76300,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:222
+2026,Sierra 3500 HD,Denali,,76300,Factory package,,Technology Package,1340,Rear Camera Mirror; Head-Up Display,key=name:technology package,models/sierra3500hd_options.md:226
+2026,Sierra 3500 HD,Denali,,76300,Factory package,,Denali Reserve Package,2335,Power sunroof; Rear Camera Mirror; Head-Up Display,key=name:denali reserve package,models/sierra3500hd_options.md:227
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra3500hd_options.md:216
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Wheels,"20"" high gloss Black aluminum wheels with machined accents",3050,,,models/sierra3500hd_options.md:216
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra3500hd_options.md:216
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Exterior,MultiPro Audio System by Kicker,975,,,models/sierra3500hd_options.md:230
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Performance,220-amp alternator,150,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,,Auxiliary 700 cold-cranking amps battery,135,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Performance,Engine block heater,100,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:232
+2026,Sierra 3500 HD,Denali,,76300,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:233
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Base,,Standard Vehicle Price,97600,,"Destination Freight Charge $2,795 not included; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Crew Cab LB +$200; Dual Rear Wheel +$3,900 (Crew Cab LB)",models/sierra3500hd_options.md:250
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Exterior color,,Onyx Black,495,,,models/sierra3500hd_options.md:251
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Exterior color,,Sterling Metallic,495,,,models/sierra3500hd_options.md:251
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Exterior color,,Downpour Metallic,495,,,models/sierra3500hd_options.md:251
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Exterior color,,Titanium Rush Metallic,495,,,models/sierra3500hd_options.md:251
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Exterior color,,Glacier White Tricoat,1095,,,models/sierra3500hd_options.md:251
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory package,,Snow Plow Prep / Camper Package,150,not shown on tile,key=name:snow plow prep camper package,models/sierra3500hd_options.md:257
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra3500hd_options.md:258
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Wheels,"20"" High gloss Black painted wheels",2995,,,models/sierra3500hd_options.md:252
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Wheels,"20"" high gloss Black aluminum wheels with machined accents",3050,,,models/sierra3500hd_options.md:252
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Wheels,"20"" machined aluminum wheels with high gloss Black accents",3395,,,models/sierra3500hd_options.md:252
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra3500hd_options.md:266
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",230,,,models/sierra3500hd_options.md:266
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,,High idle switch,200,,,models/sierra3500hd_options.md:266
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,,Heavy Duty Front Spring / Camper Package,45,,,models/sierra3500hd_options.md:266
+2026,Sierra 3500 HD,Denali Ultimate,,97600,Factory option,Trailering,"Trailering wiring provisions for camper, 5th wheel and gooseneck trailer",35,,,models/sierra3500hd_options.md:267
+2026,Sierra EV,Elevation Standard Range,,62400,Base,,Standard Vehicle Price,62400,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:23
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Coastal Dune,495,,,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Deep Bronze Metallic,495,,,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Exterior color,,Dark Ember Metallic,645,,,models/sierraev_options.md:24
+2026,Sierra EV,Elevation Standard Range,,62400,Factory package,,Elevation Dark Package,2695,"Transit Wheel 22""; 22"" LT275/50R22 all-season tires; Black GMC Emblems",key=name:elevation dark package,models/sierraev_options.md:31
+2026,Sierra EV,Elevation Standard Range,,62400,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:38
+2026,Sierra EV,Elevation Standard Range,,62400,Factory option,Wheels,"22"" Gloss black wheels with machine face",2250,,,models/sierraev_options.md:38
+2026,Sierra EV,Denali Standard Range,,69700,Base,,Standard Vehicle Price,69700,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:52
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Dark Ember Metallic,645,,,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Glacier White Tricoat,1095,,,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Exterior color,,Magnus Matte,3995,,,models/sierraev_options.md:53
+2026,Sierra EV,Denali Standard Range,,69700,Factory option,,Energy Transfer,1200,,,models/sierraev_options.md:67
+2026,Sierra EV,Denali Standard Range,,69700,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:68
+2026,Sierra EV,Elevation Extended Range,,70600,Base,,Standard Vehicle Price,70600,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:81
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Coastal Dune,495,,,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Deep Bronze Metallic,495,,,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Exterior color,,Dark Ember Metallic,645,,,models/sierraev_options.md:82
+2026,Sierra EV,Elevation Extended Range,,70600,Factory package,,Premium Package,5750,MultiPro Midgate; Ventilated driver and front passenger seats; Spray-on bedliner,key=name:premium package,models/sierraev_options.md:89
+2026,Sierra EV,Elevation Extended Range,,70600,Factory package,,Elevation Dark Package,2695,"22"" Black painted aluminum wheels; Black GMC Emblems; 22"" LT275/50R22 all-season tires",key=name:elevation dark package,models/sierraev_options.md:91
+2026,Sierra EV,Elevation Extended Range,,70600,Factory option,Wheels,"22"" aluminum painted Deep Space wheels with Gloss Black painted pockets and High Gloss Black painted inserts",2200,,,models/sierraev_options.md:83
+2026,Sierra EV,Elevation Extended Range,,70600,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:101
+2026,Sierra EV,Elevation Extended Range,,70600,Factory option,Wheels,"22"" Gloss black wheels with machine face",2250,,,models/sierraev_options.md:101
+2026,Sierra EV,Denali Extended Range,,77900,Base,,Standard Vehicle Price,77900,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:121
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Dark Ember Metallic,645,,,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Glacier White Tricoat,1095,,,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Exterior color,,Magnus Matte,3995,,,models/sierraev_options.md:122
+2026,Sierra EV,Denali Extended Range,,77900,Factory package,,Denali Reserve,11580,Rear Camera Mirror; MultiPro Midgate; Adaptive Air Ride suspension,key=name:denali reserve,models/sierraev_options.md:129
+2026,Sierra EV,Denali Extended Range,,77900,Factory package,,Denali Premium,5780,MultiPro Midgate; Blind Zone Steering Assist with Trailering; Smart Trailer Integration Indicator,key=name:denali premium,models/sierraev_options.md:130
+2026,Sierra EV,Denali Extended Range,,77900,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:140
+2026,Sierra EV,AT4 Extended Range,,79300,Base,,Standard Vehicle Price,79300,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:158
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Coastal Dune,495,,,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Deep Bronze Metallic,495,,,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Exterior color,,Magnus Matte,3995,,,models/sierraev_options.md:159
+2026,Sierra EV,AT4 Extended Range,,79300,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:175
+2026,Sierra EV,AT4 Max Range,,89600,Base,,Standard Vehicle Price,89600,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:192
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Coastal Dune,495,,,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Deep Bronze Metallic,495,,,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Exterior color,,Magnus Matte,3995,,,models/sierraev_options.md:193
+2026,Sierra EV,AT4 Max Range,,89600,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:207
+2026,Sierra EV,Denali Max Range,,98600,Base,,Standard Vehicle Price,98600,,"Destination Freight Charge $2,595 not included; default-selected paid paint (+$495) excluded; see paint row; configuration: battery range (Standard/Extended/Max Range) is part of the trim, not an option; 4WD only",models/sierraev_options.md:224
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Onyx Black,495,,,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Deep Ocean Metallic,495,,,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Thunderstorm Gray,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Dark Ember Metallic,645,,,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Glacier White Tricoat,1095,,,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Exterior color,,Magnus Matte,3995,,,models/sierraev_options.md:225
+2026,Sierra EV,Denali Max Range,,98600,Factory option,Exterior,MultiPro Audio System by Kicker,950,,,models/sierraev_options.md:239
+2026,Hummer EV Pickup,2X,,97200,Base,,Standard Vehicle Price,97200,,"Destination Freight Charge $2,695 not included",models/hummerevpickup_options.md:24
+2026,Hummer EV Pickup,2X,,97200,Exterior color,,Void Black,495,,,models/hummerevpickup_options.md:25
+2026,Hummer EV Pickup,2X,,97200,Exterior color,,Coastal Dune,625,,,models/hummerevpickup_options.md:25
+2026,Hummer EV Pickup,2X,,97200,Exterior color,,Solar Orange,625,,,models/hummerevpickup_options.md:25
+2026,Hummer EV Pickup,2X,,97200,Exterior color,,Graphite Blue Metallic,625,,,models/hummerevpickup_options.md:25
+2026,Hummer EV Pickup,2X,,97200,Exterior color,,Deep Aurora Metallic,625,,,models/hummerevpickup_options.md:25
+2026,Hummer EV Pickup,2X,,97200,Factory package,,Extreme Off-Road Package,9995,"card subheading ""Watts to Freedom""; driver-selectable full-locking front differential; driver-selectable full-locking rear differential. (No skid plates on the 2X card; 3X card lists skid plates instead.)",key=name:extreme off road package; includes the driver-selectable front e-locker (no standalone price; Paul 2026-10-11),models/hummerevpickup_options.md:32
+2026,Hummer EV Pickup,2X,,97200,Factory package,,Dark Essentials Package,750,"Emblems; D-Ring recovery hooks in Black. (No 22"" wheels on the 2X card; 3X card adds 22"" Gloss Black aluminum wheels.)",key=name:dark essentials package; 2X card contents are emblems and Black D-ring recovery hooks only (kept as a named appearance package per Paul; flagged),models/hummerevpickup_options.md:38
+2026,Hummer EV Pickup,2X,,97200,Factory option,Wheels,"22"" Premium Finish aluminum wheels",300,,,models/hummerevpickup_options.md:26
+2026,Hummer EV Pickup,2X,,97200,Factory option,Wheels,"22"" Grazen Metallic aluminum wheels",3995,,,models/hummerevpickup_options.md:26
+2026,Hummer EV Pickup,2X,,97200,Factory option,Wheels,"18"" Tech Bronze wheels with machined face",2995,,,models/hummerevpickup_options.md:26
+2026,Hummer EV Pickup,2X,,97200,Factory option,Wheels,"18"" Grazen Metallic Beadlock capable spare wheel with Tech Bronze decorative ring",1675,,,models/hummerevpickup_options.md:26
+2026,Hummer EV Pickup,2X,,97200,Factory option,Roof,Infinity Roof with removable transparent Sky Panels,1495,,,models/hummerevpickup_options.md:41
+2026,Hummer EV Pickup,2X,,97200,Factory option,Exterior,Sky convertible top,2395,,,models/hummerevpickup_options.md:41
+2026,Hummer EV Pickup,3X,,105300,Base,,Standard Vehicle Price,105300,,"Destination Freight Charge $2,695 not included",models/hummerevpickup_options.md:63
+2026,Hummer EV Pickup,3X,,105300,Exterior color,,Void Black,495,,,models/hummerevpickup_options.md:64
+2026,Hummer EV Pickup,3X,,105300,Exterior color,,Coastal Dune,625,,,models/hummerevpickup_options.md:64
+2026,Hummer EV Pickup,3X,,105300,Exterior color,,Solar Orange,625,,,models/hummerevpickup_options.md:64
+2026,Hummer EV Pickup,3X,,105300,Exterior color,,Graphite Blue Metallic,625,,,models/hummerevpickup_options.md:64
+2026,Hummer EV Pickup,3X,,105300,Exterior color,,Deep Aurora Metallic,625,,,models/hummerevpickup_options.md:64
+2026,Hummer EV Pickup,3X,,105300,Factory package,,Extreme Off-Road Package,9995,driver-selectable full-locking front differential; driver-selectable full-locking rear differential; skid plates,key=name:extreme off road package; includes the driver-selectable front e-locker (no standalone price; Paul 2026-10-11),models/hummerevpickup_options.md:71
+2026,Hummer EV Pickup,3X,,105300,Factory package,,Dark Essentials Package,750,"22"" Gloss Black aluminum wheels; Emblems; D-Ring recovery hooks in Black",key=name:dark essentials package,models/hummerevpickup_options.md:77
+2026,Hummer EV Pickup,3X,,105300,Factory option,Wheels,"22"" Grazen Metallic aluminum wheels",3995,,,models/hummerevpickup_options.md:65
+2026,Hummer EV Pickup,3X,,105300,Factory option,Wheels,"18"" Tech Bronze wheels with machined face",2995,,,models/hummerevpickup_options.md:65
+2026,Hummer EV Pickup,3X,,105300,Factory option,Wheels,"18"" Grazen Metallic Beadlock capable spare wheel with Tech Bronze decorative ring",1675,,,models/hummerevpickup_options.md:65
+2026,Hummer EV Pickup,3X,,105300,Factory option,,"Battery Pack, 24-module pack",9995,,factory option per Paul 2026-10-11 (24-module pack; 20-module pack is standard),models/hummerevpickup_options.md:80
+2026,Hummer EV Pickup,3X,,105300,Factory option,Roof,Infinity Roof with removable transparent Sky Panels,1495,,,models/hummerevpickup_options.md:81
+2026,Hummer EV Pickup,3X,,105300,Factory option,Exterior,Sky convertible top,2395,,,models/hummerevpickup_options.md:81
+2026,Hummer EV Pickup,3X,,105300,Factory option,Exterior,Carbon Fiber hood insert,4495,,factory option per Paul 2026-10-11,models/hummerevpickup_options.md:86
+2026,Hummer EV SUV,2X,,97200,Base,,Standard Vehicle Price,97200,,"Destination Freight Charge $2,695 not included; default-selected paid paint (+$625) excluded; see paint row",models/hummerevsuv_options.md:23
+2026,Hummer EV SUV,2X,,97200,Exterior color,,Void Black,495,,,models/hummerevsuv_options.md:24
+2026,Hummer EV SUV,2X,,97200,Exterior color,,Coastal Dune,625,,,models/hummerevsuv_options.md:24
+2026,Hummer EV SUV,2X,,97200,Exterior color,,Solar Orange,625,,,models/hummerevsuv_options.md:24
+2026,Hummer EV SUV,2X,,97200,Exterior color,,Graphite Blue Metallic,625,,default-selected paint; its price is excluded from trim_base_msrp,models/hummerevsuv_options.md:24
+2026,Hummer EV SUV,2X,,97200,Exterior color,,Deep Aurora Metallic,625,,,models/hummerevsuv_options.md:24
+2026,Hummer EV SUV,2X,,97200,Factory package,,Extreme Off-Road Package,9995,"card subheading ""Watts to Freedom""; driver-selectable electronically-locking front differential; driver-selectable electronically-locking rear differential",key=name:extreme off road package; includes the driver-selectable front e-locker (no standalone price; Paul 2026-10-11),models/hummerevsuv_options.md:31
+2026,Hummer EV SUV,2X,,97200,Factory package,,Dark Essentials Package,475,Emblems; D-Ring recovery hook in Black,key=name:dark essentials package; card contents are emblems and Black D-ring recovery hook (kept as a named appearance package per Paul; flagged),models/hummerevsuv_options.md:35
+2026,Hummer EV SUV,2X,,97200,Factory option,Wheels,"22"" Grazen Metallic aluminum wheels",4495,,,models/hummerevsuv_options.md:25
+2026,Hummer EV SUV,2X,,97200,Factory option,Wheels,"18"" Tech Bronze wheels with machined face",3495,,,models/hummerevsuv_options.md:25
+2026,Hummer EV SUV,2X,,97200,Factory option,Wheels,"22"" Premium Finish aluminum wheels",300,,,models/hummerevsuv_options.md:25
+2026,Hummer EV SUV,2X,,97200,Factory option,Roof,Infinity Roof with removable transparent Sky Panels,1495,,,models/hummerevsuv_options.md:38
+2026,Hummer EV SUV,2X,,97200,Factory option,Exterior,Sky convertible top,2395,,,models/hummerevsuv_options.md:38
+2026,Hummer EV SUV,3X,,105300,Base,,Standard Vehicle Price,105300,,"Destination Freight Charge $2,695 not included; default-selected paid paint (+$625) excluded; see paint row",models/hummerevsuv_options.md:59
+2026,Hummer EV SUV,3X,,105300,Exterior color,,Void Black,495,,,models/hummerevsuv_options.md:60
+2026,Hummer EV SUV,3X,,105300,Exterior color,,Coastal Dune,625,,default-selected paint; its price is excluded from trim_base_msrp,models/hummerevsuv_options.md:60
+2026,Hummer EV SUV,3X,,105300,Exterior color,,Solar Orange,625,,,models/hummerevsuv_options.md:60
+2026,Hummer EV SUV,3X,,105300,Exterior color,,Graphite Blue Metallic,625,,,models/hummerevsuv_options.md:60
+2026,Hummer EV SUV,3X,,105300,Exterior color,,Deep Aurora Metallic,625,,,models/hummerevsuv_options.md:60
+2026,Hummer EV SUV,3X,,105300,Factory package,,Extreme Off-Road Package,9995,"driver-selectable electronically-locking front differential; driver-selectable electronically-locking rear differential; skid plates. (No ""Watts to Freedom"" subheading on the 3X card, unlike 2X.)",key=name:extreme off road package; includes the driver-selectable front e-locker (no standalone price; Paul 2026-10-11),models/hummerevsuv_options.md:67
+2026,Hummer EV SUV,3X,,105300,Factory package,,Dark Essentials Package,475,"22"" Gloss Black aluminum wheels; 22"" Gloss Black painted aluminum spare wheel; Emblems",key=name:dark essentials package; card contents are emblems and Black D-ring recovery hook (kept as a named appearance package per Paul; flagged),models/hummerevsuv_options.md:71
+2026,Hummer EV SUV,3X,,105300,Factory option,Wheels,"22"" Grazen Metallic aluminum wheels",4495,,,models/hummerevsuv_options.md:61
+2026,Hummer EV SUV,3X,,105300,Factory option,Wheels,"18"" Tech Bronze wheels with machined face",3495,,,models/hummerevsuv_options.md:61
+2026,Hummer EV SUV,3X,,105300,Factory option,Roof,Infinity Roof with removable transparent Sky Panels,1495,,,models/hummerevsuv_options.md:74
+2026,Hummer EV SUV,3X,,105300,Factory option,Exterior,Sky convertible top,2395,,,models/hummerevsuv_options.md:74
+2026,Hummer EV SUV,3X,,105300,Factory option,Exterior,Carbon Fiber hood insert,4495,,factory option per Paul 2026-10-11,models/hummerevsuv_options.md:74
+2027,Terrain,Elevation,,30700,Base,,Standard Vehicle Price,30700,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/terrain_options.md:27
+2027,Terrain,Elevation,,30700,Powertrain,Drivetrain,AWD (vs FWD),2000,,,models/terrain_options.md:28
+2027,Terrain,Elevation,,30700,Exterior color,,Rapids Metallic,495,,,models/terrain_options.md:29
+2027,Terrain,Elevation,,30700,Exterior color,,Ebony Twilight Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/terrain_options.md:29
+2027,Terrain,Elevation,,30700,Exterior color,,Riverstone Metallic,495,,,models/terrain_options.md:29
+2027,Terrain,Elevation,,30700,Exterior color,,Sterling Metallic,495,,,models/terrain_options.md:29
+2027,Terrain,Elevation,,30700,Exterior color,,Volcanic Red Tintcoat,645,,,models/terrain_options.md:29
+2027,Terrain,Elevation,,30700,Exterior color,Roof color,Sterling Metallic Roof,495,,,models/terrain_options.md:30
+2027,Terrain,Elevation,,30700,Exterior color,Roof color,Ebony Twilight Metallic Roof,495,,,models/terrain_options.md:30
+2027,Terrain,Elevation,,30700,Factory package,,Trailering Package,1095,Trailer hitch trim bezel; Trailer hitch,key=name:trailering package,models/terrain_options.md:43
+2027,Terrain,Elevation,,30700,Factory package,,Technology Package II,1145,Rear Camera Mirror; Fog lamps; Interior Camera,key=name:technology package ii,models/terrain_options.md:44
+2027,Terrain,Elevation,,30700,Factory package,,Black Edition,1395,"19"" Gloss Black painted aluminum wheels; Front and rear Black GMC emblems; Roof-mounted side rails",key=name:black edition,models/terrain_options.md:45
+2027,Terrain,Elevation,,30700,Factory package,,Elevation Premium Package,2850,8-way power driver seat; Power driver seat lumbar control; Cabin humidity sensor (same bullets as Convenience Package II),key=name:elevation premium package,models/terrain_options.md:46
+2027,Terrain,Elevation,,30700,Factory option,Performance,Engine block heater,100,,,models/terrain_options.md:51
+2027,Terrain,AT4,,39400,Base,,Standard Vehicle Price,39400,,"Destination Freight Charge $1,995 not included",models/terrain_options.md:73
+2027,Terrain,AT4,,39400,Exterior color,,Rapids Metallic,495,,,models/terrain_options.md:75
+2027,Terrain,AT4,,39400,Exterior color,,Ebony Twilight Metallic,495,,,models/terrain_options.md:75
+2027,Terrain,AT4,,39400,Exterior color,,Riverstone Metallic,495,,,models/terrain_options.md:75
+2027,Terrain,AT4,,39400,Exterior color,,Sterling Metallic,495,,,models/terrain_options.md:75
+2027,Terrain,AT4,,39400,Exterior color,,Volcanic Red Tintcoat,645,,,models/terrain_options.md:75
+2027,Terrain,AT4,,39400,Exterior color,Roof color,Sterling Metallic Roof,495,,,models/terrain_options.md:76
+2027,Terrain,AT4,,39400,Exterior color,Roof color,Ebony Twilight Metallic Roof,495,,,models/terrain_options.md:76
+2027,Terrain,AT4,,39400,Factory package,,Black Badging Package,595,Black nameplates; Front and rear Black GMC emblems,key=name:black badging package,models/terrain_options.md:86
+2027,Terrain,AT4,,39400,Factory package,,Technology Package II,1030,Rear Camera Mirror; Interior Camera; Rear Pedestrian Alert,key=name:technology package ii,models/terrain_options.md:88
+2027,Terrain,AT4,,39400,Factory package,,Convenience Package III,1095,Memory Package; 8-way power front passenger seat; 2-way power lumbar front passenger seat controls. (Not,key=name:convenience package iii,models/terrain_options.md:89
+2027,Terrain,AT4,,39400,Factory option,Roof,Panoramic power sunroof,1495,,Requires on AT4,models/terrain_options.md:92
+2027,Terrain,AT4,,39400,Factory option,Performance,Engine block heater,100,,,models/terrain_options.md:93
+2027,Terrain,Denali,,42200,Base,,Standard Vehicle Price,42200,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/terrain_options.md:113
+2027,Terrain,Denali,,42200,Exterior color,,Ebony Twilight Metallic,495,,,models/terrain_options.md:115
+2027,Terrain,Denali,,42200,Exterior color,,Sterling Metallic,495,,,models/terrain_options.md:115
+2027,Terrain,Denali,,42200,Exterior color,,Downpour Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/terrain_options.md:115
+2027,Terrain,Denali,,42200,Exterior color,,Volcanic Red Tintcoat,645,,,models/terrain_options.md:115
+2027,Terrain,Denali,,42200,Exterior color,,Glacier White Tricoat,1095,,,models/terrain_options.md:115
+2027,Terrain,Denali,,42200,Exterior color,Roof color,Ebony Twilight Metallic Roof,495,,,models/terrain_options.md:116
+2027,Terrain,Denali,,42200,Factory package,,Black Badging Package,595,Black nameplates; Front and rear Black GMC emblems,key=name:black badging package,models/terrain_options.md:125
+2027,Terrain,Denali,,42200,Factory option,Wheels,"20"" After Midnight machined-face aluminum",500,,,models/terrain_options.md:117
+2027,Terrain,Denali,,42200,Factory option,Roof,Panoramic power sunroof,1495,,,models/terrain_options.md:129
+2027,Terrain,Denali,,42200,Factory option,Performance,Engine block heater,100,,,models/terrain_options.md:130
+2027,Acadia,Elevation,,43900,Base,,Standard Vehicle Price,43900,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$645) excluded; see paint row",models/acadia_options.md:28
+2027,Acadia,Elevation,,43900,Powertrain,Drivetrain,AWD (vs FWD),2000,,,models/acadia_options.md:27
+2027,Acadia,Elevation,,43900,Exterior color,,Sterling Metallic,495,,,models/acadia_options.md:30
+2027,Acadia,Elevation,,43900,Exterior color,,Ebony Twilight Metallic,495,,,models/acadia_options.md:30
+2027,Acadia,Elevation,,43900,Exterior color,,Trailstone Green Metallic,495,,,models/acadia_options.md:30
+2027,Acadia,Elevation,,43900,Exterior color,,Volcanic Red Tintcoat,645,,default-selected paint; its price is excluded from trim_base_msrp,models/acadia_options.md:30
+2027,Acadia,Elevation,,43900,Exterior color,,Glacier White Tricoat,1095,,,models/acadia_options.md:30
+2027,Acadia,Elevation,,43900,Factory package,,Elevation Premium Package,2535,6-way power front passenger seat adjuster; 7-passenger seating; 2-way power lumbar front passenger seat controls,key=name:elevation premium package,models/acadia_options.md:44
+2027,Acadia,Elevation,,43900,Factory package,,Black Edition,2695,"High Gloss Black upper door moldings; 22"" all-season blackwall tires; 22"" Gloss Black aluminum wheels",key=name:black edition,models/acadia_options.md:45
+2027,Acadia,Elevation,,43900,Factory package,,Super Cruise Package,3670,"3 Years OnStar One; Super Cruise, advanced driver assistance technology; Enhanced Automatic Parking Assist",key=name:super cruise package; package content includes an OnStar One term (subscription content inside the package),models/acadia_options.md:46
+2027,Acadia,Elevation,,43900,Factory option,Wheels,"22"" Bright PVD wheel",2750,,,models/acadia_options.md:32
+2027,Acadia,Elevation,,43900,Factory option,Wheels,"22"" High Gloss Black aluminum wheels",2750,,,models/acadia_options.md:32
+2027,Acadia,Elevation,,43900,Factory option,Performance,"Suspension, Performance",1200,,,models/acadia_options.md:51
+2027,Acadia,Elevation,,43900,Factory option,Performance,Engine block heater,100,,,models/acadia_options.md:51
+2027,Acadia,Denali,,58900,Base,,Standard Vehicle Price,58900,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/acadia_options.md:70
+2027,Acadia,Denali,,58900,Powertrain,Drivetrain,AWD (vs FWD),2000,,,models/acadia_options.md:69
+2027,Acadia,Denali,,58900,Exterior color,,Ink,495,,default-selected paint; its price is excluded from trim_base_msrp,models/acadia_options.md:72
+2027,Acadia,Denali,,58900,Exterior color,,Sterling Metallic,495,,,models/acadia_options.md:72
+2027,Acadia,Denali,,58900,Exterior color,,Ebony Twilight Metallic,495,,,models/acadia_options.md:72
+2027,Acadia,Denali,,58900,Exterior color,,Volcanic Red Tintcoat,645,,,models/acadia_options.md:72
+2027,Acadia,Denali,,58900,Exterior color,,Glacier White Tricoat,1095,,,models/acadia_options.md:72
+2027,Acadia,Denali,,58900,Factory package,,Black Badging Package,495,Black nameplates; Front and rear Black GMC emblems,key=name:black badging package,models/acadia_options.md:83
+2027,Acadia,Denali,,58900,Factory package,,Denali Reserve Package,2900,"Panoramic power sunroof; 22"" all-season blackwall tires; 22"" Pearl Nickel machined aluminum wheels",key=name:denali reserve package,models/acadia_options.md:86
+2027,Acadia,Denali,,58900,Factory option,Wheels,"22"" Pearl Nickel machined aluminum",1400,,,models/acadia_options.md:74
+2027,Acadia,Denali,,58900,Factory option,Wheels,"22"" Bright PVD wheel",2750,,,models/acadia_options.md:74
+2027,Acadia,Denali,,58900,Factory option,Wheels,"22"" High Gloss Black aluminum wheels",2750,,,models/acadia_options.md:74
+2027,Acadia,Denali,,58900,Factory option,Roof,Panoramic power sunroof,1700,,,models/acadia_options.md:89
+2027,Acadia,Denali,,58900,Factory option,Performance,"Suspension, Performance",1200,,,models/acadia_options.md:90
+2027,Acadia,Denali,,58900,Factory option,Performance,Engine block heater,100,,,models/acadia_options.md:90
+2027,Acadia,Denali Ultimate,,63400,Base,,Standard Vehicle Price,63400,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$1,095) excluded; see paint row",models/acadia_options.md:108
+2027,Acadia,Denali Ultimate,,63400,Powertrain,Drivetrain,AWD (vs FWD),2000,,,models/acadia_options.md:107
+2027,Acadia,Denali Ultimate,,63400,Exterior color,,Ink,495,,,models/acadia_options.md:110
+2027,Acadia,Denali Ultimate,,63400,Exterior color,,Sterling Metallic,495,,,models/acadia_options.md:110
+2027,Acadia,Denali Ultimate,,63400,Exterior color,,Ebony Twilight Metallic,495,,,models/acadia_options.md:110
+2027,Acadia,Denali Ultimate,,63400,Exterior color,,Volcanic Red Tintcoat,645,,,models/acadia_options.md:110
+2027,Acadia,Denali Ultimate,,63400,Exterior color,,Glacier White Tricoat,1095,,default-selected paint; its price is excluded from trim_base_msrp,models/acadia_options.md:110
+2027,Acadia,Denali Ultimate,,63400,Factory package,,Black Badging Package,495,Black nameplates; Front and rear Black GMC emblems,key=name:black badging package,models/acadia_options.md:120
+2027,Acadia,Denali Ultimate,,63400,Factory option,Performance,Engine block heater,100,,,models/acadia_options.md:125
+2027,Acadia,AT4,,52700,Base,,Standard Vehicle Price,52700,,"Destination Freight Charge $1,995 not included",models/acadia_options.md:145
+2027,Acadia,AT4,,52700,Exterior color,,Sterling Metallic,495,,,models/acadia_options.md:147
+2027,Acadia,AT4,,52700,Exterior color,,Ebony Twilight Metallic,495,,,models/acadia_options.md:147
+2027,Acadia,AT4,,52700,Exterior color,,Riverstone Metallic,495,,,models/acadia_options.md:147
+2027,Acadia,AT4,,52700,Exterior color,,Volcanic Red Tintcoat,645,,,models/acadia_options.md:147
+2027,Acadia,AT4,,52700,Exterior color,,Glacier White Tricoat,1095,,,models/acadia_options.md:147
+2027,Acadia,AT4,,52700,Factory package,,Black Badging Package,495,Black nameplates; Front and rear Black GMC emblems,key=name:black badging package,models/acadia_options.md:158
+2027,Acadia,AT4,,52700,Factory package,,Luxury Package,1625,Acoustic laminated glass; Heated wiper park; Rear Camera Mirror,key=name:luxury package,models/acadia_options.md:161
+2027,Acadia,AT4,,52700,Factory package,,Super Cruise Package,3670,"3 Years OnStar One; Super Cruise, advanced driver assistance technology; Enhanced Automatic Parking Assist",key=name:super cruise package; package content includes an OnStar One term (subscription content inside the package),models/acadia_options.md:162
+2027,Acadia,AT4,,52700,Factory package,,AT4 Reserve Package,6425,Acoustic laminated glass; Heated wiper park; Rear Camera Mirror (same three bullets as Luxury Package; see Oddities),key=name:at4 reserve package,models/acadia_options.md:163
+2027,Acadia,AT4,,52700,Factory option,Wheels,"18"" Gloss Black aluminum wheels",2495,,,models/acadia_options.md:149
+2027,Acadia,AT4,,52700,Factory option,Roof,Panoramic power sunroof,1700,,,models/acadia_options.md:166
+2027,Acadia,AT4,,52700,Factory option,Performance,Engine block heater,100,,,models/acadia_options.md:167
+2027,Yukon,Elevation,,70200,Base,,Standard Vehicle Price,70200,,"Destination Freight Charge $2,795 not included",models/yukon_options.md:30
+2027,Yukon,Elevation,,70200,Powertrain,Drivetrain,4WD (vs 2WD),3000,,,models/yukon_options.md:27
+2027,Yukon,Elevation,,70200,Powertrain,Engine,3.0L Duramax Turbo Diesel,6975,,,models/yukon_options.md:29
+2027,Yukon,Elevation,,70200,Exterior color,,Onyx Black,495,,,models/yukon_options.md:31
+2027,Yukon,Elevation,,70200,Exterior color,,Titanium Rush Metallic,495,,,models/yukon_options.md:31
+2027,Yukon,Elevation,,70200,Exterior color,,Sterling Metallic,495,,,models/yukon_options.md:31
+2027,Yukon,Elevation,,70200,Exterior color,,Downpour Metallic,495,,,models/yukon_options.md:31
+2027,Yukon,Elevation,,70200,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukon_options.md:31
+2027,Yukon,Elevation,,70200,Factory package,,Elevation Premium Package,7970,"Panoramic power sunroof; Super Cruise; 22"" polished aluminum wheels",key=name:elevation premium package,models/yukon_options.md:38
+2027,Yukon,Elevation,,70200,Factory package,,Elevation Preferred Package,5980,"Panoramic power sunroof; 15"" diagonal multicolor Head-Up Display; Super Cruise",key=name:elevation preferred package,models/yukon_options.md:39
+2027,Yukon,Elevation,,70200,Factory package,,Yukon Bright Edition,3940,"22"" Bright split-spoke wheels; Chrome mirror caps; Polished exhaust tip",key=name:yukon bright edition,models/yukon_options.md:40
+2027,Yukon,Elevation,,70200,Factory package,,Elevation Black Package,4075,"22"" multi-spoke Gloss Black wheels; Black nameplates; Front and rear Black GMC emblems",key=name:elevation black package,models/yukon_options.md:41
+2027,Yukon,Elevation,,70200,Factory package,,Elevation Appearance Package,2025,Black illuminated front GMC emblem; Black nameplates; Black grille with Chrome surround,key=name:elevation appearance package,models/yukon_options.md:42
+2027,Yukon,Elevation,,70200,Factory package,,Technology Package,1625,"Rear Camera Mirror; 15"" diagonal multicolor Head-Up Display; Heated and ventilated driver and front passenger seats",key=name:technology package,models/yukon_options.md:43
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" 6-spoke Carbon Flash Metallic w/ selective machining",2025,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" multi-spoke Gloss Black",3100,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" Black w/ selective machining",3250,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukon_options.md:32
+2027,Yukon,Elevation,,70200,Factory option,Performance,Engine block heater,100,,,models/yukon_options.md:53
+2027,Yukon,Denali,,83100,Base,,Standard Vehicle Price,83100,,"Destination Freight Charge $2,795 not included; diesel credit -$510 on the default 3.0L Duramax excluded",models/yukon_options.md:80
+2027,Yukon,Denali,,83100,Powertrain,Drivetrain,4WD (vs 2WD),3125,,,models/yukon_options.md:77
+2027,Yukon,Denali,,83100,Exterior color,,Onyx Black,495,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Exterior color,,Titanium Rush Metallic,495,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Exterior color,,Sterling Metallic,495,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Exterior color,,Downpour Metallic,495,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Exterior color,,Glacier White Tricoat,1095,,,models/yukon_options.md:81
+2027,Yukon,Denali,,83100,Factory package,,Denali Reserve Package,8110,Power-retractable assist steps with LED perimeter lighting; Panoramic power sunroof; Rear Seat Media System,key=name:denali reserve package,models/yukon_options.md:88
+2027,Yukon,Denali,,83100,Factory package,,Sun & Power Step Package,3245,Power-retractable assist steps with LED perimeter lighting; Panoramic power sunroof,key=name:sun power step package,models/yukon_options.md:89
+2027,Yukon,Denali,,83100,Factory package,,Yukon Bright Edition,3850,"22"" Bright split-spoke wheels; Chrome mirror caps; 22"" all-season blackwall tires",key=name:yukon bright edition,models/yukon_options.md:90
+2027,Yukon,Denali,,83100,Factory package,,Performance Upgrade Package,4545,"Performance Air Intake System; Sport Pedal Cover Kit; a ""Ship Thru, Produced in Arlington Assembly and shipped to Kerr Industries..."" note (listed as content)",key=name:performance upgrade package,models/yukon_options.md:91
+2027,Yukon,Denali,,83100,Factory package,,Denali Appearance Package,2295,Black illuminated front GMC emblem; Black nameplates; Black grille with Chrome surround,key=name:denali appearance package,models/yukon_options.md:92
+2027,Yukon,Denali,,83100,Factory package,,Advanced Technology Package,990,Rear Camera Mirror; Integrated trailer brake controller; Blind Zone Steering Assist with Trailering,key=name:advanced technology package,models/yukon_options.md:97
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" polished aluminum",1525,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" ultra-bright machined and painted Midnight Silver w/ laser etched logo",2025,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" 6-spoke Carbon Flash Metallic w/ selective machining",2025,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" multi-spoke Gloss Black",2850,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" multi-spoke Gloss Black",3100,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" Black w/ selective machining",3250,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukon_options.md:82
+2027,Yukon,Denali,,83100,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukon_options.md:82
+2027,Yukon,AT4,,77900,Base,,Standard Vehicle Price,77900,,"Destination Freight Charge $2,795 not included",models/yukon_options.md:130
+2027,Yukon,AT4,,77900,Powertrain,Engine,6.2L V8,2495,,,models/yukon_options.md:129
+2027,Yukon,AT4,,77900,Powertrain,Engine,3.0L Duramax Turbo Diesel,6275,,,models/yukon_options.md:129
+2027,Yukon,AT4,,77900,Exterior color,,Onyx Black,495,,,models/yukon_options.md:131
+2027,Yukon,AT4,,77900,Exterior color,,Coastal Dune,495,,,models/yukon_options.md:131
+2027,Yukon,AT4,,77900,Exterior color,,Titanium Rush Metallic,495,,,models/yukon_options.md:131
+2027,Yukon,AT4,,77900,Exterior color,,Sterling Metallic,495,,,models/yukon_options.md:131
+2027,Yukon,AT4,,77900,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukon_options.md:131
+2027,Yukon,AT4,,77900,Factory package,,AT4 Premium Plus Package,9735,"Adaptive Air Ride suspension; 15"" diagonal multicolor Head-Up Display; Super Cruise",key=name:at4 premium plus package,models/yukon_options.md:137
+2027,Yukon,AT4,,77900,Factory package,,AT4 Premium Package,5730,Panoramic power sunroof; Rear Camera Mirror; Super Cruise,key=name:at4 premium package,models/yukon_options.md:138
+2027,Yukon,AT4,,77900,Factory package,,Performance Upgrade Package,4545,"Performance Air Intake System; Sport Pedal Cover Kit; ""Ship Thru, Produced in Arlington Assembly..."" note",key=name:performance upgrade package,models/yukon_options.md:139
+2027,Yukon,AT4,,77900,Factory package,,Technology Package,1375,"15"" multicolor Head-Up Display; Rear Camera Mirror; Content theft-deterrent system",key=name:technology package,models/yukon_options.md:140
+2027,Yukon,AT4,,77900,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukon_options.md:142
+2027,Yukon,AT4,,77900,Factory option,Performance,Engine block heater,100,,,models/yukon_options.md:154
+2027,Yukon,AT4 Ultimate,,98200,Base,,Standard Vehicle Price,98200,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukon_options.md:177
+2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Onyx Black,495,,,models/yukon_options.md:178
+2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Coastal Dune,495,,,models/yukon_options.md:178
+2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Titanium Rush Metallic,495,,,models/yukon_options.md:178
+2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Sterling Metallic,495,,,models/yukon_options.md:178
+2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukon_options.md:178
+2027,Yukon,AT4 Ultimate,,98200,Factory package,,Performance Upgrade Package,4260,"Performance Air Intake System; Cat-Back Performance Exhaust System; ""Ship Thru, Produced in Arlington Assembly..."" note",key=name:performance upgrade package,models/yukon_options.md:184
+2027,Yukon,AT4 Ultimate,,98200,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukon_options.md:186
+2027,Yukon,Denali Ultimate,,104800,Base,,Standard Vehicle Price,104800,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukon_options.md:210
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Onyx Black,495,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Titanium Rush Metallic,495,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Sterling Metallic,495,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Downpour Metallic,495,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Exterior color,,Glacier White Tricoat,1095,,,models/yukon_options.md:211
+2027,Yukon,Denali Ultimate,,104800,Factory package,,Yukon Bright Edition,4795,"24"" Bright PVD wheels; Chrome mirror caps; 24"" all-season blackwall tires",key=name:yukon bright edition,models/yukon_options.md:218
+2027,Yukon,Denali Ultimate,,104800,Factory package,,Denali Sport Nightfall Edition,6600,"24"" Black wheels; Black illuminated front GMC emblem; Black nameplates",key=name:denali sport nightfall edition,models/yukon_options.md:219
+2027,Yukon,Denali Ultimate,,104800,Factory package,,Executive Second Row Seating Package,3995,6-way power second row seat adjusters; 4-way power second row bolster seat adjuster; Power second row massage,key=name:executive second row seating package; separately priced seating hardware/configuration (flagged per GM rule),models/yukon_options.md:220
+2027,Yukon,Denali Ultimate,,104800,Factory package,,Performance Upgrade Package,4260,"Performance Air Intake System; Cat-Back Performance Exhaust System; ""Ship Thru, Produced in Arlington Assembly..."" note",key=name:performance upgrade package,models/yukon_options.md:221
+2027,Yukon,Denali Ultimate,,104800,Factory package,,Denali Appearance Package,1199,Black illuminated front GMC emblem; Black nameplates; Black mirror caps,key=name:denali appearance package,models/yukon_options.md:222
+2027,Yukon,Denali Ultimate,,104800,Factory option,Wheels,"22"" multi-spoke Gloss Black",2850,,,models/yukon_options.md:212
+2027,Yukon,Denali Ultimate,,104800,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukon_options.md:212
+2027,Yukon,Denali Ultimate,,104800,Factory option,Wheels,"24"" Black",4000,,,models/yukon_options.md:212
+2027,Yukon,Denali Ultimate,,104800,Factory option,Wheels,"24"" Bright PVD",4650,,,models/yukon_options.md:212
+2027,Yukon XL,Elevation,,73200,Base,,Standard Vehicle Price,73200,,"Destination Freight Charge $2,795 not included",models/yukonxl_options.md:32
+2027,Yukon XL,Elevation,,73200,Powertrain,Drivetrain,4WD (vs 2WD),3000,,,models/yukonxl_options.md:29
+2027,Yukon XL,Elevation,,73200,Powertrain,Engine,3.0L Duramax Turbo Diesel,6975,,,models/yukonxl_options.md:31
+2027,Yukon XL,Elevation,,73200,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:33
+2027,Yukon XL,Elevation,,73200,Exterior color,,Titanium Rush Metallic,495,,,models/yukonxl_options.md:33
+2027,Yukon XL,Elevation,,73200,Exterior color,,Sterling Metallic,495,,,models/yukonxl_options.md:33
+2027,Yukon XL,Elevation,,73200,Exterior color,,Downpour Metallic,495,,,models/yukonxl_options.md:33
+2027,Yukon XL,Elevation,,73200,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukonxl_options.md:33
+2027,Yukon XL,Elevation,,73200,Factory package,,Elevation Premium Package,7970,"Panoramic power sunroof; Super Cruise; 22"" polished aluminum wheels",key=name:elevation premium package,models/yukonxl_options.md:40
+2027,Yukon XL,Elevation,,73200,Factory package,,Elevation Preferred Package,5980,"Panoramic power sunroof; 15"" diagonal multicolor Head-Up Display; Super Cruise",key=name:elevation preferred package,models/yukonxl_options.md:41
+2027,Yukon XL,Elevation,,73200,Factory package,,Elevation Black Package,4075,"22"" multi-spoke Gloss Black wheels; Black nameplates; Front and rear Black GMC emblems",key=name:elevation black package,models/yukonxl_options.md:42
+2027,Yukon XL,Elevation,,73200,Factory package,,Yukon Bright Edition,3940,"22"" Bright split-spoke wheels; Chrome mirror caps; Polished exhaust tip",key=name:yukon bright edition,models/yukonxl_options.md:43
+2027,Yukon XL,Elevation,,73200,Factory package,,Elevation Appearance Package,2025,Black illuminated front GMC emblem; Black nameplates; Black grille with Chrome surround,key=name:elevation appearance package,models/yukonxl_options.md:44
+2027,Yukon XL,Elevation,,73200,Factory package,,Technology Package,1625,"Rear Camera Mirror; 15"" diagonal multicolor Head-Up Display; Heated and ventilated driver and front passenger seats",key=name:technology package,models/yukonxl_options.md:45
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" 6-spoke Carbon Flash Metallic w/ selective machining",2025,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" multi-spoke Gloss Black",3100,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" Black w/ selective machining",3250,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukonxl_options.md:34
+2027,Yukon XL,Elevation,,73200,Factory option,Performance,Engine block heater,100,,,models/yukonxl_options.md:55
+2027,Yukon XL,Denali,,86100,Base,,Standard Vehicle Price,86100,,"Destination Freight Charge $2,795 not included; diesel credit -$510 on the default 3.0L Duramax excluded",models/yukonxl_options.md:79
+2027,Yukon XL,Denali,,86100,Powertrain,Drivetrain,4WD (vs 2WD),3125,,,models/yukonxl_options.md:76
+2027,Yukon XL,Denali,,86100,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Exterior color,,Titanium Rush Metallic,495,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Exterior color,,Sterling Metallic,495,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Exterior color,,Downpour Metallic,495,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Exterior color,,Glacier White Tricoat,1095,,,models/yukonxl_options.md:80
+2027,Yukon XL,Denali,,86100,Factory package,,Denali Reserve Package,8110,Power-retractable assist steps with LED perimeter lighting; Panoramic power sunroof; Rear Seat Media System,key=name:denali reserve package,models/yukonxl_options.md:87
+2027,Yukon XL,Denali,,86100,Factory package,,Performance Upgrade Package,4545,Performance Air Intake System; Sport Pedal Cover Kit; Cat-Back Performance Exhaust System,key=name:performance upgrade package,models/yukonxl_options.md:88
+2027,Yukon XL,Denali,,86100,Factory package,,Yukon Bright Edition,3850,"22"" Bright split-spoke wheels; Chrome mirror caps; 22"" all-season blackwall tires",key=name:yukon bright edition,models/yukonxl_options.md:89
+2027,Yukon XL,Denali,,86100,Factory package,,Sun & Power Step Package,3245,Power-retractable assist steps with LED perimeter lighting; Panoramic power sunroof,key=name:sun power step package,models/yukonxl_options.md:90
+2027,Yukon XL,Denali,,86100,Factory package,,Denali Appearance Package,2295,Black illuminated front GMC emblem; Black nameplates; Black grille with Chrome surround,key=name:denali appearance package,models/yukonxl_options.md:91
+2027,Yukon XL,Denali,,86100,Factory package,,Advanced Technology Package,990,Rear Camera Mirror; Integrated trailer brake controller; Blind Zone Steering Assist with Trailering,key=name:advanced technology package,models/yukonxl_options.md:93
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" polished aluminum",1525,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" 6-spoke Carbon Flash Metallic w/ selective machining",2025,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" ultra-bright machined and painted Midnight Silver w/ laser etched logo",2025,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" multi-spoke Gloss Black",2850,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" multi-spoke Gloss Black",3100,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" Black w/ selective machining",3250,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukonxl_options.md:81
+2027,Yukon XL,Denali,,86100,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukonxl_options.md:81
+2027,Yukon XL,AT4,,80900,Base,,Standard Vehicle Price,80900,,"Destination Freight Charge $2,795 not included",models/yukonxl_options.md:129
+2027,Yukon XL,AT4,,80900,Powertrain,Engine,6.2L V8,2495,,,models/yukonxl_options.md:128
+2027,Yukon XL,AT4,,80900,Powertrain,Engine,3.0L Duramax Turbo Diesel,6275,,,models/yukonxl_options.md:128
+2027,Yukon XL,AT4,,80900,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:130
+2027,Yukon XL,AT4,,80900,Exterior color,,Coastal Dune,495,,,models/yukonxl_options.md:130
+2027,Yukon XL,AT4,,80900,Exterior color,,Titanium Rush Metallic,495,,,models/yukonxl_options.md:130
+2027,Yukon XL,AT4,,80900,Exterior color,,Sterling Metallic,495,,,models/yukonxl_options.md:130
+2027,Yukon XL,AT4,,80900,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukonxl_options.md:130
+2027,Yukon XL,AT4,,80900,Factory package,,AT4 Premium Plus Package,9735,"Adaptive Air Ride suspension; 15"" diagonal multicolor Head-Up Display; Super Cruise",key=name:at4 premium plus package,models/yukonxl_options.md:136
+2027,Yukon XL,AT4,,80900,Factory package,,AT4 Premium Package,5730,Panoramic power sunroof; Rear Camera Mirror; Super Cruise,key=name:at4 premium package,models/yukonxl_options.md:137
+2027,Yukon XL,AT4,,80900,Factory package,,Performance Upgrade Package,4545,Performance Air Intake System; Sport Pedal Cover Kit; Cat-Back Performance Exhaust System,key=name:performance upgrade package,models/yukonxl_options.md:138
+2027,Yukon XL,AT4,,80900,Factory package,,Technology Package,1375,"15"" diagonal multicolor Head-Up Display; Rear Camera Mirror; Content theft-deterrent system",key=name:technology package,models/yukonxl_options.md:139
+2027,Yukon XL,AT4,,80900,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukonxl_options.md:141
+2027,Yukon XL,AT4,,80900,Factory option,Performance,Engine block heater,100,,,models/yukonxl_options.md:152
+2027,Yukon XL,AT4 Ultimate,,101200,Base,,Standard Vehicle Price,101200,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukonxl_options.md:174
+2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:176
+2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Coastal Dune,495,,,models/yukonxl_options.md:176
+2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Titanium Rush Metallic,495,,,models/yukonxl_options.md:176
+2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Sterling Metallic,495,,,models/yukonxl_options.md:176
+2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukonxl_options.md:176
+2027,Yukon XL,AT4 Ultimate,,101200,Factory package,,Performance Upgrade Package,4260,"Performance Air Intake System; Cat-Back Performance Exhaust System; ""Ship Thru, Produced in Arlington Assembly..."" note",key=name:performance upgrade package,models/yukonxl_options.md:182
+2027,Yukon XL,AT4 Ultimate,,101200,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukonxl_options.md:184
+2027,Yukon XL,Denali Ultimate,,107800,Base,,Standard Vehicle Price,107800,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukonxl_options.md:210
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Titanium Rush Metallic,495,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Sterling Metallic,495,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Downpour Metallic,495,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Volcanic Red Tintcoat,645,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Exterior color,,Glacier White Tricoat,1095,,,models/yukonxl_options.md:211
+2027,Yukon XL,Denali Ultimate,,107800,Factory package,,Denali Sport Nightfall Edition,6600,"24"" Black wheels; Black illuminated front GMC emblem; Black nameplates",key=name:denali sport nightfall edition,models/yukonxl_options.md:218
+2027,Yukon XL,Denali Ultimate,,107800,Factory package,,Yukon Bright Edition,4795,"24"" Bright PVD wheels; Chrome mirror caps; 24"" all-season blackwall tires",key=name:yukon bright edition,models/yukonxl_options.md:219
+2027,Yukon XL,Denali Ultimate,,107800,Factory package,,Performance Upgrade Package,4260,"Performance Air Intake System; Cat-Back Performance Exhaust System; ""Ship Thru, Produced in Arlington Assembly..."" note",key=name:performance upgrade package,models/yukonxl_options.md:220
+2027,Yukon XL,Denali Ultimate,,107800,Factory package,,Denali Appearance Package,1199,Black illuminated front GMC emblem; Black nameplates; Black mirror caps,key=name:denali appearance package,models/yukonxl_options.md:222
+2027,Yukon XL,Denali Ultimate,,107800,Factory option,Wheels,"22"" multi-spoke Gloss Black",2850,,,models/yukonxl_options.md:212
+2027,Yukon XL,Denali Ultimate,,107800,Factory option,Wheels,"22"" 6-spoke Low Gloss Black w/ machined accents",3350,,,models/yukonxl_options.md:212
+2027,Yukon XL,Denali Ultimate,,107800,Factory option,Wheels,"24"" Black",4000,,,models/yukonxl_options.md:212
+2027,Yukon XL,Denali Ultimate,,107800,Factory option,Wheels,"24"" Bright PVD",4650,,,models/yukonxl_options.md:212
+2027,Savana Passenger,LS,,48550,Base,,Standard Vehicle Price,48550,,"Destination Freight Charge $2,395 not included; configuration: wheelbase/series/GVWR (2500/3500, Regular/Extended) are configuration, not options; Base is the 2500 Regular Wheelbase default build; 3500 Regular WB +$1,200, 3500 Extended WB +$2,000 (LS picker deltas)",models/savanapassenger_options.md:43
+2027,Savana Passenger,LS,,48550,Powertrain,Engine,"6.6L V8 Gas, 8-speed heavy-duty automatic",1895,,,models/savanapassenger_options.md:46
+2027,Savana Passenger,LS,,48550,Exterior color,,Quicksilver Metallic,495,,,models/savanapassenger_options.md:47
+2027,Savana Passenger,LS,,48550,Factory package,,Enhanced Convenience Package,3250,Remote Keyless Entry; Remote Start; Cruise control,key=name:enhanced convenience package,models/savanapassenger_options.md:53
+2027,Savana Passenger,LS,,48550,Factory package,,Safety Package,3105,Cruise control; 6.6L V8 Gas engine; Manual tilt steering column. (No OnStar line on this tile.),key=name:safety package; package content includes the 6.6L V8 (so it is not additive with the 6.6L engine row),models/savanapassenger_options.md:54
+2027,Savana Passenger,LS,,48550,Factory package,,Communications Package,2300,Cruise control; 6.6L V8 Gas engine; Manual tilt steering column,key=name:communications package; package content includes the 6.6L V8 (so it is not additive with the 6.6L engine row),models/savanapassenger_options.md:55
+2027,Savana Passenger,LS,,48550,Factory package,,Driver Convenience Package,400,Cruise control; Manual tilt steering column,"key=name:driver convenience package; High idle switch on LS is Requires Package: Changes Required Price Change $2,495 adds the 6.6L V8, this package and the 8-speed HD automatic",models/savanapassenger_options.md:56
+2027,Savana Passenger,LS,,48550,Factory package,,Cold Climate Package,100,Engine block heater,key=name:cold climate package,models/savanapassenger_options.md:57
+2027,Savana Passenger,LS,,48550,Factory option,Interior,6-way power front passenger seat,275,,,models/savanapassenger_options.md:51
+2027,Savana Passenger,LS,,48550,Factory option,Interior,6-way power driver seat,275,,,models/savanapassenger_options.md:51
+2027,Savana Passenger,LS,,48550,Factory option,,Passenger-side sliding door,195,,,models/savanapassenger_options.md:62
+2027,Savana Passenger,LS,,48550,Factory option,,Rear Camera Mirror,1295,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Remote Start,300,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Keyless Entry Control Module,250,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Rear window defogger,175,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Remote Keyless Entry,175,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Antenna equipment,50,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,"Console, deluxe with swing-out storage bin",20,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,,Outside temperature display,10,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,Performance,Automatic locking rear differential,395,,,models/savanapassenger_options.md:64
+2027,Savana Passenger,LS,,48550,Factory option,Performance,220-amp alternator,150,,,models/savanapassenger_options.md:64
+2027,Savana Passenger,LS,,48550,Factory option,,Heavy-duty 770 cold-cranking amps battery,60,,,models/savanapassenger_options.md:64
+2027,Savana Passenger,LS,,48550,Factory option,,Trailer wiring with dual 4-pin/7-pin sealed connector,80,,,models/savanapassenger_options.md:65
+2027,Savana Passenger,LS,,48550,Factory option,,Heavy-duty trailering equipment,280,,,models/savanapassenger_options.md:65
+2027,Savana Passenger,LS,,48550,Factory option,,Side Blind Zone Alert,395,,,models/savanapassenger_options.md:67
+2027,Savana Passenger,LS,,48550,Factory option,,Forward Collision Alert,295,,,models/savanapassenger_options.md:67
+2027,Savana Passenger,LS,,48550,Factory option,,Dual-note horn,15,,,models/savanapassenger_options.md:67
+2027,Savana Passenger,LS,,48550,Factory option,,Rear Park Assist,295,,,models/savanapassenger_options.md:67
+2027,Savana Passenger,LT,,50895,Base,,Standard Vehicle Price,50895,,"Destination Freight Charge $2,395 not included; configuration: wheelbase/series/GVWR (2500/3500, Regular/Extended) are configuration, not options; Base is the 2500 Regular Wheelbase default build; 3500 Regular WB +$800, 3500 Extended WB +$1,600 (LT picker deltas)",models/savanapassenger_options.md:74
+2027,Savana Passenger,LT,,50895,Powertrain,Engine,"6.6L V8 Gas, 8-speed heavy-duty automatic",1895,,,models/savanapassenger_options.md:76
+2027,Savana Passenger,LT,,50895,Exterior color,,Quicksilver Metallic,495,,,models/savanapassenger_options.md:77
+2027,Savana Passenger,LT,,50895,Factory package,,Cold Climate Package,100,Engine block heater. No,key=name:cold climate package,models/savanapassenger_options.md:82
+2027,Savana Passenger,LT,,50895,Factory option,Interior,6-way power driver seat,275,,,models/savanapassenger_options.md:81
+2027,Savana Passenger,LT,,50895,Factory option,Interior,6-way power front passenger seat,275,,,models/savanapassenger_options.md:81
+2027,Savana Passenger,LT,,50895,Factory option,,Passenger-side sliding door,195,,,models/savanapassenger_options.md:84
+2027,Savana Passenger,LT,,50895,Factory option,,Rear Camera Mirror,1295,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,,Remote Start,300,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,,Keyless Entry Control Module,250,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,,Rear window defogger,175,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,,Antenna equipment,50,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,,Outside temperature display,10,,,models/savanapassenger_options.md:85
+2027,Savana Passenger,LT,,50895,Factory option,Performance,Automatic locking rear differential,395,,,models/savanapassenger_options.md:86
+2027,Savana Passenger,LT,,50895,Factory option,,High idle switch,200,,"standalone $200 on LT (source: no Requires Package tag on LT; LS version is Requires Package and dropped), as Chevy Express Passenger LT",models/savanapassenger_options.md:86
+2027,Savana Passenger,LT,,50895,Factory option,Performance,220-amp alternator,150,,,models/savanapassenger_options.md:86
+2027,Savana Passenger,LT,,50895,Factory option,,Heavy-duty 770 cold-cranking amps battery,60,,,models/savanapassenger_options.md:86
+2027,Savana Passenger,LT,,50895,Factory option,,Trailer wiring with dual 4-pin/7-pin sealed connector,80,,,models/savanapassenger_options.md:87
+2027,Savana Passenger,LT,,50895,Factory option,,Heavy-duty trailering equipment,280,,,models/savanapassenger_options.md:87
+2027,Savana Passenger,LT,,50895,Factory option,,Side Blind Zone Alert,395,,,models/savanapassenger_options.md:89
+2027,Savana Passenger,LT,,50895,Factory option,,Dual-note horn,15,,,models/savanapassenger_options.md:89
+2027,Savana Passenger,LT,,50895,Factory option,,Rear Park Assist,295,,,models/savanapassenger_options.md:89
+2027,Savana Cargo,Work Van,,42700,Base,,Standard Vehicle Price,42700,,"Destination Freight Charge $2,395 not included; configuration: wheelbase/series/GVWR (2500/3500, Regular/Extended) are configuration, not options; Base is the 2500 Regular Wheelbase default build; 2500 Extended WB +$1,900, 3500 Regular WB +$3,950, 3500 Extended WB +$4,750 (picker deltas); default Driver and front passenger visors $10 (Summary Options) excluded, not a row; credits not rows: Rear floor covering delete -$90, Driver-only high-back bucket seating arrangement -$340",models/savanacargo_options.md:44
+2027,Savana Cargo,Work Van,,42700,Powertrain,Engine,"6.6L V8 Gas, 8-speed heavy-duty automatic",1980,,,models/savanacargo_options.md:47
+2027,Savana Cargo,Work Van,,42700,Exterior color,,Quicksilver Metallic,495,,,models/savanacargo_options.md:48
+2027,Savana Cargo,Work Van,,42700,Factory package,,Enhanced Convenience Package,3250,Remote Keyless Entry; Remote Start; Cruise control,key=name:enhanced convenience package,models/savanacargo_options.md:54
+2027,Savana Cargo,Work Van,,42700,Factory package,,Safety Package,3105,"Cruise control; 6.6L V8 Gas engine; 12 Months OnStar Telematics (SUBSCRIPTION/service, bundled)",key=name:safety package; package content includes the 6.6L V8 (so it is not additive with the 6.6L engine row),models/savanacargo_options.md:55
+2027,Savana Cargo,Work Van,,42700,Factory package,,Hotel Shuttle Package,1330,Swing-out rear cargo door windows; Swing-out rear side door and rear door windows; Solar-Ray deep-tinted glass,key=name:hotel shuttle package; fleet/upfit package kept because priced (as Chevy Express),models/savanacargo_options.md:56
+2027,Savana Cargo,Work Van,,42700,Factory package,,Communications Package,605,"Cruise control; 12 Months OnStar Telematics (SUBSCRIPTION/service, bundled)",key=name:communications package,models/savanacargo_options.md:57
+2027,Savana Cargo,Work Van,,42700,Factory package,,Driver Convenience Package,400,Cruise control,"key=name:driver convenience package; Cruise control (Requires Package) requires this package (or the High idle switch, per the Changes Required panel)",models/savanacargo_options.md:58
+2027,Savana Cargo,Work Van,,42700,Factory option,Interior,5-passenger seating,2055,,"separately priced seating configuration (flagged); Full-body window glass package (Requires Package, no price) requires 5-passenger seating or the $0 Paratransit Package",models/savanacargo_options.md:52
+2027,Savana Cargo,Work Van,,42700,Factory option,Interior,6-way power front passenger seat,275,,,models/savanacargo_options.md:52
+2027,Savana Cargo,Work Van,,42700,Factory option,Interior,6-way power driver seat,275,,,models/savanacargo_options.md:52
+2027,Savana Cargo,Work Van,,42700,Factory option,,Passenger-side sliding door,195,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Swing-out rear side door and rear door windows,160,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,"Rear doors, side door and rear passenger-side quarter window glass",145,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear door and side door window glass,130,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Solar-Ray deep-tinted glass,120,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Swing-out rear cargo door windows,80,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear door window glass,60,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Antenna equipment,50,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Dual-note horn,15,,,models/savanacargo_options.md:66
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear air conditioning,785,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Remote Start,300,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Keyless Entry Control Module,250,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear window defogger,175,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Remote Keyless Entry,175,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Auxiliary lighting,85,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Brake warning indicator,65,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,"Console, deluxe with swing-out storage bin",20,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,,Outside temperature display,10,,,models/savanacargo_options.md:67
+2027,Savana Cargo,Work Van,,42700,Factory option,Performance,Automatic locking rear differential,395,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,,High idle switch,200,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,Performance,220-amp alternator,150,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,,Cold Climate Package,100,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,Performance,150-amp alternator,75,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,,Heavy-duty 770 cold-cranking amps battery,60,,,models/savanacargo_options.md:68
+2027,Savana Cargo,Work Van,,42700,Factory option,,Trailer wiring with dual 4-pin/7-pin sealed connector,80,,,models/savanacargo_options.md:69
+2027,Savana Cargo,Work Van,,42700,Factory option,,Heavy-duty trailering equipment,280,,,models/savanacargo_options.md:69
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear Camera Mirror,1295,,,models/savanacargo_options.md:71
+2027,Savana Cargo,Work Van,,42700,Factory option,,Side Blind Zone Alert,395,,,models/savanacargo_options.md:71
+2027,Savana Cargo,Work Van,,42700,Factory option,,Forward Collision Alert,295,,,models/savanacargo_options.md:71
+2027,Savana Cargo,Work Van,,42700,Factory option,,Rear Park Assist,295,,,models/savanacargo_options.md:71
