@@ -1,0 +1,3061 @@
+{
+  "honda|accord|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Accord)",
+    "models": [
+      "accord"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "lx": {
+        "label": "LX",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "se": {
+        "label": "SE",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport hybrid": {
+        "label": "Sport Hybrid",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "still night": {
+            "label": "Still Night",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "ex l hybrid": {
+        "label": "EX-L Hybrid",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport l hybrid": {
+        "label": "Sport-L Hybrid",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "still night": {
+            "label": "Still Night",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "touring hybrid": {
+        "label": "Touring Hybrid",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|cr v e fcev|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 CR-V e:FCEV)",
+    "models": [
+      "cr v e fcev"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "e fcev": {
+        "label": "e:FCEV",
+        "options": {}
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|civic hatchback|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Civic Hatchback)",
+    "models": [
+      "civic hatchback"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "sport": {
+        "label": "Sport",
+        "options": {
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sand dune": {
+            "label": "Sand Dune",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport hybrid": {
+        "label": "Sport Hybrid",
+        "options": {
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sand dune": {
+            "label": "Sand Dune",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring hybrid": {
+        "label": "Sport Touring Hybrid",
+        "options": {
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sand dune": {
+            "label": "Sand Dune",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|civic si sedan|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Civic Si Sedan)",
+    "models": [
+      "civic si sedan"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "si": {
+        "label": "Si",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|civic type r|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Civic Type R)",
+    "models": [
+      "civic type r"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "type r": {
+        "label": "Type R",
+        "options": {
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "championship white": {
+            "label": "Championship White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|pilot|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Pilot)",
+    "models": [
+      "pilot"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "sport": {
+        "label": "Sport",
+        "options": {
+          "awd 10 speed automatic": {
+            "label": "AWD 10-Speed Automatic",
+            "kind": "powertrain",
+            "price": 2100,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 895,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      },
+      "ex l": {
+        "label": "EX-L",
+        "options": {
+          "awd 10 speed automatic": {
+            "label": "AWD 10-Speed Automatic",
+            "kind": "powertrain",
+            "price": 2100,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 895,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      },
+      "trailsport": {
+        "label": "TrailSport",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "touring": {
+        "label": "Touring",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 1140,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      },
+      "touring blackout": {
+        "label": "Touring Blackout",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 1140,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      },
+      "elite": {
+        "label": "Elite",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 1140,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      },
+      "black edition": {
+        "label": "Black Edition",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "towing package": {
+            "label": "Towing Package",
+            "kind": "package",
+            "price": 1140,
+            "aliases": [
+              "towing pkg"
+            ]
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|prologue|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Prologue)",
+    "models": [
+      "prologue"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "ex": {
+        "label": "EX",
+        "options": {
+          "awd dual motor": {
+            "label": "AWD Dual Motor",
+            "kind": "powertrain",
+            "price": 3000,
+            "aliases": []
+          },
+          "frostline white pearl": {
+            "label": "Frostline White Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "pacific blue": {
+            "label": "Pacific Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "raven black": {
+            "label": "Raven Black",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "scarlet red": {
+            "label": "Scarlet Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "touring": {
+        "label": "Touring",
+        "options": {
+          "awd dual motor": {
+            "label": "AWD Dual Motor",
+            "kind": "powertrain",
+            "price": 3000,
+            "aliases": []
+          },
+          "frostline white pearl": {
+            "label": "Frostline White Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "north shore": {
+            "label": "North Shore",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "pacific blue": {
+            "label": "Pacific Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "raven black": {
+            "label": "Raven Black",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "scarlet red": {
+            "label": "Scarlet Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "elite": {
+        "label": "Elite",
+        "options": {
+          "frostline white pearl": {
+            "label": "Frostline White Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "north shore": {
+            "label": "North Shore",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "pacific blue": {
+            "label": "Pacific Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "raven black": {
+            "label": "Raven Black",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "scarlet red": {
+            "label": "Scarlet Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|ridgeline|2026": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2026 Ridgeline)",
+    "models": [
+      "ridgeline"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "sport": {
+        "label": "Sport",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "rtl": {
+        "label": "RTL",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red metallic ii": {
+            "label": "Radiant Red Metallic II",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport": {
+        "label": "TrailSport",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red metallic ii": {
+            "label": "Radiant Red Metallic II",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport hpd wheels": {
+        "label": "TrailSport+HPD Wheels",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red metallic ii": {
+            "label": "Radiant Red Metallic II",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "black edition": {
+        "label": "Black Edition",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "black edition two tone": {
+        "label": "Black Edition Two-Tone",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray pearl": {
+            "label": "Sonic Gray Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|cr v|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 CR-V)",
+    "models": [
+      "cr v"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "lx": {
+        "label": "LX",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "ex": {
+        "label": "EX",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "ex l": {
+        "label": "EX-L",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport hybrid": {
+        "label": "Sport Hybrid",
+        "options": {
+          "awd 2 0l l4 with 2 motor hybrid system": {
+            "label": "AWD 2.0L L4 with 2-Motor Hybrid System",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport l hybrid": {
+        "label": "Sport-L Hybrid",
+        "options": {
+          "awd 2 0l l4 with 2 motor hybrid system": {
+            "label": "AWD 2.0L L4 with 2-Motor Hybrid System",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport hybrid": {
+        "label": "TrailSport Hybrid",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring hybrid": {
+        "label": "Sport Touring Hybrid",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|civic sedan|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 Civic Sedan)",
+    "models": [
+      "civic sedan"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "lx": {
+        "label": "LX",
+        "options": {
+          "blue lagoon pearl": {
+            "label": "Blue Lagoon Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport": {
+        "label": "Sport",
+        "options": {
+          "blue lagoon pearl": {
+            "label": "Blue Lagoon Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport hybrid": {
+        "label": "Sport Hybrid",
+        "options": {
+          "blue lagoon pearl": {
+            "label": "Blue Lagoon Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring hybrid": {
+        "label": "Sport Touring Hybrid",
+        "options": {
+          "blue lagoon pearl": {
+            "label": "Blue Lagoon Pearl",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|hr v|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 HR-V)",
+    "models": [
+      "hr v"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "lx": {
+        "label": "LX",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "nordic forest": {
+            "label": "Nordic Forest",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport": {
+        "label": "Sport",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "nordic forest": {
+            "label": "Nordic Forest",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "ex l": {
+        "label": "EX-L",
+        "options": {
+          "awd cvt": {
+            "label": "AWD CVT",
+            "kind": "powertrain",
+            "price": 1500,
+            "aliases": []
+          },
+          "nordic forest": {
+            "label": "Nordic Forest",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "urban gray": {
+            "label": "Urban Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|odyssey|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 Odyssey)",
+    "models": [
+      "odyssey"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "ex l": {
+        "label": "EX-L",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "sport l": {
+        "label": "Sport-L",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "touring": {
+        "label": "Touring",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "elite": {
+        "label": "Elite",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|passport|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 Passport)",
+    "models": [
+      "passport"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "rtl": {
+        "label": "RTL",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "rtl towing": {
+        "label": "RTL Towing",
+        "options": {
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport": {
+        "label": "TrailSport",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sunset orange": {
+            "label": "Sunset Orange",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport blackout": {
+        "label": "TrailSport Blackout",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sunset orange": {
+            "label": "Sunset Orange",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport elite": {
+        "label": "TrailSport Elite",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sunset orange": {
+            "label": "Sunset Orange",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      },
+      "trailsport elite blackout": {
+        "label": "TrailSport Elite Blackout",
+        "options": {
+          "ash green": {
+            "label": "Ash Green",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "platinum white": {
+            "label": "Platinum White",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "radiant red": {
+            "label": "Radiant Red",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sonic gray": {
+            "label": "Sonic Gray",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "sunset orange": {
+            "label": "Sunset Orange",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "honda|prelude|2027": {
+    "source": "docs/cadillac-honda-kia-2026-2027/honda_lineup_options_by_trim.csv (2027 Prelude)",
+    "models": [
+      "prelude"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "(?!)",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "hybrid": {
+        "label": "Hybrid",
+        "options": {
+          "boost blue": {
+            "label": "Boost Blue",
+            "kind": "paint",
+            "price": 455,
+            "aliases": []
+          },
+          "winter frost": {
+            "label": "Winter Frost",
+            "kind": "paint",
+            "price": 655,
+            "aliases": []
+          }
+        }
+      },
+      "hybrid two tone": {
+        "label": "Hybrid Two-Tone",
+        "options": {
+          "winter frost pearl": {
+            "label": "Winter Frost Pearl",
+            "kind": "paint",
+            "price": 655,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  }
+}

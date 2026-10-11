@@ -135,6 +135,9 @@ export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
   optionPolicyPath("chevrolet-2026-2027.json"),
   optionPolicyPath("gmc-2026-2027.json"),
   optionPolicyPath("buick-2026-2027.json"),
+  optionPolicyPath("cadillac-2026-2027.json"),
+  optionPolicyPath("honda-2026-2027.json"),
+  optionPolicyPath("kia-2026-2027.json"),
 ]);
 
 
@@ -151,7 +154,7 @@ export function buildModelPolicies(raw) {
       for (const [rawKey, o] of Object.entries(t.options || {})) {
         const key = normalizeOptionKey(rawKey);
         if (!key) continue;
-        const entry = { key, label: o.label || rawKey, kind: o.kind || "option", price: Number(o.price) || 0, code: o.code || null, rules: Array.isArray(o.rules) ? o.rules : [], features: (o.features || []).map((f) => new RegExp(f)) };
+        const entry = { key, label: o.label || rawKey, kind: o.kind || "option", price: Number(o.price) || 0, code: o.code || null, priceByDrivetrain: o.priceByDrivetrain && typeof o.priceByDrivetrain === "object" ? o.priceByDrivetrain : null, rules: Array.isArray(o.rules) ? o.rules : [], features: (o.features || []).map((f) => new RegExp(f)) };
         entries.set(key, entry);
         index.set(key, entry);
         for (const a of o.aliases || []) { const ak = normalizeOptionKey(a); if (ak && !index.has(ak)) index.set(ak, entry); }
@@ -198,6 +201,16 @@ export function modelPolicyFor(allowlist, vehicle) {
 // A feed option's own order code (Ford "301A", "202A"; GM RPO "Z07", "WN5") when it IS a policy entry's key: Ford packages and GM RPO options are keyed
 // on their code. Codes a feed invents for itself ("PKG-73", "OPT-66") are not policy keys and never match.
 const byOrderCode = (policy, trim, code) => (code && policy.orderCode.test(String(code).trim()) ? trim.index.get(normalizeOptionKey(code)) || null : null);
+
+// A package priced per drivetrain (Kia EV3 Wind Nightfall: FWD $1,500, AWD $1,000) is ONE entry. The vehicle's drivetrain (its own field, else a word in its trim)
+// picks the price; FWD/RWD/2WD share the "fwd" price. Unknown drivetrain -> the entry's price (the FWD/default build).
+const dtGroup = (text) => { const k = ` ${normalizeOptionKey(text)} `; return /\s(awd|4wd|4x4)\s/.test(k) ? "awd" : /\s(fwd|rwd|2wd|4x2)\s/.test(k) ? "fwd" : null; };
+const priceFor = (e, vehicle) => {
+  if (!e.priceByDrivetrain) return e.price;
+  const g = dtGroup(vehicle.drivetrain || "") || dtGroup(vehicle.trim || "");
+  const p = g ? (e.priceByDrivetrain[g] ?? (g === "fwd" ? e.priceByDrivetrain.rwd ?? e.priceByDrivetrain["2wd"] : e.priceByDrivetrain["4wd"])) : null;
+  return Number.isFinite(p) ? p : e.price;
+};
 
 // "Weather Package $375" / "(CY)" style decoration around a package name.
 const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
@@ -304,13 +317,13 @@ export function policyOptionRows(policy, vehicle, options) {
     if (!trim) { drop(label, "no-trusted-trim"); continue; } // rule 6
     const exact = trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(policy, trim, r.code);
     if (exact) { // rule 1: a paid package / option / paint this trim offers, under its canonical key
-      if (!rows.has(exact.key)) rows.set(exact.key, { key: exact.key, label: exact.label, code: r.code, kind: exact.kind, price: exact.price, via: "kept" });
+      if (!rows.has(exact.key)) rows.set(exact.key, { key: exact.key, label: exact.label, code: r.code, kind: exact.kind, price: priceFor(exact, vehicle), via: "kept" });
       out.outcomes.push({ label, outcome: "kept", key: exact.key });
       continue;
     }
     const rolled = [...trim.entries.values()].find((e) => e.features.some((re) => re.test(cleaned))); // rule 4
     if (rolled) {
-      if (!rows.has(rolled.key)) rows.set(rolled.key, { key: rolled.key, label: rolled.label, code: null, kind: rolled.kind, price: rolled.price, via: "rolled_up" });
+      if (!rows.has(rolled.key)) rows.set(rolled.key, { key: rolled.key, label: rolled.label, code: null, kind: rolled.kind, price: priceFor(rolled, vehicle), via: "rolled_up" });
       out.outcomes.push({ label, outcome: "rolled_up", key: rolled.key });
       continue;
     }
