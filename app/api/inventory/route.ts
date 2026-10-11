@@ -226,7 +226,7 @@ export async function GET(request: Request) {
             year: parseInt(r.ModelYear || "2024", 10),
             make: r.Make,
             model: r.Model || "Vehicle",
-            trim: r.Trim || r.Series || "Standard",
+            trim: r.Trim || "Standard",
             bodyType: r.BodyClass?.includes("Sedan") ? "Sedan" : r.BodyClass?.includes("Truck") ? "Truck" : r.BodyClass?.includes("Coupe") ? "Coupe" : "SUV",
             engine: r.DisplacementL ? `${r.DisplacementL}L ${r.EngineCylinders || 4}-Cylinder` : "Turbo Engine",
             drivetrain: r.DriveType?.includes("4WD") || r.DriveType?.includes("AWD") ? "AWD" : "RWD",

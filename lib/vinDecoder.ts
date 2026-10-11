@@ -72,7 +72,8 @@ export async function decodeVinFromNhtsa(vin: string): Promise<DecodedVehicle | 
     year: result.ModelYear ? parseInt(result.ModelYear, 10) : undefined,
     make: result.Make || undefined,
     model: result.Model || undefined,
-    trim: result.Trim || result.Series || undefined,
+    // Series is a platform code ("64 Series"), not a trim — never a fallback.
+    trim: result.Trim || undefined,
     bodyClass: result.BodyClass || undefined,
     doors: result.Doors ? parseInt(result.Doors, 10) : undefined,
     driveType: result.DriveType || undefined,
