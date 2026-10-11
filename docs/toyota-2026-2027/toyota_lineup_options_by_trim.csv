@@ -1,0 +1,759 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2027,Corolla,LE,1852,23325,Base,,Base Price (trim MSRP),23325,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_options.md:29
+2027,Corolla,LE,1852,23325,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/corolla_options.md:33
+2027,Corolla,LE,1852,23325,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:35
+2027,Corolla,LE,1852,23325,Factory package,,LE Premium Package,1135,"Smart Key System on front doors and trunk with Push Button Start; remote keyless entry (lock, panic, trunk release); 16-in. alloy wheels and P205/55R16 tires; Qi-compatible wireless charging (*)",,models/corolla_options.md:42
+2027,Corolla,Hybrid LE,1882,25175,Base,,Base Price (trim MSRP),25175,,"DPH $1,295 not included",models/corolla_options.md:46
+2027,Corolla,Hybrid LE,1882,25175,Powertrain,Drivetrain,All-Wheel Drive,1400,,drivetrain upgrade over the base 2WD build (per-trim delta),models/corolla_options.md:58
+2027,Corolla,Hybrid LE,1882,25175,Exterior color,,Wind Chill Pearl,475,,,models/corolla_options.md:50
+2027,Corolla,Hybrid LE,1882,25175,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:52
+2027,Corolla,Hybrid LE,1882,25175,Factory package,,LE Premium Package,1135,,,models/corolla_options.md:60
+2027,Corolla,SE,1864,25765,Base,,Base Price (trim MSRP),25765,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_options.md:64
+2027,Corolla,SE,1864,25765,Exterior color,,Wind Chill Pearl,475,,,models/corolla_options.md:68
+2027,Corolla,SE,1864,25765,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:70
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Blueprint w/ Inked roof,500,,,models/corolla_options.md:75
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Celestite w/ Inked roof,500,,,models/corolla_options.md:76
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Ice Cap w/ Inked roof,500,,,models/corolla_options.md:77
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Classic Silver Metallic w/ Inked roof,500,,,models/corolla_options.md:78
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Underground w/ Inked roof,500,,,models/corolla_options.md:79
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Wind Chill Pearl w/ Inked roof,975,,,models/corolla_options.md:80
+2027,Corolla,SE,1864,25765,Exterior color,Two-tone,Ruby Flare Pearl w/ Inked roof,975,,,models/corolla_options.md:81
+2027,Corolla,SE,1864,25765,Factory package,,SE Premium Package,965,Qi-compatible wireless charging (*); 12.3-in. digital gauge cluster; 10.5-in. Toyota Audio Multimedia System,,models/corolla_options.md:84
+2027,Corolla,Hybrid SE,1886,27615,Base,,Base Price (trim MSRP),27615,,"DPH $1,295 not included",models/corolla_options.md:88
+2027,Corolla,Hybrid SE,1886,27615,Powertrain,Drivetrain,All-Wheel Drive,1400,,drivetrain upgrade over the base 2WD build (per-trim delta),models/corolla_options.md:100
+2027,Corolla,Hybrid SE,1886,27615,Exterior color,,Wind Chill Pearl,475,,,models/corolla_options.md:92
+2027,Corolla,Hybrid SE,1886,27615,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:94
+2027,Corolla,Hybrid SE,1886,27615,Factory package,,SE Premium Package,965,,,models/corolla_options.md:102
+2027,Corolla,XSE,1866,29040,Base,,Base Price (trim MSRP),29040,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_options.md:106
+2027,Corolla,XSE,1866,29040,Exterior color,,Wind Chill Pearl,475,,,models/corolla_options.md:110
+2027,Corolla,XSE,1866,29040,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:112
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Blueprint w/ Inked roof,500,,,models/corolla_options.md:117
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Celestite w/ Inked roof,500,,,models/corolla_options.md:118
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Ice Cap w/ Inked roof,500,,,models/corolla_options.md:119
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Classic Silver Metallic w/ Inked roof,500,,,models/corolla_options.md:120
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Underground w/ Inked roof,500,,,models/corolla_options.md:121
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Wind Chill Pearl w/ Inked roof,975,,,models/corolla_options.md:122
+2027,Corolla,XSE,1866,29040,Exterior color,Two-tone,Ruby Flare Pearl w/ Inked roof,975,,,models/corolla_options.md:123
+2027,Corolla,XSE,1866,29040,Factory option,,JBL Premium Audio,600,nine-speaker JBL Premium Audio including amplifier and subwoofer,,models/corolla_options.md:126
+2027,Corolla,Hybrid XLE,1892,29540,Base,,Base Price (trim MSRP),29540,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_options.md:130
+2027,Corolla,Hybrid XLE,1892,29540,Exterior color,,Wind Chill Pearl,475,,,models/corolla_options.md:134
+2027,Corolla,Hybrid XLE,1892,29540,Exterior color,,Ruby Flare Pearl,475,,,models/corolla_options.md:136
+2027,Corolla,Hybrid XLE,1892,29540,Factory option,,JBL Premium Audio,600,nine-speaker JBL Premium Audio including amplifier and subwoofer,,models/corolla_options.md:143
+2027,Corolla Hatchback,SE,6272,24780,Base,,Base Price (trim MSRP),24780,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_hatchback_options.md:25
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,,Wind Chill Pearl,475,,,models/corolla_hatchback_options.md:30
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,,Finish Line Red,475,,,models/corolla_hatchback_options.md:33
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,Two-tone,Blueprint with Black roof,500,,,models/corolla_hatchback_options.md:36
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,Two-tone,Classic Silver Metallic with Black roof,500,,,models/corolla_hatchback_options.md:37
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,Two-tone,Magnetic Gray Metallic with Black roof,500,,,models/corolla_hatchback_options.md:38
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,Two-tone,Wind Chill Pearl with Black roof,975,,,models/corolla_hatchback_options.md:39
+2027,Corolla Hatchback,SE,6272,24780,Exterior color,Two-tone,Finish Line Red with Black roof,975,,,models/corolla_hatchback_options.md:40
+2027,Corolla Hatchback,SE,6272,24780,Factory package,,SE Premium Package,800,12.3-in. digital gauge cluster; 10.5-in. Toyota Audio Multimedia system,,models/corolla_hatchback_options.md:43
+2027,Corolla Hatchback,XSE,6274,27875,Base,,Base Price (trim MSRP),27875,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/corolla_hatchback_options.md:47
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,,Wind Chill Pearl,475,,,models/corolla_hatchback_options.md:52
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,,Finish Line Red,475,,,models/corolla_hatchback_options.md:55
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,Two-tone,Blueprint with Black roof,500,,,models/corolla_hatchback_options.md:58
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,Two-tone,Classic Silver Metallic with Black roof,500,,,models/corolla_hatchback_options.md:59
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,Two-tone,Magnetic Gray Metallic with Black roof,500,,,models/corolla_hatchback_options.md:60
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,Two-tone,Wind Chill Pearl with Black roof,975,,,models/corolla_hatchback_options.md:61
+2027,Corolla Hatchback,XSE,6274,27875,Exterior color,Two-tone,Finish Line Red with Black roof,975,,,models/corolla_hatchback_options.md:62
+2026,Corolla Cross,L,6301,25335,Base,,Base Price (trim MSRP),25335,,"DPH $1,595 not included",models/corolla_cross_options.md:29
+2026,Corolla Cross,L,6301,25335,Powertrain,Drivetrain,All-Wheel Drive,1300,,drivetrain upgrade over the base 2WD build (per-trim delta),models/corolla_cross_options.md:37
+2026,Corolla Cross,L,6301,25335,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/corolla_cross_options.md:34
+2026,Corolla Cross,LE,6303,27665,Base,,Base Price (trim MSRP),27665,,"DPH $1,595 not included",models/corolla_cross_options.md:44
+2026,Corolla Cross,LE,6303,27665,Powertrain,Drivetrain,All-Wheel Drive,1300,,drivetrain upgrade over the base 2WD build (per-trim delta),models/corolla_cross_options.md:55
+2026,Corolla Cross,LE,6303,27665,Exterior color,,Wind Chill Pearl,475,,,models/corolla_cross_options.md:51
+2026,Corolla Cross,LE,6303,27665,Exterior color,,Soul Red Crystal,475,,,models/corolla_cross_options.md:52
+2026,Corolla Cross,LE,6303,27665,Factory package,,Moonroof Package,940,Moonroof and tonneau cover,,models/corolla_cross_options.md:58
+2026,Corolla Cross,LE,6303,27665,Factory option,,Multimedia Upgrade,615,10.5-in. Toyota Audio Multimedia Screen,,models/corolla_cross_options.md:59
+2026,Corolla Cross,Hybrid S,6312,29795,Base,,Base Price (trim MSRP),29795,,"DPH $1,595 not included",models/corolla_cross_options.md:64
+2026,Corolla Cross,Hybrid S,6312,29795,Exterior color,,Wind Chill Pearl,475,,,models/corolla_cross_options.md:69
+2026,Corolla Cross,XLE,6305,30260,Base,,Base Price (trim MSRP),30260,,"DPH $1,595 not included",models/corolla_cross_options.md:79
+2026,Corolla Cross,XLE,6305,30260,Powertrain,Drivetrain,All-Wheel Drive,1450,,drivetrain upgrade over the base 2WD build (per-trim delta),models/corolla_cross_options.md:90
+2026,Corolla Cross,XLE,6305,30260,Exterior color,,Wind Chill Pearl,475,,,models/corolla_cross_options.md:86
+2026,Corolla Cross,XLE,6305,30260,Exterior color,,Soul Red Crystal,475,,arrival/default paint (paid),models/corolla_cross_options.md:87
+2026,Corolla Cross,XLE,6305,30260,Factory package,,Convenience Package,1250,Power liftgate; Moonroof,,models/corolla_cross_options.md:93
+2026,Corolla Cross,XLE,6305,30260,Factory option,,JBL Premium Audio,800,JBL® Premium Audio—nine JBL® speakers including subwoofer and amplifier,Additional Change(s) Required,models/corolla_cross_options.md:94
+2026,Corolla Cross,Hybrid SE,6314,31115,Base,,Base Price (trim MSRP),31115,,"DPH $1,595 not included",models/corolla_cross_options.md:99
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,,Wind Chill Pearl,475,,,models/corolla_cross_options.md:105
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,,Soul Red Crystal,475,,,models/corolla_cross_options.md:106
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,Two-tone,Sonic Silver w/ Jet Black roof,500,,,models/corolla_cross_options.md:108
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,Two-tone,Cavalry Blue w/ Jet Black roof,500,,arrival/default paint (paid),models/corolla_cross_options.md:109
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,Two-tone,Wind Chill Pearl w/ Jet Black roof,975,,,models/corolla_cross_options.md:110
+2026,Corolla Cross,Hybrid SE,6314,31115,Exterior color,Two-tone,Soul Red Crystal w/ Jet Black roof,975,,,models/corolla_cross_options.md:111
+2026,Corolla Cross,Hybrid SE,6314,31115,Factory package,,Cold Weather Package,500,Heated steering wheel and heated front seats,,models/corolla_cross_options.md:118
+2026,Corolla Cross,Hybrid SE,6314,31115,Factory package,,Moonroof Package,940,Moonroof and tonneau cover,,models/corolla_cross_options.md:119
+2026,Corolla Cross,Hybrid SE,6314,31115,Factory option,,Multimedia Upgrade,615,10.5-in. Toyota Audio Multimedia Screen,,models/corolla_cross_options.md:120
+2026,Corolla Cross,Hybrid XSE,6316,33830,Base,,Base Price (trim MSRP),33830,,"DPH $1,595 not included",models/corolla_cross_options.md:125
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,,Wind Chill Pearl,475,,,models/corolla_cross_options.md:131
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,,Soul Red Crystal,475,,,models/corolla_cross_options.md:132
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,Two-tone,Sonic Silver w/ Jet Black roof,500,,,models/corolla_cross_options.md:134
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,Two-tone,Cavalry Blue w/ Jet Black roof,500,,arrival/default paint (paid),models/corolla_cross_options.md:135
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,Two-tone,Wind Chill Pearl w/ Jet Black roof,975,,,models/corolla_cross_options.md:136
+2026,Corolla Cross,Hybrid XSE,6316,33830,Exterior color,Two-tone,Soul Red Crystal w/ Jet Black roof,975,,,models/corolla_cross_options.md:137
+2026,Corolla Cross,Hybrid XSE,6316,33830,Factory package,,Convenience Package,1250,Power liftgate; Moonroof,,models/corolla_cross_options.md:145
+2026,Corolla Cross,Hybrid XSE,6316,33830,Factory option,,JBL Premium Audio,800,JBL® Premium Audio—nine JBL® speakers including subwoofer and amplifier,Additional Change(s) Required,models/corolla_cross_options.md:146
+2026,Camry,LE,2559,29600,Base,,Base Price (trim MSRP),29600,,"DPH $1,295 not included",models/camry_options.md:28
+2026,Camry,LE,2559,29600,Powertrain,Drivetrain,All-Wheel Drive,1525,,drivetrain upgrade over the base 2WD build (per-trim delta),models/camry_options.md:40
+2026,Camry,LE,2559,29600,Exterior color,,Supersonic Red,475,,,models/camry_options.md:37
+2026,Camry,LE,2559,29600,Factory package,,Convenience Package,1050,Auto-dimming rearview mirror with HomeLink® universal garage door opener; Smart Key System on front doors; Power-adjustable driver's seat,,models/camry_options.md:43
+2026,Camry,LE,2559,29600,Factory package,,Cold Weather Package,610,Heated leather steering wheel; Heated front seats,Additional Change(s) Required,models/camry_options.md:44
+2026,Camry,LE,2559,29600,Factory option,,Power tilt/slide moonroof,870,Power tilt/slide moonroof (removal of overhead sunglasses storage),,models/camry_options.md:45
+2026,Camry,SE,2561,32100,Base,,Base Price (trim MSRP),32100,,"DPH $1,295 not included",models/camry_options.md:51
+2026,Camry,SE,2561,32100,Powertrain,Drivetrain,All-Wheel Drive,1525,,drivetrain upgrade over the base 2WD build (per-trim delta),models/camry_options.md:64
+2026,Camry,SE,2561,32100,Exterior color,,Supersonic Red,475,,,models/camry_options.md:59
+2026,Camry,SE,2561,32100,Exterior color,,Dark Cosmos,475,,,models/camry_options.md:60
+2026,Camry,SE,2561,32100,Exterior color,,Heavy Metal,475,,,models/camry_options.md:61
+2026,Camry,SE,2561,32100,Factory package,,Convenience Package,600,Auto-dimming rearview mirror with HomeLink® universal garage door opener; Smart Key System on front doors,,models/camry_options.md:67
+2026,Camry,SE,2561,32100,Factory package,,Cold Weather Package,500,Heated leather steering wheel; Paddle shifters; Heated front seats,Additional Change(s) Required,models/camry_options.md:68
+2026,Camry,SE,2561,32100,Factory package,,Multimedia Upgrade Package,735,12.3-in. Toyota Audio Multimedia touchscreen,Additional Change(s) Required,models/camry_options.md:69
+2026,Camry,SE,2561,32100,Factory option,,Power tilt/slide moonroof,870,Power tilt/slide moonroof (removal of overhead sunglasses storage),,models/camry_options.md:70
+2026,Camry,Nightshade,2558,33100,Base,,Base Price (trim MSRP),33100,,"DPH $1,295 not included",models/camry_options.md:75
+2026,Camry,Nightshade,2558,33100,Powertrain,Drivetrain,All-Wheel Drive,1525,,drivetrain upgrade over the base 2WD build (per-trim delta),models/camry_options.md:83
+2026,Camry,Nightshade,2558,33100,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/camry_options.md:80
+2026,Camry,Nightshade,2558,33100,Factory package,,Convenience Package,600,Auto-dimming rearview mirror with HomeLink® universal garage door opener; Smart Key System on front doors,,models/camry_options.md:86
+2026,Camry,Nightshade,2558,33100,Factory package,,Cold Weather Package,500,Heated leather steering wheel; Paddle shifters; Heated front seats,Additional Change(s) Required,models/camry_options.md:87
+2026,Camry,Nightshade,2558,33100,Factory package,,Multimedia Upgrade Package,735,12.3-in. Toyota Audio Multimedia touchscreen,Additional Change(s) Required,models/camry_options.md:88
+2026,Camry,Nightshade,2558,33100,Factory option,,Power tilt/slide moonroof,870,Power tilt/slide moonroof (removal of overhead sunglasses storage),,models/camry_options.md:89
+2026,Camry,XLE,2560,34800,Base,,Base Price (trim MSRP),34800,,"DPH $1,295 not included",models/camry_options.md:94
+2026,Camry,XLE,2560,34800,Powertrain,Drivetrain,All-Wheel Drive,1525,,drivetrain upgrade over the base 2WD build (per-trim delta),models/camry_options.md:107
+2026,Camry,XLE,2560,34800,Exterior color,,Supersonic Red,475,,,models/camry_options.md:101
+2026,Camry,XLE,2560,34800,Exterior color,,Dark Cosmos,475,,arrival/default paint (paid),models/camry_options.md:102
+2026,Camry,XLE,2560,34800,Exterior color,,Heavy Metal,475,,,models/camry_options.md:103
+2026,Camry,XLE,2560,34800,Exterior color,,Wind Chill Pearl,475,,,models/camry_options.md:104
+2026,Camry,XLE,2560,34800,Factory package,,Premium Package,3810,Panoramic glass roof with front power tilt/slide moonroof (removal of overhead sunglasses storage); 9-speaker JBL® Premium Audio system; Ventilated front seats; 10-in. Head-Up Display (HUD); Digital Key capability; Rain-sensing windshield wipers; Driver's seat and outer-mirror memory,,models/camry_options.md:110
+2026,Camry,XLE,2560,34800,Factory package,,Premium Plus Package,4760,"all Premium Package items plus ""Traffic Jam Assist (TJA)*""; ""Front Cross-Traffic Alert (FCTA)*""; ""Lane Change Assist (LCA)*""; ""Panoramic View Monitor (PVM)*""; ""Front and Rear Parking Assist with Automatic Braking (PA w/AB)*""; ""Rear Cross-Traffic Braking (RCTB)*""; ""Driver Monitor Camera""",,models/camry_options.md:111
+2026,Camry,XLE,2560,34800,Factory option,,Panoramic glass roof with front power tilt/slide moonroof,1330,Panoramic glass roof with front power tilt/slide moonroof (removal of overhead sunglasses storage),,models/camry_options.md:112
+2026,Camry,XSE,2557,36000,Base,,Base Price (trim MSRP),36000,,"DPH $1,295 not included",models/camry_options.md:117
+2026,Camry,XSE,2557,36000,Powertrain,Drivetrain,All-Wheel Drive,1525,,drivetrain upgrade over the base 2WD build (per-trim delta),models/camry_options.md:135
+2026,Camry,XSE,2557,36000,Exterior color,,Supersonic Red,475,,,models/camry_options.md:124
+2026,Camry,XSE,2557,36000,Exterior color,,Dark Cosmos,475,,,models/camry_options.md:125
+2026,Camry,XSE,2557,36000,Exterior color,,Heavy Metal,475,,,models/camry_options.md:126
+2026,Camry,XSE,2557,36000,Exterior color,,Wind Chill Pearl,475,,,models/camry_options.md:127
+2026,Camry,XSE,2557,36000,Exterior color,Two-tone,Ocean Gem w/ MBM roof,500,,,models/camry_options.md:129
+2026,Camry,XSE,2557,36000,Exterior color,Two-tone,Heavy Metal w/ MBM roof,975,,,models/camry_options.md:130
+2026,Camry,XSE,2557,36000,Exterior color,Two-tone,Wind Chill Pearl w/ MBM roof,975,,arrival/default paint (paid),models/camry_options.md:131
+2026,Camry,XSE,2557,36000,Exterior color,Two-tone,Supersonic Red w/ MBM roof,975,,,models/camry_options.md:132
+2026,Camry,XSE,2557,36000,Factory package,,Premium Package,3810,,,models/camry_options.md:138
+2026,Camry,XSE,2557,36000,Factory package,,Premium Plus Package,4760,,,models/camry_options.md:139
+2026,Camry,XSE,2557,36000,Factory option,,Panoramic glass roof with front power tilt/slide moonroof,1330,Panoramic glass roof with front power tilt/slide moonroof (removal of overhead sunglasses storage),,models/camry_options.md:140
+2027,Crown,XLE,4015,41640,Base,,Base Price (trim MSRP),41640,,"DPH $1,295 not included",models/crown_options.md:27
+2027,Crown,XLE,4015,41640,Exterior color,,Finish Line Red,475,,,models/crown_options.md:31
+2027,Crown,XLE,4015,41640,Exterior color,,Bronze Age,475,,,models/crown_options.md:32
+2027,Crown,XLE,4015,41640,Exterior color,,Heavy Metal,475,,,models/crown_options.md:33
+2027,Crown,XLE,4015,41640,Exterior color,,Oxygen White,475,,,models/crown_options.md:34
+2027,Crown,Limited,4020,49720,Base,,Base Price (trim MSRP),49720,,"DPH $1,295 not included",models/crown_options.md:44
+2027,Crown,Limited,4020,49720,Exterior color,,Finish Line Red,475,,,models/crown_options.md:48
+2027,Crown,Limited,4020,49720,Exterior color,,Bronze Age,475,,,models/crown_options.md:49
+2027,Crown,Limited,4020,49720,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/crown_options.md:50
+2027,Crown,Limited,4020,49720,Exterior color,,Oxygen White,475,,,models/crown_options.md:51
+2027,Crown,Nightshade,4025,48965,Base,,Base Price (trim MSRP),48965,,"DPH $1,295 not included",models/crown_options.md:61
+2027,Crown,Platinum,4030,55190,Base,,Base Price (trim MSRP),55190,,"DPH $1,295 not included",models/crown_options.md:74
+2027,Crown,Platinum,4030,55190,Exterior color,,Finish Line Red,475,,,models/crown_options.md:78
+2027,Crown,Platinum,4030,55190,Exterior color,,Bronze Age,475,,,models/crown_options.md:79
+2027,Crown,Platinum,4030,55190,Exterior color,,Heavy Metal,475,,,models/crown_options.md:80
+2027,Crown,Platinum,4030,55190,Exterior color,,Oxygen White,475,,,models/crown_options.md:81
+2027,Crown,Platinum,4030,55190,Exterior color,Two-tone,Heavy Metal with Black bi-tone,1025,,,models/crown_options.md:83
+2027,Crown,Platinum,4030,55190,Exterior color,Two-tone,Finish Line Red with Black bi-tone,1025,,,models/crown_options.md:84
+2027,Crown,Platinum,4030,55190,Exterior color,Two-tone,Oxygen White with Black bi-tone,1025,,,models/crown_options.md:85
+2027,Crown,Platinum,4030,55190,Exterior color,Two-tone,Bronze Age with Black bi-tone,1025,,arrival/default paint (paid),models/crown_options.md:86
+2026,Crown Signia,XLE,4040,44690,Base,,Base Price (trim MSRP),44690,,"DPH $1,595 not included",models/crown_signia_options.md:25
+2026,Crown Signia,XLE,4040,44690,Exterior color,,Bronze Age,475,,arrival/default paint (paid),models/crown_signia_options.md:29
+2026,Crown Signia,XLE,4040,44690,Exterior color,,Oxygen White,475,,,models/crown_signia_options.md:30
+2026,Crown Signia,XLE,4040,44690,Exterior color,,Finish Line Red,475,,,models/crown_signia_options.md:31
+2026,Crown Signia,Limited,4041,49090,Base,,Base Price (trim MSRP),49090,,"DPH $1,595 not included",models/crown_signia_options.md:41
+2026,Crown Signia,Limited,4041,49090,Exterior color,,Bronze Age,475,,,models/crown_signia_options.md:45
+2026,Crown Signia,Limited,4041,49090,Exterior color,,Oxygen White,475,,,models/crown_signia_options.md:46
+2026,Crown Signia,Limited,4041,49090,Exterior color,,Finish Line Red,475,,,models/crown_signia_options.md:47
+2026,Crown Signia,Limited,4041,49090,Exterior color,Two-tone,Storm Cloud w/ Black roof,500,,arrival/default paint (paid),models/crown_signia_options.md:49
+2026,Crown Signia,Limited,4041,49090,Exterior color,Two-tone,Oxygen White w/ Black roof,975,,,models/crown_signia_options.md:50
+2026,Crown Signia,Limited,4041,49090,Exterior color,Two-tone,Finish Line Red w/ Black roof,975,,,models/crown_signia_options.md:51
+2026,Crown Signia,Limited,4041,49090,Exterior color,Two-tone,Bronze Age w/ Black roof,975,,,models/crown_signia_options.md:52
+2026,Crown Signia,Limited,4041,49090,Factory package,,Advanced Tech Package,1865,"Panoramic View Monitor (PVM)*, Lane Change Assist (LCA)*, Traffic Jam Assist (TJA)*, Front Cross-Traffic Alert (FCTA)*, outer mirrors with puddle lights and reverse tilt-down feature, and Front and Rear Parking Assist with Automatic Braking (PA w/AB)*",,models/crown_signia_options.md:58
+2027,Prius,LE,1223,28755,Base,,Base Price (trim MSRP),28755,,"DPH $1,295 not included; Drivetrain: Front-Wheel Drive only (AWD is the separate LE AWD trim, +$1,400).; FWD only (no AWD/4WD option)",models/prius_options.md:33
+2027,Prius,LE,1223,28755,Exterior color,,Supersonic Red,475,,,models/prius_options.md:39
+2027,Prius,LE,1223,28755,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/prius_options.md:40
+2027,Prius,LE,1223,28755,Factory option,,Front and Rear Parking Assist with Automatic Braking (PA w/AB),35,,,models/prius_options.md:46
+2027,Prius,LE AWD,1263,30155,Base,,Base Price (trim MSRP),30155,,"DPH $1,295 not included; Drivetrain delta: +$1,400 vs LE FWD (base $30,155 vs $28,755).; separate trim: +$1,400 base vs LE ($28,755)",models/prius_options.md:51
+2027,Prius,LE AWD,1263,30155,Exterior color,Two-tone,Supersonic Red,475,,,models/prius_options.md:53
+2027,Prius,LE AWD,1263,30155,Exterior color,Two-tone,Wind Chill Pearl,475,,arrival/default paint (paid),models/prius_options.md:53
+2027,Prius,LE AWD,1263,30155,Factory option,,PA w/AB,35,,,models/prius_options.md:56
+2027,Prius,XLE,1225,32200,Base,,Base Price (trim MSRP),32200,,"DPH $1,295 not included; Drivetrain: Front-Wheel Drive only (AWD = separate XLE AWD trim, +$1,400).; FWD only (no AWD/4WD option)",models/prius_options.md:61
+2027,Prius,XLE,1225,32200,Exterior color,Two-tone,Supersonic Red,475,,,models/prius_options.md:62
+2027,Prius,XLE,1225,32200,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:62
+2027,Prius,XLE,1225,32200,Factory option,,Digital Key,275,Digital Key * capability (Remote Connect * subscription required.),flag: requires Remote Connect subscription,models/prius_options.md:68
+2027,Prius,XLE,1225,32200,Factory option,,12.3-in. Toyota Audio Multimedia,735,"12.3-in. Toyota Audio Multimedia touchscreen, with wireless Apple CarPlay* & Android Auto* compatible, SiriusXM* 3-month trial subscription. Includes 1-year trial of Drive Connect.* See toyota.com/audio-multimedia for details.",,models/prius_options.md:69
+2027,Prius,XLE,1225,32200,Factory option,,Fixed glass roof,1000,,,models/prius_options.md:70
+2027,Prius,XLE AWD,1265,33600,Base,,Base Price (trim MSRP),33600,,"DPH $1,295 not included; Drivetrain delta: +$1,400 vs XLE FWD.; separate trim: +$1,400 base vs XLE ($32,200)",models/prius_options.md:75
+2027,Prius,XLE AWD,1265,33600,Exterior color,Two-tone,Supersonic Red,475,,,models/prius_options.md:77
+2027,Prius,XLE AWD,1265,33600,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:77
+2027,Prius,XLE AWD,1265,33600,Factory option,,Digital Key,275,,flag: requires Remote Connect subscription,models/prius_options.md:80
+2027,Prius,XLE AWD,1265,33600,Factory option,,12.3-in. Toyota Audio Multimedia,735,,,models/prius_options.md:80
+2027,Prius,XLE AWD,1265,33600,Factory option,,Fixed glass roof,1000,,,models/prius_options.md:80
+2027,Prius,Nightshade,1216,33005,Base,,Base Price (trim MSRP),33005,,"DPH $1,295 not included; Drivetrain: Front-Wheel Drive only (AWD = separate Nightshade AWD trim, +$1,400).; FWD only (no AWD/4WD option)",models/prius_options.md:85
+2027,Prius,Nightshade,1216,33005,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:86
+2027,Prius,Nightshade,1216,33005,Factory option,,Digital Key,275,,flag: requires Remote Connect subscription,models/prius_options.md:91
+2027,Prius,Nightshade,1216,33005,Factory option,,12.3-in. Toyota Audio Multimedia,735,,,models/prius_options.md:91
+2027,Prius,Nightshade,1216,33005,Factory option,,Fixed glass roof,1000,,,models/prius_options.md:91
+2027,Prius,Nightshade AWD,1266,34405,Base,,Base Price (trim MSRP),34405,,"DPH $1,295 not included; Drivetrain delta: +$1,400 vs Nightshade FWD.; separate trim: +$1,400 base vs Nightshade ($33,005)",models/prius_options.md:96
+2027,Prius,Nightshade AWD,1266,34405,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:98
+2027,Prius,Nightshade AWD,1266,34405,Factory option,,Digital Key,275,,flag: requires Remote Connect subscription,models/prius_options.md:101
+2027,Prius,Nightshade AWD,1266,34405,Factory option,,12.3-in. Toyota Audio Multimedia,735,,,models/prius_options.md:101
+2027,Prius,Nightshade AWD,1266,34405,Factory option,,Fixed glass roof,1000,,,models/prius_options.md:101
+2027,Prius,Limited,1227,35770,Base,,Base Price (trim MSRP),35770,,"DPH $1,295 not included; Drivetrain: Front-Wheel Drive only (AWD = separate Limited AWD trim, +$1,400).; FWD only (no AWD/4WD option)",models/prius_options.md:106
+2027,Prius,Limited,1227,35770,Exterior color,Two-tone,Supersonic Red,475,,,models/prius_options.md:107
+2027,Prius,Limited,1227,35770,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:107
+2027,Prius,Limited,1227,35770,Factory package,,Limited Premium Package,1085,Limited Premium Package; Advanced Park*; Panoramic View Monitor (PVM)*,Additional Change(s) Required,models/prius_options.md:112
+2027,Prius,Limited,1227,35770,Factory option,,Digital rearview mirror,200,,,models/prius_options.md:114
+2027,Prius,Limited,1227,35770,Factory option,,Heated rear seats,350,,,models/prius_options.md:115
+2027,Prius,Limited AWD,1268,37170,Base,,Base Price (trim MSRP),37170,,"DPH $1,295 not included; Drivetrain delta: +$1,400 vs Limited FWD.; separate trim: +$1,400 base vs Limited ($35,770)",models/prius_options.md:120
+2027,Prius,Limited AWD,1268,37170,Exterior color,Two-tone,Supersonic Red,475,,,models/prius_options.md:122
+2027,Prius,Limited AWD,1268,37170,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/prius_options.md:122
+2027,Prius,Limited AWD,1268,37170,Factory package,,Limited Premium Package,1085,Advanced Park*; Panoramic View Monitor (PVM)*,Additional Change(s) Required,models/prius_options.md:124
+2027,Prius,Limited AWD,1268,37170,Factory option,,Digital rearview mirror,200,,,models/prius_options.md:125
+2027,Prius,Limited AWD,1268,37170,Factory option,,Heated rear seats,350,,,models/prius_options.md:125
+2027,Prius Plug-in Hybrid,SE,1235,33980,Base,,Base Price (trim MSRP),33980,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/prius_plugin_options.md:29
+2027,Prius Plug-in Hybrid,SE,1235,33980,Exterior color,,Supersonic Red,475,,,models/prius_plugin_options.md:35
+2027,Prius Plug-in Hybrid,SE,1235,33980,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/prius_plugin_options.md:36
+2027,Prius Plug-in Hybrid,SE,1235,33980,Factory option,,Front and Rear Parking Assist with Automatic Braking (PA w/AB),35,,,models/prius_plugin_options.md:41
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Base,,Base Price (trim MSRP),37230,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/prius_plugin_options.md:46
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/prius_plugin_options.md:52
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Exterior color,,Wind Chill Pearl,475,,,models/prius_plugin_options.md:53
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Factory option,,Digital Key,275,Digital Key * capability (Remote Connect * subscription required.),flag: requires Remote Connect subscription,models/prius_plugin_options.md:59
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Factory option,,12.3-in. Toyota Audio Multimedia,610,"12.3-in. Toyota Audio Multimedia touchscreen, SiriusXM* 3-month trial subscription. Includes 1-year trial of Drive Connect.* See toyota.com/audio-multimedia for details.",,models/prius_plugin_options.md:60
+2027,Prius Plug-in Hybrid,XSE,1237,37230,Factory option,,Fixed glass roof,1000,,,models/prius_plugin_options.md:61
+2027,Prius Plug-in Hybrid,Nightshade,1233,38000,Base,,Base Price (trim MSRP),38000,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/prius_plugin_options.md:66
+2027,Prius Plug-in Hybrid,Nightshade,1233,38000,Exterior color,,Wind Chill Pearl,475,,,models/prius_plugin_options.md:70
+2027,Prius Plug-in Hybrid,Nightshade,1233,38000,Factory option,,Digital Key,275,Digital Key * capability (Remote Connect * subscription required.),flag: requires Remote Connect subscription,models/prius_plugin_options.md:76
+2027,Prius Plug-in Hybrid,Nightshade,1233,38000,Factory option,,12.3-in. Toyota Audio Multimedia,610,"12.3-in. Toyota Audio Multimedia touchscreen, SiriusXM* 3-month trial subscription. Includes 1-year trial of Drive Connect.* See toyota.com/audio-multimedia for details.",,models/prius_plugin_options.md:77
+2027,Prius Plug-in Hybrid,Nightshade,1233,38000,Factory option,,Fixed glass roof,1000,,,models/prius_plugin_options.md:78
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Base,,Base Price (trim MSRP),40675,,"DPH $1,295 not included; FWD only (no AWD/4WD option)",models/prius_plugin_options.md:83
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Exterior color,,Supersonic Red,475,,,models/prius_plugin_options.md:89
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Exterior color,,Wind Chill Pearl,475,,,models/prius_plugin_options.md:90
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Factory package,,Advanced Technology Package,1085,Advanced Technology Package; Advanced Park*; Panoramic View Monitor (PVM)*,Additional Change(s) Required,models/prius_plugin_options.md:95
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Factory option,,Digital rearview mirror,200,,,models/prius_plugin_options.md:96
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Factory option,,Solar charging roof,610,,,models/prius_plugin_options.md:96
+2027,Prius Plug-in Hybrid,XSE Premium,1239,40675,Factory option,,Heated rear seats,350,,,models/prius_plugin_options.md:96
+2026,GR Corolla,GR Corolla,6281,40520,Base,,Base Price (trim MSRP),40520,,"DPH $1,295 not included",models/gr_corolla_options.md:29
+2026,GR Corolla,GR Corolla,6281,40520,Powertrain,Transmission,8-Speed GAZOO Racing Direct Automatic Transmission (DAT) with Paddle Shifters,2000,,transmission upgrade over the base transmission (per-trim delta),models/gr_corolla_options.md:38
+2026,GR Corolla,GR Corolla,6281,40520,Exterior color,,Supersonic Red,475,,,models/gr_corolla_options.md:33
+2026,GR Corolla,GR Corolla,6281,40520,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/gr_corolla_options.md:34
+2026,GR Corolla,GR Corolla Premium Plus,6287,46565,Base,,Base Price (trim MSRP),46565,,"DPH $1,295 not included",models/gr_corolla_options.md:45
+2026,GR Corolla,GR Corolla Premium Plus,6287,46565,Powertrain,Transmission,8-Speed DAT with Paddle Shifters,2000,,transmission upgrade over the base transmission (per-trim delta),models/gr_corolla_options.md:54
+2026,GR Corolla,GR Corolla Premium Plus,6287,46565,Exterior color,,Heavy Metal,475,,,models/gr_corolla_options.md:49
+2026,GR Corolla,GR Corolla Premium Plus,6287,46565,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/gr_corolla_options.md:50
+2026,GR Corolla,GR Corolla GRMN,6285,64360,Base,,Base Price (trim MSRP),64360,,"DPH $1,295 not included",models/gr_corolla_options.md:60
+2026,GR Corolla,GR Corolla GRMN,6285,64360,Exterior color,Two-tone,Zero Gravity,1645,,,models/gr_corolla_options.md:61
+2027,GR86,GR86,6253,31500,Base,,Base Price (trim MSRP),31500,,"DPH $1,295 not included",models/gr86_options.md:28
+2027,GR86,GR86,6253,31500,Powertrain,Transmission,6-Speed Electronically Controlled automatic Transmission (ECT) with paddle shifters,1000,,transmission upgrade over the base transmission (per-trim delta),models/gr86_options.md:40
+2027,GR86,GR86,6253,31500,Exterior color,,Halo,475,,,models/gr86_options.md:35
+2027,GR86,GR86,6253,31500,Exterior color,,Track bRED,475,,arrival/default paint (paid),models/gr86_options.md:36
+2027,GR86,GR86,6253,31500,Factory package,,Performance Package,2020,Brembo® * brakes; SACHS® * dampers; 18-in. matte-black-painted alloy wheels *,,models/gr86_options.md:42
+2027,GR86,GR86 Premium,6255,34400,Base,,Base Price (trim MSRP),34400,,"DPH $1,295 not included",models/gr86_options.md:48
+2027,GR86,GR86 Premium,6255,34400,Powertrain,Transmission,6-Speed ECT with paddle shifters,800,,transmission upgrade over the base transmission (per-trim delta),models/gr86_options.md:52
+2027,GR86,GR86 Premium,6255,34400,Exterior color,Two-tone,Halo,475,,,models/gr86_options.md:49
+2027,GR86,GR86 Premium,6255,34400,Exterior color,Two-tone,Track bRED,475,,,models/gr86_options.md:49
+2027,GR86,GR86 Premium,6255,34400,Factory package,,GR Aero Kit,2700,Front splitter; Side skirts; Rear diffuser,,models/gr86_options.md:54
+2027,GR86,GR86 Premium,6255,34400,Factory package,,Performance Package,1500,Brembo® * brakes; SACHS® * dampers,,models/gr86_options.md:55
+2026,GR Supra,GR Supra 3.0,2372,58300,Base,,Base Price (trim MSRP),58300,,"DPH $1,295 not included",models/gr_supra_options.md:29
+2026,GR Supra,GR Supra 3.0,2372,58300,Exterior color,,Stratosphere,475,,,models/gr_supra_options.md:34
+2026,GR Supra,GR Supra 3.0,2372,58300,Factory package,,Safety & Technology Package Plus JBL (For AT only),3155,Full-Speed Dynamic Radar Cruise Control*; Blind Spot Monitor (BSM)*; Rear Cross-Traffic Alert (RCTA)*; Parking Sensors* with emergency braking function; 8.8-in. touchscreen display with navigation*; 12-speaker 500W JBL* Audio system with amplifier; Touchpad rotary control; Wireless Apple CarPlay* co,,models/gr_supra_options.md:40
+2026,GR Supra,GR Supra 3.0 Premium,2374,61450,Base,,Base Price (trim MSRP),61450,,"DPH $1,295 not included",models/gr_supra_options.md:46
+2026,GR Supra,GR Supra 3.0 Premium,2374,61450,Exterior color,Two-tone,Stratosphere,475,,arrival/default paint (paid),models/gr_supra_options.md:47
+2026,GR Supra,GR Supra 3.0 Premium,2374,61450,Factory package,,Driver Assist Package (For AT only),1195,Full-Speed Dynamic Radar Cruise Control*; Blind Spot Monitor (BSM)*; Rear Cross-Traffic Alert (RCTA)*; Parking Sensors* with emergency braking function; (For AT only),,models/gr_supra_options.md:52
+2026,GR Supra,GR Supra MkV Final Edition,2376,69350,Base,,Base Price (trim MSRP),69350,,"DPH $1,295 not included",models/gr_supra_options.md:58
+2026,GR Supra,GR Supra MkV Final Edition,2376,69350,Factory package,,Driver Assist Package (For AT only),1195,Full-Speed Dynamic Radar Cruise Control*; Blind Spot Monitor (BSM)*; Rear Cross-Traffic Alert (RCTA)*; Parking Sensors* with emergency braking function; (For AT only),,models/gr_supra_options.md:70
+2026,GR Supra,GR Supra MkV Final Edition,2376,69350,Factory package,,GT4-Style Pack,2160,Toyota Gazoo Racing red-painted carbon fiber mirror caps; GT4 exterior graphics; Wind-buffeting kit; Matte-paint charge,Additional Change(s) Required; required by the Burnout and Undercover paints; Burnout paint only available via this package (source line 63); Undercover paint only available via this package (source line 64),models/gr_supra_options.md:71
+2027,bZ,bZ XLE,2873,34980,Base,,Base Price (trim MSRP),34980,,"DPH $1,595 not included",models/bz4x_options.md:25
+2027,bZ,bZ XLE,2873,34980,Powertrain,Drivetrain,Front-Wheel Drive Plus,3000,,"confirmed on Summary (base +$3,000)",models/bz4x_options.md:36
+2027,bZ,bZ XLE,2873,34980,Powertrain,Drivetrain,All-Wheel Drive,5000,All-Wheel Drive with Dual Electric Motors,AWD + Dual Electric Motors combined delta from the requires-modal (AWD requires Dual Electric Motors); flag: unconfirmed on Summary,models/bz4x_options.md:37
+2027,bZ,bZ XLE,2873,34980,Exterior color,,Wind Chill Pearl,475,,,models/bz4x_options.md:29
+2027,bZ,bZ XLE,2873,34980,Exterior color,,Supersonic Red,475,,,models/bz4x_options.md:30
+2027,bZ,bZ XLE,2873,34980,Exterior color,,Heavy Metal,475,,,models/bz4x_options.md:31
+2027,bZ,bZ XLE,2873,34980,Factory option,,Panoramic Roof,1000,Panoramic fixed-glass roof with power sunshade,,models/bz4x_options.md:43
+2027,bZ,bZ Limited,2880,43380,Base,,Base Price (trim MSRP),43380,,"DPH $1,595 not included",models/bz4x_options.md:49
+2027,bZ,bZ Limited,2880,43380,Powertrain,Drivetrain,All-Wheel Drive,2000,All-Wheel Drive with Dual Electric Motors,AWD + Dual Electric Motors combined delta from the requires-modal (AWD requires Dual Electric Motors); flag: unconfirmed on Summary,models/bz4x_options.md:63
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Wind Chill Pearl,475,,arrival/default paint (paid),models/bz4x_options.md:53
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Supersonic Red,475,,,models/bz4x_options.md:54
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Heavy Metal,475,,,models/bz4x_options.md:55
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Wind Chill Pearl with Midnight Black Metallic roof,975,,,models/bz4x_options.md:57
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Supersonic Red with Midnight Black Metallic roof,975,,,models/bz4x_options.md:58
+2027,bZ,bZ Limited,2880,43380,Exterior color,Two-tone,Heavy Metal with Midnight Black Metallic roof,975,,,models/bz4x_options.md:59
+2027,bZ,bZ Limited,2880,43380,Factory option,,9-Speaker JBL Premium Audio,580,9-speaker JBL* Premium Audio including subwoofer and amplifier,,models/bz4x_options.md:69
+2027,C-HR,SE,2416,37080,Base,,Base Price (trim MSRP),37080,,"DPH $1,595 not included",models/c_hr_options.md:23
+2027,C-HR,SE,2416,37080,Exterior color,,Wind Chill Pearl,475,,,models/c_hr_options.md:29
+2027,C-HR,SE,2416,37080,Factory option,,Headlight cleaner,100,Headlight cleaner for cold weather,,models/c_hr_options.md:34
+2027,C-HR,XSE,2419,39080,Base,,Base Price (trim MSRP),39080,,"DPH $1,595 not included",models/c_hr_options.md:39
+2027,C-HR,XSE,2419,39080,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/c_hr_options.md:45
+2027,C-HR,XSE,2419,39080,Exterior color,Two-tone,Tandoori with Midnight Black Metallic roof,500,,arrival/default paint (paid),models/c_hr_options.md:47
+2027,C-HR,XSE,2419,39080,Exterior color,Two-tone,Cement with Midnight Black Metallic roof,500,,,models/c_hr_options.md:48
+2027,C-HR,XSE,2419,39080,Exterior color,Two-tone,Wind Chill Pearl with Midnight Black Metallic roof,975,,,models/c_hr_options.md:49
+2027,C-HR,XSE,2419,39080,Factory package,,Cold Weather Package,450,,,models/c_hr_options.md:53
+2027,C-HR,XSE,2419,39080,Factory option,,9-Speaker JBL Premium Audio,600,,,models/c_hr_options.md:54
+2027,C-HR,XSE,2419,39080,Factory option,,Panoramic Roof,1000,,,models/c_hr_options.md:55
+2026,Grand Highlander,LE,6700,42260,Base,,Base Price (trim MSRP),42260,,"DPH $1,595 not included",models/grand_highlander_options.md:35
+2026,Grand Highlander,LE,6700,42260,Powertrain,Drivetrain,All-Wheel Drive,1600,,drivetrain upgrade over the base 2WD build (per-trim delta),models/grand_highlander_options.md:36
+2026,Grand Highlander,LE,6700,42260,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:42
+2026,Grand Highlander,LE,6700,42260,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:43
+2026,Grand Highlander,XLE,6702,45030,Base,,Base Price (trim MSRP),45030,,"DPH $1,595 not included",models/grand_highlander_options.md:53
+2026,Grand Highlander,XLE,6702,45030,Powertrain,Drivetrain,All-Wheel Drive,1600,,drivetrain upgrade over the base 2WD build (per-trim delta),models/grand_highlander_options.md:54
+2026,Grand Highlander,XLE,6702,45030,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:60
+2026,Grand Highlander,XLE,6702,45030,Exterior color,,Ruby Flare Pearl,475,,arrival/default paint (paid),models/grand_highlander_options.md:61
+2026,Grand Highlander,XLE,6702,45030,Factory option,,Panoramic Moonroof,1350,,,models/grand_highlander_options.md:69
+2026,Grand Highlander,Hybrid LE,6720,45610,Base,,Base Price (trim MSRP),45610,,"DPH $1,595 not included; AWD only (included; no 2WD choice); Powertrain/trim delta: vs LE FWD +$3,350 base; vs LE AWD (6706, $43,860) +$1,750 base.",models/grand_highlander_options.md:74
+2026,Grand Highlander,Hybrid LE,6720,45610,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:82
+2026,Grand Highlander,Hybrid LE,6720,45610,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:83
+2026,Grand Highlander,Hybrid XLE,6716,46780,Base,,Base Price (trim MSRP),46780,,"DPH $1,595 not included; Powertrain/trim delta vs XLE (FWD): +$1,750 base.",models/grand_highlander_options.md:93
+2026,Grand Highlander,Hybrid XLE,6716,46780,Powertrain,Drivetrain,All-Wheel Drive,1600,,drivetrain upgrade over the base 2WD build (per-trim delta),models/grand_highlander_options.md:94
+2026,Grand Highlander,Hybrid XLE,6716,46780,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:101
+2026,Grand Highlander,Hybrid XLE,6716,46780,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:102
+2026,Grand Highlander,Hybrid XLE,6716,46780,Factory option,,Panoramic Moonroof,1350,,,models/grand_highlander_options.md:110
+2026,Grand Highlander,Limited,6704,49760,Base,,Base Price (trim MSRP),49760,,"DPH $1,595 not included",models/grand_highlander_options.md:115
+2026,Grand Highlander,Limited,6704,49760,Powertrain,Drivetrain,All-Wheel Drive,1600,,drivetrain upgrade over the base 2WD build (per-trim delta),models/grand_highlander_options.md:116
+2026,Grand Highlander,Limited,6704,49760,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:121
+2026,Grand Highlander,Limited,6704,49760,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:122
+2026,Grand Highlander,Limited,6704,49760,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/grand_highlander_options.md:123
+2026,Grand Highlander,Limited,6704,49760,Factory option,,Panoramic View Monitor,600,,,models/grand_highlander_options.md:131
+2026,Grand Highlander,Limited,6704,49760,Factory option,,Panoramic Moonroof,1350,,,models/grand_highlander_options.md:132
+2026,Grand Highlander,Hybrid Limited,6724,53110,Base,,Base Price (trim MSRP),53110,,"DPH $1,595 not included; AWD only (included; no 2WD choice); Powertrain/trim delta: vs Limited FWD +$3,350 base; vs Limited AWD (6710, $51,360) +$1,750 base.",models/grand_highlander_options.md:137
+2026,Grand Highlander,Hybrid Limited,6724,53110,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:144
+2026,Grand Highlander,Hybrid Limited,6724,53110,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:145
+2026,Grand Highlander,Hybrid Limited,6724,53110,Exterior color,,Heavy Metal,475,,,models/grand_highlander_options.md:146
+2026,Grand Highlander,Hybrid Limited,6724,53110,Factory option,,Panoramic View Monitor,600,,,models/grand_highlander_options.md:154
+2026,Grand Highlander,Hybrid Limited,6724,53110,Factory option,,Panoramic Moonroof,1350,,,models/grand_highlander_options.md:155
+2026,Grand Highlander,Hybrid Nightshade,6733,54090,Base,,Base Price (trim MSRP),54090,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/grand_highlander_options.md:160
+2026,Grand Highlander,Hybrid Nightshade,6733,54090,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:165
+2026,Grand Highlander,Hybrid Nightshade,6733,54090,Factory option,,Panoramic View Monitor,600,,"Additional Change(s) Required; requires: auto-adds Panoramic Moonroof $1,350 (added automatically, no choice)",models/grand_highlander_options.md:170
+2026,Grand Highlander,Hybrid Nightshade,6733,54090,Factory option,,Panoramic Moonroof,1350,,"Additional Change(s) Required; requires: auto-adds Panoramic View Monitor $600 (added automatically, no choice)",models/grand_highlander_options.md:172
+2026,Grand Highlander,Platinum,6712,55445,Base,,Base Price (trim MSRP),55445,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/grand_highlander_options.md:179
+2026,Grand Highlander,Platinum,6712,55445,Exterior color,,Heavy Metal,475,,,models/grand_highlander_options.md:185
+2026,Grand Highlander,Platinum,6712,55445,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/grand_highlander_options.md:186
+2026,Grand Highlander,Platinum,6712,55445,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:187
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Base,,Base Price (trim MSRP),56090,,"DPH $1,595 not included; AWD only (included; no 2WD choice); Powertrain note: Hybrid MAX engine + 6-speed automatic (not the 2.5L hybrid / ECVT used on Hybrid Limited). Base delta vs Hybrid Limited (6724) +$2,980.",models/grand_highlander_options.md:198
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Exterior color,,Heavy Metal,475,,,models/grand_highlander_options.md:206
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/grand_highlander_options.md:207
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:208
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Factory option,,Panoramic View Monitor,600,,Additional Change(s) Required (label on this group of cards),models/grand_highlander_options.md:215
+2026,Grand Highlander,Hybrid MAX Limited,6730,56090,Factory option,,Panoramic Moonroof,1350,,Additional Change(s) Required (label on this group of cards),models/grand_highlander_options.md:216
+2026,Grand Highlander,Hybrid MAX Platinum,6732,60175,Base,,Base Price (trim MSRP),60175,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/grand_highlander_options.md:221
+2026,Grand Highlander,Hybrid MAX Platinum,6732,60175,Exterior color,,Heavy Metal,475,,,models/grand_highlander_options.md:228
+2026,Grand Highlander,Hybrid MAX Platinum,6732,60175,Exterior color,,Wind Chill Pearl,475,,,models/grand_highlander_options.md:229
+2026,Grand Highlander,Hybrid MAX Platinum,6732,60175,Exterior color,,Ruby Flare Pearl,475,,,models/grand_highlander_options.md:230
+2026,Highlander,XLE,6953,46270,Base,,Base Price (trim MSRP),46270,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/highlander_options.md:32
+2026,Highlander,XLE,6953,46270,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:36
+2026,Highlander,XLE,6953,46270,Exterior color,,Heavy Metal,475,,,models/highlander_options.md:37
+2026,Highlander,XLE,6953,46270,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:38
+2026,Highlander,XLE,6953,46270,Factory option,,12.3-in. Toyota Audio Multimedia,735,"12.3-in. Toyota Audio Multimedia with six speakers, with wireless Apple CarPlay & Android Auto compatibility, USB media port, four USB charge ports, hands-free phone capability and music streaming via Bluetooth, SiriusXM 3-month trial subscription.",,models/highlander_options.md:46
+2026,Highlander,Hybrid XLE,6965,48020,Base,,Base Price (trim MSRP),48020,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); Powertrain/trim delta vs XLE: +$1,750 base (separate trim).",models/highlander_options.md:51
+2026,Highlander,Hybrid XLE,6965,48020,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:56
+2026,Highlander,Hybrid XLE,6965,48020,Exterior color,,Heavy Metal,475,,,models/highlander_options.md:57
+2026,Highlander,Hybrid XLE,6965,48020,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:58
+2026,Highlander,Hybrid XLE,6965,48020,Factory option,,12.3-in. Toyota Audio Multimedia,735,,,models/highlander_options.md:66
+2026,Highlander,XSE,6959,48340,Base,,Base Price (trim MSRP),48340,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/highlander_options.md:71
+2026,Highlander,XSE,6959,48340,Exterior color,,Ruby Flare Pearl,475,,arrival/default paint (paid),models/highlander_options.md:75
+2026,Highlander,XSE,6959,48340,Exterior color,,Heavy Metal,475,,,models/highlander_options.md:76
+2026,Highlander,XSE,6959,48340,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:77
+2026,Highlander,XSE,6959,48340,Factory option,,12.3-in. Toyota Audio Multimedia with JBL,1375,"12.3-in. Toyota Audio Multimedia, with 11 JBL speakers including subwoofer and amplifier, with wireless Apple CarPlay & Android Auto compatibility, USB media port, four USB charge ports, hands-free phone capability and music streaming via Bluetooth, SiriusXM 3-month trial subscription.",,models/highlander_options.md:82
+2026,Highlander,Limited,6956,50725,Base,,Base Price (trim MSRP),50725,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/highlander_options.md:88
+2026,Highlander,Limited,6956,50725,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:92
+2026,Highlander,Limited,6956,50725,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/highlander_options.md:93
+2026,Highlander,Limited,6956,50725,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:94
+2026,Highlander,Limited,6956,50725,Factory option,,Panoramic View Monitor (PVM),850,"Panoramic View Monitor (PVM) with Perimeter Scan, Curb View",,models/highlander_options.md:102
+2026,Highlander,Hybrid Limited,6966,52475,Base,,Base Price (trim MSRP),52475,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); Powertrain/trim delta vs Limited: +$1,750 base (separate trim).",models/highlander_options.md:107
+2026,Highlander,Hybrid Limited,6966,52475,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:112
+2026,Highlander,Hybrid Limited,6966,52475,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/highlander_options.md:113
+2026,Highlander,Hybrid Limited,6966,52475,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:114
+2026,Highlander,Hybrid Limited,6966,52475,Factory option,,Panoramic View Monitor (PVM),850,"Panoramic View Monitor (PVM) with Perimeter Scan, Curb View",,models/highlander_options.md:121
+2026,Highlander,Platinum,6957,53925,Base,,Base Price (trim MSRP),53925,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/highlander_options.md:127
+2026,Highlander,Platinum,6957,53925,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:131
+2026,Highlander,Platinum,6957,53925,Exterior color,,Heavy Metal,475,,,models/highlander_options.md:132
+2026,Highlander,Platinum,6957,53925,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/highlander_options.md:133
+2026,Highlander,Hybrid Platinum,6967,55675,Base,,Base Price (trim MSRP),55675,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); Powertrain/trim delta vs Platinum: +$1,750 base (separate trim).",models/highlander_options.md:144
+2026,Highlander,Hybrid Platinum,6967,55675,Exterior color,,Ruby Flare Pearl,475,,,models/highlander_options.md:149
+2026,Highlander,Hybrid Platinum,6967,55675,Exterior color,,Heavy Metal,475,,,models/highlander_options.md:150
+2026,Highlander,Hybrid Platinum,6967,55675,Exterior color,,Wind Chill Pearl,475,,,models/highlander_options.md:151
+2026,4Runner,SR5,8642,42270,Base,,Base Price (trim MSRP),42270,,"DPH $1,595 not included",models/4runner_options.md:37
+2026,4Runner,SR5,8642,42270,Powertrain,Drivetrain,Part-time 4-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/4runner_options.md:38
+2026,4Runner,SR5,8642,42270,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:45
+2026,4Runner,SR5,8642,42270,Factory option,,Fixed Running Boards,345,Fixed running boards,,models/4runner_options.md:51
+2026,4Runner,SR5,8642,42270,Factory option,,Third Row Seating - SR5,770,"50/50 split, fold-flat third-row seats",,models/4runner_options.md:52
+2026,4Runner,TRD Sport,8643,48750,Base,,Base Price (trim MSRP),48750,,"DPH $1,595 not included",models/4runner_options.md:57
+2026,4Runner,TRD Sport,8643,48750,Powertrain,Drivetrain,Part-time 4-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/4runner_options.md:58
+2026,4Runner,TRD Sport,8643,48750,Exterior color,,Wind Chill Pearl,475,,,models/4runner_options.md:64
+2026,4Runner,TRD Sport,8643,48750,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/4runner_options.md:65
+2026,4Runner,TRD Off-Road,8670,50690,Base,,Base Price (trim MSRP),50690,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice)",models/4runner_options.md:75
+2026,4Runner,TRD Off-Road,8670,50690,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:84
+2026,4Runner,TRD Off-Road i-FORCE MAX,8628,53490,Base,,Base Price (trim MSRP),53490,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice); Drivetrain / powertrain: Part-time 4WD only (no RWD). i-FORCE MAX trim: +$2,800 base vs TRD Off-Road (8670).; separate trim: +$2,800 base vs TRD Off-Road ($50,690)",models/4runner_options.md:94
+2026,4Runner,TRD Off-Road i-FORCE MAX,8628,53490,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:103
+2026,4Runner,TRD Off-Road i-FORCE MAX,8628,53490,Factory option,,Prewired Auxiliary Switches,400,Four prewired DC power auxiliary switches *,,models/4runner_options.md:109
+2026,4Runner,TRD Sport Premium,8644,54110,Base,,Base Price (trim MSRP),54110,,"DPH $1,595 not included",models/4runner_options.md:114
+2026,4Runner,TRD Sport Premium,8644,54110,Powertrain,Drivetrain,Part-time 4-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/4runner_options.md:115
+2026,4Runner,TRD Sport Premium,8644,54110,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/4runner_options.md:121
+2026,4Runner,TRD Sport Premium,8644,54110,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:122
+2026,4Runner,TRD Sport Premium,8644,54110,Factory package,,Tow Tech Package,400,digital rearview mirror; Integrated Trailer Brake Controller (ITBC) *; Trailer Backup Guide with Straight Path Assist (SPA) * functionality,,models/4runner_options.md:127
+2026,4Runner,TRD Sport Premium,8644,54110,Factory option,,Moonroof,850,Power tilt/slide moonroof with sunshade,,models/4runner_options.md:126
+2026,4Runner,TRD Off-Road Premium,8672,56470,Base,,Base Price (trim MSRP),56470,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice)",models/4runner_options.md:132
+2026,4Runner,TRD Off-Road Premium,8672,56470,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:141
+2026,4Runner,TRD Off-Road Premium,8672,56470,Factory package,,Tow Tech Package,400,digital rearview mirror; Integrated Trailer Brake Controller (ITBC) *; Trailer Backup Guide with Straight Path Assist (SPA) * functionality,,models/4runner_options.md:146
+2026,4Runner,TRD Off-Road Premium,8672,56470,Factory option,,Moonroof,850,Power tilt/slide moonroof with sunshade,,models/4runner_options.md:145
+2026,4Runner,Limited,8648,56900,Base,,Base Price (trim MSRP),56900,,"DPH $1,595 not included",models/4runner_options.md:151
+2026,4Runner,Limited,8648,56900,Powertrain,Drivetrain,Full-time 4-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/4runner_options.md:152
+2026,4Runner,Limited,8648,56900,Exterior color,,Wind Chill Pearl,475,,,models/4runner_options.md:157
+2026,4Runner,Limited,8648,56900,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:158
+2026,4Runner,Limited,8648,56900,Factory package,,Tow Tech Package,400,digital rearview mirror; Integrated Trailer Brake Controller (ITBC) *; Trailer Backup Guide with Straight Path Assist (SPA) * functionality,,models/4runner_options.md:166
+2026,4Runner,Limited,8648,56900,Factory option,,Digital Key Capability,275,Digital Key * capability - Digital Key enables smartphone to be used instead of a physical key (Remote Connect * subscription required),flag: requires Remote Connect subscription,models/4runner_options.md:164
+2026,4Runner,Limited,8648,56900,Factory option,,Power Running Boards,1005,Power running boards,,models/4runner_options.md:165
+2026,4Runner,Limited,8648,56900,Factory option,,LED Liftgate Light,200,LED liftgate light,,models/4runner_options.md:167
+2026,4Runner,Limited,8648,56900,Factory option,,Third Row Seating - Limited,1330,"50/50 split, fold-flat third-row seats",,models/4runner_options.md:168
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Base,,Base Price (trim MSRP),59270,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice); Drivetrain / powertrain: Part-time 4WD only. i-FORCE MAX trim: +$2,800 base vs TRD Off-Road Premium (8672).; separate trim: +$2,800 base vs TRD Off-Road Premium ($56,470)",models/4runner_options.md:173
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:182
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Factory package,,Tow Tech Package,400,digital rearview mirror; Integrated Trailer Brake Controller (ITBC) *; Trailer Backup Guide with Straight Path Assist (SPA) * functionality,,models/4runner_options.md:189
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Factory option,,Prewired Auxiliary Switches,400,Four prewired DC power auxiliary switches *,,models/4runner_options.md:186
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Factory option,,Moonroof,850,Power tilt/slide moonroof with sunshade,,models/4runner_options.md:187
+2026,4Runner,TRD Off-Road Premium i-FORCE MAX,8630,59270,Factory option,,Stabilizer Disconnect Mechanism,1230,Stabilizer Disconnect Mechanism (SDM),,models/4runner_options.md:188
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Base,,Base Price (trim MSRP),61700,,"DPH $1,595 not included; Full-time 4WD only (included; no 2WD choice); Drivetrain / powertrain: Full-time 4WD only (no RWD). i-FORCE MAX trim: +$2,800 base vs Limited Full-time 4WD (8668); +$4,800 vs Limited RWD (8648).; separate trim: +$4,800 base vs Limited ($56,900)",models/4runner_options.md:194
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Exterior color,,Wind Chill Pearl,475,,,models/4runner_options.md:200
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/4runner_options.md:201
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Factory package,,Tow Tech Package,400,digital rearview mirror; Integrated Trailer Brake Controller (ITBC) *; Trailer Backup Guide with Straight Path Assist (SPA) * functionality,,models/4runner_options.md:209
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Factory option,,Digital Key Capability,275,Digital Key * capability - Digital Key enables smartphone to be used instead of a physical key (Remote Connect * subscription required),flag: requires Remote Connect subscription,models/4runner_options.md:207
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Factory option,,Power Running Boards,1005,Power running boards,,models/4runner_options.md:208
+2026,4Runner,Limited i-FORCE MAX,8632,61700,Factory option,,LED Liftgate Light,200,LED liftgate light,,models/4runner_options.md:210
+2026,4Runner,Platinum,8638,64360,Base,,Base Price (trim MSRP),64360,,"DPH $1,595 not included; Full-time 4WD only (included; no 2WD choice)",models/4runner_options.md:215
+2026,4Runner,Platinum,8638,64360,Exterior color,,Wind Chill Pearl,475,,,models/4runner_options.md:222
+2026,4Runner,Platinum,8638,64360,Exterior color,,Supersonic Red,475,,,models/4runner_options.md:223
+2026,4Runner,Platinum,8638,64360,Factory option,,Power Running Boards,1005,Power running boards,,models/4runner_options.md:227
+2026,4Runner,Platinum,8638,64360,Factory option,,LED Liftgate Light,200,LED liftgate light,,models/4runner_options.md:228
+2026,4Runner,Trailhunter,8636,68400,Base,,Base Price (trim MSRP),68400,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice)",models/4runner_options.md:233
+2026,4Runner,Trailhunter,8636,68400,Factory option,,Digital Key Capability,275,Digital Key * capability - Digital Key enables smartphone to be used instead of a physical key (Remote Connect * subscription required),flag: requires Remote Connect subscription,models/4runner_options.md:243
+2026,4Runner,TRD Pro,8634,68600,Base,,Base Price (trim MSRP),68600,,"DPH $1,595 not included; Part-time 4WD only (included; no 2WD choice)",models/4runner_options.md:248
+2026,4Runner,TRD Pro,8634,68600,Exterior color,,Wave Maker,695,,arrival/default paint (paid),models/4runner_options.md:254
+2026,4Runner,TRD Pro,8634,68600,Factory option,,Digital Key Capability,275,Digital Key * capability - Digital Key enables smartphone to be used instead of a physical key (Remote Connect * subscription required),flag: requires Remote Connect subscription,models/4runner_options.md:260
+2027,Land Cruiser,Land Cruiser 1958,6165,58180,Base,,Base Price (trim MSRP),58180,,"DPH $1,595 not included; Full-time 4WD only (included; no 2WD choice)",models/land_cruiser_options.md:26
+2027,Land Cruiser,Land Cruiser 1958,6165,58180,Factory option,,Rear Bumper Guard,230,,,models/land_cruiser_options.md:35
+2027,Land Cruiser,Land Cruiser 1958,6165,58180,Factory option,,High-mount Air Intake,980,,,models/land_cruiser_options.md:36
+2027,Land Cruiser,Land Cruiser 1958,6165,58180,Factory option,,Liftgate Light,200,,,models/land_cruiser_options.md:37
+2027,Land Cruiser,Land Cruiser,6167,64255,Base,,Base Price (trim MSRP),64255,,"DPH $1,595 not included; Full-time 4WD only (included; no 2WD choice)",models/land_cruiser_options.md:42
+2027,Land Cruiser,Land Cruiser,6167,64255,Exterior color,Two-tone,Trail Dust/Grayscape (two-tone),350,,,models/land_cruiser_options.md:46
+2027,Land Cruiser,Land Cruiser,6167,64255,Exterior color,Two-tone,Heritage Blue/Grayscape (two-tone),350,,,models/land_cruiser_options.md:47
+2027,Land Cruiser,Land Cruiser,6167,64255,Exterior color,,Wind Chill Pearl,475,,,models/land_cruiser_options.md:49
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory package,,Premium Package,4905,"Land Cruiser Premium Package - 14-speaker JBL Premium Audio including subwoofer and amplifier, illuminated entry with illuminated running boards, power moonroof with sunshade, digital rearview mirror, leather-trimmed steering wheel, power front seats with memory driver's seat, heated and ventilated ","Additional Change(s) Required; requires: 1. Choose from available interiors: Interior: Black leather trim; Interior: Java leather trim. Required items to be added: Liftgate Light $200. Summary of Changes: Premium Package $4,905; Liftgate Light $200",models/land_cruiser_options.md:59
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,20-in. Gray Alloy Wheels,1240,,,models/land_cruiser_options.md:61
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,Rear Bumper Guard,230,,,models/land_cruiser_options.md:62
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,Console Cool Box,170,,,models/land_cruiser_options.md:63
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,Moonroof,850,Power tilt/slide moonroof with sunshade,,models/land_cruiser_options.md:64
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,High-mount Air Intake,980,,,models/land_cruiser_options.md:65
+2027,Land Cruiser,Land Cruiser,6167,64255,Factory option,,Liftgate Light,200,,,models/land_cruiser_options.md:66
+2026,Sequoia,SR5,7946,65725,Base,,Base Price (trim MSRP),65725,,"DPH $2,195 not included",models/sequoia_options.md:31
+2026,Sequoia,SR5,7946,65725,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sequoia_options.md:32
+2026,Sequoia,SR5,7946,65725,Exterior color,,Supersonic Red,475,,,models/sequoia_options.md:40
+2026,Sequoia,SR5,7946,65725,Factory package,,SR5 Premium Package,2085,14-in. Toyota Audio Multimedia touchscreen; Leather-trimmed seats; Power-folding third-row seats; Hands-free power liftgate *; 400W/120V * rear-cabin AC power supply; 400W/120V * cargo-area AC power supply,Additional Change(s) Required (label on this group of cards); requires: Boulder leather trim OR Black Leather,models/sequoia_options.md:49
+2026,Sequoia,SR5,7946,65725,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,1050,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,"Additional Change(s) Required (label on this group of cards); requires: SR5 Premium Package $2,085; choose interior (Boulder leather trim or Black Leather)",models/sequoia_options.md:50
+2026,Sequoia,SR5,7946,65725,Factory package,,Tow Tech Pkg w/o Wireless Trailer Camera System,200,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *,"Additional Change(s) Required (label on this group of cards); requires: SR5 Premium Package $2,085; choose interior (Boulder leather trim or Black Leather)",models/sequoia_options.md:51
+2026,Sequoia,SR5,7946,65725,Factory package,,TRD Off-Road Package (4x4 only),1750,18-in. TRD Off-Road matte-black alloy wheels with TRD center caps and all-terrain tires; TRD OFF-ROAD badging; Off-road suspension with Bilstein * shocks; Skid plates; Red TRD engine start button; TRD leather-wrapped shift knob; Aluminum sport pedals; Electronically controlled locking rear different,Additional Change(s) Required; requires: Off-Road Front Skid Plate or TRD Front Skid Plate ($385); offered on 4WD only; Mudbath paint only available via this package (+ 4-Wheel Drive) (source line 42),models/sequoia_options.md:52
+2026,Sequoia,SR5,7946,65725,Factory option,,SR5 Power Tow Mirrors,290,Power-extending tow mirrors with convex spotter and work light,,models/sequoia_options.md:54
+2026,Sequoia,SR5,7946,65725,Factory option,,Heated Leather-Wrapped Steering Wheel,150,,,models/sequoia_options.md:55
+2026,Sequoia,SR5,7946,65725,Factory option,,TRD Front Skid Plate,385,,Additional Change(s) Required; offered on 4WD only,models/sequoia_options.md:56
+2026,Sequoia,Limited,7948,71495,Base,,Base Price (trim MSRP),71495,,"DPH $2,195 not included",models/sequoia_options.md:64
+2026,Sequoia,Limited,7948,71495,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sequoia_options.md:65
+2026,Sequoia,Limited,7948,71495,Exterior color,,Supersonic Red,475,,,models/sequoia_options.md:73
+2026,Sequoia,Limited,7948,71495,Exterior color,,Wind Chill Pearl,475,,,models/sequoia_options.md:74
+2026,Sequoia,Limited,7948,71495,Factory package,,Nightshade Package,500,Black 20-in. wheels; replaces chrome with black color-keyed accents,,models/sequoia_options.md:82
+2026,Sequoia,Limited,7948,71495,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,1050,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,Additional Change(s) Required; requires: JBL Premium Audio ($720),models/sequoia_options.md:83
+2026,Sequoia,Limited,7948,71495,Factory package,,Tow Tech Pkg w/o Wireless Trailer Camera System,200,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *,Additional Change(s) Required,models/sequoia_options.md:84
+2026,Sequoia,Limited,7948,71495,Factory package,,TRD Off-Road Package (4x4 only),2675,20-in. TRD Off-Road matte-black alloy wheels with TRD center caps and all-terrain tires; TRD OFF-ROAD badging; Off-road suspension with Bilstein * shocks; Skid plates; Red TRD engine start button; TRD leather-wrapped shift knob; Aluminum sport pedals; Electronically controlled locking rear different,Additional Change(s) Required; requires: TRD Front Skid Plate $385 or Off-Road Front Skid Plate; Mudbath paint only available via this package (+ 4-Wheel Drive) (source line 76),models/sequoia_options.md:86
+2026,Sequoia,Limited,7948,71495,Factory option,,Auto-Leveling Headlamps,195,Premium auto-leveling LED headlights with sequential turn signals,Additional Change(s) Required,models/sequoia_options.md:88
+2026,Sequoia,Limited,7948,71495,Factory option,,Captain's Chairs,350,,,models/sequoia_options.md:89
+2026,Sequoia,Limited,7948,71495,Factory option,,JBL Premium Audio,720,JBL 14-speaker Premium Audio with Qi-compatible wireless smartphone charging and charge indicator light,,models/sequoia_options.md:90
+2026,Sequoia,Limited,7948,71495,Factory option,,Power Tow Mirrors,290,Power-extending tow mirrors with convex spotter and work light,,models/sequoia_options.md:91
+2026,Sequoia,Limited,7948,71495,Factory option,,Panoramic Roof,500,Power tilt/slide panoramic roof with power sunshade,,models/sequoia_options.md:92
+2026,Sequoia,Limited,7948,71495,Factory option,,TRD Front Skid Plate,385,,Additional Change(s) Required (label on this group of cards),models/sequoia_options.md:93
+2026,Sequoia,Platinum,7951,81735,Base,,Base Price (trim MSRP),81735,,"DPH $2,195 not included; 4WD only (included; no 2WD choice)",models/sequoia_options.md:101
+2026,Sequoia,Platinum,7951,81735,Exterior color,,Supersonic Red,475,,,models/sequoia_options.md:110
+2026,Sequoia,Platinum,7951,81735,Exterior color,,Wind Chill Pearl,475,,,models/sequoia_options.md:111
+2026,Sequoia,Platinum,7951,81735,Factory package,,TRD Off-Road Package (4x4 only),2820,20-in. TRD Off-Road matte-black alloy wheels with TRD center caps and all-terrain tires; TRD OFF-ROAD badging; Off-road suspension with Bilstein * shocks; Skid plates; Red TRD engine start button; TRD leather-wrapped shift knob; Aluminum sport pedals; Electronically controlled locking rear different,"Additional Change(s) Required; requires: skid plate, TRD Front Skid Plate $385 / Off-Road Front Skid Plate; modal list truncated in capture); Mudbath paint only available via this package (source line 112)",models/sequoia_options.md:116
+2026,Sequoia,Platinum,7951,81735,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,850,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,,models/sequoia_options.md:117
+2026,Sequoia,Platinum,7951,81735,Factory option,,10-In. Head-Up Display,600,"10-in color Head-Up Display (HUD) with speedometer, navigation * and Hybrid System Indicator",,models/sequoia_options.md:119
+2026,Sequoia,Platinum,7951,81735,Factory option,,Power Tow Mirrors,290,Power-extending tow mirrors with convex spotter and work light,,models/sequoia_options.md:120
+2026,Sequoia,Platinum,7951,81735,Factory option,,Rear Air Suspension,1045,Load-leveling Rear Height Control Air Suspension with Adaptive Variable Suspension (AVS),"Additional Change(s) Required; requires: Power Running Boards ($1,005)",models/sequoia_options.md:121
+2026,Sequoia,Platinum,7951,81735,Factory option,,Power Running Boards,1005,,,models/sequoia_options.md:122
+2026,Sequoia,Platinum,7951,81735,Factory option,,TRD Front Skid Plate,385,,Additional Change(s) Required,models/sequoia_options.md:123
+2026,Sequoia,TRD Pro,7953,82465,Base,,Base Price (trim MSRP),82465,,"DPH $2,195 not included; 4WD only (included; no 2WD choice)",models/sequoia_options.md:131
+2026,Sequoia,TRD Pro,7953,82465,Exterior color,,Wave Maker,695,,,models/sequoia_options.md:137
+2026,Sequoia,TRD Pro,7953,82465,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,850,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,,models/sequoia_options.md:143
+2026,Sequoia,TRD Pro,7953,82465,Factory option,,Power Tow Mirrors,290,Power-extending tow mirrors with convex spotter and work light,,models/sequoia_options.md:145
+2026,Sequoia,TRD Pro,7953,82465,Factory option,,Panoramic Roof,500,Power tilt/slide panoramic roof with power sunshade,,models/sequoia_options.md:146
+2026,Sequoia,1794 Edition,7957,82550,Base,,Base Price (trim MSRP),82550,,"DPH $2,195 not included; 4WD only (included; no 2WD choice)",models/sequoia_options.md:154
+2026,Sequoia,1794 Edition,7957,82550,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/sequoia_options.md:162
+2026,Sequoia,1794 Edition,7957,82550,Factory package,,TRD Off-Road Package,2135,20-in. TRD Off-Road matte-black alloy wheels with all-terrain tires; TRD OFF-ROAD badging; Off-road suspension with Bilstein * shocks; Skid plates; Red TRD engine start button; TRD leather-wrapped shift knob; Aluminum sport pedals; Electronically controlled locking rear differential; Multi-Terrain S,Additional Change(s) Required; Mudbath paint only available via this package (source line 163),models/sequoia_options.md:167
+2026,Sequoia,1794 Edition,7957,82550,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,850,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,,models/sequoia_options.md:168
+2026,Sequoia,1794 Edition,7957,82550,Factory package,,1794 Grade Package with Power Tow Mirrors,290,1794 Grade Package: includes all content included as standard equipment and power tow mirrors,,models/sequoia_options.md:171
+2026,Sequoia,1794 Edition,7957,82550,Factory option,,10-In. Head-Up Display,600,"10-in color Head-Up Display (HUD) with speedometer, navigation * and Hybrid System Indicator",,models/sequoia_options.md:170
+2026,Sequoia,1794 Edition,7957,82550,Factory option,,Rear Air Suspension,1045,Load-leveling Rear Height Control Air Suspension with Adaptive Variable Suspension (AVS),"Additional Change(s) Required; requires: Power Running Boards $1,005",models/sequoia_options.md:172
+2026,Sequoia,1794 Edition,7957,82550,Factory option,,Power Running Boards,1005,,,models/sequoia_options.md:173
+2026,Sequoia,1794 Edition,7957,82550,Factory option,,TRD Front Skid Plate,385,,Additional Change(s) Required,models/sequoia_options.md:174
+2026,Sequoia,Capstone,7955,86135,Base,,Base Price (trim MSRP),86135,,"DPH $2,195 not included; 4WD only (included; no 2WD choice)",models/sequoia_options.md:182
+2026,Sequoia,Capstone,7955,86135,Exterior color,,Wind Chill Pearl,475,,,models/sequoia_options.md:189
+2026,Sequoia,Capstone,7955,86135,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/sequoia_options.md:190
+2026,Sequoia,Capstone,7955,86135,Factory package,,Capstone Grade Package With Power Tow Mirrors,290,Capstone Grade Package: All content included as standard equipment and power tow mirrors,,models/sequoia_options.md:194
+2026,Sequoia,Capstone,7955,86135,Factory package,,Tow Tech Pkg w/Wireless Trailer Camera System,850,Digital display rearview mirror; Trailer Backup Guide with Straight Path Assist (SPA) *; Exterior antenna and wireless trailer camera *,,models/sequoia_options.md:195
+2026,Sequoia,Capstone,7955,86135,Factory option,,Rear Air Suspension,1045,Load-leveling Rear Height Control Air Suspension with Adaptive Variable Suspension (AVS),,models/sequoia_options.md:197
+2026,Tacoma,SR,7162,32545,Base,,Base Price (trim MSRP),32545,,"DPH $1,745 not included; cab/bed: XtraCab with 6-ft bed (base); alternatives are separate model codes, not options: Double Cab with 5-ft bed +$1,660",models/tacoma_options.md:37
+2026,Tacoma,SR,7162,32545,Powertrain,Drivetrain,4-Wheel Drive,3200,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tacoma_options.md:38
+2026,Tacoma,SR,7162,32545,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:45
+2026,Tacoma,SR,7162,32545,Factory package,,SR Upgrade Package,1410,SR Upgrade Package (XtraCab) - includes Blind Spot Monitor (BSM) *; Front and Rear Parking Assist with Automatic Braking (PA w/AB) *; Digital Key * capability,,models/tacoma_options.md:49
+2026,Tacoma,SR5,7126,36635,Base,,Base Price (trim MSRP),36635,,"DPH $1,745 not included; cab/bed: XtraCab with 6-ft bed (base); alternatives are separate model codes, not options: Double Cab with 5-ft bed +$1,070, Double Cab with 6-ft bed +$1,570",models/tacoma_options.md:57
+2026,Tacoma,SR5,7126,36635,Powertrain,Drivetrain,4-Wheel Drive,3200,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tacoma_options.md:58
+2026,Tacoma,SR5,7126,36635,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:65
+2026,Tacoma,SR5,7126,36635,Factory package,,SR5 Upgrade Package,1825,"SR5 Upgrade Package (XtraCab) - including leather-trimmed steering wheel and shift knob, HomeLink * universal transceiver, Qi-compatible wireless charging *, automatic climate control, Front and Rear Parking Assist with Automatic Braking (PA w/AB) *, LED bed lights, easy lower tailgate *, Integrated",,models/tacoma_options.md:69
+2026,Tacoma,SR5,7126,36635,Factory package,,SR5 Upgrade + Cold Weather Package,2560,"SR5 Upgrade + Cold Weather Package (XtraCab) - includes heated seats, leather-trimmed heated steering wheel, leather-trimmed shift knob, HomeLink * universal transceiver, Qi-compatible wireless charging *, automatic climate control, Front and Rear Parking Assist with Automatic Braking (PA w/AB) *, L",,models/tacoma_options.md:70
+2026,Tacoma,SR5,7126,36635,Factory option,,Heated Front Seats,585,,,models/tacoma_options.md:72
+2026,Tacoma,SR5,7126,36635,Factory option,,Full-Size Spare Tire,85,,,models/tacoma_options.md:73
+2026,Tacoma,TRD PreRunner,7166,39135,Base,,Base Price (trim MSRP),39135,,"DPH $1,745 not included; RWD only (no AWD/4WD option); cab/bed: XtraCab with 6-ft bed (base); alternatives are separate model codes, not options",models/tacoma_options.md:80
+2026,Tacoma,TRD PreRunner,7166,39135,Exterior color,,Supersonic Red,475,,requires: 1. CHOOSE FROM OPTION(S) BELOW: Interior: Boulder/Black Fabric w/Smoke Silver,models/tacoma_options.md:89
+2026,Tacoma,TRD PreRunner,7166,39135,Factory package,,TRD PreRunner Upgrade Package,1310,"TRD PreRunner Upgrade Package - including HomeLink * universal transceiver, Qi-compatible wireless charging *, Front and Rear Parking Assist with Automatic Braking (PA w/AB) *, LED bed lights, Integrated Trailer Brake Controller (ITBC) *, and Digital Key * capability",,models/tacoma_options.md:95
+2026,Tacoma,TRD Sport,7148,40415,Base,,Base Price (trim MSRP),40415,,"DPH $1,745 not included; cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options: Double Cab with 6-ft bed +$500",models/tacoma_options.md:103
+2026,Tacoma,TRD Sport,7148,40415,Powertrain,Drivetrain,4-Wheel Drive,3200,,"drivetrain upgrade over the base 2WD build (per-trim delta); 6-Speed Manual (no price of its own) requires 4WD; the requires-modal prices 4WD at $2,400 with the manual vs $3,200 on the card (source line 131)",models/tacoma_options.md:104
+2026,Tacoma,TRD Sport,7148,40415,Exterior color,,Wind Chill Pearl,475,,,models/tacoma_options.md:114
+2026,Tacoma,TRD Sport,7148,40415,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:116
+2026,Tacoma,TRD Sport,7148,40415,Factory package,,TRD Sport Premium Package,8465,"TRD Sport Premium Package (2WD) - includes SofTex-trimmed seats with heated and ventilated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, 14-in. Toyota Audio Multimedia display, Panoramic View Monitor (PVM) *, JBL Premium Audio with JBL FLEX portable speaker, moonroof, Qi",Additional Change(s) Required; requires: Interior: Black SofTex trim,models/tacoma_options.md:123
+2026,Tacoma,TRD Sport,7148,40415,Factory package,,TRD Sport Upgrade Package,4555,"TRD Sport Upgrade Package (2WD) - includes fabric-trimmed seats with heated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, JBL Premium Audio with JBL FLEX portable speaker, Qi-compatible wireless charging *, Front and Rear Parking Assist with Automatic Braking (PA w/AB) *",,models/tacoma_options.md:124
+2026,Tacoma,TRD Sport,7148,40415,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,"Additional Change(s) Required; requires: Interior: Black SofTex trim, or TRD Sport Premium Package (2WD)",models/tacoma_options.md:130
+2026,Tacoma,TRD Sport,7148,40415,Factory option,,Heated Front Seats,585,,,models/tacoma_options.md:126
+2026,Tacoma,TRD Sport,7148,40415,Factory option,,14-In. Toyota Audio Multimedia Display,845,,,models/tacoma_options.md:127
+2026,Tacoma,TRD Sport,7148,40415,Factory option,,14-In. Toyota Audio Multimedia Display (With TRD Sport Upgrade Package),720,,Additional Change(s) Required; requires: TRD Sport Upgrade Package,models/tacoma_options.md:128
+2026,Tacoma,TRD Sport,7148,40415,Factory option,,Moonroof,850,,Additional Change(s) Required; requires: TRD Sport Upgrade Package,models/tacoma_options.md:129
+2026,Tacoma,TRD Off-Road,7545,42815,Base,,Base Price (trim MSRP),42815,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options",models/tacoma_options.md:139
+2026,Tacoma,TRD Off-Road,7545,42815,Powertrain,Transmission,8-Speed Automatic,1100,,transmission upgrade over the base transmission (per-trim delta),models/tacoma_options.md:141
+2026,Tacoma,TRD Off-Road,7545,42815,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:150
+2026,Tacoma,TRD Off-Road,7545,42815,Factory package,,TRD Off-Road Premium Package,8940,"TRD Off-Road Premium Package (M/T) - includes SofTex-trimmed seats with heated and ventilated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, 14-in. Toyota Audio Multimedia display, Multi-Terrain Monitor (MTM), JBL Premium Audio with JBL FLEX portable speaker, moonroof, Qi",Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW: Interior: Black SofTex trim; variant: 6-Speed Manual (M/T),models/tacoma_options.md:158
+2026,Tacoma,TRD Off-Road,7545,42815,Factory package,,TRD Off-Road Upgrade Package,4825,"TRD Off-Road Upgrade Package (M/T) - includes fabric-trimmed seats with heated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, JBL Premium Audio with JBL FLEX portable speaker, Qi-compatible wireless charging *, Front and Rear Parking Assist Sonar *, prewired auxiliary swi",variant: 6-Speed Manual (M/T),models/tacoma_options.md:159
+2026,Tacoma,TRD Off-Road,7545,42815,Factory package,,TRD Off-Road Premium Package (A/T),9220,"TRD Off-Road Premium Package (A/T) - includes 18-in. TRD alloy wheels, SofTex-trimmed seats with heated and ventilated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, 14-in. Toyota Audio Multimedia display, Multi-Terrain Monitor (MTM), JBL Premium Audio with JBL FLEX porta","Additional Change(s) Required; requires: Interior: Black SofTex trim; variant: 8-Speed Automatic (A/T; +$1,100 transmission row)",models/tacoma_options.md:167
+2026,Tacoma,TRD Off-Road,7545,42815,Factory package,,TRD Off-Road Upgrade Package (A/T),4840,"TRD Off-Road Upgrade Package (A/T) - includes fabric-trimmed seats with heated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, JBL Premium Audio with JBL FLEX portable speaker, Qi-compatible wireless charging *, Front and Rear Parking Assist with Automatic Braking (PA w/AB","variant: 8-Speed Automatic (A/T; +$1,100 transmission row)",models/tacoma_options.md:168
+2026,Tacoma,TRD Off-Road,7545,42815,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,"Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW / ADD ITEM: Interior: Black SofTex trim; TRD Off-Road Premium Package (A/T); variant: 8-Speed Automatic (A/T; +$1,100 transmission row); 8-Speed Automatic only",models/tacoma_options.md:169
+2026,Tacoma,TRD Off-Road,7545,42815,Factory option,,Heated Front Seats,585,,offered on M/T and A/T at the same price,models/tacoma_options.md:161
+2026,Tacoma,TRD Off-Road,7545,42815,Factory option,,14-In. Toyota Audio Multimedia Display,845,,offered on M/T and A/T at the same price,models/tacoma_options.md:162
+2026,Tacoma,TRD Off-Road,7545,42815,Factory option,,14-In. Toyota Audio Multimedia Display (With TRD Off-Road Upgrade Package),720,14-In. Toyota Audio Multimedia Display (with TRD Off-Road Upgrade Package),Additional Change(s) Required; requires: TRD Off-Road Upgrade Package; offered on M/T and A/T at the same price,models/tacoma_options.md:163
+2026,Tacoma,TRD Off-Road,7545,42815,Factory option,,Moonroof,850,,Additional Change(s) Required; requires: TRD Off-Road Upgrade Package; offered on M/T and A/T at the same price,models/tacoma_options.md:164
+2026,Tacoma,TRD Off-Road,7545,42815,Factory option,,Stabilizer Disconnect Mechanism (SDM),1230,,offered on M/T and A/T at the same price,models/tacoma_options.md:165
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Base,,Base Price (trim MSRP),47335,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options; separate trim: +$6,920 base vs TRD Sport ($40,415)",models/tacoma_options.md:182
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:192
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Exterior color,,Wind Chill Pearl,475,,,models/tacoma_options.md:193
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory package,,TRD Sport Premium Package (i-FORCE MAX),8290,"TRD Sport Premium Package (i-FORCE MAX) - includes SofTex-trimmed seats with heated and ventilated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, 14-in. Toyota Audio Multimedia display, Panoramic View Monitor (PVM) *, JBL Premium Audio with JBL FLEX * portable speaker, mo",Additional Change(s) Required; requires: Interior: Black SofTex trim,models/tacoma_options.md:200
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory package,,TRD Sport Upgrade Package (i-FORCE MAX),4330,"TRD Sport Upgrade Package (i-FORCE MAX) - includes fabric-trimmed seats with heated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, JBL Premium Audio with JBL FLEX * portable speaker, Qi-compatible wireless charging *, Front and Rear Parking Assist with Automatic Braking (",,models/tacoma_options.md:201
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW / ADD ITEM: Interior: Black SofTex trim; TRD Sport Premium Package (i-FORCE MAX),models/tacoma_options.md:207
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory option,,Heated Front Seats,585,,,models/tacoma_options.md:203
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory option,,14-In. Toyota Audio Multimedia Display,845,,,models/tacoma_options.md:204
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory option,,14-In. Toyota Audio Multimedia Display (With TRD Sport Upgrade Package),720,,Additional Change(s) Required; requires: TRD Sport Upgrade Package (i-FORCE MAX),models/tacoma_options.md:205
+2026,Tacoma,TRD Sport i-FORCE MAX,7530,47335,Factory option,,Moonroof,850,,Additional Change(s) Required; requires: TRD Sport Upgrade Package (i-FORCE MAX),models/tacoma_options.md:206
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Base,,Base Price (trim MSRP),47635,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options; separate trim: +$4,820 base vs TRD Off-Road ($42,815)",models/tacoma_options.md:220
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:230
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory package,,TRD Off-Road Premium Package (i-FORCE MAX),8540,"TRD Off-Road Premium Package (i-FORCE MAX) - includes SofTex-trimmed seats with heated and ventilated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, 14-in. Toyota Audio Multimedia display, Multi-Terrain Monitor (MTM), JBL Premium Audio with JBL FLEX * portable speaker, mo",Additional Change(s) Required; requires: Interior: Black SofTex trim,models/tacoma_options.md:237
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory package,,TRD Off-Road Upgrade Package (i-FORCE MAX),4330,"TRD Off-Road Upgrade Package (i-FORCE MAX) - includes fabric-trimmed seats with heated 8-way power-adjustable front seats, leather-trimmed heated steering wheel, JBL Premium Audio with JBL FLEX * portable speaker, Qi-compatible wireless charging *, Front and Rear Parking Assist with Automatic Brakin",,models/tacoma_options.md:238
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW / ADD ITEM: Interior: Black SofTex trim; TRD Off-Road Premium Package (i-FORCE MAX),models/tacoma_options.md:245
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory option,,Heated Front Seats,585,,,models/tacoma_options.md:240
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory option,,14-In. Toyota Audio Multimedia Display,845,,,models/tacoma_options.md:241
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory option,,14-In. Toyota Audio Multimedia Display (With TRD Off-Road Upgrade Package),720,,Additional Change(s) Required; requires: TRD Off-Road Upgrade Package (i-FORCE MAX),models/tacoma_options.md:242
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory option,,Moonroof,850,,Additional Change(s) Required; requires: TRD Off-Road Upgrade Package (i-FORCE MAX),models/tacoma_options.md:243
+2026,Tacoma,TRD Off-Road i-FORCE MAX,7532,47635,Factory option,,Stabilizer Disconnect Mechanism (SDM),1230,,,models/tacoma_options.md:244
+2026,Tacoma,Limited,7582,53570,Base,,Base Price (trim MSRP),53570,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options",models/tacoma_options.md:257
+2026,Tacoma,Limited,7582,53570,Exterior color,,Wind Chill Pearl,475,,,models/tacoma_options.md:265
+2026,Tacoma,Limited,7582,53570,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/tacoma_options.md:266
+2026,Tacoma,Limited,7582,53570,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,,models/tacoma_options.md:274
+2026,Tacoma,Limited i-FORCE MAX,7534,56895,Base,,Base Price (trim MSRP),56895,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options; separate trim: +$3,325 base vs Limited ($53,570)",models/tacoma_options.md:285
+2026,Tacoma,Limited i-FORCE MAX,7534,56895,Exterior color,,Supersonic Red,475,,,models/tacoma_options.md:293
+2026,Tacoma,Limited i-FORCE MAX,7534,56895,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/tacoma_options.md:294
+2026,Tacoma,Limited i-FORCE MAX,7534,56895,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,,models/tacoma_options.md:302
+2026,Tacoma,Trailhunter,7536,63750,Base,,Base Price (trim MSRP),63750,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options: Double Cab with 6-ft bed +$500",models/tacoma_options.md:312
+2026,Tacoma,Trailhunter,7536,63750,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,,models/tacoma_options.md:325
+2026,Tacoma,TRD Pro,7598,64750,Base,,Base Price (trim MSRP),64750,,"DPH $1,745 not included; 4WD only (included; no 2WD choice); cab/bed: Double Cab with 5-ft bed (base); alternatives are separate model codes, not options",models/tacoma_options.md:335
+2026,Tacoma,TRD Pro,7598,64750,Exterior color,Two-tone,Wave Maker with Black roof,695,,arrival/default paint (paid); requires: Interior: Black SofTex,models/tacoma_options.md:338
+2026,Tacoma,TRD Pro,7598,64750,Factory package,,Towing Technology Package,850,Towing Technology Package: includes Toyota Wireless Camera System (WCS) * *,,models/tacoma_options.md:349
+2026,Tundra,SR,8242,41260,Base,,Base Price (trim MSRP),41260,,"DPH $2,195 not included; cab/bed: Double Cab 6.5-ft (base); alternatives are separate model codes, not options: Double Cab 8.1-ft +$330, CrewMax 5.5-ft +$2,000",models/tundra_options.md:38
+2026,Tundra,SR,8242,41260,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:39
+2026,Tundra,SR,8242,41260,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:46
+2026,Tundra,SR5,8241,46510,Base,,Base Price (trim MSRP),46510,,"DPH $2,195 not included; cab/bed: Double Cab 6.5-ft (base); alternatives are separate model codes, not options: CrewMax 5.5-ft +$2,000, CrewMax 6.5-ft +$2,865, Double Cab 8.1-ft +$3,865 (4WD-only; base includes 4WD); Mudbath paint only via TRD Off-Road Package $2,125 + 4-Wheel Drive (requires-modal price; TRD Off-Road Package is not offered as a standalone card on this trim, so no row; source line 73)",models/tundra_options.md:57
+2026,Tundra,SR5,8241,46510,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:58
+2026,Tundra,SR5,8241,46510,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:71
+2026,Tundra,SR5,8241,46510,Factory package,,Advanced Technology Package,2045,"Blind Spot Monitor (BSM) *; Front and Rear Parking Assist with Automatic Braking *; Panoramic View Monitor (PVM) *; Trailer Backup Guide with Straight Path Assist (SPA); Digital rearview mirror. Requires: Premium Audio Package $1,145 + SR5 Premium Package $2,610 (required items); choose interior Bou","Additional Change(s) Required (label on this group of cards); requires: Premium Audio Package $1,145 + SR5 Premium Package $2,610 (required items); choose interior Boulder Leather-trimmed or Black Leather-trimmed",models/tundra_options.md:81
+2026,Tundra,SR5,8241,46510,Factory package,,Premium Audio Package,1145,"14-in. audio multimedia; 400W/120V * rear-seat AC power supply; 400W/120V * bed-mounted AC power supply; LED bed lights. Requires: Advanced Technology Package $2,045 + SR5 Premium Package $2,610 (required items); choose interior Boulder/Black Leather. Adjustments $5,800; Updated $54,505","Additional Change(s) Required (label on this group of cards); requires: Advanced Technology Package $2,045 + SR5 Premium Package $2,610 (required items); choose interior Boulder/Black Leather",models/tundra_options.md:82
+2026,Tundra,SR5,8241,46510,Factory package,,SR5 Premium Package,2610,"leather-trimmed seats with contrast stitching; 8-way power-adjustable heated front seats with power lumbar; dual zone automatic climate control; color-keyed outer door handles. Requires: choose interior Boulder or Black Leather-trimmed. Adjustments $2,610; Updated $51,315",Additional Change(s) Required (label on this group of cards); requires: choose interior Boulder or Black Leather-trimmed,models/tundra_options.md:83
+2026,Tundra,SR5,8241,46510,Factory package,,SX Package,1430,"color-keyed door handles and bumpers; black overfenders; black fabric-trimmed seats; 20-in. black alloy wheels; SX bed decal. Requires: choose interior SX Black Fabric. Adjustments $1,430; Updated $50,135",Additional Change(s) Required (label on this group of cards); requires: choose interior SX Black Fabric,models/tundra_options.md:84
+2026,Tundra,SR5,8241,46510,Factory package,,SR5 Convenience Package,1065,"Blind Spot Monitor (BSM) *; Front and Rear Parking Assist with Automatic Braking *. Requires: choose interior (SX Black Fabric, Boulder or Black Leather). Adjustments $1,065; Updated $49,770","Additional Change(s) Required (label on this group of cards); requires: choose interior (SX Black Fabric, Boulder or Black Leather)",models/tundra_options.md:85
+2026,Tundra,SR5,8241,46510,Factory option,,SR5 Painted BSM Mirror,60,"SR5 painted blind spot mirrors *. Modal: choose from option(s) below (Interior: SX Black Fabric; SX Package $1,430; SR5 Convenience Package $1,065 listed). Adjustments $60; Updated $48,765",Additional Change(s) Required (label on this group of cards),models/tundra_options.md:87
+2026,Tundra,SR5,8241,46510,Factory option,,PVM + BSM Outer Mirrors,860,"heated power outside mirrors (color-keyed) with BSM *, PVM *, and LED turn signals. Requires: choose interior Boulder/Black Leather; required items Advanced Technology Package + Premium Audio + SR5 Premium Package (Adjustments $6,660 = $860 + $5,800). Updated $55,365","Additional Change(s) Required (label on this group of cards); requires: choose interior Boulder/Black Leather; required items Advanced Technology Package + Premium Audio + SR5 Premium Package (Adjustments $6,660 = $860 + $5,800)",models/tundra_options.md:88
+2026,Tundra,SR5,8241,46510,Factory option,,SR5 BSM Outer Mirrors,50,"heated power mirrors (black) with BSM * and LED turn signals. Requires: choose interior Boulder/Black Leather; required items SR5 Premium Package + SR5 Convenience Package (Adjustments $3,725 = $50 + $3,675). Updated $52,430","Additional Change(s) Required (label on this group of cards); requires: choose interior Boulder/Black Leather; required items SR5 Premium Package + SR5 Convenience Package (Adjustments $3,725 = $50 + $3,675)",models/tundra_options.md:89
+2026,Tundra,SR5,8241,46510,Factory option,,SR5 BSM Tow Mirrors,950,"heated power tow mirrors (black) with BSM *. Requires: choose interior (SX Black Fabric / Boulder / Black Leather); required item SR5 Convenience Package (Adjustments $2,015). Updated $50,720","Additional Change(s) Required (label on this group of cards); requires: choose interior (SX Black Fabric / Boulder / Black Leather); required item SR5 Convenience Package (Adjustments $2,015)",models/tundra_options.md:90
+2026,Tundra,SR5,8241,46510,Factory option,,SR5 PVM + BSM Tow Mirrors,1150,"Premium Tow Mirrors incl. heated power tow mirrors (black) with BSM * and PVM *. Requires: choose interior Boulder/Black Leather; required items Advanced Technology + Premium Audio + SR5 Premium (Adjustments $6,950 = $1,150 + $5,800). Updated $55,655","Additional Change(s) Required (label on this group of cards); requires: choose interior Boulder/Black Leather; required items Advanced Technology + Premium Audio + SR5 Premium (Adjustments $6,950 = $1,150 + $5,800)",models/tundra_options.md:91
+2026,Tundra,SR5,8241,46510,Factory option,,Rear Air Suspension,650,"load-leveling rear height control air suspension. Requires: required items Premium Audio Package + SR5 Premium Package (Adjustments $4,405 = $650 + $3,755); choose from required packages: Leather-Wrapped Steering Wheel $170, Heated Leather-Wrapped Steering Wheel $320, Advanced Technology Package (no","Additional Change(s) Required (label on this group of cards); requires: required items Premium Audio Package + SR5 Premium Package (Adjustments $4,405 = $650 + $3,755); choose from required packages: Leather-Wrapped Steering Wheel $170, Heated Leather-Wrapped Steering Wheel $320, Advanced Te",models/tundra_options.md:92
+2026,Tundra,SR5,8241,46510,Factory option,,Leather-Wrapped Steering Wheel,170,"leather-wrapped steering wheel. Requires: required item SR5 Premium Package; choose interior Boulder/Black Leather (Adjustments $2,780 = $170 + $2,610). Updated $51,485","Additional Change(s) Required (label on this group of cards); requires: required item SR5 Premium Package; choose interior Boulder/Black Leather (Adjustments $2,780 = $170 + $2,610)",models/tundra_options.md:93
+2026,Tundra,SR5,8241,46510,Factory option,,Heated Leather-Wrapped Steering Wheel,320,"heated leather-wrapped steering wheel. Requires: required item SR5 Premium Package; choose interior Boulder/Black Leather (Adjustments $2,930 = $320 + $2,610). Updated $51,635","Additional Change(s) Required (label on this group of cards); requires: required item SR5 Premium Package; choose interior Boulder/Black Leather (Adjustments $2,930 = $320 + $2,610)",models/tundra_options.md:94
+2026,Tundra,Limited,8272,54860,Base,,Base Price (trim MSRP),54860,,"DPH $2,195 not included; cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$330; Mudbath paint only via TRD Off-Road Package $3,580 + 4-Wheel Drive (requires-modal price; TRD Off-Road Package is not offered as a standalone card on this trim, so no row; source line 118)",models/tundra_options.md:102
+2026,Tundra,Limited,8272,54860,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:103
+2026,Tundra,Limited,8272,54860,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:112
+2026,Tundra,Limited,8272,54860,Exterior color,,Supersonic Red,475,,arrival/default paint (paid),models/tundra_options.md:116
+2026,Tundra,Limited,8272,54860,Factory package,,Limited Premium Package,395,"Premium LED headlights; Trailer Backup Guide with Straight Path Assist (SPA) *; Digital rearview mirror. Requires: JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors. Adjustments $1,910 (= 395+565+950); Up",Additional Change(s) Required (label on this group of cards); requires: JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors,models/tundra_options.md:123
+2026,Tundra,Limited,8272,54860,Factory package,,Limited PVM Package,950,Panoramic View Monitor (PVM) * with cameras. Requires: choose from required packages (PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors),Additional Change(s) Required (label on this group of cards); requires: choose from required packages (PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors). No required items,models/tundra_options.md:124
+2026,Tundra,Limited,8272,54860,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,"exterior antenna and wireless trailer camera *. Requires: Limited Premium Package $395 + JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors. Adjustments $2,760 (= 850+395+565+950); Updated $60,290",Additional Change(s) Required (label on this group of cards); requires: Limited Premium Package $395 + JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors,models/tundra_options.md:126
+2026,Tundra,Limited,8272,54860,Factory package,,Nightshade Package,450,"matte-black 20-in. alloy wheels; black overfenders and rear bumper; gloss-black window molding, mirror caps and tailgate handle; semi-black Tundra door badge and 4x4 badge (if equipped)",,models/tundra_options.md:130
+2026,Tundra,Limited,8272,54860,Factory package,,Limited Power Package,385,Qi-compatible wireless smartphone charging *; 400W/120V * rear-seat AC power supply; 400W/120V * bed-mounted AC power supply; LED bed lights,,models/tundra_options.md:132
+2026,Tundra,Limited,8272,54860,Factory option,,PVM + BSM Tow Mirrors,290,"heated power tow mirrors (black) with BSM * and PVM * *. Requires: choose from options: Limited PVM Package $950. Adjustments $290; Updated $57,820",Additional Change(s) Required (label on this group of cards); requires: choose from options: Limited PVM Package $950,models/tundra_options.md:127
+2026,Tundra,Limited,8272,54860,Factory option,,Rear Air Suspension,650,"load-leveling rear height control air suspension. Requires: choose from options: Limited Power Package $385. Adjustments $650; Updated $58,180",Additional Change(s) Required (label on this group of cards); requires: choose from options: Limited Power Package $385,models/tundra_options.md:128
+2026,Tundra,Limited,8272,54860,Factory option,,JBL Premium Audio,565,12-speaker JBL Premium Audio *,,models/tundra_options.md:131
+2026,Tundra,Limited,8272,54860,Factory option,,BSM Tow Mirrors,290,heated power tow mirrors (black) with BSM *,,models/tundra_options.md:133
+2026,Tundra,Limited,8272,54860,Factory option,,Panoramic Roof,1350,power tilt/slide panoramic roof with power sunshade,,models/tundra_options.md:134
+2026,Tundra,Limited,8272,54860,Factory option,,Heated Leather-Wrapped Steering Wheel,150,heated leather-wrapped steering wheel,,models/tundra_options.md:135
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Base,,Base Price (trim MSRP),58560,,"DPH $2,195 not included; cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$330; Mudbath paint only via TRD Off-Road Package $3,580 + 4-Wheel Drive (requires-modal price; TRD Off-Road Package is not offered as a standalone card on this trim, so no row; source line 158); separate trim: +$3,700 base vs Limited ($54,860)",models/tundra_options.md:143
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:144
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:152
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:156
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory package,,Limited Premium Package,395,"Premium LED headlights; Trailer Backup Guide with Straight Path Assist (SPA) *; Digital rearview mirror. Requires: JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors. Adjustments $1,910; Updated $62,665",Additional Change(s) Required (label on this group of cards); requires: JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors,models/tundra_options.md:162
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory package,,Limited PVM Package,950,"Panoramic View Monitor (PVM) * with cameras. Requires: choose from required packages (PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors); no required items. Adjustments $950; Updated $61,705",Additional Change(s) Required (label on this group of cards); requires: choose from required packages (PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors); no required items,models/tundra_options.md:163
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,"exterior antenna and wireless trailer camera *. Requires: Limited Premium Package $395 + JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors. Adjustments $2,760; Updated $63,515",Additional Change(s) Required (label on this group of cards); requires: Limited Premium Package $395 + JBL Premium Audio $565 + Limited PVM Package $950 (required items); choose from required packages: PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors,models/tundra_options.md:165
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory package,,Nightshade Package,450,"matte-black 20-in. alloy wheels; black overfenders and rear bumper; gloss-black window molding, mirror caps and tailgate handle; semi-black Tundra door badge and 4x4 badge (if equipped)",,models/tundra_options.md:169
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory package,,Limited Power Package,385,Qi-compatible wireless smartphone charging *; 400W/120V * rear-seat AC power supply; 400W/120V * bed-mounted AC power supply; LED bed lights,,models/tundra_options.md:171
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,PVM + BSM Tow Mirrors,290,"heated power tow mirrors (black) with BSM * and PVM *. Requires: choose from options: Limited PVM Package $950. Adjustments $290; Updated $61,045",Additional Change(s) Required (label on this group of cards); requires: choose from options: Limited PVM Package $950,models/tundra_options.md:166
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,Rear Air Suspension,650,"load-leveling rear height control air suspension. Requires: choose from options: Nightshade Package (note: differs from Limited non-MAX, where the choice is Limited Power Package $385). Adjustments $650; Updated $61,405","Additional Change(s) Required (label on this group of cards); requires: choose from options: Nightshade Package (note: differs from Limited non-MAX, where the choice is Limited Power Package $385)",models/tundra_options.md:167
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,JBL Premium Audio,565,12-speaker JBL Premium Audio *,,models/tundra_options.md:170
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,BSM Tow Mirrors,290,heated power tow mirrors (black) with BSM *,,models/tundra_options.md:172
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,Panoramic Roof,1350,power tilt/slide panoramic roof with power sunshade,,models/tundra_options.md:173
+2026,Tundra,Limited i-FORCE MAX,8401,58560,Factory option,,Heated Leather-Wrapped Steering Wheel,150,heated leather-wrapped steering wheel,,models/tundra_options.md:174
+2026,Tundra,Platinum,8275,63695,Base,,Base Price (trim MSRP),63695,,"DPH $2,195 not included; cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$3,330 (4WD-only; base includes 4WD); Mudbath paint only via TRD Off-Road Package $2,180 + 4-Wheel Drive (requires-modal price; TRD Off-Road Package is not offered as a standalone card on this trim, so no row; source line 196)",models/tundra_options.md:182
+2026,Tundra,Platinum,8275,63695,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:183
+2026,Tundra,Platinum,8275,63695,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:194
+2026,Tundra,Platinum,8275,63695,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:195
+2026,Tundra,Platinum,8275,63695,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,exterior antenna and wireless trailer camera *,,models/tundra_options.md:201
+2026,Tundra,Platinum,8275,63695,Factory option,,Head-Up Display,600,10-in. color Head-Up Display (HUD),,models/tundra_options.md:200
+2026,Tundra,Platinum,8275,63695,Factory option,,PVM + BSM Tow Mirrors,290,heated power tow mirrors (black) with Blind Spot Monitor (BSM) * and Panoramic View Monitor (PVM) * *,,models/tundra_options.md:202
+2026,Tundra,Platinum,8275,63695,Factory option,,Power Running Boards,1350,power running boards and power BedStep *,,models/tundra_options.md:203
+2026,Tundra,Platinum,8275,63695,Factory option,,Load-Leveling Rear Height Control Air Suspension,1045,"load-leveling rear height control air suspension and Adaptive Variable Suspension (AVS). Requires: choose from options: Power Running Boards $1,350. Adjustments $1,045; Updated $66,935","Additional Change(s) Required; requires: choose from options: Power Running Boards $1,350",models/tundra_options.md:204
+2026,Tundra,1794 Edition,8276,64380,Base,,Base Price (trim MSRP),64380,,"DPH $2,195 not included; cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$3,330 (4WD-only; base includes 4WD); Mudbath paint only via TRD Off-Road Package $2,140 + 4-Wheel Drive (requires-modal price; TRD Off-Road Package is not offered as a standalone card on this trim, so no row; source line 225)",models/tundra_options.md:212
+2026,Tundra,1794 Edition,8276,64380,Powertrain,Drivetrain,4-Wheel Drive,3000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/tundra_options.md:213
+2026,Tundra,1794 Edition,8276,64380,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:224
+2026,Tundra,1794 Edition,8276,64380,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,exterior antenna and wireless trailer camera *,,models/tundra_options.md:230
+2026,Tundra,1794 Edition,8276,64380,Factory option,,Head-Up Display,600,10-in. color Head-Up Display (HUD),,models/tundra_options.md:229
+2026,Tundra,1794 Edition,8276,64380,Factory option,,PVM + BSM Tow Mirrors,290,heated power tow mirrors (black) with BSM * and PVM * *,,models/tundra_options.md:232
+2026,Tundra,1794 Edition,8276,64380,Factory option,,Power Running Boards,1350,power running boards and power BedStep *,,models/tundra_options.md:233
+2026,Tundra,1794 Edition,8276,64380,Factory option,,Load-Leveling Rear Height Control Air Suspension,1045,"load-leveling rear height control air suspension and Adaptive Variable Suspension (AVS). Requires: choose from options: Power Running Boards $1,350. Adjustments $1,045; Updated $67,620","Additional Change(s) Required; requires: choose from options: Power Running Boards $1,350",models/tundra_options.md:234
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Base,,Base Price (trim MSRP),70605,,"DPH $2,195 not included; 4WD only (included; no 2WD choice); cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$330; separate trim: +$6,910 base vs Platinum ($63,695)",models/tundra_options.md:242
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:254
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:255
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,exterior antenna and wireless trailer camera *,,models/tundra_options.md:261
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory package,,TRD Off-Road Package,2180,"20-in. TRD Off-Road matte-black alloy wheels with TRD center caps and all-terrain tires; TRD grille; ""TRD OFF-ROAD"" bedside decal; Bilstein off-road suspension; skid plates; mudguards; red TRD engine start button; TRD leather-wrapped shift knob; aluminum sport pedals; electronically controlled locki","Additional Change(s) Required; requires: choose from required packages: TRD 3-In. Suspension Lift Kit $3,995; Off-Road Front Skid Plate; TRD Front Skid Plate $380; PVM + BSM Tow Mirrors. No required items; Mudbath paint only available via this package (source line 256)",models/tundra_options.md:264
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,Head-Up Display,600,10-in. color Head-Up Display (HUD),,models/tundra_options.md:260
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,PVM + BSM Tow Mirrors,290,heated power tow mirrors (black) with BSM * and PVM * *,,models/tundra_options.md:262
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,Power Running Boards,1350,power running boards and power BedStep *,,models/tundra_options.md:263
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,Load-Leveling Rear Height Control Air Suspension,1045,"load-leveling rear height control air suspension and Adaptive Variable Suspension (AVS). Requires: choose from options: Power Running Boards $1,350. Adjustments $1,045; Updated $73,845","Additional Change(s) Required; requires: choose from options: Power Running Boards $1,350",models/tundra_options.md:265
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,TRD 3-In. Suspension Lift Kit (Removes Fog Lights),3995,"3-in. suspension lift kit; removes fog lights. Requires: choose from options: TRD Off-Road Package. Adjustments $3,995; Updated $76,795",Additional Change(s) Required; requires: choose from options: TRD Off-Road Package,models/tundra_options.md:266
+2026,Tundra,Platinum i-FORCE MAX,8422,70605,Factory option,,TRD Front Skid Plate,380,"TRD front skid plate. Requires: choose from options: TRD Off-Road Package. Adjustments $380; Updated $73,180",Additional Change(s) Required; requires: choose from options: TRD Off-Road Package,models/tundra_options.md:267
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Base,,Base Price (trim MSRP),71305,,"DPH $2,195 not included; 4WD only (included; no 2WD choice); cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options: CrewMax 6.5-ft +$330; separate trim: +$6,925 base vs 1794 Edition ($64,380)",models/tundra_options.md:276
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Exterior color,,Wind Chill Pearl,475,,,models/tundra_options.md:288
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,exterior antenna and wireless trailer camera *,,models/tundra_options.md:294
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory package,,TRD Off-Road Package,2140,"choose from required packages: TRD 3-In. Suspension Lift Kit $3,995; PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors $290","Additional Change(s) Required; requires: choose from required packages: TRD 3-In. Suspension Lift Kit $3,995; PVM + BSM Outer Mirrors; PVM + BSM Tow Mirrors $290. No required items; Mudbath paint only available via this package (source line 289)",models/tundra_options.md:298
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,Head-Up Display,600,10-in. color Head-Up Display (HUD),,models/tundra_options.md:293
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,PVM + BSM Tow Mirrors,290,heated power tow mirrors (black) with BSM * and PVM * *,,models/tundra_options.md:296
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,Power Running Boards,1350,power running boards and power BedStep *,,models/tundra_options.md:297
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,Load-Leveling Rear Height Control Air Suspension,1045,"load-leveling rear height control air suspension and AVS. Requires: choose from options: Power Running Boards $1,350. Adjustments $1,045; Updated $74,545","Additional Change(s) Required; requires: choose from options: Power Running Boards $1,350",models/tundra_options.md:299
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,TRD 3-In. Suspension Lift Kit (Removes Fog Lights),3995,"3-in. suspension lift kit; removes fog lights. Requires: TRD Off-Road Package $2,140 (required) + choose from PVM + BSM Outer Mirrors / PVM + BSM Tow Mirrors. Adjustments $6,135 (= 3,995 + 2,140); Updated $79,635","Additional Change(s) Required; requires: TRD Off-Road Package $2,140 (required) + choose from PVM + BSM Outer Mirrors / PVM + BSM Tow Mirrors",models/tundra_options.md:300
+2026,Tundra,1794 Edition i-FORCE MAX,8423,71305,Factory option,,TRD Front Skid Plate,380,"TRD front skid plate. Requires: TRD Off-Road Package $2,140 (required) + choose from PVM + BSM Outer Mirrors / PVM + BSM Tow Mirrors. Adjustments $2,520 (= 380 + 2,140); Updated $76,020","Additional Change(s) Required; requires: TRD Off-Road Package $2,140 (required) + choose from PVM + BSM Outer Mirrors / PVM + BSM Tow Mirrors",models/tundra_options.md:301
+2026,Tundra,TRD Pro,8424,72565,Base,,Base Price (trim MSRP),72565,,"DPH $2,195 not included; 4WD only (included; no 2WD choice); cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options (none: only cab offered)",models/tundra_options.md:310
+2026,Tundra,TRD Pro,8424,72565,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,Exterior antenna and wireless trailer camera *,,models/tundra_options.md:324
+2026,Tundra,TRD Pro,8424,72565,Factory package,,TRD Pro With Tow Mirrors Grade Package,290,"my script clicked this card once (a 2-second click meant to probe it); it was added (header went $74,760 -> $75,050). I then clicked it again to remove it. Final check: header back to $74,760 and Summary Packages EMPTY (see Summary above). Treat as a note: it is a one-click add with no modal",,models/tundra_options.md:325
+2026,Tundra,TRD Pro,8424,72565,Factory option,,IsoDynamic Seat,980,IsoDynamic seat,,models/tundra_options.md:326
+2026,Tundra,Capstone,8425,80800,Base,,Base Price (trim MSRP),80800,,"DPH $2,195 not included; 4WD only (included; no 2WD choice); cab/bed: CrewMax 5.5-ft (base); alternatives are separate model codes, not options (none: only cab offered)",models/tundra_options.md:334
+2026,Tundra,Capstone,8425,80800,Exterior color,,Supersonic Red,475,,,models/tundra_options.md:343
+2026,Tundra,Capstone,8425,80800,Exterior color,,Wind Chill Pearl,475,,arrival/default paint (paid),models/tundra_options.md:344
+2026,Tundra,Capstone,8425,80800,Factory package,,Tow Tech Package With Wireless Trailer Camera System,850,exterior antenna and wireless trailer camera *,,models/tundra_options.md:349
+2026,Tundra,Capstone,8425,80800,Factory option,,Load-Leveling Rear Height Control Air Suspension,1045,load-leveling rear height control air suspension and Adaptive Variable Suspension (AVS),,models/tundra_options.md:348
+2026,Tundra,Capstone,8425,80800,Factory option,,PVM + BSM Tow Mirrors,290,heated power tow mirrors (black) with Blind Spot Monitor (BSM) * and Panoramic View Monitor (PVM) * *,,models/tundra_options.md:350
+2026,Sienna,LE,5402,41320,Base,,Base Price (trim MSRP),41320,,"DPH $1,595 not included",models/sienna_options.md:29
+2026,Sienna,LE,5402,41320,Powertrain,Drivetrain,All-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sienna_options.md:30
+2026,Sienna,LE,5402,41320,Exterior color,,Ruby Flare Pearl,475,,,models/sienna_options.md:36
+2026,Sienna,LE,5402,41320,Exterior color,,Heavy Metal,475,,,models/sienna_options.md:37
+2026,Sienna,LE,5402,41320,Factory option,,Black roof rails,150,,,models/sienna_options.md:42
+2026,Sienna,LE,5402,41320,Factory option,,Spare tire,75,,,models/sienna_options.md:43
+2026,Sienna,XLE,5408,46020,Base,,Base Price (trim MSRP),46020,,"DPH $1,595 not included",models/sienna_options.md:48
+2026,Sienna,XLE,5408,46020,Powertrain,Drivetrain,All-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sienna_options.md:49
+2026,Sienna,XLE,5408,46020,Exterior color,,Ruby Flare Pearl,475,,,models/sienna_options.md:55
+2026,Sienna,XLE,5408,46020,Exterior color,,Wind Chill Pearl,475,,,models/sienna_options.md:56
+2026,Sienna,XLE,5408,46020,Exterior color,,Heavy Metal,475,,,models/sienna_options.md:57
+2026,Sienna,XLE,5408,46020,Factory package,,Entertainment Package,1415,"1080p HD Entertainment Center with 11.6-in. display, HDMI input, remote and two wireless headphones *",,models/sienna_options.md:60
+2026,Sienna,XLE,5408,46020,Factory option,,18-in. bright wheels with P235/60R18 tires,540,,,models/sienna_options.md:62
+2026,Sienna,XLE,5408,46020,Factory option,,1500W inverter with two outlets,300,,Additional Change(s) Required; requires: auto-adds 12 JBL speakers including subwoofer and amplifier $580,models/sienna_options.md:63
+2026,Sienna,XLE,5408,46020,Factory option,,12 JBL speakers including subwoofer and amplifier,580,,,models/sienna_options.md:64
+2026,Sienna,XLE,5408,46020,Factory option,,Spare tire,75,,,models/sienna_options.md:65
+2026,Sienna,XSE,5410,49245,Base,,Base Price (trim MSRP),49245,,"DPH $1,595 not included",models/sienna_options.md:70
+2026,Sienna,XSE,5410,49245,Powertrain,Drivetrain,All-Wheel Drive,890,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sienna_options.md:71
+2026,Sienna,XSE,5410,49245,Exterior color,,Ruby Flare Pearl,475,,arrival/default paint (paid),models/sienna_options.md:78
+2026,Sienna,XSE,5410,49245,Exterior color,,Heavy Metal,475,,,models/sienna_options.md:79
+2026,Sienna,XSE,5410,49245,Factory package,,Entertainment Package,1415,,,models/sienna_options.md:84
+2026,Sienna,XSE,5410,49245,Factory option,,1500W inverter with two outlets,300,,,models/sienna_options.md:86
+2026,Sienna,XSE,5410,49245,Factory option,,Spare tire,75,,,models/sienna_options.md:87
+2026,Sienna,Limited,5414,52005,Base,,Base Price (trim MSRP),52005,,"DPH $1,595 not included",models/sienna_options.md:92
+2026,Sienna,Limited,5414,52005,Powertrain,Drivetrain,All-Wheel Drive,2000,,drivetrain upgrade over the base 2WD build (per-trim delta),models/sienna_options.md:93
+2026,Sienna,Limited,5414,52005,Exterior color,,Ruby Flare Pearl,475,,,models/sienna_options.md:99
+2026,Sienna,Limited,5414,52005,Exterior color,,Wind Chill Pearl,475,,,models/sienna_options.md:100
+2026,Sienna,Limited,5414,52005,Exterior color,,Heavy Metal,475,,,models/sienna_options.md:101
+2026,Sienna,Limited,5414,52005,Factory package,,Entertainment Package,1415,"1080p HD Entertainment Center with 11.6-in. display, HDMI input, remote and two wireless headphones *",Additional Change(s) Required; requires: auto-adds Digital rearview mirror with HomeLink universal transceiver $200,models/sienna_options.md:107
+2026,Sienna,Limited,5414,52005,Factory option,,1500W inverter with two outlets,300,,,models/sienna_options.md:110
+2026,Sienna,Limited,5414,52005,Factory option,,Digital rearview mirror with HomeLink universal transceiver,200,,,models/sienna_options.md:111
+2026,Sienna,Limited,5414,52005,Factory option,,Spare tire,75,,,models/sienna_options.md:112
+2026,Sienna,Woodland Edition,5409,52100,Base,,Base Price (trim MSRP),52100,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/sienna_options.md:117
+2026,Sienna,Woodland Edition,5409,52100,Factory package,,Entertainment Package,1415,,,models/sienna_options.md:125
+2026,Sienna,Platinum,5419,58710,Base,,Base Price (trim MSRP),58710,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim)",models/sienna_options.md:131
+2026,Sienna,Platinum,5419,58710,Exterior color,,Ruby Flare Pearl,475,,,models/sienna_options.md:138
+2026,Sienna,Platinum,5419,58710,Exterior color,,Wind Chill Pearl,475,,,models/sienna_options.md:139
+2026,Sienna,Platinum,5419,58710,Exterior color,,Heavy Metal,475,,arrival/default paint (paid),models/sienna_options.md:140
+2026,Sienna,Platinum,5419,58710,Factory package,,Entertainment Package,1415,,Additional Change(s) Required; requires: auto-adds Digital rearview mirror with HomeLink universal transceiver $200,models/sienna_options.md:146
+2026,Sienna,Platinum,5419,58710,Factory option,,1500W inverter with two outlets,300,,,models/sienna_options.md:149
+2026,Sienna,Platinum,5419,58710,Factory option,,Digital rearview mirror with HomeLink universal transceiver,200,,,models/sienna_options.md:150
+2026,RAV4 Plug-in Hybrid,SE,4544,41500,Base,,Base Price (trim MSRP),41500,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); AWD only (included; no 2WD choice)",models/rav4_plugin_hybrid_options.md:26
+2026,RAV4 Plug-in Hybrid,SE,4544,41500,Factory package,,Convenience Package,400,Height-adjustable power liftgate with jam protection *,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW -> Weather Package $375 (Heated steering wheel; Windshield de-icer; Rain-sensing windshield wipers),models/rav4_plugin_hybrid_options.md:36
+2026,RAV4 Plug-in Hybrid,SE,4544,41500,Factory package,,Weather Package,375,Heated steering wheel; Windshield de-icer; Rain-sensing windshield wipers,,models/rav4_plugin_hybrid_options.md:38
+2026,RAV4 Plug-in Hybrid,SE,4544,41500,Factory option,,Moonroof,850,Power tilt/slide moonroof with one-touch open/close,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW -> Weather Package $375,models/rav4_plugin_hybrid_options.md:39
+2026,RAV4 Plug-in Hybrid,Woodland,4537,45300,Base,,Base Price (trim MSRP),45300,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); AWD only (included; no 2WD choice)",models/rav4_plugin_hybrid_options.md:45
+2026,RAV4 Plug-in Hybrid,Woodland,4537,45300,Factory option,,Moonroof,850,Power tilt/slide moonroof with one-touch open/close,,models/rav4_plugin_hybrid_options.md:57
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Base,,Base Price (trim MSRP),47200,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); AWD only (included; no 2WD choice)",models/rav4_plugin_hybrid_options.md:62
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Exterior color,Two-tone,Storm Cloud with Midnight Black Metallic roof,500,,,models/rav4_plugin_hybrid_options.md:66
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Exterior color,Two-tone,Meteor Shower with Midnight Black Metallic roof,500,,arrival/default paint (paid),models/rav4_plugin_hybrid_options.md:67
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Exterior color,Two-tone,Wind Chill Pearl with Midnight Black Metallic roof,975,,,models/rav4_plugin_hybrid_options.md:68
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Factory package,,Weather Package,375,Heated steering wheel; Windshield de-icer; Rain-sensing windshield wipers,,models/rav4_plugin_hybrid_options.md:72
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Factory package,,Driver Assist Package,1170,Advanced Park *; Toggle switch shift-by-wire shifter; Paddle shifters; Head-Up Display (HUD),"Additional Change(s) Required; requires: 1. CHOOSE FROM OPTION(S) BELOW -> lists Weather Package $375, JBL Premium Audio Package $620, Panoramic Moonroof $700 (modal subtotal $1,695)",models/rav4_plugin_hybrid_options.md:73
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Factory package,,JBL Premium Audio Package,620,JBL 9-speaker premium audio system including subwoofer,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW -> Weather Package $375,models/rav4_plugin_hybrid_options.md:75
+2026,RAV4 Plug-in Hybrid,XSE,4550,47200,Factory option,,Panoramic Moonroof,700,Panoramic glass roof with front power tilt/slide moonroof; Digital rearview mirror w/HomeLink garage door opener,Additional Change(s) Required; requires: CHOOSE FROM OPTION(S) BELOW -> Weather Package $375 and JBL Premium Audio Package $620 (modal subtotal $995),models/rav4_plugin_hybrid_options.md:77
+2026,RAV4 Plug-in Hybrid,GR SPORT,4538,48500,Base,,Base Price (trim MSRP),48500,,"DPH $1,595 not included; AWD only (no drivetrain choice on this trim); AWD only (included; no 2WD choice)",models/rav4_plugin_hybrid_options.md:83
+2026,RAV4 Plug-in Hybrid,GR SPORT,4538,48500,Exterior color,Two-tone,Storm Cloud with Midnight Black Metallic roof,500,,,models/rav4_plugin_hybrid_options.md:87
+2026,RAV4 Plug-in Hybrid,GR SPORT,4538,48500,Exterior color,Two-tone,Wind Chill Pearl with Midnight Black Metallic roof,975,,,models/rav4_plugin_hybrid_options.md:88
+2026,RAV4 Plug-in Hybrid,GR SPORT,4538,48500,Exterior color,Two-tone,Supersonic Red with Midnight Black Metallic roof,975,,arrival/default paint (paid),models/rav4_plugin_hybrid_options.md:89
+2026,RAV4,LE,4521,31900,Base,,Base Price (trim MSRP),31900,,"DPH $1,595 not included",models/rav4_options.md:28
+2026,RAV4,LE,4521,31900,Powertrain,Drivetrain,All-Wheel Drive,1400,,drivetrain upgrade over the base 2WD build (per-trim delta),models/rav4_options.md:29
+2026,RAV4,LE,4521,31900,Exterior color,,Ruby Flare Pearl,475,,,models/rav4_options.md:34
+2026,RAV4,SE,4523,34700,Base,,Base Price (trim MSRP),34700,,"DPH $1,595 not included",models/rav4_options.md:43
+2026,RAV4,SE,4523,34700,Powertrain,Drivetrain,All-Wheel Drive,1400,,drivetrain upgrade over the base 2WD build (per-trim delta),models/rav4_options.md:44
+2026,RAV4,SE,4523,34700,Factory package,,Convenience Package,400,Height-adjustable power liftgate* with jam protection,Additional Change(s) Required,models/rav4_options.md:48
+2026,RAV4,SE,4523,34700,Factory package,,Weather Package,375,Heated leather steering wheel; Rain-sensing variable intermittent windshield wipers with de-icer function,,models/rav4_options.md:49
+2026,RAV4,SE,4523,34700,Factory package,,Moonroof Package,850,Power tilt/slide moonroof with one-touch open/close,Additional Change(s) Required,models/rav4_options.md:50
+2026,RAV4,XLE Premium,4527,36100,Base,,Base Price (trim MSRP),36100,,"DPH $1,595 not included",models/rav4_options.md:55
+2026,RAV4,XLE Premium,4527,36100,Powertrain,Drivetrain,All-Wheel Drive,1400,,drivetrain upgrade over the base 2WD build (per-trim delta),models/rav4_options.md:56
+2026,RAV4,XLE Premium,4527,36100,Exterior color,,Wind Chill Pearl,475,,,models/rav4_options.md:59
+2026,RAV4,XLE Premium,4527,36100,Exterior color,,Ruby Flare Pearl,475,,,models/rav4_options.md:62
+2026,RAV4,XLE Premium,4527,36100,Factory package,,Weather Package,375,Heated leather steering wheel; Rain-sensing variable intermittent windshield wipers with de-icer function,,models/rav4_options.md:68
+2026,RAV4,XLE Premium,4527,36100,Factory package,,XLE Driver Assist Package,650,Front Cross-Traffic Alert (FCTA)*; Lane Change Assist (LCA)*; Traffic Jam Assist (TJA)*; Driver Monitor,Additional Change(s) Required,models/rav4_options.md:69
+2026,RAV4,XLE Premium,4527,36100,Factory package,,Panoramic Moonroof Package,1850,Panoramic glass roof with front power tilt/slide moonroof; Digital rearview mirror w/HomeLink* garage door opener,Additional Change(s) Required,models/rav4_options.md:70
+2026,RAV4,Woodland,4437,39900,Base,,Base Price (trim MSRP),39900,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/rav4_options.md:75
+2026,RAV4,Woodland,4437,39900,Factory package,,Moonroof Package,850,Power tilt/slide moonroof with one-touch open/close,,models/rav4_options.md:79
+2026,RAV4,XSE,4530,41300,Base,,Base Price (trim MSRP),41300,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/rav4_options.md:84
+2026,RAV4,XSE,4530,41300,Exterior color,Two-tone,Storm Cloud with Midnight Black Metallic roof,500,,,models/rav4_options.md:87
+2026,RAV4,XSE,4530,41300,Exterior color,Two-tone,Meteor Shower with Midnight Black Metallic roof,500,,,models/rav4_options.md:88
+2026,RAV4,XSE,4530,41300,Exterior color,Two-tone,Wind Chill Pearl with Midnight Black Metallic roof,975,,arrival/default paint (paid),models/rav4_options.md:89
+2026,RAV4,XSE,4530,41300,Factory package,,Weather Package,375,Heated leather steering wheel; Rain-sensing variable intermittent windshield wipers with de-icer function,,models/rav4_options.md:92
+2026,RAV4,XSE,4530,41300,Factory package,,XSE Driver Assist Package,420,Advanced Park*; Toggle switch shift-by-wire shifter,Additional Change(s) Required,models/rav4_options.md:93
+2026,RAV4,XSE,4530,41300,Factory package,,JBL Premium Audio Package,620,JBL* 9-speaker Premium Audio system including subwoofer,Additional Change(s) Required,models/rav4_options.md:94
+2026,RAV4,XSE,4530,41300,Factory package,,Panoramic Moonroof Package,700,Panoramic glass roof with front power tilt/slide moonroof; Digital rearview mirror w/HomeLink* garage door opener,Additional Change(s) Required,models/rav4_options.md:95
+2026,RAV4,Limited,4534,43300,Base,,Base Price (trim MSRP),43300,,"DPH $1,595 not included; AWD only (included; no 2WD choice)",models/rav4_options.md:100
+2026,RAV4,Limited,4534,43300,Exterior color,Two-tone,Wind Chill Pearl,475,,,models/rav4_options.md:102
+2026,RAV4,Limited,4534,43300,Exterior color,Two-tone,Ruby Flare Pearl,475,,,models/rav4_options.md:102
+2026,RAV4,Limited,4534,43300,Factory package,,20-In. Wheel Package,1240,20-in. wheels with 235/50R20 All-Season tires; Larger 165/90D18 spare tire/wheel combo,Additional Change(s) Required,models/rav4_options.md:104
+2026,RAV4,Limited,4534,43300,Factory option,,10-In. Color Head-Up Display (HUD),600,10-in. color Head-Up Display (HUD),,models/rav4_options.md:105
+2027,bZ Woodland,bZ Woodland,2860,45380,Base,,Base Price (trim MSRP),45380,,"DPH $1,595 not included",models/bz_woodland_options.md:24
+2027,bZ Woodland,bZ Woodland,2860,45380,Exterior color,,Halo,475,,,models/bz_woodland_options.md:28
+2027,bZ Woodland,bZ Woodland Premium,2861,47480,Base,,Base Price (trim MSRP),47480,,"DPH $1,595 not included",models/bz_woodland_options.md:43
+2027,bZ Woodland,bZ Woodland Premium,2861,47480,Exterior color,,Halo,475,,,models/bz_woodland_options.md:47

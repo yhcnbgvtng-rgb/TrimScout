@@ -1,13 +1,15 @@
-// Builds the model-year option policies for the rest of Toyota (2026-2027) from docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv:
+// Builds the model-year option policies for the rest of Toyota (2026-2027) from docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv:
 //   scrapers/lightsail-crawler/src/optionPolicies/toyota-2026-2027.json   the policies (one per model + year)
 //   docs/toyota-2026-2027/POLICY_REPORT.md                                model-name map, trim aliases, package counts, RAV4 differences
 // Run: node scripts/build-toyota-option-policy.mjs [--check]   (--check exits 1 when either file differs from what this would write)
 //
 // Same rules as the 2026 RAV4 policy (PR #432), applied per CSV model + year + trim:
-//   kept            "Factory package" and "Factory option" rows with price > 0, exterior colors with price > 0, and Drivetrain / Powertrain rows
-//                   with price > 0 (AWD as an extra, i-FORCE MAX where it is an extra-cost choice within a trim)
-//   not options     price <= 0 or blank (standard / no-cost), no-cost colors, Interior, Base, Cab/Bed (the vehicle's configuration, not an option)
-//   dealer add-ons  "Accessory package" rows (whole names) + the known dealer products in optionPolicyCommon.mjs
+//   kept            "Factory package" and "Factory option" rows with price > 0, exterior colors (incl. Two-tone) with price > 0, and Powertrain rows
+//                   with price > 0 (Drivetrain: AWD/4WD as an extra; Transmission: a paid upgrade)
+//   not options     price <= 0 or blank, Base rows (their notes carry the Tacoma/Tundra cab + bed choices: the vehicle's configuration, not options)
+//   dealer add-ons  the known dealer products in optionPolicyCommon.mjs (v2 has no Accessory rows, so no per-CSV accessory names)
+//   Paul's calls (2026-10-11)  1: PAUL_ADDED_ROWS below (Tundra TRD Off-Road Package on the 5 trims where the CSV only has it inside the Mudbath pop-up);
+//                   2: Tacoma TRD Off-Road keeps separate (M/T) and (A/T) package rows; 3: bZ AWD deltas kept, flagged unconfirmed; 4: Digital Key kept.
 //   roll-up         a feature line that is a content item of exactly ONE kept package/option on that trim (never expanded the other way)
 //   2026 RAV4       NOT generated here: PR #432's policy stays as is; the report lists where this CSV disagrees with it.
 //   Mirai           not generated: its single CSV row is "Not buildable", no trims or options.
@@ -17,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { normalizeOptionKey, parseCsv, DEALER_ADDON_PATTERNS, DISCLAIMER_PATTERNS } from "./lib/optionPolicyCommon.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const CSV = path.join(root, "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv");
+const CSV = path.join(root, "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv");
 const OUT = path.join(root, "scrapers/lightsail-crawler/src/optionPolicies/toyota-2026-2027.json");
 const REPORT = path.join(root, "docs/toyota-2026-2027/POLICY_REPORT.md");
 const RAV4_JSON = path.join(root, "scrapers/lightsail-crawler/src/optionPolicies/toyota-rav4-2026.json");
@@ -26,7 +28,7 @@ const RAV4_JSON = path.join(root, "scrapers/lightsail-crawler/src/optionPolicies
 // implied: a DB spelling that carries a word the CSV puts in the TRIM ("Highlander Hybrid" + trim "XLE" is the CSV's "Hybrid XLE").
 // Every line is reported; add a spelling only when the live DB has it.
 const MODEL_NAMES = {
-  "bZ (bZ4X)": { db: ["bz", "bz4x"] },
+  bZ: { db: ["bz bz4x", "bz4x"] }, // v2 names the model "bZ" (the old CSV said "bZ (bZ4X)"); the old spelling is still matched
   "bZ Woodland": { db: ["bz", "bz4x", "bz4x woodland"] },
   "RAV4 Plug-in Hybrid": { db: ["rav4 prime", "rav4 phev"] },
   "Prius Plug-in Hybrid": { db: ["prius prime", "prius plug in"] },
@@ -65,28 +67,42 @@ const clean = (t) => t.replace(/®|™/g, "").replace(/\s+/g, " ").trim();
 const paid = (r) => Number(r.price_usd) > 0;
 const slug = (s) => normalizeOptionKey(s);
 
+// Paul 2026-10-11 (1): the Tundra TRD Off-Road Package is only inside the Mudbath paint pop-up on these five trims (the CSV Base notes say
+// "so no row" and give the price). Added here as package rows at those listed prices; the test cross-checks each price against the Base note.
+const PAUL_ADDED_ROWS = [["SR5", 2125], ["Limited", 3580], ["Limited i-FORCE MAX", 3580], ["Platinum", 2180], ["1794 Edition", 2140]].map(([trim, price]) => ({
+  year: "2026", model: "Tundra", trim, category: "Factory package", subcategory: "", item: "TRD Off-Road Package", price_usd: String(price), contents: "",
+  notes: "added by Paul 2026-10-11: listed price from the Mudbath paint pop-up (no standalone card on this trim)",
+}));
+
 function kindOf(r) {
   if (!paid(r)) return null; // standard / no-cost / unknown
   if (r.category === "Factory package") return "package";
   if (r.category === "Factory option") return "option";
-  if (r.category === "Exterior color") return "paint";
-  if (r.category === "Drivetrain") return "option";
-  if (r.category === "Powertrain") return "powertrain";
-  return null; // Interior, Base, Cab/Bed, Accessory package
+  if (r.category === "Exterior color") return "paint"; // incl. subcategory Two-tone
+  if (r.category === "Powertrain") return r.subcategory === "Drivetrain" ? "option" : "powertrain";
+  return null; // Base
 }
 
 function aliasesFor(r, kind, key) {
   const out = new Set();
   const dt = normalizeOptionKey(r.item);
-  if (r.category === "Drivetrain") {
+  if (r.subcategory === "Drivetrain") {
     if (/all.?wheel/i.test(r.item)) out.add("awd");
     if (/4.?wheel|four.?wheel/i.test(r.item)) for (const a of ["4wd", "4x4", "4 wheel drive", "four wheel drive"]) out.add(a);
   }
+  // v2 shortened some powertrain names ("8-Speed Automatic"); a dealer still writes "8-Speed Automatic Transmission".
+  if (r.subcategory === "Transmission" && !/transmission/i.test(r.item)) out.add(`${key} transmission`);
+  // v2 tags the i-FORCE MAX trims' package names ("TRD Sport Premium Package (i-FORCE MAX)"); the dealer's line has no tag. (Not for (M/T)/(A/T): those must stay distinct.)
+  if (/\(i-force max\)\s*$/i.test(r.item)) out.add(normalizeOptionKey(r.item.replace(/\(i-force max\)\s*$/i, "")));
   if (kind === "package" || kind === "option") {
     if (key.endsWith(" package")) out.add(key.replace(/ package$/, " pkg"));
     else if (kind === "package") out.add(`${key} package`);
   }
-  if (kind === "paint") { const m = key.match(/^(.*) with (.*) roof$/); if (m) { out.add(`${m[1]} w ${m[2]} roof`); out.add(`${m[1]} two tone ${m[2]} roof`); } }
+  if (kind === "paint") {
+    const m = key.match(/^(.*) (?:with|w) (.*) roof$/); // v2 spells some two-tones "Ocean Gem w/ MBM roof"
+    if (m) { out.add(`${m[1]} w ${m[2]} roof`); out.add(`${m[1]} with ${m[2]} roof`); out.add(`${m[1]} two tone ${m[2]} roof`); }
+    if (/\(two-tone\)/i.test(r.item)) out.add(normalizeOptionKey(r.item.replace(/\(two-tone\)/i, "")));
+  }
   out.delete(key); out.delete(dt === key ? "" : "");
   return [...out].map(normalizeOptionKey).filter(Boolean);
 }
@@ -104,7 +120,7 @@ function buildCatalog(rows) {
     const key = normalizeOptionKey(label);
     if (!key) continue;
     if (trims[tk].options[key]) { conflicts.push(`${r.year} ${r.model} ${r.trim}: duplicate "${label}" (kept the first, $${trims[tk].options[key].price}; other $${r.price_usd})`); continue; }
-    trims[tk].options[key] = { label, kind, price: Number(r.price_usd), aliases: aliasesFor(r, kind, key), contents: r.contents || "" };
+    trims[tk].options[key] = { label, kind, price: Number(r.price_usd), aliases: aliasesFor(r, kind, key), contents: r.contents || "", ...(/flag: unconfirmed/i.test(r.notes) ? { unconfirmed: true } : {}) };
   }
   for (const t of Object.values(trims)) {
     const names = new Set(Object.keys(t.options));
@@ -132,10 +148,11 @@ function buildCatalog(rows) {
   return { trims, accessoryKeys, conflicts };
 }
 
-const all = parseCsv(fs.readFileSync(CSV, "utf8"));
+const all = [...parseCsv(fs.readFileSync(CSV, "utf8")), ...PAUL_ADDED_ROWS];
 const groups = new Map();
 for (const r of all) { const g = `${r.year}|${r.model}`; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(r); }
 
+const flagged = [];
 const policies = {}, report = { models: [], aliases: [], conflicts: [], skipped: [] };
 for (const [g, rows] of [...groups].sort()) {
   const [year, model] = g.split("|");
@@ -143,6 +160,7 @@ for (const [g, rows] of [...groups].sort()) {
   if (year === "2026" && model === "RAV4") { report.skipped.push("2026 RAV4: not generated - PR #432's policy is kept (see differences below)"); continue; }
   const cat = buildCatalog(rows);
   report.conflicts.push(...cat.conflicts);
+  for (const t of Object.values(cat.trims)) for (const o of Object.values(t.options)) if (o.unconfirmed) flagged.push(`${year} ${model} ${t.label} ${o.label} +$${o.price}`);
   const names = MODEL_NAMES[model] || { db: [] };
   const models = [...new Set([slug(model), ...names.db.map(slug), ...Object.keys(names.implied || {}).map(slug)])];
   const trimAliases = {};
@@ -163,7 +181,7 @@ for (const [g, rows] of [...groups].sort()) {
   const impliedFallback = names.implied ? IMPLIED_FALLBACK.filter((k) => cat.trims[k] && Object.values(names.implied).every((w) => !cat.trims[`${k} ${w}`] && !cat.trims[`${w} ${k}`])) : [];
   for (const k of impliedFallback) report.aliases.push([year, model, `${k} (on ${Object.keys(names.implied).filter((n) => /force|hybrid/.test(n)).join(" / ")})`, `${cat.trims[k].label} (the hybrid trim of the same name)`]);
   policies[`toyota|${slug(model)}|${year}`] = {
-    source: `docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (${year} ${model})`,
+    source: `docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (${year} ${model})`,
     models,
     ...(names.implied ? { modelImplied: names.implied } : {}),
     ...(impliedFallback.length ? { modelImpliedFallbackTrims: impliedFallback } : {}),
@@ -204,7 +222,7 @@ const rav4Diff = [];
 }
 
 const md = [];
-md.push("# Toyota 2026-2027 option policies - generated report", "", "Generated by `scripts/build-toyota-option-policy.mjs` from `toyota_2026_2027_options_by_trim.csv`. Do not edit by hand.", "");
+md.push("# Toyota 2026-2027 option policies - generated report", "", "Generated by `scripts/build-toyota-option-policy.mjs` from `toyota_lineup_options_by_trim.csv`. Do not edit by hand.", "");
 md.push("## Model-name mapping (CSV model -> DB `model` spellings the policy matches)", "", "| Year | CSV model | DB spellings matched (normalized) | Implied trim word |", "|---|---|---|---|");
 for (const m of report.models) md.push(`| ${m.year} | ${m.model} | ${m.models.join(", ")} | ${m.implied ? Object.entries(m.implied).map(([k, v]) => `${k} -> ${v}`).join("; ") : ""} |`);
 md.push("", "## Trim aliases (only where the shortened name is not already a trim that year)", "", "| Year | Model | Alias | Resolves to |", "|---|---|---|---|");
@@ -213,6 +231,11 @@ md.push("", "Trusted trims are otherwise exactly the CSV's names, plus the same 
 md.push("## Entries per trim (paid packages / paid options / paid powertrain+drivetrain / paid paints)", "", "| Year | Model | Trim | Packages | Options | Powertrain | Paints |", "|---|---|---|---|---|---|---|");
 for (const m of report.models) for (const c of m.counts) md.push(`| ${m.year} | ${m.model} | ${c.trim} | ${c.packages} | ${c.options} | ${c.powertrain} | ${c.paints} |`);
 md.push("", "## Not generated", "", ...report.skipped.map((s) => `- ${s}`), "");
+md.push("## Paul's calls (2026-10-11)", "");
+md.push("1. Tundra TRD Off-Road Package added as a package row where the CSV only has it inside the Mudbath paint pop-up: " + PAUL_ADDED_ROWS.map((r) => `${r.trim} $${r.price_usd}`).join(", ") + ".");
+md.push("2. Tacoma TRD Off-Road keeps separate (M/T) and (A/T) package rows (different names and prices; never merged).");
+md.push("3. Unconfirmed price flags kept in the policy (`unconfirmed: true`): " + (flagged.length ? flagged.join("; ") : "none") + ".");
+md.push("4. Digital Key ($275) is kept as a paid option wherever the CSV lists it.", "", "Mirai has no row in this CSV and is not buildable: its policy is left as it was (none).", "");
 md.push("## 2026 RAV4: this CSV vs PR #432 (#432 is kept; listed, not overwritten)", "", ...(rav4Diff.length ? rav4Diff.map((d) => `- ${d}`) : ["- no differences in trims, entries, prices or kinds"]), "");
 if (report.conflicts.length) md.push("## Duplicate rows inside one trim (first kept)", "", ...report.conflicts.map((c) => `- ${c}`), "");
 

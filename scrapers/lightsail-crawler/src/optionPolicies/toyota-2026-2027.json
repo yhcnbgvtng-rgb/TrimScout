@@ -1,6 +1,6 @@
 {
   "toyota|4runner|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 4Runner)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 4Runner)",
     "models": [
       "4runner",
       "4 runner",
@@ -181,18 +181,9 @@
             "price": 475,
             "aliases": []
           },
-          "moonroof": {
-            "label": "Moonroof",
-            "kind": "option",
-            "price": 850,
-            "aliases": [],
-            "features": [
-              "^power tilt slide moonroof with sunshade$"
-            ]
-          },
           "tow tech package": {
             "label": "Tow Tech Package",
-            "kind": "option",
+            "kind": "package",
             "price": 400,
             "aliases": [
               "tow tech pkg"
@@ -201,6 +192,15 @@
               "^digital rearview mirror$",
               "^integrated trailer brake controller$",
               "^trailer backup guide with straight path assist functionality$"
+            ]
+          },
+          "moonroof": {
+            "label": "Moonroof",
+            "kind": "option",
+            "price": 850,
+            "aliases": [],
+            "features": [
+              "^power tilt slide moonroof with sunshade$"
             ]
           }
         }
@@ -214,18 +214,9 @@
             "price": 475,
             "aliases": []
           },
-          "moonroof": {
-            "label": "Moonroof",
-            "kind": "option",
-            "price": 850,
-            "aliases": [],
-            "features": [
-              "^power tilt slide moonroof with sunshade$"
-            ]
-          },
           "tow tech package": {
             "label": "Tow Tech Package",
-            "kind": "option",
+            "kind": "package",
             "price": 400,
             "aliases": [
               "tow tech pkg"
@@ -234,6 +225,15 @@
               "^digital rearview mirror$",
               "^integrated trailer brake controller$",
               "^trailer backup guide with straight path assist functionality$"
+            ]
+          },
+          "moonroof": {
+            "label": "Moonroof",
+            "kind": "option",
+            "price": 850,
+            "aliases": [],
+            "features": [
+              "^power tilt slide moonroof with sunshade$"
             ]
           }
         }
@@ -264,8 +264,21 @@
             "price": 475,
             "aliases": []
           },
+          "tow tech package": {
+            "label": "Tow Tech Package",
+            "kind": "package",
+            "price": 400,
+            "aliases": [
+              "tow tech pkg"
+            ],
+            "features": [
+              "^digital rearview mirror$",
+              "^integrated trailer brake controller$",
+              "^trailer backup guide with straight path assist functionality$"
+            ]
+          },
           "digital key capability": {
-            "label": "Digital Key* Capability",
+            "label": "Digital Key Capability",
             "kind": "option",
             "price": 275,
             "aliases": [],
@@ -278,19 +291,6 @@
             "kind": "option",
             "price": 1005,
             "aliases": []
-          },
-          "tow tech package": {
-            "label": "Tow Tech Package",
-            "kind": "option",
-            "price": 400,
-            "aliases": [
-              "tow tech pkg"
-            ],
-            "features": [
-              "^digital rearview mirror$",
-              "^integrated trailer brake controller$",
-              "^trailer backup guide with straight path assist functionality$"
-            ]
           },
           "led liftgate light": {
             "label": "LED Liftgate Light",
@@ -318,6 +318,19 @@
             "price": 475,
             "aliases": []
           },
+          "tow tech package": {
+            "label": "Tow Tech Package",
+            "kind": "package",
+            "price": 400,
+            "aliases": [
+              "tow tech pkg"
+            ],
+            "features": [
+              "^digital rearview mirror$",
+              "^integrated trailer brake controller$",
+              "^trailer backup guide with straight path assist functionality$"
+            ]
+          },
           "prewired auxiliary switches": {
             "label": "Prewired Auxiliary Switches",
             "kind": "option",
@@ -341,19 +354,6 @@
             "kind": "option",
             "price": 1230,
             "aliases": []
-          },
-          "tow tech package": {
-            "label": "Tow Tech Package",
-            "kind": "option",
-            "price": 400,
-            "aliases": [
-              "tow tech pkg"
-            ],
-            "features": [
-              "^digital rearview mirror$",
-              "^integrated trailer brake controller$",
-              "^trailer backup guide with straight path assist functionality$"
-            ]
           }
         }
       },
@@ -372,8 +372,21 @@
             "price": 475,
             "aliases": []
           },
+          "tow tech package": {
+            "label": "Tow Tech Package",
+            "kind": "package",
+            "price": 400,
+            "aliases": [
+              "tow tech pkg"
+            ],
+            "features": [
+              "^digital rearview mirror$",
+              "^integrated trailer brake controller$",
+              "^trailer backup guide with straight path assist functionality$"
+            ]
+          },
           "digital key capability": {
-            "label": "Digital Key* Capability",
+            "label": "Digital Key Capability",
             "kind": "option",
             "price": 275,
             "aliases": [],
@@ -386,19 +399,6 @@
             "kind": "option",
             "price": 1005,
             "aliases": []
-          },
-          "tow tech package": {
-            "label": "Tow Tech Package",
-            "kind": "option",
-            "price": 400,
-            "aliases": [
-              "tow tech pkg"
-            ],
-            "features": [
-              "^digital rearview mirror$",
-              "^integrated trailer brake controller$",
-              "^trailer backup guide with straight path assist functionality$"
-            ]
           },
           "led liftgate light": {
             "label": "LED Liftgate Light",
@@ -441,7 +441,7 @@
         "label": "Trailhunter",
         "options": {
           "digital key capability": {
-            "label": "Digital Key* Capability",
+            "label": "Digital Key Capability",
             "kind": "option",
             "price": 275,
             "aliases": [],
@@ -461,7 +461,7 @@
             "aliases": []
           },
           "digital key capability": {
-            "label": "Digital Key* Capability",
+            "label": "Digital Key Capability",
             "kind": "option",
             "price": 275,
             "aliases": [],
@@ -473,9 +473,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "overlook package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -512,7 +510,7 @@
     }
   },
   "toyota|camry|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Camry)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Camry)",
     "models": [
       "camry",
       "camry hybrid"
@@ -802,7 +800,7 @@
               "premium plus pkg"
             ],
             "features": [
-              "^all of the premium package items above plus traffic jam assist$",
+              "^all premium package items plus traffic jam assist$",
               "^driver monitor camera$",
               "^front and rear parking assist with automatic braking$",
               "^front cross traffic alert$",
@@ -854,40 +852,40 @@
             "price": 475,
             "aliases": []
           },
-          "heavy metal with midnight black metallic roof": {
-            "label": "Heavy Metal with Midnight Black Metallic roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "heavy metal w midnight black metallic roof",
-              "heavy metal two tone midnight black metallic roof"
-            ]
-          },
-          "ocean gem with midnight black metallic roof": {
-            "label": "Ocean Gem with Midnight Black Metallic roof",
+          "ocean gem w mbm roof": {
+            "label": "Ocean Gem w/ MBM roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "ocean gem w midnight black metallic roof",
-              "ocean gem two tone midnight black metallic roof"
+              "ocean gem with mbm roof",
+              "ocean gem two tone mbm roof"
             ]
           },
-          "wind chill pearl with midnight black metallic roof": {
-            "label": "Wind Chill Pearl with Midnight Black Metallic roof",
+          "heavy metal w mbm roof": {
+            "label": "Heavy Metal w/ MBM roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "wind chill pearl w midnight black metallic roof",
-              "wind chill pearl two tone midnight black metallic roof"
+              "heavy metal with mbm roof",
+              "heavy metal two tone mbm roof"
             ]
           },
-          "supersonic red with midnight black metallic roof": {
-            "label": "Supersonic Red with Midnight Black Metallic roof",
+          "wind chill pearl w mbm roof": {
+            "label": "Wind Chill Pearl w/ MBM roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "supersonic red w midnight black metallic roof",
-              "supersonic red two tone midnight black metallic roof"
+              "wind chill pearl with mbm roof",
+              "wind chill pearl two tone mbm roof"
+            ]
+          },
+          "supersonic red w mbm roof": {
+            "label": "Supersonic Red w/ MBM roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "supersonic red with mbm roof",
+              "supersonic red two tone mbm roof"
             ]
           },
           "premium package": {
@@ -896,9 +894,6 @@
             "price": 3810,
             "aliases": [
               "premium pkg"
-            ],
-            "features": [
-              "^same list as xle premium package above$"
             ]
           },
           "premium plus package": {
@@ -907,9 +902,6 @@
             "price": 4760,
             "aliases": [
               "premium plus pkg"
-            ],
-            "features": [
-              "^same list as xle premium plus package above$"
             ]
           },
           "panoramic glass roof with front power tilt slide moonroof": {
@@ -922,12 +914,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred package 1 carpet mats",
-        "preferred package 2 all weather liners"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -964,7 +951,7 @@
     }
   },
   "toyota|corolla cross|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Corolla Cross)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Corolla Cross)",
     "models": [
       "corolla cross",
       "corolla cross hybrid"
@@ -1069,14 +1056,23 @@
           },
           "multimedia upgrade": {
             "label": "Multimedia Upgrade",
-            "kind": "package",
+            "kind": "option",
             "price": 615,
-            "aliases": [
-              "multimedia upgrade package"
-            ],
+            "aliases": [],
             "features": [
               "^10 5 in toyota audio multimedia screen$"
             ]
+          }
+        }
+      },
+      "hybrid s": {
+        "label": "Hybrid S",
+        "options": {
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
           }
         }
       },
@@ -1125,17 +1121,6 @@
           }
         }
       },
-      "hybrid s": {
-        "label": "Hybrid S",
-        "options": {
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          }
-        }
-      },
       "hybrid se": {
         "label": "Hybrid SE",
         "options": {
@@ -1151,39 +1136,39 @@
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl with jet black roof": {
-            "label": "Wind Chill Pearl with Jet Black roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "wind chill pearl w jet black roof",
-              "wind chill pearl two tone jet black roof"
-            ]
-          },
-          "sonic silver with jet black roof": {
-            "label": "Sonic Silver with Jet Black roof",
+          "sonic silver w jet black roof": {
+            "label": "Sonic Silver w/ Jet Black roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "sonic silver w jet black roof",
+              "sonic silver with jet black roof",
               "sonic silver two tone jet black roof"
             ]
           },
-          "cavalry blue with jet black roof": {
-            "label": "Cavalry Blue with Jet Black roof",
+          "cavalry blue w jet black roof": {
+            "label": "Cavalry Blue w/ Jet Black roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "cavalry blue w jet black roof",
+              "cavalry blue with jet black roof",
               "cavalry blue two tone jet black roof"
             ]
           },
-          "soul red crystal with jet black roof": {
-            "label": "Soul Red Crystal with Jet Black roof",
+          "wind chill pearl w jet black roof": {
+            "label": "Wind Chill Pearl w/ Jet Black roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "soul red crystal w jet black roof",
+              "wind chill pearl with jet black roof",
+              "wind chill pearl two tone jet black roof"
+            ]
+          },
+          "soul red crystal w jet black roof": {
+            "label": "Soul Red Crystal w/ Jet Black roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "soul red crystal with jet black roof",
               "soul red crystal two tone jet black roof"
             ]
           },
@@ -1211,11 +1196,9 @@
           },
           "multimedia upgrade": {
             "label": "Multimedia Upgrade",
-            "kind": "package",
+            "kind": "option",
             "price": 615,
-            "aliases": [
-              "multimedia upgrade package"
-            ],
+            "aliases": [],
             "features": [
               "^10 5 in toyota audio multimedia screen$"
             ]
@@ -1237,39 +1220,39 @@
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl with jet black roof": {
-            "label": "Wind Chill Pearl with Jet Black roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "wind chill pearl w jet black roof",
-              "wind chill pearl two tone jet black roof"
-            ]
-          },
-          "sonic silver with jet black roof": {
-            "label": "Sonic Silver with Jet Black roof",
+          "sonic silver w jet black roof": {
+            "label": "Sonic Silver w/ Jet Black roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "sonic silver w jet black roof",
+              "sonic silver with jet black roof",
               "sonic silver two tone jet black roof"
             ]
           },
-          "cavalry blue with jet black roof": {
-            "label": "Cavalry Blue with Jet Black roof",
+          "cavalry blue w jet black roof": {
+            "label": "Cavalry Blue w/ Jet Black roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "cavalry blue w jet black roof",
+              "cavalry blue with jet black roof",
               "cavalry blue two tone jet black roof"
             ]
           },
-          "soul red crystal with jet black roof": {
-            "label": "Soul Red Crystal with Jet Black roof",
+          "wind chill pearl w jet black roof": {
+            "label": "Wind Chill Pearl w/ Jet Black roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "soul red crystal w jet black roof",
+              "wind chill pearl with jet black roof",
+              "wind chill pearl two tone jet black roof"
+            ]
+          },
+          "soul red crystal w jet black roof": {
+            "label": "Soul Red Crystal w/ Jet Black roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "soul red crystal with jet black roof",
               "soul red crystal two tone jet black roof"
             ]
           },
@@ -1297,14 +1280,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "activity package",
-        "all weather floor liner package",
-        "black badge package",
-        "carpet mat package",
-        "preferred accessory package w all weather liners",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -1341,7 +1317,7 @@
     }
   },
   "toyota|crown signia|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Crown Signia)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Crown Signia)",
     "models": [
       "crown signia",
       "toyota crown signia"
@@ -1432,39 +1408,39 @@
             "price": 475,
             "aliases": []
           },
-          "storm cloud with black roof": {
-            "label": "Storm Cloud with Black roof",
+          "storm cloud w black roof": {
+            "label": "Storm Cloud w/ Black roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "storm cloud w black roof",
+              "storm cloud with black roof",
               "storm cloud two tone black roof"
             ]
           },
-          "oxygen white with black roof": {
-            "label": "Oxygen White with Black roof",
+          "oxygen white w black roof": {
+            "label": "Oxygen White w/ Black roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "oxygen white w black roof",
+              "oxygen white with black roof",
               "oxygen white two tone black roof"
             ]
           },
-          "finish line red with black roof": {
-            "label": "Finish Line Red with Black roof",
+          "finish line red w black roof": {
+            "label": "Finish Line Red w/ Black roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "finish line red w black roof",
+              "finish line red with black roof",
               "finish line red two tone black roof"
             ]
           },
-          "bronze age with black roof": {
-            "label": "Bronze Age with Black roof",
+          "bronze age w black roof": {
+            "label": "Bronze Age w/ Black roof",
             "kind": "paint",
             "price": 975,
             "aliases": [
-              "bronze age w black roof",
+              "bronze age with black roof",
               "bronze age two tone black roof"
             ]
           },
@@ -1476,24 +1452,14 @@
               "advanced tech pkg"
             ],
             "features": [
-              "^front and rear parking assist with automatic braking$",
-              "^front cross traffic alert$",
-              "^lane change assist$",
-              "^outer mirrors with puddle lights and reverse tilt down feature$",
-              "^panoramic view monitor$",
-              "^traffic jam assist$"
+              "^panoramic view monitor lane change assist traffic jam assist front cross traffic$"
             ]
           }
         }
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred accessory package w all weather floor liners",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -1530,7 +1496,7 @@
     }
   },
   "toyota|gr corolla|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 GR Corolla)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 GR Corolla)",
     "models": [
       "gr corolla"
     ],
@@ -1607,20 +1573,22 @@
       "gr corolla premium plus": {
         "label": "GR Corolla Premium Plus",
         "options": {
-          "8 speed gazoo racing direct automatic transmission dat with paddle shifters": {
-            "label": "8-Speed GAZOO Racing Direct Automatic Transmission (DAT) with Paddle Shifters",
+          "8 speed dat with paddle shifters": {
+            "label": "8-Speed DAT with Paddle Shifters",
             "kind": "powertrain",
             "price": 2000,
-            "aliases": []
+            "aliases": [
+              "8 speed dat with paddle shifters transmission"
+            ]
           },
-          "supersonic red": {
-            "label": "Supersonic Red",
+          "heavy metal": {
+            "label": "Heavy Metal",
             "kind": "paint",
             "price": 475,
             "aliases": []
           },
-          "heavy metal": {
-            "label": "Heavy Metal",
+          "supersonic red": {
+            "label": "Supersonic Red",
             "kind": "paint",
             "price": 475,
             "aliases": []
@@ -1640,13 +1608,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet floor mat package",
-        "gr shift knob door sill protector styling package",
-        "preferred accessory package w all weather floor liners",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -1683,7 +1645,7 @@
     }
   },
   "toyota|gr supra|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 GR Supra)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 GR Supra)",
     "models": [
       "gr supra",
       "supra"
@@ -1752,20 +1714,13 @@
             ],
             "features": [
               "^12 speaker 500w jbl audio system with amplifier$",
-              "^automatic emergency calling$",
+              "^8 8 in touchscreen display with navigation$",
               "^blind spot monitor$",
               "^full speed dynamic radar cruise control$",
-              "^map updates$",
-              "^parking sensors with emergency braking function technology included 8 8 in touch$",
-              "^real time traffic information$",
+              "^parking sensors with emergency braking function$",
               "^rear cross traffic alert$",
-              "^remote maintenance$",
-              "^remote services$",
-              "^speed limit information$",
-              "^stolen vehicle recovery$",
-              "^supra connected services with trial$",
               "^touchpad rotary control$",
-              "^wireless apple carplay compatible$"
+              "^wireless apple carplay co$"
             ]
           }
         }
@@ -1867,7 +1822,7 @@
     }
   },
   "toyota|grand highlander|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Grand Highlander)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Grand Highlander)",
     "models": [
       "grand highlander",
       "grand highlander hybrid"
@@ -2032,12 +1987,6 @@
               "awd"
             ]
           },
-          "heavy metal": {
-            "label": "Heavy Metal",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
             "kind": "paint",
@@ -2046,6 +1995,12 @@
           },
           "ruby flare pearl": {
             "label": "Ruby Flare Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "heavy metal": {
+            "label": "Heavy Metal",
             "kind": "paint",
             "price": 475,
             "aliases": []
@@ -2067,12 +2022,6 @@
       "hybrid limited": {
         "label": "Hybrid Limited",
         "options": {
-          "heavy metal": {
-            "label": "Heavy Metal",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
             "kind": "paint",
@@ -2081,6 +2030,12 @@
           },
           "ruby flare pearl": {
             "label": "Ruby Flare Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "heavy metal": {
+            "label": "Heavy Metal",
             "kind": "paint",
             "price": 475,
             "aliases": []
@@ -2205,11 +2160,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet floor mat cargo mat package",
-        "tow hitch receiver package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -2246,7 +2197,7 @@
     }
   },
   "toyota|highlander|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Highlander)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Highlander)",
     "models": [
       "highlander",
       "highlander hybrid"
@@ -2353,10 +2304,7 @@
             "label": "12.3-in. Toyota Audio Multimedia",
             "kind": "option",
             "price": 735,
-            "aliases": [],
-            "features": [
-              "^12 3 in toyota audio multimedia with six speakers with wireless apple carplay an$"
-            ]
+            "aliases": []
           }
         }
       },
@@ -2504,12 +2452,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet floor mats cargo liner package",
-        "carpet mat package",
-        "tow hitch receiver package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -2546,7 +2489,7 @@
     }
   },
   "toyota|rav4 plug in hybrid|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 RAV4 Plug-in Hybrid)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 RAV4 Plug-in Hybrid)",
     "models": [
       "rav4 plug in hybrid",
       "rav4 prime",
@@ -2623,11 +2566,9 @@
           },
           "moonroof": {
             "label": "Moonroof",
-            "kind": "package",
+            "kind": "option",
             "price": 850,
-            "aliases": [
-              "moonroof package"
-            ],
+            "aliases": [],
             "features": [
               "^power tilt slide moonroof with one touch open close$"
             ]
@@ -2639,11 +2580,9 @@
         "options": {
           "moonroof": {
             "label": "Moonroof",
-            "kind": "package",
+            "kind": "option",
             "price": 850,
-            "aliases": [
-              "moonroof package"
-            ],
+            "aliases": [],
             "features": [
               "^power tilt slide moonroof with one touch open close$"
             ]
@@ -2720,11 +2659,9 @@
           },
           "panoramic moonroof": {
             "label": "Panoramic Moonroof",
-            "kind": "package",
+            "kind": "option",
             "price": 700,
-            "aliases": [
-              "panoramic moonroof package"
-            ],
+            "aliases": [],
             "features": [
               "^digital rearview mirror w homelink garage door opener$",
               "^panoramic glass roof with front power tilt slide moonroof$"
@@ -2735,15 +2672,6 @@
       "gr sport": {
         "label": "GR SPORT",
         "options": {
-          "supersonic red with midnight black metallic roof": {
-            "label": "Supersonic Red with Midnight Black Metallic roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "supersonic red w midnight black metallic roof",
-              "supersonic red two tone midnight black metallic roof"
-            ]
-          },
           "storm cloud with midnight black metallic roof": {
             "label": "Storm Cloud with Midnight Black Metallic roof",
             "kind": "paint",
@@ -2761,21 +2689,21 @@
               "wind chill pearl w midnight black metallic roof",
               "wind chill pearl two tone midnight black metallic roof"
             ]
+          },
+          "supersonic red with midnight black metallic roof": {
+            "label": "Supersonic Red with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "supersonic red w midnight black metallic roof",
+              "supersonic red two tone midnight black metallic roof"
+            ]
           }
         }
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather liner package",
-        "carpet mat package",
-        "fog light graphics and lower body g",
-        "full graphics package gray",
-        "full graphics package matte black",
-        "illumination package",
-        "lower body and hood graphics packag",
-        "protection package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -2812,7 +2740,7 @@
     }
   },
   "toyota|sequoia|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Sequoia)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Sequoia)",
     "models": [
       "sequoia",
       "sequoia hybrid",
@@ -2887,12 +2815,12 @@
               "sr5 premium pkg"
             ],
             "features": [
+              "^14 in toyota audio multimedia touchscreen$",
               "^400w 120v cargo area ac power supply$",
               "^400w 120v rear cabin ac power supply$",
               "^hands free power liftgate$",
               "^leather trimmed seats$",
-              "^power folding third row seats$",
-              "^sr5 premium package 14 in toyota audio multimedia touchscreen$"
+              "^power folding third row seats$"
             ]
           },
           "tow tech pkg w wireless trailer camera system": {
@@ -2903,8 +2831,7 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
-              "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$"
+              "^exterior antenna and wireless trailer camera$"
             ]
           },
           "tow tech pkg w o wireless trailer camera system": {
@@ -2913,9 +2840,24 @@
             "price": 200,
             "aliases": [
               "tow tech pkg w o wireless trailer camera system package"
+            ]
+          },
+          "trd off road package 4x4 only": {
+            "label": "TRD Off-Road Package (4x4 only)",
+            "kind": "package",
+            "price": 1750,
+            "aliases": [
+              "trd off road package 4x4 only package"
             ],
             "features": [
-              "^tow tech package without wireless trailer camera system digital display rearview$"
+              "^18 in trd off road matte black alloy wheels with trd center caps and all terrain$",
+              "^aluminum sport pedals$",
+              "^electronically controlled locking rear different$",
+              "^off road suspension with bilstein shocks$",
+              "^red trd engine start button$",
+              "^skid plates$",
+              "^trd leather wrapped shift knob$",
+              "^trd off road badging$"
             ]
           },
           "sr5 power tow mirrors": {
@@ -2931,6 +2873,12 @@
             "label": "Heated Leather-Wrapped Steering Wheel",
             "kind": "option",
             "price": 150,
+            "aliases": []
+          },
+          "trd front skid plate": {
+            "label": "TRD Front Skid Plate",
+            "kind": "option",
+            "price": 385,
             "aliases": []
           }
         }
@@ -2980,8 +2928,7 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
-              "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$"
+              "^exterior antenna and wireless trailer camera$"
             ]
           },
           "tow tech pkg w o wireless trailer camera system": {
@@ -2990,9 +2937,24 @@
             "price": 200,
             "aliases": [
               "tow tech pkg w o wireless trailer camera system package"
+            ]
+          },
+          "trd off road package 4x4 only": {
+            "label": "TRD Off-Road Package (4x4 only)",
+            "kind": "package",
+            "price": 2675,
+            "aliases": [
+              "trd off road package 4x4 only package"
             ],
             "features": [
-              "^tow tech package without wireless trailer camera system digital display rearview$"
+              "^20 in trd off road matte black alloy wheels with trd center caps and all terrain$",
+              "^aluminum sport pedals$",
+              "^electronically controlled locking rear different$",
+              "^off road suspension with bilstein shocks$",
+              "^red trd engine start button$",
+              "^skid plates$",
+              "^trd leather wrapped shift knob$",
+              "^trd off road badging$"
             ]
           },
           "auto leveling headlamps": {
@@ -3036,6 +2998,12 @@
             "features": [
               "^power tilt slide panoramic roof with power sunshade$"
             ]
+          },
+          "trd front skid plate": {
+            "label": "TRD Front Skid Plate",
+            "kind": "option",
+            "price": 385,
+            "aliases": []
           }
         }
       },
@@ -3062,19 +3030,14 @@
               "trd off road package 4x4 only package"
             ],
             "features": [
+              "^20 in trd off road matte black alloy wheels with trd center caps and all terrain$",
               "^aluminum sport pedals$",
-              "^cast aluminum running boards$",
-              "^crawl control$",
-              "^downhill assist control$",
-              "^electronically controlled locking rear differential$",
-              "^multi terrain monitor$",
-              "^multi terrain select$",
+              "^electronically controlled locking rear different$",
               "^off road suspension with bilstein shocks$",
               "^red trd engine start button$",
               "^skid plates$",
               "^trd leather wrapped shift knob$",
-              "^trd off road badging$",
-              "^trd off road package 20 in trd off road matte black alloy wheels with trd center$"
+              "^trd off road badging$"
             ]
           },
           "tow tech pkg w wireless trailer camera system": {
@@ -3085,8 +3048,8 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
+              "^digital display rearview mirror$",
               "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$",
               "^trailer backup guide with straight path assist$"
             ]
           },
@@ -3148,8 +3111,8 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
+              "^digital display rearview mirror$",
               "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$",
               "^trailer backup guide with straight path assist$"
             ]
           },
@@ -3190,19 +3153,15 @@
               "trd off road pkg"
             ],
             "features": [
+              "^20 in trd off road matte black alloy wheels with all terrain tires$",
               "^aluminum sport pedals$",
-              "^cast aluminum running boards$",
-              "^crawl control$",
-              "^downhill assist control$",
               "^electronically controlled locking rear differential$",
-              "^multi terrain monitor$",
-              "^multi terrain select$",
+              "^multi terrain s$",
               "^off road suspension with bilstein shocks$",
               "^red trd engine start button$",
               "^skid plates$",
               "^trd leather wrapped shift knob$",
-              "^trd off road badging$",
-              "^trd off road package 20 in trd off road matte black alloy wheels with all terrai$"
+              "^trd off road badging$"
             ]
           },
           "tow tech pkg w wireless trailer camera system": {
@@ -3213,9 +3172,21 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
+              "^digital display rearview mirror$",
               "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$",
               "^trailer backup guide with straight path assist$"
+            ]
+          },
+          "1794 grade package with power tow mirrors": {
+            "label": "1794 Grade Package with Power Tow Mirrors",
+            "kind": "package",
+            "price": 290,
+            "aliases": [
+              "1794 grade package with power tow mirrors package"
+            ],
+            "features": [
+              "^all content included as standard equipment$",
+              "^power tow mirrors$"
             ]
           },
           "10 in head up display": {
@@ -3225,16 +3196,6 @@
             "aliases": [],
             "features": [
               "^10 in color head up display with speedometer navigation and hybrid system indica$"
-            ]
-          },
-          "1794 grade package with power tow mirrors": {
-            "label": "1794 Grade Package with Power Tow Mirrors",
-            "kind": "option",
-            "price": 290,
-            "aliases": [],
-            "features": [
-              "^all content included as standard equipment$",
-              "^power tow mirrors$"
             ]
           },
           "rear air suspension": {
@@ -3263,14 +3224,14 @@
       "capstone": {
         "label": "Capstone",
         "options": {
-          "supersonic red": {
-            "label": "Supersonic Red",
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
             "kind": "paint",
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
+          "supersonic red": {
+            "label": "Supersonic Red",
             "kind": "paint",
             "price": 475,
             "aliases": []
@@ -3294,8 +3255,8 @@
               "tow tech pkg w wireless trailer camera system package"
             ],
             "features": [
+              "^digital display rearview mirror$",
               "^exterior antenna and wireless trailer camera$",
-              "^tow tech package with wireless trailer camera system digital display rearview mi$",
               "^trailer backup guide with straight path assist$"
             ]
           },
@@ -3312,11 +3273,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "basecamp package",
-        "carpet mat package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -3353,7 +3310,7 @@
     }
   },
   "toyota|sienna|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Sienna)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Sienna)",
     "models": [
       "sienna",
       "sienna hybrid",
@@ -3485,13 +3442,13 @@
             "aliases": []
           },
           "1500w inverter with two outlets": {
-            "label": "1500W inverter * with two outlets",
+            "label": "1500W inverter with two outlets",
             "kind": "option",
             "price": 300,
             "aliases": []
           },
           "12 jbl speakers including subwoofer and amplifier": {
-            "label": "12 JBL * speakers including subwoofer and amplifier",
+            "label": "12 JBL speakers including subwoofer and amplifier",
             "kind": "option",
             "price": 580,
             "aliases": []
@@ -3533,13 +3490,10 @@
             "price": 1415,
             "aliases": [
               "entertainment pkg"
-            ],
-            "features": [
-              "^same as xle$"
             ]
           },
           "1500w inverter with two outlets": {
-            "label": "1500W inverter * with two outlets",
+            "label": "1500W inverter with two outlets",
             "kind": "option",
             "price": 300,
             "aliases": []
@@ -3589,17 +3543,17 @@
               "entertainment pkg"
             ],
             "features": [
-              "^same as xle$"
+              "^1080p hd entertainment center with 11 6 in display hdmi input remote and two wir$"
             ]
           },
           "1500w inverter with two outlets": {
-            "label": "1500W inverter * with two outlets",
+            "label": "1500W inverter with two outlets",
             "kind": "option",
             "price": 300,
             "aliases": []
           },
           "digital rearview mirror with homelink universal transceiver": {
-            "label": "Digital rearview mirror with HomeLink * universal transceiver",
+            "label": "Digital rearview mirror with HomeLink universal transceiver",
             "kind": "option",
             "price": 200,
             "aliases": []
@@ -3621,9 +3575,6 @@
             "price": 1415,
             "aliases": [
               "entertainment pkg"
-            ],
-            "features": [
-              "^same as xle$"
             ]
           }
         }
@@ -3655,19 +3606,16 @@
             "price": 1415,
             "aliases": [
               "entertainment pkg"
-            ],
-            "features": [
-              "^same as xle$"
             ]
           },
           "1500w inverter with two outlets": {
-            "label": "1500W inverter * with two outlets",
+            "label": "1500W inverter with two outlets",
             "kind": "option",
             "price": 300,
             "aliases": []
           },
           "digital rearview mirror with homelink universal transceiver": {
-            "label": "Digital rearview mirror with HomeLink * universal transceiver",
+            "label": "Digital rearview mirror with HomeLink universal transceiver",
             "kind": "option",
             "price": 200,
             "aliases": []
@@ -3676,14 +3624,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "outdoor package",
-        "preferred accessory package w all",
-        "preferred accessory package w carp",
-        "protection package",
-        "vacuum and fridgebox w all weathe",
-        "vacuum and fridgebox w carpet mat"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -3720,7 +3661,7 @@
     }
   },
   "toyota|tacoma|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Tacoma)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Tacoma)",
     "models": [
       "tacoma",
       "tacoma 4wd",
@@ -3808,7 +3749,7 @@
             "features": [
               "^blind spot monitor$",
               "^digital key capability$",
-              "^rear parking assist with automatic braking$"
+              "^front and rear parking assist with automatic braking$"
             ]
           }
         }
@@ -3852,14 +3793,10 @@
             ],
             "features": [
               "^automatic climate control$",
-              "^digital key capability$",
-              "^easy lower tailgate$",
               "^heated seats$",
               "^homelink universal transceiver$",
-              "^integrated trailer brake controller$",
               "^leather trimmed heated steering wheel$",
               "^leather trimmed shift knob$",
-              "^led bed lights$",
               "^qi compatible wireless charging$",
               "^rear parking assist with automatic braking$"
             ]
@@ -3913,14 +3850,14 @@
               "four wheel drive"
             ]
           },
-          "supersonic red": {
-            "label": "Supersonic Red",
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
             "kind": "paint",
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
+          "supersonic red": {
+            "label": "Supersonic Red",
             "kind": "paint",
             "price": 475,
             "aliases": []
@@ -3933,11 +3870,7 @@
               "trd sport premium pkg"
             ],
             "features": [
-              "^digital rearview mirror$",
-              "^dual zone automatic climate control$",
               "^panoramic view monitor$",
-              "^pedestrian detection$",
-              "^power open close tailgate$",
               "^softex trimmed seats with heated$",
               "^ventilated 8 way power adjustable front seats$"
             ]
@@ -3950,7 +3883,20 @@
               "trd sport upgrade pkg"
             ],
             "features": [
-              "^fabric trimmed seats with heated 8 way power adjustable front seats$"
+              "^fabric trimmed seats with heated 8 way power adjustable front seats$",
+              "^qi compatible wireless charging$",
+              "^rear parking assist with automatic braking$"
+            ]
+          },
+          "towing technology package": {
+            "label": "Towing Technology Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "towing technology pkg"
+            ],
+            "features": [
+              "^toyota wireless camera system$"
             ]
           },
           "heated front seats": {
@@ -3978,28 +3924,19 @@
             "kind": "option",
             "price": 850,
             "aliases": []
-          },
-          "towing technology package": {
-            "label": "Towing Technology Package",
-            "kind": "option",
-            "price": 850,
-            "aliases": [
-              "towing technology pkg"
-            ],
-            "features": [
-              "^toyota wireless camera system$"
-            ]
           }
         }
       },
       "trd off road": {
         "label": "TRD Off-Road",
         "options": {
-          "8 speed automatic transmission": {
-            "label": "8-Speed Automatic Transmission",
+          "8 speed automatic": {
+            "label": "8-Speed Automatic",
             "kind": "powertrain",
             "price": 1100,
-            "aliases": []
+            "aliases": [
+              "8 speed automatic transmission"
+            ]
           },
           "supersonic red": {
             "label": "Supersonic Red",
@@ -4013,14 +3950,6 @@
             "price": 8940,
             "aliases": [
               "trd off road premium pkg"
-            ],
-            "features": [
-              "^digital rearview mirror$",
-              "^dual zone automatic climate control$",
-              "^multi terrain monitor$",
-              "^power open close tailgate$",
-              "^softex trimmed seats with heated$",
-              "^ventilated 8 way power adjustable front seats$"
             ]
           },
           "trd off road upgrade package": {
@@ -4031,7 +3960,42 @@
               "trd off road upgrade pkg"
             ],
             "features": [
-              "^fabric trimmed seats with heated 8 way power adjustable front seats$"
+              "^prewired auxiliary swi$",
+              "^rear parking assist sonar$"
+            ]
+          },
+          "trd off road premium package a t": {
+            "label": "TRD Off-Road Premium Package (A/T)",
+            "kind": "package",
+            "price": 9220,
+            "aliases": [
+              "trd off road premium package a t package"
+            ],
+            "features": [
+              "^18 in trd alloy wheels$",
+              "^jbl premium audio with jbl flex porta$"
+            ]
+          },
+          "trd off road upgrade package a t": {
+            "label": "TRD Off-Road Upgrade Package (A/T)",
+            "kind": "package",
+            "price": 4840,
+            "aliases": [
+              "trd off road upgrade package a t package"
+            ],
+            "features": [
+              "^rear parking assist with automatic braking pa w ab$"
+            ]
+          },
+          "towing technology package": {
+            "label": "Towing Technology Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "towing technology pkg"
+            ],
+            "features": [
+              "^toyota wireless camera system$"
             ]
           },
           "heated front seats": {
@@ -4083,32 +4047,43 @@
             "price": 475,
             "aliases": []
           },
-          "trd sport premium package": {
-            "label": "TRD Sport Premium Package",
+          "trd sport premium package i force max": {
+            "label": "TRD Sport Premium Package (i-FORCE MAX)",
             "kind": "package",
             "price": 8290,
             "aliases": [
-              "trd sport premium pkg"
+              "trd sport premium package",
+              "trd sport premium package i force max package"
             ],
             "features": [
-              "^digital rearview mirror$",
-              "^dual zone automatic climate control$",
               "^panoramic view monitor$",
-              "^pedestrian detection$",
-              "^power open close tailgate$",
               "^softex trimmed seats with heated$",
               "^ventilated 8 way power adjustable front seats$"
             ]
           },
-          "trd sport upgrade package": {
-            "label": "TRD Sport Upgrade Package",
+          "trd sport upgrade package i force max": {
+            "label": "TRD Sport Upgrade Package (i-FORCE MAX)",
             "kind": "package",
             "price": 4330,
             "aliases": [
-              "trd sport upgrade pkg"
+              "trd sport upgrade package",
+              "trd sport upgrade package i force max package"
             ],
             "features": [
-              "^fabric trimmed seats with heated 8 way power adjustable front seats$"
+              "^fabric trimmed seats with heated 8 way power adjustable front seats$",
+              "^qi compatible wireless charging$",
+              "^rear parking assist with automatic braking$"
+            ]
+          },
+          "towing technology package": {
+            "label": "Towing Technology Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "towing technology pkg"
+            ],
+            "features": [
+              "^toyota wireless camera system$"
             ]
           },
           "heated front seats": {
@@ -4136,17 +4111,6 @@
             "kind": "option",
             "price": 850,
             "aliases": []
-          },
-          "towing technology package": {
-            "label": "Towing Technology Package",
-            "kind": "option",
-            "price": 850,
-            "aliases": [
-              "towing technology pkg"
-            ],
-            "features": [
-              "^toyota wireless camera system$"
-            ]
           }
         }
       },
@@ -4159,32 +4123,43 @@
             "price": 475,
             "aliases": []
           },
-          "trd off road premium package": {
-            "label": "TRD Off-Road Premium Package",
+          "trd off road premium package i force max": {
+            "label": "TRD Off-Road Premium Package (i-FORCE MAX)",
             "kind": "package",
             "price": 8540,
             "aliases": [
-              "trd off road premium pkg"
+              "trd off road premium package",
+              "trd off road premium package i force max package"
             ],
             "features": [
-              "^digital rearview mirror$",
-              "^dual zone automatic climate control$",
               "^multi terrain monitor$",
-              "^pedestrian detection$",
-              "^power open close tailgate$",
               "^softex trimmed seats with heated$",
               "^ventilated 8 way power adjustable front seats$"
             ]
           },
-          "trd off road upgrade package": {
-            "label": "TRD Off-Road Upgrade Package",
+          "trd off road upgrade package i force max": {
+            "label": "TRD Off-Road Upgrade Package (i-FORCE MAX)",
             "kind": "package",
             "price": 4330,
             "aliases": [
-              "trd off road upgrade pkg"
+              "trd off road upgrade package",
+              "trd off road upgrade package i force max package"
             ],
             "features": [
-              "^fabric trimmed seats with heated 8 way power adjustable front seats$"
+              "^fabric trimmed seats with heated 8 way power adjustable front seats$",
+              "^qi compatible wireless charging$",
+              "^rear parking assist with automatic brakin$"
+            ]
+          },
+          "towing technology package": {
+            "label": "Towing Technology Package",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "towing technology pkg"
+            ],
+            "features": [
+              "^toyota wireless camera system$"
             ]
           },
           "heated front seats": {
@@ -4218,38 +4193,27 @@
             "kind": "option",
             "price": 1230,
             "aliases": []
-          },
-          "towing technology package": {
-            "label": "Towing Technology Package",
-            "kind": "option",
-            "price": 850,
-            "aliases": [
-              "towing technology pkg"
-            ],
-            "features": [
-              "^toyota wireless camera system$"
-            ]
           }
         }
       },
       "limited": {
         "label": "Limited",
         "options": {
-          "supersonic red": {
-            "label": "Supersonic Red",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
             "kind": "paint",
             "price": 475,
             "aliases": []
           },
+          "supersonic red": {
+            "label": "Supersonic Red",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
           "towing technology package": {
             "label": "Towing Technology Package",
-            "kind": "option",
+            "kind": "package",
             "price": 850,
             "aliases": [
               "towing technology pkg"
@@ -4277,7 +4241,7 @@
           },
           "towing technology package": {
             "label": "Towing Technology Package",
-            "kind": "option",
+            "kind": "package",
             "price": 850,
             "aliases": [
               "towing technology pkg"
@@ -4293,7 +4257,7 @@
         "options": {
           "towing technology package": {
             "label": "Towing Technology Package",
-            "kind": "option",
+            "kind": "package",
             "price": 850,
             "aliases": [
               "towing technology pkg"
@@ -4318,7 +4282,7 @@
           },
           "towing technology package": {
             "label": "Towing Technology Package",
-            "kind": "option",
+            "kind": "package",
             "price": 850,
             "aliases": [
               "towing technology pkg"
@@ -4331,15 +4295,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all pro tailgate package",
-        "black appearance package",
-        "black overlay and dark illumination",
-        "exhaust tip predator drop step pac",
-        "front and rear recovery tow package",
-        "outpost package",
-        "steel skid plates package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -4376,7 +4332,7 @@
     }
   },
   "toyota|tundra|2026": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2026 Tundra)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2026 Tundra)",
     "models": [
       "tundra",
       "tundra 4wd",
@@ -4488,7 +4444,10 @@
               "advanced technology pkg"
             ],
             "features": [
-              "^digital rearview mirror$",
+              "^choose interior bou$",
+              "^digital rearview mirror requires premium audio package sr5 premium package$",
+              "^front and rear parking assist with automatic braking$",
+              "^panoramic view monitor$",
               "^trailer backup guide with straight path assist$"
             ]
           },
@@ -4503,7 +4462,8 @@
               "^14 in audio multimedia$",
               "^400w 120v bed mounted ac power supply$",
               "^400w 120v rear seat ac power supply$",
-              "^led bed lights$"
+              "^choose interior boulder black leather adjustments$",
+              "^led bed lights requires advanced technology package sr5 premium package$"
             ]
           },
           "sr5 premium package": {
@@ -4515,7 +4475,7 @@
             ],
             "features": [
               "^8 way power adjustable heated front seats with power lumbar$",
-              "^color keyed outer door handles$",
+              "^color keyed outer door handles requires choose interior boulder or black leather$",
               "^dual zone automatic climate control$",
               "^leather trimmed seats with contrast stitching$"
             ]
@@ -4532,7 +4492,7 @@
               "^black fabric trimmed seats$",
               "^black overfenders$",
               "^color keyed door handles and bumpers$",
-              "^sx bed decal$"
+              "^sx bed decal requires choose interior sx black fabric adjustments$"
             ]
           },
           "sr5 convenience package": {
@@ -4541,6 +4501,9 @@
             "price": 1065,
             "aliases": [
               "sr5 convenience pkg"
+            ],
+            "features": [
+              "^front and rear parking assist with automatic braking requires choose interior ad$"
             ]
           },
           "sr5 painted bsm mirror": {
@@ -4549,7 +4512,8 @@
             "price": 60,
             "aliases": [],
             "features": [
-              "^sr5 painted blind spot mirrors$"
+              "^sr5 convenience package listed adjustments$",
+              "^sr5 painted blind spot mirrors modal choose from option below interior sx black $"
             ]
           },
           "pvm bsm outer mirrors": {
@@ -4558,7 +4522,8 @@
             "price": 860,
             "aliases": [],
             "features": [
-              "^heated power outside mirrors with blind spot monitor panoramic view monitor and $"
+              "^heated power outside mirrors with bsm pvm and led turn signals requires choose i$",
+              "^required items advanced technology package premium audio sr5 premium package upd$"
             ]
           },
           "sr5 bsm outer mirrors": {
@@ -4567,20 +4532,29 @@
             "price": 50,
             "aliases": [],
             "features": [
-              "^heated power mirrors with blind spot monitor and led turn signals$"
+              "^heated power mirrors with bsm and led turn signals requires choose interior boul$",
+              "^required items sr5 premium package sr5 convenience package updated$"
             ]
           },
           "sr5 bsm tow mirrors": {
             "label": "SR5 BSM Tow Mirrors",
             "kind": "option",
             "price": 950,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^heated power tow mirrors with bsm requires choose interior$",
+              "^required item sr5 convenience package updated$"
+            ]
           },
           "sr5 pvm bsm tow mirrors": {
             "label": "SR5 PVM + BSM Tow Mirrors",
             "kind": "option",
             "price": 1150,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^premium tow mirrors incl heated power tow mirrors with bsm and pvm requires choo$",
+              "^required items advanced technology premium audio sr5 premium updated$"
+            ]
           },
           "rear air suspension": {
             "label": "Rear Air Suspension",
@@ -4588,20 +4562,35 @@
             "price": 650,
             "aliases": [],
             "features": [
-              "^load leveling rear height control air suspension$"
+              "^choose from required packages leather wrapped steering wheel heated leather wrap$",
+              "^load leveling rear height control air suspension requires required items premium$"
             ]
           },
           "leather wrapped steering wheel": {
             "label": "Leather-Wrapped Steering Wheel",
             "kind": "option",
             "price": 170,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^leather wrapped steering wheel requires required item sr5 premium package$"
+            ]
           },
           "heated leather wrapped steering wheel": {
             "label": "Heated Leather-Wrapped Steering Wheel",
             "kind": "option",
             "price": 320,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^heated leather wrapped steering wheel requires required item sr5 premium package$"
+            ]
+          },
+          "trd off road package": {
+            "label": "TRD Off-Road Package",
+            "kind": "package",
+            "price": 2125,
+            "aliases": [
+              "trd off road pkg"
+            ]
           }
         }
       },
@@ -4630,31 +4619,6 @@
             "price": 475,
             "aliases": []
           },
-          "nightshade package": {
-            "label": "Nightshade Package",
-            "kind": "package",
-            "price": 450,
-            "aliases": [
-              "nightshade pkg"
-            ],
-            "features": [
-              "^black overfenders and rear bumper$",
-              "^gloss black window molding mirror caps and tailgate handle$",
-              "^matte black 20 in alloy wheels$",
-              "^semi black tundra door badge and 4x4 badge$"
-            ]
-          },
-          "jbl premium audio": {
-            "label": "JBL Premium Audio",
-            "kind": "package",
-            "price": 565,
-            "aliases": [
-              "jbl premium audio package"
-            ],
-            "features": [
-              "^12 speaker jbl premium audio$"
-            ]
-          },
           "limited premium package": {
             "label": "Limited Premium Package",
             "kind": "package",
@@ -4663,7 +4627,7 @@
               "limited premium pkg"
             ],
             "features": [
-              "^digital rearview mirror$",
+              "^digital rearview mirror requires jbl premium audio limited pvm package$",
               "^premium led headlights$",
               "^trailer backup guide with straight path assist$"
             ]
@@ -4676,7 +4640,32 @@
               "limited pvm pkg"
             ],
             "features": [
-              "^panoramic view monitor with cameras$"
+              "^panoramic view monitor with cameras requires choose from required packages pvm b$"
+            ]
+          },
+          "tow tech package with wireless trailer camera system": {
+            "label": "Tow Tech Package With Wireless Trailer Camera System",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "tow tech package with wireless trailer camera system package"
+            ],
+            "features": [
+              "^exterior antenna and wireless trailer camera requires limited premium package jb$"
+            ]
+          },
+          "nightshade package": {
+            "label": "Nightshade Package",
+            "kind": "package",
+            "price": 450,
+            "aliases": [
+              "nightshade pkg"
+            ],
+            "features": [
+              "^black overfenders and rear bumper$",
+              "^gloss black window molding mirror caps and tailgate handle$",
+              "^matte black 20 in alloy wheels$",
+              "^semi black tundra door badge and 4x4 badge$"
             ]
           },
           "limited power package": {
@@ -4693,33 +4682,13 @@
               "^qi compatible wireless smartphone charging$"
             ]
           },
-          "tow tech package with wireless trailer camera system": {
-            "label": "Tow Tech Package With Wireless Trailer Camera System",
-            "kind": "package",
-            "price": 850,
-            "aliases": [
-              "tow tech package with wireless trailer camera system package"
-            ],
-            "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
-            ]
-          },
-          "bsm tow mirrors": {
-            "label": "BSM Tow Mirrors",
-            "kind": "option",
-            "price": 290,
-            "aliases": [],
-            "features": [
-              "^heated power tow mirrors with blind spot monitor$"
-            ]
-          },
           "pvm bsm tow mirrors": {
             "label": "PVM + BSM Tow Mirrors",
             "kind": "option",
             "price": 290,
             "aliases": [],
             "features": [
-              "^heated power tow mirrors with blind spot monitor and panoramic view monitor$"
+              "^heated power tow mirrors with bsm and pvm requires choose from options limited p$"
             ]
           },
           "rear air suspension": {
@@ -4728,7 +4697,25 @@
             "price": 650,
             "aliases": [],
             "features": [
-              "^load leveling rear height control air suspension$"
+              "^load leveling rear height control air suspension requires choose from options li$"
+            ]
+          },
+          "jbl premium audio": {
+            "label": "JBL Premium Audio",
+            "kind": "option",
+            "price": 565,
+            "aliases": [],
+            "features": [
+              "^12 speaker jbl premium audio$"
+            ]
+          },
+          "bsm tow mirrors": {
+            "label": "BSM Tow Mirrors",
+            "kind": "option",
+            "price": 290,
+            "aliases": [],
+            "features": [
+              "^heated power tow mirrors with bsm$"
             ]
           },
           "panoramic roof": {
@@ -4745,6 +4732,14 @@
             "kind": "option",
             "price": 150,
             "aliases": []
+          },
+          "trd off road package": {
+            "label": "TRD Off-Road Package",
+            "kind": "package",
+            "price": 3580,
+            "aliases": [
+              "trd off road pkg"
+            ]
           }
         }
       },
@@ -4773,31 +4768,6 @@
             "price": 475,
             "aliases": []
           },
-          "nightshade package": {
-            "label": "Nightshade Package",
-            "kind": "package",
-            "price": 450,
-            "aliases": [
-              "nightshade pkg"
-            ],
-            "features": [
-              "^black overfenders and rear bumper$",
-              "^gloss black window molding mirror caps and tailgate handle$",
-              "^matte black 20 in alloy wheels$",
-              "^semi black tundra door badge and 4x4 badge$"
-            ]
-          },
-          "jbl premium audio": {
-            "label": "JBL Premium Audio",
-            "kind": "package",
-            "price": 565,
-            "aliases": [
-              "jbl premium audio package"
-            ],
-            "features": [
-              "^12 speaker jbl premium audio$"
-            ]
-          },
           "limited premium package": {
             "label": "Limited Premium Package",
             "kind": "package",
@@ -4806,7 +4776,7 @@
               "limited premium pkg"
             ],
             "features": [
-              "^digital rearview mirror$",
+              "^digital rearview mirror requires jbl premium audio limited pvm package$",
               "^premium led headlights$",
               "^trailer backup guide with straight path assist$"
             ]
@@ -4819,7 +4789,33 @@
               "limited pvm pkg"
             ],
             "features": [
-              "^panoramic view monitor with cameras$"
+              "^no required items adjustments$",
+              "^panoramic view monitor with cameras requires choose from required packages pvm b$"
+            ]
+          },
+          "tow tech package with wireless trailer camera system": {
+            "label": "Tow Tech Package With Wireless Trailer Camera System",
+            "kind": "package",
+            "price": 850,
+            "aliases": [
+              "tow tech package with wireless trailer camera system package"
+            ],
+            "features": [
+              "^exterior antenna and wireless trailer camera requires limited premium package jb$"
+            ]
+          },
+          "nightshade package": {
+            "label": "Nightshade Package",
+            "kind": "package",
+            "price": 450,
+            "aliases": [
+              "nightshade pkg"
+            ],
+            "features": [
+              "^black overfenders and rear bumper$",
+              "^gloss black window molding mirror caps and tailgate handle$",
+              "^matte black 20 in alloy wheels$",
+              "^semi black tundra door badge and 4x4 badge$"
             ]
           },
           "limited power package": {
@@ -4836,15 +4832,31 @@
               "^qi compatible wireless smartphone charging$"
             ]
           },
-          "tow tech package with wireless trailer camera system": {
-            "label": "Tow Tech Package With Wireless Trailer Camera System",
-            "kind": "package",
-            "price": 850,
-            "aliases": [
-              "tow tech package with wireless trailer camera system package"
-            ],
+          "pvm bsm tow mirrors": {
+            "label": "PVM + BSM Tow Mirrors",
+            "kind": "option",
+            "price": 290,
+            "aliases": [],
             "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
+              "^heated power tow mirrors with bsm and pvm requires choose from options limited p$"
+            ]
+          },
+          "rear air suspension": {
+            "label": "Rear Air Suspension",
+            "kind": "option",
+            "price": 650,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension requires choose from options ni$"
+            ]
+          },
+          "jbl premium audio": {
+            "label": "JBL Premium Audio",
+            "kind": "option",
+            "price": 565,
+            "aliases": [],
+            "features": [
+              "^12 speaker jbl premium audio$"
             ]
           },
           "bsm tow mirrors": {
@@ -4854,24 +4866,6 @@
             "aliases": [],
             "features": [
               "^heated power tow mirrors with bsm$"
-            ]
-          },
-          "pvm bsm tow mirrors": {
-            "label": "PVM + BSM Tow Mirrors",
-            "kind": "option",
-            "price": 290,
-            "aliases": [],
-            "features": [
-              "^heated power tow mirrors with bsm and pvm$"
-            ]
-          },
-          "rear air suspension": {
-            "label": "Rear Air Suspension",
-            "kind": "option",
-            "price": 650,
-            "aliases": [],
-            "features": [
-              "^load leveling rear height control air suspension$"
             ]
           },
           "panoramic roof": {
@@ -4888,6 +4882,14 @@
             "kind": "option",
             "price": 150,
             "aliases": []
+          },
+          "trd off road package": {
+            "label": "TRD Off-Road Package",
+            "kind": "package",
+            "price": 3580,
+            "aliases": [
+              "trd off road pkg"
+            ]
           }
         }
       },
@@ -4916,28 +4918,6 @@
             "price": 475,
             "aliases": []
           },
-          "head up display": {
-            "label": "Head-Up Display",
-            "kind": "package",
-            "price": 600,
-            "aliases": [
-              "head up display package"
-            ],
-            "features": [
-              "^10 in color head up display$"
-            ]
-          },
-          "load leveling rear height control air suspension": {
-            "label": "Load-Leveling Rear Height Control Air Suspension",
-            "kind": "package",
-            "price": 1045,
-            "aliases": [
-              "load leveling rear height control air suspension package"
-            ],
-            "features": [
-              "^load leveling rear height control air suspension and adaptive variable suspensio$"
-            ]
-          },
           "tow tech package with wireless trailer camera system": {
             "label": "Tow Tech Package With Wireless Trailer Camera System",
             "kind": "package",
@@ -4946,7 +4926,16 @@
               "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
+              "^exterior antenna and wireless trailer camera$"
+            ]
+          },
+          "head up display": {
+            "label": "Head-Up Display",
+            "kind": "option",
+            "price": 600,
+            "aliases": [],
+            "features": [
+              "^10 in color head up display$"
             ]
           },
           "pvm bsm tow mirrors": {
@@ -4965,6 +4954,23 @@
             "aliases": [],
             "features": [
               "^power running boards and power bedstep$"
+            ]
+          },
+          "load leveling rear height control air suspension": {
+            "label": "Load-Leveling Rear Height Control Air Suspension",
+            "kind": "option",
+            "price": 1045,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension and adaptive variable suspensio$"
+            ]
+          },
+          "trd off road package": {
+            "label": "TRD Off-Road Package",
+            "kind": "package",
+            "price": 2180,
+            "aliases": [
+              "trd off road pkg"
             ]
           }
         }
@@ -4988,28 +4994,6 @@
             "price": 475,
             "aliases": []
           },
-          "head up display": {
-            "label": "Head-Up Display",
-            "kind": "package",
-            "price": 600,
-            "aliases": [
-              "head up display package"
-            ],
-            "features": [
-              "^10 in color head up display$"
-            ]
-          },
-          "load leveling rear height control air suspension": {
-            "label": "Load-Leveling Rear Height Control Air Suspension",
-            "kind": "package",
-            "price": 1045,
-            "aliases": [
-              "load leveling rear height control air suspension package"
-            ],
-            "features": [
-              "^load leveling rear height control air suspension and adaptive variable suspensio$"
-            ]
-          },
           "tow tech package with wireless trailer camera system": {
             "label": "Tow Tech Package With Wireless Trailer Camera System",
             "kind": "package",
@@ -5018,7 +5002,16 @@
               "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
+              "^exterior antenna and wireless trailer camera$"
+            ]
+          },
+          "head up display": {
+            "label": "Head-Up Display",
+            "kind": "option",
+            "price": 600,
+            "aliases": [],
+            "features": [
+              "^10 in color head up display$"
             ]
           },
           "pvm bsm tow mirrors": {
@@ -5027,7 +5020,7 @@
             "price": 290,
             "aliases": [],
             "features": [
-              "^heated power tow mirrors with blind spot monitor and panoramic view monitor$"
+              "^heated power tow mirrors with bsm and pvm$"
             ]
           },
           "power running boards": {
@@ -5037,6 +5030,23 @@
             "aliases": [],
             "features": [
               "^power running boards and power bedstep$"
+            ]
+          },
+          "load leveling rear height control air suspension": {
+            "label": "Load-Leveling Rear Height Control Air Suspension",
+            "kind": "option",
+            "price": 1045,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension and adaptive variable suspensio$"
+            ]
+          },
+          "trd off road package": {
+            "label": "TRD Off-Road Package",
+            "kind": "package",
+            "price": 2140,
+            "aliases": [
+              "trd off road pkg"
             ]
           }
         }
@@ -5056,26 +5066,15 @@
             "price": 475,
             "aliases": []
           },
-          "head up display": {
-            "label": "Head-Up Display",
+          "tow tech package with wireless trailer camera system": {
+            "label": "Tow Tech Package With Wireless Trailer Camera System",
             "kind": "package",
-            "price": 600,
+            "price": 850,
             "aliases": [
-              "head up display package"
+              "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^10 in color head up display$"
-            ]
-          },
-          "load leveling rear height control air suspension": {
-            "label": "Load-Leveling Rear Height Control Air Suspension",
-            "kind": "package",
-            "price": 1045,
-            "aliases": [
-              "load leveling rear height control air suspension package"
-            ],
-            "features": [
-              "^load leveling rear height control air suspension and adaptive variable suspensio$"
+              "^exterior antenna and wireless trailer camera$"
             ]
           },
           "trd off road package": {
@@ -5088,12 +5087,8 @@
             "features": [
               "^20 in trd off road matte black alloy wheels with trd center caps and all terrain$",
               "^aluminum sport pedals$",
-              "^crawl control$",
-              "^downhill assist control$",
-              "^electronically controlled locking rear differential$",
-              "^multi terrain select$",
-              "^off road suspension with bilstein shocks$",
-              "^pvm bsm outside mirrors with multi terrain monitor functionality$",
+              "^bilstein off road suspension$",
+              "^electronically controlled locki$",
               "^red trd engine start button$",
               "^skid plates$",
               "^trd grille$",
@@ -5101,24 +5096,13 @@
               "^trd off road bedside decal$"
             ]
           },
-          "tow tech package with wireless trailer camera system": {
-            "label": "Tow Tech Package With Wireless Trailer Camera System",
-            "kind": "package",
-            "price": 850,
-            "aliases": [
-              "tow tech package with wireless trailer camera system package"
-            ],
-            "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
-            ]
-          },
-          "trd 3 in suspension lift kit removes fog lights": {
-            "label": "TRD 3-In. Suspension Lift Kit (Removes Fog Lights)",
+          "head up display": {
+            "label": "Head-Up Display",
             "kind": "option",
-            "price": 3995,
+            "price": 600,
             "aliases": [],
             "features": [
-              "^3 in suspension lift kit removes fog lights$"
+              "^10 in color head up display$"
             ]
           },
           "pvm bsm tow mirrors": {
@@ -5127,7 +5111,7 @@
             "price": 290,
             "aliases": [],
             "features": [
-              "^heated power tow mirrors with blind spot monitor and panoramic view monitor$"
+              "^heated power tow mirrors with bsm and pvm$"
             ]
           },
           "power running boards": {
@@ -5139,11 +5123,33 @@
               "^power running boards and power bedstep$"
             ]
           },
+          "load leveling rear height control air suspension": {
+            "label": "Load-Leveling Rear Height Control Air Suspension",
+            "kind": "option",
+            "price": 1045,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension and adaptive variable suspensio$"
+            ]
+          },
+          "trd 3 in suspension lift kit removes fog lights": {
+            "label": "TRD 3-In. Suspension Lift Kit (Removes Fog Lights)",
+            "kind": "option",
+            "price": 3995,
+            "aliases": [],
+            "features": [
+              "^3 in suspension lift kit$",
+              "^removes fog lights requires choose from options trd off road package adjustments$"
+            ]
+          },
           "trd front skid plate": {
             "label": "TRD Front Skid Plate",
             "kind": "option",
             "price": 380,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^trd front skid plate requires choose from options trd off road package adjustmen$"
+            ]
           }
         }
       },
@@ -5156,26 +5162,15 @@
             "price": 475,
             "aliases": []
           },
-          "head up display": {
-            "label": "Head-Up Display",
+          "tow tech package with wireless trailer camera system": {
+            "label": "Tow Tech Package With Wireless Trailer Camera System",
             "kind": "package",
-            "price": 600,
+            "price": 850,
             "aliases": [
-              "head up display package"
+              "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^10 in color head up display$"
-            ]
-          },
-          "load leveling rear height control air suspension": {
-            "label": "Load-Leveling Rear Height Control Air Suspension",
-            "kind": "package",
-            "price": 1045,
-            "aliases": [
-              "load leveling rear height control air suspension package"
-            ],
-            "features": [
-              "^load leveling rear height control air suspension and adaptive variable suspensio$"
+              "^exterior antenna and wireless trailer camera$"
             ]
           },
           "trd off road package": {
@@ -5186,39 +5181,17 @@
               "trd off road pkg"
             ],
             "features": [
-              "^20 in trd off road matte black alloy wheels with trd center caps and all terrain$",
-              "^aluminum sport pedals$",
-              "^crawl control$",
-              "^downhill assist control$",
-              "^electronically controlled locking rear differential$",
-              "^multi terrain select$",
-              "^off road suspension with bilstein shocks$",
-              "^pvm bsm outside mirrors with multi terrain monitor functionality$",
-              "^red trd engine start button$",
-              "^skid plates$",
-              "^trd grille$",
-              "^trd leather wrapped shift knob$",
-              "^trd off road bedside decal$"
+              "^choose from required packages trd 3 in suspension lift kit$",
+              "^pvm bsm outer mirrors$"
             ]
           },
-          "tow tech package with wireless trailer camera system": {
-            "label": "Tow Tech Package With Wireless Trailer Camera System",
-            "kind": "package",
-            "price": 850,
-            "aliases": [
-              "tow tech package with wireless trailer camera system package"
-            ],
-            "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
-            ]
-          },
-          "trd 3 in suspension lift kit removes fog lights": {
-            "label": "TRD 3-In. Suspension Lift Kit (Removes Fog Lights)",
+          "head up display": {
+            "label": "Head-Up Display",
             "kind": "option",
-            "price": 3995,
+            "price": 600,
             "aliases": [],
             "features": [
-              "^3 in suspension lift kit removes fog lights$"
+              "^10 in color head up display$"
             ]
           },
           "pvm bsm tow mirrors": {
@@ -5227,7 +5200,7 @@
             "price": 290,
             "aliases": [],
             "features": [
-              "^heated power tow mirrors with blind spot monitor and panoramic view monitor$"
+              "^heated power tow mirrors with bsm and pvm$"
             ]
           },
           "power running boards": {
@@ -5239,11 +5212,33 @@
               "^power running boards and power bedstep$"
             ]
           },
+          "load leveling rear height control air suspension": {
+            "label": "Load-Leveling Rear Height Control Air Suspension",
+            "kind": "option",
+            "price": 1045,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension and avs requires choose from op$"
+            ]
+          },
+          "trd 3 in suspension lift kit removes fog lights": {
+            "label": "TRD 3-In. Suspension Lift Kit (Removes Fog Lights)",
+            "kind": "option",
+            "price": 3995,
+            "aliases": [],
+            "features": [
+              "^3 in suspension lift kit$",
+              "^removes fog lights requires trd off road package choose from pvm bsm outer mirro$"
+            ]
+          },
           "trd front skid plate": {
             "label": "TRD Front Skid Plate",
             "kind": "option",
             "price": 380,
-            "aliases": []
+            "aliases": [],
+            "features": [
+              "^trd front skid plate requires trd off road package choose from pvm bsm outer mir$"
+            ]
           }
         }
       },
@@ -5258,7 +5253,7 @@
               "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
+              "^exterior antenna and wireless trailer camera$"
             ]
           },
           "trd pro with tow mirrors grade package": {
@@ -5267,6 +5262,10 @@
             "price": 290,
             "aliases": [
               "trd pro with tow mirrors grade pkg"
+            ],
+            "features": [
+              "^it was added i then clicked it again to remove it final check header back to and$",
+              "^my script clicked this card once$"
             ]
           },
           "isodynamic seat": {
@@ -5280,28 +5279,17 @@
       "capstone": {
         "label": "Capstone",
         "options": {
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "supersonic red": {
             "label": "Supersonic Red",
             "kind": "paint",
             "price": 475,
             "aliases": []
           },
-          "load leveling rear height control air suspension": {
-            "label": "Load-Leveling Rear Height Control Air Suspension",
-            "kind": "package",
-            "price": 1045,
-            "aliases": [
-              "load leveling rear height control air suspension package"
-            ],
-            "features": [
-              "^load leveling rear height control air suspension and adaptive variable suspensio$"
-            ]
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
           },
           "tow tech package with wireless trailer camera system": {
             "label": "Tow Tech Package With Wireless Trailer Camera System",
@@ -5311,7 +5299,16 @@
               "tow tech package with wireless trailer camera system package"
             ],
             "features": [
-              "^tow tech package exterior antenna and wireless trailer camera$"
+              "^exterior antenna and wireless trailer camera$"
+            ]
+          },
+          "load leveling rear height control air suspension": {
+            "label": "Load-Leveling Rear Height Control Air Suspension",
+            "kind": "option",
+            "price": 1045,
+            "aliases": [],
+            "features": [
+              "^load leveling rear height control air suspension and adaptive variable suspensio$"
             ]
           },
           "pvm bsm tow mirrors": {
@@ -5327,11 +5324,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "hall of famer tailgate package",
-        "security package",
-        "trd 20 wheel package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -5368,7 +5361,7 @@
     }
   },
   "toyota|c hr|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 C-HR)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 C-HR)",
     "models": [
       "c hr",
       "chr"
@@ -5426,11 +5419,9 @@
           },
           "headlight cleaner": {
             "label": "Headlight cleaner",
-            "kind": "package",
+            "kind": "option",
             "price": 100,
-            "aliases": [
-              "headlight cleaner package"
-            ],
+            "aliases": [],
             "features": [
               "^headlight cleaner for cold weather$"
             ]
@@ -5440,6 +5431,12 @@
       "xse": {
         "label": "XSE",
         "options": {
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
           "tandoori with midnight black metallic roof": {
             "label": "Tandoori with Midnight Black Metallic roof",
             "kind": "paint",
@@ -5467,57 +5464,31 @@
               "wind chill pearl two tone midnight black metallic roof"
             ]
           },
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "cold weather package": {
             "label": "Cold Weather Package",
             "kind": "package",
             "price": 450,
             "aliases": [
               "cold weather pkg"
-            ],
-            "features": [
-              "^headlight cleaner$",
-              "^heated rear seats$"
             ]
           },
           "9 speaker jbl premium audio": {
             "label": "9-Speaker JBL Premium Audio",
-            "kind": "package",
+            "kind": "option",
             "price": 600,
-            "aliases": [
-              "9 speaker jbl premium audio package"
-            ],
-            "features": [
-              "^9 speaker jbl premium audio including subwoofer and amplifier$"
-            ]
+            "aliases": []
           },
           "panoramic roof": {
             "label": "Panoramic Roof",
-            "kind": "package",
+            "kind": "option",
             "price": 1000,
-            "aliases": [
-              "panoramic roof package"
-            ],
-            "features": [
-              "^panoramic fixed glass roof with power sunshade$"
-            ]
+            "aliases": []
           }
         }
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred accessory package",
-        "preferred accessory package w all weather mats",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -5554,7 +5525,7 @@
     }
   },
   "toyota|corolla hatchback|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Corolla Hatchback)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Corolla Hatchback)",
     "models": [
       "corolla hatchback"
     ],
@@ -5615,13 +5586,13 @@
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl with black roof": {
-            "label": "Wind Chill Pearl with Black roof",
+          "blueprint with black roof": {
+            "label": "Blueprint with Black roof",
             "kind": "paint",
-            "price": 975,
+            "price": 500,
             "aliases": [
-              "wind chill pearl w black roof",
-              "wind chill pearl two tone black roof"
+              "blueprint w black roof",
+              "blueprint two tone black roof"
             ]
           },
           "classic silver metallic with black roof": {
@@ -5642,6 +5613,15 @@
               "magnetic gray metallic two tone black roof"
             ]
           },
+          "wind chill pearl with black roof": {
+            "label": "Wind Chill Pearl with Black roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl w black roof",
+              "wind chill pearl two tone black roof"
+            ]
+          },
           "finish line red with black roof": {
             "label": "Finish Line Red with Black roof",
             "kind": "paint",
@@ -5649,15 +5629,6 @@
             "aliases": [
               "finish line red w black roof",
               "finish line red two tone black roof"
-            ]
-          },
-          "blueprint with black roof": {
-            "label": "Blueprint with Black roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "blueprint w black roof",
-              "blueprint two tone black roof"
             ]
           },
           "se premium package": {
@@ -5689,13 +5660,13 @@
             "price": 475,
             "aliases": []
           },
-          "wind chill pearl with black roof": {
-            "label": "Wind Chill Pearl with Black roof",
+          "blueprint with black roof": {
+            "label": "Blueprint with Black roof",
             "kind": "paint",
-            "price": 975,
+            "price": 500,
             "aliases": [
-              "wind chill pearl w black roof",
-              "wind chill pearl two tone black roof"
+              "blueprint w black roof",
+              "blueprint two tone black roof"
             ]
           },
           "classic silver metallic with black roof": {
@@ -5716,6 +5687,15 @@
               "magnetic gray metallic two tone black roof"
             ]
           },
+          "wind chill pearl with black roof": {
+            "label": "Wind Chill Pearl with Black roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl w black roof",
+              "wind chill pearl two tone black roof"
+            ]
+          },
           "finish line red with black roof": {
             "label": "Finish Line Red with Black roof",
             "kind": "paint",
@@ -5724,27 +5704,12 @@
               "finish line red w black roof",
               "finish line red two tone black roof"
             ]
-          },
-          "blueprint with black roof": {
-            "label": "Blueprint with Black roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "blueprint w black roof",
-              "blueprint two tone black roof"
-            ]
           }
         }
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "blackout package",
-        "body protection package",
-        "carpet mat package",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -5781,7 +5746,7 @@
     }
   },
   "toyota|corolla|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Corolla)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Corolla)",
     "models": [
       "corolla",
       "corolla hybrid"
@@ -5856,7 +5821,7 @@
             "features": [
               "^16 in alloy wheels and p205 55r16 tires$",
               "^qi compatible wireless charging$",
-              "^remote keyless entry system with lock panic and trunk release functions$",
+              "^remote keyless entry$",
               "^smart key system on front doors and trunk with push button start$"
             ]
           }
@@ -5891,12 +5856,6 @@
             "price": 1135,
             "aliases": [
               "le premium pkg"
-            ],
-            "features": [
-              "^16 in alloy wheels and p205 55r16 tires$",
-              "^qi compatible wireless charging$",
-              "^remote keyless entry$",
-              "^same as le smart key system$"
             ]
           }
         }
@@ -5916,67 +5875,67 @@
             "price": 475,
             "aliases": []
           },
-          "blueprint with inked roof": {
-            "label": "Blueprint with Inked roof",
+          "blueprint w inked roof": {
+            "label": "Blueprint w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "blueprint w inked roof",
+              "blueprint with inked roof",
               "blueprint two tone inked roof"
             ]
           },
-          "wind chill pearl with inked roof": {
-            "label": "Wind Chill Pearl with Inked roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "wind chill pearl w inked roof",
-              "wind chill pearl two tone inked roof"
-            ]
-          },
-          "ice cap with inked roof": {
-            "label": "Ice Cap with Inked roof",
+          "celestite w inked roof": {
+            "label": "Celestite w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "ice cap w inked roof",
-              "ice cap two tone inked roof"
-            ]
-          },
-          "ruby flare pearl with inked roof": {
-            "label": "Ruby Flare Pearl with Inked roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "ruby flare pearl w inked roof",
-              "ruby flare pearl two tone inked roof"
-            ]
-          },
-          "classic silver metallic with inked roof": {
-            "label": "Classic Silver Metallic with Inked roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "classic silver metallic w inked roof",
-              "classic silver metallic two tone inked roof"
-            ]
-          },
-          "celestite with inked roof": {
-            "label": "Celestite with Inked roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "celestite w inked roof",
+              "celestite with inked roof",
               "celestite two tone inked roof"
             ]
           },
-          "underground with inked roof": {
-            "label": "Underground with Inked roof",
+          "ice cap w inked roof": {
+            "label": "Ice Cap w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "underground w inked roof",
+              "ice cap with inked roof",
+              "ice cap two tone inked roof"
+            ]
+          },
+          "classic silver metallic w inked roof": {
+            "label": "Classic Silver Metallic w/ Inked roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "classic silver metallic with inked roof",
+              "classic silver metallic two tone inked roof"
+            ]
+          },
+          "underground w inked roof": {
+            "label": "Underground w/ Inked roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "underground with inked roof",
               "underground two tone inked roof"
+            ]
+          },
+          "wind chill pearl w inked roof": {
+            "label": "Wind Chill Pearl w/ Inked roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl with inked roof",
+              "wind chill pearl two tone inked roof"
+            ]
+          },
+          "ruby flare pearl w inked roof": {
+            "label": "Ruby Flare Pearl w/ Inked roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "ruby flare pearl with inked roof",
+              "ruby flare pearl two tone inked roof"
             ]
           },
           "se premium package": {
@@ -6023,11 +5982,6 @@
             "price": 965,
             "aliases": [
               "se premium pkg"
-            ],
-            "features": [
-              "^10 5 in toyota audio multimedia system$",
-              "^12 3 in digital gauge cluster$",
-              "^qi compatible wireless charging$"
             ]
           }
         }
@@ -6047,78 +6001,76 @@
             "price": 475,
             "aliases": []
           },
-          "blueprint with inked roof": {
-            "label": "Blueprint with Inked roof",
+          "blueprint w inked roof": {
+            "label": "Blueprint w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "blueprint w inked roof",
+              "blueprint with inked roof",
               "blueprint two tone inked roof"
             ]
           },
-          "wind chill pearl with inked roof": {
-            "label": "Wind Chill Pearl with Inked roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "wind chill pearl w inked roof",
-              "wind chill pearl two tone inked roof"
-            ]
-          },
-          "ice cap with inked roof": {
-            "label": "Ice Cap with Inked roof",
+          "celestite w inked roof": {
+            "label": "Celestite w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "ice cap w inked roof",
-              "ice cap two tone inked roof"
-            ]
-          },
-          "ruby flare pearl with inked roof": {
-            "label": "Ruby Flare Pearl with Inked roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "ruby flare pearl w inked roof",
-              "ruby flare pearl two tone inked roof"
-            ]
-          },
-          "classic silver metallic with inked roof": {
-            "label": "Classic Silver Metallic with Inked roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "classic silver metallic w inked roof",
-              "classic silver metallic two tone inked roof"
-            ]
-          },
-          "celestite with inked roof": {
-            "label": "Celestite with Inked roof",
-            "kind": "paint",
-            "price": 500,
-            "aliases": [
-              "celestite w inked roof",
+              "celestite with inked roof",
               "celestite two tone inked roof"
             ]
           },
-          "underground with inked roof": {
-            "label": "Underground with Inked roof",
+          "ice cap w inked roof": {
+            "label": "Ice Cap w/ Inked roof",
             "kind": "paint",
             "price": 500,
             "aliases": [
-              "underground w inked roof",
+              "ice cap with inked roof",
+              "ice cap two tone inked roof"
+            ]
+          },
+          "classic silver metallic w inked roof": {
+            "label": "Classic Silver Metallic w/ Inked roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "classic silver metallic with inked roof",
+              "classic silver metallic two tone inked roof"
+            ]
+          },
+          "underground w inked roof": {
+            "label": "Underground w/ Inked roof",
+            "kind": "paint",
+            "price": 500,
+            "aliases": [
+              "underground with inked roof",
               "underground two tone inked roof"
+            ]
+          },
+          "wind chill pearl w inked roof": {
+            "label": "Wind Chill Pearl w/ Inked roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl with inked roof",
+              "wind chill pearl two tone inked roof"
+            ]
+          },
+          "ruby flare pearl w inked roof": {
+            "label": "Ruby Flare Pearl w/ Inked roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "ruby flare pearl with inked roof",
+              "ruby flare pearl two tone inked roof"
             ]
           },
           "jbl premium audio": {
             "label": "JBL Premium Audio",
-            "kind": "package",
+            "kind": "option",
             "price": 600,
-            "aliases": [
-              "jbl premium audio package"
-            ],
+            "aliases": [],
             "features": [
-              "^nine speaker jbl premium audio including amplifier$"
+              "^nine speaker jbl premium audio including amplifier and subwoofer$"
             ]
           }
         }
@@ -6140,26 +6092,18 @@
           },
           "jbl premium audio": {
             "label": "JBL Premium Audio",
-            "kind": "package",
+            "kind": "option",
             "price": 600,
-            "aliases": [
-              "jbl premium audio package"
-            ],
+            "aliases": [],
             "features": [
-              "^nine speaker jbl premium audio including amplifier$"
+              "^nine speaker jbl premium audio including amplifier and subwoofer$"
             ]
           }
         }
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "body protection package",
-        "carpet mat package",
-        "preferred accessory package w all weather liners",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -6196,7 +6140,7 @@
     }
   },
   "toyota|crown|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Crown)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Crown)",
     "models": [
       "crown",
       "toyota crown"
@@ -6272,10 +6216,6 @@
           }
         }
       },
-      "nightshade": {
-        "label": "Nightshade",
-        "options": {}
-      },
       "limited": {
         "label": "Limited",
         "options": {
@@ -6304,6 +6244,10 @@
             "aliases": []
           }
         }
+      },
+      "nightshade": {
+        "label": "Nightshade",
+        "options": {}
       },
       "platinum": {
         "label": "Platinum",
@@ -6360,13 +6304,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "illumination package",
-        "preferred accessory package w all weather floor liners",
-        "preferred accessory package w carpet mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -6403,7 +6341,7 @@
     }
   },
   "toyota|gr86|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 GR86)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 GR86)",
     "models": [
       "gr86",
       "gr 86",
@@ -6492,11 +6430,13 @@
       "gr86 premium": {
         "label": "GR86 Premium",
         "options": {
-          "6 speed electronically controlled automatic transmission ect with paddle shifter": {
-            "label": "6-Speed Electronically Controlled automatic Transmission (ECT) with paddle shifters",
+          "6 speed ect with paddle shifters": {
+            "label": "6-Speed ECT with paddle shifters",
             "kind": "powertrain",
             "price": 800,
-            "aliases": []
+            "aliases": [
+              "6 speed ect with paddle shifters transmission"
+            ]
           },
           "halo": {
             "label": "Halo",
@@ -6539,16 +6479,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "17 bronze wheel package",
-        "all weather mat package",
-        "black lug nuts and wheel locks package",
-        "carpet mat package",
-        "gr appearance package 1",
-        "gr wheel package",
-        "preferred accessory package 1",
-        "preferred accessory package 2"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -6585,7 +6516,7 @@
     }
   },
   "toyota|land cruiser|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Land Cruiser)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Land Cruiser)",
     "models": [
       "land cruiser"
     ],
@@ -6660,17 +6591,21 @@
       "land cruiser": {
         "label": "Land Cruiser",
         "options": {
-          "trail dust grayscape": {
-            "label": "Trail Dust/Grayscape",
+          "trail dust grayscape two tone": {
+            "label": "Trail Dust/Grayscape (two-tone)",
             "kind": "paint",
             "price": 350,
-            "aliases": []
+            "aliases": [
+              "trail dust grayscape"
+            ]
           },
-          "heritage blue grayscape": {
-            "label": "Heritage Blue/Grayscape",
+          "heritage blue grayscape two tone": {
+            "label": "Heritage Blue/Grayscape (two-tone)",
             "kind": "paint",
             "price": 350,
-            "aliases": []
+            "aliases": [
+              "heritage blue grayscape"
+            ]
           },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
@@ -6732,10 +6667,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "rookie tailgate package",
-        "skid plate package"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -6772,7 +6704,7 @@
     }
   },
   "toyota|prius plug in hybrid|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Prius Plug-in Hybrid)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Prius Plug-in Hybrid)",
     "models": [
       "prius plug in hybrid",
       "prius prime",
@@ -6835,8 +6767,8 @@
             "price": 475,
             "aliases": []
           },
-          "front and rear parking assist with automatic braking": {
-            "label": "Front and Rear Parking Assist with Automatic Braking",
+          "front and rear parking assist with automatic braking pa w ab": {
+            "label": "Front and Rear Parking Assist with Automatic Braking (PA w/AB)",
             "kind": "option",
             "price": 35,
             "aliases": []
@@ -6968,13 +6900,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred accessory package w all weather floor liners",
-        "preferred accessory package w carpet floor mats",
-        "protection package 3"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -7011,7 +6937,7 @@
     }
   },
   "toyota|prius|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 Prius)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 Prius)",
     "models": [
       "prius"
     ],
@@ -7072,8 +6998,8 @@
             "price": 475,
             "aliases": []
           },
-          "front and rear parking assist with automatic braking": {
-            "label": "Front and Rear Parking Assist with Automatic Braking",
+          "front and rear parking assist with automatic braking pa w ab": {
+            "label": "Front and Rear Parking Assist with Automatic Braking (PA w/AB)",
             "kind": "option",
             "price": 35,
             "aliases": []
@@ -7095,8 +7021,8 @@
             "price": 475,
             "aliases": []
           },
-          "front and rear parking assist with automatic braking": {
-            "label": "Front and Rear Parking Assist with Automatic Braking",
+          "pa w ab": {
+            "label": "PA w/AB",
             "kind": "option",
             "price": 35,
             "aliases": []
@@ -7144,9 +7070,15 @@
           }
         }
       },
-      "nightshade": {
-        "label": "Nightshade",
+      "xle awd": {
+        "label": "XLE AWD",
         "options": {
+          "supersonic red": {
+            "label": "Supersonic Red",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
             "kind": "paint",
@@ -7157,19 +7089,13 @@
             "label": "Digital Key",
             "kind": "option",
             "price": 275,
-            "aliases": [],
-            "features": [
-              "^digital key capability$"
-            ]
+            "aliases": []
           },
           "12 3 in toyota audio multimedia": {
             "label": "12.3-in. Toyota Audio Multimedia",
             "kind": "option",
             "price": 735,
-            "aliases": [],
-            "features": [
-              "^same as xle above$"
-            ]
+            "aliases": []
           },
           "fixed glass roof": {
             "label": "Fixed glass roof",
@@ -7179,15 +7105,9 @@
           }
         }
       },
-      "xle awd": {
-        "label": "XLE AWD",
+      "nightshade": {
+        "label": "Nightshade",
         "options": {
-          "supersonic red": {
-            "label": "Supersonic Red",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
           "wind chill pearl": {
             "label": "Wind Chill Pearl",
             "kind": "paint",
@@ -7327,209 +7247,7 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred accessory package w all weather floor liners",
-        "preferred accessory package w carpet mats",
-        "protection package 3"
-      ],
-      "patterns": [
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:lifetime\\s+oil(?:\\s+change)?(?:\\s+(?:package|pkg|plan|program))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?|tyres?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:vin\\s*etch(?:ing)?(?:\\s+(?:protection|theft deterrent))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:protection\\s+(?:plus\\s+)?(?:package|pkg)(?:\\s+(?:black\\s+)?chrome(?:\\s+body\\s+side)?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:appearance\\s+(?:package|pkg|protection))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:paint\\s+(?:protection|sealant))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:fabric\\s+(?:protection|guard))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:undercoat(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:rust\\s*proof(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:window\\s+tint(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:wheel\\s+locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:gap\\s+(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:mud\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:splash\\s+guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:(?:floor|carpet|cargo)\\s+)+mats?(?:\\s*/\\s*(?:(?:floor|carpet|cargo)\\s+)*mats?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:floor|cargo)\\s+liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:all\\s+weather\\s+(?:floor\\s+)?(?:mats?|liners?)(?:\\s+(?:and|&)\\s+cargo\\s+(?:tray|liner|mat))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:door\\s+(?:edge|sill)\\s+(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:body\\s+side\\s+mold(?:ing|ings))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:roof\\s+(?:rack|cross\\s*bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:low\\s+profile\\s+)?cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:key\\s+glove)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:multimedia\\s+(?:glass\\s+)?screen\\s+protector)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:cargo\\s+(?:net|tote))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:hood\\s+graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:blackout\\s+emblem\\s+overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:tow(?:ing)?\\s+hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
-        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:trailer\\s+hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$"
-      ]
-    }
-  },
-  "toyota|bz bz4x|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 bZ (bZ4X))",
-    "models": [
-      "bz bz4x",
-      "bz",
-      "bz4x"
-    ],
-    "keepBare": [
-      "siri",
-      "google",
-      "alexa built in"
-    ],
-    "trimAliases": {
-      "xle": "bz xle",
-      "limited": "bz limited"
-    },
-    "trimNoise": [
-      "awd",
-      "fwd",
-      "4wd",
-      "2wd",
-      "4x4",
-      "hybrid",
-      "hev",
-      "cvt",
-      "ecvt",
-      "natl",
-      "i force max"
-    ],
-    "trimNoisePhrases": [
-      "front wheel drive",
-      "all wheel drive",
-      "four wheel drive",
-      "two wheel drive",
-      "i force max",
-      "7 passenger",
-      "8 passenger",
-      "seven passenger",
-      "eight passenger",
-      "7 pass",
-      "8 pass",
-      "7 seater",
-      "8 seater"
-    ],
-    "disclaimerPatterns": [
-      "^(?:does not|doesn t|do not|don t) include\\b",
-      "^(?:prices?|msrp) excludes?\\b",
-      "^excludes?\\b",
-      "^not including\\b",
-      "^plus\\b"
-    ],
-    "trims": {
-      "bz xle": {
-        "label": "bZ XLE",
-        "options": {
-          "front wheel drive plus": {
-            "label": "Front-Wheel Drive Plus",
-            "kind": "option",
-            "price": 3000,
-            "aliases": []
-          },
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "supersonic red": {
-            "label": "Supersonic Red",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "heavy metal": {
-            "label": "Heavy Metal",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "panoramic roof": {
-            "label": "Panoramic Roof",
-            "kind": "package",
-            "price": 1000,
-            "aliases": [
-              "panoramic roof package"
-            ],
-            "features": [
-              "^panoramic fixed glass roof with power sunshade$"
-            ]
-          }
-        }
-      },
-      "bz limited": {
-        "label": "bZ Limited",
-        "options": {
-          "wind chill pearl with midnight black metallic roof": {
-            "label": "Wind Chill Pearl with Midnight Black Metallic roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "wind chill pearl w midnight black metallic roof",
-              "wind chill pearl two tone midnight black metallic roof"
-            ]
-          },
-          "wind chill pearl": {
-            "label": "Wind Chill Pearl",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "supersonic red": {
-            "label": "Supersonic Red",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "heavy metal with midnight black metallic roof": {
-            "label": "Heavy Metal with Midnight Black Metallic roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "heavy metal w midnight black metallic roof",
-              "heavy metal two tone midnight black metallic roof"
-            ]
-          },
-          "heavy metal": {
-            "label": "Heavy Metal",
-            "kind": "paint",
-            "price": 475,
-            "aliases": []
-          },
-          "supersonic red with midnight black metallic roof": {
-            "label": "Supersonic Red with Midnight Black Metallic roof",
-            "kind": "paint",
-            "price": 975,
-            "aliases": [
-              "supersonic red w midnight black metallic roof",
-              "supersonic red two tone midnight black metallic roof"
-            ]
-          },
-          "9 speaker jbl premium audio": {
-            "label": "9-Speaker JBL Premium Audio",
-            "kind": "package",
-            "price": 580,
-            "aliases": [
-              "9 speaker jbl premium audio package"
-            ],
-            "features": [
-              "^9 speaker jbl premium audio including subwoofer and amplifier$"
-            ]
-          }
-        }
-      }
-    },
-    "dealerAddons": {
-      "keys": [
-        "all weather floor liner package",
-        "carpet mat package",
-        "preferred accessory pkge w all weather floor liners",
-        "preferred accessory pkge w carpet floor mats"
-      ],
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
@@ -7566,7 +7284,7 @@
     }
   },
   "toyota|bz woodland|2027": {
-    "source": "docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv (2027 bZ Woodland)",
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 bZ Woodland)",
     "models": [
       "bz woodland",
       "bz",
@@ -7643,10 +7361,218 @@
       }
     },
     "dealerAddons": {
-      "keys": [
-        "adventure tow package",
-        "tow hitch package"
-      ],
+      "keys": [],
+      "patterns": [
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:lifetime\\s+oil(?:\\s+change)?(?:\\s+(?:package|pkg|plan|program))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?|tyres?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:vin\\s*etch(?:ing)?(?:\\s+(?:protection|theft deterrent))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:protection\\s+(?:plus\\s+)?(?:package|pkg)(?:\\s+(?:black\\s+)?chrome(?:\\s+body\\s+side)?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:appearance\\s+(?:package|pkg|protection))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:paint\\s+(?:protection|sealant))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:fabric\\s+(?:protection|guard))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:undercoat(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:rust\\s*proof(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:window\\s+tint(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:wheel\\s+locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:gap\\s+(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:mud\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:splash\\s+guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:(?:floor|carpet|cargo)\\s+)+mats?(?:\\s*/\\s*(?:(?:floor|carpet|cargo)\\s+)*mats?)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:floor|cargo)\\s+liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:all\\s+weather\\s+(?:floor\\s+)?(?:mats?|liners?)(?:\\s+(?:and|&)\\s+cargo\\s+(?:tray|liner|mat))?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:door\\s+(?:edge|sill)\\s+(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:body\\s+side\\s+mold(?:ing|ings))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:roof\\s+(?:rack|cross\\s*bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:low\\s+profile\\s+)?cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:key\\s+glove)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:multimedia\\s+(?:glass\\s+)?screen\\s+protector)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:cargo\\s+(?:net|tote))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:hood\\s+graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:blackout\\s+emblem\\s+overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:tow(?:ing)?\\s+hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
+        "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:trailer\\s+hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$"
+      ]
+    }
+  },
+  "toyota|bz|2027": {
+    "source": "docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv (2027 bZ)",
+    "models": [
+      "bz",
+      "bz bz4x",
+      "bz4x"
+    ],
+    "keepBare": [
+      "siri",
+      "google",
+      "alexa built in"
+    ],
+    "trimAliases": {
+      "xle": "bz xle",
+      "limited": "bz limited"
+    },
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "hybrid",
+      "hev",
+      "cvt",
+      "ecvt",
+      "natl",
+      "i force max"
+    ],
+    "trimNoisePhrases": [
+      "front wheel drive",
+      "all wheel drive",
+      "four wheel drive",
+      "two wheel drive",
+      "i force max",
+      "7 passenger",
+      "8 passenger",
+      "seven passenger",
+      "eight passenger",
+      "7 pass",
+      "8 pass",
+      "7 seater",
+      "8 seater"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "bz xle": {
+        "label": "bZ XLE",
+        "options": {
+          "front wheel drive plus": {
+            "label": "Front-Wheel Drive Plus",
+            "kind": "option",
+            "price": 3000,
+            "aliases": []
+          },
+          "all wheel drive": {
+            "label": "All-Wheel Drive",
+            "kind": "option",
+            "price": 5000,
+            "aliases": [
+              "awd"
+            ],
+            "unconfirmed": true,
+            "features": [
+              "^all wheel drive with dual electric motors$"
+            ]
+          },
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "supersonic red": {
+            "label": "Supersonic Red",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "heavy metal": {
+            "label": "Heavy Metal",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "panoramic roof": {
+            "label": "Panoramic Roof",
+            "kind": "option",
+            "price": 1000,
+            "aliases": [],
+            "features": [
+              "^panoramic fixed glass roof with power sunshade$"
+            ]
+          }
+        }
+      },
+      "bz limited": {
+        "label": "bZ Limited",
+        "options": {
+          "all wheel drive": {
+            "label": "All-Wheel Drive",
+            "kind": "option",
+            "price": 2000,
+            "aliases": [
+              "awd"
+            ],
+            "unconfirmed": true,
+            "features": [
+              "^all wheel drive with dual electric motors$"
+            ]
+          },
+          "wind chill pearl": {
+            "label": "Wind Chill Pearl",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "supersonic red": {
+            "label": "Supersonic Red",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "heavy metal": {
+            "label": "Heavy Metal",
+            "kind": "paint",
+            "price": 475,
+            "aliases": []
+          },
+          "wind chill pearl with midnight black metallic roof": {
+            "label": "Wind Chill Pearl with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "wind chill pearl w midnight black metallic roof",
+              "wind chill pearl two tone midnight black metallic roof"
+            ]
+          },
+          "supersonic red with midnight black metallic roof": {
+            "label": "Supersonic Red with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "supersonic red w midnight black metallic roof",
+              "supersonic red two tone midnight black metallic roof"
+            ]
+          },
+          "heavy metal with midnight black metallic roof": {
+            "label": "Heavy Metal with Midnight Black Metallic roof",
+            "kind": "paint",
+            "price": 975,
+            "aliases": [
+              "heavy metal w midnight black metallic roof",
+              "heavy metal two tone midnight black metallic roof"
+            ]
+          },
+          "9 speaker jbl premium audio": {
+            "label": "9-Speaker JBL Premium Audio",
+            "kind": "option",
+            "price": 580,
+            "aliases": [],
+            "features": [
+              "^9 speaker jbl premium audio including subwoofer and amplifier$"
+            ]
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
       "patterns": [
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:perma\\s*plate(?:\\s+(?:paint|fabric|interior|protection|sealant|plan|program))*)(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
         "^(?:(?:toyota|tms|genuine|dealer|port|installed)\\s+)*(?:(?:lifetime\\s+)?oil(?:\\s+change)?\\s+(?:package|pkg|plan|program))(?:\\s+(?:set|kit|package|pkg|pair|installed|tms|toyota))*$",
