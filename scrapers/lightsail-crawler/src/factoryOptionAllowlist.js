@@ -19,6 +19,7 @@
 // Keys and aliases are normalizeOptionKey() output, never raw text.
 
 import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeOptionKey, optionRowsFromOptions } from "./inventoryOptionRows.js";
 
@@ -125,13 +126,15 @@ export function loadAllowlistFromEnv(env = process.env) {
 // A vehicle that matches no policy is untouched (policyOptionRows returns null), so other models and other years cost nothing.
 // Source of truth: docs/rav4-2026/*.csv -> scripts/build-rav4-option-policy.mjs -> src/optionPolicies/*.json.
 
+// (path.join, not new URL(): the website bundles this module for the Ford must-have list, and webpack rewrites new URL(.., import.meta.url) into an asset URL.)
+const optionPolicyPath = (name) => path.join(path.dirname(fileURLToPath(import.meta.url)), "optionPolicies", name);
 export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
-  fileURLToPath(new URL("./optionPolicies/toyota-rav4-2026.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/toyota-2026-2027.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/ford-2026.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/chevrolet-2026-2027.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/gmc-2026-2027.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/buick-2026-2027.json", import.meta.url)),
+  optionPolicyPath("toyota-rav4-2026.json"),
+  optionPolicyPath("toyota-2026-2027.json"),
+  optionPolicyPath("ford-2026.json"),
+  optionPolicyPath("chevrolet-2026-2027.json"),
+  optionPolicyPath("gmc-2026-2027.json"),
+  optionPolicyPath("buick-2026-2027.json"),
 ]);
 
 
