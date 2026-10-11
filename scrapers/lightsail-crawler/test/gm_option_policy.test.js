@@ -32,7 +32,7 @@ describe('what is covered: model + year + trim, per brand', () => {
   });
   it('policy sizes (entries per brand) match the generated report', () => {
     const size = (b) => Object.values(RAW[b]).reduce((n, p) => n + Object.values(p.trims).reduce((m, t) => m + Object.keys(t.options).length, 0), 0);
-    assert.deepEqual(BRANDS.map(size), [1224, 914, 99]);
+    assert.deepEqual(BRANDS.map(size), [1236, 925, 99]);
   });
   it('another model year, another model and another make are untouched (no policy)', () => {
     for (const v of [
@@ -249,4 +249,55 @@ describe('apply scripts (not run here): one per brand, scoped to its own make an
       assert.ok(s.includes(`${b}-option-policy-apply`) && s.includes(`${b}-option-policy-restore`));
     });
   }
+});
+
+describe('paid interior lines (option bot, Paul 2026-10-11: every paid factory line on the window sticker stays)', () => {
+  const interior = (b) => CSV[b].filter((r) => r.category === 'Factory option' && r.subcategory === 'Interior');
+  const policyFor = (b, r) => {
+    const p = Object.values(RAW[b]).find((x) => x.models[0] === slug(r.model) && x.source.includes(r.year));
+    return p?.trims[slug(r.trim)];
+  };
+  for (const b of ['chevrolet', 'gmc']) {
+    it(`${b}: every paid interior row (except Corvette's lean cut) is in its trim's policy at the CSV price, as an option`, () => {
+      const rows = interior(b).filter((r) => Number(r.price_usd) > 0 && r.model !== 'Corvette');
+      assert.ok(rows.length > 20);
+      for (const r of rows) {
+        const t = policyFor(b, r);
+        assert.ok(t, `${r.model} ${r.trim}`);
+        const e = Object.values(t.options).find((o) => o.label === r.item.replace(/®|™/g, '').trim());
+        assert.ok(e, `${r.year} ${r.model} ${r.trim}: ${r.item}`);
+        assert.deepEqual([e.kind, e.price], ['option', Number(r.price_usd)], r.item);
+      }
+    });
+    it(`${b}: no $0 interior row and no Corvette interior row becomes an option`, () => {
+      for (const r of interior(b).filter((x) => !(Number(x.price_usd) > 0) || x.model === 'Corvette')) {
+        const t = policyFor(b, r);
+        if (!t) continue;
+        assert.ok(!Object.values(t.options).some((o) => o.label === r.item && o.kind === 'option' && (r.model === 'Corvette' || o.price === 0)), `${r.model} ${r.trim}: ${r.item}`);
+      }
+    });
+  }
+  it('Colorado WT and Silverado 1500 WT get their new paid interior lines, priced per trim', () => {
+    const colorado = { model: 'Colorado', trim: 'WT' };
+    assert.deepEqual(run('Chevrolet', colorado, ['Jet Black, Evotex seat trim']).rows.map((x) => [x.kind, x.price]), [['option', 1250]]);
+    const silverado = run('Chevrolet', { model: 'Silverado 1500', trim: 'WT', year: 2027 }, ['Wrapped steering wheel']);
+    assert.deepEqual(silverado.rows.map((x) => [x.kind, x.price]), [['option', 75]]);
+  });
+  it('GMC Sierra 1500 PRO gets wrapped steering wheel $75 and carpeted floor covering $100', () => {
+    const r = run('GMC', { model: 'Sierra 1500', trim: 'PRO', year: 2027 }, ['Wrapped steering wheel', 'Carpeted floor covering']);
+    assert.deepEqual(r.rows.map((x) => [x.label, x.price]).sort(), [['Carpeted floor covering', 100], ['Wrapped steering wheel', 75]]);
+  });
+  it('Corvette keeps its lean cut: an interior line is still dropped', () => {
+    const r = run('Chevrolet', { model: 'Corvette', trim: '1LT', year: 2026 }, ['Wrapped steering wheel']);
+    assert.deepEqual(r?.rows ?? [], []);
+  });
+  it('Cadillac: the paid interior lines (65 CSV rows) are already in its policy and the CSV is unchanged', () => {
+    const rows = parseCsv(fs.readFileSync(path.join(repo, 'docs/cadillac-honda-kia-2026-2027/cadillac_lineup_options_by_trim.csv'), 'utf8'));
+    assert.equal(rows.length, 677);
+    const paid = rows.filter((r) => r.category === 'Factory option' && r.subcategory === 'Interior' && Number(r.price_usd) > 0);
+    assert.ok(paid.length > 0);
+    const raw = JSON.parse(fs.readFileSync(path.join(repo, 'scrapers/lightsail-crawler/src/optionPolicies/cadillac-2026-2027.json'), 'utf8'));
+    const labels = new Set(Object.values(raw).flatMap((p) => Object.values(p.trims).flatMap((t) => Object.values(t.options).map((o) => o.label))));
+    for (const r of paid) assert.ok(labels.has(r.item.replace(/®|™/g, '').trim()), r.item);
+  });
 });

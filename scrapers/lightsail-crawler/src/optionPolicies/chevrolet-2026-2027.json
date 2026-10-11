@@ -492,6 +492,12 @@
               "^integrated trailer brake controller$"
             ]
           },
+          "jet black evotex seat trim": {
+            "label": "Jet Black, Evotex seat trim",
+            "kind": "option",
+            "price": 1250,
+            "aliases": []
+          },
           "engine block heater": {
             "label": "Engine block heater",
             "kind": "option",
@@ -565,6 +571,12 @@
               "^in vehicle trailering app$",
               "^integrated trailer brake controller$"
             ]
+          },
+          "jet black evotex seat trim": {
+            "label": "Jet Black, Evotex seat trim",
+            "kind": "option",
+            "price": 1250,
+            "aliases": []
           },
           "engine block heater": {
             "label": "Engine block heater",
@@ -1180,6 +1192,12 @@
             "price": 15,
             "aliases": []
           },
+          "cloth front bucket seats": {
+            "label": "Cloth front bucket seats",
+            "kind": "option",
+            "price": 70,
+            "aliases": []
+          },
           "6 way power driver seat": {
             "label": "6-way power driver seat",
             "kind": "option",
@@ -1518,6 +1536,12 @@
               "enhanced convenience pkg"
             ]
           },
+          "cloth front bucket seats": {
+            "label": "Cloth front bucket seats",
+            "kind": "option",
+            "price": 255,
+            "aliases": []
+          },
           "6 way power driver seat": {
             "label": "6-way power driver seat",
             "kind": "option",
@@ -1582,6 +1606,12 @@
             "label": "Remote Start",
             "kind": "option",
             "price": 300,
+            "aliases": []
+          },
+          "carpeted floor covering": {
+            "label": "Carpeted floor covering",
+            "kind": "option",
+            "price": 420,
             "aliases": []
           },
           "rear camera mirror": {
@@ -2040,6 +2070,12 @@
             "price": 150,
             "aliases": []
           },
+          "carpeted floor covering": {
+            "label": "Carpeted floor covering",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          },
           "rear window defogger": {
             "label": "Rear window defogger",
             "kind": "option",
@@ -2161,6 +2197,12 @@
             "label": "Upfitter switches",
             "kind": "option",
             "price": 150,
+            "aliases": []
+          },
+          "cloth rear seat with storage package": {
+            "label": "Cloth rear seat with storage package",
+            "kind": "option",
+            "price": 225,
             "aliases": []
           },
           "multi flex audio system by kicker": {
@@ -3041,6 +3083,12 @@
             "label": "High idle switch",
             "kind": "option",
             "price": 200,
+            "aliases": []
+          },
+          "carpeted floor covering": {
+            "label": "Carpeted floor covering",
+            "kind": "option",
+            "price": 100,
             "aliases": []
           },
           "upfitter switches": {
@@ -8722,6 +8770,12 @@
             "price": 395,
             "aliases": []
           },
+          "wrapped steering wheel": {
+            "label": "Wrapped steering wheel",
+            "kind": "option",
+            "price": 75,
+            "aliases": []
+          },
           "heated steering wheel": {
             "label": "Heated steering wheel",
             "kind": "option",
@@ -8803,6 +8857,12 @@
             "label": "20\" 275/60R20SL all-terrain, blackwall",
             "kind": "option",
             "price": 400,
+            "aliases": []
+          },
+          "wrapped steering wheel": {
+            "label": "Wrapped steering wheel",
+            "kind": "option",
+            "price": 75,
             "aliases": []
           },
           "heated steering wheel": {
@@ -9272,6 +9332,12 @@
             "label": "20\" High Gloss Black painted aluminum wheels",
             "kind": "option",
             "price": 1100,
+            "aliases": []
+          },
+          "wrapped steering wheel": {
+            "label": "Wrapped steering wheel",
+            "kind": "option",
+            "price": 75,
             "aliases": []
           },
           "heated steering wheel": {
@@ -11780,6 +11846,12 @@
             "label": "22\" High Gloss Black aluminum",
             "kind": "option",
             "price": 2750,
+            "aliases": []
+          },
+          "lt jet black evotex seat trim": {
+            "label": "LT Jet Black, Evotex seat trim",
+            "kind": "option",
+            "price": 1000,
             "aliases": []
           },
           "panoramic power sunroof": {

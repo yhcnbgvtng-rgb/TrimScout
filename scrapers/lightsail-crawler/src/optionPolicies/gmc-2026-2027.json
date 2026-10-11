@@ -2958,6 +2958,12 @@
             "price": 975,
             "aliases": []
           },
+          "cloth rear seat with storage package": {
+            "label": "Cloth rear seat with storage package",
+            "kind": "option",
+            "price": 225,
+            "aliases": []
+          },
           "rear window defogger": {
             "label": "Rear window defogger",
             "kind": "option",
@@ -4297,8 +4303,7 @@
             ],
             "features": [
               "^2 way power lumbar front passenger seat controls$",
-              "^6 way power front passenger seat adjuster$",
-              "^7 passenger seating$"
+              "^6 way power front passenger seat adjuster$"
             ]
           },
           "black edition": {
@@ -4335,6 +4340,12 @@
             "label": "22\" High Gloss Black aluminum wheels",
             "kind": "option",
             "price": 2750,
+            "aliases": []
+          },
+          "7 passenger seating": {
+            "label": "7-passenger seating",
+            "kind": "option",
+            "price": 495,
             "aliases": []
           },
           "suspension performance": {
@@ -4825,6 +4836,12 @@
             "price": 275,
             "aliases": []
           },
+          "cloth front bucket seats": {
+            "label": "Cloth front bucket seats",
+            "kind": "option",
+            "price": 70,
+            "aliases": []
+          },
           "passenger side sliding door": {
             "label": "Passenger-side sliding door",
             "kind": "option",
@@ -5201,6 +5218,12 @@
             "price": 275,
             "aliases": []
           },
+          "cloth front bucket seats": {
+            "label": "Cloth front bucket seats",
+            "kind": "option",
+            "price": 255,
+            "aliases": []
+          },
           "passenger side sliding door": {
             "label": "Passenger-side sliding door",
             "kind": "option",
@@ -5211,6 +5234,12 @@
             "label": "Rear Camera Mirror",
             "kind": "option",
             "price": 1295,
+            "aliases": []
+          },
+          "carpeted floor covering": {
+            "label": "Carpeted floor covering",
+            "kind": "option",
+            "price": 420,
             "aliases": []
           },
           "remote start": {
@@ -5684,6 +5713,12 @@
             "price": 395,
             "aliases": []
           },
+          "wrapped steering wheel": {
+            "label": "Wrapped steering wheel",
+            "kind": "option",
+            "price": 75,
+            "aliases": []
+          },
           "heated steering wheel": {
             "label": "Heated steering wheel",
             "kind": "option",
@@ -5730,6 +5765,12 @@
             "label": "Universal Vehicle Module",
             "kind": "option",
             "price": 295,
+            "aliases": []
+          },
+          "carpeted floor covering": {
+            "label": "Carpeted floor covering",
+            "kind": "option",
+            "price": 100,
             "aliases": []
           }
         }
@@ -6942,6 +6983,12 @@
             "kind": "option",
             "price": 100,
             "aliases": []
+          },
+          "power release second row bucket seats": {
+            "label": "Power-release second row bucket seats",
+            "kind": "option",
+            "price": 370,
+            "aliases": []
           }
         }
       },
@@ -7218,6 +7265,12 @@
             "label": "Engine block heater",
             "kind": "option",
             "price": 100,
+            "aliases": []
+          },
+          "power release second row bucket seats": {
+            "label": "Power-release second row bucket seats",
+            "kind": "option",
+            "price": 370,
             "aliases": []
           }
         }
@@ -7662,6 +7715,12 @@
             "kind": "option",
             "price": 100,
             "aliases": []
+          },
+          "power release second row bucket seats": {
+            "label": "Power-release second row bucket seats",
+            "kind": "option",
+            "price": 370,
+            "aliases": []
           }
         }
       },
@@ -7939,6 +7998,12 @@
             "label": "Engine block heater",
             "kind": "option",
             "price": 100,
+            "aliases": []
+          },
+          "power release second row bucket seats": {
+            "label": "Power-release second row bucket seats",
+            "kind": "option",
+            "price": 370,
             "aliases": []
           }
         }
