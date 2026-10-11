@@ -187,8 +187,9 @@ export function rfqTrackerStatusLabel(rfq: LifecycleRfq): string {
   }
 }
 
-export function rfqQuoteTypeLabel(rfq: Pick<RfqRequest, "leasePrefs" | "quotePrefs">): "Lease" | "Finance" | "Cash" | "Quote" {
+export function rfqQuoteTypeLabel(rfq: Pick<RfqRequest, "leasePrefs" | "quotePrefs">): "Lease" | "Finance" | "Cash" | "Cash / Finance" | "Quote" {
   if (rfq.leasePrefs) return "Lease";
+  if (rfq.quotePrefs?.quoteType === "cash" && rfq.quotePrefs.staged === true) return "Cash / Finance";
   if (rfq.quotePrefs?.quoteType === "finance") return "Finance";
   if (rfq.quotePrefs?.quoteType === "cash") return "Cash";
   return "Quote";

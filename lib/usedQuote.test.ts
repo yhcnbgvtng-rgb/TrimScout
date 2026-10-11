@@ -94,18 +94,18 @@ import path from "node:path";
 
 describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare column sets; lease locks", () => {
   const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
-  it("Step 2: used shows Finance | Cash only (no lease tile, no 'coming soon'); locks gate Continue; quotePrefs ride the payload for new and used", () => {
+  it("Step 2: used shows Cash / Finance only (no lease tile, no 'coming soon'); locks gate Continue; quotePrefs ride the payload for new and used", () => {
     const w = read("components/BiddingWizard.tsx");
-    assert.match(w, /\(isUsed \? \(\["finance", "cash"\] as const\) : \(\["lease", "finance", "cash"\] as const\)\)\.map/);
+    assert.match(w, /\(isUsed \? \(\["cash_finance"\] as const\) : \(\["lease", "cash_finance"\] as const\)\)\.map/);
     assert.doesNotMatch(w, /coming soon|USED_LEASE|CPO lease/i, "no lease teaser on Used Step 2");
-    assert.match(w, /isUsed \? "grid-cols-2" : "grid-cols-3"/);
-    assert.match(w, /\{isUsed \? "Choose finance or cash to continue\." : "Choose lease, finance or cash to continue\."\}/);
-    assert.match(w, /hint="Pick one\. Dealers quote through the matching calculator\."/);
+    assert.match(w, /isUsed \? "grid-cols-1" : "grid-cols-2"/);
+    assert.match(w, /\{isUsed \? "Choose Cash \/ Finance to continue\." : "Choose Lease or Cash \/ Finance to continue\."\}/);
+    assert.match(w, /title="Lease or buy\?"/);
     assert.match(w, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
     assert.match(w, /missingFinanceLocks\(\{ termMonths: financeTerm, downPayment, creditBand, zip: huntZip \}\)/);
     assert.match(w, /\(leaseDasIntent \? \[\] : \["due-at-signing intent"\]\), \.\.\.\(creditBand \? \[\] : \["credit band"\]\)/, "lease locks band + DAS intent");
     assert.match(w, /quoteType === "finance" && creditBand\s*\? \(\{ quoteType: "finance", finance: \{ termMonths: financeTerm \|\| 60, downPayment/);
-    assert.match(w, /quoteType === "cash"\s*\? \(\{ quoteType: "cash", cash: \{ zip/);
+    assert.match(w, /quoteType === "cash"\s*\? \(\{ quoteType: "cash", staged: true, cash: \{ zip/);
     assert.doesNotMatch(w, /Prefer not to say/, "credit band is required — no opt-out");
     assert.match(w, /data-testid="finance-credit-band"/);
     assert.match(w, /data-testid="lease-credit-band"/);

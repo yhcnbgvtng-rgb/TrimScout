@@ -82,6 +82,8 @@ export const AUDIT_ROUTES = [
   { method: "GET", re: /^\/api\/deal-requests\/(\d+)\/market$/, label: "GET /api/deal-requests/:id/market", ownership: "deal_requests" },
   // buyer counter + deal: only on audit RFQs / audit requests whose dealers are all is_test
   { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/buyer-counter$/, label: "POST /api/rfqs/:id/invites/:inviteId/buyer-counter", guard: "buyer_counter" },
+  // staged Cash / Finance deal actions: the handler pins this key to actor "buyer"
+  { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/, label: "POST /api/rfqs/:id/invites/:inviteId/stage", guard: "buyer_counter" },
   { method: "POST", re: /^\/api\/deals$/, label: "POST /api/deals", bodyGuard: "deal_create" },
   // invite its own audit RFQ to the is_test dealers (and only them: the handler's inviteCreationVerdict 403s any other dealer)
   { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites$/, label: "POST /api/rfqs/:id/invites", guard: "buyer_rfq", bodyGuard: "invite_create" },
@@ -99,6 +101,8 @@ export const AUDIT_DEALER_ROUTES = [
   { method: "GET", re: /^\/api\/rfqs\/(\d+)$/, label: "GET /api/rfqs/:id", guard: "dealer_rfq" },
   { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/quotes$/, label: "POST /api/rfqs/:id/invites/:inviteId/quotes", guard: "dealer_invite" },
   { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/decline$/, label: "POST /api/rfqs/:id/invites/:inviteId/decline", guard: "dealer_invite" },
+  // staged Cash / Finance deal actions: the handler pins this key to actor "dealer"
+  { method: "POST", re: /^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/, label: "POST /api/rfqs/:id/invites/:inviteId/stage", guard: "dealer_invite" },
   { method: "GET", re: /^\/api\/deal-requests\/(\d+)$/, label: "GET /api/deal-requests/:id", guard: "audit_request" },
   { method: "POST", re: /^\/api\/deal-requests\/(\d+)\/bids$/, label: "POST /api/deal-requests/:id/bids", guard: "audit_request", bodyGuard: "bid_submit" },
 ];

@@ -293,6 +293,17 @@ export async function sendCounterAcceptedNotice(input: Parameters<typeof buildCo
   }
 }
 
+/** Sends a Cash / Finance stage notice (lib/dealStageNotice.ts) through the SAFE MODE sender. Never throws: the stage change is already saved. */
+export async function sendDealStageNotice(notice: { subject: string; html: string } | null): Promise<boolean> {
+  if (!notice) return false;
+  try {
+    return await sendViaResend(notice.subject, notice.html);
+  } catch (err) {
+    console.error("dealerEmail: stage notice send failed —", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
 /** Sends the buyer-unsubscribed notice through the SAFE MODE sender. Never throws. */
 export async function sendDealerUnsubscribedNotice(dealerName: string, rfqUrl?: string | null): Promise<boolean> {
   try {

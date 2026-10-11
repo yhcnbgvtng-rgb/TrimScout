@@ -5,7 +5,8 @@
 // counter with only the tax amounts taken from the dealer. The buyer is told
 // by email through the SAFE MODE sender. Token-scoped; no login.
 import { NextResponse } from "next/server";
-import { getRfq, getRfqInviteByViewToken, RfqApiError, submitRfqQuote } from "@/lib/rfqApi";
+import { getRfq, getRfqInviteByViewToken, postDealStage, RfqApiError, submitRfqQuote } from "@/lib/rfqApi";
+import { isStagedRfq } from "@/lib/dealStages";
 import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, verifyAcceptedQuote } from "@/lib/acceptCounter";
 import { isTaxLine } from "@/lib/counterSheet";
 import { validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
@@ -70,6 +71,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err instanceof RfqApiError ? err.message : "Could not record the accepted counter." }, { status });
   }
 
+  // Staged Cash / Finance deal: the dealer accepting the buyer's counter is what locks the out-the-door price (stage 1).
+  let stageLocked = false;
+  if (isStagedRfq(rfq)) {
+    try {
+      await postDealStage(found.rfqId, invite.id, { action: { type: "accept_otd" }, actor: "dealer" });
+      stageLocked = true;
+    } catch (err) {
+      // The revised quote is saved; the buyer can still accept it from their compare to lock the stage.
+      console.error("accept-counter: could not lock the OTD stage —", err instanceof Error ? err.message : err);
+    }
+  }
   const outTheDoor = acceptedOutTheDoor(used);
   // Best effort — the accepted quote is already on the buyer's compare.
   await sendCounterAcceptedNotice({
@@ -78,5 +90,5 @@ export async function POST(req: Request) {
     outTheDoor,
     rfqUrl: `${DEALER_EMAIL_BASE_URL}/rfq/${encodeURIComponent(found.rfqId)}`,
   });
-  return NextResponse.json({ ok: true, outTheDoor, warnings: v.warnings });
+  return NextResponse.json({ ok: true, outTheDoor, warnings: v.warnings, stageLocked });
 }

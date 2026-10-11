@@ -59,9 +59,12 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /STEP_LABELS = \["Vehicle", "Payment", "Quote format", "Review & Send"\]/);
   });
 
-  it("(2) Step 2 offers Lease | Finance | Cash as equal options, none assumed — and nothing else; Step 3 holds the type-specific locks", () => {
+  it("(2) Step 2 offers Lease | Cash / Finance as equal options, none assumed — and nothing else; Step 3 holds the type-specific locks", () => {
     assert.match(src, /useState<DealStructureMethod \| null>\(null\)/);
-    assert.match(paymentStep, /\["lease", "finance", "cash"\] as const/);
+    assert.match(paymentStep, /\["lease", "cash_finance"\] as const/);
+    assert.match(paymentStep, /Lease or buy\?/);
+    assert.match(paymentStep, /data-testid="buy-path-stages"/, "the buy path spells out its four stages");
+    assert.match(paymentStep, /setQuoteType\(id === "lease" \? "lease" : "cash"\)/, "Cash \/ Finance starts as the OTD-only cash sheet; finance terms come after the trade-in");
     assert.doesNotMatch(paymentStep, /LEASE_TERMS\.map|Down payment|Credit band|Your ZIP|missing-locks/, "payment step is the tiles only");
     assert.match(step2, /<QuoteFormatMatrix\s+quoteType=\{quoteType\}\s+cars=\{intent === "alternate" \? \[\] : \[selectedVehicle, altVehicle1, altVehicle2\]/);
     // Dealer panel: a green "Sales contact on file" when the desk is known, an adviser-email field when it isn't; the note goes with the request.

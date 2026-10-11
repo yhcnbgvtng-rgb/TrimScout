@@ -9,7 +9,7 @@
  */
 import { env } from "node:process";
 
-export type FeatureFlag = "rfqSend" | "outboundDealerEmail" | "paidVinDecode" | "liveInventory" | "stickerFetch";
+export type FeatureFlag = "rfqSend" | "outboundDealerEmail" | "paidVinDecode" | "liveInventory" | "stickerFetch" | "dealStages";
 
 const ENV_NAME: Record<FeatureFlag, string> = {
   rfqSend: "FEATURE_RFQ_SEND",
@@ -17,6 +17,7 @@ const ENV_NAME: Record<FeatureFlag, string> = {
   paidVinDecode: "FEATURE_PAID_VIN_DECODE",
   liveInventory: "FEATURE_LIVE_INVENTORY",
   stickerFetch: "FEATURE_STICKER_FETCH",
+  dealStages: "FEATURE_DEAL_STAGES",
 };
 const DEFAULTS: Record<FeatureFlag, boolean> = {
   rfqSend: true,
@@ -24,6 +25,9 @@ const DEFAULTS: Record<FeatureFlag, boolean> = {
   paidVinDecode: false,
   liveInventory: false,
   stickerFetch: true,
+  // Staged Cash / Finance deals need the deals-box patch (scripts/box/2026-10-11-rfq-deal-stages.sh). Off until it is live:
+  // while off, "Cash / Finance" requests go out as the original single cash sheet and nothing depends on the new endpoint.
+  dealStages: false,
 };
 
 function parseFlag(raw: string | undefined, fallback: boolean): boolean {
@@ -42,6 +46,7 @@ export function featureFlags(source?: Record<string, string | undefined>): Recor
     paidVinDecode: featureEnabled("paidVinDecode", source),
     liveInventory: featureEnabled("liveInventory", source),
     stickerFetch: featureEnabled("stickerFetch", source),
+    dealStages: featureEnabled("dealStages", source),
   };
 }
 
@@ -56,7 +61,7 @@ export const DEGRADE_COPY = {
 } as const;
 
 /** The public status the app polls for its degrade banner: flags only, never counters. */
-export function publicFeatureStatus(source?: Record<string, string | undefined>): { rfqSend: boolean; outboundDealerEmail: boolean; banner: string | null } {
+export function publicFeatureStatus(source?: Record<string, string | undefined>): { rfqSend: boolean; outboundDealerEmail: boolean; dealStages: boolean; banner: string | null } {
   const f = featureFlags(source);
-  return { rfqSend: f.rfqSend, outboundDealerEmail: f.outboundDealerEmail, banner: !f.rfqSend ? DEGRADE_COPY.rfqSendOff : !f.outboundDealerEmail ? DEGRADE_COPY.emailOff : null };
+  return { rfqSend: f.rfqSend, outboundDealerEmail: f.outboundDealerEmail, dealStages: f.dealStages, banner: !f.rfqSend ? DEGRADE_COPY.rfqSendOff : !f.outboundDealerEmail ? DEGRADE_COPY.emailOff : null };
 }

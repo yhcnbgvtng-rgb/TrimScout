@@ -1,6 +1,7 @@
 import { NextResponse, after } from "next/server";
 import { parseLeasePrefs } from "@/lib/leaseQuote";
 import { parseQuotePrefs } from "@/lib/usedQuote";
+import { gateStagedPrefs } from "@/lib/dealStages";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError, submitRfqTradeIn, walkAwayFromRfq } from "@/lib/rfqApi";
 import { s3Storage } from "@/lib/trade/storage";
@@ -171,7 +172,7 @@ export async function POST(req: Request) {
       leasePrefs: parseLeasePrefs(body.leasePrefs),
       // Used cars: Finance / Cash only. A lease ask on a used car is refused
       // rather than silently dropped.
-      quotePrefs: parseQuotePrefs(body.quotePrefs),
+      quotePrefs: gateStagedPrefs(parseQuotePrefs(body.quotePrefs), featureEnabled("dealStages")),
       buyerNote: buyerNote || null,
       tradeInExpected: tradeReady ? true : typeof body.tradeInExpected === "boolean" ? body.tradeInExpected : null,
       lane,

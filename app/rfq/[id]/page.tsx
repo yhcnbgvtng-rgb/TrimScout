@@ -8,6 +8,8 @@ import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
+import { StagedDeals } from "../../../components/StagedDeals";
+import { isStagedRfq } from "../../../lib/dealStages";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { rfqVehicles } from "@/lib/rfqTracker";
@@ -575,9 +577,12 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 {rfq.quotePrefs.quoteType === "finance"
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
-                  : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
+                  : isStagedRfq(rfq)
+                    ? "Out-the-door = selling price + itemized fees and taxes. Counter here; accept, trade-in and payment are in the steps above."
+                    : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -670,9 +675,12 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 {rfq.quotePrefs.quoteType === "finance"
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
-                  : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
+                  : isStagedRfq(rfq)
+                    ? "Out-the-door = selling price + itemized fees and taxes. Counter here; accept, trade-in and payment are in the steps above."
+                    : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 

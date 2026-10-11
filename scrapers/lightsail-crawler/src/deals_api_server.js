@@ -35,6 +35,7 @@ import mysql from "mysql2/promise";
 import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
+import { createRfqStageHandler } from "./rfqStages.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
@@ -1208,6 +1209,8 @@ function publicRfqInvite(row, quoteRow) {
     // The buyer's scoped counter to this desk's last quote, if any.
     buyerCounter: parseJsonCol(row.buyer_counter_json) || null,
     buyerCounterAt: row.buyer_counter_at || null,
+    // Staged Cash / Finance deal state for this desk (OTD -> trade-in -> payment); null until the first action.
+    stage: parseJsonCol(row.stage_json) || null,
     // Set when the dealership opted out while this invite was still open (see auth server's
     // opt-out cascade). The buyer app stops waiting on it and disables counters; a quote
     // submitted before it stays readable.
@@ -1249,6 +1252,7 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_quotes ADD COLUMN IF NOT EXISTS superseded_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_at DATETIME NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS stage_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_unsubscribed_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS desk_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS vehicle_json TEXT NULL");
@@ -1555,6 +1559,15 @@ async function handlePatchRfqLeasePrefs(req, res, rfqId) {
   const invites = await loadRfqInvitesWithQuotes(pool, rfqId);
   sendJson(res, 200, { rfq: publicRfqRequest(fresh[0], invites) });
 }
+
+// POST /api/rfqs/:id/invites/:inviteId/stage — one action on the staged Cash / Finance deal (rules: dealStages.js).
+const handleRfqStage = createRfqStageHandler({
+  getPool, readBody, sendJson,
+  ensureColumns: ensureQuotePackageColumns,
+  loadInvites: loadRfqInvitesWithQuotes,
+  publicRfqRequest, logRfqEvent,
+  auditKind: (req) => req.audit?.kind || null,
+});
 
 // POST /api/rfqs/:id/invites/:inviteId/buyer-counter — { counter }. The
 // buyer's structured response to this desk's current quote: the quote is
@@ -4028,6 +4041,10 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   const rfqInviteTokenMatch = pathname.match(/^\/api\/rfq-invites\/by-token\/([A-Za-z0-9_-]{8,80})$/);
   if (req.method === "GET" && rfqInviteTokenMatch) {
     return run(handleRfqInviteByToken, rfqInviteTokenMatch[1]);
+  }
+  const rfqInviteStageMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/);
+  if (req.method === "POST" && rfqInviteStageMatch) {
+    return run(handleRfqStage, Number(rfqInviteStageMatch[1]), Number(rfqInviteStageMatch[2]));
   }
   const rfqInviteCounterMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/buyer-counter$/);
   if (req.method === "POST" && rfqInviteCounterMatch) {

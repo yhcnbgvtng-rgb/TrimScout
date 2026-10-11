@@ -15,6 +15,7 @@ import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "./t
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
+import type { DealStageState } from "./dealStages";
 
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
@@ -140,6 +141,8 @@ export interface RfqInvite {
   /** When this desk last opened the trade; a photo change after it earns one new notice. */
   tradeSeenAt?: string | null;
   tradePhotosNotifiedAt?: string | null;
+  /** Staged Cash / Finance deal state for this desk (lib/dealStages.ts); null until its first action. */
+  stage?: DealStageState | null;
 }
 
 export interface RfqSpec {
@@ -237,6 +240,7 @@ export type RfqEventType =
   | "buyer_picked"
   | "buyer_walked"
   | "buyer_countered"
+  | "deal_stage"
   | "desk_declined";
 
 export interface RfqEventPayload {

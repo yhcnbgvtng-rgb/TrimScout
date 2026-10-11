@@ -6,6 +6,7 @@ import { LIGHTSAIL_HOST } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
+import type { DealStageState } from "./dealStages";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
@@ -179,6 +180,26 @@ export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: s
 export async function submitBuyerCounter(rfqId: string, inviteId: string, counter: BuyerCounter): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/buyer-counter`, { counter });
   return json.rfq as RfqRequest;
+}
+
+/**
+ * One action on a desk's staged Cash / Finance deal (rules: lib/dealStages.ts). Needs the box patch
+ * scripts/box/2026-10-11-rfq-deal-stages.sh; on an unpatched box this 404s and is reported as "not available yet".
+ */
+export async function postDealStage(
+  rfqId: string,
+  inviteId: string,
+  input: { action: Record<string, unknown>; actor: "buyer" | "dealer"; state?: string | null }
+): Promise<{ rfq: RfqRequest; stage: DealStageState }> {
+  try {
+    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/stage`, input);
+    return { rfq: json.rfq as RfqRequest, stage: json.stage as DealStageState };
+  } catch (err) {
+    if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") {
+      throw new RfqApiError("The staged deal isn't available yet.", 503);
+    }
+    throw err;
+  }
 }
 
 /**

@@ -1248,7 +1248,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // The degrade banner hook: which conversion switches are on right now.
   // Polled once per open; a paused send path disables Send with an honest
   // line instead of a 503 surprise.
-  const [featureStatus, setFeatureStatus] = useState<{ rfqSend: boolean; outboundDealerEmail: boolean; banner: string | null }>({ rfqSend: true, outboundDealerEmail: true, banner: null });
+  const [featureStatus, setFeatureStatus] = useState<{ rfqSend: boolean; outboundDealerEmail: boolean; dealStages?: boolean; banner: string | null }>({ rfqSend: true, outboundDealerEmail: true, dealStages: false, banner: null });
 
   // Step 5: optional free-text note to the dealer. Real-time-checked for
   // contact info (email/phone/link/handle) — the masked-identity system
@@ -2503,7 +2503,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             quoteType === "finance" && creditBand
               ? ({ quoteType: "finance", finance: { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand, zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
               : quoteType === "cash"
-                ? ({ quoteType: "cash", cash: { zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
+                ? ({ quoteType: "cash", staged: true, cash: { zip: zipOk ? huntZip : "", timeline: purchaseTimeline || null } } satisfies QuotePrefs)
                 : null,
           vin: primary.vin,
           vehicleYear: primary.year,
@@ -3159,26 +3159,43 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           {/* STEP 2: PAYMENT — lease, finance or cash; nothing else on this step    */}
           {step === 2 && (
             <div className="space-y-6 animate-fadeIn">
-              <WizardSection title="How do you want to pay?" hint="Pick one. Dealers quote through the matching calculator.">
-                <div className={`grid gap-2 ${isUsed ? "grid-cols-2" : "grid-cols-3"}`} role="radiogroup" aria-label="Quote type">
-                  {/* Used cars quote as Finance or Cash; the lease tile isn't shown at all. */}
-                  {(isUsed ? (["finance", "cash"] as const) : (["lease", "finance", "cash"] as const)).map((id) => (
-                    <button
-                      key={id}
-                      type="button"
-                      role="radio"
-                      aria-checked={quoteType === id}
-                      onClick={() => setQuoteType(id)}
-                      className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${
-                        quoteType === id ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
-                      }`}
-                      data-testid={`quote-type-${id}`}
-                    >
-                      {DEAL_STRUCTURE_LABELS[id]}
-                    </button>
-                  ))}
+              <WizardSection
+                title="Lease or buy?"
+                hint={featureStatus.dealStages
+                  ? "Buying (cash or finance) starts the same way: dealers quote the out-the-door price first. Your trade-in is valued next, and only then do you close in cash or ask the dealer for a finance quote."
+                  : "Buying (cash or finance) starts with dealers quoting the out-the-door price."}
+              >
+                <div className={`grid gap-2 ${isUsed ? "grid-cols-1" : "grid-cols-2"}`} role="radiogroup" aria-label="Lease or buy">
+                  {/* Used cars can't lease, so only the buy path is offered. */}
+                  {(isUsed ? (["cash_finance"] as const) : (["lease", "cash_finance"] as const)).map((id) => {
+                    const selected = id === "lease" ? quoteType === "lease" : quoteType === "cash" || quoteType === "finance";
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={selected}
+                        // Buy path: the first quote is the out-the-door price, which is the cash sheet. Finance terms are asked for after the OTD and trade-in are settled.
+                        onClick={() => setQuoteType(id === "lease" ? "lease" : "cash")}
+                        className={`rounded-xl border px-3 py-3 text-xs font-bold transition-all ${
+                          selected ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"
+                        }`}
+                        data-testid={`quote-type-${id}`}
+                      >
+                        {id === "lease" ? "Lease" : "Cash / Finance"}
+                      </button>
+                    );
+                  })}
                 </div>
-                {!quoteType ? <p className="text-[11px] text-ink-faint">{isUsed ? "Choose finance or cash to continue." : "Choose lease, finance or cash to continue."}</p> : null}
+                {!quoteType ? <p className="text-[11px] text-ink-faint">{isUsed ? "Choose Cash / Finance to continue." : "Choose Lease or Cash / Finance to continue."}</p> : null}
+                {quoteType && quoteType !== "lease" && featureStatus.dealStages ? (
+                  <ol className="mt-3 space-y-1 text-[11px] text-ink-muted" data-testid="buy-path-stages">
+                    <li>1. Dealers quote the out-the-door (OTD) price</li>
+                    <li>2. Dealer values your trade-in{tradeInExpected ? "" : " (skipped: no trade-in)"}</li>
+                    <li>3. True OTD = OTD minus trade-in value</li>
+                    <li>4. Close in cash, or ask the dealer for a finance quote</li>
+                  </ol>
+                ) : null}
               </WizardSection>
             </div>
           )}
@@ -3438,10 +3455,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
               {quoteType ? (
                 <WizardSection
-                  title={quoteType === "cash" ? "Cash" : "Location & timing"}
+                  title={quoteType === "cash" ? "Out-the-door price" : "Location & timing"}
                   hint={
                     quoteType === "cash"
-                      ? "Dealers quote an out-the-door number; taxes and registration are calculated for your ZIP once you pick one."
+                      ? "Dealers quote an itemized out-the-door price first, with no finance terms yet. Your trade-in is valued next; then you pay cash or ask the dealer for a financing quote."
                       : "Your ZIP sets tax context and your state; timing is optional."
                   }
                   className="pt-6"
@@ -3804,13 +3821,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
 
                 <div className="flex justify-between border-b border-border/50 pb-2">
-                  <span className="text-ink-muted">{quoteType === "lease" ? "Lease:" : quoteType === "finance" ? "Finance:" : "Paying:"}</span>
+                  <span className="text-ink-muted">{quoteType === "lease" ? "Lease:" : quoteType === "finance" ? "Finance:" : "Cash / Finance:"}</span>
                   <span className="text-brand-400 font-bold text-right">
                     {quoteType === "lease"
                       ? `${leaseTerm} months · ${leaseMiles ? leaseMiles.toLocaleString() : "—"} mi/yr${creditBand ? ` · ${creditBand} credit` : ""}${leaseDasIntent === "first_month_only" ? " · first month + fees" : leaseDasIntent === "cash_down" ? " · money down" : ""}`
                       : quoteType === "finance"
                         ? `${financeTerm} months · $${downPaymentNumber.toLocaleString()} down${creditBand ? ` · ${creditBand} credit` : ""}`
-                        : "Cash"}
+                        : tradeInExpected ? "Out-the-door price, then trade-in, then cash or financing" : "Out-the-door price, then cash or financing"}
                     {zipOk ? <span className="block text-[10px] font-normal text-ink-muted">tax context: ZIP {huntZip}</span> : null}
                   </span>
                 </div>
