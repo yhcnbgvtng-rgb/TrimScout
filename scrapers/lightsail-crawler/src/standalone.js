@@ -12,6 +12,7 @@ import { recoverModelTrim, recoverTrim } from './listingModel.js';
 import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { findVehicleLd, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
+import { vdpSkipReason } from './vdpResponseGate.js';
 import { withProbeRetry } from './probeRetry.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
@@ -943,6 +944,13 @@ for (let i = 0; i < dealers.length; i++) {
                     body: html,
                 });
                 if (isBotProtected(pageClass.classification)) {
+                    return;
+                }
+                // An error page (5xx maintenance, 404 ...) has no vehicle on it; without this it reached the last-resort
+                // VIN-from-URL strategy and was written as a blank-model stub — see vdpResponseGate.js.
+                const skipReason = vdpSkipReason(pageClass);
+                if (skipReason) {
+                    console.log(`⚠️ VDP skipped, no vehicle written (${skipReason}): ${url}`);
                     return;
                 }
                 let vehicle = null;
