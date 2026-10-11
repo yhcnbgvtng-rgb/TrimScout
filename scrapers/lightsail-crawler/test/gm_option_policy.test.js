@@ -32,7 +32,7 @@ describe('what is covered: model + year + trim, per brand', () => {
   });
   it('policy sizes (entries per brand) match the generated report', () => {
     const size = (b) => Object.values(RAW[b]).reduce((n, p) => n + Object.values(p.trims).reduce((m, t) => m + Object.keys(t.options).length, 0), 0);
-    assert.deepEqual(BRANDS.map(size), [1221, 911, 99]);
+    assert.deepEqual(BRANDS.map(size), [1224, 914, 99]);
   });
   it('another model year, another model and another make are untouched (no policy)', () => {
     for (const v of [
@@ -167,6 +167,29 @@ describe('rule 6: no trusted trim -> no options', () => {
     assert.deepEqual(run('Chevrolet', { model: 'Colorado', trim: 'Trail Boss 4WD Crew Cab' }, ['Midnight Edition']).rows.map((x) => x.price), [4195]);
     assert.deepEqual(run('Chevrolet', { model: 'Colorado', trim: 'Z71 4WD' }, ['Midnight Edition']).rows.map((x) => x.price), [4245]);
     assert.equal(run('Chevrolet', { model: 'Colorado', trim: 'Trail Boss 4WD' }, ['Midnight Edition']).trimVia, 'exact');
+  });
+});
+
+describe('factory editions are kept as packages (Paul): ZR2 Bison and AT4X AEV', () => {
+  it('ZR2 Bison Edition is a paid package on the ZR2 (Silverado 1500 2027, Silverado 2500 HD 2026, Colorado 2026), priced per model', () => {
+    for (const [model, year, price] of [['Silverado 1500', 2027, 8020], ['Silverado 2500 HD', 2026, 8875], ['Colorado', 2026, 11700]]) {
+      const r = run('Chevrolet', { model, year, trim: 'ZR2' }, ['ZR2 Bison Edition']);
+      assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]), [['ZR2 Bison Edition', 'package', price]], model);
+    }
+  });
+  it('a Bison feed line is matched through its decoration and a content line rolls up to the package, not a second option', () => {
+    const r = run('Chevrolet', { model: 'Colorado', trim: 'ZR2 4WD' }, ['ZR2 Bison Edition ($11,700)', 'Bed-Mounted Vertical Spare Tire Carrier']);
+    assert.deepEqual(r.rows.map((x) => [x.label, x.price]), [['ZR2 Bison Edition', 11700]]);
+  });
+  it('Bison is not offered on other trims', () => {
+    assert.deepEqual(run('Chevrolet', { model: 'Colorado', trim: 'Trail Boss' }, ['ZR2 Bison Edition']).rows, []);
+  });
+  it('AT4X AEV Edition is a paid package on the AT4X (Canyon 2026, Sierra 1500 2027, Sierra 2500 HD 2026)', () => {
+    for (const [model, year, price] of [['Canyon', 2026, 10100], ['Sierra 1500', 2027, 6640], ['Sierra 2500 HD', 2026, 9390]]) {
+      const r = run('GMC', { model, year, trim: 'AT4X' }, ['AT4X AEV Edition']);
+      assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]), [['AT4X AEV Edition', 'package', price]], model);
+    }
+    assert.deepEqual(run('GMC', { model: 'Canyon', trim: 'AT4' }, ['AT4X AEV Edition']).rows, []);
   });
 });
 

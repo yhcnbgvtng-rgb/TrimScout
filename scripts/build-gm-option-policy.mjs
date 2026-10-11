@@ -248,7 +248,7 @@ for (const brand of BRANDS) {
     for (const d of report.corvetteDropped) by[d.drop] = (by[d.drop] || 0) + 1;
     md.push(...Object.entries(by).sort().map(([k, v]) => `- ${k}: ${v}`), "");
   }
-  md.push("## Not in the CSVs (flagged)", "", "- No `ZR2 Bison` rows (Silverado 1500, Silverado 2500 HD, Colorado) and no `AT4X AEV` rows (GMC Canyon, Sierra 1500, Sierra 2500 HD) exist in these CSV files, so the policies contain no Bison or AEV edition package. Brief says keep them as factory packages; they need name, trim, price and RPO code from Paul (or a corrected CSV) before they can be added.", "");
+  md.push("## Factory editions kept (Paul)", "", "- `ZR2 Bison Edition` (Silverado 1500, Silverado 2500 HD, Colorado) and `AT4X AEV Edition` (GMC Canyon, Sierra 1500, Sierra 2500 HD) are kept as factory packages, AEV content included, priced per trim.", "");
   if (report.conflicts.length) md.push("## Duplicate rows inside one trim (first kept)", "", ...report.conflicts.map((c) => `- ${c}`), "");
   built[brand] = { jsonText: `${JSON.stringify(policies, null, 2)}\n`, mdText: `${md.join("\n")}\n`, totals };
 }

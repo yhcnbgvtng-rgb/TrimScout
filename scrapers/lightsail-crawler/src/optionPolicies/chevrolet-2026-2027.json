@@ -886,6 +886,17 @@
               "^black nameplates$"
             ]
           },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 11700,
+            "aliases": [],
+            "features": [
+              "^6350 lbs gvwr$",
+              "^bed mounted vertical spare tire carrier$",
+              "^fuel tank skid plate aev hot stamped boron steel$"
+            ]
+          },
           "17 aluminum wheels": {
             "label": "17\" aluminum wheels",
             "kind": "option",
@@ -2601,6 +2612,16 @@
             ],
             "features": [
               "^black silverado 2500 hd and trim nameplates$"
+            ]
+          },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 8875,
+            "aliases": [],
+            "features": [
+              "^aev brand floor liners$",
+              "^front skid plate$"
             ]
           },
           "power sunroof": {
@@ -5957,6 +5978,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6139,6 +6161,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6327,6 +6350,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6512,6 +6536,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6666,6 +6691,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -6826,6 +6852,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -7345,6 +7372,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -7468,6 +7496,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -7597,6 +7626,7 @@
               "coupe engine appearance pkg"
             ],
             "features": [
+              "^engine lighting$",
               "^engine specification plaque$"
             ]
           },
@@ -9337,6 +9367,23 @@
             "kind": "paint",
             "price": 395,
             "aliases": []
+          },
+          "zr2 bison edition": {
+            "label": "ZR2 Bison Edition",
+            "kind": "package",
+            "price": 8020,
+            "aliases": [],
+            "features": [
+              "^18 aev aluminum spare wheel$",
+              "^aev branded floor liners$",
+              "^aev front skid plate$",
+              "^aev front underbody skid plate$",
+              "^aev fuel tank skid plate$",
+              "^aev rear differential skid plate$",
+              "^aev transfer case skid plate$",
+              "^aev underbody shield$",
+              "^rocker protection$"
+            ]
           },
           "18 high gloss black aluminum beadlock capable wheels": {
             "label": "18\" High Gloss Black Aluminum Beadlock Capable Wheels",

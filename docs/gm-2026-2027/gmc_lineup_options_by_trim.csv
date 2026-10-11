@@ -43,6 +43,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Canyon,AT4X,,57300,Exterior color,,Desert Sun,495,,,models/canyon_options.md:174
 2026,Canyon,AT4X,,57300,Exterior color,,Volcanic Red Tintcoat,645,,,models/canyon_options.md:174
 2026,Canyon,AT4X,,57300,Factory package,,Black Badging Package,595,Black Nameplates; Black GMC Emblems,key=name:black badging package,models/canyon_options.md:181
+2026,Canyon,AT4X,,57300,Factory package,,AT4X AEV Edition,10100,"6,350 lbs. GVWR; Bed-Mounted Vertical Spare Tire Carrier; AEV fuel tank skid plate",factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:at4x aev edition,models/canyon_options.md:187
 2026,Canyon,AT4X,,57300,Factory option,Wheels,"17"" Beadlock Capable Wheels with Grazen Metallic Decorative Ring",3695,,,models/canyon_options.md:175
 2026,Canyon,AT4X,,57300,Factory option,Performance,Multimatic Jounce Control Dampers,2750,,,models/canyon_options.md:197
 2026,Canyon,AT4X,,57300,Factory option,Performance,Engine block heater,100,,,models/canyon_options.md:197
@@ -133,6 +134,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Sierra 1500,AT4X,,82700,Exterior color,,Sterling Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/sierra1500_options.md:217
 2027,Sierra 1500,AT4X,,82700,Exterior color,,Dark Ridge Metallic,495,,,models/sierra1500_options.md:217
 2027,Sierra 1500,AT4X,,82700,Exterior color,,Mesa Red,695,,,models/sierra1500_options.md:217
+2027,Sierra 1500,AT4X,,82700,Factory package,,AT4X AEV Edition,6640,Fuel Tank Skid Plate (AEV hot-stamped Boron steel); Front Skid Plate (AEV hot-stamped Boron steel); Rear Differential Skid Plate (AEV hot-stamped Boron steel). Not marked,factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:at4x aev edition,models/sierra1500_options.md:224
 2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,"18"" 12-spoke High Gloss Black aluminum wheels with laser etching and GMC center cap",800,,,models/sierra1500_options.md:218
 2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,Red Decorative Rings for Beadlock capable wheels,1650,,,models/sierra1500_options.md:218
 2027,Sierra 1500,AT4X,,82700,Factory option,Wheels,Silver Decorative Rings for Beadlock capable wheels,1650,,,models/sierra1500_options.md:218
@@ -314,6 +316,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Sierra 2500 HD,AT4X,,85500,Exterior color,,Volcanic Red Tintcoat,645,,,models/sierra2500hd_options.md:227
 2026,Sierra 2500 HD,AT4X,,85500,Factory package,,Snow Plow Prep / Camper Package,150,220-amp alternator,key=name:snow plow prep camper package,models/sierra2500hd_options.md:233
 2026,Sierra 2500 HD,AT4X,,85500,Factory package,,Gooseneck Hitch Package,375,,key=name:gooseneck hitch package,models/sierra2500hd_options.md:234
+2026,Sierra 2500 HD,AT4X,,85500,Factory package,,AT4X AEV Edition,9390,AEV Brand floor liners; Stamped steel front approach skid plate; Stamped steel transfer case skid plate,factory edition package (AEV content kept as factory edition; Paul 2026-10-11); key=name:at4x aev edition,models/sierra2500hd_options.md:236
 2026,Sierra 2500 HD,AT4X,,85500,Factory option,Trailering,Gooseneck / 5th Wheel Prep Package,545,,,models/sierra2500hd_options.md:239
 2026,Sierra 2500 HD,AT4X,,85500,Factory option,Performance,"Dual, 220 amp primary and 170 auxiliary amp alternators",380,,,models/sierra2500hd_options.md:239
 2026,Sierra 2500 HD,AT4X,,85500,Factory option,,High idle switch,200,,,models/sierra2500hd_options.md:239
