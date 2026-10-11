@@ -16,6 +16,7 @@ import { activeRfqSummary } from "../lib/rfqLogic";
 import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
+import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
@@ -219,31 +220,65 @@ function FactoryMustHavePicker({
   checked: string[];
   onToggle: (name: string) => void;
 }) {
+  const [showAll, setShowAll] = useState(false);
+  const ordered = orderFactoryOptions(options);
+  const shown = showAll ? ordered : ordered.slice(0, MUST_HAVE_PREVIEW_COUNT);
   return (
-    <div className="max-h-56 overflow-y-auto">
-      {orderFactoryOptions(options).map((opt) => {
-        const isChecked = checked.includes(opt.name);
-        const line = formatFactoryOptionLine({
-          code: opt.code ?? null,
-          description: opt.description || opt.name,
-        });
-        return (
-          <label key={opt.name} className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isChecked}
-              onChange={() => onToggle(opt.name)}
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
-            />
-            <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
-              {line}
-              {opt.price != null && opt.price > 0 ? (
-                <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-              ) : null}
+    <div className="space-y-2">
+      {checked.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5" data-testid="must-have-chips">
+          {checked.map((name) => (
+            <span key={name} className="inline-flex items-center gap-1 rounded-full border border-brand-500/50 bg-brand-500/10 py-0.5 pl-2.5 pr-1 text-[11px] text-white">
+              {name}
+              <button
+                type="button"
+                aria-label={`Remove ${name}`}
+                data-testid="must-have-chip-remove"
+                onClick={() => onToggle(name)}
+                className="flex h-4 w-4 items-center justify-center rounded-full text-ink-muted hover:bg-border hover:text-white"
+              >
+                ×
+              </button>
             </span>
-          </label>
-        );
-      })}
+          ))}
+        </div>
+      ) : null}
+      <div data-testid="must-have-options">
+        {shown.map((opt) => {
+          const isChecked = checked.includes(opt.name);
+          const line = formatFactoryOptionLine({
+            code: opt.code ?? null,
+            description: opt.description || opt.name,
+          });
+          return (
+            <label key={opt.name} className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={() => onToggle(opt.name)}
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
+              />
+              <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
+                {line}
+                {opt.price != null && opt.price > 0 ? (
+                  <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                ) : null}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+      {ordered.length > MUST_HAVE_PREVIEW_COUNT ? (
+        <button
+          type="button"
+          data-testid="must-have-show-all"
+          aria-expanded={showAll}
+          onClick={() => setShowAll((v) => !v)}
+          className="text-[11px] font-semibold text-brand-400 hover:text-brand-300"
+        >
+          {showAll ? "Show fewer options" : `Show all ${ordered.length} options`}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -1363,12 +1398,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setParseSuccessMsg(`${preselectedVehicle.year} ${preselectedVehicle.make} ${preselectedVehicle.trim} — confirmed`);
       setFordStickerStatus("released");
       setFordFilterableOptions(
-        preselectedVehicle.options.map((o) => ({
-          name: o.name,
-          code: o.code,
-          description: o.name,
-          price: o.price,
-        }))
+        cleanOptionNames(
+          preselectedVehicle.options.map((o) => ({
+            name: o.name,
+            code: o.code,
+            description: o.name,
+            price: o.price,
+          }))
+        )
       );
     }
   }, [preselectedVehicle, lockVehicleSelection]);
@@ -2026,7 +2063,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // no factory picker/compare shows — the difference is the resolve mode, not here.
     setMustHavePackages(result.mustHaveLines);
     setNiceToHavePackages(result.niceToHaveLines);
-    setFordFilterableOptions(result.filterableOptions);
+    setFordFilterableOptions(cleanOptionNames(result.filterableOptions));
     setFactoryBuildOem(result.oem);
     // Only a real factory build unlocks the must-have picker; a free-decode
     // import has no option list to choose from.
@@ -3879,6 +3916,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Choose a dealership</span>
             ) : step === 3 && confirmedDeskCount === 0 ? (
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Tick a dealership</span>
+            ) : null}
+            {step === 1 && mustHavePackages.length > 0 ? (
+              <span className="ml-auto mr-3 text-[10px] text-ink-muted" data-testid="must-have-summary">{mustHaveSummary(mustHavePackages.length)}</span>
             ) : null}
             {step < TOTAL_STEPS ? (
               <button
