@@ -52,3 +52,35 @@ export async function runSupersede({ api, rows, seenAfter, sourceBox = null, for
   }
   return out;
 }
+
+// ---- one live row per VIN (vinKeeper.js) -----------------------------------------------------------------------------------------------
+// Unlike the step above this also handles a VIN this run uploaded under TWO stores (two state shards, or another box's fresh upload), which
+// the pair-based endpoint deliberately keeps. OFF unless RETIRE_DUPLICATE_VINS=1; RETIRE_DUPLICATE_VINS_DRY_RUN=1 only counts.
+export const DUPLICATE_VINS_PATH = "/api/inventory/duplicate-vins";
+export const DUPLICATE_VINS_BATCH = 500;
+
+/** Distinct VINs of the rows that matched a directory store, in a stable order. */
+export function distinctVins(rows) {
+  return [...new Set(rows.filter((r) => r.vin && Number(r.dealerId) > 0).map((r) => String(r.vin).toUpperCase()))].sort();
+}
+
+/** @returns {Promise<{ vins: number, calls: number, retired: number, wouldRetire: number, vinsWithDuplicates: number, failedCalls: number }>} */
+export async function runDuplicateVins({ api, rows, foreignBefore, dryRun = false, log = console.log, isLockLost = () => false, batch = DUPLICATE_VINS_BATCH }) {
+  const vins = distinctVins(rows);
+  const out = { vins: vins.length, calls: 0, retired: 0, wouldRetire: 0, vinsWithDuplicates: 0, failedCalls: 0 };
+  for (let i = 0; i < vins.length; i += batch) {
+    if (isLockLost()) { log("[sync] duplicate-VIN step stopped: the sync lock is no longer held"); break; }
+    out.calls++;
+    try {
+      const r = await api(DUPLICATE_VINS_PATH, { vins: vins.slice(i, i + batch), foreignBefore, dryRun });
+      out.vinsWithDuplicates += Number(r?.vinsWithDuplicates) || 0;
+      if (dryRun) out.wouldRetire += Number(r?.wouldRetire) || 0;
+      else out.retired += Number(r?.retired) || 0;
+    } catch (err) {
+      out.failedCalls++;
+      log(`[sync] duplicate-VIN batch ${out.calls} failed (non-fatal): ${err.message}`);
+      if (/ 404 /.test(String(err.message))) { log("[sync] duplicate-VIN step skipped: this deals API does not have the endpoint"); break; }
+    }
+  }
+  return out;
+}
