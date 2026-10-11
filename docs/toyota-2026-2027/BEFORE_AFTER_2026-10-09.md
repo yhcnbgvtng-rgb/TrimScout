@@ -1,3 +1,5 @@
+> **Superseded 2026-10-11:** this report was measured against the Oct 9 CSV and policy. The policy is now rebuilt from `toyota_lineup_options_by_trim.csv` (v2); see `DRY_RUN_PLAN_2026-10-11.md`. Kept for history only.
+
 # Toyota 2026-2027 policies: read-only before/after on box2 (rerun 2026-10-09 13:37-13:40 ET, after the approved trim aliases)
 
 In-stock Toyota rows for the DB models the policies cover: 195,039 fetched (matches the live count), 119,020 under a policy (the rest are other years, untouched). Old = today's facet rows (current generic rules on options_json); new = this policy. Columns after "new" are per-vehicle averages. 0 timeouts. Untrusted trims: 6,708 before the aliases, 3,256 after.

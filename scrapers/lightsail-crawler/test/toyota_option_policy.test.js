@@ -162,8 +162,8 @@ describe('rule 5: no trusted trim means no options; trusted = exact CSV trim, or
     const report = fs.readFileSync(path.join(repo, 'docs/toyota-2026-2027/POLICY_REPORT.md'), 'utf8');
     const p = modelPoliciesFor(ALLOW, { make: 'Toyota', model: 'bZ', year: 2027 });
     assert.equal(p.length, 2); // "bZ" is both the bZ (bZ4X) and the bZ Woodland spelling
-    assert.equal(resolvePolicyTrim(p.find((x) => x.scope.includes('bz bz4x')), 'Limited').trim.label, 'bZ Limited');
-    for (const alias of ['| bZ (bZ4X) | limited | bZ Limited |', '| GR Corolla | grmn | GR Corolla GRMN |']) assert.ok(report.includes(alias), alias);
+    assert.equal(resolvePolicyTrim(p.find((x) => x.scope === 'toyota|bz|2027'), 'Limited').trim.label, 'bZ Limited');
+    for (const alias of ['| bZ | limited | bZ Limited |', '| GR Corolla | grmn | GR Corolla GRMN |']) assert.ok(report.includes(alias), alias);
     for (const pol of ALLOW.models.values()) for (const [from] of pol.trimAliases) if (pol.scope.startsWith('toyota|rav4|')) continue; else assert.ok(!pol.trims.has(from), `${pol.scope}: alias "${from}" shadows a real trim`);
   });
   it('the two bZ CSV models sharing one DB spelling are told apart by the trim', () => {
@@ -209,7 +209,7 @@ describe('approved aliases (2026-10-09)', () => {
   });
   it('4: Land Cruiser "Base" is the 1958 only because the CSV shows 1958 as the entry trim', () => {
     assert.equal(label('Land Cruiser', 'Base', 2027), 'Land Cruiser 1958/alias');
-    const csv = fs.readFileSync(path.join(repo, 'docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv'), 'utf8');
+    const csv = fs.readFileSync(path.join(repo, 'docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv'), 'utf8');
     const msrp = (t) => Number(csv.match(new RegExp(`^2027,Land Cruiser,${t},[^,]*,(\\d+),Base`, 'm'))[1]);
     assert.ok(msrp('Land Cruiser 1958') < msrp('Land Cruiser'), 'the alias is only valid while 1958 is the cheaper trim');
   });
@@ -258,7 +258,7 @@ describe('generated from the shipped source data', () => {
   it('the committed JSON and report equal what scripts/build-toyota-option-policy.mjs writes', () => {
     execFileSync('node', [path.join(repo, 'scripts/build-toyota-option-policy.mjs'), '--check'], { stdio: 'pipe' });
   });
-  it('the CSV is in docs/toyota-2026-2027', () => assert.ok(fs.existsSync(path.join(repo, 'docs/toyota-2026-2027/toyota_2026_2027_options_by_trim.csv'))));
+  it('the CSV is in docs/toyota-2026-2027', () => assert.ok(fs.existsSync(path.join(repo, 'docs/toyota-2026-2027/toyota_lineup_options_by_trim.csv'))));
   it('never touches facet-cache.json', () => {
     const src = fs.readFileSync(path.join(repo, 'scripts/build-toyota-option-policy.mjs'), 'utf8') + fs.readFileSync(path.join(repo, 'scripts/lib/optionPolicyCommon.mjs'), 'utf8');
     assert.ok(!src.includes('facet-cache'));
