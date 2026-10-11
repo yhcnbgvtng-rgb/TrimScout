@@ -25,6 +25,7 @@ import { FeeBreakdownModal } from "../components/FeeBreakdownModal";
 import { VoucherModal } from "../components/VoucherModal";
 import { TradeInSubmissionModal } from "../components/TradeInSubmissionModal";
 import { AuthModal } from "../components/AuthModal";
+import { TestModeBar } from "../components/TestModeBar";
 import { DealTrackerDashboard, type JustSentPackage } from "../components/DealTrackerDashboard";
 import type { RfqRequest } from "../lib/rfq";
 import { SignupView } from "../components/SignupView";
@@ -185,6 +186,7 @@ export default function Home() {
         avatarUrl: su.image || undefined,
         buyerAlias: su.role === "buyer" ? formatBuyerAlias(su.id) : undefined,
         savedVehicleIds: [],
+        testMode: su.testMode === true,
       });
       const isFreshSignIn = prevSessionStatusRef.current === "unauthenticated";
       if (isFreshSignIn && lastSyncedUserIdRef.current !== su.id) {
@@ -209,7 +211,7 @@ export default function Home() {
   const [justSent, setJustSent] = useState<JustSentPackage | null>(null);
   useEffect(() => {
     if (currentView !== "track_deals") return;
-    if (!currentUser || currentUser.role !== "buyer") return;
+    if (!currentUser || (currentUser.role !== "buyer" && !currentUser.testMode)) return;
     let cancelled = false;
     const load = async () => {
       try {
@@ -231,7 +233,7 @@ export default function Home() {
 
   useEffect(() => {
     if (currentView !== "track_deals" && currentView !== "deal_room") return;
-    if (!currentUser || currentUser.role !== "buyer") return;
+    if (!currentUser || (currentUser.role !== "buyer" && !currentUser.testMode)) return;
     let cancelled = false;
 
     const loadRequests = async () => {
@@ -668,6 +670,12 @@ export default function Home() {
       {/* View 0: Deal Tracking Hub & User Dashboard */}
       {currentView === "track_deals" && (
         currentUser ? (
+          <>
+          {currentUser.testMode ? (
+            <div className="mx-auto max-w-5xl px-4 pt-4">
+              <TestModeBar onWalked={() => setQuoteRequests((rs) => rs.map((r) => (r.audit && r.status === "collecting" ? { ...r, status: "walked" } : r)))} />
+            </div>
+          ) : null}
           <DealTrackerDashboard
             requests={shopperRequests}
             bids={bids}
@@ -684,6 +692,7 @@ export default function Home() {
             onChooseAnother={handleChooseAnother}
             onToggleTradeIn={handleToggleTradeIn}
           />
+          </>
         ) : (
           <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-6">
             <div className="rounded-2xl border border-border bg-surface p-8 space-y-4 shadow-xl">

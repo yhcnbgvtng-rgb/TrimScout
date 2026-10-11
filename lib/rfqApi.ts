@@ -86,6 +86,8 @@ export async function createRfq(input: {
   /** same_spec (default) or alternate — the latter needs no VIN and carries the ask instead. */
   lane?: RfqLane;
   alternateAsk?: AlternateAsk | null;
+  /** Buyer test mode: the box stores the row audit=1 (full key only). */
+  buyerTestMode?: boolean;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
   return json.rfq as RfqRequest;

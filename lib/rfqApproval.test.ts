@@ -79,7 +79,7 @@ describe("wiring", () => {
     const edit = fs.readFileSync("app/api/admin/rfqs/[id]/route.ts", "utf8");
     assert.match(edit, /adminPatchRfq\(id, \{ \.\.\.patch, adminEdit: \{ by: session\.user\?\.email/);
     const create = fs.readFileSync("app/api/rfqs/route.ts", "utf8");
-    assert.match(create, /sendAdminApprovalAlert\(approvalAlertSubject\(rfq\), approvalAlertHtml\(rfq\)\)/, "one admin email per new request");
+    assert.match(create, /sendAdminApprovalAlert\(`\$\{testMode \? "\[TEST\] " : ""\}\$\{approvalAlertSubject\(rfq\)\}`, approvalAlertHtml\(rfq\)\)/, "one admin email per new request");
   });
   it("the box patch inserts every new request as pending and grandfathers existing rows as approved", () => {
     const box = fs.readFileSync("scrapers/lightsail-crawler/src/deals_api_server.js", "utf8");

@@ -408,6 +408,8 @@ export interface UserProfile {
   dealerName?: string;
   dealerTitle?: string;
   savedVehicleIds: string[];
+  /** Server-derived (BUYER_TEST_MODE_EMAILS): this account may test the buyer flow — see lib/buyerTestMode.ts. */
+  testMode?: boolean;
   status?: "active" | "suspended" | "pending_verification";
   createdAt?: string;
   lastLogin?: string;

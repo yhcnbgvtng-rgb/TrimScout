@@ -17,6 +17,7 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { isBuyerTestMode } from "./lib/buyerTestMode";
 import { verifyCredentials, oauthUpsert, AuthApiError, type AuthUser } from "./lib/authApi";
 
 // Thrown instead of returning null when the auth backend itself couldn't be
@@ -121,6 +122,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as any).phone = token.phone;
         (session.user as any).zipCode = token.zipCode;
         (session.user as any).dealerName = token.dealerName;
+        // Server-derived from BUYER_TEST_MODE_EMAILS; the list itself never leaves the server.
+        (session.user as any).testMode = isBuyerTestMode(session.user);
       }
       return session;
     },

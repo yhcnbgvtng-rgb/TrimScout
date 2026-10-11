@@ -200,6 +200,8 @@ export interface RfqRequest extends RfqSpec {
   adminEdits?: RfqAdminEdit[];
   /** Created by the scoped audit API key: dealer email stays on SAFE MODE, test-mode recipient overrides never apply. */
   auditForcedSafeMode?: boolean;
+  /** audit=1 on the box: created by the audit key or by buyer test mode. Left out of metrics, dealer email stays on SAFE MODE. */
+  audit?: boolean;
 }
 
 /**

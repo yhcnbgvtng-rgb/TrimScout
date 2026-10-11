@@ -1357,6 +1357,10 @@ async function handleCreateRfq(req, res) {
     if (buyerUserId && buyerUserId !== req.audit.buyerUserId) return sendJson(res, 403, { error: "Forbidden: this key is limited to its own test buyer" });
     buyerUserId = req.audit.buyerUserId;
   }
+  // Buyer test mode: the Next.js app (full key only) asks for audit = 1 on the owner's own test requests, so they stay
+  // out of metrics. Unlike the audit key it does NOT set audit_forced_safe, so real dealers can still be invited
+  // (their mail is SAFE MODE in the app layer). A scoped key can never use this.
+  const buyerTestMode = !req.audit && body.buyerTestMode === true;
   const vin = (body.vin || "").trim().toUpperCase();
   const stockNumber = body.stockNumber ? String(body.stockNumber).trim() : null;
   const vehicleYear = Number(body.vehicleYear);
@@ -1403,6 +1407,7 @@ async function handleCreateRfq(req, res) {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'collecting', ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?)`,
     [buyerUserId, vin || "", stockNumber, Number.isFinite(vehicleYear) && vehicleYear > 0 ? vehicleYear : 0, vehicleMake || (lane === "alternate" ? "Open" : ""), vehicleModel || (lane === "alternate" ? "to alternatives" : ""), vehicleTrim, JSON.stringify(mustHaves), packageKind, linkPastes.length ? JSON.stringify(linkPastes) : null, dealReference, body.leasePrefs && typeof body.leasePrefs === "object" ? JSON.stringify(body.leasePrefs) : null, body.quotePrefs && typeof body.quotePrefs === "object" ? JSON.stringify(body.quotePrefs) : null, buyerNote, tradeInExpected, lane, alternateAsk ? JSON.stringify(alternateAsk) : null, auditForced ? 1 : 0, auditForced ? 1 : 0, auditForced ? new Date() : null]
   );
+  if (buyerTestMode) await pool.query("UPDATE rfq_requests SET audit = 1, audit_at = ? WHERE id = ?", [new Date(), result.insertId]);
   const [rows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [result.insertId]);
   sendJson(res, 201, { rfq: publicRfqRequest(rows[0], []) });
 }

@@ -89,7 +89,8 @@ export function clearQuoteDraft(store?: StorageLike | null): void {
 /** Header link set for the wizard chrome, by who's signed in. */
 export type WizardAuthState = "signed_out" | "buyer" | "not_buyer";
 
-export function wizardAuthState(user: { role?: string } | null | undefined): WizardAuthState {
+export function wizardAuthState(user: { role?: string; testMode?: boolean } | null | undefined): WizardAuthState {
   if (!user) return "signed_out";
-  return user.role === "buyer" ? "buyer" : "not_buyer";
+  // Buyer test mode: the owner's allowlisted account is a buyer for this flow whatever its stored role.
+  return user.role === "buyer" || user.testMode === true ? "buyer" : "not_buyer";
 }
