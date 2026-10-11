@@ -812,9 +812,9 @@ function AlternateVinField({
                 {report.hits.map((h) => (
                   <span
                     key={h.name}
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-brand-500/15 text-brand-300" : h.unknown ? "bg-white/5 text-ink-faint" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
                   >
-                    {h.present ? "✓ " : "✕ "}
+                    {h.present ? "✓ " : h.unknown ? "? " : "✕ "}
                     {h.name}
                   </span>
                 ))}
@@ -969,10 +969,11 @@ function FactoryOptionsCompare({
               if (report.kind !== "scored") return <div key={i} className="flex min-h-[24px] items-center text-[11px] text-ink-faint">—</div>;
               const hit = report.hits.find((h) => sameText(h.name, m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "")));
               const present = hit?.present ?? false;
+              const unknown = !present && Boolean(hit?.unknown);
               return (
-                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-brand-300" : "text-amber-200"}`}>
-                  {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : <X className="h-3.5 w-3.5 shrink-0" />}
-                  {present ? "Included" : "Missing"}
+                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-brand-300" : unknown ? "text-ink-faint" : "text-amber-200"}`}>
+                  {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : unknown ? null : <X className="h-3.5 w-3.5 shrink-0" />}
+                  {present ? "Included" : unknown ? "Unknown" : "Missing"}
                 </div>
               );
             })}
