@@ -185,6 +185,9 @@ export function BuyerSearchView() {
   const [applied, setApplied] = useState<Filters | null>(null);
   const [results, setResults] = useState<SearchResults | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
+  // A failed "next page" fetch: the rows already on screen stay, a retry row shows, and nothing auto-retries.
+  const [moreError, setMoreError] = useState(false);
+  const pageInFlightRef = useRef(false); // set synchronously, so two sentinel hits in one tick can't both fetch
   const [searchError, setSearchError] = useState<string | null>(null);
   // A header sort that could not be applied (too slow for this many vehicles) or is not offered yet — shown above the table.
   const [sortNote, setSortNote] = useState<string | null>(null);
@@ -275,6 +278,8 @@ export function BuyerSearchView() {
     const signal = controller.signal;
     const requestId = ++runSearchRef.current;
     setSearchLoading(true);
+    pageInFlightRef.current = offset > 0;
+    setMoreError(false);
     if (offset === 0) setSearchError(null);
     try {
       const qs = filtersToQueryString(f, { limit: RESULTS_PAGE_SIZE, offset });
@@ -292,8 +297,9 @@ export function BuyerSearchView() {
           setSearchError(null);
           return;
         }
+        if (offset > 0) { setMoreError(true); return; }
         setSearchError(typeof json?.error === "string" ? json.error : "Could not search inventory.");
-        if (offset === 0) setResults(null);
+        setResults(null);
         return;
       }
       sortAttemptRef.current = null;
@@ -311,10 +317,11 @@ export function BuyerSearchView() {
         setSortNote(SORT_TIMEOUT_NOTE(attempt.label));
         return;
       }
+      if (offset > 0) { setMoreError(true); return; }
       setSearchError("Could not reach the search service.");
-      if (offset === 0) setResults(null);
+      setResults(null);
     } finally {
-      if (requestId === runSearchRef.current) setSearchLoading(false);
+      if (requestId === runSearchRef.current) { setSearchLoading(false); pageInFlightRef.current = false; }
     }
   }, []);
 
@@ -357,10 +364,12 @@ export function BuyerSearchView() {
     setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
   };
 
-  const loadMore = () => {
-    if (!results || !applied) return;
+  // Infinite scroll: one page at a time, never while another request (page or search) is running.
+  const loadMore = useCallback(() => {
+    if (!results || !applied || searchLoading || pageInFlightRef.current) return;
+    pageInFlightRef.current = true;
     void runSearch(applied, results.vehicles.length);
-  };
+  }, [results, applied, searchLoading, runSearch]);
   // A capped total is a floor, so "more" is known only from the last page having been full.
   const hasMore = results ? (results.totalCapped ? (results.lastPageCount ?? 0) >= RESULTS_PAGE_SIZE : results.vehicles.length < results.total) : false;
 
@@ -538,17 +547,10 @@ export function BuyerSearchView() {
         {!searchError && results && (
           <>
             {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
-            {results.vehicles.length > 0 && <VehicleTable sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
+            {results.vehicles.length > 0 && <VehicleTable resetKey={applied} hasMore={hasMore} loadingMore={searchLoading} moreError={moreError} onLoadMore={loadMore} sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
-              </div>
-            )}
-            {hasMore && (
-              <div className="mt-6 flex justify-center">
-                <button type="button" onClick={loadMore} disabled={searchLoading} className="rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-xs font-bold text-ink-light hover:border-brand-500/50 hover:text-white disabled:opacity-50">
-                  {searchLoading ? "Loading…" : "Load more"}
-                </button>
               </div>
             )}
           </>
@@ -586,7 +588,9 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
 ];
 const ROW_H = 32;
 
-function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
+function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
+  /** Changes (new object) whenever a fresh search starts — the list scrolls back to the top. */
+  resetKey: unknown; hasMore: boolean; loadingMore: boolean; moreError: boolean; onLoadMore: () => void;
   vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
   onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
   /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
@@ -609,6 +613,19 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, s
     ro?.observe(document.body);
     return () => { window.removeEventListener("resize", measure); ro?.disconnect(); };
   });
+  // Infinite scroll: a sentinel row after the last vehicle, watched inside the scroller with a 300px lead. The observer is
+  // re-created after every page so a sentinel that is still in view (short pages, tall window) asks for the next one.
+  const sentinel = useRef<HTMLDivElement>(null);
+  const loadRef = useRef(onLoadMore);
+  loadRef.current = onLoadMore;
+  useEffect(() => { scroller.current?.scrollTo?.({ top: 0 }); }, [resetKey]);
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || !hasMore || moreError || loadingMore || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) loadRef.current(); }, { root: scroller.current, rootMargin: "0px 0px 300px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, moreError, loadingMore, vehicles.length]);
   return (
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
       <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
@@ -682,6 +699,25 @@ function VehicleTable({ vehicles, dimmed, picks, viewed, onTogglePick, onView, s
               </div>
             );
           })}
+          {hasMore && !moreError && <div ref={sentinel} data-testid="results-sentinel" aria-hidden style={{ height: 1 }} />}
+          {hasMore && loadingMore && !moreError && (
+            <div role="status" data-testid="results-loading-more" className="flex items-center justify-center gap-2 py-3 text-[11px] text-ink-faint">
+              <span aria-hidden className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-faint border-t-transparent" /> Loading more vehicles…
+            </div>
+          )}
+          {moreError && (
+            <div role="alert" data-testid="results-more-error" className="flex items-center justify-center gap-2 py-3 text-[11px] text-amber-300">
+              Couldn&apos;t load more —
+              <button type="button" onClick={onLoadMore} className="font-bold underline hover:text-white">retry</button>
+            </div>
+          )}
+          {/* Keyboard / screen-reader fallback: reachable by Tab, visually hidden until focused. */}
+          {hasMore && !moreError && !loadingMore && (
+            <button type="button" onClick={onLoadMore} className="sr-only focus:not-sr-only focus:m-2 focus:rounded focus:border focus:border-border focus:px-2 focus:py-1 focus:text-[11px] focus:text-ink-light">Load more vehicles</button>
+          )}
+          {!hasMore && vehicles.length > 0 && (
+            <div data-testid="results-end" className="py-3 text-center text-[11px] text-ink-faint">All {vehicles.length.toLocaleString()} vehicles shown.</div>
+          )}
           <div aria-hidden style={{ height: 10 }} />
         </div>
       </div>
