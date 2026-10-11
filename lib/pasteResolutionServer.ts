@@ -3,6 +3,7 @@
  * Server-only (resolvePasteVin fetches the dealer page).
  */
 
+import { trustedTrim } from "./trustedTrim";
 import { looksLikeUrl, resolvePasteVin, type PasteVinResolution } from "./fordSticker";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
 import type { CurrentDealerLookup } from "./listingSheet";
@@ -101,6 +102,8 @@ export async function resolveVehicleDealer(
   const [rows, seen] = await Promise.all([dealerDirectoryOrEmpty(), lookupSighting(vehicle.vin)]);
   // Lot age from our own crawl — the only "how long has it sat" we have when the factory build is missing.
   if (seen?.daysOnLot != null && !(vehicle.daysOnLot > 0)) vehicle = { ...vehicle, daysOnLot: seen.daysOnLot, lotFirstSeen: seen.firstSeen || undefined };
+  // The dealer listing's own trim beats a blank (NHTSA leaves it empty on most Toyotas).
+  if (!trustedTrim(vehicle.trim) && seen?.trim) vehicle = { ...vehicle, trim: seen.trim };
   const sightingRow = (): (typeof rows)[number] | null => {
     if (!seen?.dealerName) return null;
     const byId = seen.dealerId ? rows.find((r) => String(r.id) === seen.dealerId) : null;

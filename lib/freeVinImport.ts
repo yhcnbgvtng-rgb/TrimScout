@@ -17,6 +17,7 @@
  * aren't offered for these makes, rather than the import failing.
  */
 
+import { trustedTrim } from "./trustedTrim";
 import type { Vehicle } from "./types";
 import type { DecodedVehicle } from "./vinDecoder";
 import type { DealerPageIdentity } from "./dealerPageIdentity";
@@ -75,7 +76,7 @@ export function freeVinImportVehicle(input: FreeVinImportInput): Vehicle {
     // year/make/model/trim and drops the blanks, so this reads "2024 BMW"
     // rather than the nonsense "2024 BMW BMW" a make-as-model fallback gives.
     model,
-    trim: (decoded?.trim || "").trim(),
+    trim: trustedTrim(decoded?.trim),
     bodyType: (decoded?.bodyClass || "").trim(),
     engine: engineLabel(decoded),
     drivetrain: (decoded?.driveType || "").trim(),

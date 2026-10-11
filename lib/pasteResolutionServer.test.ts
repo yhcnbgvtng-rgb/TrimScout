@@ -35,7 +35,7 @@ describe("sightingFromListings — the rooftop our crawl last saw the VIN at", (
       listing({ dealerId: "7486", lastSeenAt: "2026-09-15T22:00:00.000Z" }),
       listing({ dealerId: "9999", dealerName: "Lexus of Elsewhere", lastSeenAt: "2026-09-16T22:00:00.000Z" }),
     ]);
-    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null, windowStickerUrl: null });
+    assert.deepEqual(s, { dealerId: "9999", dealerName: "Lexus of Elsewhere", city: "Whippany", state: "NJ", lastSeen: "2026-09-16", firstSeen: null, daysOnLot: null, windowStickerUrl: null, trim: "" });
     // Lot age: the feed's own figure first, else counted from the crawl's first sighting.
     assert.equal(sightingFromListings([listing({ daysOnLot: 12, crawlFirstSeen: "2026-09-01T00:00:00.000Z" })])?.daysOnLot, 12);
     const counted = sightingFromListings([listing({ daysOnLot: 0, crawlFirstSeen: "2026-09-10T00:00:00.000Z" })]);
