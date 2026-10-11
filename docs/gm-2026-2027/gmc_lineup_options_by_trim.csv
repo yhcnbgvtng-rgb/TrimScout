@@ -63,6 +63,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Sierra 1500,PRO,,45200,Factory package,,Chrome Exterior Package,200,Chrome front bumper; Chrome rear bumper,key=name:chrome exterior package,models/sierra1500_options.md:53
 2027,Sierra 1500,PRO,,45200,Factory option,Wheels,"17"" 6-spoke Bright Silver painted aluminum wheels",350,,,models/sierra1500_options.md:38
 2027,Sierra 1500,PRO,,45200,Factory option,Tires,"17"" LT265/70R17C all-terrain, blackwall",395,,,models/sierra1500_options.md:39
+2027,Sierra 1500,PRO,,45200,Factory option,Interior,Wrapped steering wheel,75,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/sierra1500_options.md:42
 2027,Sierra 1500,PRO,,45200,Factory option,Interior,Heated steering wheel,150,,,models/sierra1500_options.md:42
 2027,Sierra 1500,PRO,,45200,Factory option,Performance,Fuel Tank,445,,,models/sierra1500_options.md:60
 2027,Sierra 1500,PRO,,45200,Factory option,Performance,Automatic locking rear differential,395,,,models/sierra1500_options.md:60
@@ -71,6 +72,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Black outside vertical trailering mirrors,90,,,models/sierra1500_options.md:61
 2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Power distribution box,900,,,models/sierra1500_options.md:61
 2027,Sierra 1500,PRO,,45200,Factory option,Exterior,Universal Vehicle Module,295,,,models/sierra1500_options.md:61
+2027,Sierra 1500,PRO,,45200,Factory option,Interior,Carpeted floor covering,100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/sierra1500_options.md:62
 2027,Sierra 1500,Elevation,,53200,Base,,Standard Vehicle Price,53200,,"Destination Freight Charge $2,795 not included; Package Discount -$1,350 (unitemized) excluded; default-selected paid paint (+$695) excluded; see paint row; configuration: Crew Cab Short Bed default build; Crew Cab Standard Bed (4WD only, +$300 to +$700 picker) is configuration, not an option",models/sierra1500_options.md:78
 2027,Sierra 1500,Elevation,,53200,Powertrain,Drivetrain,4WD (vs 2WD),4000,,,models/sierra1500_options.md:77
 2027,Sierra 1500,Elevation,,53200,Powertrain,Engine,3.0L Duramax Turbo Diesel,2640,,,models/sierra1500_options.md:81
@@ -411,6 +413,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,GMC MultiPro Tailgate,445,,,models/sierra3500hd_options.md:117
 2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,Black Badging Package,595,,,models/sierra3500hd_options.md:117
 2026,Sierra 3500 HD,SLE,,59400,Factory option,Exterior,MultiPro Audio System by Kicker,975,,,models/sierra3500hd_options.md:117
+2026,Sierra 3500 HD,SLE,,59400,Factory option,Interior,Cloth rear seat with storage package,225,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/sierra3500hd_options.md:118
 2026,Sierra 3500 HD,SLE,,59400,Factory option,Interior,Rear window defogger,225,,,models/sierra3500hd_options.md:118
 2026,Sierra 3500 HD,SLE,,59400,Factory option,,Bed View Camera,250,,,models/sierra3500hd_options.md:120
 2026,Sierra 3500 HD,SLT,,66700,Base,,Standard Vehicle Price,66700,,"Destination Freight Charge $2,795 not included; Purchase Allowance -$1,000 excluded; configuration: captured on Crew Cab Standard Bed 4WD Single Rear Wheel (no Dual Rear Wheel on this cab); cab/box and Dual Rear Wheel deltas are configuration, not options; Crew Cab LB +$200; Dual Rear Wheel +$1,400 (Crew Cab LB)",models/sierra3500hd_options.md:136
@@ -676,6 +679,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Acadia,Elevation,,43900,Factory package,,Super Cruise Package,3670,"3 Years OnStar One; Super Cruise, advanced driver assistance technology; Enhanced Automatic Parking Assist",key=name:super cruise package; package content includes an OnStar One term (subscription content inside the package),models/acadia_options.md:46
 2027,Acadia,Elevation,,43900,Factory option,Wheels,"22"" Bright PVD wheel",2750,,,models/acadia_options.md:32
 2027,Acadia,Elevation,,43900,Factory option,Wheels,"22"" High Gloss Black aluminum wheels",2750,,,models/acadia_options.md:32
+2027,Acadia,Elevation,,43900,Factory option,Interior,7-passenger seating,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/acadia_options.md:37
 2027,Acadia,Elevation,,43900,Factory option,Performance,"Suspension, Performance",1200,,,models/acadia_options.md:51
 2027,Acadia,Elevation,,43900,Factory option,Performance,Engine block heater,100,,,models/acadia_options.md:51
 2027,Acadia,Denali,,58900,Base,,Standard Vehicle Price,58900,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/acadia_options.md:70
@@ -736,6 +740,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukon_options.md:32
 2027,Yukon,Elevation,,70200,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukon_options.md:32
 2027,Yukon,Elevation,,70200,Factory option,Performance,Engine block heater,100,,,models/yukon_options.md:53
+2027,Yukon,Elevation,,70200,Factory option,Interior,Power-release second row bucket seats,370,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/yukon_options.md:54
 2027,Yukon,Denali,,83100,Base,,Standard Vehicle Price,83100,,"Destination Freight Charge $2,795 not included; diesel credit -$510 on the default 3.0L Duramax excluded",models/yukon_options.md:80
 2027,Yukon,Denali,,83100,Powertrain,Drivetrain,4WD (vs 2WD),3125,,,models/yukon_options.md:77
 2027,Yukon,Denali,,83100,Exterior color,,Onyx Black,495,,,models/yukon_options.md:81
@@ -773,6 +778,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Yukon,AT4,,77900,Factory package,,Technology Package,1375,"15"" multicolor Head-Up Display; Rear Camera Mirror; Content theft-deterrent system",key=name:technology package,models/yukon_options.md:140
 2027,Yukon,AT4,,77900,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukon_options.md:142
 2027,Yukon,AT4,,77900,Factory option,Performance,Engine block heater,100,,,models/yukon_options.md:154
+2027,Yukon,AT4,,77900,Factory option,Interior,Power-release second row bucket seats,370,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/yukon_options.md:155
 2027,Yukon,AT4 Ultimate,,98200,Base,,Standard Vehicle Price,98200,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukon_options.md:177
 2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Onyx Black,495,,,models/yukon_options.md:178
 2027,Yukon,AT4 Ultimate,,98200,Exterior color,,Coastal Dune,495,,,models/yukon_options.md:178
@@ -818,6 +824,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" Bright split-spoke",3600,,,models/yukonxl_options.md:34
 2027,Yukon XL,Elevation,,73200,Factory option,Wheels,"22"" Bright multi-spoke",3750,,,models/yukonxl_options.md:34
 2027,Yukon XL,Elevation,,73200,Factory option,Performance,Engine block heater,100,,,models/yukonxl_options.md:55
+2027,Yukon XL,Elevation,,73200,Factory option,Interior,Power-release second row bucket seats,370,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/yukonxl_options.md:56
 2027,Yukon XL,Denali,,86100,Base,,Standard Vehicle Price,86100,,"Destination Freight Charge $2,795 not included; diesel credit -$510 on the default 3.0L Duramax excluded",models/yukonxl_options.md:79
 2027,Yukon XL,Denali,,86100,Powertrain,Drivetrain,4WD (vs 2WD),3125,,,models/yukonxl_options.md:76
 2027,Yukon XL,Denali,,86100,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:80
@@ -855,6 +862,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Yukon XL,AT4,,80900,Factory package,,Technology Package,1375,"15"" diagonal multicolor Head-Up Display; Rear Camera Mirror; Content theft-deterrent system",key=name:technology package,models/yukonxl_options.md:139
 2027,Yukon XL,AT4,,80900,Factory package,,AT4 Black Appearance Package,1065,Black illuminated front GMC emblem; Black nameplates,key=name:at4 black appearance package,models/yukonxl_options.md:141
 2027,Yukon XL,AT4,,80900,Factory option,Performance,Engine block heater,100,,,models/yukonxl_options.md:152
+2027,Yukon XL,AT4,,80900,Factory option,Interior,Power-release second row bucket seats,370,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/yukonxl_options.md:153
 2027,Yukon XL,AT4 Ultimate,,101200,Base,,Standard Vehicle Price,101200,,"Destination Freight Charge $2,795 not included; diesel credit -$1,500 on the default 3.0L Duramax excluded",models/yukonxl_options.md:174
 2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Onyx Black,495,,,models/yukonxl_options.md:176
 2027,Yukon XL,AT4 Ultimate,,101200,Exterior color,,Coastal Dune,495,,,models/yukonxl_options.md:176
@@ -888,8 +896,10 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Savana Passenger,LS,,48550,Factory package,,Cold Climate Package,100,Engine block heater,key=name:cold climate package,models/savanapassenger_options.md:57
 2027,Savana Passenger,LS,,48550,Factory option,Interior,6-way power front passenger seat,275,,,models/savanapassenger_options.md:51
 2027,Savana Passenger,LS,,48550,Factory option,Interior,6-way power driver seat,275,,,models/savanapassenger_options.md:51
+2027,Savana Passenger,LS,,48550,Factory option,Interior,Cloth front bucket seats,255,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/savanapassenger_options.md:51
 2027,Savana Passenger,LS,,48550,Factory option,,Passenger-side sliding door,195,,,models/savanapassenger_options.md:62
 2027,Savana Passenger,LS,,48550,Factory option,,Rear Camera Mirror,1295,,,models/savanapassenger_options.md:63
+2027,Savana Passenger,LS,,48550,Factory option,Interior,Carpeted floor covering,420,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/savanapassenger_options.md:63
 2027,Savana Passenger,LS,,48550,Factory option,,Remote Start,300,,,models/savanapassenger_options.md:63
 2027,Savana Passenger,LS,,48550,Factory option,,Keyless Entry Control Module,250,,,models/savanapassenger_options.md:63
 2027,Savana Passenger,LS,,48550,Factory option,,Rear window defogger,175,,,models/savanapassenger_options.md:63
@@ -939,6 +949,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Savana Cargo,Work Van,,42700,Factory option,Interior,5-passenger seating,2055,,"separately priced seating configuration (flagged); Full-body window glass package (Requires Package, no price) requires 5-passenger seating or the $0 Paratransit Package",models/savanacargo_options.md:52
 2027,Savana Cargo,Work Van,,42700,Factory option,Interior,6-way power front passenger seat,275,,,models/savanacargo_options.md:52
 2027,Savana Cargo,Work Van,,42700,Factory option,Interior,6-way power driver seat,275,,,models/savanacargo_options.md:52
+2027,Savana Cargo,Work Van,,42700,Factory option,Interior,Cloth front bucket seats,70,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/savanacargo_options.md:52
 2027,Savana Cargo,Work Van,,42700,Factory option,,Passenger-side sliding door,195,,,models/savanacargo_options.md:66
 2027,Savana Cargo,Work Van,,42700,Factory option,,Swing-out rear side door and rear door windows,160,,,models/savanacargo_options.md:66
 2027,Savana Cargo,Work Van,,42700,Factory option,,"Rear doors, side door and rear passenger-side quarter window glass",145,,,models/savanacargo_options.md:66

@@ -12,6 +12,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Silverado 1500,WT,,44400,Factory option,Performance,Fuel Tank,445,,,models/silverado1500_options.md:37
 2027,Silverado 1500,WT,,44400,Factory option,Wheels,"17"" Bright Silver painted aluminum wheels",350,,,models/silverado1500_options.md:39
 2027,Silverado 1500,WT,,44400,Factory option,Tires,"17"" LT265/70R17C all-terrain, blackwall",395,,,models/silverado1500_options.md:40
+2027,Silverado 1500,WT,,44400,Factory option,Interior,Wrapped steering wheel,75,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado1500_options.md:43
 2027,Silverado 1500,WT,,44400,Factory option,Interior,Heated steering wheel,150,,,models/silverado1500_options.md:43
 2027,Silverado 1500,Custom,,46000,Base,,Standard Vehicle Price,46000,,"Destination Freight Charge $2,795 not included; Package Discount -$1,350 (unitemized) excluded",models/silverado1500_options.md:66
 2027,Silverado 1500,Custom,,46000,Powertrain,Drivetrain,4WD (vs 2WD),3400,,,models/silverado1500_options.md:65
@@ -23,6 +24,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Silverado 1500,Custom,,46000,Factory option,Wheels,"22"" High Gloss Black wheels",3250,,,models/silverado1500_options.md:71
 2027,Silverado 1500,Custom,,46000,Factory option,Wheels,"22"" Bright multi-spoke wheels",3450,,,models/silverado1500_options.md:71
 2027,Silverado 1500,Custom,,46000,Factory option,Tires,"20"" 275/60R20SL all-terrain, blackwall",400,,,models/silverado1500_options.md:72
+2027,Silverado 1500,Custom,,46000,Factory option,Interior,Wrapped steering wheel,75,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado1500_options.md:75
 2027,Silverado 1500,Custom,,46000,Factory option,Interior,Heated steering wheel,150,,,models/silverado1500_options.md:75
 2027,Silverado 1500,Custom,,46000,Factory option,Wheels,"22"" PVD Bright V-Spoke Wheels",3450,,,models/silverado1500_options.md:85
 2027,Silverado 1500,Custom,,46000,Factory option,Wheels,"22"" Low Gloss Black wheel with selective machined accents",3750,,,models/silverado1500_options.md:85
@@ -88,6 +90,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory package,,Assisted Driving Package,645,"HD Surround Vision; Traffic Sign Recognition; Perimeter Lighting; Interior Camera. ""May require additional optional equipment""",key=name:assisted driving package,models/silverado1500_options.md:239
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory package,,Rally Package,3299,"18"" High Gloss Black wheels with selective machined accents (18"" multi-spoke High Gloss Black painted aluminum Bead Lock wheels); black decal Rally stripes on hood",key=name:rally package,models/silverado1500_options.md:244
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory option,Wheels,"20"" High Gloss Black painted aluminum wheels",1100,,,models/silverado1500_options.md:233
+2027,Silverado 1500,Custom Trail Boss,,54400,Factory option,Interior,Wrapped steering wheel,75,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado1500_options.md:237
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory option,Interior,Heated steering wheel,150,,,models/silverado1500_options.md:237
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory option,Wheels,"18"" High Gloss Black wheels with selective machined accents",2625,,,models/silverado1500_options.md:248
 2027,Silverado 1500,Custom Trail Boss,,54400,Factory option,Performance,Engine block heater,100,,,models/silverado1500_options.md:249
@@ -115,6 +118,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Colorado,WT,,32400,Exterior color,,Radiant Red Tintcoat,495,,,models/colorado_options.md:34
 2026,Colorado,WT,,32400,Factory package,,WT Convenience Package II,545,8-way power driver seat adjuster; power driver seat lumbar control; tailgate keyed cylinder lock,key=name:wt convenience package ii,models/colorado_options.md:43
 2026,Colorado,WT,,32400,Factory package,,Advanced Trailering Package,945,automatic locking rear differential; integrated trailer brake controller; In-Vehicle Trailering App,key=name:advanced trailering package,models/colorado_options.md:44
+2026,Colorado,WT,,32400,Factory option,Interior,"Jet Black, Evotex seat trim",1250,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/colorado_options.md:39
 2026,Colorado,WT,,32400,Factory option,Performance,Engine block heater,100,,,models/colorado_options.md:49
 2026,Colorado,WT,,32400,Factory option,Performance,220-amp alternator,150,,,models/colorado_options.md:50
 2026,Colorado,Custom,,33545,Base,,Standard Vehicle Price,33545,,"Destination Freight Charge $2,095 not included; Customer Cash -$1,000 excluded; default-selected WT Custom Package $1,145 listed on Summary but not in Total; excluded (ambiguous)",models/colorado_options.md:77
@@ -124,6 +128,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Colorado,Custom,,33545,Factory package,,WT Custom Appearance Package,1895,"Hood Decal Package; Black Bowtie Emblem; Gloss Black ""CHEVROLET"" tailgate decal lettering",key=name:wt custom appearance package,models/colorado_options.md:95
 2026,Colorado,Custom,,33545,Factory package,,WT Convenience Package II,545,8-way power driver seat adjuster; power driver seat lumbar control; tailgate keyed cylinder lock,key=name:wt convenience package ii,models/colorado_options.md:96
 2026,Colorado,Custom,,33545,Factory package,,Advanced Trailering Package,945,automatic locking rear differential; integrated trailer brake controller; In-Vehicle Trailering App,key=name:advanced trailering package,models/colorado_options.md:97
+2026,Colorado,Custom,,33545,Factory option,Interior,"Jet Black, Evotex seat trim",1250,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/colorado_options.md:90
 2026,Colorado,Custom,,33545,Factory option,Performance,Engine block heater,100,,,models/colorado_options.md:102
 2026,Colorado,Custom,,33545,Factory option,Performance,220-amp alternator,150,,,models/colorado_options.md:103
 2026,Colorado,LT,,36000,Base,,Standard Vehicle Price,36000,,"Destination Freight Charge $2,095 not included; Customer Cash -$1,000 excluded",models/colorado_options.md:130
@@ -243,6 +248,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Traverse,LT,,41100,Factory package,,Midnight/Sport Edition,2285,"20"" high gloss Black painted aluminum wheels with Black center caps and Black bowtie emblems; Black grille; Front and rear Black bowtie emblems; Black window moldings; Black Traverse badging",key=WJU,models/traverse_options.md:58
 2027,Traverse,LT,,41100,Factory option,Wheels,"20"" Metallic machined-face aluminum",1500,,,models/traverse_options.md:40
 2027,Traverse,LT,,41100,Factory option,Wheels,"22"" High Gloss Black aluminum",2750,,,models/traverse_options.md:40
+2027,Traverse,LT,,41100,Factory option,Interior,"LT Jet Black, Evotex seat trim",1000,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/traverse_options.md:46
 2027,Traverse,LT,,41100,Factory option,Roof,Panoramic power sunroof,1700,,,models/traverse_options.md:62
 2027,Traverse,LT,,41100,Factory option,Performance,Engine block heater,100,,,models/traverse_options.md:63
 2027,Traverse,LT,,41100,Factory option,Performance,Unique Ride and Handling Suspension,1200,,,models/traverse_options.md:63
@@ -390,6 +396,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Silverado 2500 HD,WT,,52500,Factory option,Interior,Adaptive Cruise Control,500,,,models/silverado2500hd_options.md:62
 2026,Silverado 2500 HD,WT,,52500,Factory option,Interior,Universal Vehicle Module,295,,,models/silverado2500hd_options.md:62
 2026,Silverado 2500 HD,WT,,52500,Factory option,Interior,Upfitter switches,150,,,models/silverado2500hd_options.md:62
+2026,Silverado 2500 HD,WT,,52500,Factory option,Interior,Carpeted floor covering,100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado2500hd_options.md:62
 2026,Silverado 2500 HD,WT,,52500,Factory option,Interior,Rear window defogger,225,,,models/silverado2500hd_options.md:62
 2026,Silverado 2500 HD,WT,,52500,Factory option,,Bed View Camera,250,,,models/silverado2500hd_options.md:63
 2026,Silverado 2500 HD,Custom,,54100,Base,,Standard Vehicle Price,54100,,"Destination Freight Charge $2,795 not included; configuration: Crew Cab Standard Bed 4WD default build; cab/box deltas are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/silverado2500hd_options.md:76
@@ -406,6 +413,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Silverado 2500 HD,Custom,,54100,Factory option,Interior,Adaptive Cruise Control,500,,,models/silverado2500hd_options.md:98
 2026,Silverado 2500 HD,Custom,,54100,Factory option,Interior,Universal Vehicle Module,295,,,models/silverado2500hd_options.md:98
 2026,Silverado 2500 HD,Custom,,54100,Factory option,Interior,Upfitter switches,150,,,models/silverado2500hd_options.md:98
+2026,Silverado 2500 HD,Custom,,54100,Factory option,Interior,Cloth rear seat with storage package,225,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado2500hd_options.md:98
 2026,Silverado 2500 HD,Custom,,54100,Factory option,Interior,Multi-Flex Audio System by Kicker,975,,,models/silverado2500hd_options.md:98
 2026,Silverado 2500 HD,Custom,,54100,Factory option,,Bed View Camera,250,,,models/silverado2500hd_options.md:99
 2026,Silverado 2500 HD,LT,,56700,Base,,Standard Vehicle Price,56700,,"Destination Freight Charge $2,795 not included; configuration: Crew Cab Standard Bed 4WD default build; cab/box deltas are configuration, not options; no single/dual rear-wheel choice on 2500 HD",models/silverado2500hd_options.md:111
@@ -510,6 +518,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Silverado 3500 HD,WT,,47400,Factory option,Performance,Engine block heater,100,,,models/silverado3500hd_options.md:83
 2026,Silverado 3500 HD,WT,,47400,Factory option,Performance,Skid plates,150,,,models/silverado3500hd_options.md:83
 2026,Silverado 3500 HD,WT,,47400,Factory option,Performance,High idle switch,200,,,models/silverado3500hd_options.md:83
+2026,Silverado 3500 HD,WT,,47400,Factory option,Interior,Carpeted floor covering,100,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/silverado3500hd_options.md:84
 2026,Silverado 3500 HD,WT,,47400,Factory option,Interior,Upfitter switches,150,,,models/silverado3500hd_options.md:84
 2026,Silverado 3500 HD,WT,,47400,Factory option,Interior,120-volt power outlet,225,,,models/silverado3500hd_options.md:84
 2026,Silverado 3500 HD,WT,,47400,Factory option,Interior,Rear window defogger,225,,,models/silverado3500hd_options.md:84
@@ -950,6 +959,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Stinger stripe,595,"Carbon Flash/Edge Red, /Competition Yellow, /Midnight Silver",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:59
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Asym Royal Blue/CF; Royal Blue",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:59
 2027,Corvette,Stingray 1LT,,71300,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:61
+2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:62
+2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:63
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Low-profile rear spoiler and front splitter,995,,,models/corvette_options.md:82
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:82
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Body-color exterior accents,995,,,models/corvette_options.md:82
@@ -957,6 +968,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 1LT,,71300,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:82
 2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:85
 2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:85
+2027,Corvette,Stingray 1LT,,71300,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:85
 2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:88
 2027,Corvette,Stingray 1LT,,71300,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:88
 2027,Corvette,Stingray 2LT,,78400,Base,,Standard Vehicle Price,78400,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:99
@@ -979,14 +991,21 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Asym Royal Blue/CF; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to Stingray 1LT (line 101),models/corvette_options.md:59
 2027,Corvette,Stingray 2LT,,78400,Factory option,Seats,GT2 bucket seats,1695,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:103
 2027,Corvette,Stingray 2LT,,78400,Factory option,Seats,Competition Sport bucket seats,2095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:103
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:104
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:105
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Low-profile rear spoiler and front splitter,995,,,models/corvette_options.md:124
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:124
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Body-color exterior accents,995,,,models/corvette_options.md:124
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Carbon Flash and body-color exterior accents,995,,,models/corvette_options.md:124
 2027,Corvette,Stingray 2LT,,78400,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:124
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:127
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:127
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:127
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:127
+2027,Corvette,Stingray 2LT,,78400,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:127
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:130
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:130
 2027,Corvette,Stingray 2LT,,78400,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:130
@@ -1010,14 +1029,21 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Asym Royal Blue/CF; Royal Blue",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:149
 2027,Corvette,Stingray 3LT,,83050,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:151
 2027,Corvette,Stingray 3LT,,83050,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:151
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:152
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:153
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Low-profile rear spoiler and front splitter,995,,,models/corvette_options.md:165
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:165
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Body-color exterior accents,995,,,models/corvette_options.md:165
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Carbon Flash and body-color exterior accents,995,,,models/corvette_options.md:165
 2027,Corvette,Stingray 3LT,,83050,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:165
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:168
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:168
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:168
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:168
+2027,Corvette,Stingray 3LT,,83050,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:168
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Magnetic Selective Ride Control,1895,,,models/corvette_options.md:171
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:171
 2027,Corvette,Stingray 3LT,,83050,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:171
@@ -1050,6 +1076,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Stinger stripe,595,"Carbon Flash/Edge Red, /Competition Yellow, /Midnight Silver",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:187
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:187
 2027,Corvette,Z06 1LZ,,119200,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:189
+2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:190
+2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:191
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:215
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:215
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Body-color rockers and splitter,495,,,models/corvette_options.md:215
@@ -1060,6 +1088,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 1LZ,,119200,Factory option,Exterior,Visible carbon fiber ground effects,4495,,,models/corvette_options.md:215
 2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:217
 2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:217
+2027,Corvette,Z06 1LZ,,119200,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:217
 2027,Corvette,Z06 1LZ,,119200,Factory option,Performance,Performance Brembo carbon ceramic antilock brakes,9000,,,models/corvette_options.md:220
 2027,Corvette,Z06 2LZ,,128100,Base,,Standard Vehicle Price,128100,,"Destination Freight Charge $2,495 not included; auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:230
 2027,Corvette,Z06 2LZ,,128100,Exterior color,,Roswell Green Metallic,500,,listed as identical to Z06 1LZ (line 232),models/corvette_options.md:181
@@ -1091,6 +1120,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to Z06 1LZ (line 232),models/corvette_options.md:187
 2027,Corvette,Z06 2LZ,,128100,Factory option,Seats,GT2 bucket seats,1695,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:234
 2027,Corvette,Z06 2LZ,,128100,Factory option,Seats,Competition Sport bucket seats,2095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:234
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:235
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:236
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to Z06 1LZ (line 247),models/corvette_options.md:215
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to Z06 1LZ (line 247),models/corvette_options.md:215
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Body-color rockers and splitter,495,,listed as identical to Z06 1LZ (line 247),models/corvette_options.md:215
@@ -1100,7 +1131,12 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Carbon Flash-painted carbon fiber ground effects,3495,,listed as identical to Z06 1LZ (line 247),models/corvette_options.md:215
 2027,Corvette,Z06 2LZ,,128100,Factory option,Exterior,Visible carbon fiber ground effects,4495,,listed as identical to Z06 1LZ (line 247),models/corvette_options.md:215
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:249
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:249
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:249
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:249
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:249
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:249
+2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:249
 2027,Corvette,Z06 2LZ,,128100,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:249
 2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:252
 2027,Corvette,Z06 2LZ,,128100,Factory option,Performance,Performance Brembo carbon ceramic antilock brakes,9000,,,models/corvette_options.md:252
@@ -1134,6 +1170,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Full-length dual racing stripes,1295,"13 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to Z06 1LZ (line 268),models/corvette_options.md:187
 2027,Corvette,Z06 3LZ,,132750,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:270
 2027,Corvette,Z06 3LZ,,132750,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:270
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:271
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon fiber and sueded microfiber-wrapped steering wheel,895,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:272
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors/spoiler (when equipped),295,,,models/corvette_options.md:284
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:284
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Body-color rockers and splitter,495,,,models/corvette_options.md:284
@@ -1143,8 +1181,13 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Carbon Flash-painted CF ground effects,3495,,,models/corvette_options.md:284
 2027,Corvette,Z06 3LZ,,132750,Factory option,Exterior,Visible CF ground effects,4495,,,models/corvette_options.md:284
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:287
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:287
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:287
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:287
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber display hood,795,,,models/corvette_options.md:287
+2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:287
 2027,Corvette,Z06 3LZ,,132750,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:291
@@ -1175,6 +1218,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Grand Sport Heritage Center Stripe,1295,"5 colorways: Admiral Blue, Carbon Flash, Red Mist, Blade Silver, Arctic White",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:308
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:308
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:310
+2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:311
+2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:312
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:336
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:336
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Extended front splitter ground effects,995,,,models/corvette_options.md:336
@@ -1183,6 +1228,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Exterior,Visible CF ground effects,4495,,,models/corvette_options.md:336
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:339
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:339
+2027,Corvette,Grand Sport 1LT,,86300,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:339
 2027,Corvette,Grand Sport 1LT,,86300,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:342
 2027,Corvette,Grand Sport 2LT,,93400,Base,,Standard Vehicle Price,93400,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:351
 2027,Corvette,Grand Sport 2LT,,93400,Exterior color,,Roswell Green Metallic,500,,listed as identical to Grand Sport 1LT (line 353),models/corvette_options.md:302
@@ -1211,6 +1257,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway); listed as identical to Grand Sport 1LT (line 353),models/corvette_options.md:308
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Seats,GT2 bucket seats,1695,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:355
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Seats,Competition Sport bucket seats,2095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:355
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:356
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:357
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to Grand Sport 1LT (line 369),models/corvette_options.md:336
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to Grand Sport 1LT (line 369),models/corvette_options.md:336
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Extended front splitter ground effects,995,,listed as identical to Grand Sport 1LT (line 369),models/corvette_options.md:336
@@ -1218,7 +1266,12 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Carbon Flash-painted CF ground effects,3495,,listed as identical to Grand Sport 1LT (line 369),models/corvette_options.md:336
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Exterior,Visible CF ground effects,4495,,listed as identical to Grand Sport 1LT (line 369),models/corvette_options.md:336
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:371
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:371
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:371
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:371
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:371
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:371
+2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:371
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:371
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:374
 2027,Corvette,Grand Sport 2LT,,93400,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:374
@@ -1250,6 +1303,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway); listed as identical to Grand Sport 1LT (line 390),models/corvette_options.md:308
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:392
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:392
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:393
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:394
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to Grand Sport 1LT (line 405),models/corvette_options.md:336
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to Grand Sport 1LT (line 405),models/corvette_options.md:336
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Extended front splitter ground effects,995,,listed as identical to Grand Sport 1LT (line 405),models/corvette_options.md:336
@@ -1257,7 +1312,12 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Carbon Flash-painted CF ground effects,3495,,listed as identical to Grand Sport 1LT (line 405),models/corvette_options.md:336
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Exterior,Visible CF ground effects,4495,,listed as identical to Grand Sport 1LT (line 405),models/corvette_options.md:336
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:407
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:407
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:407
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:407
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:407
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:407
+2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:407
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:407
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Quad center exit exhaust,1995,,listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
 2027,Corvette,Grand Sport 3LT,,98050,Factory option,Performance,Front lift with memory,2995,,listed as identical to Grand Sport 2LT (line 410),models/corvette_options.md:374
@@ -1276,10 +1336,13 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Brake calipers,795,"6 colors: Blue, Bronze, Bright Red, Edge Red, Velocity Yellow, Orange",painted caliper colors collapsed into one row (same price per color),models/corvette_options.md:423
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Full-length dual racing stripes,1295,"14 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; Edge Blue; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:426
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:428
+2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:429
+2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:430
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:449
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:449
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,,models/corvette_options.md:449
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:451
+2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:451
 2027,Corvette,ZR1 1LZ,,195000,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:451
 2027,Corvette,ZR1 3LZ,,206000,Base,,Standard Vehicle Price,206000,,"Destination Freight Charge $2,495 not included; default-selected paid paint (+$995) excluded (paint name not shown in source; it is one of the paint rows at that price); auto-included default options $3,000 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:463
 2027,Corvette,ZR1 3LZ,,206000,Exterior color,,Roswell Green Metallic,500,,listed as identical to ZR1 1LZ (line 465),models/corvette_options.md:420
@@ -1297,11 +1360,18 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Exterior,Full-length dual racing stripes,1295,"14 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; Edge Blue; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to ZR1 1LZ (line 470),models/corvette_options.md:426
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:472
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:472
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:473
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Carbon fiber and sueded microfiber-wrapped steering wheel,895,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:474
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to ZR1 1LZ (line 485),models/corvette_options.md:449
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to ZR1 1LZ (line 485),models/corvette_options.md:449
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,listed as identical to ZR1 1LZ (line 485),models/corvette_options.md:449
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:487
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:487
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:487
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:487
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:487
+2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:487
 2027,Corvette,ZR1 3LZ,,206000,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:490
@@ -1320,10 +1390,13 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Brake calipers,795,"6 colors: Blue, Bronze, Bright Red, Edge Red, Velocity Yellow, Orange",painted caliper colors collapsed into one row (same price per color); listed as identical to ZR1 1LZ (line 504),models/corvette_options.md:423
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Full-length dual racing stripes,1295,"14 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; Edge Blue; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to ZR1 1LZ (line 506),models/corvette_options.md:426
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:508
+2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:509
+2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:510
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:528
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:528
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,,models/corvette_options.md:528
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:530
+2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:530
 2027,Corvette,ZR1X 1LZ,,225200,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:530
 2027,Corvette,ZR1X 3LZ,,236200,Base,,Standard Vehicle Price,236200,,"Destination Freight Charge $2,495 not included; auto-included default options $2,600 on Summary (no named tile) excluded from base; not rows (Paul 2026-10-11); body: Coupe default build; Convertible +$10,000 is body configuration, not an option (Paul 2026-10-11)",models/corvette_options.md:542
 2027,Corvette,ZR1X 3LZ,,236200,Exterior color,,Roswell Green Metallic,500,,listed as identical to ZR1X 1LZ (line 544),models/corvette_options.md:420
@@ -1341,11 +1414,18 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Exterior,Full-length dual racing stripes,1295,"14 colorways: Asym Royal Blue/CF; Asym Edge Red/CF; CF w/ Blue, Yellow, Orange, Red, Silver accent; Edge Blue; CF Metallic; Edge Orange; Edge Red; Sterling Silver; Competition Yellow; Royal Blue",stripe colorways collapsed into one row (same price per colorway); listed as identical to ZR1X 1LZ (line 544),models/corvette_options.md:426
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:547
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:547
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:548
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Carbon fiber and sueded microfiber-wrapped steering wheel,895,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:549
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to ZR1X 1LZ (line 560),models/corvette_options.md:528
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to ZR1X 1LZ (line 560),models/corvette_options.md:528
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Exterior,Body-color carbon fiber split rear window trim,995,,listed as identical to ZR1X 1LZ (line 560),models/corvette_options.md:528
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:562
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:562
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:562
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:562
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:562
+2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Interior,Carbon Fiber Interior Package Level 2,5295,,,models/corvette_options.md:562
 2027,Corvette,ZR1X 3LZ,,236200,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:565
@@ -1374,6 +1454,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Grand Sport Heritage Center Stripe,1295,"5 colorways: Admiral Blue, Carbon Flash, Red Mist, Blade Silver, Arctic White",stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:582
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway),models/corvette_options.md:582
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Seats,Competition Sport bucket seats,1095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:584
+2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:585
+2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:586
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,,models/corvette_options.md:604
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Chrome Exterior Badge Package,395,,,models/corvette_options.md:604
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Extended front splitter ground effects,995,,,models/corvette_options.md:604
@@ -1382,6 +1464,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Exterior,Visible carbon fiber ground effects,4495,,,models/corvette_options.md:604
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:606
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Performance data and video recorder,1495,,,models/corvette_options.md:606
+2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:606
 2027,Corvette,Grand Sport X 1LT,,110000,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:609
 2027,Corvette,Grand Sport X 2LT,,115500,Base,,Standard Vehicle Price,115500,,"Destination Freight Charge $2,495 not included; body: Coupe default build; Convertible +$7,000 is body configuration, not an option (Paul 2026-10-11); Convertible delta shown on the variant card, not re-priced for this trim",models/corvette_options.md:618
 2027,Corvette,Grand Sport X 2LT,,115500,Exterior color,,Roswell Green,500,,listed as identical to Grand Sport X 1LT (line 620),models/corvette_options.md:576
@@ -1409,6 +1492,8 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway); listed as identical to Grand Sport X 1LT (line 620),models/corvette_options.md:582
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Seats,GT2 bucket seats,1695,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:622
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Seats,Competition Sport bucket seats,2095,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:622
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:623
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:624
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped),295,,listed as identical to Grand Sport X 1LT (line 635),models/corvette_options.md:604
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Chrome Exterior Badge Package,395,,listed as identical to Grand Sport X 1LT (line 635),models/corvette_options.md:604
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Extended front splitter ground effects,995,,listed as identical to Grand Sport X 1LT (line 635),models/corvette_options.md:604
@@ -1416,7 +1501,12 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Carbon Flash-painted carbon fiber ground effects,3495,,listed as identical to Grand Sport X 1LT (line 635),models/corvette_options.md:604
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Exterior,Visible carbon fiber ground effects,4495,,listed as identical to Grand Sport X 1LT (line 635),models/corvette_options.md:604
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:637
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:637
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:637
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:637
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:637
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:637
+2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:637
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:637
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Quad center exit exhaust,1995,,,models/corvette_options.md:640
 2027,Corvette,Grand Sport X 2LT,,115500,Factory option,Performance,Front lift with memory,2995,,,models/corvette_options.md:640
@@ -1447,8 +1537,15 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Exterior,Full-length dual racing stripes,1295,13 colorways,stripe colorways collapsed into one row (same price per colorway); listed as identical to Grand Sport X 1LT (line 651),models/corvette_options.md:582
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Seats,Competition Sport driver seat + GT2 passenger seat,350,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:653
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Seats,Competition Sport bucket seats,595,,"seat hardware option, separately priced (Paul 2026-10-11: keep and flag)",models/corvette_options.md:653
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Seat belt color,595,"5 colors: Orange, Natural, Santorini Blue, Torch Red, Yellow",paid interior/seat choice (Paul 2026-10-11: paid sticker line kept); paid seat belt colors collapsed into one row (same price each); Black is no-charge,models/corvette_options.md:654
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Sueded microfiber-wrapped steering wheel,695,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:655
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Personalized interior plaque,395,,,models/corvette_options.md:668
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Santorini Blue custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:668
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Adrenaline Red custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:668
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Competition Yellow custom leather stitching,495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:668
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Two-tone seats,595,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:668
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Stealth Interior Trim Package,695,,flag: interior trim package kept as paid equipment (treated like Carbon Fiber interior trim); confirm,models/corvette_options.md:668
+2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Color Combination Override,1495,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/corvette_options.md:668
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Interior,Carbon Fiber interior trim,1795,,,models/corvette_options.md:668
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Quad center exit exhaust,1995,,listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
 2027,Corvette,Grand Sport X 3LT,,120650,Factory option,Performance,Front lift with memory,2995,,listed as identical to Grand Sport X 2LT (line 670),models/corvette_options.md:640
@@ -1468,6 +1565,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Express Cargo,WT,,42200,Factory option,Exterior,Swing-out rear side door and rear door windows,160,,,models/expresscargo_options.md:54
 2026,Express Cargo,WT,,42200,Factory option,Exterior,Passenger-side sliding door,195,,,models/expresscargo_options.md:54
 2026,Express Cargo,WT,,42200,Factory option,Exterior,Dual-note horn,15,,,models/expresscargo_options.md:54
+2026,Express Cargo,WT,,42200,Factory option,Interior,Cloth front bucket seats,70,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/expresscargo_options.md:56
 2026,Express Cargo,WT,,42200,Factory option,Interior,6-way power driver seat,275,,,models/expresscargo_options.md:56
 2026,Express Cargo,WT,,42200,Factory option,Interior,6-way power front passenger seat,275,,,models/expresscargo_options.md:56
 2026,Express Cargo,WT,,42200,Factory option,Interior,5-passenger seating,1965,,"Full-body window glass package (Requires Package, no price) requires 5-passenger seating or the $0 Paratransit Package",models/expresscargo_options.md:56
@@ -1500,6 +1598,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Express Passenger,LS,,47950,Factory package,,Communications Package,2300,Cruise control; 6.6L V8 Gas engine; Manual tilt steering column. (Same name is $605 with cruise control only on Express Cargo; see Oddities.),key=name:communications package; package content includes the 6.6L V8 (so it is not additive with the 6.6L engine row),models/expresspassenger_options.md:50
 2026,Express Passenger,LS,,47950,Factory package,,Safety Package,3105,Cruise control; 6.6L V8 Gas engine; Manual tilt steering column,key=name:safety package; package content includes the 6.6L V8 (so it is not additive with the 6.6L engine row),models/expresspassenger_options.md:51
 2026,Express Passenger,LS,,47950,Factory package,,Enhanced Convenience Package,3250,Remote Keyless Entry; Remote Start; Cruise control,key=name:enhanced convenience package,models/expresspassenger_options.md:52
+2026,Express Passenger,LS,,47950,Factory option,Interior,Cloth front bucket seats,255,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/expresspassenger_options.md:46
 2026,Express Passenger,LS,,47950,Factory option,Interior,6-way power driver seat,275,,,models/expresspassenger_options.md:46
 2026,Express Passenger,LS,,47950,Factory option,Interior,6-way power front passenger seat,275,,,models/expresspassenger_options.md:46
 2026,Express Passenger,LS,,47950,Factory option,Exterior,Passenger-side sliding door,195,,,models/expresspassenger_options.md:55
@@ -1511,6 +1610,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,Express Passenger,LS,,47950,Factory option,Interior,Rear window defogger,175,,,models/expresspassenger_options.md:56
 2026,Express Passenger,LS,,47950,Factory option,Interior,Bluetooth,200,,,models/expresspassenger_options.md:56
 2026,Express Passenger,LS,,47950,Factory option,Interior,Remote Start,300,,,models/expresspassenger_options.md:56
+2026,Express Passenger,LS,,47950,Factory option,Interior,Carpeted floor covering,420,,paid interior/seat choice (Paul 2026-10-11: paid sticker line kept),models/expresspassenger_options.md:56
 2026,Express Passenger,LS,,47950,Factory option,Interior,Rear Camera Mirror,1295,,,models/expresspassenger_options.md:56
 2026,Express Passenger,LS,,47950,Factory option,Performance,Heavy-duty 770 cold-cranking amps battery,60,,,models/expresspassenger_options.md:57
 2026,Express Passenger,LS,,47950,Factory option,Performance,220-amp alternator,150,,,models/expresspassenger_options.md:57
