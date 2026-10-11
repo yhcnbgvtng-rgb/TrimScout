@@ -1296,7 +1296,8 @@ describe("shopper-facing factory option copy", () => {
     const end = src.indexOf("STEP 2: PAYMENT");
     const step1 = src.slice(start, end);
     // The picker is restored for same_spec (released sticker) and never on alternate.
-    assert.match(step1, /intent === "same_spec" && selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions\.length > 0/);
+    assert.match(step1, /intent === "same_spec" && selectedVehicle &&/);
+    assert.match(step1, /fordStickerStatus === "released" && fordFilterableOptions\.length > 0/);
     assert.match(step1, /<FactoryMustHavePicker/);
     // Alternate resolves via the free decode — no OEM comparables / other-lots hunt.
     assert.doesNotMatch(step1, /findLotsMode/);

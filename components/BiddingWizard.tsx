@@ -1142,6 +1142,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordPdfUrl(null);
     setFactoryBuildOem(null);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
     setAltVehicle1(null);
     setAltVehicle2(null);
@@ -1154,6 +1155,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [model, setModel] = useState<string>("3 Series");
   const [selectedTrims, setSelectedTrims] = useState<string[]>(["330i M Sport", "330i xDrive"]);
   const [mustHavePackages, setMustHavePackages] = useState<string[]>([]);
+  // The "I have must-have factory options" checkbox. Unchecked by default; picks made for the buyer (a sticker's own
+  // must-have lines, a restored draft) count as checked so a hidden selection is never sent.
+  const [wantsMustHaves, setWantsMustHaves] = useState(false);
 
   // Trade-in is now just a yes/no flag collected here — the actual
   // appraisal (value, photos, condition) happens later, once a selling
@@ -1312,6 +1316,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setModel("");
     setSelectedTrims([]);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
     setFordFilterableOptions([]);
     setFactoryBuildOem(null);
@@ -1546,6 +1551,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     fordPdfUrl,
     fordFilterableOptions,
     mustHavePackages,
+    wantsMustHaves,
     niceToHavePackages,
     selectedTrims,
     make,
@@ -1606,6 +1612,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string | null>("fordPdfUrl", setFordPdfUrl);
     pick<FilterableFactoryOption[]>("fordFilterableOptions", setFordFilterableOptions);
     pick<string[]>("mustHavePackages", setMustHavePackages);
+    pick<boolean>("wantsMustHaves", setWantsMustHaves);
     pick<string[]>("niceToHavePackages", setNiceToHavePackages);
     pick<string[]>("selectedTrims", setSelectedTrims);
     pick<string>("make", setMake);
@@ -1984,6 +1991,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordFilterableOptions([]);
     setNiceToHavePackages([]);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
 
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
@@ -2129,6 +2137,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordFilterableOptions([]);
     setFactoryBuildOem(null);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
   };
 
@@ -2290,6 +2299,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     code: fordFilterableOptions.find((o) => o.name === name)?.code || null,
   }));
 
+  const mustHavesOpen = wantsMustHaves || mustHavePackages.length > 0;
+  const onToggleWantsMustHaves = (next: boolean) => {
+    if (next) {
+      setWantsMustHaves(true);
+      return;
+    }
+    if (mustHavePackages.length > 0 && !window.confirm(`Clear the ${mustHavePackages.length} must-have option${mustHavePackages.length === 1 ? "" : "s"} you selected?`)) return;
+    setMustHavePackages([]);
+    setWantsMustHaves(false);
+  };
   const toggleFordMustHave = (name: string) => {
     setMustHavePackages((prev) =>
       prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
@@ -2986,33 +3005,49 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                {/* Must-haves collapse behind a one-line summary — the full option
-                    list is long enough to bury everything else. Same-spec only: the
-                    alternate lane free-decodes and has no factory option list. */}
-                {intent === "same_spec" && selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                  <details className="group rounded-xl border border-border bg-surface-elevated">
-                    <summary className="cursor-pointer list-none px-3.5 py-2.5 flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-white">
-                        {FORD_MUST_HAVE_HEADING}
-                        <span className="ml-2 text-[11px] font-normal text-ink-muted">
-                          {mustHavePackages.length} of {fordFilterableOptions.length} selected
+                {/* Must-haves sit behind an opt-in checkbox — the full option list is long enough to bury
+                    everything else. Same-spec only: the alternate lane free-decodes and has no factory
+                    option list. No options on file → the checkbox stays, disabled, saying why. */}
+                {intent === "same_spec" && selectedVehicle && (() => {
+                  const hasOptions = fordStickerStatus === "released" && fordFilterableOptions.length > 0;
+                  return (
+                    <div className="rounded-xl border border-border bg-surface-elevated" data-testid="must-have-section">
+                      <label className={`flex items-start gap-2 px-3.5 py-2.5 text-xs ${hasOptions ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}>
+                        <input
+                          type="checkbox"
+                          data-testid="must-have-toggle"
+                          checked={hasOptions && mustHavesOpen}
+                          disabled={!hasOptions}
+                          aria-expanded={hasOptions && mustHavesOpen}
+                          aria-controls="must-have-panel"
+                          onChange={(e) => onToggleWantsMustHaves(e.target.checked)}
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
+                        />
+                        <span className="font-semibold text-white">
+                          {hasOptions ? "I have must-have factory options" : "No factory options on file for this vehicle"}
+                          {hasOptions && mustHavesOpen ? (
+                            <span className="ml-2 text-[11px] font-normal text-ink-muted" data-testid="must-have-count">
+                              {mustHavePackages.length} of {fordFilterableOptions.length} selected
+                            </span>
+                          ) : null}
                         </span>
-                      </span>
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="border-t border-border/60 px-3.5 py-3 space-y-2">
-                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
-                      <FactoryMustHavePicker
-                        options={fordFilterableOptions}
-                        checked={mustHavePackages}
-                        onToggle={toggleFordMustHave}
-                      />
-                      <p className="text-[10px] text-ink-faint">
-                        Must-haves are saved with this deal. Dealer ads are not proof.
-                      </p>
+                      </label>
+                      {hasOptions && mustHavesOpen && (
+                        <div id="must-have-panel" role="region" aria-label={FORD_MUST_HAVE_HEADING} data-testid="must-have-panel" className="border-t border-border/60 px-3.5 py-3 space-y-2">
+                          <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                          <FactoryMustHavePicker
+                            options={fordFilterableOptions}
+                            checked={mustHavePackages}
+                            onToggle={toggleFordMustHave}
+                          />
+                          <p className="text-[10px] text-ink-faint">
+                            Must-haves are saved with this deal. Dealer ads are not proof.
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </details>
-                )}
+                  );
+                })()}
 
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. A request is all new or all used. */}
