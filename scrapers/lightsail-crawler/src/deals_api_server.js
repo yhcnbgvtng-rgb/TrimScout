@@ -35,7 +35,7 @@ import mysql from "mysql2/promise";
 import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
-import { createStableCache } from "./stableCache.js";
+import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
@@ -2241,6 +2241,9 @@ const invCached = async (key, fn) => {
 const stableCached = createStableCache({
   runBackground,
   ttlMs: INV_CACHE_MS,
+  // A catalog payload built from an older facet build than the current one counts as expired at once (it used to be served for up to INV_CACHE_MS
+  // after every rebuild, so a cleaned-up option list kept showing its old junk). catalogFacets is declared further down; this runs at request time.
+  isOutdated: (value) => builtForOtherBuild(value, catalogFacets.builtAt),
   filePath: process.env.INV_FACET_CACHE_FILE || "/opt/trimscout-deals/facet-cache.json",
 }).get;
 const invInvalidate = () => {
