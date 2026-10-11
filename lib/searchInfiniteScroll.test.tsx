@@ -77,7 +77,7 @@ describe("/search infinite scroll", () => {
     const root = createRoot(document.getElementById("root")!);
     roots.push(root);
     const router = { push() {}, replace() {}, back() {}, forward() {}, refresh() {}, prefetch() {} };
-    await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider, { session: null }, React.createElement(BuyerSearchView)))); await tick(); });
+    await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
     // Pick the Toyota make, then Search.
