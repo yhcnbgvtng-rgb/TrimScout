@@ -14,6 +14,8 @@ import { CounterComparison } from "../../../components/CounterComparison";
 import type { UsedQuote } from "../../../lib/usedQuote";
 import type { BuyerCounter } from "../../../lib/rfq";
 import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
+import { DealerStagePanel } from "../../../components/DealerStagePanel";
+import type { DealStageState } from "../../../lib/dealStages";
 import { DealerTradePanel } from "../../../components/trade/DealerTradePanel";
 import { SiteFooter } from "../../../components/SiteFooter";
 import type { QuotePrefs } from "../../../lib/usedQuote";
@@ -50,6 +52,10 @@ type Context = {
   factoryStickerUrl: string | null;
   /** Admin "Dealer view": read-only, not recorded as a dealer view. */
   preview?: boolean;
+  /** Staged Cash / Finance deal: this desk's stage state and its current quoted out-the-door. */
+  staged?: boolean;
+  stage?: DealStageState | null;
+  quotedOtd?: number | null;
 };
 
 /** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
@@ -98,7 +104,7 @@ function ReceivedBody() {
     }
   };
 
-  useEffect(() => {
+  const loadContext = React.useCallback(() => {
     if (!token) return;
     fetch(`/api/quote-invite/context?t=${encodeURIComponent(token)}${preview ? "&preview=1" : ""}`)
       .then(async (r) => {
@@ -108,8 +114,13 @@ function ReceivedBody() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : "This link is no longer valid."));
   }, [token, preview]);
+  useEffect(() => { loadContext(); }, [loadContext]);
 
   const acceptCounter = ctx ? acceptableCashCounter(ctx.quotePrefs, ctx.buyerCounter) : null;
+  // Staged Cash / Finance deal: the progress bar and the dealer's next move, in every state the page can be in.
+  const stagePanel = ctx?.staged && ctx.stage ? (
+    <DealerStagePanel token={token} stage={ctx.stage} quotedOtd={ctx.quotedOtd ?? null} hasTrade={Boolean(ctx.hasTrade)} rfqOpen={ctx.rfqStatus === "collecting" && !ctx.preview} onChanged={loadContext} />
+  ) : null;
   const title = ctx?.vehicle ? [ctx.vehicle.year, ctx.vehicle.make, ctx.vehicle.model, ctx.vehicle.trim].filter(Boolean).join(" ") : car;
 
   return (
@@ -161,10 +172,13 @@ function ReceivedBody() {
               <p className="text-xs text-ink-muted">Your earlier quote stays on their compare for reference. Thanks for looking.</p>
             </div>
           ) : acceptedOtd != null ? (
+            <>
             <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-1 text-sm text-ink-light" data-testid="counter-accepted-done">
               <p className="font-bold text-white">Counter accepted. Thank you.</p>
-              <p>The buyer is told: &ldquo;{COUNTER_ACCEPTED_HEADLINE}&rdquo; — final out-the-door <span className="font-mono">${acceptedOtd.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>. They pick it or walk away.</p>
+              <p>The buyer is told: &ldquo;{COUNTER_ACCEPTED_HEADLINE}&rdquo; — final out-the-door <span className="font-mono">${acceptedOtd.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>. {ctx.staged ? "The out-the-door price is now locked; the trade-in and payment steps follow below." : "They pick it or walk away."}</p>
             </div>
+            {stagePanel}
+            </>
           ) : done ? (
             <>
             <div className="rounded-2xl border border-brand-500/40 bg-brand-500/5 p-5 space-y-2 text-sm text-ink-light">
@@ -187,23 +201,29 @@ function ReceivedBody() {
               ) : null}
               {ctx.hasTrade ? <p className="text-xs text-sky-200">The buyer included a trade-in. Appraise it below.</p> : null}
             </div>
+            {stagePanel}
             {ctx.hasTrade ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
             </>
           ) : ctx.rfqStatus !== "collecting" ? (
-            <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
-              The buyer has closed this request — no quote is needed. Thanks for looking.
-            </p>
+            <>
+              {stagePanel}
+              <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
+                The buyer has closed this request{stagePanel ? " (see the progress above for how this deal ended)" : " — no quote is needed"}. Thanks for looking.
+              </p>
+            </>
           ) : ctx.inviteStatus !== "invited" ? (
             <>
+              {stagePanel}
               <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
-                This invite already has a response ({ctx.inviteStatus}). {ctx.hasTrade && ctx.inviteStatus === "quoted" ? "The buyer's trade-in is below; you can appraise it or update your appraisal." : "Nothing more to do."}
+                This invite already has a response ({ctx.inviteStatus}). {ctx.hasTrade && ctx.inviteStatus === "quoted" ? "The buyer's trade-in is below; you can appraise it or update your appraisal." : stagePanel ? "Your deal's next step is above." : "Nothing more to do."}
               </p>
               {ctx.hasTrade && ctx.inviteStatus === "quoted" ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
             </>
           ) : ctx.quotePrefs ? (
             <>
               {ctx.buyerNote ? <BuyerNote note={ctx.buyerNote} /> : null}
-              {ctx.buyerCounter ? (
+              {stagePanel}
+              {ctx.buyerCounter && !(ctx.staged && ctx.stage?.otd.status === "locked") ? (
                 <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 space-y-3 text-sm text-amber-100 leading-relaxed" data-testid="buyer-counter-panel">
                   <p className="font-bold text-white">The buyer countered your quote.</p>
                   <p>
@@ -225,7 +245,7 @@ function ReceivedBody() {
                       Accept buyer&apos;s counter
                     </button>
                   ) : null}
-                  {acceptCounter && accepting ? <AcceptCounterPanel token={token} counter={acceptCounter} onAccepted={setAcceptedOtd} onCancel={() => setAccepting(false)} /> : null}
+                  {acceptCounter && accepting ? <AcceptCounterPanel token={token} counter={acceptCounter} onAccepted={(v) => { setAcceptedOtd(v); loadContext(); }} onCancel={() => setAccepting(false)} /> : null}
                 </div>
               ) : null}
               <div className="rounded-2xl border border-border bg-surface p-5 space-y-2 text-sm text-ink-light leading-relaxed">
@@ -236,7 +256,7 @@ function ReceivedBody() {
                 {ctx.hasTrade ? <p className="text-xs text-sky-200 border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">The buyer included a trade-in. Quote the car on its own, then appraise the trade as its own line in the section below the sheet.</p> : <TradeInNote expected={ctx.tradeInExpected} />}
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />
+              {ctx.staged && ctx.stage && ctx.stage.otd.status === "locked" ? null : <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />}
               {ctx.hasTrade ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
             </>
           ) : !ctx.leasePrefs ? (

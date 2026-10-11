@@ -6,6 +6,8 @@ import { BiddingRequest, DealerBid, OfferCloseClockView } from "../lib/types";
 import type { RfqRequest } from "../lib/rfq";
 import type { RfqLane } from "../lib/alternateAsk";
 import { UnsubscribedBanner } from "./UnsubscribedBanner";
+import { DealStageBar } from "./DealStageBar";
+import { isStagedRfq, stageOf, stageSummary } from "../lib/dealStages";
 import { RFQ_LIFECYCLE, relativeTime, rfqDealNumber, rfqLifecycleDetail, rfqLifecycleStage, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary, type RfqLifecycleStage } from "../lib/rfqTracker";
 import { readQuoteDraft } from "../lib/quoteDraft";
 import { formatCurrency } from "../lib/otdCalculator";
@@ -180,6 +182,19 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                   <p className="text-[10px] text-sky-200/90" data-testid="rfq-admin-edits">
                     Corrected by TrimScout: {rfq.adminEdits.map((e) => e.summary).join(" · ")}
                   </p>
+                ) : null}
+                {isStagedRfq(rfq) && rfq.approvalStatus !== "rejected" ? (
+                  <div className="space-y-2" data-testid="rfq-stage-progress">
+                    {rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired").map((i) => {
+                      const st = stageOf(rfq, i);
+                      return st ? (
+                        <div key={i.id} className="space-y-1">
+                          <p className="flex flex-wrap items-baseline justify-between gap-2 text-[11px]"><span className="font-bold text-white">{i.dealerName}</span><span className="text-ink-muted">{stageSummary(st)}</span></p>
+                          <DealStageBar state={st} compact />
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
                 ) : null}
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">

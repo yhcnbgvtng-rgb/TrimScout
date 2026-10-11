@@ -27,7 +27,11 @@ export interface CashPrefs {
   zip: string;
   timeline?: LeaseTimeline | null;
 }
-export type QuotePrefs = { quoteType: "finance"; finance: FinancePrefs } | { quoteType: "cash"; cash: CashPrefs };
+/**
+ * `staged` marks the Cash / Finance path (2026-10-11): dealers quote the out-the-door price first; the trade-in and then
+ * cash-or-financing follow in locked stages (lib/dealStages.ts). Requests without it keep the original single-sheet flow.
+ */
+export type QuotePrefs = { quoteType: "finance"; finance: FinancePrefs } | { quoteType: "cash"; cash: CashPrefs; staged?: boolean };
 
 /** What's still missing from a finance ask, in the order the form shows them — empty means the locks are complete. */
 export function missingFinanceLocks(p: { termMonths?: number | "" | null; downPayment?: string | number | null; creditBand?: string | null; zip?: string | null }): string[] {
@@ -50,7 +54,7 @@ export function parseQuotePrefs(raw: unknown): QuotePrefs | null {
     const c = (o.cash || {}) as Record<string, unknown>;
     const zip = zipOf(c.zip);
     if (!zip) return null;
-    return { quoteType: "cash", cash: { zip, timeline: tlOf(c.timeline) } };
+    return { quoteType: "cash", cash: { zip, timeline: tlOf(c.timeline) }, ...(o.staged === true ? { staged: true } : {}) };
   }
   if (o.quoteType === "finance") {
     const f = (o.finance || {}) as Record<string, unknown>;

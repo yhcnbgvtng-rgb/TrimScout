@@ -13,6 +13,7 @@ import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, 
 import { isExpired } from "../lib/leaseQuote";
 import type { RfqRequest } from "../lib/rfq";
 import type { LineItem } from "../lib/leaseQuote";
+import { stageOf } from "../lib/dealStages";
 
 /**
  * Finance / Cash compare — never the lease grid. Every row is the same
@@ -22,7 +23,7 @@ import type { LineItem } from "../lib/leaseQuote";
  * so a cheap monthly can't hide junk. Cash ranks by out the door.
  * Expired rows grey out; waiting rows show dashes.
  */
-export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; /** Cash / Finance stages: accepting, the trade-in and payment live in the steps above, so no shortcut pick or request-level walk here. */ staged?: boolean; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
   // Which row has the counter sheet open — one at a time.
   const [countering, setCountering] = useState<string | null>(null);
   const collecting = rfq.status === "collecting";
@@ -188,12 +189,12 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
     ) : null;
     const footer = collecting && used && !expired && invite.quote ? (
       <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
-        <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+        {staged ? null : <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>}
         <div className="grid grid-cols-2 gap-1.5">
-        {onCounter && !unsubscribed ? (
+        {onCounter && !unsubscribed && !(staged && stageOf(rfq, invite)?.otd.status === "locked") ? (
           <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
         ) : null}
-        <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>
+        {staged ? null : <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>}
         </div>
       </div>
     ) : null;
@@ -240,7 +241,7 @@ export function UsedCompare({ rfq, prefs, onPick, onWalk, onCounter, busy }: { r
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
         <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} zip={finance ? prefs.finance.zip : prefs.cash.zip} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
       ) : null}
-      {collecting ? (
+      {collecting && !staged ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface px-4 py-3">
           <p className="text-[11px] text-ink-muted">Choose a quote under its dealer, or walk away — nothing is binding until you sign with the dealer.</p>
           {!anyActions ? <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away from this request</button> : null}

@@ -14,14 +14,16 @@ const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8")
 
 describe("kill switches", () => {
   it("defaults: sends on, email on, sticker fetch on, paid decode + live inventory off; any truthy/falsy spelling works", () => {
-    assert.deepEqual(featureFlags({}), { rfqSend: true, outboundDealerEmail: true, paidVinDecode: false, liveInventory: false, stickerFetch: true });
+    assert.deepEqual(featureFlags({}), { rfqSend: true, outboundDealerEmail: true, paidVinDecode: false, liveInventory: false, stickerFetch: true, dealStages: false });
     assert.equal(featureEnabled("rfqSend", { FEATURE_RFQ_SEND: "off" }), false);
     assert.equal(featureEnabled("rfqSend", { FEATURE_RFQ_SEND: "0" }), false);
     assert.equal(featureEnabled("paidVinDecode", { FEATURE_PAID_VIN_DECODE: "yes" }), true);
     assert.equal(featureEnabled("rfqSend", { FEATURE_RFQ_SEND: "" }), true, "blank means default");
+    assert.equal(featureEnabled("dealStages", {}), false, "staged Cash / Finance is off until the deals-box patch is live");
+    assert.equal(featureEnabled("dealStages", { FEATURE_DEAL_STAGES: "on" }), true);
   });
   it("the public status carries an honest banner when a switch is off, and nothing else", () => {
-    assert.deepEqual(publicFeatureStatus({}), { rfqSend: true, outboundDealerEmail: true, banner: null });
+    assert.deepEqual(publicFeatureStatus({}), { rfqSend: true, outboundDealerEmail: true, dealStages: false, banner: null });
     assert.equal(publicFeatureStatus({ FEATURE_RFQ_SEND: "false" }).banner, DEGRADE_COPY.rfqSendOff);
     assert.equal(publicFeatureStatus({ FEATURE_OUTBOUND_DEALER_EMAIL: "false" }).banner, DEGRADE_COPY.emailOff);
     assert.doesNotMatch(JSON.stringify(publicFeatureStatus({})), /count|queue|secret/i);
