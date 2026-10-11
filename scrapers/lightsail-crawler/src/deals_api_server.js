@@ -37,6 +37,7 @@ import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createRfqStageHandler } from "./rfqStages.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
+import { createStatsCache } from "./statsCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
 import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
@@ -2260,6 +2261,11 @@ const stableCached = createStableCache({
   isOutdated: (value) => builtForOtherBuild(value, catalogFacets.builtAt),
   filePath: process.env.INV_FACET_CACHE_FILE || "/opt/trimscout-deals/facet-cache.json",
 }).get;
+// MEDIAN() full-scan payloads (admin analytics, homepage market pulse): 30-minute stale-while-revalidate, not cleared by writes — see statsCache.js.
+const statsCached = createStatsCache({
+  runBackground,
+  filePath: process.env.INV_STATS_CACHE_FILE || "/opt/trimscout-deals/stats-cache.json",
+});
 const invInvalidate = () => {
   invGeneration++;
   invCache.clear();
@@ -2787,8 +2793,8 @@ async function handleExportInventory(req, res, params) {
 // Dealership analytics for the admin page: days on market (DOM = days on the lot,
 // NOT the HTML DOM), velocity, pricing, assortment, TrimScout coverage, data quality.
 // Aggregated in SQL over dealer_inventory (+ dealer_inventory_days for price cuts),
-// cached 10 minutes per filter set and invalidated by every bulk upsert / sweep — so
-// a page load never scans raw rows twice, and the nightly sync refreshes it.
+// cached 30 minutes per filter set (statsCached: stale-while-revalidate, NOT cleared by writes —
+// its MEDIAN scans must never run live on a page load or during the nightly sync).
 //
 // DOM formula: the crawl's days_on_lot when it carried one, else
 //   DATEDIFF(COALESCE(removed_at, NOW()), COALESCE(crawl_first_seen, first_seen_at)).
@@ -2803,7 +2809,7 @@ async function handleInventoryAnalytics(req, res, params) {
   const p = (k) => (params.get(k) || "").trim();
   const f = { state: p("state").toUpperCase().slice(0, 2), make: p("make").slice(0, 64), dealerId: INV_INT(p("dealerId")), model: p("model").slice(0, 96), from: INV_DATE(p("from")), to: INV_DATE(p("to")) };
   const key = "analytics:" + JSON.stringify(f);
-  sendJson(res, 200, await invCached(key, () => computeInventoryAnalytics(pool, f)));
+  sendJson(res, 200, await statsCached(key, () => computeInventoryAnalytics(pool, f)));
 }
 async function computeInventoryAnalytics(pool, f) {
   const where = [], args = [];
@@ -2895,10 +2901,8 @@ async function computeInventoryAnalytics(pool, f) {
 
 // GET /api/inventory/market-pulse?state= — the public homepage's crawl-derived market pulse
 // (arrivals, removals, price drops, days on lot, moving makes, just-arrived cards). Cached the
-// same way stats/analytics are (invCached, 10-min TTL, dropped on every bulk upsert/sweep) —
-// that already satisfies "nightly minimum, hourly nice" with no dedicated cron: whenever the
-// cache is cold (first hit after a write, or after 10 minutes), the next request recomputes it;
-// otherwise it's served from memory. A dedicated key (not shared with "stats"/"analytics") so a
+// same way analytics is (statsCached: 30-min stale-while-revalidate, not cleared by writes) —
+// an expired entry is served at once while one background refresh recomputes it. A dedicated key (not shared with "stats"/"analytics") so a
 // public homepage visitor never pays for or is exposed to admin-only aggregates.
 //
 // "Removed" here means the crawl stopped seeing the VIN at that store — a velocity PROXY, never
@@ -2909,7 +2913,7 @@ async function handleMarketPulse(req, res, params) {
   await ensureInventoryTable(pool);
   const state = (params.get("state") || "").trim().toUpperCase().slice(0, 2);
   const cacheKey = `market-pulse:${state || "national"}`;
-  sendJson(res, 200, await invCached(cacheKey, () => computeMarketPulse(pool, state || null)));
+  sendJson(res, 200, await statsCached(cacheKey, () => computeMarketPulse(pool, state || null)));
 }
 
 // Volume floor for "moving makes" — below this, a single vehicle selling/leaving swings the rate
