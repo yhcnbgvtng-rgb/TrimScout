@@ -2,7 +2,7 @@ import { gotScraping } from 'got-scraping';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { withSharedDataLock } from './shared_data_lock.js';
-import { cacheShardPath, inventoryShardPath, listShardedStates } from './inventory_shards.js';
+import { cacheShardPath, inventoryShardPath, listInventoryShardFiles } from './inventory_shards.js';
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 
 function sleep(ms) {
@@ -54,12 +54,13 @@ export async function throttleNhtsaRequest() {
 // (see inventory_shards.js) instead of one nationwide cache/inventory file
 // — required here, unlike the CLI backfill entry point below, which
 // discovers every state's shard itself and calls this once per state.
-function getDataPaths(state) {
+function getDataPaths(state, shardBrand = null) {
   const dataDir = path.resolve(process.cwd(), 'data');
   return {
     dataDir,
-    cachePath: cacheShardPath(state, process.cwd()),
-    inventoryPath: inventoryShardPath(state, process.cwd()),
+    cachePath: cacheShardPath(state, process.cwd(), shardBrand),
+    legacyCachePath: cacheShardPath(state, process.cwd()),
+    inventoryPath: inventoryShardPath(state, process.cwd(), shardBrand),
   };
 }
 
@@ -335,16 +336,17 @@ export function mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVi
 // discovers every state that has a shard on disk and backfills each one in
 // turn, preserving the old "one monolithic file" CLI backfill behavior
 // without ever holding more than one state's data in memory at a time.
-export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null, state = null) {
+export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRunContext = null, vinsToEnrich = null, state = null, shardBrand = brand?.name || null) {
   if (!state) {
-    const states = await listShardedStates();
-    if (states.length === 0) {
+    // One pass per shard file on disk (per-brand and any legacy state-wide file), one shard in memory at a time.
+    const shards = await listInventoryShardFiles();
+    if (shards.length === 0) {
       console.log('No inventory shards found under data/inventory/ — nothing to backfill.');
       return;
     }
-    console.log(`No state given — backfilling all ${states.length} shard(s) in turn: ${states.join(', ')}`);
-    for (const s of states) {
-      await runEnrichmentPipeline(limit, brand, dbRunContext, vinsToEnrich, s);
+    console.log(`No state given — backfilling all ${shards.length} shard(s) in turn: ${shards.map((x) => x.slug ? `${x.state}/${x.slug}` : x.state).join(', ')}`);
+    for (const sh of shards) {
+      await runEnrichmentPipeline(limit, brand, dbRunContext, vinsToEnrich, sh.state, sh.slug);
     }
     return;
   }
@@ -353,7 +355,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   console.log(`⚡ STARTING ENHANCED VIN ENRICHMENT PIPELINE (${state})`);
   console.log("====================================================");
 
-  const { cachePath: CACHE_PATH, inventoryPath: INVENTORY_PATH } = getDataPaths(state);
+  const { cachePath: CACHE_PATH, legacyCachePath: LEGACY_CACHE_PATH, inventoryPath: INVENTORY_PATH } = getDataPaths(state, shardBrand);
   await fs.mkdir(path.dirname(CACHE_PATH), { recursive: true });
   await fs.mkdir(path.dirname(INVENTORY_PATH), { recursive: true });
 
@@ -398,6 +400,14 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       cache = await readJsonLarge(CACHE_PATH);
     } catch {
       cache = {};
+      // First run on a per-brand shard: seed from the old state-wide cache, keeping only this brand's VINs, so the
+      // switch doesn't re-pay every NHTSA lookup. The legacy cache file is left as is (nothing reads it any more).
+      if (shardBrand) {
+        try {
+          const legacyCache = await readJsonLarge(LEGACY_CACHE_PATH);
+          for (const v of inventory) if (v?.vin && legacyCache[v.vin] !== undefined) cache[v.vin] = legacyCache[v.vin];
+        } catch { /* no legacy cache: start empty */ }
+      }
     }
 
     console.log(`Total Vehicles in Inventory File: ${inventory.length}`);

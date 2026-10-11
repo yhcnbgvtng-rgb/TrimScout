@@ -23,7 +23,7 @@ function workdir() { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'sync-e2e-'
 after(() => { for (const d of tmpRoots) fs.rmSync(d, { recursive: true, force: true }); });
 
 /** Two state shards, `perStore` vehicles for each of `n` stores, in the shape the crawler writes. */
-function writeShards(dir, { n = 3, perStore = 20, staleStoreIds = [] } = {}) {
+function writeShards(dir, { n = 3, perStore = 20, staleStoreIds = [], mixedLayout = false } = {}) {
   const stores = STORES(n);
   const shardDir = path.join(dir, 'inventory');
   fs.mkdirSync(shardDir, { recursive: true });
@@ -31,6 +31,15 @@ function writeShards(dir, { n = 3, perStore = 20, staleStoreIds = [] } = {}) {
   let k = 0;
   for (const s of stores) for (let j = 0; j < perStore; j++, k++) {
     (s.id % 2 ? NJ : NY).push({ vin: vin(k), status: 'ACTIVE', updatedAt: staleStoreIds.includes(s.id) ? '2026-09-26T08:01:16.071Z' : new Date().toISOString(), dealerName: s.name, state: s.id % 2 ? 'NJ' : 'NY', url: `https://${s.host}/vdp/${k}`, year: 2024, make: 'Toyota', model: 'Camry', price: 30000 + k, inventoryType: 'NEW', priceHistory: [{ date: '2026-10-01', price: 30500 + k }] });
+  }
+  if (mixedLayout) {
+    // A state-wide file pretty-printed the old way, next to per-brand files in the compact one-record-per-line layout.
+    fs.writeFileSync(path.join(shardDir, 'NJ.json'), JSON.stringify(NJ, null, 2));
+    const half = Math.ceil(NY.length / 2);
+    fs.writeFileSync(path.join(shardDir, 'NY__toyota.json'), '[\n' + NY.slice(0, half).map((v) => JSON.stringify(v)).join(',\n') + '\n]\n');
+    fs.writeFileSync(path.join(shardDir, 'NY__honda.json'), '[\n' + NY.slice(half).map((v) => JSON.stringify(v)).join(',\n') + '\n]\n');
+    fs.writeFileSync(path.join(shardDir, 'NY__ford.json.tmp-1-2'), 'not json'); // a half-written temp file is ignored
+    return { shardDir, stores, total: k };
   }
   fs.writeFileSync(path.join(shardDir, 'NJ.json'), JSON.stringify(NJ));
   fs.writeFileSync(path.join(shardDir, 'NY.json'), JSON.stringify(NY));
@@ -151,6 +160,17 @@ describe('inventory-sync.mjs against a fake deals API', () => {
     const active = new Set(f.active());
     for (let i = 0; i < total; i++) assert.ok(active.has(vin(i)), `${vin(i)} was retired`);
     assert.ok(!active.has(vin(900)) && !active.has(vin(901)));
+  });
+
+  it('reads a directory mixing a pretty-printed state-wide file with compact per-brand files: every vehicle once', async () => {
+    const dir = workdir();
+    const { shardDir, stores, total } = writeShards(dir, { n: 4, perStore: 20, mixedLayout: true });
+    const f = await newFake({ stores });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json') });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.equal(f.bulkBodies.flat().length, total);
+    assert.equal(new Set(f.bulkBodies.flat().map((v) => v.vin)).size, total, 'each vehicle exactly once');
+    assert.equal(finalJson(r).upserted, total);
   });
 
   it('non-ASCII text survives the request byte for byte (dealer names with accents)', async () => {

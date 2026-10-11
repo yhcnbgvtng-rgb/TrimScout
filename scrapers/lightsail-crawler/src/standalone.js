@@ -30,6 +30,7 @@ import { mergeInventorySnapshot } from './inventory_merge.js';
 import { buildBrandChangeRecord, mergeDailyChangesDocument } from './daily_changes.js';
 import { withSharedDataLock } from './shared_data_lock.js';
 import { inventoryShardPath, inventoryShardsDir, snapshotShardPath } from './inventory_shards.js';
+import { readLegacyInScope, stripLegacyInScope } from './legacyShardSplit.js';
 
 // One line per run so a heap limit can be sized from data: peak RSS and the heap limit this run had.
 // (A run killed by the heap limit never reaches this — its own "Last few GCs" block shows the peak.)
@@ -101,8 +102,21 @@ const brand = getBrand(process.env.CRAWLER_BRAND || dealers[0]?.make || 'Porsche
 // of the state-sharding fix, to pick this run's own inventory/snapshot
 // shard (see inventory_shards.js) instead of one nationwide file.
 const state = process.env.CRAWLER_STATE || dealers[0]?.state || 'UNKNOWN';
-const LATEST_SNAPSHOT_PATH = snapshotShardPath(state);
-const INVENTORY_SHARD_PATH = inventoryShardPath(state);
+// Per-brand shards (inventory_shards.js): this run reads and writes only its own brand's records, so peak memory
+// follows the brand, not the whole state. LEGACY_* are the old state-wide files; records this run owns are pulled out
+// of them into the brand shard and stripped from them after the brand shard is written.
+const LATEST_SNAPSHOT_PATH = snapshotShardPath(state, process.cwd(), brand.name);
+const INVENTORY_SHARD_PATH = inventoryShardPath(state, process.cwd(), brand.name);
+const LEGACY_SNAPSHOT_PATH = snapshotShardPath(state);
+const LEGACY_INVENTORY_SHARD_PATH = inventoryShardPath(state);
+const scopeDealerNamesForShards = new Set(dealers.map((d) => d.name));
+async function readBrandSnapshot() {
+    let brandShard = {};
+    try { brandShard = await readJsonLarge(LATEST_SNAPSHOT_PATH); } catch { brandShard = {}; }
+    let legacy = {};
+    try { legacy = await readLegacyInScope(LEGACY_SNAPSHOT_PATH, scopeDealerNamesForShards, 'snapshot'); } catch { legacy = {}; }
+    return { ...legacy, ...brandShard };
+}
 // Used only to keep this run's own diagnostic checkpoint file (see the
 // per-dealer checkpoint write below) from colliding with a concurrently
 // running other state+brand's checkpoint file — never parsed back, so it
@@ -146,7 +160,7 @@ let domIndex = await loadDomIndex();
 
 let previousSnapshot = {};
 try {
-    previousSnapshot = await readJsonLarge(LATEST_SNAPSHOT_PATH);
+    previousSnapshot = await readBrandSnapshot();
     console.log(`Loaded previous baseline: ${Object.keys(previousSnapshot).length} vehicles.`);
 } catch {
     console.log('No previous baseline found. Starting fresh initial scan.');
@@ -1359,7 +1373,7 @@ let soldVehicles;
 
 await withSharedDataLock(async () => {
     try {
-        latestPreviousSnapshot = await readJsonLarge(LATEST_SNAPSHOT_PATH);
+        latestPreviousSnapshot = await readBrandSnapshot();
     } catch {
         latestPreviousSnapshot = {};
     }
@@ -1390,6 +1404,14 @@ await withSharedDataLock(async () => {
     // one V8 string (~512 MB), and a kill mid-write can't leave a truncated file for the sync to read.
     await writeJsonLarge(LATEST_SNAPSHOT_PATH, updatedSnapshot);
     await writeJsonLarge(INVENTORY_SHARD_PATH, allRecords);
+    // Brand shards are on disk: now take this run's records out of the legacy state-wide files so no VIN is in two
+    // files the inventory sync reads. A failure here only leaves a stale duplicate for the next run to clear.
+    try {
+        await stripLegacyInScope(LEGACY_SNAPSHOT_PATH, scopeDealerNamesForShards, 'snapshot');
+        await stripLegacyInScope(LEGACY_INVENTORY_SHARD_PATH, scopeDealerNamesForShards, 'inventory');
+    } catch (err) {
+        console.error(`⚠️ Could not strip migrated records from legacy ${state} shards: ${err.message}`);
+    }
 }, { scope: state, label: `standalone:${state}/${brand.name}` });
 
 // Persist this brand's slot in today's daily_changes_<date>.json — merged
