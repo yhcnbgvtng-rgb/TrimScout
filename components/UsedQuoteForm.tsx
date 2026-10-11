@@ -23,6 +23,13 @@ const STANDING_FEES = 3;
 
 const money = (n: number | null, digits = 0) => (n == null ? null : `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`);
 
+const carryOverDate = (iso: string | null | undefined): string => {
+  // A counter keeps the dealer's original "good through" date unless it already lapsed.
+  const t = iso ? new Date(iso) : null;
+  if (!t || Number.isNaN(t.getTime()) || t.getTime() <= Date.now()) return "";
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+};
+
 export function UsedQuoteForm({
   token,
   vin,
@@ -60,7 +67,7 @@ export function UsedQuoteForm({
     sellingPrice: initial ? String(initial.sellingPrice) : "",
     miles: initial?.miles != null ? String(initial.miles) : "",
     cpo: initial?.cpo ?? false,
-    expiresAt: "",
+    expiresAt: carryOverDate(initial?.expiresAt),
     notes: initial?.notes || "",
     // finance
     downPayment: initFin ? String(initFin.downPayment) : kind === "finance" ? String(prefs.finance.downPayment) : "",
@@ -403,7 +410,7 @@ export function UsedQuoteForm({
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Quote details</h4>
             <div className="grid grid-cols-2 gap-3">
               <label className="space-y-1">
-                <span className={labelCls}>Quote good through <span className="text-amber-300">*</span></span>
+                <span className={labelCls}>Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="text-amber-300">*</span>}</span>
                 <input type="date" value={f.expiresAt} onChange={set("expiresAt")} className={input} />
               </label>
               <label className="space-y-1">
