@@ -5725,6 +5725,18 @@
               "coupe engine appearance pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel with body color surround": {
+            "label": "Visible carbon-fiber roof panel with body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "20 spoke gloss black forged": {
             "label": "20-spoke Gloss Black forged",
             "kind": "option",
@@ -5755,6 +5767,44 @@
             "price": 1995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym edge red cf$",
+              "^asym royal blue cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -5769,6 +5819,38 @@
             "kind": "option",
             "price": 695,
             "aliases": []
+          },
+          "low profile rear spoiler and front splitter": {
+            "label": "Low-profile rear spoiler and front splitter",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
           },
           "performance data and video recorder": {
             "label": "Performance data and video recorder",
@@ -5860,6 +5942,18 @@
               "coupe engine appearance pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel with body color surround": {
+            "label": "Visible carbon-fiber roof panel with body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "20 spoke gloss black forged": {
             "label": "20-spoke Gloss Black forged",
             "kind": "option",
@@ -5890,6 +5984,50 @@
             "price": 1995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym edge red cf$",
+              "^asym royal blue cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "gt2 bucket seats": {
+            "label": "GT2 bucket seats",
+            "kind": "option",
+            "price": 1695,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 2095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -5904,6 +6042,38 @@
             "kind": "option",
             "price": 695,
             "aliases": []
+          },
+          "low profile rear spoiler and front splitter": {
+            "label": "Low-profile rear spoiler and front splitter",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
           },
           "two tone seats": {
             "label": "Two-tone seats",
@@ -6031,6 +6201,18 @@
               "coupe engine appearance pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel with body color surround": {
+            "label": "Visible carbon-fiber roof panel with body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "20 spoke gloss black forged": {
             "label": "20-spoke Gloss Black forged",
             "kind": "option",
@@ -6061,6 +6243,50 @@
             "price": 1995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym edge red cf$",
+              "^asym royal blue cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -6075,6 +6301,38 @@
             "kind": "option",
             "price": 695,
             "aliases": []
+          },
+          "low profile rear spoiler and front splitter": {
+            "label": "Low-profile rear spoiler and front splitter",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
           },
           "two tone seats": {
             "label": "Two-tone seats",
@@ -6253,6 +6511,18 @@
               "z07 visible carbon aero and wheel pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel with body color surround": {
+            "label": "Visible carbon-fiber roof panel with body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "10 spoke pearl nickel forged": {
             "label": "10-spoke Pearl Nickel forged",
             "kind": "option",
@@ -6319,6 +6589,47 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -6332,6 +6643,56 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color rockers and splitter": {
+            "label": "Body-color rockers and splitter",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted carbon fiber ground effects": {
+            "label": "Carbon Flash-painted carbon fiber ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible carbon fiber ground effects": {
+            "label": "Visible carbon fiber ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -6469,6 +6830,18 @@
               "z07 visible carbon aero and wheel pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel with body color surround": {
+            "label": "Visible carbon-fiber roof panel with body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "10 spoke pearl nickel forged": {
             "label": "10-spoke Pearl Nickel forged",
             "kind": "option",
@@ -6535,6 +6908,53 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "gt2 bucket seats": {
+            "label": "GT2 bucket seats",
+            "kind": "option",
+            "price": 1695,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 2095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -6548,6 +6968,56 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color rockers and splitter": {
+            "label": "Body-color rockers and splitter",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted carbon fiber ground effects": {
+            "label": "Carbon Flash-painted carbon fiber ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible carbon fiber ground effects": {
+            "label": "Visible carbon fiber ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -6718,6 +7188,18 @@
               "z07 visible carbon aero and wheel pkg"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "10 spoke pearl nickel forged": {
             "label": "10-spoke Pearl Nickel forged",
             "kind": "option",
@@ -6784,6 +7266,53 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -6797,6 +7326,56 @@
             "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 895,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors/spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color rockers and splitter": {
+            "label": "Body-color rockers and splitter",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "body color exterior accents": {
+            "label": "Body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted cf ground effects": {
+            "label": "Carbon Flash-painted CF ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible cf ground effects": {
+            "label": "Visible CF ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -6960,6 +7539,18 @@
               "^performance brembo carbon ceramic antilock brakes$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -7020,6 +7611,45 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7033,6 +7663,44 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted cf ground effects": {
+            "label": "Carbon Flash-painted CF ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible cf ground effects": {
+            "label": "Visible CF ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7148,6 +7816,18 @@
               "^performance brembo carbon ceramic antilock brakes$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -7208,6 +7888,51 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "gt2 bucket seats": {
+            "label": "GT2 bucket seats",
+            "kind": "option",
+            "price": 1695,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 2095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7221,6 +7946,44 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted cf ground effects": {
+            "label": "Carbon Flash-painted CF ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible cf ground effects": {
+            "label": "Visible CF ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7382,6 +8145,18 @@
               "^santorini blue dipped with torch red accents$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -7442,6 +8217,51 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7455,6 +8275,44 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted cf ground effects": {
+            "label": "Carbon Flash-painted CF ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible cf ground effects": {
+            "label": "Visible CF ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7599,6 +8457,39 @@
             "price": 15995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^6 colors blue bronze bright red edge red velocity yellow orange$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^14 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge blue$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7612,6 +8503,26 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color carbon fiber split rear window trim": {
+            "label": "Body-color carbon fiber split rear window trim",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7714,6 +8625,45 @@
             "price": 15995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^6 colors blue bronze bright red edge red velocity yellow orange$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^14 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge blue$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7727,6 +8677,26 @@
             "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 895,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color carbon fiber split rear window trim": {
+            "label": "Body-color carbon fiber split rear window trim",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7870,6 +8840,39 @@
             "price": 15995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^6 colors blue bronze bright red edge red velocity yellow orange$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^14 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge blue$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7883,6 +8886,26 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color carbon fiber split rear window trim": {
+            "label": "Body-color carbon fiber split rear window trim",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -7984,6 +9007,45 @@
             "price": 15995,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^6 colors blue bronze bright red edge red velocity yellow orange$"
+            ]
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^14 colorways asym royal blue cf$",
+              "^asym edge red cf$",
+              "^cf metallic$",
+              "^cf w blue yellow orange red silver accent$",
+              "^competition yellow$",
+              "^edge blue$",
+              "^edge orange$",
+              "^edge red$",
+              "^royal blue$",
+              "^sterling silver$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -7997,6 +9059,26 @@
             "label": "Carbon fiber and sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 895,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "body color carbon fiber split rear window trim": {
+            "label": "Body-color carbon fiber split rear window trim",
+            "kind": "option",
+            "price": 995,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -8117,6 +9199,18 @@
               "^engine specification plaque$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -8177,6 +9271,45 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 1095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -8190,6 +9323,44 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted carbon fiber ground effects": {
+            "label": "Carbon Flash-painted carbon fiber ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible carbon fiber ground effects": {
+            "label": "Visible carbon fiber ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -8274,6 +9445,18 @@
               "^engine specification plaque$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -8334,6 +9517,51 @@
             "price": 15500,
             "aliases": []
           },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "gt2 bucket seats": {
+            "label": "GT2 bucket seats",
+            "kind": "option",
+            "price": 1695,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 2095,
+            "aliases": []
+          },
           "seat belt color": {
             "label": "Seat belt color",
             "kind": "option",
@@ -8347,6 +9575,44 @@
             "label": "Sueded microfiber-wrapped steering wheel",
             "kind": "option",
             "price": 695,
+            "aliases": []
+          },
+          "carbon flash metallic painted outside mirrors and spoiler when equipped": {
+            "label": "Carbon Flash Metallic-painted outside mirrors and spoiler (when equipped)",
+            "kind": "option",
+            "price": 295,
+            "aliases": [
+              "carbon flash metallic painted outside mirrors and spoiler"
+            ]
+          },
+          "chrome exterior badge package": {
+            "label": "Chrome Exterior Badge Package",
+            "kind": "option",
+            "price": 395,
+            "aliases": []
+          },
+          "extended front splitter ground effects": {
+            "label": "Extended front splitter ground effects",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash and body color exterior accents": {
+            "label": "Carbon Flash and body-color exterior accents",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "carbon flash painted carbon fiber ground effects": {
+            "label": "Carbon Flash-painted carbon fiber ground effects",
+            "kind": "option",
+            "price": 3495,
+            "aliases": []
+          },
+          "visible carbon fiber ground effects": {
+            "label": "Visible carbon fiber ground effects",
+            "kind": "option",
+            "price": 4495,
             "aliases": []
           },
           "personalized interior plaque": {
@@ -8477,6 +9743,18 @@
               "^santorini blue dipped with torch red accents$"
             ]
           },
+          "transparent roof panel": {
+            "label": "Transparent roof panel",
+            "kind": "option",
+            "price": 995,
+            "aliases": []
+          },
+          "visible carbon fiber roof panel w body color surround": {
+            "label": "Visible carbon-fiber roof panel w/ body-color surround",
+            "kind": "option",
+            "price": 2595,
+            "aliases": []
+          },
           "5 spoke pearl nickel forged": {
             "label": "5-spoke Pearl Nickel forged",
             "kind": "option",
@@ -8535,6 +9813,51 @@
             "label": "5-spoke Visible carbon fiber w/ Red stripe",
             "kind": "option",
             "price": 15500,
+            "aliases": []
+          },
+          "brake calipers": {
+            "label": "Brake calipers",
+            "kind": "option",
+            "price": 795,
+            "aliases": [],
+            "features": [
+              "^5 colors blue bright red edge red velocity yellow orange$"
+            ]
+          },
+          "stinger stripe": {
+            "label": "Stinger stripe",
+            "kind": "option",
+            "price": 595,
+            "aliases": [],
+            "features": [
+              "^carbon flash edge red competition yellow midnight silver$"
+            ]
+          },
+          "grand sport heritage center stripe": {
+            "label": "Grand Sport Heritage Center Stripe",
+            "kind": "option",
+            "price": 1295,
+            "aliases": []
+          },
+          "full length dual racing stripes": {
+            "label": "Full-length dual racing stripes",
+            "kind": "option",
+            "price": 1295,
+            "aliases": [],
+            "features": [
+              "^13 colorways$"
+            ]
+          },
+          "competition sport driver seat gt2 passenger seat": {
+            "label": "Competition Sport driver seat + GT2 passenger seat",
+            "kind": "option",
+            "price": 350,
+            "aliases": []
+          },
+          "competition sport bucket seats": {
+            "label": "Competition Sport bucket seats",
+            "kind": "option",
+            "price": 595,
             "aliases": []
           },
           "seat belt color": {
