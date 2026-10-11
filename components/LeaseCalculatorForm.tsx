@@ -55,6 +55,13 @@ type DraftItem = { name: string; amount: string };
 
 const money = (n: number | null, digits = 0) => (n == null ? null : `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`);
 
+const carryOverDate = (iso: string | null | undefined): string => {
+  // A counter keeps the dealer's original "good through" date unless it already lapsed.
+  const t = iso ? new Date(iso) : null;
+  if (!t || Number.isNaN(t.getTime()) || t.getTime() <= Date.now()) return "";
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+};
+
 export function LeaseCalculatorForm({
   token,
   vin,
@@ -94,7 +101,7 @@ export function LeaseCalculatorForm({
     // Three decimals: NJ is 6.625%, and rounding it to 6.63% would misstate the monthly.
     taxRatePercent: zipRate != null ? String(Math.round(zipRate * 100000) / 1000) : "",
     taxesAtSigning: str(initial?.dueAtSigning.taxes),
-    expiresAt: "",
+    expiresAt: carryOverDate(initial?.expiresAt),
     notes: initial?.notes || "",
     counterNote: "",
   });
@@ -418,7 +425,7 @@ export function LeaseCalculatorForm({
               <div className="grid grid-cols-2 gap-3">
                 <label className="space-y-1">
                   <span className={labelCls}>
-                    Quote good through <span className="text-amber-300">*</span>
+                    Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="text-amber-300">*</span>}
                   </span>
                   <input type="date" value={f.expiresAt} onChange={set("expiresAt")} className={input} />
                 </label>
