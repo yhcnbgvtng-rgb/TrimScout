@@ -77,21 +77,27 @@ describe("Must-have factory options checkbox", () => {
     const row = input.closest("div")!.parentElement!;
     await act(async () => { Array.from(row.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim() === "Add")!.click(); });
     await settle(() => Boolean(doc.querySelector('[data-testid="must-have-toggle"]')));
-    const toggle = () => doc.querySelector('[data-testid="must-have-toggle"]') as HTMLInputElement;
+    const toggle = () => doc.querySelector('[data-testid="must-have-toggle"]') as HTMLButtonElement;
     const panel = () => doc.querySelector('[data-testid="must-have-panel"]');
     const click = async (el: Element) => act(async () => { (el as HTMLElement).click(); });
     return { doc, act, root, toggle, panel, click, confirms: () => confirmCalls };
   }
 
-  it("is unchecked by default with no panel; checking shows the list and the N of M count", async () => {
+  it("is an off switch by default with no panel; turning it on shows the list and the N of M count", async () => {
     const t = await open(VIN_OPTS);
-    assert.equal(t.toggle().checked, false);
+    assert.equal(t.toggle().getAttribute("role"), "switch");
+    // A native <button type="button"> is focusable and toggles on Space/Enter in browsers.
+    assert.equal(t.toggle().tagName, "BUTTON");
+    assert.equal(t.toggle().getAttribute("type"), "button");
+    assert.doesNotMatch(t.toggle().className, /bg-brand-500/, "no green while off");
+    assert.equal(t.toggle().getAttribute("aria-checked"), "false");
     assert.equal(t.toggle().disabled, false);
     assert.equal(t.panel(), null);
     assert.equal(t.toggle().getAttribute("aria-expanded"), "false");
     await t.click(t.toggle());
-    assert.equal(t.toggle().checked, true);
+    assert.equal(t.toggle().getAttribute("aria-checked"), "true");
     assert.equal(t.toggle().getAttribute("aria-expanded"), "true");
+    assert.match(t.toggle().className, /bg-brand-500/, "green accent while on");
     assert.ok(t.panel());
     assert.match(t.panel()!.textContent || "", /FX4 Off-Road Package/);
     assert.match(t.doc.querySelector('[data-testid="must-have-count"]')!.textContent || "", /0 of 3 selected/);
@@ -111,7 +117,7 @@ describe("Must-have factory options checkbox", () => {
     assert.match(t.doc.querySelector('[data-testid="must-have-count"]')!.textContent || "", /1 of 3 selected/);
     await t.click(t.toggle());
     assert.equal(t.confirms(), 1, "asked before discarding a pick");
-    assert.equal(t.toggle().checked, false);
+    assert.equal(t.toggle().getAttribute("aria-checked"), "false");
     assert.equal(t.panel(), null);
     await t.click(t.toggle());
     assert.match(t.doc.querySelector('[data-testid="must-have-count"]')!.textContent || "", /0 of 3 selected/, "pick was cleared");
@@ -124,7 +130,7 @@ describe("Must-have factory options checkbox", () => {
     await t.click(t.panel()!.querySelector('input[type="checkbox"]')!);
     await t.click(t.toggle());
     assert.equal(t.confirms(), 1);
-    assert.equal(t.toggle().checked, true);
+    assert.equal(t.toggle().getAttribute("aria-checked"), "true");
     assert.match(t.doc.querySelector('[data-testid="must-have-count"]')!.textContent || "", /1 of 3 selected/);
     await t.act(async () => { t.root.unmount(); });
   });
@@ -132,7 +138,7 @@ describe("Must-have factory options checkbox", () => {
   it("is disabled with an explanation when the vehicle has no policy options", async () => {
     const t = await open(VIN_NONE);
     assert.equal(t.toggle().disabled, true);
-    assert.equal(t.toggle().checked, false);
+    assert.equal(t.toggle().getAttribute("aria-checked"), "false");
     assert.equal(t.panel(), null);
     assert.match(t.doc.querySelector('[data-testid="must-have-section"]')!.textContent || "", /No factory options on file for this vehicle/);
     await t.act(async () => { t.root.unmount(); });

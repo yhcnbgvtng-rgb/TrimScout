@@ -3012,18 +3012,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   const hasOptions = fordStickerStatus === "released" && fordFilterableOptions.length > 0;
                   return (
                     <div className="rounded-xl border border-border bg-surface-elevated" data-testid="must-have-section">
-                      <label className={`flex items-start gap-2 px-3.5 py-2.5 text-xs ${hasOptions ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}>
-                        <input
-                          type="checkbox"
-                          data-testid="must-have-toggle"
-                          checked={hasOptions && mustHavesOpen}
-                          disabled={!hasOptions}
-                          aria-expanded={hasOptions && mustHavesOpen}
-                          aria-controls="must-have-panel"
-                          onChange={(e) => onToggleWantsMustHaves(e.target.checked)}
-                          className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
-                        />
-                        <span className="font-semibold text-white">
+                      <div className={`flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs ${hasOptions ? "" : "opacity-70"}`}>
+                        <span id="must-have-label" className="font-semibold text-white">
                           {hasOptions ? "I have must-have factory options" : "No factory options on file for this vehicle"}
                           {hasOptions && mustHavesOpen ? (
                             <span className="ml-2 text-[11px] font-normal text-ink-muted" data-testid="must-have-count">
@@ -3031,7 +3021,21 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             </span>
                           ) : null}
                         </span>
-                      </label>
+                        <button
+                          type="button"
+                          role="switch"
+                          data-testid="must-have-toggle"
+                          aria-checked={hasOptions && mustHavesOpen}
+                          aria-labelledby="must-have-label"
+                          aria-expanded={hasOptions && mustHavesOpen}
+                          aria-controls="must-have-panel"
+                          disabled={!hasOptions}
+                          onClick={() => onToggleWantsMustHaves(!mustHavesOpen)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed ${hasOptions && mustHavesOpen ? "bg-brand-500" : "bg-border"}`}
+                        >
+                          <span aria-hidden="true" className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${hasOptions && mustHavesOpen ? "translate-x-[18px]" : "translate-x-0.5"}`} />
+                        </button>
+                      </div>
                       {hasOptions && mustHavesOpen && (
                         <div id="must-have-panel" role="region" aria-label={FORD_MUST_HAVE_HEADING} data-testid="must-have-panel" className="border-t border-border/60 px-3.5 py-3 space-y-2">
                           <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
