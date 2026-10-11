@@ -11,6 +11,7 @@
  * Pure and client-safe: the form, the route and the comparison page share
  * these. Still "a request, not a binding bid".
  */
+import { getStateTaxRate, getZipCoordinates } from "./otdCalculator";
 import { dasTotal, monthlyPreTax, netCapCost, sumItems } from "./leaseMath";
 import type { LeaseQuote, LineItem } from "./leaseQuote";
 import { cashOutTheDoor, financeMonthly, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "./usedQuote";
@@ -60,6 +61,27 @@ export function counterPriceChanged(sheet: { kind: CounterKind; before: CounterQ
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
+
+/** The sales-tax line of an itemized due-at-signing list (not title/registration). */
+export function isTaxLine(name: string): boolean {
+  return /tax/i.test(name) && !/title|registr/i.test(name);
+}
+
+/** State sales-tax rate for the buyer's ZIP (the ZIP's state, not the dealer's); null when there's no usable ZIP. */
+export function zipStateTax(zip: string | null | undefined): { rate: number; state: string } | null {
+  const z = String(zip || "").trim();
+  if (!/^\d{5}$/.test(z)) return null;
+  const state = getZipCoordinates(z).state;
+  return { rate: getStateTaxRate(state), state };
+}
+
+/** Cash/finance sales tax: the ZIP-state rate on selling price + dealer add-ons. With no usable ZIP the line stays exactly as quoted — a typed value never gets through. */
+function retax(lines: LineItem[], quoted: LineItem[], sellingPrice: number, addOns: LineItem[], zip: string | null | undefined): LineItem[] {
+  const t = zipStateTax(zip);
+  if (!t) return lines.map((l) => (isTaxLine(l.name) ? { ...l, amount: quoted.find((q) => q.name === l.name)?.amount ?? l.amount } : l));
+  const tax = r2(Math.max(0, t.rate * (sellingPrice + sumItems(addOns))));
+  return lines.map((l) => (isTaxLine(l.name) ? { ...l, amount: tax } : l));
+}
 
 // ---------------------------------------------------------------------------
 // Lease
@@ -126,12 +148,12 @@ export interface UsedCounterEdits {
 }
 
 /** The dealer's finance quote with the buyer's edits and the payment recomputed at the dealer's APR and term. */
-export function applyFinanceCounter(before: UsedFinanceQuote, edits: UsedCounterEdits): UsedFinanceQuote {
+export function applyFinanceCounter(before: UsedFinanceQuote, edits: UsedCounterEdits, zip?: string | null): UsedFinanceQuote {
   const sellingPrice = edits.sellingPrice ?? before.sellingPrice;
   const downPayment = edits.downPayment ?? before.downPayment;
   const addOns = (edits.addOns ?? before.addOns).filter((a) => a.name.trim());
   const rebates = (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim());
-  const dueAtSigning = (edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim());
+  const dueAtSigning = retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip);
   // Amount financed moves by exactly the change in what's rolled in — the dealer's own tax/title
   // treatment (whatever it was) is preserved through the delta rather than re-derived.
   const delta = sellingPrice - before.sellingPrice + (sumItems(addOns) - sumItems(before.addOns)) + (sumItems(dueAtSigning) - sumItems(before.dueAtSigning)) - (sumItems(rebates) - sumItems(before.rebates ?? [])) - (downPayment - before.downPayment);
@@ -152,15 +174,16 @@ export function applyFinanceCounter(before: UsedFinanceQuote, edits: UsedCounter
   };
 }
 
-export function applyCashCounter(before: UsedCashQuote, edits: UsedCounterEdits): UsedCashQuote {
+export function applyCashCounter(before: UsedCashQuote, edits: UsedCounterEdits, zip?: string | null): UsedCashQuote {
   const addOns = (edits.addOns ?? before.addOns).filter((a) => a.name.trim());
+  const sellingPrice = edits.sellingPrice ?? before.sellingPrice;
   return {
     ...before,
-    sellingPrice: edits.sellingPrice ?? before.sellingPrice,
+    sellingPrice,
     addOns,
     noAddOns: addOns.every((a) => !(a.amount > 0)),
     rebates: (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim()),
-    dueAtSigning: (edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()),
+    dueAtSigning: retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip),
   };
 }
 
@@ -217,7 +240,11 @@ function lineRows(prefix: string, label: string, before: LineItem[], after: Line
 }
 
 /** Tax, title & registration and the doc fee are fixed lines; any other named fee is the buyer's to lower or strike. */
-const lockFee = (r: DiffRow): DiffRow => (isLockedFee(r.label.replace(/^Fee: /, "")) ? { ...r, locked: true } : r);
+const lockFee = (r: DiffRow): DiffRow => {
+  const n = r.label.replace(/^Fee: /, "");
+  // Used-quote sales tax follows price + add-ons at the buyer's ZIP-state rate: derived, not a lock.
+  return isTaxLine(n) ? { ...r, derived: true } : isLockedFee(n) ? { ...r, locked: true } : r;
+};
 
 /** Line-by-line comparison, in sheet order, ending with the bottom line(s). */
 export function counterDiff(sheet: CounterSheet): DiffRow[] {
@@ -261,7 +288,7 @@ export function counterDiff(sheet: CounterSheet): DiffRow[] {
       item("monthlyTaxed", "Monthly with est. tax", bf.monthlyPaymentWithEstTax, af.monthlyPaymentWithEstTax, { total: true })
     );
   } else {
-    rows.push(item("otd", "Out the door", cashOutTheDoor(b as UsedCashQuote), cashOutTheDoor(a as UsedCashQuote), { total: true, note: TAX_AS_QUOTED_NOTE }));
+    rows.push(item("otd", "Out the door", cashOutTheDoor(b as UsedCashQuote), cashOutTheDoor(a as UsedCashQuote), { total: true, note: rows.some((r) => r.key.startsWith("fee:") && r.derived && rowMoved(r)) ? undefined : TAX_AS_QUOTED_NOTE }));
   }
   return rows;
 }

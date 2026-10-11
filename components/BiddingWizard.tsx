@@ -2,7 +2,7 @@
 
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
-import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
+import { type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -16,6 +16,7 @@ import { activeRfqSummary } from "../lib/rfqLogic";
 import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
+import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
@@ -30,7 +31,7 @@ import {
   type QuoteInviteStage,
 } from "../lib/quotePackage";
 import type { PublicDesk } from "../app/api/quote-desks/route";
-import { EMAIL_ONLY_HELPER, NO_CONTACT_HELPER, salesDeskLabel } from "../lib/deskCopy";
+import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, salesDeskLabel } from "../lib/deskCopy";
 import type { RfqInvite } from "../lib/rfq";
 import { newDealReference } from "../lib/dealReference";
 import { findContactInfo } from "../lib/piiFilter";
@@ -219,31 +220,65 @@ function FactoryMustHavePicker({
   checked: string[];
   onToggle: (name: string) => void;
 }) {
+  const [showAll, setShowAll] = useState(false);
+  const ordered = orderFactoryOptions(options);
+  const shown = showAll ? ordered : ordered.slice(0, MUST_HAVE_PREVIEW_COUNT);
   return (
-    <div className="max-h-56 overflow-y-auto">
-      {orderFactoryOptions(options).map((opt) => {
-        const isChecked = checked.includes(opt.name);
-        const line = formatFactoryOptionLine({
-          code: opt.code ?? null,
-          description: opt.description || opt.name,
-        });
-        return (
-          <label key={opt.name} className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isChecked}
-              onChange={() => onToggle(opt.name)}
-              className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
-            />
-            <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
-              {line}
-              {opt.price != null && opt.price > 0 ? (
-                <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
-              ) : null}
+    <div className="space-y-2">
+      {checked.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5" data-testid="must-have-chips">
+          {checked.map((name) => (
+            <span key={name} className="inline-flex items-center gap-1 rounded-full border border-brand-500/50 bg-brand-500/10 py-0.5 pl-2.5 pr-1 text-[11px] text-white">
+              {name}
+              <button
+                type="button"
+                aria-label={`Remove ${name}`}
+                data-testid="must-have-chip-remove"
+                onClick={() => onToggle(name)}
+                className="flex h-4 w-4 items-center justify-center rounded-full text-ink-muted hover:bg-border hover:text-white"
+              >
+                ×
+              </button>
             </span>
-          </label>
-        );
-      })}
+          ))}
+        </div>
+      ) : null}
+      <div data-testid="must-have-options">
+        {shown.map((opt) => {
+          const isChecked = checked.includes(opt.name);
+          const line = formatFactoryOptionLine({
+            code: opt.code ?? null,
+            description: opt.description || opt.name,
+          });
+          return (
+            <label key={opt.name} className="flex items-start gap-2 py-0.5 text-xs cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isChecked}
+                onChange={() => onToggle(opt.name)}
+                className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0"
+              />
+              <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
+                {line}
+                {opt.price != null && opt.price > 0 ? (
+                  <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                ) : null}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+      {ordered.length > MUST_HAVE_PREVIEW_COUNT ? (
+        <button
+          type="button"
+          data-testid="must-have-show-all"
+          aria-expanded={showAll}
+          onClick={() => setShowAll((v) => !v)}
+          className="text-[11px] font-semibold text-brand-400 hover:text-brand-300"
+        >
+          {showAll ? "Show fewer options" : `Show all ${ordered.length} options`}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -611,7 +646,7 @@ function LinkConfirmPanel({
                 </span>
                 {contactNote === true ? <span className="text-brand-300"> · sales contact on file</span> : null}
                 {contactNote === false ? (
-                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales adviser&apos;s email on the Dealers step</span>
+                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
                 ) : null}
               </span>
               {shipToNote ? <span className="block text-[10px] text-ink-faint" data-testid="ship-to-note">{shipToNote}</span> : null}
@@ -678,7 +713,14 @@ function LinkConfirmPanel({
           : "The build comes from the factory record for this VIN; you're vouching that this VIN at this store is the car."}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg border border-border px-3.5 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all"
+        >
+          Cancel
+        </button>
         <button
           type="button"
           onClick={() =>
@@ -692,13 +734,6 @@ function LinkConfirmPanel({
           className="rounded-lg bg-brand-500 px-3.5 py-1.5 text-[11px] font-black text-black hover:bg-brand-400 transition-all disabled:opacity-50"
         >
           {busy ? "Adding…" : shown ? "Confirm & add" : "Add without a dealership"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg border border-border px-3.5 py-1.5 text-[11px] font-bold text-ink-light hover:border-rose-500 hover:text-white transition-all"
-        >
-          Cancel
         </button>
       </div>
       {error && <p className="text-[10px] text-rose-400">{error}</p>}
@@ -812,9 +847,9 @@ function AlternateVinField({
                 {report.hits.map((h) => (
                   <span
                     key={h.name}
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${h.present ? "bg-brand-500/15 text-brand-300" : h.unknown ? "bg-white/5 text-ink-faint" : "bg-amber-500/20 text-amber-200 line-through decoration-amber-400/70"}`}
                   >
-                    {h.present ? "✓ " : "✕ "}
+                    {h.present ? "✓ " : h.unknown ? "? " : "✕ "}
                     {h.name}
                   </span>
                 ))}
@@ -969,10 +1004,11 @@ function FactoryOptionsCompare({
               if (report.kind !== "scored") return <div key={i} className="flex min-h-[24px] items-center text-[11px] text-ink-faint">—</div>;
               const hit = report.hits.find((h) => sameText(h.name, m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "")));
               const present = hit?.present ?? false;
+              const unknown = !present && Boolean(hit?.unknown);
               return (
-                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-brand-300" : "text-amber-200"}`}>
-                  {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : <X className="h-3.5 w-3.5 shrink-0" />}
-                  {present ? "Included" : "Missing"}
+                <div key={i} className={`flex min-h-[24px] items-center gap-1.5 text-[11px] ${present ? "text-brand-300" : unknown ? "text-ink-faint" : "text-amber-200"}`}>
+                  {present ? <Check className="h-3.5 w-3.5 shrink-0" /> : unknown ? null : <X className="h-3.5 w-3.5 shrink-0" />}
+                  {present ? "Included" : unknown ? "Unknown" : "Missing"}
                 </div>
               );
             })}
@@ -1142,6 +1178,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordPdfUrl(null);
     setFactoryBuildOem(null);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
     setAltVehicle1(null);
     setAltVehicle2(null);
@@ -1154,6 +1191,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [model, setModel] = useState<string>("3 Series");
   const [selectedTrims, setSelectedTrims] = useState<string[]>(["330i M Sport", "330i xDrive"]);
   const [mustHavePackages, setMustHavePackages] = useState<string[]>([]);
+  // The "I have must-have factory options" checkbox. Unchecked by default; picks made for the buyer (a sticker's own
+  // must-have lines, a restored draft) count as checked so a hidden selection is never sent.
+  const [wantsMustHaves, setWantsMustHaves] = useState(false);
 
   // Trade-in is now just a yes/no flag collected here — the actual
   // appraisal (value, photos, condition) happens later, once a selling
@@ -1312,6 +1352,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setModel("");
     setSelectedTrims([]);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
     setFordFilterableOptions([]);
     setFactoryBuildOem(null);
@@ -1357,12 +1398,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       setParseSuccessMsg(`${preselectedVehicle.year} ${preselectedVehicle.make} ${preselectedVehicle.trim} — confirmed`);
       setFordStickerStatus("released");
       setFordFilterableOptions(
-        preselectedVehicle.options.map((o) => ({
-          name: o.name,
-          code: o.code,
-          description: o.name,
-          price: o.price,
-        }))
+        cleanOptionNames(
+          preselectedVehicle.options.map((o) => ({
+            name: o.name,
+            code: o.code,
+            description: o.name,
+            price: o.price,
+          }))
+        )
       );
     }
   }, [preselectedVehicle, lockVehicleSelection]);
@@ -1546,6 +1589,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     fordPdfUrl,
     fordFilterableOptions,
     mustHavePackages,
+    wantsMustHaves,
     niceToHavePackages,
     selectedTrims,
     make,
@@ -1606,6 +1650,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<string | null>("fordPdfUrl", setFordPdfUrl);
     pick<FilterableFactoryOption[]>("fordFilterableOptions", setFordFilterableOptions);
     pick<string[]>("mustHavePackages", setMustHavePackages);
+    pick<boolean>("wantsMustHaves", setWantsMustHaves);
     pick<string[]>("niceToHavePackages", setNiceToHavePackages);
     pick<string[]>("selectedTrims", setSelectedTrims);
     pick<string>("make", setMake);
@@ -1984,6 +2029,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordFilterableOptions([]);
     setNiceToHavePackages([]);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
 
     const result = await importPastedFactoryVehicle(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
@@ -2017,7 +2063,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // no factory picker/compare shows — the difference is the resolve mode, not here.
     setMustHavePackages(result.mustHaveLines);
     setNiceToHavePackages(result.niceToHaveLines);
-    setFordFilterableOptions(result.filterableOptions);
+    setFordFilterableOptions(cleanOptionNames(result.filterableOptions));
     setFactoryBuildOem(result.oem);
     // Only a real factory build unlocks the must-have picker; a free-decode
     // import has no option list to choose from.
@@ -2129,6 +2175,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setFordFilterableOptions([]);
     setFactoryBuildOem(null);
     setMustHavePackages([]);
+    setWantsMustHaves(false);
     setNiceToHavePackages([]);
   };
 
@@ -2290,6 +2337,16 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     code: fordFilterableOptions.find((o) => o.name === name)?.code || null,
   }));
 
+  const mustHavesOpen = wantsMustHaves || mustHavePackages.length > 0;
+  const onToggleWantsMustHaves = (next: boolean) => {
+    if (next) {
+      setWantsMustHaves(true);
+      return;
+    }
+    if (mustHavePackages.length > 0 && !window.confirm(`Clear the ${mustHavePackages.length} must-have option${mustHavePackages.length === 1 ? "" : "s"} you selected?`)) return;
+    setMustHavePackages([]);
+    setWantsMustHaves(false);
+  };
   const toggleFordMustHave = (name: string) => {
     setMustHavePackages((prev) =>
       prev.includes(name) ? prev.filter((p) => p !== name) : [...prev, name]
@@ -2986,33 +3043,53 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </div>
                 )}
 
-                {/* Must-haves collapse behind a one-line summary — the full option
-                    list is long enough to bury everything else. Same-spec only: the
-                    alternate lane free-decodes and has no factory option list. */}
-                {intent === "same_spec" && selectedVehicle && fordStickerStatus === "released" && fordFilterableOptions.length > 0 && (
-                  <details className="group rounded-xl border border-border bg-surface-elevated">
-                    <summary className="cursor-pointer list-none px-3.5 py-2.5 flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-white">
-                        {FORD_MUST_HAVE_HEADING}
-                        <span className="ml-2 text-[11px] font-normal text-ink-muted">
-                          {mustHavePackages.length} of {fordFilterableOptions.length} selected
+                {/* Must-haves sit behind an opt-in checkbox — the full option list is long enough to bury
+                    everything else. Same-spec only: the alternate lane free-decodes and has no factory
+                    option list. No options on file → the checkbox stays, disabled, saying why. */}
+                {intent === "same_spec" && selectedVehicle && (() => {
+                  const hasOptions = fordStickerStatus === "released" && fordFilterableOptions.length > 0;
+                  return (
+                    <div className="rounded-xl border border-border bg-surface-elevated" data-testid="must-have-section">
+                      <div className={`flex items-center justify-between gap-3 px-3.5 py-2.5 text-xs ${hasOptions ? "" : "opacity-70"}`}>
+                        <span id="must-have-label" className="font-semibold text-white">
+                          {hasOptions ? "I have must-have factory options" : "No factory options on file for this vehicle"}
+                          {hasOptions && mustHavesOpen ? (
+                            <span className="ml-2 text-[11px] font-normal text-ink-muted" data-testid="must-have-count">
+                              {mustHavePackages.length} of {fordFilterableOptions.length} selected
+                            </span>
+                          ) : null}
                         </span>
-                      </span>
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="border-t border-border/60 px-3.5 py-3 space-y-2">
-                      <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
-                      <FactoryMustHavePicker
-                        options={fordFilterableOptions}
-                        checked={mustHavePackages}
-                        onToggle={toggleFordMustHave}
-                      />
-                      <p className="text-[10px] text-ink-faint">
-                        Must-haves are saved with this deal. Dealer ads are not proof.
-                      </p>
+                        <button
+                          type="button"
+                          role="switch"
+                          data-testid="must-have-toggle"
+                          aria-checked={hasOptions && mustHavesOpen}
+                          aria-labelledby="must-have-label"
+                          aria-expanded={hasOptions && mustHavesOpen}
+                          aria-controls="must-have-panel"
+                          disabled={!hasOptions}
+                          onClick={() => onToggleWantsMustHaves(!mustHavesOpen)}
+                          className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 disabled:cursor-not-allowed ${hasOptions && mustHavesOpen ? "bg-brand-500" : "bg-border"}`}
+                        >
+                          <span aria-hidden="true" className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${hasOptions && mustHavesOpen ? "translate-x-[18px]" : "translate-x-0.5"}`} />
+                        </button>
+                      </div>
+                      {hasOptions && mustHavesOpen && (
+                        <div id="must-have-panel" role="region" aria-label={FORD_MUST_HAVE_HEADING} data-testid="must-have-panel" className="border-t border-border/60 px-3.5 py-3 space-y-2">
+                          <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
+                          <FactoryMustHavePicker
+                            options={fordFilterableOptions}
+                            checked={mustHavePackages}
+                            onToggle={toggleFordMustHave}
+                          />
+                          <p className="text-[10px] text-ink-faint">
+                            Must-haves are saved with this deal. Dealer ads are not proof.
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  </details>
-                )}
+                  );
+                })()}
 
                 {/* Two alternate slots, always visible on a new car — optional,
                     the buyer fills them in or doesn't. A request is all new or all used. */}
@@ -3144,7 +3221,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         const typed = buyerDealerEmails[dealer.dealerName] || "";
                         const supplied = isPlausibleDealerEmail(typed);
                         const row = deskPlan.rows[dealer.dealerName];
-                        const onFile = Boolean(desk && desk.knownNamed && !desk.blockedReason);
+                        const onFile = Boolean(desk && desk.contactState === "named" && !desk.blockedReason);
                         const optedOut = desk?.blockedReason === "dealer_opted_out";
                         // No named person, not opted out: the request goes to the dealership's own sales desk.
                         const toDesk = Boolean(desk) && !onFile && !optedOut && !supplied;
@@ -3173,7 +3250,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 </span>
                               ) : supplied ? (
                                 <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
-                                  ✓ Adviser added
+                                  ✓ Advisor added
                                 </span>
                               ) : optedOut ? (
                                 <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
@@ -3195,14 +3272,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               <div className="space-y-1" data-testid="add-adviser">
                                 <p className="text-[10px] leading-snug text-ink-muted" data-testid="desk-routing-copy">
                                   {supplied
-                                    ? "The request goes to the adviser address you added."
+                                    ? "The request goes to the advisor address you added."
                                     : optedOut
-                                      ? "This dealership asked us to stop emailing them. Add your own sales adviser's address to reach them."
-                                      : desk.routing === "rooftop_inbox"
-                                        ? "No named sales contact on file yet — the request goes to the dealership's sales desk, and every reply comes back through TrimScout. Have a sales adviser there? Add their email (optional) and it goes to them instead."
-                                        : desk.contactState === "none"
-                                          ? NO_CONTACT_HELPER
-                                          : EMAIL_ONLY_HELPER}
+                                      ? "This dealership asked us to stop emailing them. Add your own sales advisor's address to reach them."
+                                      : NO_CONTACT_HELPER}
                                 </p>
                                 {toDesk ? <p className="text-[10px] text-ink-light">To: <span className="font-semibold">Sales desk</span> · {dealer.dealerName}</p> : null}
                                 <input
@@ -3211,8 +3284,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   autoComplete="off"
                                   value={typed}
                                   onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
-                                  placeholder={optedOut ? "Sales adviser email" : "Sales adviser email (optional)"}
-                                  aria-label={`Sales adviser email for ${dealer.dealerName}`}
+                                  placeholder={optedOut ? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER}
+                                  aria-label={`Sales advisor email for ${dealer.dealerName}`}
                                   className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                                 />
                                 {typed.trim() !== "" && !supplied ? <p className="text-[10px] text-rose-400">That doesn&apos;t look like an email address.</p> : null}
@@ -3416,7 +3489,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-contact">
                       {Object.values(deskPlan.rows).some((r) => r.selectable)
                         ? "Tick at least one dealership above to continue."
-                        : "This dealership has opted out of our emails — add your own sales adviser's address under it to reach them."}
+                        : "This dealership has opted out of our emails — add your own sales advisor's address under it to reach them."}
                     </p>
                   ) : null}
                   {importedDealerships.length === 0 ? (
@@ -3427,14 +3500,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              <WizardSection title="Trade-in" hint="Optional. Dealers appraise it as its own line next to the price; nothing is binding." className="pt-6">
-                <TradeInStep
-                  enabled={Boolean(tradeInExpected)}
-                  onToggle={(on) => { setTradeInExpected(on); if (!on) setTradeAttempted(false); }}
-                  defaultZip={zipOk ? huntZip.trim() : null}
-                  attempted={tradeAttempted}
-                  onState={setTradeStep}
-                />
+              <WizardSection title="Trade-in" className="pt-6">
+                <p className="text-xs text-ink-light" data-testid="trade-in-note">
+                  Trade-ins will be completed once we have aligned on the purchase price of the vehicle.
+                </p>
               </WizardSection>
 
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
@@ -3682,7 +3751,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             if (!desk) return "Checking";
                                             const row = deskPlan.rows[target!.dealerName!];
                                             if (!row?.checked) return desk.blockedReason === "dealer_opted_out" && !supplied ? "Opted out" : "Not sending";
-                                            if (row.routing === "adviser") return "Adviser added";
+                                            if (row.routing === "adviser") return "Advisor added";
                                             if (row.routing === "named") return "Named contact";
                                             return salesDeskLabel(desk.contactState);
                                           }
@@ -3847,6 +3916,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Choose a dealership</span>
             ) : step === 3 && confirmedDeskCount === 0 ? (
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Tick a dealership</span>
+            ) : null}
+            {step === 1 && mustHavePackages.length > 0 ? (
+              <span className="ml-auto mr-3 text-[10px] text-ink-muted" data-testid="must-have-summary">{mustHaveSummary(mustHavePackages.length)}</span>
             ) : null}
             {step < TOTAL_STEPS ? (
               <button

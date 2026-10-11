@@ -32,13 +32,13 @@ import { authenticate, authorizeAudit, authorizeAuditDealer, auditLogLine, bidVe
 import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
-import { inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
+import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
-import { createStableCache } from "./stableCache.js";
+import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
-import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv } from "./factoryOptionAllowlist.js";
+import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
@@ -52,6 +52,7 @@ import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
+import { staleSlices } from "./staleFacets.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -70,6 +71,10 @@ const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
 // The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
 // promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
 const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
+// Cars last seen more than this many days ago are hidden from buyers: the list/facets/makes calls carry it as seenWithinDays (the web app's
+// STALE_HIDE_DAYS), and the nightly option/colour catalog rebuild + its live fallback, which have no request to carry it, use this default.
+// lib/lastConfirmed.test.ts pins this number to the web constant. STALE_HIDE_DAYS=0 turns the catalog filter off.
+const STALE_HIDE_DAYS = process.env.STALE_HIDE_DAYS === undefined ? 7 : Number(process.env.STALE_HIDE_DAYS) || 0;
 
 function loadDbEnv() {
   const envPath = path.resolve(process.cwd(), ".env.trimscout-db");
@@ -2236,6 +2241,9 @@ const invCached = async (key, fn) => {
 const stableCached = createStableCache({
   runBackground,
   ttlMs: INV_CACHE_MS,
+  // A catalog payload built from an older facet build than the current one counts as expired at once (it used to be served for up to INV_CACHE_MS
+  // after every rebuild, so a cleaned-up option list kept showing its old junk). catalogFacets is declared further down; this runs at request time.
+  isOutdated: (value) => builtForOtherBuild(value, catalogFacets.builtAt),
   filePath: process.env.INV_FACET_CACHE_FILE || "/opt/trimscout-deals/facet-cache.json",
 }).get;
 const invInvalidate = () => {
@@ -2266,6 +2274,38 @@ const wholesaleBucketsOrNull = async (pool) => {
   if (!RETAIL_ONLY_FACETS) return null;
   try { return await wholesaleBuckets(pool); } catch (err) { console.error(`${new Date().toISOString()} wholesale buckets unavailable, facet counts left unadjusted: ${err.message}`); return null; }
 };
+// The stale cars in stock (last seen more than `days` ago), as the same (make, state, model, trim) buckets, minus the wholesale ones (those are
+// already in wholesaleBuckets, so a car is never subtracted twice). One-day slices of last_seen_at keep each GROUP BY a bounded range of
+// idx_inv_stock_seen. Own stale-while-revalidate cache key per cutoff; a failure is NOT cached and the caller falls back to unadjusted counts.
+async function staleBuckets(pool, days) {
+  return stableCached(`stale-buckets:${days}`, async () => {
+    const run = async (sql, args) => (await withPoolTimeout(
+      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args),
+      waitMs(),
+      "Timed out waiting for an available database connection or a slow query"
+    ))[0];
+    const [{ d }] = await run("SELECT DATEDIFF(NOW(), MIN(last_seen_at)) AS d FROM dealer_inventory WHERE removed_at IS NULL", []);
+    const retail = RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : "";
+    const buckets = [];
+    for (const { upperDays, lowerDays } of staleSlices(days, d)) {
+      const lower = lowerDays === null ? "" : " AND last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)";
+      const args = [upperDays, ...(lowerDays === null ? [] : [lowerDays])];
+      // upper bound: strictly older than `days` days for the first slice, then contiguous day slices below it
+      const rows = await run(`SELECT make, state, model, trim, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND last_seen_at < DATE_SUB(NOW(), INTERVAL ? DAY)${lower}${retail} GROUP BY make, state, model, trim`, args);
+      for (const r of rows) buckets.push({ make: r.make, state: r.state, model: r.model, trim: r.trim, n: Number(r.n) });
+    }
+    return buckets;
+  });
+}
+// Wholesale + stale buckets for the buyer facet subtraction; null when neither can apply (or a read failed: counts stay unadjusted, never an error).
+const hiddenBucketsOrNull = async (pool, days) => {
+  const wb = await wholesaleBucketsOrNull(pool);
+  let sb = null;
+  if (days) {
+    try { sb = await staleBuckets(pool, days); } catch (err) { console.error(`${new Date().toISOString()} stale buckets unavailable, facet counts left unadjusted for age: ${err.message}`); }
+  }
+  return wb || sb ? [...(wb || []), ...(sb || [])] : null;
+};
 const INV_INT = (v) => (Number.isFinite(Number(v)) && v !== null && v !== "" ? Math.round(Number(v)) : null);
 const INV_DEALER = (v) => INV_INT(v) || 0;
 
@@ -2278,7 +2318,7 @@ function inventoryRowFromDb(r) {
     dealerCity: r.dealer_city ?? null, dealerState: r.dealer_state ?? null,
     windowStickerUrl: r.window_sticker_url ?? null, engine: r.engine ?? null, transmission: r.transmission ?? null, daysOnLot: r.days_on_lot ?? null,
     oldPrice: r.old_price ?? null, priceDiff: r.price_diff ?? null, priceChangeType: r.price_change_type ?? null, changeType: r.change_type ?? null,
-    priceHistory: INV_JSON(r.price_history_json), options: INV_JSON(r.options_json), optionsTotal: r.options_total ?? null, baseMsrp: r.base_msrp ?? null,
+    priceHistory: INV_JSON(r.price_history_json), options: policyApiOptions(OPTION_ALLOWLIST, { make: r.make, model: r.model, year: r.year, trim: r.trim }, INV_JSON(r.options_json)), optionsTotal: r.options_total ?? null, baseMsrp: r.base_msrp ?? null,
     crawlFirstSeen: r.crawl_first_seen ?? null,
     sourceBox: r.source_box ?? null,
   };
@@ -2363,7 +2403,12 @@ async function handleInventoryBulk(req, res) {
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
         const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
-        const { rows: facetRows, junkDropped } = optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
+        // Model policy (OPTION_MODEL_POLICY_PATH, Toyota + Ford 2026-27): for a covered vehicle ONLY the policy's options are written, so a re-synced
+        // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
+        // (the upsert COALESCEs trim), so the stored rows are left alone.
+        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options);
+        if (pol && pol.skip) { optionSetsKept++; continue; }
+        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
         optionJunkDropped += junkDropped;
         desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows });
       }
@@ -2577,10 +2622,10 @@ const invSearchGate = createGate({
   waitMs: Number(process.env.INV_SEARCH_QUEUE_WAIT_MS) || 3000,
 });
 
-async function handleListInventory(req, res, params) {
+async function handleListInventory(req, res, params, extra = {}) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params);
+  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2625,7 +2670,45 @@ async function handleListInventory(req, res, params) {
   });
   const body = { total: result.total, limit, offset, vehicles: result.rows.map(inventoryRowFromDb) };
   if (result.totalCapped) body.totalCapped = true;
+  // Echoed so the web app can tell a box that applied the contact filter from an older one that would silently ignore it.
+  if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
   sendJson(res, 200, body);
+}
+
+// POST /api/inventory/contact-search { query: "<the usual /api/inventory query string>", dealerIds: [..] } — the buyer search's
+// "Dealer contact on file" filter. The dealer set is decided by the web app (lib/contactFilter.ts, the same rule as Step 3 and the
+// Contact column) and is too big for a URL (~8k ids), hence POST. Same page, count and cap as GET /api/inventory plus
+// `i.dealer_id IN (...)`; the response carries contactFilter so an unpatched box (404) is never mistaken for an unfiltered answer.
+async function handleContactSearch(req, res) {
+  const body = await readBody(req, 2_000_000);
+  const ids = contactDealerIdsOf(body && body.dealerIds);
+  if (ids === null || (ids && ids.error)) return badRequest(res, ids ? ids.error : "dealerIds is required");
+  const params = new URLSearchParams(String((body && body.query) || ""));
+  return handleListInventory(req, res, params, { contactDealerIds: ids });
+}
+
+// POST /api/inventory/contact-facets { state?, make?, model?, seenWithinDays?, dealerIds: [..] } — the State/Make/Model/Trim counts for the
+// same filter, counting exactly the cars contact-search lists (contactFacetQueries). Not cached: the dealer set is part of the request.
+async function handleContactFacets(req, res) {
+  const body = await readBody(req, 2_000_000);
+  const ids = contactDealerIdsOf(body && body.dealerIds);
+  if (ids === null || (ids && ids.error)) return badRequest(res, ids ? ids.error : "dealerIds is required");
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const queries = contactFacetQueries({
+    state: String(body.state || "").trim().toUpperCase().slice(0, 2),
+    make: String(body.make || "").trim(),
+    model: String(body.model || "").trim(),
+    seenDays: seenWithinDaysOf(body.seenWithinDays == null ? null : String(body.seenWithinDays)),
+    dealerIds: ids,
+  });
+  const results = await Promise.all(queries.map((c) =>
+    withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${c.sql}`, c.args), waitMs(), "Timed out waiting for an available database connection or a slow query")
+  ));
+  const lists = { states: [], makes: [], models: [], trims: [] };
+  const field = { states: "state", makes: "make", models: "model", trims: "trim" };
+  queries.forEach((c, i) => { lists[c.key] = results[i][0].map((r) => ({ [field[c.key]]: r.v, n: Number(r.n) })); });
+  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length } });
 }
 
 // GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
@@ -2931,10 +3014,11 @@ async function computeInventoryStats(pool) {
 // paid for the admin sheet's full stats payload just to populate a <select>. Confirmed live
 // 2026-09-25: this is the same fast, indexed byMake query computeInventoryStats already runs
 // first, on its own with nothing slow to wait behind.
-async function handleInventoryMakes(req, res) {
+async function handleInventoryMakes(req, res, params = new URLSearchParams()) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  sendJson(res, 200, await stableCached("makes", async () => {
+  const seenDays = seenWithinDaysOf(params.get("seenWithinDays"));
+  sendJson(res, 200, await stableCached(seenDays ? `makes:seen${seenDays}` : "makes", async () => {
     // Wrapped the same way handleListInventory/handleInventoryCatalogOptions are (SET STATEMENT
     // + withPoolTimeout) — confirmed live 2026-09-27 this was the last unprotected call in
     // /api/search/parse's own fan-out (Promise.all([inventoryMakes(), catalogOptions()]) then
@@ -2946,7 +3030,7 @@ async function handleInventoryMakes(req, res) {
       "Timed out waiting for an available database connection or a slow query"
     );
     const makes = rows.map((r) => ({ make: r.make, n: Number(r.n) }));
-    const wb = await wholesaleBucketsOrNull(pool);
+    const wb = await hiddenBucketsOrNull(pool, seenDays);
     return { makes: wb ? adjustMakeList(makes, wb) : makes };
   }));
 }
@@ -2974,7 +3058,8 @@ async function handleInventoryFacets(req, res, params) {
   const state = (params.get("state") || "").trim().toUpperCase().slice(0, 2);
   const make = (params.get("make") || "").trim();
   const model = (params.get("model") || "").trim();
-  const cacheKey = `facets:${state}|${make}|${model}`;
+  const seenDays = seenWithinDaysOf(params.get("seenWithinDays"));
+  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}`;
   sendJson(res, 200, await stableCached(cacheKey, async () => {
     const q = (sql, args) =>
       withPoolTimeout(
@@ -3030,7 +3115,7 @@ async function handleInventoryFacets(req, res, params) {
       models: modelRows.map((r) => ({ model: r.model, n: Number(r.n) })),
       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
     };
-    const wb = await wholesaleBucketsOrNull(pool);
+    const wb = await hiddenBucketsOrNull(pool, seenDays);
     return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
   }));
 }
@@ -3162,14 +3247,14 @@ async function rebuildCatalogFacets(pool, opts = {}) {
         `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
          FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
          JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
-         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}
+         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}${STALE_HIDE_DAYS ? ` AND i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ${STALE_HIDE_DAYS} DAY)` : ""}
          GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
         [make]
       );
       const [colorAgg] = await pool.query(
         `SELECT COALESCE(model, '') AS model, COALESCE(trim, '') AS trim, COALESCE(exterior_color, '') AS ext, COALESCE(interior_color, '') AS intr, COUNT(*) AS n
          FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim)
-         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)${RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : ""}
+         WHERE removed_at IS NULL AND make = ? AND (exterior_color IS NOT NULL OR interior_color IS NOT NULL)${RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : ""}${STALE_HIDE_DAYS ? ` AND last_seen_at >= DATE_SUB(NOW(), INTERVAL ${STALE_HIDE_DAYS} DAY)` : ""}
          GROUP BY COALESCE(model, ''), COALESCE(trim, ''), COALESCE(exterior_color, ''), COALESCE(interior_color, '')`,
         [make]
       );
@@ -3309,6 +3394,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
   if (model) { where.push("i.model = ?"); args.push(model); }
   if (trim) { where.push("i.trim = ?"); args.push(trim); }
   if (RETAIL_ONLY_FACETS) where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
+  if (STALE_HIDE_DAYS) where.push(`i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ${STALE_HIDE_DAYS} DAY)`);
   const whereSql = "WHERE " + where.join(" AND ");
   // Both queries below only get a FORCE INDEX when make= is set — mirrors inventoryListQuery.js's
   // own rule (a hint is only safe/helpful when the leading equality column it expects is actually
@@ -3766,8 +3852,10 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && pathname === "/api/inventory/zero-scrape") return run(handleInventoryZeroScrape);
   if (req.method === "POST" && pathname === "/api/inventory/catalog-facets/rebuild") return run(handleCatalogFacetRebuild);
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
+  if (req.method === "POST" && pathname === "/api/inventory/contact-search") return run(handleContactSearch);
+  if (req.method === "POST" && pathname === "/api/inventory/contact-facets") return run(handleContactFacets);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
-  if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes);
+  if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/admin-facets") return run(handleInventoryAdminFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);

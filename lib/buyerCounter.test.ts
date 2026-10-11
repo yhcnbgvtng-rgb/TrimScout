@@ -43,11 +43,16 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
   it("server: edits to sales tax, title & registration or the doc fee are refused; the electronic fee may be struck", () => {
     const used = { kind: "cash", sellingPrice: 30000, dueAtSigning: [{ name: "Sales tax", amount: 2000 }, { name: "Doc fee", amount: 400 }, { name: "Title & registration", amount: 300 }, { name: "Electronic filing fee", amount: 100 }], addOns: [], noAddOns: true, rebates: [], miles: null, stockNumber: null, cpo: false, expiresAt: "2026-09-30T00:00:00Z", notes: null } as unknown as import("./usedQuote").UsedQuote;
     const lines = (over: Record<string, number>) => Object.entries({ "Sales tax": 2000, "Doc fee": 400, "Title & registration": 300, "Electronic filing fee": 100, ...over }).map(([name, amount]) => ({ name, amount }));
-    for (const name of ["Sales tax", "Doc fee", "Title & registration"]) {
+    for (const name of ["Doc fee", "Title & registration"]) {
       const r = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ [name]: 1 }) } }, NOW);
       assert.equal(r.counter, null, name);
       assert.match(r.errors.join(" "), /is set by the lender or the state/, name);
     }
+    // Sales tax is never typed: with no ZIP it stays as quoted, with a ZIP it follows price + add-ons at that state's rate.
+    const noZip = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ "Sales tax": 1 }) } }, NOW);
+    assert.equal((noZip.counter!.sheet!.after as import("./usedQuote").UsedCashQuote).dueAtSigning.find((l) => l.name === "Sales tax")!.amount, 2000);
+    const nj = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ "Sales tax": 1 }) } }, NOW, "07405");
+    assert.equal((nj.counter!.sheet!.after as import("./usedQuote").UsedCashQuote).dueAtSigning.find((l) => l.name === "Sales tax")!.amount, 1921.25);
     const ok = buildCounterFromEdits({ used }, { againstQuoteId: "q1", edits: { sellingPrice: 29000, dueAtSigning: lines({ "Electronic filing fee": 0 }) } }, NOW);
     assert.deepEqual(ok.errors, []);
     assert.ok(ok.counter);
@@ -90,7 +95,7 @@ describe("buyer counter — the dealer's own sheet with price-side edits, a requ
     const route = read("app/api/rfqs/[id]/invites/[inviteId]/counter/route.ts");
     assert.match(route, /rfq\.buyerUserId !== buyer\.id/);
     assert.match(route, /invite\.quote\.id !== payload\.againstQuoteId/);
-    assert.match(route, /buildCounterFromEdits\(invite\.quote, payload\)/, "the sheet is rebuilt server-side from the quote on file");
+    assert.match(route, /buildCounterFromEdits\(invite\.quote, payload, new Date\(\), /, "the sheet is rebuilt server-side from the quote on file");
     assert.match(route, /buyerCounterHtml\(input\)/);
     assert.match(route, /rows: counter\.sheet \? counterDiff\(counter\.sheet\)/, "the dealer's email carries the line-by-line comparison");
     assert.doesNotMatch(route, /Counters are for lease quotes/, "cash and finance quotes can be countered too");

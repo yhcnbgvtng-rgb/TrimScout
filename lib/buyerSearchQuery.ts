@@ -1,4 +1,5 @@
 import type { BuyerSearchQuery } from "./inventoryApi";
+import { contactFilterEnabled } from "./contactFilterFlag";
 import { formatSort, parseSort, type SortDir } from "./buyerSort";
 
 export class BuyerSearchParamsError extends Error {}
@@ -7,6 +8,8 @@ export interface ParsedBuyerSearch {
   query: BuyerSearchQuery;
   zip?: string;
   radiusMiles?: number;
+  /** contactOnFile=1: only cars whose dealer has a contact on file (lib/contactFilter.ts). Ignored while the filter is not enabled. */
+  contactOnFile: boolean;
   sortDistance: boolean;
   /** Direction of the in-memory distance sort (distance has no database column). */
   distanceDir: SortDir;
@@ -83,5 +86,5 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     limit: Math.min(Number(sp.get("limit")) || 50, MAX_LIMIT),
     offset: Number(sp.get("offset")) || 0,
   };
-  return { query, zip, radiusMiles, sortDistance, distanceDir: sortSpec?.dir ?? "asc" };
+  return { query, zip, radiusMiles, contactOnFile: contactFilterEnabled() && sp.get("contactOnFile") === "1", sortDistance, distanceDir: sortSpec?.dir ?? "asc" };
 }

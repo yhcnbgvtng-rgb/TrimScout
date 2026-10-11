@@ -20,14 +20,17 @@ export interface MustHaveRef {
 
 export interface MustHaveHit {
   name: string;
+  /** True only when confirmed present. */
   present: boolean;
+  /** True when we can't tell (the car's own field is blank) — neither present nor Missing. */
+  unknown?: boolean;
 }
 
 export type MustHaveReport =
   | { kind: "none_selected" }
   /** The alternate has no factory record, so nothing can be checked — say so, don't score 0. */
   | { kind: "unverifiable"; total: number }
-  | { kind: "scored"; total: number; hits: MustHaveHit[]; present: string[]; missing: string[] };
+  | { kind: "scored"; total: number; hits: MustHaveHit[]; present: string[]; missing: string[]; unknown: string[] };
 
 function norm(s: string): string {
   return (s || "")
@@ -60,6 +63,43 @@ function vehicleOptionKeys(v: Pick<Vehicle, "options" | "packages">): { names: S
   return { names, codes };
 }
 
+const COLOR_NOISE = /\b(metallic|pearl|tri ?coat|tinted clearcoat|clearcoat)\b/g;
+
+function colorKey(s: string): string {
+  return norm(s).replace(COLOR_NOISE, " ").replace(/\s+/g, " ").trim();
+}
+
+type FieldVerdict = "present" | "missing" | "unknown";
+
+/** "Exterior color: OXFORD WHITE" → matched against the car's own color field, not its options list. */
+function colorVerdict(label: string, v: Vehicle): FieldVerdict | null {
+  const m = label.match(/^\s*(exterior|interior)\s+colou?r\s*:\s*(.+)$/i);
+  if (!m) return null;
+  const field = m[1].toLowerCase() === "exterior" ? v.exteriorColor : v.interiorColor;
+  if (!(field || "").trim()) return "unknown";
+  const want = colorKey(m[2]);
+  const have = colorKey(field);
+  return want && have && want === have ? "present" : "missing";
+}
+
+const ENGINE_WORDS = /\b(engine|powertrain|v\d+|i\d|\d cyl(inder)?|turbo(charged)?|ecoboost|powerboost|hybrid|\d \d ?l|diesel|electric)\b/;
+
+/** Engine / powertrain must-haves also match the car's engine and transmission fields (a standard-on-trim engine counts). */
+function engineVerdict(label: string, v: Vehicle): FieldVerdict | null {
+  const text = norm(label.replace(/^\s*(engine|powertrain)\s*:\s*/i, ""));
+  if (!ENGINE_WORDS.test(norm(label))) return null;
+  const hay = norm(`${v.engine || ""} ${v.transmission || ""}`);
+  if (!hay) return "unknown";
+  const disp = text.match(/\b\d \d ?l\b/)?.[0]?.replace(/ /g, "");
+  const cyl = text.match(/\b(v\d+|i\d)\b/)?.[0];
+  const hayCompact = hay.replace(/(\d) (\d) ?l\b/g, "$1$2l");
+  if (disp || cyl) {
+    const ok = (!disp || hayCompact.includes(disp)) && (!cyl || hay.split(" ").includes(cyl));
+    return ok ? "present" : "missing";
+  }
+  return hay.includes(text) || text.includes(hay) ? "present" : "missing";
+}
+
 export function hasFactoryRecord(v: Pick<Vehicle, "buildConfidence" | "options" | "packages">): boolean {
   return v.buildConfidence === "verified_factory" || (v.options?.length || 0) > 0 || (v.packages?.length || 0) > 0;
 }
@@ -81,14 +121,20 @@ export function mustHaveReport(mustHaves: MustHaveRef[], alternate: Vehicle): Mu
     const code = (m.code || leadingCode(m.name) || "").trim().toUpperCase();
     const byCode = Boolean(code) && keys.codes.has(code);
     const byName = keys.names.has(norm(m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "")));
-    return { name: m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "").trim(), present: byCode || byName };
+    const name = m.name.replace(/^[A-Z0-9]{2,5}\s{2,}/, "").trim();
+    if (byCode || byName) return { name, present: true };
+    const field = colorVerdict(name, alternate) ?? engineVerdict(name, alternate);
+    if (field === "present") return { name, present: true };
+    if (field === "unknown") return { name, present: false, unknown: true };
+    return { name, present: false };
   });
   return {
     kind: "scored",
     total: hits.length,
     hits,
     present: hits.filter((h) => h.present).map((h) => h.name),
-    missing: hits.filter((h) => !h.present).map((h) => h.name),
+    missing: hits.filter((h) => !h.present && !h.unknown).map((h) => h.name),
+    unknown: hits.filter((h) => h.unknown).map((h) => h.name),
   };
 }
 
@@ -101,9 +147,10 @@ export function mustHaveHeadline(report: MustHaveReport): string {
       return `Can't check must-haves — no factory record for this VIN`;
     case "scored":
       if (report.total === 1) {
-        return report.present.length === 1 ? `Has: ${report.present[0]}` : `Missing: ${report.missing[0]}`;
+        if (report.present.length === 1) return `Has: ${report.present[0]}`;
+        return report.unknown.length === 1 ? `Unknown: ${report.unknown[0]}` : `Missing: ${report.missing[0]}`;
       }
-      return `${report.present.length} of ${report.total} must-haves`;
+      return `${report.present.length} of ${report.total} must-haves${report.unknown.length ? ` (${report.unknown.length} unknown)` : ""}`;
   }
 }
 

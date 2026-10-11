@@ -9,6 +9,7 @@
  * most recently wins. Fails soft: any backend trouble reads as "never seen".
  */
 
+import { trustedTrim } from "./trustedTrim";
 import { inventoryVin, type InventoryVehicle } from "./inventoryApi";
 
 export interface InventoryDealerSighting {
@@ -25,6 +26,8 @@ export interface InventoryDealerSighting {
   daysOnLot: number | null;
   /** The dealer's own window-sticker link, captured off their VDP during the crawl — real and dealer-specific, unlike a VIN-only OEM-site guess. */
   windowStickerUrl: string | null;
+  /** The dealer listing's own trim ("XLE Premium"), already screened by trustedTrim; "" when none. */
+  trim?: string;
 }
 
 export type InventoryVinLookup = (vin: string) => Promise<InventoryDealerSighting | null>;
@@ -50,6 +53,7 @@ export function sightingFromListings(listings: InventoryVehicle[]): InventoryDea
     firstSeen,
     daysOnLot,
     windowStickerUrl: best.windowStickerUrl || null,
+    trim: trustedTrim(best.trim),
   };
 }
 

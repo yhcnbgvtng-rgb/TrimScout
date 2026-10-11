@@ -3,6 +3,8 @@
  * Kept free of listings/sticker I/O so the wizard can import it on the client.
  */
 
+import { trustedTrim } from "./trustedTrim";
+
 export const FORD_COMPETITION_NEED_LOCATION =
   "Enter ZIP and radius above to fill these two slots with the nearest matching lots from two dealers when possible.";
 
@@ -281,7 +283,7 @@ export interface ReviewTargetVehicle {
 
 export function formatReviewVehicleTitle(vehicle: ReviewTargetVehicleFields): string | null {
   const year = typeof vehicle.year === "number" && vehicle.year > 0 ? String(vehicle.year) : "";
-  const parts = [year, vehicle.make, vehicle.model, vehicle.trim]
+  const parts = [year, vehicle.make, vehicle.model, trustedTrim(vehicle.trim)]
     .map((part) => (part || "").trim())
     .filter(Boolean);
   return parts.length ? parts.join(" ") : null;

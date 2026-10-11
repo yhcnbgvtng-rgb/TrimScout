@@ -40,6 +40,6 @@ describe("must-have picker order — exterior color, interior color, then option
   });
   it("wiring: the wizard's picker renders orderFactoryOptions(options)", () => {
     const w = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
-    assert.match(w, /orderFactoryOptions\(options\)\.map\(\(opt\) =>/);
+    assert.match(w, /const ordered = orderFactoryOptions\(options\);[\s\S]*?shown\.map\(\(opt\) =>/);
   });
 });

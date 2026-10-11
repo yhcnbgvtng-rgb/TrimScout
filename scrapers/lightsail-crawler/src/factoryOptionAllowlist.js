@@ -19,6 +19,7 @@
 // Keys and aliases are normalizeOptionKey() output, never raw text.
 
 import fs from "node:fs";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { normalizeOptionKey, optionRowsFromOptions } from "./inventoryOptionRows.js";
 
@@ -125,10 +126,15 @@ export function loadAllowlistFromEnv(env = process.env) {
 // A vehicle that matches no policy is untouched (policyOptionRows returns null), so other models and other years cost nothing.
 // Source of truth: docs/rav4-2026/*.csv -> scripts/build-rav4-option-policy.mjs -> src/optionPolicies/*.json.
 
+// (path.join, not new URL(): the website bundles this module for the Ford must-have list, and webpack rewrites new URL(.., import.meta.url) into an asset URL.)
+const optionPolicyPath = (name) => path.join(path.dirname(fileURLToPath(import.meta.url)), "optionPolicies", name);
 export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
-  fileURLToPath(new URL("./optionPolicies/toyota-rav4-2026.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/toyota-2026-2027.json", import.meta.url)),
-  fileURLToPath(new URL("./optionPolicies/ford-2026.json", import.meta.url)),
+  optionPolicyPath("toyota-rav4-2026.json"),
+  optionPolicyPath("toyota-2026-2027.json"),
+  optionPolicyPath("ford-2026.json"),
+  optionPolicyPath("chevrolet-2026-2027.json"),
+  optionPolicyPath("gmc-2026-2027.json"),
+  optionPolicyPath("buick-2026-2027.json"),
 ]);
 
 
@@ -161,6 +167,10 @@ export function buildModelPolicies(raw) {
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
+      // Ford: a trailing order code on the trim string ("XLT 302A", "Big Bend 222A") is not part of the trim. See stripOrderCode.
+      stripOrderCodes: Boolean(p.trimStripOrderCodes),
+      // A feed option's own order code that may be a policy key: Ford "301A" (default), GM RPO "Z07" / "WN5" (policy sets orderCodePattern).
+      orderCode: new RegExp(p.orderCodePattern || "^[0-9]{3}[A-Za-z]$"),
       // DB model spelling -> a word its trims carry in the CSV ("highlander hybrid" -> "hybrid": the Highlander Hybrid's "XLE" is the CSV's "Hybrid XLE").
       modelImpliedFallback: new Set((p.modelImpliedFallbackTrims || []).map(normalizeOptionKey)),
       modelImplied: new Map(Object.entries(p.modelImplied || {}).map(([m, w]) => [normalizeOptionKey(m), normalizeOptionKey(w)]).filter(([m, w]) => m && w)),
@@ -185,9 +195,9 @@ export function modelPolicyFor(allowlist, vehicle) {
   return modelPoliciesFor(allowlist, vehicle)[0] || null;
 }
 
-// A feed option's own order code (Ford "301A", "202A") when it IS a policy entry's key: Ford packages are keyed on their code. Codes a feed invents for
-// itself ("PKG-73", "OPT-66") are not policy keys and never match.
-const byOrderCode = (trim, code) => (code && /^[0-9]{3}[A-Za-z]$/.test(String(code).trim()) ? trim.index.get(normalizeOptionKey(code)) || null : null);
+// A feed option's own order code (Ford "301A", "202A"; GM RPO "Z07", "WN5") when it IS a policy entry's key: Ford packages and GM RPO options are keyed
+// on their code. Codes a feed invents for itself ("PKG-73", "OPT-66") are not policy keys and never match.
+const byOrderCode = (policy, trim, code) => (code && policy.orderCode.test(String(code).trim()) ? trim.index.get(normalizeOptionKey(code)) || null : null);
 
 // "Weather Package $375" / "(CY)" style decoration around a package name.
 const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
@@ -198,8 +208,11 @@ const decoration = (label) => label.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").repla
  * shorthand are XLE Premium, since there is no plain XLE), after stripping drivetrain words (AWD, Hybrid...) from the end.
  * Everything else — "Trail", "LE AWD", "XLE Premium Plus" — stays untrusted.
  */
+// A Ford order code is three digits and a letter ("302a" after normalization). Stripped only when it is NOT the first word: a trim is never just a code.
+const stripOrderCode = (key) => key.split(" ").filter((t, i) => !(i >= 1 && /^[0-9]{3}[a-z]$/.test(t))).join(" ");
+
 export function resolvePolicyTrim(policy, rawTrim, model = null) {
-  const key = normalizeOptionKey(rawTrim);
+  const key = policy.stripOrderCodes ? stripOrderCode(normalizeOptionKey(rawTrim)) : normalizeOptionKey(rawTrim);
   if (!key) return null;
   const hit = resolveTrimKey(policy, key, model);
   if (hit) return hit;
@@ -285,11 +298,11 @@ export function policyOptionRows(policy, vehicle, options) {
     const colonHead = label.includes(":") ? normalizeOptionKey(decoration(label.split(":")[0])) : null;
     if (policy.addonKeys.has(cleaned) || policy.addonPatterns.some((re) => re.test(label) || re.test(cleaned))) { // rule 5
       // "Weather Package" (factory) vs "All-Weather Liner Package" (accessory): an exact factory name wins over a product-word pattern.
-      const exact = trim && (trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(trim, r.code));
+      const exact = trim && (trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(policy, trim, r.code));
       if (!exact) { if (!addons.has(r.key)) addons.set(r.key, { key: r.key, label }); out.outcomes.push({ label, outcome: "dealer_addon", key: r.key }); continue; }
     }
     if (!trim) { drop(label, "no-trusted-trim"); continue; } // rule 6
-    const exact = trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(trim, r.code);
+    const exact = trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(policy, trim, r.code);
     if (exact) { // rule 1: a paid package / option / paint this trim offers, under its canonical key
       if (!rows.has(exact.key)) rows.set(exact.key, { key: exact.key, label: exact.label, code: r.code, kind: exact.kind, price: exact.price, via: "kept" });
       out.outcomes.push({ label, outcome: "kept", key: exact.key });
@@ -315,6 +328,33 @@ export function optionRowsForVehicle(allowlist, vehicle, options) {
   // Normally one. When two CSV models share a DB model spelling, the policy whose trim list the vehicle's trim resolves in is the one.
   const policy = policies.find((p) => resolvePolicyTrim(p, vehicle.trim, vehicle.model)) || policies[0];
   return policyOptionRows(policy, vehicle, options);
+}
+
+/**
+ * The facet rows the nightly sync writes for a vehicle under a model policy, or null when no policy covers it (the caller then uses the
+ * generic rules, unchanged). The sync COALESCEs trim, so a payload with a blank trim says nothing about the stored trim: for a policy-covered
+ * vehicle that is { skip: true } (leave the stored rows alone) rather than "no trusted trim -> wipe". A non-blank trim the policy does not
+ * trust still yields zero rows, per the policy's rule 6.
+ * -> null | { skip: true } | { rows: [{ key, label, code }], junkDropped }
+ */
+export function policyFacetRows(allowlist, vehicle, options) {
+  if (!modelPoliciesFor(allowlist, vehicle).length) return null;
+  if (!String(vehicle.trim ?? "").trim()) return { skip: true };
+  const res = optionRowsForVehicle(allowlist, vehicle, Array.isArray(options) ? options : []);
+  if (!res) return null;
+  return { rows: res.rows.map((r) => ({ key: r.key, label: r.label, code: r.code ?? null })), junkDropped: res.junkDropped };
+}
+
+/**
+ * The per-vehicle options list /api/inventory returns, under a model policy: exactly the options the facet table holds for that vehicle
+ * (same engine, same input), as { code, name, price, kind } like the feed's own entries. A vehicle no policy covers, or one with no option
+ * list, gets its list back untouched (same array), so makes without a policy are byte-for-byte what they were.
+ */
+export function policyApiOptions(allowlist, vehicle, options) {
+  if (!Array.isArray(options) || !options.length) return options;
+  const res = optionRowsForVehicle(allowlist, vehicle, options);
+  if (!res) return options;
+  return res.rows.map((r) => ({ code: r.code ?? null, name: r.label, price: r.price ?? 0, kind: r.kind }));
 }
 
 /** Reads the bundled policy files (RAV4 2026, then the other Toyota models); OPTION_MODEL_POLICY_PATH may point at any one JSON of the same shape. */

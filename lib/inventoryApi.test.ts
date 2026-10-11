@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { inventoryQueryString, adminListSort, searchInventory, listInventory } from "./inventoryApi";
+import { inventoryQueryString, adminListSort, searchInventory, listInventory, inventoryFacets, inventoryMakes } from "./inventoryApi";
 
 describe("inventoryQueryString — optionKeys array", () => {
   it("comma-joins an optionKeys array into a single query param", () => {
@@ -75,5 +75,29 @@ describe("retailOnly — the buyer search leaves wholesale lots out, the admin l
   it("a caller cannot switch it off through searchInventory", async () => {
     const urls = await withStubbedBox(async () => { await searchInventory({ make: "Ford", ...({ retailOnly: false } as object) }); });
     assert.equal(new URL(urls[0]).searchParams.get("retailOnly"), "1");
+  });
+});
+
+describe("seenWithinDays — buyer search hides cars not seen for STALE_HIDE_DAYS, the admin list does not", () => {
+  const stub = async (fn: () => Promise<void>) => {
+    const urls: string[] = [];
+    const prevFetch = globalThis.fetch, prevKey = process.env.LIGHTSAIL_API_KEY;
+    process.env.LIGHTSAIL_API_KEY = "test-key";
+    globalThis.fetch = (async (url: string) => { urls.push(String(url)); return new Response(JSON.stringify({ total: 0, limit: 50, offset: 0, vehicles: [], states: [], makes: [], models: [], trims: [] }), { status: 200, headers: { "Content-Type": "application/json" } }); }) as typeof fetch;
+    try { await fn(); } finally { globalThis.fetch = prevFetch; if (prevKey === undefined) delete process.env.LIGHTSAIL_API_KEY; else process.env.LIGHTSAIL_API_KEY = prevKey; }
+    return urls;
+  };
+  it("searchInventory, inventoryFacets and inventoryMakes all send seenWithinDays=7", async () => {
+    const urls = await stub(async () => { await searchInventory({ make: "Ford" }); await inventoryFacets({ make: "Ford" }); await inventoryMakes(); });
+    assert.equal(urls.length, 3);
+    for (const u of urls) assert.equal(new URL(u).searchParams.get("seenWithinDays"), "7", u);
+  });
+  it("listInventory (admin sheet) does not send it", async () => {
+    const urls = await stub(async () => { await listInventory({ make: "Ford", inStock: true }); });
+    assert.equal(new URL(urls[0]).searchParams.has("seenWithinDays"), false);
+  });
+  it("a caller cannot change it through searchInventory", async () => {
+    const urls = await stub(async () => { await searchInventory({ make: "Ford", ...({ seenWithinDays: 365 } as object) }); });
+    assert.equal(new URL(urls[0]).searchParams.get("seenWithinDays"), "7");
   });
 });

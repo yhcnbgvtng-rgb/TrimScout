@@ -18,45 +18,45 @@ Not covered (untouched): Explorer, F-150 Lightning, Escape, Mustang and every ot
 
 | Year | Model | Trim | Packages | Options | Powertrain | Paints | Rules |
 |---|---|---|---|---|---|---|---|
-| 2026 | Bronco Sport | Heritage | 3 | 2 | 0 | 3 | 5 |
-| 2026 | Bronco Sport | Big Bend | 9 | 6 | 0 | 5 | 17 |
-| 2026 | Bronco Sport | Outer Banks | 7 | 4 | 0 | 5 | 9 |
-| 2026 | Bronco Sport | Badlands | 6 | 3 | 0 | 5 | 9 |
-| 2026 | Bronco | Base | 2 | 4 | 1 | 5 | 6 |
-| 2026 | Bronco | Big Bend | 8 | 9 | 1 | 5 | 11 |
-| 2026 | Bronco | Outer Banks | 6 | 7 | 1 | 9 | 5 |
+| 2026 | Bronco Sport | Heritage | 3 | 4 | 0 | 3 | 9 |
+| 2026 | Bronco Sport | Big Bend | 9 | 9 | 0 | 5 | 21 |
+| 2026 | Bronco Sport | Outer Banks | 7 | 7 | 0 | 5 | 13 |
+| 2026 | Bronco Sport | Badlands | 6 | 6 | 0 | 5 | 13 |
+| 2026 | Bronco | Base | 2 | 5 | 1 | 5 | 8 |
+| 2026 | Bronco | Big Bend | 8 | 10 | 1 | 5 | 13 |
+| 2026 | Bronco | Outer Banks | 6 | 8 | 1 | 9 | 5 |
 | 2026 | Bronco | Badlands | 7 | 8 | 2 | 10 | 3 |
-| 2026 | Bronco | Heritage Edition | 0 | 4 | 2 | 5 | 1 |
+| 2026 | Bronco | Heritage Edition | 0 | 5 | 2 | 5 | 1 |
 | 2026 | Bronco | Stroppe Edition | 0 | 2 | 0 | 0 | 0 |
 | 2026 | Bronco | Raptor | 5 | 5 | 0 | 11 | 4 |
 | 2026 | F-150 | XL | 1 | 3 | 4 | 1 | 0 |
-| 2026 | F-150 | STX | 2 | 1 | 4 | 4 | 0 |
-| 2026 | F-150 | XLT | 4 | 3 | 6 | 5 | 0 |
+| 2026 | F-150 | STX | 2 | 2 | 4 | 4 | 0 |
+| 2026 | F-150 | XLT | 4 | 4 | 6 | 5 | 0 |
 | 2026 | F-150 | Lariat | 8 | 3 | 5 | 6 | 2 |
 | 2026 | F-150 | King Ranch | 2 | 4 | 3 | 3 | 2 |
 | 2026 | F-150 | Platinum | 5 | 4 | 3 | 5 | 4 |
 | 2026 | F-150 | Tremor | 6 | 4 | 1 | 3 | 0 |
 | 2026 | F-150 | Raptor | 2 | 4 | 0 | 5 | 0 |
 | 2026 | Maverick | XL | 2 | 4 | 0 | 1 | 0 |
-| 2026 | Maverick | XLT | 3 | 5 | 0 | 3 | 0 |
-| 2026 | Maverick | Lobo | 0 | 5 | 0 | 0 | 0 |
-| 2026 | Maverick | Lariat | 2 | 4 | 0 | 3 | 2 |
-| 2026 | Maverick | Tremor | 0 | 2 | 0 | 3 | 0 |
-| 2026 | Ranger | XL | 3 | 5 | 1 | 4 | 3 |
-| 2026 | Ranger | XLT | 8 | 7 | 1 | 5 | 7 |
-| 2026 | Ranger | Lariat | 6 | 5 | 1 | 5 | 6 |
+| 2026 | Maverick | XLT | 3 | 6 | 0 | 3 | 0 |
+| 2026 | Maverick | Lobo | 0 | 6 | 0 | 0 | 0 |
+| 2026 | Maverick | Lariat | 2 | 5 | 0 | 3 | 2 |
+| 2026 | Maverick | Tremor | 0 | 3 | 0 | 3 | 0 |
+| 2026 | Ranger | XL | 3 | 6 | 1 | 4 | 3 |
+| 2026 | Ranger | XLT | 8 | 9 | 1 | 5 | 7 |
+| 2026 | Ranger | Lariat | 6 | 6 | 1 | 5 | 6 |
 | 2026 | Ranger | Raptor | 0 | 4 | 0 | 5 | 1 |
 
-Rules stored (combos Ford will not allow: requires / not available with / only with / deletes): 97. They are data under each option, never options.
+Rules stored (combos Ford will not allow: requires / not available with / only with / deletes): 117. They are data under each option, never options.
 
 ## CSV rows not kept (by rule)
 
 - base: 28
-- interior item: 27
+- interior color / seat / trim choice: 2
 
-## Interior items dropped (27 rows - Ford's configurator subcategory "Interior")
+## Interior-tagged options (Ford's configurator subcategory "Interior")
 
-These are priced factory options that Ford's own UI groups under Interior. They are dropped by the approved "no interior items" rule. To keep any of them, change `INTERIOR_SUBCATEGORIES` in the builder.
+Kept (25 rows, paid functional options):
 
 - Bronco Sport Heritage: Power Moonroof ($995)
 - Bronco Sport Heritage: Pro Power Onboard – 400 W ($175)
@@ -73,8 +73,6 @@ These are priced factory options that Ford's own UI groups under Interior. They 
 - Bronco Big Bend: Slide-Out Tailgate ($600)
 - Bronco Outer Banks: Slide-Out Tailgate ($600)
 - Bronco Heritage Edition: Slide-Out Tailgate ($600)
-- Bronco Raptor: Interior Carbon Fiber Pack ($1725)
-- Bronco Raptor: Code Orange Accent Seat Belts ($495)
 - F-150 STX: Integrated Trailer Brake Controller ($275)
 - F-150 XLT: Integrated Trailer Brake Controller ($275)
 - Maverick XLT: Power Moonroof ($995)
@@ -85,6 +83,19 @@ These are priced factory options that Ford's own UI groups under Interior. They 
 - Ranger XLT: Power Moonroof ($1200)
 - Ranger XLT: Power-Sliding Rear Window ($380)
 - Ranger Lariat: Power Moonroof ($985)
+
+Dropped (2 rows, interior color / seat / trim choices):
+
+- Bronco Raptor: Interior Carbon Fiber Pack ($1725)
+- Bronco Raptor: Code Orange Accent Seat Belts ($495)
+
+## Trim aliases and trim noise (approved; nothing else is aliased)
+
+- Maverick: "lobo high" -> Lobo
+- Maverick: "lobo standard" -> Lobo
+- a trailing Ford order code is stripped (`XLT 302A` -> `XLT`, `Big Bend 222A` -> `Big Bend`); a code on its own, or as the first word, is not
+- status words `Demo`, `Fleet`, `In Transit` / `Intransit` are ignored (`XLT Demo` -> `XLT`)
+- `Raptor R` is its own trim and is NOT aliased to `Raptor`
 
 ## Keys that are Ford package codes (23)
 
@@ -118,6 +129,6 @@ Every other entry is keyed on its full normalized name.
 
 - `BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)` ($2,495, F-150 Lariat and Tremor) is kept: it is a priced factory package bought once, not a subscription plan. Subscription plans are dropped by name.
 - The default-selected paid paint on a trim (the CSV note "default-selected paid paint excluded") is kept at its price: it is a paid paint that the trim's base price leaves out.
-- Interior-tagged items are dropped (above).
+- Paid functional options Ford tags "Interior" are kept; interior colors, seats and trim choices are dropped (above).
 - `Interior Protection Package` ($395, Bronco Sport) and `Matte Film Protection Package - Body` ($4,995, Bronco) are listed in the CSV as factory packages, so they are kept. Dealer protection products (paint protection, fabric protection, floor mats, cargo liners) are add-ons and never reach the website. If Paul counts these two factory packages as protection items, add them to the accessory list in the builder.
 

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { inventoryFacets, InventoryApiError } from "@/lib/inventoryApi";
+import { contactOnFileDealerIds } from "@/lib/contactFilter";
+import { contactFilterEnabled } from "@/lib/contactFilterFlag";
+import { loadContactIndex } from "@/lib/dealerContactIndex";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +16,18 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const sp = new URL(req.url).searchParams;
   try {
+    // contactOnFile=1: counts for only the dealers the search's contact filter keeps (the same set /api/vehicles/search sends).
+    let contact: { dealerIds: string[] } | undefined;
+    if (contactFilterEnabled() && sp.get("contactOnFile") === "1") {
+      const index = await loadContactIndex();
+      if (!index) throw new InventoryApiError("Dealer contacts are unavailable right now, so the contact filter cannot run.", 503);
+      contact = { dealerIds: contactOnFileDealerIds(index) };
+    }
     const result = await inventoryFacets({
       state: sp.get("state") || undefined,
       make: sp.get("make") || undefined,
       model: sp.get("model") || undefined,
-    });
+    }, contact);
     return NextResponse.json(result, { headers: { "Cache-Control": "private, max-age=60" } });
   } catch (err) {
     const message = err instanceof InventoryApiError ? err.message : "Could not load filter counts.";

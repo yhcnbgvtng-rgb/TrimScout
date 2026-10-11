@@ -10,6 +10,13 @@
 // production six times across two days (five combinations on 2026-09-22, one more on 2026-09-25),
 // always the same shape — a filter combination the hand-tuned index hints didn't cover, found live
 // during an outage.
+/** `seenWithinDays` from a request: a whole number of days 1-365, else null (absent or junk -> no age filter). Lives here so the list query stays a single-file box patch. */
+export function seenWithinDaysOf(raw) {
+  const s = String(raw ?? "").trim();
+  if (!/^\d{1,3}$/.test(s)) return null;
+  const n = Number(s);
+  return n >= 1 && n <= 365 ? n : null;
+}
 /** Distinct, trimmed, non-empty values of a (possibly repeated) query param, capped so a hostile URL can't build a huge IN list. */
 export const MAX_MULTI_VALUES = 25;
 export function multiParam(params, key, normalize = (v) => v) {
@@ -57,7 +64,39 @@ const TEXT_SORT_COLUMNS = new Set(["i.dealer_name", "i.make", "i.model", "i.trim
 const STATE_PAGE_HINT = "FORCE INDEX (idx_inv_stock_state)";
 const STATE_MAKE_COUNT_HINT = "FORCE INDEX (idx_inv_facet_state_make)";
 
-export function inventoryListQuery(params) {
+/** Most dealer ids one contact-filtered request may carry (the directory is ~18k rows; ~8k qualify). */
+export const MAX_CONTACT_DEALER_IDS = 50000;
+
+/**
+ * The dealer ids a contact-filtered request carries (POST body, because ~8k ids do not fit a query string): positive whole numbers,
+ * de-duplicated. Returns null when absent (no filter), or { error } when unusable.
+ */
+export function contactDealerIdsOf(raw) {
+  if (raw === undefined || raw === null) return null;
+  if (!Array.isArray(raw)) return { error: "dealerIds must be an array" };
+  if (raw.length > MAX_CONTACT_DEALER_IDS) return { error: `dealerIds is limited to ${MAX_CONTACT_DEALER_IDS}` };
+  const ids = new Set();
+  for (const v of raw) {
+    const n = Number(v);
+    if (!Number.isInteger(n) || n <= 0) return { error: "dealerIds must be positive whole numbers" };
+    ids.add(n);
+  }
+  return [...ids];
+}
+
+// The one predicate the buyer's "Dealer contact on file" filter adds. List page, count and facets all take it from here, so they cannot disagree.
+// An empty set matches nothing (1 = 0), never everything. dealer_id is part of every secondary index's primary-key suffix, so the test stays index-only.
+export function contactIdsPredicate(ids, col = "i.dealer_id") {
+  if (!ids) return null;
+  if (ids.length === 0) return { sql: "1 = 0", args: [] };
+  return { sql: `${col} IN (${ids.map(() => "?").join(",")})`, args: ids };
+}
+
+/**
+ * opts.contactDealerIds (from contactDealerIdsOf): only cars whose dealer is in the set. Sent by the buyer search's
+ * "Dealer contact on file" filter via POST /api/inventory/contact-search; absent = no change to any query below.
+ */
+export function inventoryListQuery(params, opts = {}) {
   const where = [], args = [];
   const p = (k) => (params.get(k) || "").trim();
   // state/make/model/trim/cond accept REPEATED params (state=FL&state=GA): OR within a field, AND across
@@ -83,6 +122,12 @@ export function inventoryListQuery(params) {
   // stay in the table (the admin Vehicles tab still shows them); this only keeps them out of buyer results. A NULL cond is kept (unknown is
   // not wholesale). Added as a plain post-filter so every index choice and hint below is unchanged.
   if (p("retailOnly") === "1") where.push("(i.cond IS NULL OR i.cond <> 'wholesale')");
+  const contactPred = contactIdsPredicate(opts.contactDealerIds || null);
+  if (contactPred) { where.push(contactPred.sql); args.push(...contactPred.args); }
+  // seenWithinDays=N (sent by the buyer search only, never by the admin sheet): a car the crawl last saw more than N days ago is not
+  // offered to buyers. The rows stay in the table; the admin Vehicles tab and a car's direct page still show them. Plain post-filter, like retailOnly.
+  const seenDays = seenWithinDaysOf(p("seenWithinDays"));
+  if (seenDays) { where.push("i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)"); args.push(seenDays); }
   if (p("inStock") === "1") where.push("i.removed_at IS NULL");
   if (p("changeType")) { where.push("i.change_type = ?"); args.push(p("changeType").toUpperCase()); }
   if (p("priceChange") === "drop") where.push("i.price_diff < 0");
@@ -355,4 +400,29 @@ export function deferredPageSql({ countSql, orderBy }) {
   // price:asc >25s); on the facet index it is the make's own range (3.7s).
   const pageFrom = /^i\.dealer_name ASC, i\.vin ASC$/.test(orderBy) ? countSql.replace(STATE_MAKE_COUNT_HINT, STATE_PAGE_HINT) : countSql;
   return `SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM (SELECT i.vin, i.dealer_id ${pageFrom} ORDER BY ${orderBy} LIMIT ? OFFSET ?) pg JOIN dealer_inventory i ON i.vin = pg.vin AND i.dealer_id = pg.dealer_id LEFT JOIN dealership_contacts d ON d.id = i.dealer_id ORDER BY ${orderBy}`;
+}
+
+/**
+ * Facet queries for the contact-filtered buyer search: the same four lists as GET /api/inventory/facets (states, makes, models, trims,
+ * scoped by the other picks), counting exactly the cars the contact-filtered list returns: in stock, not stale, retail, seen within
+ * `seenDays`, dealer in the contact set. A direct WHERE rather than the unfiltered facets' subtract-the-hidden-buckets approach, because the
+ * bucket aggregates know nothing about dealers. Pure: returns [{ key, sql, args }] for the caller to run.
+ */
+export function contactFacetQueries({ state = "", make = "", model = "", seenDays = null, dealerIds }) {
+  const pred = contactIdsPredicate(dealerIds, "dealer_id");
+  const base = ["removed_at IS NULL", "stale_at IS NULL", "(cond IS NULL OR cond <> 'wholesale')", pred.sql];
+  const baseArgs = [...pred.args];
+  if (seenDays) { base.push("last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)"); baseArgs.push(seenDays); }
+  const q = (key, col, extra, extraArgs, limit) => ({
+    key,
+    sql: `SELECT ${col} AS v, COUNT(*) AS n FROM dealer_inventory WHERE ${[...base, ...extra, `${col} IS NOT NULL`].join(" AND ")} GROUP BY ${col} ORDER BY n DESC${limit ? ` LIMIT ${limit}` : ""}`,
+    args: [...baseArgs, ...extraArgs],
+  });
+  const out = [
+    q("states", "state", make ? ["make = ?"] : [], make ? [make] : [], 0),
+    q("makes", "make", state ? ["state = ?"] : [], state ? [state] : [], 100),
+  ];
+  if (make) out.push(q("models", "model", ["make = ?", ...(state ? ["state = ?"] : [])], [make, ...(state ? [state] : [])], 200));
+  if (make && model) out.push(q("trims", "trim", ["make = ?", "model = ?", ...(state ? ["state = ?"] : [])], [make, model, ...(state ? [state] : [])], 100));
+  return out;
 }

@@ -66,7 +66,7 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(step2, /<QuoteFormatMatrix\s+quoteType=\{quoteType\}\s+cars=\{intent === "alternate" \? \[\] : \[selectedVehicle, altVehicle1, altVehicle2\]/);
     // Dealer panel: a green "Sales contact on file" when the desk is known, an adviser-email field when it isn't; the note goes with the request.
     assert.match(step2, /✓ Sales contact on file/);
-    assert.match(step2, /placeholder=\{optedOut \? "Sales adviser email" : "Sales adviser email \(optional\)"\}/, "the adviser address is optional once the rooftop is known");
+    assert.match(step2, /placeholder=\{optedOut \? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER\}/, "the adviser address is optional once the rooftop is known");
     assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,/);
     // Dealer on top, the car under it, then every dealer's return as a vertical equation.
     assert.match(src, /data-testid="format-dealer"[\s\S]*?data-testid="format-vehicle"[\s\S]*?data-testid="format-equation"/);
@@ -112,8 +112,9 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
     assert.match(step2, /data-testid="missing-locks"/);
     assert.match(step2, /data-testid="missing-contact"/);
-    // Step 3: the "I have a trade-in" toggle (default off). Off sends no trade data; on rides the request as a draft id the server re-verifies.
-    assert.match(step2, /<TradeInStep/);
+    // Step 3: trade-ins are a note only (no toggle); nothing is collected until the price is agreed, so the request sends no trade data.
+    assert.match(step2, /data-testid="trade-in-note"/);
+    assert.doesNotMatch(step2, /<TradeInStep/);
     assert.match(src, /useState<boolean \| null>\(false\);/);
     assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,\s*tradeInExpected,\s*\/\/[^\n]*\n\s*tradeIn: tradeInExpected && tradeStep\.draftId \? \{ enabled: true, draftId: tradeStep\.draftId, token: tradeStep\.token \} : \{ enabled: false \},/);
     assert.match(src, /TOTAL_STEPS = 4/);

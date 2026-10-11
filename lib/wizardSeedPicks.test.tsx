@@ -37,7 +37,7 @@ function stubFetch() {
     if (url.startsWith("/api/rfqs")) { sent.push({ url, body }); return json({ rfq: { id: "rfq-test" }, invite: { stage: "sent" } }); }
     if (url.startsWith("/api/quote-desks")) {
       const asked = (JSON.parse(String(init?.body || "{}")).dealers || []) as Array<{ dealerName: string }>;
-      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
+      return json({ desks: asked.map((d) => ({ dealerName: d.dealerName, found: true, contactState: "named", knownNamed: true, contactName: "Sam Seller", role: "sales_manager", emailMasked: "s***@x.com", emailDomain: "x.com", emailOptOut: false, blockedReason: null, blockedMessage: null, routing: "named" })) });
     }
     if (url.startsWith("/api/dealer-contact")) return json({ contacts: {} });
     return json({});
@@ -113,8 +113,9 @@ describe("buyer search seed -> Step 1", () => {
       if (send) {
         const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')!;
         await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
-        // The trade-in toggle defaults off, so there is nothing to answer on Step 3.
-        assert.equal(doc.querySelector('[data-testid="trade-toggle"]')?.getAttribute("aria-checked"), "false");
+        // Trade-in is a note only on Step 3 (no toggle), so there is nothing to answer.
+        assert.equal(doc.querySelector('[data-testid="trade-toggle"]'), null);
+        assert.ok(doc.querySelector('[data-testid="trade-in-note"]'));
         const cont = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
         await act(async () => { cont.click(); });
         await tick();

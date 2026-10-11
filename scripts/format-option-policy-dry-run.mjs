@@ -1,7 +1,8 @@
 // Turns the JSON from scripts/box/2026-10-11-ford-option-policy-dry-run.mjs into the before/after report.
-//   node scripts/format-option-policy-dry-run.mjs <main.json> <interior-kept.json|-> <out.md> "<title>" "<run description>"
+//   node scripts/format-option-policy-dry-run.mjs <main.json> <what-if.json|-> <out.md> "<title>" "<run description>" [<previous-run.json> "<previous label>"]
 import fs from "node:fs";
-const [mainPath, altPath, outPath, title = "Option policy dry run", runNote = ""] = process.argv.slice(2);
+const [mainPath, altPath, outPath, title = "Option policy dry run", runNote = "", prevPath = null, prevLabel = "the previous run"] = process.argv.slice(2);
+const prev = prevPath ? JSON.parse(fs.readFileSync(prevPath, "utf8")) : null;
 const main = JSON.parse(fs.readFileSync(mainPath, "utf8"));
 const alt = altPath && altPath !== "-" ? JSON.parse(fs.readFileSync(altPath, "utf8")) : null;
 const n = (x) => Number(x).toLocaleString("en-US");
@@ -17,13 +18,19 @@ let T = { v: 0, b: 0, k: 0, r: 0, a: 0 };
 for (const s of order) { const v = main.scopes[s]; T.v += v.vehicles; T.b += v.rowsBefore; T.k += v.rowsKept; T.r += v.rowsRemoved; T.a += v.rowsAfter;
   md.push(`| ${name(s)} | ${n(v.vehicles)} | ${n(v.rowsBefore)} | ${n(v.rowsKept)} | ${n(v.rowsRemoved)} | ${n(v.rowsAfter)} | ${v.zeroOptionsBeforePct}% | ${v.zeroOptionsAfterPct}% | ${n(v.noTrustedTrim)} (${(100 * v.noTrustedTrim / v.vehicles).toFixed(1)}%) |`); }
 md.push(`| **All five** | ${n(T.v)} | ${n(T.b)} | ${n(T.k)} | ${n(T.r)} | ${n(T.a)} | | | |`, "");
+if (prev) {
+  md.push(`## Change versus ${prevLabel}`, "", "| Model | Cars with 0 options before | 0 options after: previous | 0 options after: now | Change (points) | Rows after: previous | Rows after: now | No trusted trim: previous | No trusted trim: now |", "|---|---|---|---|---|---|---|---|---|");
+  for (const s of order) { const a = prev.scopes[s], b = main.scopes[s]; const d = +(b.zeroOptionsAfterPct - a.zeroOptionsAfterPct).toFixed(1);
+    md.push(`| ${name(s)} | ${b.zeroOptionsBeforePct}% | ${a.zeroOptionsAfterPct}% | ${b.zeroOptionsAfterPct}% | ${d > 0 ? "+" : ""}${d} | ${n(a.rowsAfter)} | ${n(b.rowsAfter)} | ${n(a.noTrustedTrim)} | ${n(b.noTrustedTrim)} |`); }
+  md.push("");
+}
 md.push("Average option lines per vehicle in the dealers' feeds, and dealer add-ons set aside (never shown on the website):", "", "| Model | Raw lines / vehicle | Dealer add-ons set aside |", "|---|---|---|");
 for (const s of order) md.push(`| ${name(s)} | ${main.scopes[s].rawLinesPerVehicle} | ${n(main.scopes[s].dealerAddons)} |`);
 md.push("", "## Top 10 options that remain, per model (vehicles carrying each)", "");
 for (const s of order) { md.push(`### ${name(s)}`, "", "| # | Option | Kind | Vehicles |", "|---|---|---|---|"); main.scopes[s].topAfter.forEach((o, i) => md.push(`| ${i + 1} | ${o.label} | ${o.kind} | ${n(o.vehicles)} |`)); md.push(""); }
-md.push("## Trims that are not trusted (these cars get no options)", "", "Per the rule \"no trusted trim means no options\". The strings below are the commonest untrusted trims. They are NOT aliased: as with the Toyota policies, an alias is added only after approval. Candidates are listed after the table.", "");
+md.push("## Trims that are not trusted (these cars get no options)", "", "Per the rule \"no trusted trim means no options\". These are the commonest untrusted trims left. As with the Toyota policies, an alias is added only after approval.", "");
 for (const s of order) { const v = main.scopes[s]; md.push(`- **${name(s)}** (${n(v.noTrustedTrim)} cars): ${v.topUntrustedTrims.slice(0, 10).map(([t, c]) => `\`${t}\` ${n(c)}`).join(", ")}`); }
-md.push("", "Candidate aliases for approval (none applied): `Lobo High` and `Lobo Standard` -> Maverick `Lobo`; a trailing Ford order code (`XLT 302A`, `Big Bend 222A`, `STX 200A`) -> the trim before it; status words (`Demo`, `Fleet`, `In Transit`) -> ignored; `Raptor R` -> F-150 `Raptor`.", "");
+md.push("", "Only the approved aliases are applied (see POLICY_REPORT.md); every string above stays untrusted.", "");
 if (alt) {
   md.push("## What the \"no interior items\" rule costs", "", "Ford's configurator tags 27 priced options \"Interior\" (Power Moonroof, Integrated Trailer Brake Controller, Pro Power Onboard, Slide-Out Tailgate, Aux Switches and Wiring...). The policy drops them. Same read-only run with them kept:", "", "| Model | Rows after (rule applied) | Rows after (interior kept) | Cars with 0 options after (rule applied) | Cars with 0 options after (interior kept) | Cars that would gain an option |", "|---|---|---|---|---|---|");
   for (const s of order) { const a = main.scopes[s], b = alt.scopes[s]; md.push(`| ${name(s)} | ${n(a.rowsAfter)} | ${n(b.rowsAfter)} | ${a.zeroOptionsAfterPct}% | ${b.zeroOptionsAfterPct}% | ~${n(Math.round(a.vehicles * (a.zeroOptionsAfterPct - b.zeroOptionsAfterPct) / 100))} |`); }

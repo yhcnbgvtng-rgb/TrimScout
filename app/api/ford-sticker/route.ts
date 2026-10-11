@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const runtime = "nodejs";
 
+import { applyFordOptionPolicy } from "@/lib/fordOptionPolicy";
 import { NextResponse } from "next/server";
 import type { DealerPageIdentity } from "@/lib/dealerPageIdentity";
 import {
@@ -86,14 +87,17 @@ async function respondReleased(
     pageUnread: Boolean(resolved.pageBlocked),
     mustHaveLines,
     niceToHaveLines,
-    filterableOptions: filterableFactoryOptionBreakout(sticker).map((o) => ({
-      name: o.description,
-      code: o.code,
-      description: o.description,
-      price: o.price,
-      isPackageChild: o.isPackageChild,
-      source: "sticker" as const,
-    })),
+    filterableOptions: applyFordOptionPolicy(
+      { make: sticker.make || "Ford", model: sticker.model, year: sticker.year, trim: sticker.trim },
+      filterableFactoryOptionBreakout(sticker).map((o) => ({
+        name: o.description,
+        code: o.code,
+        description: o.description,
+        price: o.price,
+        isPackageChild: o.isPackageChild,
+        source: "sticker" as const,
+      }))
+    ),
     pdfUrl: sticker.pdfUrl,
   });
 }
