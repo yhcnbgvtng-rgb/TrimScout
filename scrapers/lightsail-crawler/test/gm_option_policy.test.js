@@ -32,7 +32,7 @@ describe('what is covered: model + year + trim, per brand', () => {
   });
   it('policy sizes (entries per brand) match the generated report', () => {
     const size = (b) => Object.values(RAW[b]).reduce((n, p) => n + Object.values(p.trims).reduce((m, t) => m + Object.keys(t.options).length, 0), 0);
-    assert.deepEqual(BRANDS.map(size), [1114, 911, 99]);
+    assert.deepEqual(BRANDS.map(size), [1221, 911, 99]);
   });
   it('another model year, another model and another make are untouched (no policy)', () => {
     for (const v of [
@@ -83,7 +83,7 @@ describe('rule 1: only paid packages, standalone options, paints and powertrain 
         if (!['Factory package', 'Factory option', 'Exterior color', 'Powertrain'].includes(r.category)) continue;
         if (r.model === 'Corvette') {
           const grp = r.category === 'Factory package' || r.category === 'Exterior color' || (r.category === 'Factory option' && ['Wheels', 'Performance'].includes(r.subcategory));
-          if (!grp || !(price > 1000)) continue;
+          if (!grp || (r.subcategory === 'Performance' && !(price > 1000))) continue;
         }
         const m = /(?:^|;\s*)key=([^;]+)/.exec(r.notes || '');
         const key = m && !m[1].trim().startsWith('name:') ? slug(m[1].trim()) : slug(r.item.replace(/®|™/g, '').replace(/\s+/g, ' ').trim());
@@ -170,20 +170,20 @@ describe('rule 6: no trusted trim -> no options', () => {
   });
 });
 
-describe('Corvette lean cut: only packages, paints, wheels and performance items over $1,000', () => {
+describe('Corvette lean cut: only packages, paints, wheels and performance items; the $1,000 threshold is for performance items only', () => {
   const vette = (names, trim = 'Stingray 1LT') => run('Chevrolet', { model: 'Corvette', year: 2027, trim }, names);
-  it('keeps the package, the wheels and the performance item over $1,000', () => {
-    const r = vette(['Z51 Performance Package', '20-spoke Gloss Black forged', 'Magnetic Selective Ride Control', 'Quad center exit exhaust']);
-    assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]).sort(), [['20-spoke Gloss Black forged', 'option', 1095], ['Magnetic Selective Ride Control', 'option', 1895], ['Quad center exit exhaust', 'option', 1995], ['Z51 Performance Package', 'package', 5395]]);
+  it('keeps every priced package, paint and wheel, and performance items over $1,000', () => {
+    const r = vette(['Z51 Performance Package', '20-spoke Gloss Black forged', 'Magnetic Selective Ride Control', 'Quad center exit exhaust', 'Roswell Green Metallic', '5-split-spoke Satin Graphite machined edge forged']);
+    assert.deepEqual(r.rows.map((x) => [x.label, x.kind, x.price]).sort(), [['20-spoke Gloss Black forged', 'option', 1095], ['5-split-spoke Satin Graphite machined edge forged', 'option', 995], ['Magnetic Selective Ride Control', 'option', 1895], ['Quad center exit exhaust', 'option', 1995], ['Roswell Green Metallic', 'paint', 500], ['Z51 Performance Package', 'package', 5395]].sort());
   });
-  it('drops everything else: cheap paint, exterior stripes, seats, roof, interior items, wheels and performance items at or under $1,000', () => {
-    const r = vette(['Roswell Green Metallic', 'Competition Yellow Tintcoat Metallic', 'Stinger stripe', 'Full-length dual racing stripes', 'Competition Sport bucket seats', 'Transparent roof panel', 'Visible carbon-fiber roof panel with body-color surround', 'Personalized interior plaque', 'Performance data and video recorder', '5-split-spoke Satin Graphite machined edge forged', 'Engine lighting', 'Battery (12-volt) Protection Package', '6.7L engine cover']);
+  it('drops everything else: exterior stripes, seats, roof, interior items, and performance items at or under $1,000', () => {
+    const r = vette(['Stinger stripe', 'Full-length dual racing stripes', 'Competition Sport bucket seats', 'Transparent roof panel', 'Visible carbon-fiber roof panel with body-color surround', 'Personalized interior plaque', 'Performance data and video recorder', 'Engine lighting', 'Battery (12-volt) Protection Package', '6.7L engine cover']);
     assert.deepEqual(r.rows, [], JSON.stringify(r.rows));
   });
   it('the whole Corvette policy obeys the cut and no non-Corvette Chevrolet policy does', () => {
     let vetteEntries = 0, cheap = 0;
     for (const [scope, p] of Object.entries(RAW.chevrolet)) for (const t of Object.values(p.trims)) for (const o of Object.values(t.options)) {
-      if (scope.includes('|corvette|')) { vetteEntries++; assert.ok(o.price > 1000 && ['package', 'option', 'paint'].includes(o.kind), `${t.label} ${o.label} $${o.price}`); } else if (o.price <= 1000) cheap++;
+      if (scope.includes('|corvette|')) { vetteEntries++; assert.ok(['package', 'option', 'paint'].includes(o.kind) && o.price > 0, `${t.label} ${o.label} $${o.price}`); } else if (o.price <= 1000) cheap++;
     }
     assert.ok(vetteEntries > 50, `${vetteEntries} Corvette entries`);
     assert.ok(cheap > 300, `${cheap} sub-$1,000 entries on other models`);
