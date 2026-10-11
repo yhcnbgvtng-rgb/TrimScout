@@ -4,7 +4,7 @@ Code-only change. Nothing is deployed, restarted or rebuilt by merging it. The p
 
 ## What it does
 
-With the policy loaded (bundled files: `toyota-rav4-2026`, `toyota-2026-2027`, `ford-2026`):
+With the policy loaded (bundled files: `toyota-rav4-2026`, `toyota-2026-2027`, `ford-2026`, `chevrolet-2026-2027`, `gmc-2026-2027`, `buick-2026-2027`):
 
 1. **Nightly sync write path** (`handleInventoryBulk`): for a vehicle covered by a policy (make + model + year), only the policy's options are written to `dealer_inventory_options`. Re-synced cars can no longer bring the generic rows back. Every other vehicle takes the generic path, unchanged.
    - A payload with a **blank trim** is treated as "no information" (the upsert COALESCEs `trim`), so the stored rows are left alone rather than wiped by "no trusted trim -> no options".
@@ -38,7 +38,7 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
 5. **One restart with the policy on** (pm2 process `deals-api`; it currently runs with `DISABLE_FACET_REBUILD=1`, keep it):
    ```bash
    P=/opt/trimscout-deals/src/optionPolicies
-   DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH=$P/toyota-rav4-2026.json,$P/toyota-2026-2027.json,$P/ford-2026.json pm2 restart deals-api --update-env && pm2 save
+   DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH=$P/toyota-rav4-2026.json,$P/toyota-2026-2027.json,$P/ford-2026.json,$P/chevrolet-2026-2027.json,$P/gmc-2026-2027.json,$P/buick-2026-2027.json pm2 restart deals-api --update-env && pm2 save
    pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s).find(x=>x.name==="deals-api").pm2_env;console.log(p.DISABLE_FACET_REBUILD,p.OPTION_MODEL_POLICY_PATH)})'
    ```
    Wait for boot; `pm2 logs deals-api --lines 30 --nostream` must NOT contain `[options] allowlist not loaded`.
@@ -46,7 +46,7 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
    - `JTM6CRAV3TD314853` (dealer 1614): `curl ... "localhost:3004/api/inventory?q=JTM6CRAV3TD314853&dealerId=1614&limit=1"` -> `options` is only the Weather Package.
    - `optionKeys=weather%20package` returns it; `optionKeys=illuminated%20door%20sills` returns total 0.
    - The Honda response from step 2 is byte-identical (except fields that change nightly, e.g. `lastSeenAt`).
-7. **Re-converge Toyota and Ford rows.** The 2026-10-10 Toyota apply wrote policy rows once; any Toyota that re-synced at 22:05 or later before this deploy had its generic rows written back. Ford rows have never been applied. Cars converge by themselves the next time they are re-synced (the diff-write only touches changed sets). To converge everything now, run `scripts/box/2026-10-10-toyota-option-policy-apply.mjs` (`--phase=plan`, check the summary, `--phase=apply`; 83 s for Toyota on 2026-10-10; it takes the sync lock) and a Ford equivalent (the script is Toyota-only, `make = 'Toyota'` in both queries; copy and change). Ford is a decision for Paul: its dry run (docs/ford-2026) was 150,584 cars.
+7. **Re-converge Toyota and Ford rows.** The 2026-10-10 Toyota apply wrote policy rows once; any Toyota that re-synced at 22:05 or later before this deploy had its generic rows written back. Ford rows have never been applied. Cars converge by themselves the next time they are re-synced (the diff-write only touches changed sets). To converge everything now, run `scripts/box/2026-10-10-toyota-option-policy-apply.mjs` (`--phase=plan`, check the summary, `--phase=apply`; 83 s for Toyota on 2026-10-10; it takes the sync lock) and the per-make scripts `scripts/box/2026-10-11-{ford,chevrolet,gmc,buick}-option-policy-apply.mjs` (same phases; each is limited to its own make). Ford is a decision for Paul: its dry run (docs/ford-2026) was 150,584 cars.
 8. **One facet rebuild**, after step 7, when the lock is free: `POST /api/inventory/catalog-facets/rebuild`, then watch `GET /api/inventory/catalog-facets/status` (last full build took about 16 minutes). Warm the catalog cache per make afterwards as on 2026-10-09 (`~/oct9/warm.sh`).
 
 ## Rollback

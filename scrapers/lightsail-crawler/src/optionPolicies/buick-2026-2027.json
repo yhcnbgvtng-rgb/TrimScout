@@ -1,0 +1,1292 @@
+{
+  "buick|encore gx|2026": {
+    "source": "docs/gm-2026-2027/buick_lineup_options_by_trim.csv (2026 Encore GX)",
+    "models": [
+      "encore gx"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "^[0-9A-Za-z]{3}$",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "preferred": {
+        "label": "Preferred",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 2000,
+            "aliases": [
+              "awd"
+            ],
+            "rules": [
+              {
+                "type": "onlyWith",
+                "text": "AWD comes only with the 1.3L 9-speed, so it is not additive with the 1.3L engine row",
+                "refs": []
+              }
+            ]
+          },
+          "ecotec 1 3l turbo cvt on fwd": {
+            "label": "ECOTEC 1.3L Turbo CVT on FWD",
+            "kind": "powertrain",
+            "price": 395,
+            "aliases": []
+          },
+          "copper ice metallic": {
+            "label": "Copper Ice Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ocean blue metallic": {
+            "label": "Ocean Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "comfort package": {
+            "label": "Comfort Package",
+            "kind": "package",
+            "price": 995,
+            "aliases": [
+              "comfort pkg"
+            ],
+            "features": [
+              "^heated driver and front passenger seats$",
+              "^heated steering wheel$",
+              "^seatback front passenger flat folding$"
+            ]
+          },
+          "advanced technology package": {
+            "label": "Advanced Technology Package",
+            "kind": "package",
+            "price": 1095,
+            "aliases": [
+              "advanced technology pkg"
+            ],
+            "features": [
+              "^adaptive cruise control$",
+              "^hd surround vision$",
+              "^wireless device charging$"
+            ]
+          },
+          "trailering package": {
+            "label": "Trailering Package",
+            "kind": "package",
+            "price": 1025,
+            "aliases": [
+              "trailering pkg"
+            ],
+            "features": [
+              "^trailer hitch trim bezel$",
+              "^trailering harness$"
+            ]
+          },
+          "compact spare tire": {
+            "label": "Compact spare tire",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring": {
+        "label": "Sport Touring",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 1600,
+            "aliases": [
+              "awd"
+            ]
+          },
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ocean blue metallic": {
+            "label": "Ocean Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "aquamarine blue metallic": {
+            "label": "Aquamarine Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "comfort package": {
+            "label": "Comfort Package",
+            "kind": "package",
+            "price": 995,
+            "aliases": [
+              "comfort pkg"
+            ],
+            "features": [
+              "^heated driver and front passenger seats$",
+              "^heated steering wheel$",
+              "^seatback front passenger flat folding$"
+            ]
+          },
+          "advanced technology package": {
+            "label": "Advanced Technology Package",
+            "kind": "package",
+            "price": 1095,
+            "aliases": [
+              "advanced technology pkg"
+            ],
+            "features": [
+              "^adaptive cruise control$",
+              "^hd surround vision$",
+              "^wireless device charging$"
+            ]
+          },
+          "black roof package": {
+            "label": "Black Roof Package",
+            "kind": "package",
+            "price": 495,
+            "aliases": [
+              "black roof pkg"
+            ],
+            "features": [
+              "^none listed on card$"
+            ]
+          },
+          "trailering package": {
+            "label": "Trailering Package",
+            "kind": "package",
+            "price": 1025,
+            "aliases": [
+              "trailering pkg"
+            ],
+            "features": [
+              "^trailer hitch trim bezel$",
+              "^trailering harness$"
+            ]
+          },
+          "19 gloss black aluminum wheels": {
+            "label": "19\" Gloss Black aluminum wheels",
+            "kind": "option",
+            "price": 300,
+            "aliases": []
+          },
+          "compact spare tire": {
+            "label": "Compact spare tire",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "panoramic power moonroof": {
+            "label": "Panoramic power moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          },
+          "bose premium audio system": {
+            "label": "Bose premium audio system",
+            "kind": "option",
+            "price": 500,
+            "aliases": []
+          }
+        }
+      },
+      "avenir": {
+        "label": "Avenir",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 1600,
+            "aliases": [
+              "awd"
+            ]
+          },
+          "white frost tricoat": {
+            "label": "White Frost Tricoat",
+            "kind": "paint",
+            "price": 600,
+            "aliases": []
+          },
+          "avenir convenience package": {
+            "label": "Avenir Convenience Package",
+            "kind": "package",
+            "price": 1295,
+            "aliases": [
+              "avenir convenience pkg"
+            ],
+            "features": [
+              "^bose premium audio system$",
+              "^hands free power liftgate$",
+              "^rainsense automatic wipers$"
+            ]
+          },
+          "trailering package": {
+            "label": "Trailering Package",
+            "kind": "package",
+            "price": 1025,
+            "aliases": [
+              "trailering pkg"
+            ],
+            "features": [
+              "^trailer hitch trim bezel$",
+              "^trailering harness$"
+            ]
+          },
+          "compact spare tire": {
+            "label": "Compact spare tire",
+            "kind": "option",
+            "price": 195,
+            "aliases": []
+          },
+          "panoramic power moonroof": {
+            "label": "Panoramic power moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "buick|envision|2026": {
+    "source": "docs/gm-2026-2027/buick_lineup_options_by_trim.csv (2026 Envision)",
+    "models": [
+      "envision"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "^[0-9A-Za-z]{3}$",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "preferred": {
+        "label": "Preferred",
+        "options": {
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "quartz blue metallic": {
+            "label": "Quartz Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 1095,
+            "aliases": []
+          },
+          "comfort and convenience package": {
+            "label": "Comfort and Convenience Package",
+            "kind": "package",
+            "price": 1350,
+            "aliases": [
+              "comfort and convenience pkg"
+            ],
+            "features": [
+              "^dual zone automatic climate control$",
+              "^heated driver and front passenger seats$",
+              "^heated steering wheel$"
+            ]
+          },
+          "panoramic power moonroof": {
+            "label": "Panoramic power moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring": {
+        "label": "Sport Touring",
+        "options": {
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "quartz blue metallic": {
+            "label": "Quartz Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 1095,
+            "aliases": []
+          },
+          "comfort and convenience package": {
+            "label": "Comfort and Convenience Package",
+            "kind": "package",
+            "price": 1350,
+            "aliases": [
+              "comfort and convenience pkg"
+            ],
+            "features": [
+              "^dual zone automatic climate control$",
+              "^heated driver and front passenger seats$",
+              "^heated steering wheel$"
+            ]
+          },
+          "panoramic power moonroof": {
+            "label": "Panoramic power moonroof",
+            "kind": "option",
+            "price": 1495,
+            "aliases": []
+          }
+        }
+      },
+      "avenir": {
+        "label": "Avenir",
+        "options": {
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 600,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "buick|envista|2026": {
+    "source": "docs/gm-2026-2027/buick_lineup_options_by_trim.csv (2026 Envista)",
+    "models": [
+      "envista"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "^[0-9A-Za-z]{3}$",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "preferred": {
+        "label": "Preferred",
+        "options": {
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ocean blue metallic": {
+            "label": "Ocean Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "copper ice metallic": {
+            "label": "Copper Ice Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "convenience i package": {
+            "label": "Convenience I Package",
+            "kind": "package",
+            "price": 995,
+            "aliases": [
+              "convenience i pkg"
+            ],
+            "features": [
+              "^8 way power driver seat$",
+              "^flat bottom heated steering wheel$",
+              "^heated driver and front passenger seats$"
+            ]
+          },
+          "convenience ii package": {
+            "label": "Convenience II Package",
+            "kind": "package",
+            "price": 595,
+            "aliases": [
+              "convenience ii pkg"
+            ],
+            "features": [
+              "^power liftgate$",
+              "^rainsense automatic wipers$",
+              "^wireless device charging$"
+            ]
+          },
+          "advanced safety package": {
+            "label": "Advanced Safety Package",
+            "kind": "package",
+            "price": 595,
+            "aliases": [
+              "advanced safety pkg"
+            ],
+            "features": [
+              "^adaptive cruise control$",
+              "^lane change alert with side blind zone alert$",
+              "^rear cross traffic alert$"
+            ]
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 125,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring": {
+        "label": "Sport Touring",
+        "options": {
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "brilliant red": {
+            "label": "Brilliant Red",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ocean blue metallic": {
+            "label": "Ocean Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "aquamarine blue metallic": {
+            "label": "Aquamarine Blue Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "studio series": {
+            "label": "Studio Series",
+            "kind": "package",
+            "price": 4360,
+            "aliases": []
+          },
+          "convenience i package": {
+            "label": "Convenience I Package",
+            "kind": "package",
+            "price": 895,
+            "aliases": [
+              "convenience i pkg"
+            ],
+            "features": [
+              "^8 way power driver seat$",
+              "^flat bottom heated steering wheel$",
+              "^heated driver and front passenger seats$"
+            ]
+          },
+          "convenience ii package": {
+            "label": "Convenience II Package",
+            "kind": "package",
+            "price": 595,
+            "aliases": [
+              "convenience ii pkg"
+            ],
+            "features": [
+              "^power liftgate$",
+              "^rainsense automatic wipers$",
+              "^wireless device charging$"
+            ]
+          },
+          "advanced safety package": {
+            "label": "Advanced Safety Package",
+            "kind": "package",
+            "price": 595,
+            "aliases": [
+              "advanced safety pkg"
+            ],
+            "features": [
+              "^adaptive cruise control$",
+              "^lane change alert with side blind zone alert$",
+              "^rear cross traffic alert$"
+            ]
+          },
+          "19 black painted aluminum wheels": {
+            "label": "19\" Black painted aluminum wheels",
+            "kind": "option",
+            "price": 495,
+            "aliases": []
+          },
+          "power moonroof": {
+            "label": "Power moonroof",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 125,
+            "aliases": []
+          }
+        }
+      },
+      "avenir": {
+        "label": "Avenir",
+        "options": {
+          "avenir advanced safety package": {
+            "label": "Avenir Advanced Safety Package",
+            "kind": "package",
+            "price": 795,
+            "aliases": [
+              "avenir advanced safety pkg"
+            ],
+            "features": [
+              "^adaptive cruise control$",
+              "^lane change alert with side blind zone alert$",
+              "^rear cross traffic alert$"
+            ]
+          },
+          "power moonroof": {
+            "label": "Power moonroof",
+            "kind": "option",
+            "price": 795,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 125,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  },
+  "buick|enclave|2027": {
+    "source": "docs/gm-2026-2027/buick_lineup_options_by_trim.csv (2027 Enclave)",
+    "models": [
+      "enclave"
+    ],
+    "keepBare": [],
+    "trimAliases": {},
+    "orderCodePattern": "^[0-9A-Za-z]{3}$",
+    "trimNoise": [
+      "awd",
+      "fwd",
+      "rwd",
+      "4wd",
+      "2wd",
+      "4x4",
+      "4x2",
+      "demo",
+      "fleet",
+      "intransit"
+    ],
+    "trimNoisePhrases": [
+      "in transit",
+      "regular cab",
+      "double cab",
+      "crew cab",
+      "extended cab",
+      "4 door",
+      "2 door",
+      "4dr",
+      "2dr",
+      "four wheel drive",
+      "all wheel drive",
+      "front wheel drive",
+      "rear wheel drive",
+      "two wheel drive",
+      "short bed",
+      "long bed",
+      "standard bed",
+      "short box",
+      "long box",
+      "standard box"
+    ],
+    "disclaimerPatterns": [
+      "^(?:does not|doesn t|do not|don t) include\\b",
+      "^(?:prices?|msrp) excludes?\\b",
+      "^excludes?\\b",
+      "^not including\\b",
+      "^plus\\b"
+    ],
+    "trims": {
+      "preferred": {
+        "label": "Preferred",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 2000,
+            "aliases": [
+              "awd"
+            ]
+          },
+          "emerald green metallic": {
+            "label": "Emerald Green Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "cherry red tintcoat": {
+            "label": "Cherry Red Tintcoat",
+            "kind": "paint",
+            "price": 645,
+            "aliases": []
+          },
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 1095,
+            "aliases": []
+          },
+          "super cruise package": {
+            "label": "Super Cruise Package",
+            "kind": "package",
+            "price": 3670,
+            "aliases": [
+              "super cruise pkg"
+            ],
+            "features": [
+              "^3 years onstar one$",
+              "^enhanced automatic parking assist$",
+              "^super cruise driver assistance technology$"
+            ]
+          },
+          "power package": {
+            "label": "Power Package",
+            "kind": "package",
+            "price": 2515,
+            "aliases": [
+              "power pkg"
+            ],
+            "features": [
+              "^memory settings$",
+              "^one touch flat folding and sliding second row seat$",
+              "^power 60 40 split folding third row bench seat$"
+            ]
+          },
+          "22 alloy pvd bright chrome wheels": {
+            "label": "22\" alloy PVD Bright Chrome wheels",
+            "kind": "option",
+            "price": 2750,
+            "aliases": []
+          },
+          "22 high gloss black wheels": {
+            "label": "22\" High Gloss Black wheels",
+            "kind": "option",
+            "price": 2750,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          }
+        }
+      },
+      "sport touring": {
+        "label": "Sport Touring",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 2000,
+            "aliases": [
+              "awd"
+            ]
+          },
+          "ebony twilight metallic": {
+            "label": "Ebony Twilight Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "moonstone gray metallic": {
+            "label": "Moonstone Gray Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "stone metallic": {
+            "label": "Stone Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "cherry red tintcoat": {
+            "label": "Cherry Red Tintcoat",
+            "kind": "paint",
+            "price": 645,
+            "aliases": []
+          },
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 1095,
+            "aliases": []
+          },
+          "super cruise package": {
+            "label": "Super Cruise Package",
+            "kind": "package",
+            "price": 3670,
+            "aliases": [
+              "super cruise pkg"
+            ],
+            "features": [
+              "^3 years onstar one$",
+              "^enhanced automatic parking assist$",
+              "^super cruise driver assistance technology$"
+            ]
+          },
+          "power package": {
+            "label": "Power Package",
+            "kind": "package",
+            "price": 2515,
+            "aliases": [
+              "power pkg"
+            ],
+            "features": [
+              "^memory settings$",
+              "^one touch flat folding and sliding second row seat$",
+              "^power 60 40 split folding third row bench seat$"
+            ]
+          },
+          "22 alloy pvd bright chrome wheels": {
+            "label": "22\" alloy PVD Bright Chrome wheels",
+            "kind": "option",
+            "price": 2750,
+            "aliases": []
+          },
+          "22 high gloss black wheels": {
+            "label": "22\" High Gloss Black wheels",
+            "kind": "option",
+            "price": 2750,
+            "aliases": []
+          },
+          "panoramic power sunroof": {
+            "label": "Panoramic power sunroof",
+            "kind": "option",
+            "price": 1700,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          }
+        }
+      },
+      "avenir": {
+        "label": "Avenir",
+        "options": {
+          "awd vs fwd": {
+            "label": "AWD (vs FWD)",
+            "kind": "powertrain",
+            "price": 2000,
+            "aliases": [
+              "awd"
+            ]
+          },
+          "emerald green metallic": {
+            "label": "Emerald Green Metallic",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "blue onyx": {
+            "label": "Blue Onyx",
+            "kind": "paint",
+            "price": 495,
+            "aliases": []
+          },
+          "cherry red tintcoat": {
+            "label": "Cherry Red Tintcoat",
+            "kind": "paint",
+            "price": 150,
+            "aliases": []
+          },
+          "iridescent white tricoat": {
+            "label": "Iridescent White Tricoat",
+            "kind": "paint",
+            "price": 600,
+            "aliases": []
+          },
+          "engine block heater": {
+            "label": "Engine block heater",
+            "kind": "option",
+            "price": 100,
+            "aliases": []
+          }
+        }
+      }
+    },
+    "dealerAddons": {
+      "keys": [],
+      "patterns": [
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:drop\\s*in|modular\\s+drop\\s*in|line\\s*x|rhino|truck)\\s*bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:truck\\s+)?bed\\s*liners?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*mats?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rugs?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:soft|hard|roll\\s*up|tri\\s*fold|folding|retractable)?\\s*tonneau\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*covers?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*extenders?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bed\\s*rails?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tailgate\\s+(?:step|assist|lock|protector|cap))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cargo\\s+(?:net|liner|mat|tray|organizer|divider|box|carrier|management))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:all\\s*weather\\s+)?(?:floor|carpet)\\s*(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:all\\s*weather\\s+(?:floor\\s+)?(?:mats?|liners?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:front\\s+|rear\\s+)?splash\\s*guards?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:mud\\s*(?:guards?|flaps?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:paint|clear\\s*coat)\\s*protection(?:\\s+film)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ceramic\\s*coating)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*sealant)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fabric\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:interior\\s*protection)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:protection\\s+(?:package|pkg))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:clear\\s*bra)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:paint\\s*protection\\s*film)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:ppf)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*(?:protector|deflector|shield))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:bug\\s*(?:shield|guard|deflector))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:window\\s*(?:tint|tinting|visors?|deflectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wind\\s*deflectors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*(?:edge|sill)\\s*(?:guards?|protectors?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:door\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vent\\s*visors?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:nitrogen(?:\\s+(?:filled|fill|inflated|inflation|tires?))*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:vin\\s*etch(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:wheel\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lug\\s*nut\\s*locks?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:pin\\s*stripe[sd]?(?:ing)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:gap\\s*(?:insurance|coverage))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:perma\\s*plate(?:\\s+\\w+)*)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:lifetime\\s+)?oil\\s*(?:change\\s+)?(?:package|pkg|plan))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:(?:running|side|nerf|step)\\s*(?:boards?|bars?))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:side\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cab\\s*steps?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:tow(?:ing)?\\s*hitch(?:\\s+receiver)?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:trailer\\s*hitch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hitch\\s*receiver)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:roof\\s*(?:rack|rails?|cross\\s*bars?|basket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:cross\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:light\\s*bars?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:winch)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:snorkel)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:lift\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:leveling\\s*kit)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:brush\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:grille\\s*guard)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:push\\s*bar)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:fender\\s*flares?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:spare\\s*tire\\s*cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:key\\s*(?:fob\\s+)?cover)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:license\\s*plate\\s*(?:frame|bracket))(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:emblem\\s*overlays?)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$",
+        "^(?:(?:chevrolet|chevy|gmc|buick|gm|genuine|dealer|port|installed|aftermarket)\\s+)*(?:hood\\s*graphics)(?:\\s+(?:set|kit|package|pkg|pair|installed))*$"
+      ]
+    }
+  }
+}

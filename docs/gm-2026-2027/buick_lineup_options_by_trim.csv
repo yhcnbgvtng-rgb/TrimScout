@@ -1,0 +1,112 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2026,Envista,Preferred,,24700,Base,,Standard Vehicle Price,24700,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$495) excluded; see paint row",models/envista_options.md:32
+2026,Envista,Preferred,,24700,Exterior color,,Ebony Twilight Metallic,495,,,models/envista_options.md:34
+2026,Envista,Preferred,,24700,Exterior color,,Brilliant Red,495,,,models/envista_options.md:34
+2026,Envista,Preferred,,24700,Exterior color,,Ocean Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/envista_options.md:34
+2026,Envista,Preferred,,24700,Exterior color,,Moonstone Gray Metallic,495,,,models/envista_options.md:34
+2026,Envista,Preferred,,24700,Exterior color,,Copper Ice Metallic,495,,,models/envista_options.md:34
+2026,Envista,Preferred,,24700,Factory package,,Convenience I Package,995,Heated driver and front passenger seats; Flat-bottom heated steering wheel; 8-way power driver seat,key=name:convenience i package,models/envista_options.md:40
+2026,Envista,Preferred,,24700,Factory package,,Convenience II Package,595,Rainsense automatic wipers; Wireless Device Charging; Power liftgate,key=name:convenience ii package,models/envista_options.md:41
+2026,Envista,Preferred,,24700,Factory package,,Advanced Safety Package,595,Adaptive Cruise Control; Rear Cross Traffic Alert; Lane Change Alert with Side Blind Zone Alert,key=name:advanced safety package,models/envista_options.md:42
+2026,Envista,Preferred,,24700,Factory option,Performance,Engine block heater,125,,,models/envista_options.md:45
+2026,Envista,Sport Touring,,26500,Base,,Standard Vehicle Price,26500,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$495) excluded; see paint row",models/envista_options.md:63
+2026,Envista,Sport Touring,,26500,Exterior color,,Ebony Twilight Metallic,495,,,models/envista_options.md:65
+2026,Envista,Sport Touring,,26500,Exterior color,,Brilliant Red,495,,,models/envista_options.md:65
+2026,Envista,Sport Touring,,26500,Exterior color,,Ocean Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/envista_options.md:65
+2026,Envista,Sport Touring,,26500,Exterior color,,Aquamarine Blue Metallic,495,,,models/envista_options.md:65
+2026,Envista,Sport Touring,,26500,Exterior color,,Moonstone Gray Metallic,495,,,models/envista_options.md:65
+2026,Envista,Sport Touring,,26500,Factory package,,Studio Series,4360,"Ceramic Ebony seats and interior with Whisper Beige stitching, Leatherette seats; Power moonroof",key=name:studio series,models/envista_options.md:70
+2026,Envista,Sport Touring,,26500,Factory package,,Convenience I Package,895,Heated driver and front passenger seats; Flat-bottom heated steering wheel; 8-way power driver seat,key=name:convenience i package,models/envista_options.md:71
+2026,Envista,Sport Touring,,26500,Factory package,,Convenience II Package,595,Rainsense automatic wipers; Wireless Device Charging; Power liftgate,key=name:convenience ii package,models/envista_options.md:72
+2026,Envista,Sport Touring,,26500,Factory package,,Advanced Safety Package,595,Adaptive Cruise Control; Rear Cross Traffic Alert; Lane Change Alert with Side Blind Zone Alert,key=name:advanced safety package,models/envista_options.md:73
+2026,Envista,Sport Touring,,26500,Factory option,Wheels,"19"" Black painted aluminum wheels",495,,,models/envista_options.md:67
+2026,Envista,Sport Touring,,26500,Factory option,Roof,Power moonroof,795,,,models/envista_options.md:76
+2026,Envista,Sport Touring,,26500,Factory option,Performance,Engine block heater,125,,,models/envista_options.md:76
+2026,Envista,Avenir,,29500,Base,,Standard Vehicle Price,29500,,"Destination Freight Charge $1,795 not included",models/envista_options.md:95
+2026,Envista,Avenir,,29500,Factory package,,Avenir Advanced Safety Package,795,Lane Change Alert with Side Blind Zone Alert; Rear Cross Traffic Alert; Adaptive Cruise Control,key=name:avenir advanced safety package,models/envista_options.md:103
+2026,Envista,Avenir,,29500,Factory option,Roof,Power moonroof,795,,,models/envista_options.md:106
+2026,Envista,Avenir,,29500,Factory option,Performance,Engine block heater,125,,,models/envista_options.md:106
+2026,Encore GX,Preferred,,26500,Base,,Standard Vehicle Price,26500,,"Destination Freight Charge $1,795 not included",models/encoregx_options.md:34
+2026,Encore GX,Preferred,,26500,Powertrain,Drivetrain,AWD (vs FWD),2000,,"AWD +$2,000 vs FWD 1.2L (+$1,605 vs FWD 1.3L); AWD comes only with the 1.3L 9-speed, so it is not additive with the 1.3L engine row",models/encoregx_options.md:36
+2026,Encore GX,Preferred,,26500,Powertrain,Engine,ECOTEC 1.3L Turbo CVT on FWD,395,,FWD only (1.3L CVT); AWD builds use the 1.3L 9-speed (see AWD row),models/encoregx_options.md:37
+2026,Encore GX,Preferred,,26500,Exterior color,,Copper Ice Metallic,495,,,models/encoregx_options.md:38
+2026,Encore GX,Preferred,,26500,Exterior color,,Brilliant Red,495,,,models/encoregx_options.md:38
+2026,Encore GX,Preferred,,26500,Exterior color,,Ebony Twilight Metallic,495,,,models/encoregx_options.md:38
+2026,Encore GX,Preferred,,26500,Exterior color,,Ocean Blue Metallic,495,,,models/encoregx_options.md:38
+2026,Encore GX,Preferred,,26500,Exterior color,,Moonstone Gray Metallic,495,,,models/encoregx_options.md:38
+2026,Encore GX,Preferred,,26500,Factory package,,Comfort Package,995,"Heated steering wheel; Heated driver and front passenger seats; Seatback, front passenger flat-folding",key=name:comfort package,models/encoregx_options.md:44
+2026,Encore GX,Preferred,,26500,Factory package,,Advanced Technology Package,1095,HD Surround Vision; Wireless Device Charging; Adaptive Cruise Control,key=name:advanced technology package,models/encoregx_options.md:45
+2026,Encore GX,Preferred,,26500,Factory package,,Trailering Package,1025,Trailer hitch trim bezel; Trailering harness; Trailer hitch,key=name:trailering package,models/encoregx_options.md:49
+2026,Encore GX,Preferred,,26500,Factory option,Tires,Compact spare tire,195,,,models/encoregx_options.md:41
+2026,Encore GX,Sport Touring,,27700,Base,,Standard Vehicle Price,27700,,"Destination Freight Charge $1,795 not included",models/encoregx_options.md:72
+2026,Encore GX,Sport Touring,,27700,Powertrain,Drivetrain,AWD (vs FWD),1600,,AWD uses the 1.3L with 9-speed automatic (FWD: 1.3L CVT),models/encoregx_options.md:74
+2026,Encore GX,Sport Touring,,27700,Exterior color,,Brilliant Red,495,,,models/encoregx_options.md:76
+2026,Encore GX,Sport Touring,,27700,Exterior color,,Ebony Twilight Metallic,495,,,models/encoregx_options.md:76
+2026,Encore GX,Sport Touring,,27700,Exterior color,,Ocean Blue Metallic,495,,,models/encoregx_options.md:76
+2026,Encore GX,Sport Touring,,27700,Exterior color,,Moonstone Gray Metallic,495,,,models/encoregx_options.md:76
+2026,Encore GX,Sport Touring,,27700,Exterior color,,Aquamarine Blue Metallic,495,,,models/encoregx_options.md:76
+2026,Encore GX,Sport Touring,,27700,Factory package,,Comfort Package,995,"Heated steering wheel; Heated driver and front passenger seats; Seatback, front passenger flat-folding",key=name:comfort package,models/encoregx_options.md:81
+2026,Encore GX,Sport Touring,,27700,Factory package,,Advanced Technology Package,1095,HD Surround Vision; Wireless Device Charging; Adaptive Cruise Control,key=name:advanced technology package,models/encoregx_options.md:82
+2026,Encore GX,Sport Touring,,27700,Factory package,,Black Roof Package,495,none listed on card,key=name:black roof package,models/encoregx_options.md:84
+2026,Encore GX,Sport Touring,,27700,Factory package,,Trailering Package,1025,Trailer hitch trim bezel; Trailering harness; Trailer hitch,key=name:trailering package,models/encoregx_options.md:86
+2026,Encore GX,Sport Touring,,27700,Factory option,Wheels,"19"" Gloss Black aluminum wheels",300,,,models/encoregx_options.md:77
+2026,Encore GX,Sport Touring,,27700,Factory option,Tires,Compact spare tire,195,,,models/encoregx_options.md:78
+2026,Encore GX,Sport Touring,,27700,Factory option,Roof,Panoramic power moonroof,1495,,,models/encoregx_options.md:88
+2026,Encore GX,Sport Touring,,27700,Factory option,Interior,Bose premium audio system,500,,,models/encoregx_options.md:88
+2026,Encore GX,Avenir,,31700,Base,,Standard Vehicle Price,31700,,"Destination Freight Charge $1,795 not included; default-selected paid paint (+$600) excluded; see paint row",models/encoregx_options.md:108
+2026,Encore GX,Avenir,,31700,Powertrain,Drivetrain,AWD (vs FWD),1600,,AWD uses the 1.3L with 9-speed automatic (FWD: 1.3L CVT),models/encoregx_options.md:110
+2026,Encore GX,Avenir,,31700,Exterior color,,White Frost Tricoat,600,,default-selected paint; its price is excluded from trim_base_msrp,models/encoregx_options.md:112
+2026,Encore GX,Avenir,,31700,Factory package,,Avenir Convenience Package,1295,Rainsense automatic wipers; Hands-Free Power Liftgate; Bose premium audio system,key=name:avenir convenience package,models/encoregx_options.md:117
+2026,Encore GX,Avenir,,31700,Factory package,,Trailering Package,1025,Trailer hitch trim bezel; Trailering harness; Trailer hitch,key=name:trailering package,models/encoregx_options.md:122
+2026,Encore GX,Avenir,,31700,Factory option,Tires,Compact spare tire,195,,,models/encoregx_options.md:114
+2026,Encore GX,Avenir,,31700,Factory option,Roof,Panoramic power moonroof,1495,,,models/encoregx_options.md:124
+2026,Envision,Preferred,,41300,Base,,Standard Vehicle Price,41300,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/envision_options.md:32
+2026,Envision,Preferred,,41300,Exterior color,,Brilliant Red,495,,,models/envision_options.md:34
+2026,Envision,Preferred,,41300,Exterior color,,Ebony Twilight Metallic,495,,,models/envision_options.md:34
+2026,Envision,Preferred,,41300,Exterior color,,Moonstone Gray Metallic,495,,,models/envision_options.md:34
+2026,Envision,Preferred,,41300,Exterior color,,Quartz Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/envision_options.md:34
+2026,Envision,Preferred,,41300,Exterior color,,Iridescent White Tricoat,1095,,,models/envision_options.md:34
+2026,Envision,Preferred,,41300,Factory package,,Comfort and Convenience Package,1350,Dual-zone automatic climate control; Heated driver and front passenger seats; Heated steering wheel,key=name:comfort and convenience package,models/envision_options.md:41
+2026,Envision,Preferred,,41300,Factory option,Roof,Panoramic power moonroof,1495,,,models/envision_options.md:43
+2026,Envision,Sport Touring,,43800,Base,,Standard Vehicle Price,43800,,"Destination Freight Charge $1,995 not included; default-selected paid paint (+$495) excluded; see paint row",models/envision_options.md:62
+2026,Envision,Sport Touring,,43800,Exterior color,,Brilliant Red,495,,,models/envision_options.md:64
+2026,Envision,Sport Touring,,43800,Exterior color,,Ebony Twilight Metallic,495,,,models/envision_options.md:64
+2026,Envision,Sport Touring,,43800,Exterior color,,Moonstone Gray Metallic,495,,,models/envision_options.md:64
+2026,Envision,Sport Touring,,43800,Exterior color,,Quartz Blue Metallic,495,,default-selected paint; its price is excluded from trim_base_msrp,models/envision_options.md:64
+2026,Envision,Sport Touring,,43800,Exterior color,,Iridescent White Tricoat,1095,,,models/envision_options.md:64
+2026,Envision,Sport Touring,,43800,Factory package,,Comfort and Convenience Package,1350,Dual-zone automatic climate control; Heated driver and front passenger seats; Heated steering wheel,key=name:comfort and convenience package,models/envision_options.md:71
+2026,Envision,Sport Touring,,43800,Factory option,Roof,Panoramic power moonroof,1495,,,models/envision_options.md:73
+2026,Envision,Avenir,,50700,Base,,Standard Vehicle Price,50700,,"Destination Freight Charge $1,995 not included",models/envision_options.md:91
+2026,Envision,Avenir,,50700,Exterior color,,Iridescent White Tricoat,600,,,models/envision_options.md:93
+2027,Enclave,Preferred,,46900,Base,,Standard Vehicle Price,46900,,"Destination Freight Charge $1,995 not included; Purchase Allowance -$750 excluded; default-selected paid paint (+$1,095) excluded; see paint row",models/enclave_options.md:34
+2027,Enclave,Preferred,,46900,Powertrain,Drivetrain,AWD (vs FWD),2000,,"auto-included All-wheel drive option on AWD builds (Summary Options $2,000); FWD is the base build",models/enclave_options.md:36
+2027,Enclave,Preferred,,46900,Exterior color,,Emerald Green Metallic,495,,,models/enclave_options.md:38
+2027,Enclave,Preferred,,46900,Exterior color,,Ebony Twilight Metallic,495,,,models/enclave_options.md:38
+2027,Enclave,Preferred,,46900,Exterior color,,Moonstone Gray Metallic,495,,,models/enclave_options.md:38
+2027,Enclave,Preferred,,46900,Exterior color,,Cherry Red Tintcoat,645,,,models/enclave_options.md:38
+2027,Enclave,Preferred,,46900,Exterior color,,Iridescent White Tricoat,1095,,default-selected paint; its price is excluded from trim_base_msrp,models/enclave_options.md:38
+2027,Enclave,Preferred,,46900,Factory package,,Super Cruise Package,3670,Super Cruise driver assistance technology; Enhanced Automatic Parking Assist; 3 Years OnStar One,key=name:super cruise package; package content includes an OnStar One term (subscription content inside the package),models/enclave_options.md:44
+2027,Enclave,Preferred,,46900,Factory package,,Power Package,2515,One-Touch Flat Folding and Sliding Second Row Seat; Memory settings; Power 60/40 split-folding third row bench seat,key=name:power package,models/enclave_options.md:45
+2027,Enclave,Preferred,,46900,Factory option,Wheels,"22"" alloy PVD Bright Chrome wheels",2750,,,models/enclave_options.md:40
+2027,Enclave,Preferred,,46900,Factory option,Wheels,"22"" High Gloss Black wheels",2750,,,models/enclave_options.md:40
+2027,Enclave,Preferred,,46900,Factory option,Performance,Engine block heater,100,,,models/enclave_options.md:51
+2027,Enclave,Sport Touring,,50400,Base,,Standard Vehicle Price,50400,,"Destination Freight Charge $1,995 not included; Purchase Allowance -$750 excluded; default-selected paid paint (+$1,095) excluded; see paint row",models/enclave_options.md:72
+2027,Enclave,Sport Touring,,50400,Powertrain,Drivetrain,AWD (vs FWD),2000,,"auto-included All-wheel drive option on AWD builds (Summary Options $2,000); FWD is the base build",models/enclave_options.md:74
+2027,Enclave,Sport Touring,,50400,Exterior color,,Ebony Twilight Metallic,495,,,models/enclave_options.md:76
+2027,Enclave,Sport Touring,,50400,Exterior color,,Moonstone Gray Metallic,495,,,models/enclave_options.md:76
+2027,Enclave,Sport Touring,,50400,Exterior color,,Stone Metallic,495,,,models/enclave_options.md:76
+2027,Enclave,Sport Touring,,50400,Exterior color,,Cherry Red Tintcoat,645,,,models/enclave_options.md:76
+2027,Enclave,Sport Touring,,50400,Exterior color,,Iridescent White Tricoat,1095,,default-selected paint; its price is excluded from trim_base_msrp,models/enclave_options.md:76
+2027,Enclave,Sport Touring,,50400,Factory package,,Super Cruise Package,3670,Super Cruise driver assistance technology; Enhanced Automatic Parking Assist; 3 Years OnStar One,key=name:super cruise package; package content includes an OnStar One term (subscription content inside the package),models/enclave_options.md:82
+2027,Enclave,Sport Touring,,50400,Factory package,,Power Package,2515,One-Touch Flat Folding and Sliding Second Row Seat; Memory settings; Power 60/40 split-folding third row bench seat,key=name:power package,models/enclave_options.md:83
+2027,Enclave,Sport Touring,,50400,Factory option,Wheels,"22"" alloy PVD Bright Chrome wheels",2750,,,models/enclave_options.md:78
+2027,Enclave,Sport Touring,,50400,Factory option,Wheels,"22"" High Gloss Black wheels",2750,,,models/enclave_options.md:78
+2027,Enclave,Sport Touring,,50400,Factory option,Roof,Panoramic power sunroof,1700,,,models/enclave_options.md:89
+2027,Enclave,Sport Touring,,50400,Factory option,Performance,Engine block heater,100,,,models/enclave_options.md:89
+2027,Enclave,Avenir,,63300,Base,,Standard Vehicle Price,63300,,"Destination Freight Charge $1,995 not included; Purchase Allowance -$750 excluded; default-selected paid paint (+$600) excluded; see paint row",models/enclave_options.md:110
+2027,Enclave,Avenir,,63300,Powertrain,Drivetrain,AWD (vs FWD),2000,,"auto-included All-wheel drive option on AWD builds (Summary Options $2,000); FWD is the base build",models/enclave_options.md:112
+2027,Enclave,Avenir,,63300,Exterior color,,Emerald Green Metallic,495,,,models/enclave_options.md:114
+2027,Enclave,Avenir,,63300,Exterior color,,Blue Onyx,495,,,models/enclave_options.md:114
+2027,Enclave,Avenir,,63300,Exterior color,,Cherry Red Tintcoat,150,,,models/enclave_options.md:114
+2027,Enclave,Avenir,,63300,Exterior color,,Iridescent White Tricoat,600,,default-selected paint; its price is excluded from trim_base_msrp,models/enclave_options.md:114
+2027,Enclave,Avenir,,63300,Factory option,Performance,Engine block heater,100,,,models/enclave_options.md:125
