@@ -77,7 +77,8 @@ export function LeaseCompare({
     const dasNote = r.chips.find((c) => / at signing /.test(c)) || null;
     const statusNotes = r.chips.filter((c) => c !== monthlyNote && c !== dasNote);
     const status =
-      r.kind === "eligible" ? (r.picked ? badge("bg-brand-500/15 text-brand-300", "Chosen") : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
+      r.notSelected ? badge("bg-border text-ink-muted", "Not selected", "not-selected-chip")
+      : r.kind === "eligible" ? (r.picked ? badge("bg-brand-500/15 text-brand-300", "Chosen") : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
       : r.unsubscribed && r.kind === "counter" ? badge("bg-border text-ink-muted", "Unsubscribed — quote still valid", "unsub-chip")
       : r.kind === "counter" ? badge("bg-amber-500/15 text-amber-300", "Counter", "counter-badge")
       : r.kind === "expired" ? badge("bg-border text-ink-muted", "Expired")
@@ -196,7 +197,7 @@ export function LeaseCompare({
       <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
         <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
         <div className="grid grid-cols-2 gap-1.5">
-        {onCounter && !r.unsubscribed ? (
+        {onCounter && !r.unsubscribed && !r.notSelected ? (
           <button type="button" onClick={() => setCountering(r.inviteId)} disabled={busy || countering === r.inviteId} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
         ) : null}
         <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>

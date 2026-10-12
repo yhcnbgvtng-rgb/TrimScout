@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { TAX_AS_QUOTED_NOTE, TAX_PROMPT_COPY, TAX_UPDATE_NOTE, counterPriceChanged, isLockedFee, applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, counterDiff, counterSheetSummary, impliedTaxRate, isDocFee, validateCounterSheet } from "./counterSheet";
+import { TAX_AS_QUOTED_NOTE, TAX_PROMPT_COPY, TAX_UPDATE_NOTE, counterPriceChanged, isLockedFee, applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, counterDiff, counterSheetSummary, impliedTaxRate, isDocFee, validateCounterSheet, zipStateTax, formatRatePercent } from "./counterSheet";
 import { dasTotal, monthlyPreTax } from "./leaseMath";
 import type { LeaseQuote } from "./leaseQuote";
 import { cashOutTheDoor, financeMonthly, type UsedCashQuote, type UsedFinanceQuote } from "./usedQuote";
@@ -83,11 +83,18 @@ describe("finance counter — amount financed moves by the delta, payment at the
     const nj = applyFinanceCounter(fin, { sellingPrice: 41000, addOns: [{ name: "Etch", amount: 0 }], dueAtSigning: typed }, "07405");
     assert.equal(taxOf(nj), Math.round(41000 * 0.06625 * 100) / 100);
     const ca = applyFinanceCounter(fin, {}, "94107");
-    assert.equal(taxOf(ca), Math.round((42000 + 399) * 0.0882 * 100) / 100);
+    assert.equal(taxOf(ca), Math.round((42000 + 399) * 0.0725 * 100) / 100);
     assert.equal(nj.amountFinanced, Math.round((fin.amountFinanced - 1000 - 399 + (taxOf(nj) - taxOf(fin))) * 100) / 100, "the tax change rolls into amount financed");
     const cashTax = applyCashCounter(cash, { sellingPrice: 57000 }, "77001");
-    assert.equal(cashTax.dueAtSigning.find((l) => l.name === "Sales tax")!.amount, Math.round((57000 + 499) * 0.082 * 100) / 100);
+    assert.equal(cashTax.dueAtSigning.find((l) => l.name === "Sales tax")!.amount, Math.round((57000 + 499) * 0.0625 * 100) / 100);
     assert.deepEqual(validateCounterSheet({ kind: "cash", before: cash, after: cashTax }), []);
+  });
+  it("rates are the state's exact mandated decimals, shown unrounded", () => {
+    assert.equal(zipStateTax("07405")!.rate, 0.06625);
+    assert.equal(formatRatePercent(0.06625), "6.625");
+    assert.equal(formatRatePercent(0.07), "7");
+    assert.equal(formatRatePercent(0.04225), "4.225");
+    assert.equal(zipStateTax("33101")!.rate, 0.06);
   });
   it("APR/term can't move; a raised price is refused", () => {
     assert.match(validateCounterSheet({ kind: "finance", before: fin, after: { ...fin, apr: 3.9 } }).join(" "), /APR is set by the lender/);

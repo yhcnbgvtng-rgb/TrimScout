@@ -46,6 +46,7 @@ export function createRfqStageHandler(deps) {
     const invite = inviteRows[0];
     if (!invite) return sendJson(res, 404, { error: "Invite not found" });
     if (invite.status === "declined" || invite.status === "expired") return sendJson(res, 409, { error: "This dealer is no longer in the running.", code: "closed" });
+    if (invite.not_selected_at && action.type !== "walk") return sendJson(res, 409, { error: "The buyer chose another dealer, so this quote is closed.", code: "closed" });
     if (invite.dealer_unsubscribed_at && action.type !== "walk") return sendJson(res, 409, { error: "This dealership is no longer accepting requests on TrimScout.", code: "closed" });
 
     const [quoteRows] = await pool.query("SELECT * FROM rfq_quotes WHERE invite_id = ? AND superseded_at IS NULL ORDER BY id DESC LIMIT 1", [inviteId]);

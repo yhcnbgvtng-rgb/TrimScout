@@ -22,11 +22,12 @@ import { dealerReference } from "./dealerReference";
 import { featureEnabled } from "./featureFlags";
 import { rfqIsTestOrAudit } from "./buyerTestMode";
 import { bump } from "./opsMetrics";
-import { quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInviteEmailInput } from "./quoteInviteEmail";
-import { markRfqInviteDelivery } from "./rfqApi";
+import { notSelectedHtml, notSelectedSubject, quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInviteEmailInput } from "./quoteInviteEmail";
+import { markRfqInviteDelivery, markRfqInviteNotSelected } from "./rfqApi";
 import { LEASE_TIMELINE_LABELS, rfqVehicles } from "./rfqTracker";
 import { rfqIsReleased, type RfqInvite, type RfqRequest } from "./rfq";
 import { alternateAskSummary } from "./alternateAsk";
+import { dealersOwedNotSelected, invitesToClose } from "./rfqClose";
 
 export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "failed";
 
@@ -131,5 +132,91 @@ export async function drainQueuedInvites(
     }
   }
   bump("drain_run");
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// "Not selected this time": the buyer accepted another dealer's offer.
+// Same outbox rules as an invite: the release gate and the email switch apply, the send goes through the SAFE MODE
+// sender (which has no `to` parameter, so audit=1 / test-mode requests can only ever reach SAFE_MODE_RECIPIENT), and the
+// box is the source of truth for "already sent". Exactly once per dealer: the box claim is atomic, so two accepts
+// racing, a retry, or a drain cannot send twice; a crashed send frees its claim after the lease and is retried.
+// ---------------------------------------------------------------------------
+export type NotSelectedResult = "sent" | "skipped" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "claimed_elsewhere" | "failed";
+
+export interface NotSelectedDeps {
+  send?: typeof sendQuoteInviteEmail;
+  mark?: typeof markRfqInviteNotSelected;
+  emailEnabled?: () => boolean;
+}
+
+/** Everything a SAFE MODE review needs to see which dealer the note was meant for; removed with the override. */
+function safeModeTag(dealerName: string, subject: string, html: string): { subject: string; html: string } {
+  return {
+    subject: `[SAFE MODE · ${dealerName}] ${subject}`,
+    html: `<p style="font-size:12px;color:#78350f;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin:0 0 16px"><strong>SAFE MODE:</strong> redirected here instead of ${dealerName}.</p>${html}`,
+  };
+}
+
+/** Send (at most once) the not-selected note to one dealer and close their quote. Never throws. */
+export async function sendNotSelectedNotice(rfq: RfqRequest, invite: RfqInvite, deps: NotSelectedDeps = {}): Promise<NotSelectedResult> {
+  const count = rfqIsTestOrAudit(rfq) ? () => {} : bump;
+  const mark = deps.mark || markRfqInviteNotSelected;
+  try {
+    if (invite.notSelectedNoticeSentAt) return "already_sent";
+    if (!rfqIsReleased(rfq)) return "held_for_approval";
+    // Closing the quote never waits on the email switch: the dealer must not keep countering while mail is parked.
+    await mark(rfq.id, invite.id, "close");
+    if (!(deps.emailEnabled || (() => featureEnabled("outboundDealerEmail")))()) {
+      count("notselected_parked_switch_off");
+      return "parked_switch_off";
+    }
+    const desk = invite.desk;
+    if (!desk || !invite.dealerContactEmail) return "no_desk";
+    const input = {
+      dealerName: invite.dealerName,
+      contactName: desk.contactName,
+      vehicle: invite.vehicle || { vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },
+      dealReference: dealerReference(rfq.id, invite.id),
+    };
+    const claim = await mark(rfq.id, invite.id, "claim");
+    if (!claim.claimed) return "claimed_elsewhere";
+    const mail = safeModeTag(invite.dealerName, notSelectedSubject(input), notSelectedHtml(input));
+    let ok = false;
+    try {
+      ok = await (deps.send || sendQuoteInviteEmail)(mail.subject, mail.html);
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      await mark(rfq.id, invite.id, "release").catch(() => null);
+      count("notselected_failed");
+      return "failed";
+    }
+    await mark(rfq.id, invite.id, "sent").catch(() => null);
+    count("notselected_sent");
+    return "sent";
+  } catch {
+    count("notselected_failed");
+    return "failed";
+  }
+}
+
+/**
+ * The buyer accepted `winnerInviteId`: close every other live quote and send each owed dealer their note, once.
+ * Best effort and safe to call again (the accept routes call it from after(); the drain can too).
+ */
+export async function closeOutLosers(rfq: RfqRequest, winnerInviteId: string, deps: NotSelectedDeps = {}): Promise<Record<NotSelectedResult, number>> {
+  const out: Record<NotSelectedResult, number> = { sent: 0, skipped: 0, parked_switch_off: 0, held_for_approval: 0, no_desk: 0, already_sent: 0, claimed_elsewhere: 0, failed: 0 };
+  const owed = new Set(dealersOwedNotSelected(rfq, winnerInviteId).map((i) => i.id));
+  for (const invite of invitesToClose(rfq, winnerInviteId)) {
+    if (!owed.has(invite.id)) {
+      // Already told (or unsubscribed): still make sure the quote is closed.
+      await (deps.mark || markRfqInviteNotSelected)(rfq.id, invite.id, "close").catch(() => null);
+      out[invite.notSelectedNoticeSentAt ? "already_sent" : "skipped"]++;
+      continue;
+    }
+    out[await sendNotSelectedNotice(rfq, invite, deps)]++;
+  }
   return out;
 }

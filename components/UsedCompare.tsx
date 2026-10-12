@@ -101,7 +101,8 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
     const unsubscribed = Boolean(invite.dealerUnsubscribedAt);
     const eq = eqOf({ invite });
     const chip = (cls: string, text: string, testId?: string) => <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${cls}`} data-testid={testId}>{text}</span>;
-    const status = !used
+    const status = invite.notSelectedAt ? chip("bg-border text-ink-muted", "Not selected", "not-selected-chip")
+      : !used
       ? invite.status === "declined" ? chip("bg-rose-500/15 text-rose-300", "Declined")
         : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — won't reply", "unsub-chip")
         : chip("bg-border text-ink-muted", "Waiting")

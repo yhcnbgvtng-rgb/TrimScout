@@ -167,6 +167,20 @@ export async function markRfqInviteDelivery(
   return json.invite as RfqInvite;
 }
 
+/**
+ * The buyer accepted another dealer: close this desk's quote ("close", idempotent), take the one-time right to send the
+ * not-selected note ("claim": atomic, claimed:true for exactly one caller), then stamp it ("sent") or hand the claim
+ * back ("release") when the send failed. Needs the box patch scripts/box/2026-10-12-rfq-not-selected.sh.
+ */
+export async function markRfqInviteNotSelected(
+  rfqId: string,
+  inviteId: string,
+  step: "close" | "claim" | "sent" | "release"
+): Promise<{ claimed: boolean; invite: RfqInvite | null }> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/not-selected`, { step });
+  return { claimed: Boolean(json.claimed), invite: (json.invite as RfqInvite) ?? null };
+}
+
 /** Resolves a tracked-link token to its invite, for the "viewed" event. */
 export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: string; invite: RfqInvite } | null> {
   try {

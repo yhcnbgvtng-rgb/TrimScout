@@ -189,7 +189,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                       const st = stageOf(rfq, i);
                       return st ? (
                         <div key={i.id} className="space-y-1">
-                          <p className="flex flex-wrap items-baseline justify-between gap-2 text-[11px]"><span className="font-bold text-white">{i.dealerName}</span><span className="text-ink-muted">{stageSummary(st)}</span></p>
+                          <p className="flex flex-wrap items-baseline justify-between gap-2 text-[11px]"><span className="font-bold text-white">{i.dealerName}</span><span className="text-ink-muted">{stageSummary(st, Boolean(i.notSelectedAt))}</span></p>
                           <DealStageBar state={st} compact />
                         </div>
                       ) : null;
