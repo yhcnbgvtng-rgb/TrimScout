@@ -8,6 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRfqStageHandler } from '../src/rfqStages.js';
+import { withoutMessagesPatch } from './stripPatches.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(here, '..', 'src');
@@ -264,17 +265,6 @@ describe('handler: scoped audit keys are pinned to their side', () => {
     assert.equal((await w.call({ actor: 'buyer', action: { type: 'accept_otd' } }, 'audit')).status, 200);
   });
 });
-
-// The mirror also carries the later 2026-10-11 rfq-messages patch (which is applied after this one); take it out so this
-// patch is tested against the text it was written for.
-function withoutMessagesPatch(text) {
-  return text
-    .replace('import { createRfqMessagesHandler } from "./rfqMessages.js";\n', '')
-    .replace('  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS messages_json TEXT NULL");\n', '')
-    .replace(/    \/\/ This desk's buyer <-> dealer chat[^\n]*\n    messages: parseJsonCol\(row\.messages_json\) \|\| \[\],\n/, '')
-    .replace(/\/\/ POST \/api\/rfqs\/:id\/invites\/:inviteId\/messages[\s\S]*?\n\}\);\n\n/, '')
-    .replace(/  const rfqInviteMessagesMatch[\s\S]*?\n  \}\n/, '');
-}
 
 describe('box patch script', () => {
   const mirror = path.join(SRC, 'deals_api_server.js');

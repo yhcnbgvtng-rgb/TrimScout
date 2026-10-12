@@ -29,6 +29,8 @@ export interface ThreadEntry {
   /** "message" is chat; "note" is a note stored on the deal (shown as a bubble too); "event" is the small inline line. */
   kind: "message" | "note" | "event";
   text: string;
+  /** The stored chat message id (chat messages only) — what a buyer's "Report" refers to. */
+  messageId?: string;
 }
 
 export const REDACTED_BUYER_TEXT = "[Removed — names and contact details are never shared in messages]";
@@ -140,7 +142,9 @@ export function buildThread(rfq: ThreadRfq, invite: RfqInvite, viewer: ThreadVie
   }
 
   for (const m of invite.messages || []) {
-    push({ id: `msg-${m.id}`, at: m.at, side: m.from, kind: "message", text: m.from === "buyer" ? buyerText(m.text) : m.text });
+    // An admin-blocked message is gone for both sides (its text is cleared on the box too).
+    if ((m as { hidden?: boolean }).hidden || !m.text) continue;
+    push({ id: `msg-${m.id}`, at: m.at, side: m.from, kind: "message", text: m.from === "buyer" ? buyerText(m.text) : m.text, messageId: m.id });
   }
 
   return out.sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : a.id < b.id ? -1 : 1));

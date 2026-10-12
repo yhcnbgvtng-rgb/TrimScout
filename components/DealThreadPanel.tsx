@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { MessageSquare, Send, X } from "lucide-react";
+import { Flag, MessageSquare, Send, X } from "lucide-react";
 import { bubbleAlign, MAX_CHAT_LENGTH, unreadCount, type ThreadEntry, type ThreadViewer } from "../lib/dealThread";
-import { findIdentityInfo } from "../lib/identityFilter";
+import { COMPOSE_NOTICE } from "../lib/chatCopy";
 
 /**
  * The conversation on one dealer's quote, instant-messaging style (lib/dealThread.ts builds it from what the deal already
@@ -21,6 +21,10 @@ interface ThreadData {
   /** False until the box has the messages patch: the history still reads, sending says "not available yet". */
   messaging: boolean;
   otherParty: string;
+  /** The dealer's chat is paused (3 blocked messages in 30 days). */
+  paused?: boolean;
+  /** What happened to the message just sent. A refused message is never echoed back to anyone. */
+  outcome?: { status: "delivered" } | { status: "blocked"; note: string; warning: string | null; paused: boolean } | { status: "held"; note: string } | { status: "paused"; note: string };
 }
 
 const POLL_MS = 20000;
@@ -59,6 +63,8 @@ export function DealThreadPanel({
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ tone: "warn" | "info"; lines: string[] } | null>(null);
+  const [reported, setReported] = useState<Record<string, "sending" | "done" | "error">>({});
   const [open, setOpen] = useState(false);
   const [desktop, setDesktop] = useState(false);
   const [seen, setSeen] = useState<string | null>(null);
@@ -111,8 +117,9 @@ export function DealThreadPanel({
   }, [visible, newest, seen, seenKey]);
 
   const unread = visible ? 0 : unreadCount(entries, viewer, seen);
-  const blocked = findIdentityInfo(text);
-  const canSend = Boolean(data?.canPost && data.messaging) && !sending && text.trim().length > 0 && !blocked;
+  // The server screens every message (names, phone numbers in any form, emails, handles, links, files): the panel deliberately doesn't
+  // pre-check or hint what trips it, so every attempt is logged and the rules can't be probed from the compose box.
+  const canSend = Boolean(data?.canPost && data.messaging) && !sending && text.trim().length > 0;
 
   const send = async () => {
     if (!canSend) return;
@@ -122,8 +129,19 @@ export function DealThreadPanel({
       const res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json", ...(headers || {}) }, body: JSON.stringify({ text: text.trim() }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Could not send that message.");
-      setData(json as ThreadData);
-      setText("");
+      const next = json as ThreadData;
+      setData(next);
+      const o = next.outcome;
+      if (o?.status === "blocked") {
+        // Plain note to the sender only. The text stays in the box so they can reword it; it was never sent anywhere.
+        setNotice({ tone: "warn", lines: [o.note, ...(o.warning ? [o.warning] : []), ...(o.paused ? ["Chat is now paused for your dealership."] : [])] });
+      } else if (o?.status === "held" || o?.status === "paused") {
+        setNotice({ tone: "info", lines: [o.note] });
+        if (o.status === "held") setText("");
+      } else {
+        setNotice(null);
+        setText("");
+      }
     } catch (e) {
       setSendError(e instanceof Error ? e.message : "Could not send that message.");
     } finally {
@@ -132,6 +150,17 @@ export function DealThreadPanel({
   };
 
   const disabledReason = !data ? null : !data.canPost ? data.readOnlyReason : !data.messaging ? "Sending messages isn't available yet. What's already on this deal is shown here." : null;
+
+  const report = async (messageId: string) => {
+    setReported((p) => ({ ...p, [messageId]: "sending" }));
+    try {
+      const res = await fetch(`${endpoint}/report`, { method: "POST", headers: { "Content-Type": "application/json", ...(headers || {}) }, body: JSON.stringify({ messageId }) });
+      if (!res.ok) throw new Error();
+      setReported((p) => ({ ...p, [messageId]: "done" }));
+    } catch {
+      setReported((p) => ({ ...p, [messageId]: "error" }));
+    }
+  };
 
   return (
     <>
@@ -184,7 +213,16 @@ export function DealThreadPanel({
                     {e.kind === "note" ? " · note on the deal" : ""}
                   </p>
                   <p className="whitespace-pre-wrap break-words">{e.text}</p>
-                  <p className={`mt-1 text-[9px] ${mine ? "text-black/60" : "text-ink-faint"}`}>{fmtTime(e.at)}</p>
+                  <p className={`mt-1 flex items-center gap-2 text-[9px] ${mine ? "text-black/60" : "text-ink-faint"}`}>
+                    {fmtTime(e.at)}
+                    {viewer === "buyer" && e.side === "dealer" && e.kind === "message" && e.messageId ? (
+                      reported[e.messageId] === "done" ? <span className="font-bold text-emerald-300" data-testid="thread-reported">Reported</span> : (
+                        <button type="button" onClick={() => report(e.messageId as string)} disabled={reported[e.messageId] === "sending"} className="inline-flex items-center gap-0.5 font-bold text-ink-muted hover:text-rose-300 disabled:opacity-50" data-testid="thread-report" aria-label="Report this message">
+                          <Flag className="h-2.5 w-2.5" /> {reported[e.messageId] === "error" ? "Try again" : "Report"}
+                        </button>
+                      )
+                    ) : null}
+                  </p>
                 </div>
               </div>
             );
@@ -193,12 +231,17 @@ export function DealThreadPanel({
 
         <footer className="space-y-1.5 border-t border-border/70 px-3 py-3">
           {disabledReason ? <p className="text-[10px] text-ink-muted" data-testid="thread-readonly">{disabledReason}</p> : null}
-          {blocked ? <p className="text-[10px] text-amber-200" data-testid="thread-contact-warning">That looks like {blocked}. Names, phone numbers (even spelled out), emails and addresses can&apos;t be shared in messages, so this can&apos;t be sent.</p> : null}
+          {notice ? (
+            <div className={`space-y-1 rounded-lg border px-2.5 py-2 text-[10px] ${notice.tone === "warn" ? "border-amber-500/50 bg-amber-950/30 text-amber-100" : "border-sky-500/40 bg-sky-950/30 text-sky-100"}`} data-testid="thread-notice" role="alert">
+              {notice.lines.map((l, i) => <p key={i} className={i === 0 ? "font-bold" : ""}>{l}</p>)}
+            </div>
+          ) : null}
+          <p className="text-[10px] leading-snug text-ink-faint" data-testid="thread-compose-notice">{COMPOSE_NOTICE}</p>
           {sendError ? <p className="text-[10px] text-rose-300" data-testid="thread-send-error">{sendError}</p> : null}
           <div className="flex items-end gap-2">
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => { setText(e.target.value); if (notice?.tone === "warn" && !e.target.value) setNotice(null); }}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
               maxLength={MAX_CHAT_LENGTH}
               rows={2}

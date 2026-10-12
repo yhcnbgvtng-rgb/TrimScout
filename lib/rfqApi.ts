@@ -219,23 +219,81 @@ export async function postDealStage(
 }
 
 /**
- * One chat message on a desk's thread, or a deal event the app wants logged (the dealer's fee override). Needs the box patch
- * scripts/box/2026-10-11-rfq-messages.sh; on an unpatched box this 404s and is reported as "not available yet".
+ * Chat on a desk's thread: messages, the buyer's report, and the one deal event the app logs (a dealer's fee override). Needs the box
+ * patches scripts/box/2026-10-11-rfq-messages.sh (+ 2026-10-12-rfq-chat-guard.sh for screening, strikes and the review queue); on an
+ * unpatched box this 404s and is reported as "not available yet".
  */
-export async function postRfqMessage(
-  rfqId: string,
-  inviteId: string,
-  input: { kind: "message"; from: "buyer" | "dealer"; text: string } | { kind: "event"; type: "fee_override"; overrides: Array<Record<string, unknown>> }
-): Promise<{ rfq?: RfqRequest; message?: DealMessage }> {
+export type ChatPostResult =
+  | { status: "delivered"; rfq?: RfqRequest; message?: DealMessage }
+  | { status: "blocked"; note: string; warning: string | null; attempts: number; paused: boolean; justPaused: boolean }
+  | { status: "needs_review"; score?: number }
+  | { status: "held"; note: string }
+  | { status: "paused"; note: string };
+
+const chatUnavailable = (err: unknown) => err instanceof RfqApiError && err.status === 404 && err.message === "Not found";
+
+export async function postChatMessage(rfqId: string, inviteId: string, input: { from: "buyer" | "dealer"; text: string; aiVerdict?: "yes" | "no" | "unavailable" }): Promise<ChatPostResult> {
   try {
-    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, input);
-    return { rfq: json.rfq as RfqRequest | undefined, message: json.message as DealMessage | undefined };
+    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, { kind: "message", ...input });
+    // A box with only the earlier rfq-messages patch answers { rfq, message } with no status: that is a delivery.
+    if (!json.status) return { status: "delivered", rfq: json.rfq as RfqRequest | undefined, message: json.message as DealMessage | undefined };
+    return json as ChatPostResult;
   } catch (err) {
-    if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") {
-      throw new RfqApiError("Messaging isn't available yet.", 503);
-    }
+    if (chatUnavailable(err)) throw new RfqApiError("Messaging isn't available yet.", 503);
     throw err;
   }
+}
+
+/** The buyer flags a dealer message: it goes to the admin review queue. */
+export async function reportChatMessage(rfqId: string, inviteId: string, messageId: string): Promise<{ duplicate: boolean }> {
+  try {
+    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, { kind: "report", messageId });
+    return { duplicate: Boolean(json.duplicate) };
+  } catch (err) {
+    if (chatUnavailable(err)) throw new RfqApiError("Reporting isn't available yet.", 503);
+    throw err;
+  }
+}
+
+/** Logs the dealer's fee override as a deal event (best effort at the call site). */
+export async function postRfqMessage(rfqId: string, inviteId: string, input: { kind: "event"; type: "fee_override"; overrides: Array<Record<string, unknown>> }): Promise<void> {
+  try {
+    await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, input);
+  } catch (err) {
+    if (chatUnavailable(err)) throw new RfqApiError("Messaging isn't available yet.", 503);
+    throw err;
+  }
+}
+
+/** Is this invite's dealer paused from chat? An unpatched box says no. */
+export async function getChatPaused(rfqId: string, inviteId: string): Promise<boolean> {
+  try {
+    const json = await request("GET", `/api/rfqs/${rfqId}/invites/${inviteId}/chat-status`);
+    return Boolean(json.paused);
+  } catch {
+    return false;
+  }
+}
+
+export interface ChatReviewItem {
+  id: number; rfqId: number; inviteId: number; sender: "buyer" | "dealer"; kind: "held" | "reported"; messageId: string | null;
+  text: string; reason: string | null; reporter: string | null; createdAt: string; dealerName: string | null;
+}
+export interface ChatPause { id: number; dealerKey: string; pausedAt: string; reason: string | null }
+
+export async function listChatReview(): Promise<ChatReviewItem[]> {
+  const json = await request("GET", "/api/admin/chat-review");
+  return (json.items as ChatReviewItem[]) || [];
+}
+export async function decideChatReview(id: number, decision: "release" | "block", by: string): Promise<{ status: string; dealerName: string | null; attempts: number | null; paused: boolean; justPaused: boolean }> {
+  return (await request("POST", `/api/admin/chat-review/${id}`, { decision, by })) as never;
+}
+export async function listChatPauses(): Promise<ChatPause[]> {
+  const json = await request("GET", "/api/admin/chat-pauses");
+  return (json.pauses as ChatPause[]) || [];
+}
+export async function liftChatPause(dealerKey: string, by: string): Promise<void> {
+  await request("POST", "/api/admin/chat-pauses/lift", { dealerKey, by });
 }
 
 /**

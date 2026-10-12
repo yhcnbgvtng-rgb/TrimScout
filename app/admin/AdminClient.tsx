@@ -53,6 +53,12 @@ export default function AdminClient() {
               <span>Pending approvals</span>
             </Link>
             <Link
+              href="/admin/chat-review"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 text-xs font-bold text-rose-300 hover:text-white transition-all shadow-sm"
+            >
+              <span>Chat review</span>
+            </Link>
+            <Link
               href="/admin/quote-requests"
               className="inline-flex items-center gap-1.5 rounded-xl border border-brand-500/40 bg-brand-500/10 hover:bg-brand-500/20 px-3 py-1.5 text-xs font-bold text-brand-300 hover:text-white transition-all shadow-sm"
             >

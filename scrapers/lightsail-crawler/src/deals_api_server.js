@@ -37,6 +37,7 @@ import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createRfqStageHandler } from "./rfqStages.js";
 import { createRfqMessagesHandler } from "./rfqMessages.js";
+import { createChatAdminHandlers } from "./rfqChatAdmin.js";
 import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createStatsCache } from "./statsCache.js";
@@ -1602,6 +1603,9 @@ const handleRfqMessages = createRfqMessagesHandler({
   publicRfqRequest, logRfqEvent, findContactInfo,
   auditKind: (req) => req.audit?.kind || null,
 });
+
+// Conversation guard: admin review queue (Release / Block), paused dealers, and the dealer panel's pause status (module: rfqChatAdmin.js).
+const chatAdmin = createChatAdminHandlers({ getPool, readBody, sendJson, ensureColumns: ensureQuotePackageColumns });
 
 // POST /api/rfqs/:id/invites/:inviteId/buyer-counter — { counter }. The
 // buyer's structured response to this desk's current quote: the quote is
@@ -4092,6 +4096,13 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   if (req.method === "POST" && rfqInviteNotSelectedMatch) {
     return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));
   }
+  const chatStatusMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/chat-status$/);
+  if (req.method === "GET" && chatStatusMatch) return run(chatAdmin.status, Number(chatStatusMatch[1]), Number(chatStatusMatch[2]));
+  if (req.method === "GET" && pathname === "/api/admin/chat-review") return run(chatAdmin.list);
+  const chatDecideMatch = pathname.match(/^\/api\/admin\/chat-review\/(\d+)$/);
+  if (req.method === "POST" && chatDecideMatch) return run(chatAdmin.decide, Number(chatDecideMatch[1]));
+  if (req.method === "GET" && pathname === "/api/admin/chat-pauses") return run(chatAdmin.pauses);
+  if (req.method === "POST" && pathname === "/api/admin/chat-pauses/lift") return run(chatAdmin.lift);
   const rfqInviteMessagesMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/messages$/);
   if (req.method === "POST" && rfqInviteMessagesMatch) {
     return run(handleRfqMessages, Number(rfqInviteMessagesMatch[1]), Number(rfqInviteMessagesMatch[2]));
