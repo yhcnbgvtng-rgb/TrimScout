@@ -198,7 +198,7 @@ describe("closed quotes", () => {
   });
   it("a dealer accepting the buyer's OTD counter triggers the same close-out, only once the stage is locked", () => {
     const route = read("app/api/quote-invite/accept-counter/route.ts");
-    assert.match(route, /if \(stageLocked\) after\(async \(\) => \{ await closeOutLosers\(rfq, invite\.id\)/);
+    assert.match(route, /if \(stageLocked\) afterResponse\(async \(\) => \{ await closeOutLosers\(rfq, invite\.id\)/);
     assert.ok(route.indexOf("stageLocked = true") < route.indexOf("closeOutLosers(rfq, invite.id)"));
     assert.match(route, /import \{ closeOutLosers \} from "@\/lib\/inviteOutbox"/);
   });
