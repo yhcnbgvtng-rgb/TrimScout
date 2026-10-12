@@ -13,6 +13,7 @@ import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
 import { findVehicleLd, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
 import { vdpSkipReason } from './vdpResponseGate.js';
+import { vehicleUrlLimits, planVehicleUrlPages, describeVehicleUrlPlan } from './vehicleUrlPaging.js';
 import { withProbeRetry } from './probeRetry.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
@@ -919,22 +920,12 @@ for (let i = 0; i < dealers.length; i++) {
             failedDealerNames.add(dealer.name);
             continue;
         }
-        // Hard backstop for a pathologically large single lot (a genuine
-        // used-car superstore, or a megadealer group whose sitemap covers
-        // several physical locations at once) — DEALER_TIMEOUT_MS already
-        // bounds this dealer's wall-clock time, but a huge vehicle count
-        // still means a huge downstream NHTSA-enrichment bill for this one
-        // dealer even with the enrichment pool parallelized (see
-        // enricher.js). Slicing rather than sampling: the sitemap/DDC
-        // ordering is typically newest-first already, so the kept subset is
-        // still representative, real inventory, not an arbitrary chunk.
-        // 0 (the default) means no cap, matching every dealer's behavior
-        // before this existed.
-        const maxVehiclesPerDealer = Number(process.env.CRAWLER_MAX_VEHICLES_PER_DEALER) || 0;
-        if (maxVehiclesPerDealer > 0 && vehicleUrls.length > maxVehiclesPerDealer) {
-            console.log(`${progress} ✂️ ${dealer.name} has ${vehicleUrls.length} vehicle URLs — capping to ${maxVehiclesPerDealer}.`);
-            vehicleUrls = vehicleUrls.slice(0, maxVehiclesPerDealer);
-        }
+        // Large rooftops are crawled in pages (CRAWLER_MAX_VEHICLES_PER_DEALER = page size) up to a hard ceiling
+        // (CRAWLER_HARD_MAX_VEHICLES_PER_DEALER), instead of the old silent truncation — see vehicleUrlPaging.js.
+        const urlLimits = vehicleUrlLimits();
+        const urlPlan = planVehicleUrlPages(vehicleUrls, urlLimits);
+        const urlPlanNote = describeVehicleUrlPlan(dealer.name, urlPlan, urlLimits);
+        if (urlPlanNote) console.log(`${progress} ${urlPlanNote}`);
         if (dealerTimedOut) {
             // The 1-hour mark already passed during sitemap resolution
             // itself (rare — that phase has its own short per-request
@@ -945,7 +936,7 @@ for (let i = 0; i < dealers.length; i++) {
             continue;
         }
 
-        console.log(`${progress} Found ${vehicleUrls.length} vehicle URLs. Extracting data...`);
+        console.log(`${progress} Found ${urlPlan.kept} vehicle URLs. Extracting data...`);
 
         let dealerCount = 0;
         const extractOne = async (url, _idx, patchrightPage) => {
@@ -1262,10 +1253,18 @@ for (let i = 0; i < dealers.length; i++) {
             } catch {}
         };
 
-        if (patchrightFallback) {
-            await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
-        } else {
-            await pMap(vehicleUrls, extractOne, PAGE_WORKERS);
+        for (let pageNo = 0; pageNo < urlPlan.pages.length; pageNo++) {
+            if (dealerTimedOut) {
+                console.log(`${progress} ⏱️ ${dealer.name}: 1-hour cutoff reached before page ${pageNo + 1}/${urlPlan.pages.length}; ${urlPlan.pages.slice(pageNo).reduce((n, p) => n + p.length, 0)} URLs not crawled.`);
+                break;
+            }
+            const pageUrls = urlPlan.pages[pageNo];
+            if (urlPlan.pages.length > 1) console.log(`${progress} 📄 ${dealer.name}: page ${pageNo + 1}/${urlPlan.pages.length} (${pageUrls.length} URLs, ${dealerCount} extracted so far)`);
+            if (patchrightFallback) {
+                await pMapWithPages(pageUrls, extractOne, patchrightFallback.pages);
+            } else {
+                await pMap(pageUrls, extractOne, PAGE_WORKERS);
+            }
         }
 
         dealerStats[dealer.name] = dealerCount;
