@@ -5,7 +5,7 @@ Code only. Nothing here is live until the box patch is run (see **Box deploy**).
 ## What "accepts" means
 * **Lease / single-sheet cash:** the buyer's "Choose this quote" (`POST /api/rfqs/:id/pick`).
 * **Staged Cash / Finance (#482):** the buyer's `accept_otd` on one dealer (`POST /api/rfqs/:id/invites/:inviteId/stage`).
-  (A dealer accepting the buyer's OTD counter is *not* wired to this; see "Not covered".)
+  Also a dealer accepting the buyer's OTD counter (`POST /api/quote-invite/accept-counter`), once that locks the stage.
 
 ## 1. The "not selected this time" note
 Sent once to every other invited dealer, after the response (Next `after()`), through the existing invite outbox
@@ -75,5 +75,4 @@ if the stages patch is missing and skips the trade-after-acceptance part, with a
 5. Until step 2 is done the app still works: the pick/accept succeed, the close-out calls fail quietly (best effort) and no note is sent. Deploy the site and the box patch in either order.
 
 ## Not covered
-* A dealer accepting the buyer's OTD counter (`/api/quote-invite/accept-counter`) locks the OTD but does not trigger the close-out.
 * Deals box SQL is only exercised on the box (tests use an in-memory fake of the same statements).

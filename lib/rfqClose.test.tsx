@@ -196,6 +196,20 @@ describe("closed quotes", () => {
     assert.match(pick, /after\(async \(\) => \{ await closeOutLosers\(existing, winner\.id\)/);
     assert.match(stage, /action\.type === "accept_otd" && result\.stage\.otd\.status === "locked"\) after\(/);
   });
+  it("a dealer accepting the buyer's OTD counter triggers the same close-out, only once the stage is locked", () => {
+    const route = read("app/api/quote-invite/accept-counter/route.ts");
+    assert.match(route, /if \(stageLocked\) after\(async \(\) => \{ await closeOutLosers\(rfq, invite\.id\)/);
+    assert.ok(route.indexOf("stageLocked = true") < route.indexOf("closeOutLosers(rfq, invite.id)"));
+    assert.match(route, /import \{ closeOutLosers \} from "@\/lib\/inviteOutbox"/);
+  });
+  it("the same exactly-once and SAFE MODE rules apply (it is the same closeOutLosers): a repeated accept sends nothing more", async () => {
+    const box = fakeBox(); const r = recorder();
+    const rfq = rfqOf([mk("1", "Countered Dealer"), mk("2", "Loser A"), mk("3", "Loser B")], { audit: true });
+    await closeOutLosers(rfq, "1", deps(box, r));
+    await closeOutLosers(rfq, "1", deps(box, r));
+    assert.equal(r.calls.length, 2);
+    assert.ok(r.calls.every((c) => c.length === 2));
+  });
 });
 
 describe("the Add your trade-in prompt", () => {

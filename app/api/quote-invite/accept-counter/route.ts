@@ -4,7 +4,7 @@
 // sales tax must equal it), and the stored revised quote is rebuilt from the
 // counter with only the tax amounts taken from the dealer. The buyer is told
 // by email through the SAFE MODE sender. Token-scoped; no login.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getRfq, getRfqInviteByViewToken, postDealStage, RfqApiError, submitRfqQuote } from "@/lib/rfqApi";
 import { isStagedRfq } from "@/lib/dealStages";
 import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, verifyAcceptedQuote } from "@/lib/acceptCounter";
@@ -13,6 +13,7 @@ import { validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/use
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { sendCounterAcceptedNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
+import { closeOutLosers } from "@/lib/inviteOutbox";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
       console.error("accept-counter: could not lock the OTD stage —", err instanceof Error ? err.message : err);
     }
   }
+  // The buyer's counter was accepted and the price is locked: that is the choice of dealer, so close and thank everyone else, once.
+  if (stageLocked) after(async () => { await closeOutLosers(rfq, invite.id); });
   const outTheDoor = acceptedOutTheDoor(used);
   // Best effort — the accepted quote is already on the buyer's compare.
   await sendCounterAcceptedNotice({
