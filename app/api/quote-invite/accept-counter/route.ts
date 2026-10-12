@@ -24,6 +24,7 @@ export async function POST(req: Request) {
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   if (rfq.status !== "collecting") return NextResponse.json({ error: "The buyer has closed this request." }, { status: 409 });
   const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
+  if (invite.notSelectedAt) return NextResponse.json({ error: "The buyer chose another dealer, so this quote is closed." }, { status: 409 });
   if (invite.status !== "invited") return NextResponse.json({ error: `This invite already has a response (${invite.status}).` }, { status: 409 });
   const counter = acceptableCashCounter(rfq.quotePrefs, invite.buyerCounter);
   if (!counter) return NextResponse.json({ error: "There is no buyer counter on this cash quote to accept." }, { status: 409 });

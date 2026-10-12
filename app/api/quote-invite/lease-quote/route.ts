@@ -15,6 +15,7 @@ export async function POST(req: Request) {
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   if (rfq.status !== "collecting") return NextResponse.json({ error: "The buyer has already closed this request." }, { status: 409 });
+  if (found.invite.notSelectedAt) return NextResponse.json({ error: "The buyer chose another dealer, so this quote is closed." }, { status: 409 });
   if (found.invite.status !== "invited") return NextResponse.json({ error: `This invite already has a response (${found.invite.status}).` }, { status: 409 });
   if (!rfq.leasePrefs) return NextResponse.json({ error: "This request has no lease preferences on file." }, { status: 409 });
 

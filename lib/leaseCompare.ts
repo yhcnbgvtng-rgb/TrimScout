@@ -49,6 +49,8 @@ export interface LeaseCompareRow {
   quotedVin: string | null;
   /** The rooftop unsubscribed from TrimScout while this invite was open — no reply is coming; counters off. */
   unsubscribed: boolean;
+  /** The buyer accepted a different dealer: this quote is closed (no counter, no revision). */
+  notSelected: boolean;
 }
 
 export interface LeaseCompare {
@@ -98,6 +100,7 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     priorQuotes: invite.priorQuotes ?? [],
     revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
     unsubscribed: Boolean(invite.dealerUnsubscribedAt),
+    notSelected: Boolean(invite.notSelectedAt),
     alternate: isAlternateQuote({ lane: rfq.lane, vin: askedVinForInvite(rfq, invite) }, invite.quote?.vin),
     quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== askedVinForInvite(rfq, invite) ? invite.quote.vin.trim().toUpperCase() : null,
   };

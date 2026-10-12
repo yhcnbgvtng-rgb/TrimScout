@@ -11,6 +11,7 @@ import { s3Storage } from "@/lib/trade/storage";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
 import { parseAppraisalInput, parsePhotoRequestInput } from "@/lib/trade/dealer";
 import { guideValue, isOutlier } from "@/lib/trade/guide";
+import { dealerMayAppraise } from "@/lib/acceptTrade";
 
 const TOKEN_RE = /^[A-Za-z0-9_-]{8,80}$/;
 
@@ -35,7 +36,7 @@ export async function GET(req: Request) {
     await markTradeSeen(rfq.id, invite.id).catch(() => undefined);
     return NextResponse.json({
       tradeIn: rfq.tradeIn, signed, appraisal: invite.tradeAppraisal ?? null, photoRequest: invite.tradePhotoRequest ?? null,
-      inviteStatus: invite.status, rfqStatus: rfq.status,
+      inviteStatus: invite.status, rfqStatus: rfq.status, appraisalOpen: dealerMayAppraise(rfq, invite),
     });
   } catch (err) {
     return tradeErrorResponse(err);
@@ -48,7 +49,8 @@ export async function POST(req: Request) {
   if (r.res) return r.res;
   const { rfq, invite } = r;
   if (!rfq.tradeIn) return NextResponse.json({ error: "The buyer didn't include a trade-in." }, { status: 409 });
-  if (rfq.status !== "collecting") return NextResponse.json({ error: "The buyer has closed this request." }, { status: 409 });
+  if (invite.notSelectedAt) return NextResponse.json({ error: "The buyer chose another dealer, so this quote is closed." }, { status: 409 });
+  if (!dealerMayAppraise(rfq, invite)) return NextResponse.json({ error: "The buyer has closed this request." }, { status: 409 });
   if (invite.status === "declined") return NextResponse.json({ error: "This invite was declined." }, { status: 409 });
   try {
     if (body?.kind === "appraisal") {

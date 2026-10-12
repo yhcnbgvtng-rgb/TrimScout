@@ -5,7 +5,7 @@
  */
 import type { StageAction, StageActionType, StageActor } from "./dealStages";
 
-export const BUYER_STAGE_ACTIONS: readonly StageActionType[] = ["accept_otd", "trade_counter", "trade_accept", "choose_cash", "request_finance", "finance_accept", "walk"];
+export const BUYER_STAGE_ACTIONS: readonly StageActionType[] = ["accept_otd", "add_trade", "skip_trade", "trade_counter", "trade_accept", "choose_cash", "request_finance", "finance_accept", "walk"];
 export const DEALER_STAGE_ACTIONS: readonly StageActionType[] = ["trade_offer", "trade_accept_counter", "finance_quote", "walk"];
 
 const text = (v: unknown, max: number): string | undefined => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined);

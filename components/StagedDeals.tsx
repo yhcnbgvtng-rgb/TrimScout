@@ -19,7 +19,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
   const [term, setTerm] = useState("");
   const [outside, setOutside] = useState(false);
   const [confirmWalk, setConfirmWalk] = useState(false);
-  const open = rfq.status === "collecting" && stage.stage !== "closed" && stage.stage !== "walked" && !invite.dealerUnsubscribedAt;
+  const open = rfq.status === "collecting" && stage.stage !== "closed" && stage.stage !== "walked" && !invite.dealerUnsubscribedAt && !invite.notSelectedAt;
   const used = invite.quote?.used?.kind === "cash" ? invite.quote.used : null;
   const quoteLive = Boolean(used) && invite.status === "quoted" && !isExpired({ expiresAt: used!.expiresAt });
 
@@ -49,7 +49,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
     <section className="space-y-3 rounded-2xl border border-border bg-surface p-4" data-testid="staged-deal-card" data-invite={invite.id} data-stage={stage.stage}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-bold text-white">{invite.dealerName}</h3>
-        <span className="text-[11px] text-ink-muted" data-testid="stage-summary">{stageSummary(stage)}</span>
+        <span className="text-[11px] text-ink-muted" data-testid="stage-summary">{stageSummary(stage, Boolean(invite.notSelectedAt))}</span>
       </div>
       <DealStageBar state={stage} />
 
@@ -182,7 +182,7 @@ export function StagedDeals({ rfq, headers, onRfq, onWalkAll }: { rfq: RfqReques
           {cards.map(({ invite, stage }) => (
             <li key={invite.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-1.5">
               <span className="font-bold text-white">{invite.dealerName}</span>
-              <span className="text-ink-muted">{stageSummary(stage)}</span>
+              <span className="text-ink-muted">{stageSummary(stage, Boolean(invite.notSelectedAt))}</span>
             </li>
           ))}
         </ul>

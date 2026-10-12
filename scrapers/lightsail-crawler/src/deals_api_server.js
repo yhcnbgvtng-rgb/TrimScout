@@ -36,6 +36,7 @@ import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryLis
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createRfqStageHandler } from "./rfqStages.js";
+import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createStatsCache } from "./statsCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
@@ -1212,6 +1213,10 @@ function publicRfqInvite(row, quoteRow) {
     buyerCounterAt: row.buyer_counter_at || null,
     // Staged Cash / Finance deal state for this desk (OTD -> trade-in -> payment); null until the first action.
     stage: parseJsonCol(row.stage_json) || null,
+    // The buyer accepted a different dealer: this desk's quote is closed, and the one "not selected" note is tracked here.
+    notSelectedAt: row.not_selected_at || null,
+    notSelectedNoticeClaimedAt: row.not_selected_notice_claimed_at || null,
+    notSelectedNoticeSentAt: row.not_selected_notice_sent_at || null,
     // Set when the dealership opted out while this invite was still open (see auth server's
     // opt-out cascade). The buyer app stops waiting on it and disables counters; a quote
     // submitted before it stays readable.
@@ -1254,6 +1259,9 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS stage_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_at DATETIME NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_notice_claimed_at DATETIME NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_notice_sent_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_unsubscribed_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS desk_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS vehicle_json TEXT NULL");
@@ -1566,6 +1574,13 @@ async function handlePatchRfqLeasePrefs(req, res, rfqId) {
   sendJson(res, 200, { rfq: publicRfqRequest(fresh[0], invites) });
 }
 
+// POST /api/rfqs/:id/invites/:inviteId/not-selected — close a desk's quote after the buyer accepted another dealer.
+const handleRfqNotSelected = createRfqNotSelectedHandler({
+  getPool, readBody, sendJson,
+  ensureColumns: ensureQuotePackageColumns,
+  logRfqEvent,
+});
+
 // POST /api/rfqs/:id/invites/:inviteId/stage — one action on the staged Cash / Finance deal (rules: dealStages.js).
 const handleRfqStage = createRfqStageHandler({
   getPool, readBody, sendJson,
@@ -1592,6 +1607,7 @@ async function handleBuyerCounter(req, res, rfqId, inviteId) {
   const [inviteRows] = await pool.query("SELECT * FROM rfq_invites WHERE id = ? AND rfq_id = ?", [inviteId, rfqId]);
   if (inviteRows.length === 0) return sendJson(res, 404, { error: "Invite not found" });
   if (inviteRows[0].status !== "quoted") return sendJson(res, 409, { error: "This desk has no current quote to counter" });
+  if (inviteRows[0].not_selected_at) return sendJson(res, 409, { error: "closed", code: "not_selected" });
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
@@ -1676,6 +1692,10 @@ async function handleSubmitRfqQuote(req, res, rfqId, inviteId) {
   const [rfqRows] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
   if (rfqRows.length === 0) return sendJson(res, 404, { error: "RFQ not found" });
   const mustHaves = typeof rfqRows[0].must_haves_json === "string" ? JSON.parse(rfqRows[0].must_haves_json) : rfqRows[0].must_haves_json;
+  {
+    const [closedRows] = await pool.query("SELECT not_selected_at FROM rfq_invites WHERE id = ? AND rfq_id = ?", [inviteId, rfqId]);
+    if (closedRows[0] && closedRows[0].not_selected_at) return sendJson(res, 409, { error: "The buyer chose another dealer, so this quote is closed", code: "not_selected" });
+  }
 
   // Required fields (price, itemized fees, VIN/stock, expiry) are a hard
   // gate, not a soft completeness score — an incomplete submission is
@@ -1755,6 +1775,10 @@ async function handlePickRfqQuote(req, res, rfqId) {
   const pool = getPool();
   const [quoteRows] = await pool.query("SELECT id FROM rfq_quotes WHERE id = ? AND rfq_id = ?", [quoteId, rfqId]);
   if (quoteRows.length === 0) return sendJson(res, 404, { error: "Quote not found on this RFQ" });
+  {
+    const [pickInvite] = await pool.query("SELECT i.not_selected_at FROM rfq_invites i JOIN rfq_quotes q ON q.invite_id = i.id WHERE q.id = ?", [quoteId]);
+    if (pickInvite[0] && pickInvite[0].not_selected_at) return badRequest(res, "That dealer's quote is closed");
+  }
 
   const [result] = await pool.query(
     "UPDATE rfq_requests SET status = 'picked', picked_quote_id = ? WHERE id = ? AND status = 'collecting'",
@@ -4050,6 +4074,10 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   const rfqInviteTokenMatch = pathname.match(/^\/api\/rfq-invites\/by-token\/([A-Za-z0-9_-]{8,80})$/);
   if (req.method === "GET" && rfqInviteTokenMatch) {
     return run(handleRfqInviteByToken, rfqInviteTokenMatch[1]);
+  }
+  const rfqInviteNotSelectedMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/not-selected$/);
+  if (req.method === "POST" && rfqInviteNotSelectedMatch) {
+    return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));
   }
   const rfqInviteStageMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/);
   if (req.method === "POST" && rfqInviteStageMatch) {

@@ -23,8 +23,8 @@ export function inviteUnsubscribedNoQuote(invite: Pick<RfqInvite, "dealerUnsubsc
 }
 
 /** Counters / reply-expecting UI are off once a rooftop has unsubscribed, quote or not. */
-export function inviteAcceptsCounter(invite: Pick<RfqInvite, "dealerUnsubscribedAt" | "quote" | "status">): boolean {
-  return !invite.dealerUnsubscribedAt && Boolean(invite.quote) && invite.status !== "declined" && invite.status !== "expired";
+export function inviteAcceptsCounter(invite: Pick<RfqInvite, "dealerUnsubscribedAt" | "quote" | "status"> & { notSelectedAt?: string | null }): boolean {
+  return !invite.dealerUnsubscribedAt && !invite.notSelectedAt && Boolean(invite.quote) && invite.status !== "declined" && invite.status !== "expired";
 }
 
 export interface UnsubscribedDealer { dealerName: string; hadQuote: boolean; inviteId: string }

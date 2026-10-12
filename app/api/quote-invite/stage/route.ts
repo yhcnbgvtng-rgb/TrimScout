@@ -23,6 +23,7 @@ export async function POST(req: Request) {
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   if (!isStagedRfq(rfq)) return NextResponse.json({ error: "This request doesn't use the staged Cash / Finance flow." }, { status: 409 });
   const invite = rfq.invites.find((i) => i.id === found.invite.id) || found.invite;
+  if (invite.notSelectedAt && action.type !== "walk") return NextResponse.json({ error: "The buyer chose another dealer, so this quote is closed." }, { status: 409 });
 
   try {
     const result = await postDealStage(found.rfqId, invite.id, { action: action as unknown as Record<string, unknown>, actor: "dealer" });
