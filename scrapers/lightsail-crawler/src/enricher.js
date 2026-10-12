@@ -47,6 +47,38 @@ export async function throttleNhtsaRequest() {
   if (waitMs > 0) await sleep(waitMs);
 }
 
+// Per-brand cache top-up (#480 follow-up). The first dealer-shard of a brand used to be the only run that seeded the
+// brand cache from the old state-wide cache (only when the brand file was absent). That run creates the file holding just
+// its own 25 dealers' VINs, so every later dealer-shard of the same brand started with a cache that lacked its VINs, seeded
+// nothing and re-paid a throttled NHTSA lookup for every one: new lookups per night went 14k -> 216k on box3 and 14k -> 228k
+// on box4 (GA Stellantis shard 3 alone: 321 s -> 4293 s, 0 cache hits). Now every run tops the brand cache up from the legacy
+// cache for the VINs it is about to enrich, but only reads that (hundreds of MB) file when enough are missing to be worth it.
+export const LEGACY_SEED_MIN_MISSING = Number(process.env.CRAWLER_LEGACY_CACHE_SEED_MIN) || 25;
+
+const hasUsableLookup = (entry) => Boolean(entry && entry.nhtsa);
+
+/**
+ * @param {{ cache: Record<string, any>, vehicles: Array<{vin?: string}>, readLegacy: () => Promise<Record<string, any>>, minMissing?: number }} p
+ * @returns {Promise<{ seeded: Map<string, any>, missing: number, readLegacy: boolean }>} entries copied into `cache`
+ */
+export async function seedCacheFromLegacy({ cache, vehicles, readLegacy, minMissing = LEGACY_SEED_MIN_MISSING }) {
+  const missing = [];
+  for (const v of vehicles) if (v?.vin && !hasUsableLookup(cache[v.vin])) missing.push(v.vin);
+  const seeded = new Map();
+  if (missing.length === 0 || missing.length < minMissing) return { seeded, missing: missing.length, readLegacy: false };
+  let legacy;
+  try {
+    legacy = await readLegacy();
+  } catch (err) {
+    console.warn(`Legacy enrichment cache unreadable (${err.code || err.message}); ${missing.length} VIN(s) will be looked up again.`);
+    return { seeded, missing: missing.length, readLegacy: true };
+  }
+  for (const vin of missing) {
+    if (hasUsableLookup(legacy?.[vin])) { cache[vin] = legacy[vin]; seeded.set(vin, legacy[vin]); }
+  }
+  return { seeded, missing: missing.length, readLegacy: true };
+}
+
 // Computed fresh (not a module-level constant) so a test can chdir into a
 // scratch directory before calling runEnrichmentPipeline and get isolated
 // paths — process.cwd() never actually changes mid-run in production, so
@@ -362,6 +394,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
   let rawInventory = null;
   let cache = {};
   let targetVehicles = [];
+  let seededCacheEntries = new Map();
   let inventoryReadFailed = false;
   const vinScope = vinsToEnrich ? new Set(vinsToEnrich) : null;
 
@@ -400,21 +433,22 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       cache = await readJsonLarge(CACHE_PATH);
     } catch {
       cache = {};
-      // First run on a per-brand shard: seed from the old state-wide cache, keeping only this brand's VINs, so the
-      // switch doesn't re-pay every NHTSA lookup. The legacy cache file is left as is (nothing reads it any more).
-      if (shardBrand) {
-        try {
-          const legacyCache = await readJsonLarge(LEGACY_CACHE_PATH);
-          for (const v of inventory) if (v?.vin && legacyCache[v.vin] !== undefined) cache[v.vin] = legacyCache[v.vin];
-        } catch { /* no legacy cache: start empty */ }
-      }
+    }
+
+    const scopedInventory = vinScope ? inventory.filter((v) => vinScope.has(v.vin)) : inventory;
+    targetVehicles = scopedInventory.slice(0, limit);
+
+    // Per-brand shard: top the brand cache up from the old state-wide cache for the VINs this run will enrich. The legacy
+    // file is left as is. Seeded entries are persisted below (seededCacheEntries) so the next run does not need them again.
+    if (shardBrand) {
+      const result = await seedCacheFromLegacy({ cache, vehicles: targetVehicles, readLegacy: () => readJsonLarge(LEGACY_CACHE_PATH) });
+      seededCacheEntries = result.seeded;
+      console.log(`Legacy cache top-up: ${result.missing} VIN(s) not in the brand cache, ${result.seeded.size} taken from the state-wide cache${result.readLegacy ? '' : ' (legacy file not read)'}.`);
     }
 
     console.log(`Total Vehicles in Inventory File: ${inventory.length}`);
     console.log(`Existing Cached Enriched VINs: ${Object.keys(cache).length}`);
 
-    const scopedInventory = vinScope ? inventory.filter((v) => vinScope.has(v.vin)) : inventory;
-    targetVehicles = scopedInventory.slice(0, limit);
   }, { scope: state, label: `enricher-read:${state}/${brand?.name || 'unknown'}` });
 
   if (inventoryReadFailed) return;
@@ -567,7 +601,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
       } catch {
         freshCache = {};
       }
-      const merged = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+      const merged = { ...Object.fromEntries(seededCacheEntries), ...freshCache, ...Object.fromEntries(newCacheEntries) };
       await writeJsonLarge(CACHE_PATH, merged);
     }, { scope: state, label: `enricher-checkpoint:${state}/${brand?.name || 'unknown'}` });
   }
@@ -616,7 +650,7 @@ export async function runEnrichmentPipeline(limit = Infinity, brand = null, dbRu
     cache = null;
 
     const mergedInventory = mergeEnrichedRecordsIntoInventory({ freshInventory, enrichedByVin, brand });
-    const mergedCache = { ...freshCache, ...Object.fromEntries(newCacheEntries) };
+    const mergedCache = { ...Object.fromEntries(seededCacheEntries), ...freshCache, ...Object.fromEntries(newCacheEntries) };
     freshInventory = null;
     freshCache = null;
 
