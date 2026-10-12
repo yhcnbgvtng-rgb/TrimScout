@@ -9,6 +9,7 @@ import { getRfq, getRfqInviteByViewToken, postDealStage, RfqApiError, submitRfqQ
 import { isStagedRfq } from "@/lib/dealStages";
 import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, verifyAcceptedQuote } from "@/lib/acceptCounter";
 import { isTaxLine } from "@/lib/counterSheet";
+import { activeOverrides } from "@/lib/feeOverride";
 import { validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { sendCounterAcceptedNotice } from "@/lib/dealerEmail";
@@ -50,7 +51,9 @@ export async function POST(req: Request) {
   // Only the tax amounts come from the dealer; everything else is the counter's own sheet.
   const after = counter.sheet.after as UsedCashQuote;
   const submittedTax = (submitted.dueAtSigning || []).find((l) => isTaxLine(l.name))?.amount ?? 0;
-  const used = buildAcceptedQuote(after, submittedTax, counter.sentAt);
+  const built = buildAcceptedQuote(after, submittedTax, counter.sentAt);
+  // Overrides carried over from the quote this counter answered survive only while the line still equals the dealer's amount.
+  const used = { ...built, feeOverrides: activeOverrides(built).length ? activeOverrides(built) : null };
   const vin = (invite.vehicle?.vin || rfq.vin).toUpperCase();
   const stockNumber = used.stockNumber || rfq.stockNumber;
   const car = rfqVehicles(rfq).find((c) => c.vin === vin) || rfqVehicles(rfq)[0] || null;

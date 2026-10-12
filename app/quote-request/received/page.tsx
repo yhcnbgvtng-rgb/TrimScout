@@ -18,6 +18,7 @@ import { DealerStagePanel } from "../../../components/DealerStagePanel";
 import type { DealStageState } from "../../../lib/dealStages";
 import { DealerTradePanel } from "../../../components/trade/DealerTradePanel";
 import { SiteFooter } from "../../../components/SiteFooter";
+import { DealThreadPanel } from "../../../components/DealThreadPanel";
 import type { QuotePrefs } from "../../../lib/usedQuote";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
@@ -137,7 +138,8 @@ function ReceivedBody() {
         </div>
       </header>
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 space-y-6">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:grid lg:grid-cols-[minmax(0,48rem)_340px] lg:items-start lg:justify-center lg:gap-8" data-testid="quote-screen">
+        <div className="space-y-6">
           <div className="space-y-1">
             <h1 className="text-2xl font-black text-white tracking-tight">{ctx?.quotePrefs ? `${ctx.quotePrefs.quoteType === "finance" ? "Finance" : "Cash"} quote request` : ctx?.leasePrefs ? "Lease quote request" : "Quote request"}</h1>
             {title ? (
@@ -320,6 +322,8 @@ function ReceivedBody() {
           <p className="text-xs text-ink-faint">
             We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.
           </p>
+        </div>
+        {token && ctx && !error ? <DealThreadPanel endpoint={`/api/quote-invite/thread?t=${encodeURIComponent(token)}${preview ? "&preview=1" : ""}`} viewer="dealer" seenKey={`thread-seen:dealer:${token}`} heading="Conversation with the buyer" /> : null}
         </div>
       </main>
       <SiteFooter />

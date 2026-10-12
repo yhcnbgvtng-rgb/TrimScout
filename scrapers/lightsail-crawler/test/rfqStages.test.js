@@ -165,6 +165,17 @@ describe('handler: scoped audit keys are pinned to their side', () => {
   });
 });
 
+// The mirror also carries the later 2026-10-11 rfq-messages patch (which is applied after this one); take it out so this
+// patch is tested against the text it was written for.
+function withoutMessagesPatch(text) {
+  return text
+    .replace('import { createRfqMessagesHandler } from "./rfqMessages.js";\n', '')
+    .replace('  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS messages_json TEXT NULL");\n', '')
+    .replace(/    \/\/ This desk's buyer <-> dealer chat[^\n]*\n    messages: parseJsonCol\(row\.messages_json\) \|\| \[\],\n/, '')
+    .replace(/\/\/ POST \/api\/rfqs\/:id\/invites\/:inviteId\/messages[\s\S]*?\n\}\);\n\n/, '')
+    .replace(/  const rfqInviteMessagesMatch[\s\S]*?\n  \}\n/, '');
+}
+
 describe('box patch script', () => {
   const mirror = path.join(SRC, 'deals_api_server.js');
   const run = (file) => execFileSync('bash', [PATCH], { env: { ...process.env, TEST_ONLY: '1', FILE: file }, encoding: 'utf8' });
@@ -174,7 +185,7 @@ describe('box patch script', () => {
   it('applies once, then is a no-op, to the pre-patch server text', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'stages-'));
     const f = path.join(dir, 'deals_api_server.js');
-    const src = fs.readFileSync(mirror, 'utf8')
+    const src = withoutMessagesPatch(fs.readFileSync(mirror, 'utf8'))
       .replace(/^import \{ createRfqStageHandler \}.*\n/m, '')
       .replace(/^  await pool\.query\("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS stage_json TEXT NULL"\);\n/m, '')
       .replace(/^    \/\/ Staged Cash.*\n    stage: parseJsonCol.*\n/m, '')
@@ -183,7 +194,7 @@ describe('box patch script', () => {
     assert.doesNotMatch(src, /createRfqStageHandler/);
     fs.writeFileSync(f, src);
     assert.match(run(f), /applied: import, column, invite mapper, handler, route/);
-    assert.equal(fs.readFileSync(f, 'utf8'), fs.readFileSync(mirror, 'utf8'));
+    assert.equal(fs.readFileSync(f, 'utf8'), withoutMessagesPatch(fs.readFileSync(mirror, 'utf8')));
     assert.match(run(f), /nothing \(already present\)/);
   });
 });

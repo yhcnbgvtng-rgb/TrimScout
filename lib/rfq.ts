@@ -103,6 +103,14 @@ export interface BuyerCounter {
   sentAt: string;
 }
 
+/** One chat message on a desk's quote (box: rfq_invites.messages_json). Belongs to exactly one invite. */
+export interface DealMessage {
+  id: string;
+  from: "buyer" | "dealer";
+  text: string;
+  at: string;
+}
+
 export interface RfqInvite {
   id: string;
   dealerName: string;
@@ -143,6 +151,8 @@ export interface RfqInvite {
   tradePhotosNotifiedAt?: string | null;
   /** Staged Cash / Finance deal state for this desk (lib/dealStages.ts); null until its first action. */
   stage?: DealStageState | null;
+  /** This desk's buyer <-> dealer chat, oldest first. Needs the 2026-10-11 rfq-messages box patch; absent before it. */
+  messages?: DealMessage[];
   /**
    * Set when the buyer accepted a different dealer's offer (lib/rfqClose.ts): this desk's quote is closed and can no
    * longer be countered or revised. Walking away stays possible. The box refuses new quotes/counters/stage moves.

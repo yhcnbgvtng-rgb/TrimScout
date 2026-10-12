@@ -8,6 +8,7 @@ import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
+import { DealThreadPanel } from "@/components/DealThreadPanel";
 import { StagedDeals } from "../../../components/StagedDeals";
 import { AddTradeInPrompt } from "../../../components/AddTradeInPrompt";
 import { isStagedRfq } from "../../../lib/dealStages";
@@ -427,6 +428,7 @@ export default function RfqWorkspacePage() {
   const [pickError, setPickError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const [walking, setWalking] = useState(false);
+  const [threadInviteId, setThreadInviteId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/rfqs/${rfqId}`, { headers: guest.headers });
@@ -519,7 +521,11 @@ export default function RfqWorkspacePage() {
     rfq.dealReference || null,
   ].filter(Boolean).join(" · ");
 
+  const threadInvites = rfq.invites.filter((i) => i.status !== "declined" && i.status !== "expired");
+  const threadInvite = threadInvites.find((i) => i.id === threadInviteId) || threadInvites.find((i) => i.quote) || threadInvites[0] || null;
+
   return (
+    <div className="mx-auto max-w-[96rem] lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-2 lg:pr-8" data-testid="deal-screen">
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
       <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl font-black text-white">Your Quote Request</h1>
@@ -726,6 +732,24 @@ export default function RfqWorkspacePage() {
         </div>
       )}
       <SiteFooter className="mt-12" />
+    </div>
+    {threadInvite ? (
+      <div className="lg:py-10">
+        <DealThreadPanel
+          key={threadInvite.id}
+          endpoint={`/api/rfqs/${rfq.id}/invites/${threadInvite.id}/thread`}
+          viewer="buyer"
+          headers={guest.headers}
+          seenKey={`thread-seen:buyer:${rfq.id}:${threadInvite.id}`}
+          heading={`Conversation with ${threadInvite.dealerName}`}
+          headerExtra={threadInvites.length > 1 ? (
+            <select value={threadInvite.id} onChange={(e) => setThreadInviteId(e.target.value)} aria-label="Choose a dealer conversation" data-testid="thread-dealer-select" className="mt-1.5 w-full rounded-lg border border-border bg-background px-2 py-1 text-[11px] text-white">
+              {threadInvites.map((i) => <option key={i.id} value={i.id}>{i.dealerName}</option>)}
+            </select>
+          ) : null}
+        />
+      </div>
+    ) : null}
     </div>
   );
 }

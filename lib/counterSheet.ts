@@ -14,6 +14,7 @@
 import { getZipCoordinates } from "./otdCalculator";
 import { dasTotal, monthlyPreTax, netCapCost, sumItems } from "./leaseMath";
 import type { LeaseQuote, LineItem } from "./leaseQuote";
+import type { FeeOverride } from "./feeOverride";
 import { cashOutTheDoor, financeMonthly, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "./usedQuote";
 
 export type CounterKind = "lease" | "finance" | "cash";
@@ -94,8 +95,12 @@ export function zipStateTax(zip: string | null | undefined): { rate: number; sta
 }
 
 /** Cash/finance sales tax: the ZIP-state rate on selling price + dealer add-ons. With no usable ZIP the line stays exactly as quoted — a typed value never gets through. */
-function retax(lines: LineItem[], quoted: LineItem[], sellingPrice: number, addOns: LineItem[], zip: string | null | undefined): LineItem[] {
+function retax(lines: LineItem[], quoted: LineItem[], sellingPrice: number, addOns: LineItem[], zip: string | null | undefined, overrides?: FeeOverride[] | null): LineItem[] {
   const t = zipStateTax(zip);
+  // A sales tax the dealer overrode (lib/feeOverride.ts) is never silently replaced by TrimScout's figure: it stays as the dealer
+  // quoted it, and the dealer is still prompted to review it when the price moves (TAX_PROMPT_COPY).
+  const kept = quoted.find((q) => isTaxLine(q.name) && (overrides || []).some((o) => o.key === "sales_tax" && Math.abs(o.amount - q.amount) < 0.005));
+  if (kept) return lines.map((l) => (isTaxLine(l.name) ? { ...l, amount: kept.amount } : l));
   if (!t) return lines.map((l) => (isTaxLine(l.name) ? { ...l, amount: quoted.find((q) => q.name === l.name)?.amount ?? l.amount } : l));
   const tax = r2(Math.max(0, t.rate * (sellingPrice + sumItems(addOns))));
   return lines.map((l) => (isTaxLine(l.name) ? { ...l, amount: tax } : l));
@@ -171,7 +176,7 @@ export function applyFinanceCounter(before: UsedFinanceQuote, edits: UsedCounter
   const downPayment = edits.downPayment ?? before.downPayment;
   const addOns = (edits.addOns ?? before.addOns).filter((a) => a.name.trim());
   const rebates = (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim());
-  const dueAtSigning = retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip);
+  const dueAtSigning = retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip, before.feeOverrides);
   // Amount financed moves by exactly the change in what's rolled in — the dealer's own tax/title
   // treatment (whatever it was) is preserved through the delta rather than re-derived.
   const delta = sellingPrice - before.sellingPrice + (sumItems(addOns) - sumItems(before.addOns)) + (sumItems(dueAtSigning) - sumItems(before.dueAtSigning)) - (sumItems(rebates) - sumItems(before.rebates ?? [])) - (downPayment - before.downPayment);
@@ -201,7 +206,7 @@ export function applyCashCounter(before: UsedCashQuote, edits: UsedCounterEdits,
     addOns,
     noAddOns: addOns.every((a) => !(a.amount > 0)),
     rebates: (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim()),
-    dueAtSigning: retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip),
+    dueAtSigning: retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip, before.feeOverrides),
   };
 }
 
