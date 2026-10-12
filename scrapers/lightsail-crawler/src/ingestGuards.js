@@ -18,7 +18,7 @@ const MSRP_RATIO_LOW = 9;
 const MSRP_RATIO_HIGH = 11;
 const MIN_MSRP_FOR_RATIO = 5_000; // below this the "msrp" is usually a fee/teaser, not a real MSRP, so a ratio proves nothing
 
-const keyOf = (s) => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]/g, '');
+export const keyOf = (s) => String(s == null ? '' : s).toLowerCase().replace(/[^a-z0-9]/g, '');
 
 // Makes whose cars routinely list above the ceiling.
 const EXOTIC_MAKES = new Set([
@@ -28,10 +28,10 @@ const EXOTIC_MAKES = new Set([
 // Porsche's GT cars (911 GT3 RS/GT2 RS, 918, ...) really do list above $300k, usually at 0.8-1.5x their own MSRP, and the
 // feed sometimes carries a nonsense MSRP for them (498, 799), so a ceiling there would erase real prices. Found in the live
 // data 2026-10-07: 175 in-stock Porsches over $300k.
-const CEILING_EXEMPT_MAKES = new Set(['porsche']);
+export const CEILING_EXEMPT_MAKES = new Set(['porsche']);
 // Collectible / halo models of mainstream makes whose used prices pass $300k (checked against the live data: Corvette ZR1/ZR1X,
 // Dodge Viper, Mercedes-AMG G 63 / Black Series, Acura NSX, Ford GT, Lexus LFA, Nissan GT-R).
-const COLLECTIBLE_MODEL_RE = /\b(viper|zr1x?|ford gt|nsx|lfa|gt-?r|black series|g[ -]?6[37]|amg gt)\b/i;
+export const COLLECTIBLE_MODEL_RE = /\b(viper|zr1x?|ford gt|nsx|lfa|gt-?r|black series|g[ -]?6[37]|amg gt)\b/i;
 
 export function isExoticMake(make) {
   return EXOTIC_MAKES.has(keyOf(make));
