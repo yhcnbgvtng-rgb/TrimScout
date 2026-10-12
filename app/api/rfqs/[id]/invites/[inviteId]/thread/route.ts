@@ -1,13 +1,14 @@
 // GET  /api/rfqs/:id/invites/:inviteId/thread        — the buyer's conversation with ONE dealer on their request.
-// POST /api/rfqs/:id/invites/:inviteId/thread { text } — the buyer posts a message to that dealer.
-// One thread per dealer, never merged (lib/dealThread.ts builds it from that invite only). Buyer-authenticated like the
-// stage route; the other desks' quotes, notes and messages are not reachable from here. Contact details are refused.
+// POST /api/rfqs/:id/invites/:inviteId/thread { text } — the buyer posts a message to that dealer (screened: lib/chatSend.ts).
+// One thread per dealer, never merged (lib/dealThread.ts builds it from that invite only). Buyer-authenticated like the stage route; the
+// other desks' quotes, notes and messages are not reachable from here. Nothing identifying goes through, in either direction.
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { getRfq, postRfqMessage, RfqApiError } from "@/lib/rfqApi";
+import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { buildThread, canPostToThread, isFinallyAccepted, MAX_CHAT_LENGTH } from "@/lib/dealThread";
-import { findIdentityInfo } from "@/lib/identityFilter";
+import { hasAttachment } from "@/lib/identityFilter";
+import { sendWithGuard } from "@/lib/chatSend";
 
 async function authorize(req: Request, id: string, inviteId: string) {
   const session = await auth();
@@ -31,6 +32,7 @@ function payload(rfq: NonNullable<Awaited<ReturnType<typeof getRfq>>>, invite: N
     entries: buildThread(rfq, invite, "buyer"),
     canPost: gate.ok,
     readOnlyReason: gate.ok ? null : gate.reason,
+    paused: false,
     finalAccepted: isFinallyAccepted(rfq, invite),
     messaging: Array.isArray(invite.messages),
     otherParty: invite.dealerName,
@@ -47,20 +49,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
   const { id, inviteId } = await params;
   const body = await req.json().catch(() => null);
+  if (hasAttachment(body)) return NextResponse.json({ error: "No images or files in chat." }, { status: 400 });
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   if (!text) return NextResponse.json({ error: "Write a message first." }, { status: 400 });
   if (text.length > MAX_CHAT_LENGTH) return NextResponse.json({ error: `Keep messages under ${MAX_CHAT_LENGTH} characters.` }, { status: 400 });
-  const found = findIdentityInfo(text);
-  if (found) return NextResponse.json({ error: `Messages can't include ${found}. Names, phone numbers (even spelled out), emails and addresses can't be shared here.` }, { status: 400 });
   const a = await authorize(req, id, inviteId).catch(() => ({ error: NextResponse.json({ error: "Could not send that message." }, { status: 502 }) }));
   if ("error" in a) return a.error;
   const gate = canPostToThread(a.rfq, a.invite);
   if (!gate.ok) return NextResponse.json({ error: gate.reason }, { status: 409 });
   try {
-    await postRfqMessage(id, inviteId, { kind: "message", from: "buyer", text });
+    const outcome = await sendWithGuard({ rfqId: id, inviteId, from: "buyer", text, dealerName: a.invite.dealerName });
     const fresh = await getRfq(id);
     const invite = fresh?.invites.find((i) => i.id === inviteId) ?? a.invite;
-    return NextResponse.json(payload(fresh ?? a.rfq, invite));
+    return NextResponse.json({ ...payload(fresh ?? a.rfq, invite), outcome });
   } catch (err) {
     const status = err instanceof RfqApiError ? err.status : 502;
     return NextResponse.json({ error: err instanceof RfqApiError ? err.message : "Could not send that message." }, { status });

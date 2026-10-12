@@ -96,7 +96,7 @@ describe("isolation: each dealer sees only their own thread", () => {
     const d = read("app/api/quote-invite/thread/route.ts");
     assert.match(d, /getRfqInviteByViewToken\(token\)/);
     assert.match(d, /rfq\.invites\.find\(\(i\) => i\.id === found\.invite\.id\)/);
-    assert.match(d, /buildThread\(rfq, invite, "dealer"\)/);
+    assert.match(d, /buildThread\(row\.rfq, row\.invite, "dealer"\)/);
     assert.doesNotMatch(d, /rfq\.invites\.(map|filter|flatMap)/);
     const b = read("app/api/rfqs/[id]/invites/[inviteId]/thread/route.ts");
     assert.match(b, /rfq\.buyerUserId !== buyer\.id/);
@@ -104,12 +104,13 @@ describe("isolation: each dealer sees only their own thread", () => {
     assert.match(b, /buildThread\(rfq, invite, "buyer"\)/);
     assert.doesNotMatch(b, /rfq\.invites\.(map|filter|flatMap)/);
   });
-  it("posting is token/buyer scoped and rejects contact info before it reaches the box", () => {
+  it("posting is token/buyer scoped and goes through the guard, never straight to the box", () => {
     for (const f of ["app/api/quote-invite/thread/route.ts", "app/api/rfqs/[id]/invites/[inviteId]/thread/route.ts"]) {
       const r = read(f);
-      assert.match(r, /findIdentityInfo\(text\)/, f);
+      assert.match(r, /sendWithGuard\(/, f);
       assert.match(r, /canPostToThread\(/, f);
-      assert.match(r, /postRfqMessage\(/, f);
+      assert.match(r, /hasAttachment\(body\)/, f);
+      assert.doesNotMatch(r, /postChatMessage\(|postRfqMessage\(/, f);
     }
   });
 });
@@ -175,10 +176,10 @@ describe("privacy: no buyer contact info before final acceptance", () => {
     assert.doesNotMatch(JSON.stringify(buildThread(r, pre, "dealer")), /555-0147/);
     assert.match(JSON.stringify(buildThread(r, pre, "buyer")), /555-0147/);
   });
-  it("new messages with contact info are refused in the panel before sending", () => {
+  it("the panel doesn't pre-check or hint at what trips the filter: the server screens, logs and answers with a plain note", () => {
     const src = read("components/DealThreadPanel.tsx");
-    assert.match(src, /findIdentityInfo\(text\)/);
-    assert.match(src, /canSend = Boolean\(data\?\.canPost && data\.messaging\) && !sending && text\.trim\(\)\.length > 0 && !blocked/);
+    assert.doesNotMatch(src, /findIdentityInfo|findContactInfo/);
+    assert.match(src, /canSend = Boolean\(data\?\.canPost && data\.messaging\) && !sending && text\.trim\(\)\.length > 0;/);
   });
 });
 
