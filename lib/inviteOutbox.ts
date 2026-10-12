@@ -28,6 +28,7 @@ import { LEASE_TIMELINE_LABELS, rfqVehicles } from "./rfqTracker";
 import { rfqIsReleased, type RfqInvite, type RfqRequest } from "./rfq";
 import { alternateAskSummary } from "./alternateAsk";
 import { dealersOwedNotSelected, invitesToClose } from "./rfqClose";
+import { buildBuyerDetailsEmail } from "./dealStageNotice";
 
 export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "failed";
 
@@ -219,4 +220,48 @@ export async function closeOutLosers(rfq: RfqRequest, winnerInviteId: string, de
     out[await sendNotSelectedNotice(rfq, invite, deps)]++;
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// "Deal accepted, here's your buyer": the buyer tapped "Accept final deal", so the WINNING dealer gets the buyer's name, email,
+// phone and ZIP, plus the agreed numbers. This is the only email in the app that carries buyer contact details.
+// Same outbox rules as every other dealer email: the release gate and the email switch apply, and the send goes through the SAFE MODE
+// sender, which has no `to` parameter, so SAFE MODE, audit=1 and buyer-test-mode deals can only ever reach SAFE_MODE_RECIPIENT.
+// The details come from the winning invite's own stage state (never from the request payload), and only a deal that is
+// finally accepted and carries a release is ever sent; losing, walked and unaccepted deals have none.
+// ---------------------------------------------------------------------------
+export type BuyerDetailsResult = "sent" | "not_accepted" | "parked_switch_off" | "held_for_approval" | "not_winner" | "failed";
+
+export async function sendBuyerDetailsRelease(
+  rfq: RfqRequest,
+  invite: RfqInvite,
+  deps: { send?: typeof sendQuoteInviteEmail; emailEnabled?: () => boolean } = {}
+): Promise<BuyerDetailsResult> {
+  const count = rfqIsTestOrAudit(rfq) ? () => {} : bump;
+  try {
+    const stage = invite.stage;
+    if (!stage || stage.stage !== "closed" || stage.final?.status !== "accepted" || !stage.release || !stage.final.summary) return "not_accepted";
+    if (invite.notSelectedAt) return "not_winner";
+    if (!rfqIsReleased(rfq)) return "held_for_approval";
+    if (!(deps.emailEnabled || (() => featureEnabled("outboundDealerEmail")))()) {
+      count("buyerdetails_parked_switch_off");
+      return "parked_switch_off";
+    }
+    const vehicle = [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
+    const mail = buildBuyerDetailsEmail({
+      dealerName: invite.dealerName,
+      vehicle,
+      dealReference: dealerReference(rfq.id, invite.id),
+      summary: stage.final.summary,
+      contact: stage.release.contact,
+      url: `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken || "")}`,
+    });
+    const tagged = safeModeTag(invite.dealerName, mail.subject, mail.html);
+    const ok = await (deps.send || sendQuoteInviteEmail)(tagged.subject, tagged.html);
+    count(ok ? "buyerdetails_sent" : "buyerdetails_failed");
+    return ok ? "sent" : "failed";
+  } catch {
+    count("buyerdetails_failed");
+    return "failed";
+  }
 }

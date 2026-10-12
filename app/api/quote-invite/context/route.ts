@@ -6,7 +6,7 @@ import { requireAdminSession } from "@/lib/adminAuth";
 import { dealerReference } from "@/lib/dealerReference";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
-import { isStagedRfq, stageOf } from "@/lib/dealStages";
+import { isStagedRfq, stageForDealer, stageOf } from "@/lib/dealStages";
 import { cashOutTheDoor } from "@/lib/usedQuote";
 import { recheckPendingStickers, type StickerRecheckHit } from "@/lib/stickerRecheck";
 
@@ -58,7 +58,8 @@ export async function GET(req: Request) {
     quotePrefs: rfq.quotePrefs || null,
     // Staged Cash / Finance deal (OTD -> trade-in -> payment): this desk's state and its current quoted OTD.
     staged: isStagedRfq(rfq),
-    stage: stageOf(rfq, invite),
+    // The buyer's released details ride along only on the winning deal after final acceptance (stageForDealer drops them otherwise).
+    stage: stageForDealer(stageOf(rfq, invite), { notSelected: Boolean(invite.notSelectedAt) }),
     quotedOtd: invite.quote?.used?.kind === "cash" && !invite.quote.supersededAt ? cashOutTheDoor(invite.quote.used) : null,
     inviteStatus: invite.status,
     rfqStatus: rfq.status,
