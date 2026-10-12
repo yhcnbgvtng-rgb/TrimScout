@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { COUNTER_COPY, type CounterEditsPayload } from "../lib/buyerCounter";
-import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, isTaxLine, zipStateTax, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
+import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, isLockedFee, isTaxLine, zipStateTax, formatRatePercent, validateCounterSheet, counterPriceChanged, TAX_UPDATE_NOTE, type CounterKind, type CounterSheet, type LeaseCounterEdits, type UsedCounterEdits } from "../lib/counterSheet";
 import type { LeaseQuote, LineItem } from "../lib/leaseQuote";
 import type { UsedQuote } from "../lib/usedQuote";
 import { CounterComparison } from "./CounterComparison";
@@ -144,7 +144,7 @@ export function CounterSheetForm({
           ) : null}
           {fees.map((l, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
-              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{autoTax(l.name) ? ` (auto · ${taxInfo!.state} ${(taxInfo!.rate * 100).toFixed(2)}% of price + add-ons)` : feeEditable(l.name) ? "" : " (fixed)"}</span>
+              <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{autoTax(l.name) ? ` (auto · ${taxInfo!.state} ${formatRatePercent(taxInfo!.rate)}% of price + add-ons)` : feeEditable(l.name) ? "" : " (fixed)"}</span>
               <input value={autoTax(l.name) && sheet && sheet.kind !== "lease" ? String((sheet.after as UsedQuote).dueAtSigning.find((x) => x.name === l.name)?.amount ?? l.amount) : l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name) || autoTax(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
               {feeEditable(l.name) ? <button type="button" onClick={() => strike(fees, setFees, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this fee">strike</button> : null}
             </div>
