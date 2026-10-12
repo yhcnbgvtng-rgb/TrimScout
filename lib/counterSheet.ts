@@ -11,7 +11,7 @@
  * Pure and client-safe: the form, the route and the comparison page share
  * these. Still "a request, not a binding bid".
  */
-import { getStateTaxRate, getZipCoordinates } from "./otdCalculator";
+import { getZipCoordinates } from "./otdCalculator";
 import { dasTotal, monthlyPreTax, netCapCost, sumItems } from "./leaseMath";
 import type { LeaseQuote, LineItem } from "./leaseQuote";
 import { cashOutTheDoor, financeMonthly, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "./usedQuote";
@@ -67,12 +67,30 @@ export function isTaxLine(name: string): boolean {
   return /tax/i.test(name) && !/title|registr/i.test(name);
 }
 
+/**
+ * Each state's own mandated motor-vehicle sales/excise rate, as an exact fraction (NJ 0.06625 = 6.625%) —
+ * never rounded, and not the combined state+local averages the ZIP estimator uses. Local add-ons are not included.
+ */
+export const STATE_SALES_TAX_RATES: Record<string, number> = {
+  AL: 0.02, AK: 0, AZ: 0.056, AR: 0.065, CA: 0.0725, CO: 0.029, CT: 0.0635, DE: 0, DC: 0.06, FL: 0.06,
+  GA: 0.07, HI: 0.04, ID: 0.06, IL: 0.0625, IN: 0.07, IA: 0.05, KS: 0.065, KY: 0.06, LA: 0.0445, ME: 0.055,
+  MD: 0.06, MA: 0.0625, MI: 0.06, MN: 0.06875, MS: 0.05, MO: 0.04225, MT: 0, NE: 0.055, NV: 0.0685, NH: 0,
+  NJ: 0.06625, NM: 0.04, NY: 0.04, NC: 0.03, ND: 0.05, OH: 0.0575, OK: 0.045, OR: 0, PA: 0.06, RI: 0.07,
+  SC: 0.05, SD: 0.04, TN: 0.07, TX: 0.0625, UT: 0.0485, VT: 0.06, VA: 0.0415, WA: 0.065, WV: 0.06, WI: 0.05, WY: 0.04,
+};
+
+/** A rate as a percent with every decimal it has — 0.06625 → "6.625", 0.07 → "7". */
+export function formatRatePercent(rate: number): string {
+  return String(Number((rate * 100).toFixed(6)));
+}
+
 /** State sales-tax rate for the buyer's ZIP (the ZIP's state, not the dealer's); null when there's no usable ZIP. */
 export function zipStateTax(zip: string | null | undefined): { rate: number; state: string } | null {
   const z = String(zip || "").trim();
   if (!/^\d{5}$/.test(z)) return null;
   const state = getZipCoordinates(z).state;
-  return { rate: getStateTaxRate(state), state };
+  const rate = STATE_SALES_TAX_RATES[state];
+  return rate == null ? null : { rate, state };
 }
 
 /** Cash/finance sales tax: the ZIP-state rate on selling price + dealer add-ons. With no usable ZIP the line stays exactly as quoted — a typed value never gets through. */
