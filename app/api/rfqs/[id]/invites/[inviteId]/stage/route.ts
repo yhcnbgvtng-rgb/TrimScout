@@ -13,7 +13,7 @@ import { buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
 import { zipStateTax } from "@/lib/counterSheet";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
-import { closeOutLosers } from "@/lib/inviteOutbox";
+import { closeOutLosers, sendBuyerDetailsRelease } from "@/lib/inviteOutbox";
 import { isNotSelected } from "@/lib/rfqClose";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
@@ -39,7 +39,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (isNotSelected(invite) && action.type !== "walk") return NextResponse.json({ error: "You chose a different dealer, so this quote is closed." }, { status: 409 });
 
     const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : null;
-    const result = await postDealStage(id, inviteId, { action: action as unknown as Record<string, unknown>, actor: "buyer", state: zipStateTax(zip)?.state ?? null });
+    // The buyer's details are assembled here, from the signed-in buyer (or the guest's own email), and sent to the box ONLY with
+    // accept_final: no other action carries them, and the box stores them on this dealer's deal alone.
+    const user = (session?.user ?? {}) as { name?: string | null; phone?: string | null };
+    const buyerContact = action.type === "accept_final"
+      ? { name: user.name ?? null, email: buyer.email ?? session?.user?.email ?? null, phone: user.phone ?? null, zip: zip ?? null }
+      : undefined;
+    const result = await postDealStage(id, inviteId, { action: action as unknown as Record<string, unknown>, actor: "buyer", state: zipStateTax(zip)?.state ?? null, ...(buyerContact ? { buyerContact } : {}) });
 
     // Tell the desk. Best effort: the move is already saved and shows on their quote page.
     if (invite.viewToken) {
@@ -55,6 +61,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     // Accepting the out-the-door price is the buyer's choice of dealer: close and thank everyone else, once.
     if (action.type === "accept_otd" && result.stage.otd.status === "locked") after(async () => { await closeOutLosers(rfq, inviteId); });
+    // Final acceptance: introduce the buyer to the winning dealer, once, through the outbox (SAFE MODE routing applies).
+    if (action.type === "accept_final" && result.stage.release) {
+      const winner = result.rfq.invites.find((i) => i.id === inviteId);
+      if (winner) after(async () => { await sendBuyerDetailsRelease(result.rfq, winner); });
+    }
     return NextResponse.json({ rfq: publicRfqForBuyer(result.rfq), stage: result.stage });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not update this deal.";

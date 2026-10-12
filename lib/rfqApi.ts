@@ -205,7 +205,7 @@ export async function submitBuyerCounter(rfqId: string, inviteId: string, counte
 export async function postDealStage(
   rfqId: string,
   inviteId: string,
-  input: { action: Record<string, unknown>; actor: "buyer" | "dealer"; state?: string | null }
+  input: { action: Record<string, unknown>; actor: "buyer" | "dealer"; state?: string | null; buyerContact?: Record<string, string | null> }
 ): Promise<{ rfq: RfqRequest; stage: DealStageState }> {
   try {
     const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/stage`, input);

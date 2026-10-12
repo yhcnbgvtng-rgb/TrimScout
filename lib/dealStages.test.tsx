@@ -31,6 +31,12 @@ const ctx = { otdAmount: 43749, hasTradeInOnFile: true, state: "NJ", taxRate: 0.
 const go = (s: DealStageState | null, a: StageAction, actor: "buyer" | "dealer") => { const r = applyStageAction(s, { ...a, actor }, ctx); assert.equal(r.ok, true, JSON.stringify(r)); return (r as { ok: true; state: DealStageState }).state; };
 const atTrade = () => go(initialStageState({ tradeInExpected: true }), { type: "accept_otd" }, "buyer");
 const atPayment = () => go(go(atTrade(), { type: "trade_offer", value: 9000 }, "dealer"), { type: "trade_accept" }, "buyer");
+const CONTACT = { name: "Pat Buyer", email: "pat@example.com", phone: "555-0100", zip: "07030" };
+const finalAccepted = (): DealStageState => {
+  const r = applyStageAction(go(atPayment(), { type: "choose_cash" }, "buyer"), { type: "accept_final", actor: "buyer" }, { ...ctx, buyerContact: CONTACT });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  return (r as { ok: true; state: DealStageState }).state;
+};
 
 describe("staged flag and helpers", () => {
   it("only a cash request marked staged is staged; lease and old cash/finance requests are not", () => {
@@ -55,11 +61,11 @@ describe("staged flag and helpers", () => {
   });
   it("labels: the tracker calls it Cash / Finance; summaries read in plain words", () => {
     assert.equal(rfqQuoteTypeLabel(rfqOf([])), "Cash / Finance");
-    assert.equal(stageSummary(initialStageState({})), "Stage 1 of 3: out-the-door price");
+    assert.equal(stageSummary(initialStageState({})), "Stage 1 of 4: out-the-door price");
     assert.match(stageSummary(atTrade()), /waiting for the dealer's trade-in offer/);
-    assert.match(stageSummary(go(atPayment(), { type: "choose_cash" }, "buyer")), /Closed: paying cash/);
+    assert.match(stageSummary(go(atPayment(), { type: "choose_cash" }, "buyer")), /review and accept the final deal/);
     assert.match(stageSummary(go(atTrade(), { type: "walk" }, "buyer")), /Walked away at Trade-in/);
-    assert.deepEqual(stageProgress(atPayment()).map((s) => s.state), ["locked", "locked", "current"]);
+    assert.deepEqual(stageProgress(atPayment()).map((s) => s.state), ["locked", "locked", "current", "upcoming"]);
   });
 });
 
@@ -86,17 +92,17 @@ describe("rollout gate: FEATURE_DEAL_STAGES", () => {
 
 describe("what each side may ask for", () => {
   it("buyer: accept / counter / cash / finance / walk only; dealer: offer / accept counter / quote / walk only", () => {
-    for (const t of ["accept_otd", "trade_counter", "trade_accept", "choose_cash", "request_finance", "finance_accept", "walk"]) assert.ok(parseStageAction({ type: t }, "buyer"), `buyer ${t}`);
-    for (const t of ["trade_offer", "trade_accept_counter", "finance_quote", "walk"]) assert.ok(parseStageAction({ type: t }, "dealer"), `dealer ${t}`);
-    for (const t of ["trade_offer", "trade_accept_counter", "finance_quote"]) assert.equal(parseStageAction({ type: t }, "buyer"), null, `buyer must not ${t}`);
-    for (const t of ["choose_cash", "finance_accept", "request_finance", "trade_counter", "trade_accept", "accept_otd"]) assert.equal(parseStageAction({ type: t }, "dealer"), null, `dealer must not ${t}`);
+    for (const t of ["accept_otd", "trade_counter", "trade_accept", "choose_cash", "choose_own_financing", "request_finance", "finance_counter", "finance_accept", "change_payment", "accept_final", "walk"]) assert.ok(parseStageAction({ type: t }, "buyer"), `buyer ${t}`);
+    for (const t of ["trade_offer", "trade_hold", "trade_accept_counter", "finance_quote", "finance_hold", "finance_accept_counter", "walk"]) assert.ok(parseStageAction({ type: t }, "dealer"), `dealer ${t}`);
+    for (const t of ["trade_offer", "trade_hold", "trade_accept_counter", "finance_quote", "finance_hold", "finance_accept_counter"]) assert.equal(parseStageAction({ type: t }, "buyer"), null, `buyer must not ${t}`);
+    for (const t of ["choose_cash", "choose_own_financing", "finance_accept", "finance_counter", "request_finance", "change_payment", "accept_final", "trade_counter", "trade_accept", "accept_otd"]) assert.equal(parseStageAction({ type: t }, "dealer"), null, `dealer must not ${t}`);
     assert.equal(parseStageAction({ type: "bid_up" }, "buyer"), null);
     assert.equal(parseStageAction(null, "buyer"), null);
   });
   it("drops fields the action doesn't read, so a browser can't send its own OTD or tax rate", () => {
     assert.deepEqual(parseStageAction({ type: "accept_otd", otdAmount: 1, amount: 1, taxRate: 0 }, "buyer"), { type: "accept_otd" });
     const a = parseStageAction({ type: "request_finance", downPayment: "5000", outsideFinancing: true, termMonths: 60, trueOtd: 1 }, "buyer");
-    assert.deepEqual(a, { type: "request_finance", downPayment: "5000", termMonths: 60, outsideFinancing: true });
+    assert.deepEqual(a, { type: "request_finance", downPayment: "5000", termMonths: 60, outsideFinancing: true, creditRange: null });
     assert.deepEqual(parseStageAction({ type: "trade_offer", value: 9000, basis: "weird" }, "dealer"), { type: "trade_offer", value: 9000, basis: "preliminary" });
   });
 });
@@ -120,12 +126,16 @@ describe("notice emails: SAFE MODE, to the other side, never a bid", () => {
     const locked = atPayment();
     assert.match(n("buyer", { type: "trade_accept" }, locked)!.html, /True out-the-door = \$43,749 - \$9,000 = \$34,749/);
     assert.match(n("buyer", { type: "choose_cash" }, go(locked, { type: "choose_cash" }, "buyer"))!.html, /paying? cash|pay cash/i);
+    assert.match(n("buyer", { type: "choose_own_financing" }, go(locked, { type: "choose_own_financing", lenderName: "Navy Federal" }, "buyer"))!.html, /own financing[\s\S]*Navy Federal/);
     const asked = go(locked, { type: "request_finance", downPayment: 4000, outsideFinancing: true }, "buyer");
     assert.match(n("buyer", { type: "request_finance" }, asked)!.html, /\$30,749 to finance|\$30,749/);
     assert.match(n("buyer", { type: "request_finance" }, asked)!.html, /outside financing/);
-    const quoted = go(asked, { type: "finance_quote", apr: 5.9, termMonths: 60 }, "dealer");
-    assert.match(n("dealer", { type: "finance_quote" }, quoted)!.html, /5\.9% APR for 60 months/);
-    assert.match(n("buyer", { type: "finance_accept" }, go(quoted, { type: "finance_accept" }, "buyer"))!.html, /accepted your financing quote/);
+    const quoted = go(asked, { type: "finance_quote", apr: 5.9, termMonths: 60, lenderName: "Ally" }, "dealer");
+    assert.match(n("dealer", { type: "finance_quote" }, quoted)!.html, /5\.9% APR for 60 months through Ally/);
+    const fcountered = go(quoted, { type: "finance_counter", apr: 4.9 }, "buyer");
+    assert.match(n("buyer", { type: "finance_counter" }, fcountered)!.html, /4\.9% APR over 60 months/);
+    assert.match(n("dealer", { type: "finance_hold" }, go(fcountered, { type: "finance_hold" }, "dealer"))!.html, /holding at 5\.9% APR/i);
+    assert.match(n("buyer", { type: "finance_accept" }, go(quoted, { type: "finance_accept" }, "buyer"))!.html, /Financing agreed/);
     assert.match(n("dealer", { type: "walk" }, go(atTrade(), { type: "walk", reason: "price" }, "dealer"))!.html, /Dealer walked away|ended this deal/);
   });
   it("never states a calculated tax saving: only that the trade may lower sales tax and the dealer confirms", () => {
@@ -163,7 +173,7 @@ describe("routes and wiring", () => {
     const a = read("app/api/quote-invite/accept-counter/route.ts");
     assert.match(a, /isStagedRfq\(rfq\)[\s\S]*?postDealStage\(found\.rfqId, invite\.id, \{ action: \{ type: "accept_otd" \}, actor: "dealer" \}\)/);
     const c = read("app/api/quote-invite/context/route.ts");
-    assert.match(c, /staged: isStagedRfq\(rfq\)/); assert.match(c, /stage: stageOf\(rfq, invite\)/);
+    assert.match(c, /staged: isStagedRfq\(rfq\)/); assert.match(c, /stage: stageForDealer\(stageOf\(rfq, invite\), \{ notSelected: Boolean\(invite\.notSelectedAt\) \}\)/);
   });
   it("every dealer-side e-mail still goes through the SAFE MODE sender", () => {
     const e = read("lib/dealerEmail.ts");
@@ -214,7 +224,7 @@ describe("rendered panels", () => {
     const h = renderToStaticMarkup(<StagedDeals rfq={rfqOf([invite(null, { quote: null, status: "invited" })])} headers={{}} onRfq={() => {}} />);
     assert.doesNotMatch(h, /accept-otd/); assert.match(h, /Waiting for this dealer/);
   });
-  it("stage 2: waiting for an offer, then accept or counter once, then accept-or-walk after the counter is used", () => {
+  it("stage 2: waiting for an offer, then accept or counter, then waiting while the counter is with the dealer, then accept or counter again", () => {
     assert.match(html(atTrade()), /Waiting for their trade value|Your trade-in is with the dealer/);
     const offered = go(atTrade(), { type: "trade_offer", value: 9000 }, "dealer");
     const h = html(offered);
@@ -223,7 +233,8 @@ describe("rendered panels", () => {
     assert.match(html(countered), /Your counter is with the dealer/); assert.doesNotMatch(html(countered), /accept-trade/);
     const revised = go(countered, { type: "trade_offer", value: 10000 }, "dealer");
     const hr = html(revised);
-    assert.match(hr, /data-testid="accept-trade"/); assert.doesNotMatch(hr, /counter-trade/); assert.match(hr, /used your one counter/);
+    assert.match(hr, /data-testid="accept-trade"/); assert.match(hr, /data-testid="counter-trade"/, "the loop repeats: the buyer can counter again");
+    assert.match(hr, /data-testid="trade-counter-note"/); assert.match(hr, /data-testid="live-true-otd"[^>]*>True out-the-door if you accept \$10,000/);
   });
   it("stage 2 without the trade on file says so instead of pretending", () => {
     assert.match(html(atTrade(), { tradeIn: null }), /didn&#x27;t attach|didn't attach/);
@@ -231,17 +242,19 @@ describe("rendered panels", () => {
   it("stage 3: locked numbers with the true OTD and tax saving; pay cash or ask for financing", () => {
     const h = html(atPayment());
     assert.match(h, /data-testid="true-otd"[^>]*>\$34,749/); assert.match(h, /Trade-in may lower your sales tax — dealer will confirm/); assert.doesNotMatch(h, /trade-tax-savings|saving from trade/i);
-    assert.match(h, /data-testid="choose-cash"/); assert.match(h, /data-testid="request-financing"/);
-    assert.match(h, /outside financing to compare/);
+    assert.match(h, /data-testid="pay-cash"/); assert.match(h, /data-testid="pay-own"/); assert.match(h, /data-testid="pay-dealer"/);
+    assert.match(h, /Paying cash/); assert.match(h, /Bringing my own financing/); assert.match(h, /Get a financing offer from the dealer/);
+    assert.match(h, /data-testid="choose-cash"/);
   });
   it("stage 3 with a financing quote shows APR, term, monthly and the accept button", () => {
-    const quoted = go(go(atPayment(), { type: "request_finance", downPayment: 4000 }, "buyer"), { type: "finance_quote", apr: 5.9, termMonths: 60 }, "dealer");
+    const quoted = go(go(atPayment(), { type: "request_finance", downPayment: 4000 }, "buyer"), { type: "finance_quote", apr: 5.9, termMonths: 60, lenderName: "Ally" }, "dealer");
     const h = html(quoted);
-    assert.match(h, /data-testid="finance-quote"/); assert.match(h, /5\.9% APR/); assert.match(h, /60 months/); assert.match(h, /data-testid="accept-financing"/); assert.match(h, /data-testid="choose-cash"/);
+    assert.match(h, /data-testid="finance-quote"/); assert.match(h, /5\.9% APR/); assert.match(h, /60 months/); assert.match(h, /Ally/); assert.match(h, /data-testid="accept-financing"/); assert.match(h, /data-testid="counter-financing"/); assert.match(h, /data-testid="switch-to-cash"/);
+    assert.match(h, /data-testid="finance-math"[^>]*>\$34,749 true out-the-door - \$4,000 down = \$30,749 financed/);
   });
   it("closed and walked deals are final and offer no actions", () => {
-    const cash = html(go(atPayment(), { type: "choose_cash" }, "buyer"));
-    assert.match(cash, /data-testid="stage-closed"/); assert.match(cash, /Paying cash: \$34,749/); assert.doesNotMatch(cash, /choose-cash|walk-stage/);
+    const cash = html(finalAccepted());
+    assert.match(cash, /data-testid="stage-closed"/); assert.match(cash, /paying cash at \$34,749 out the door/); assert.doesNotMatch(cash, /choose-cash|walk-stage|accept-final/);
     const walked = html(go(atTrade(), { type: "walk" }, "dealer"));
     assert.match(walked, /data-testid="stage-walked"/); assert.match(walked, /dealer walked away/i); assert.doesNotMatch(walked, /accept-trade|walk-stage/);
   });
@@ -255,16 +268,16 @@ describe("rendered panels", () => {
     const h = renderToStaticMarkup(<StagedDeals rfq={rfq} headers={{}} onRfq={() => {}} />);
     assert.match(h, /data-testid="stage-overview"/);
     assert.equal((h.match(/data-testid="staged-deal-card"/g) || []).length, 2);
-    assert.match(h, /Stage 1 of 3/); assert.match(h, /Stage 3: pay cash or get financing/);
+    assert.match(h, /Stage 1 of 4/); assert.match(h, /Stage 3: pay cash, bring your own financing, or get a dealer offer/);
   });
   it("a closed request shows no actions even on an open stage", () => {
     const h = renderToStaticMarkup(<StagedDeals rfq={rfqOf([invite(atTrade())], { status: "picked" })} headers={{}} onRfq={() => {}} />);
     assert.doesNotMatch(h, /accept-trade|walk-stage/);
   });
   it("the progress bar renders locked numbers and a monthly for a financed close", () => {
-    const fin = go(go(go(atPayment(), { type: "request_finance", downPayment: 4000 }, "buyer"), { type: "finance_quote", apr: 5.9, termMonths: 60 }, "dealer"), { type: "finance_accept" }, "buyer");
+    const fin = go(go(go(atPayment(), { type: "request_finance", downPayment: 4000 }, "buyer"), { type: "finance_quote", apr: 5.9, termMonths: 60, lenderName: "Ally" }, "dealer"), { type: "finance_accept" }, "buyer");
     const h = renderToStaticMarkup(<DealStageBar state={fin} />);
-    assert.match(h, /Locked \$43,749/); assert.match(h, /Locked \$9,000/); assert.match(h, /\/mo/);
+    assert.match(h, /Locked \$43,749/); assert.match(h, /Locked \$9,000/); assert.match(h, /\/mo/); assert.match(h, /grid-cols-2[^"]*sm:grid-cols-4/, "four steps wrap to two columns on a phone");
   });
   const dealer = (state: DealStageState, over: { hasTrade?: boolean; rfqOpen?: boolean } = {}) => renderToStaticMarkup(<DealerStagePanel token="tok12345" stage={state} quotedOtd={43749} hasTrade={over.hasTrade ?? true} rfqOpen={over.rfqOpen ?? true} onChanged={() => {}} />);
   it("dealer stage 1: no actions here, the sheet is the quote; no finance inputs", () => {
@@ -282,11 +295,11 @@ describe("rendered panels", () => {
     assert.doesNotMatch(dealer(atPayment()), /apr-input/);
     const asked = go(atPayment(), { type: "request_finance", downPayment: 4000 }, "buyer");
     const h = dealer(asked);
-    assert.match(h, /data-testid="apr-input"/); assert.match(h, /\$30,749/); assert.match(h, /data-testid="send-finance-quote"/);
+    assert.match(h, /data-testid="apr-input"/); assert.match(h, /\$30,749/); assert.match(h, /data-testid="send-finance-quote"/); assert.match(h, /data-testid="lender-input"/);
     assert.doesNotMatch(h, /monthly payment input|name="monthly"/);
   });
   it("dealer sees closed / walked outcomes and no actions once the request is closed", () => {
-    assert.match(dealer(go(atPayment(), { type: "choose_cash" }, "buyer"), { rfqOpen: false }), /data-testid="dealer-stage-closed"/);
+    assert.match(dealer(finalAccepted(), { rfqOpen: false }), /data-testid="dealer-stage-closed"/);
     const w = dealer(go(atTrade(), { type: "walk" }, "buyer"), { rfqOpen: false });
     assert.match(w, /data-testid="dealer-stage-walked"/); assert.doesNotMatch(w, /dealer-walk-stage/);
     assert.doesNotMatch(dealer(atTrade(), { rfqOpen: false }), /send-trade-offer|dealer-walk-stage/);

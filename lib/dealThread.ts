@@ -8,7 +8,8 @@
  * thread, and the buyer sees one thread per dealer, never merged.
  *
  * Privacy: the thread carries no buyer name, email or phone, ever. Free text the buyer wrote that still contains a
- * contact vector (old notes from before the filters) is replaced for the dealer until the deal is final. A request, not a bid.
+ * contact vector (old notes from before the filters) is replaced for the dealer — before final acceptance for certain, and after it too,
+ * because the buyer's details reach the winning dealer only through the dedicated release. A request, not a bid.
  *
  * Pure and client-safe.
  */
@@ -17,6 +18,7 @@ import { counterSummary } from "./buyerCounter";
 import { activeOverrides, overrideSummary } from "./feeOverride";
 import { findContactInfo } from "./piiFilter";
 import { cashOutTheDoor } from "./usedQuote";
+import type { DealStageState } from "./dealStages";
 
 export type ThreadViewer = "buyer" | "dealer";
 export type ThreadSide = "buyer" | "dealer" | "system";
@@ -36,9 +38,16 @@ type ThreadRfq = Pick<RfqRequest, "buyerNote" | "createdAt" | "status" | "picked
 
 const usd = (n: number | null | undefined) => (typeof n === "number" && Number.isFinite(n) ? `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "");
 
-/** The buyer picked this dealer's quote, or the staged deal closed with it: the only point where contact details may be shared. */
+/**
+ * Final acceptance: on a staged Cash / Finance deal, the buyer tapped "Accept final deal" (stage closed with final accepted — the
+ * same moment the buyer's details are released to the winning dealer, lib/dealStages.ts); on a lease or single-sheet quote, the
+ * buyer picked this dealer's quote. Locking the out-the-door price, a trade value or a payment choice is not final.
+ */
 export function isFinallyAccepted(rfq: Pick<RfqRequest, "pickedQuoteId">, invite: Pick<RfqInvite, "quote" | "stage">): boolean {
-  return invite.stage?.stage === "closed" || Boolean(invite.quote && rfq.pickedQuoteId && rfq.pickedQuoteId === invite.quote.id);
+  const st = invite.stage as (DealStageState & { final?: { status?: string } | null }) | null | undefined;
+  if (st?.stage === "closed" && st.final?.status === "accepted") return true;
+  if (st) return false;
+  return Boolean(invite.quote && rfq.pickedQuoteId && rfq.pickedQuoteId === invite.quote.id);
 }
 
 /** Can a message be posted on this desk's thread right now? Mirrors the box (src/rfqMessages.js). */
@@ -61,16 +70,24 @@ function stageEvent(e: Record<string, unknown>): string | null {
   const who = e.actor === "buyer" ? "Buyer" : "Dealer";
   const n = (v: unknown) => (typeof v === "number" ? v : null);
   switch (e.type) {
-    case "accept_otd": return `${who === "Buyer" ? "Buyer" : "Dealer"} locked the out-the-door price${n(e.amount) != null ? ` at ${usd(n(e.amount))}` : ""}`;
+    case "accept_otd": return `${who} locked the out-the-door price${n(e.amount) != null ? ` at ${usd(n(e.amount))}` : ""}`;
     case "add_trade": return "Buyer added a trade-in";
     case "skip_trade": return "Buyer has no trade-in";
     case "trade_offer": return `Dealer offered ${usd(n(e.value))} for the trade-in`;
+    case "trade_hold": return `Dealer held firm at ${usd(n(e.value))} for the trade-in`;
     case "trade_counter": return `Buyer countered the trade value at ${usd(n(e.value))}`;
     case "trade_accept": case "trade_accept_counter": return `Trade-in locked at ${usd(n(e.value))}${n(e.trueOtd) != null ? ` — true out-the-door ${usd(n(e.trueOtd))}` : ""}`;
     case "choose_cash": return "Buyer chose to pay cash";
+    case "choose_own_financing": return "Buyer will bring their own financing";
     case "request_finance": return "Buyer asked for a financing quote";
-    case "finance_quote": return `Dealer quoted ${e.apr}% for ${e.termMonths} mo — ${usd(n(e.monthly))}/mo`;
-    case "finance_accept": return `Buyer accepted the financing quote (${usd(n(e.monthly))}/mo)`;
+    case "finance_quote": return `Dealer offered ${e.apr}% for ${e.termMonths} mo — ${usd(n(e.monthly))}/mo`;
+    case "finance_hold": return `Dealer held firm at ${e.apr}% for ${e.termMonths} mo`;
+    case "finance_counter": return `Buyer countered financing at ${e.apr}% for ${e.termMonths} mo — ${usd(n(e.monthly))}/mo`;
+    case "finance_accept": case "finance_accept_counter": return `Financing agreed — ${usd(n(e.monthly))}/mo${e.apr != null ? ` at ${e.apr}%` : ""}`;
+    case "change_payment": return "Buyer went back to change the payment choice";
+    case "accept_final": return "Buyer accepted the final deal";
+    // The fact only: the details themselves are never part of a thread.
+    case "buyer_details_released": return "Buyer details were released to the winning dealer";
     case "walk": return `${who} walked away`;
     default: return null;
   }
@@ -78,9 +95,10 @@ function stageEvent(e: Record<string, unknown>): string | null {
 
 /** Everything on this desk's thread, oldest first, for one viewer. */
 export function buildThread(rfq: ThreadRfq, invite: RfqInvite, viewer: ThreadViewer): ThreadEntry[] {
-  const finalized = isFinallyAccepted(rfq, invite);
   const out: ThreadEntry[] = [];
-  const buyerText = (t: string) => (viewer === "dealer" && !finalized && findContactInfo(t) ? REDACTED_BUYER_TEXT : t);
+  // Contact details in the buyer's free text are blanked for the dealer even after final acceptance: the dealer gets the buyer's details
+  // through the one dedicated release (lib/dealStages.ts), never through a thread.
+  const buyerText = (t: string) => (viewer === "dealer" && findContactInfo(t) ? REDACTED_BUYER_TEXT : t);
   const push = (e: ThreadEntry) => { if (e.text && e.at) out.push(e); };
 
   if (rfq.buyerNote) push({ id: "buyer-note", at: rfq.createdAt, side: "buyer", kind: "note", text: buyerText(rfq.buyerNote) });
@@ -108,6 +126,13 @@ export function buildThread(rfq: ThreadRfq, invite: RfqInvite, viewer: ThreadVie
     const text = stageEvent(e);
     if (text && typeof e.at === "string") push({ id: `stage-${i}-${e.type}`, at: e.at, side: "system", kind: "event", text });
   }
+  // The buyer's optional notes on a trade-value or financing counter are words the buyer wrote: same redaction as every buyer note.
+  const stg = invite.stage as (DealStageState & { payment?: { financeCounter?: { note?: string | null; at?: string } | null } }) | null | undefined;
+  const tc = stg?.trade?.counter;
+  if (tc?.note) push({ id: `trade-counter-note-${tc.at}`, at: tc.at, side: "buyer", kind: "note", text: buyerText(tc.note) });
+  const fc = stg?.payment?.financeCounter;
+  if (fc?.note && fc.at) push({ id: `finance-counter-note-${fc.at}`, at: fc.at, side: "buyer", kind: "note", text: buyerText(fc.note) });
+
   if (invite.tradeAppraisal) {
     const a = invite.tradeAppraisal;
     const text = a.allowanceSingle != null ? `Dealer appraised the trade-in at ${usd(a.allowanceSingle)}` : a.allowanceLow != null && a.allowanceHigh != null ? `Dealer appraised the trade-in at ${usd(a.allowanceLow)} to ${usd(a.allowanceHigh)}` : null;

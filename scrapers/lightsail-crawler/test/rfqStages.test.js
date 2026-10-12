@@ -17,10 +17,10 @@ const cashQuote = { kind: 'cash', sellingPrice: 40000, addOns: [], rebates: [], 
 const OTD = 43749;
 const FUTURE = new Date(Date.now() + 86400000).toISOString();
 
-function world({ staged = true, tradeInExpected = true, tradeOnFile = true, quote = cashQuote, inviteStatus = 'quoted', rfqStatus = 'collecting', approval = 'approved' } = {}) {
+function world({ payoff = 0, notSelected = false, staged = true, tradeInExpected = true, tradeOnFile = true, quote = cashQuote, inviteStatus = 'quoted', rfqStatus = 'collecting', approval = 'approved' } = {}) {
   const db = {
-    rfq: { id: 7, status: rfqStatus, approval_status: approval, quote_prefs_json: JSON.stringify(staged ? { quoteType: 'cash', staged: true, cash: { zip: '07030' } } : { quoteType: 'cash', cash: { zip: '07030' } }), trade_in_expected: tradeInExpected ? 1 : 0, trade_in_json: tradeOnFile ? '{"vin":"X"}' : null, picked_quote_id: null },
-    invite: { id: 11, rfq_id: 7, status: inviteStatus, dealer_name: 'Test Motors', stage_json: null },
+    rfq: { id: 7, status: rfqStatus, approval_status: approval, quote_prefs_json: JSON.stringify(staged ? { quoteType: 'cash', staged: true, cash: { zip: '07030' } } : { quoteType: 'cash', cash: { zip: '07030' } }), trade_in_expected: tradeInExpected ? 1 : 0, trade_in_json: tradeOnFile ? JSON.stringify({ vin: 'X', payoffEstimate: payoff }) : null, picked_quote_id: null },
+    invite: { id: 11, rfq_id: 7, status: inviteStatus, dealer_name: 'Test Motors', stage_json: null, not_selected_at: notSelected ? '2026-10-11 12:00:00' : null },
     quote: quote ? { id: 99, invite_id: 11, superseded_at: null, expires_at: FUTURE, used_json: JSON.stringify(quote) } : null,
     events: [], commits: 0, rollbacks: 0,
   };
@@ -49,8 +49,10 @@ function world({ staged = true, tradeInExpected = true, tradeOnFile = true, quot
   return { db, call, act };
 }
 
+const CONTACT = { name: 'Pat Buyer', email: 'pat@example.com', phone: '555-0100', zip: '07030' };
+
 describe('handler: full cash path with a trade', () => {
-  it('walks OTD -> trade -> cash and closes the request with the picked quote', async () => {
+  it('walks OTD -> trade -> cash -> final acceptance, which closes the request with the picked quote', async () => {
     const w = world();
     let r = await w.act('buyer', { type: 'accept_otd' });
     assert.equal(r.status, 200); assert.equal(r.json.stage.otd.amount, OTD); assert.equal(r.json.stage.stage, 'trade');
@@ -60,25 +62,123 @@ describe('handler: full cash path with a trade', () => {
     assert.equal(r.json.stage.trueOtd, OTD - 9000);
     assert.equal(r.json.stage.trade.taxSavings > 0, true);
     r = await w.act('buyer', { type: 'choose_cash' });
+    assert.equal(r.json.stage.stage, 'final');
+    assert.equal(w.db.rfq.status, 'collecting', 'choosing the payment does not close the request');
+    assert.equal(r.json.stage.release, null);
+    r = await w.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
     assert.equal(r.json.stage.stage, 'closed');
     assert.equal(w.db.rfq.status, 'picked'); assert.equal(w.db.rfq.picked_quote_id, 99);
-    assert.equal(w.db.events.at(-1).type, 'buyer_picked');
-    assert.equal(w.db.events.at(-1).payload.method, 'cash');
+    assert.equal(w.db.events.at(-2).type, 'buyer_picked');
+    assert.equal(w.db.events.at(-2).payload.method, 'cash');
+    assert.equal(w.db.events.at(-1).type, 'buyer_details_released');
+  });
+  it('adds the buyer\'s stated payoff to the true OTD, taking it from the trade-in on file', async () => {
+    const w = world({ payoff: 4000 });
+    await w.act('buyer', { type: 'accept_otd' });
+    await w.act('dealer', { type: 'trade_offer', value: 9000 });
+    const r = await w.act('buyer', { type: 'trade_accept' }, { tradePayoff: 1 });
+    assert.equal(r.json.stage.trueOtd, OTD - 9000 + 4000);
+  });
+  it('runs the trade counter loop through the handler', async () => {
+    const w = world();
+    await w.act('buyer', { type: 'accept_otd' });
+    await w.act('dealer', { type: 'trade_offer', value: 9000 });
+    let r = await w.act('buyer', { type: 'trade_counter', value: 12000, note: 'please' });
+    assert.equal(r.status, 200);
+    r = await w.act('dealer', { type: 'trade_hold' });
+    assert.equal(r.json.stage.trade.offer.held, true);
+    r = await w.act('buyer', { type: 'trade_counter', value: 10000 });
+    r = await w.act('dealer', { type: 'trade_accept_counter' });
+    assert.equal(r.json.stage.trade.value, 10000);
+    assert.deepEqual(w.db.events.filter((e) => e.type === 'deal_stage').map((e) => e.payload.action), ['accept_otd', 'trade_offer', 'trade_counter', 'trade_hold', 'trade_counter', 'trade_accept_counter']);
   });
 });
 
-describe('handler: finance close', () => {
-  it('request -> dealer quote -> accept closes with finance', async () => {
+describe('handler: financing, counters and the final deal', () => {
+  const toFinance = async (w) => {
+    await w.act('dealer', { type: 'accept_otd' });
+    await w.act('buyer', { type: 'request_finance', downPayment: 4000, termMonths: 60, creditRange: 'good', outsideFinancing: true });
+    return w.act('dealer', { type: 'finance_quote', apr: 4.9, termMonths: 60, lenderName: 'Ally' });
+  };
+  it('request -> dealer offer -> buyer counter -> dealer accepts -> final acceptance closes with financing', async () => {
+    const w = world({ tradeInExpected: false });
+    let r = await toFinance(w);
+    assert.equal(r.json.stage.payment.financeQuote.amountFinanced, OTD - 4000);
+    r = await w.act('buyer', { type: 'finance_counter', apr: 3.9, note: 'beat 4.9' });
+    assert.equal(r.status, 200);
+    r = await w.act('dealer', { type: 'finance_accept_counter' });
+    assert.equal(r.json.stage.stage, 'final'); assert.equal(r.json.stage.payment.financeQuote.apr, 3.9);
+    assert.equal(w.db.rfq.status, 'collecting');
+    r = await w.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    assert.equal(r.json.stage.payment.method, 'dealer_finance');
+    assert.equal(w.db.rfq.status, 'picked');
+    assert.equal(w.db.events.find((e) => e.type === 'buyer_picked').payload.method, 'dealer_finance');
+  });
+  it('rejects a dealer offer whose monthly or amount financed does not match the numbers', async () => {
     const w = world({ tradeInExpected: false });
     await w.act('dealer', { type: 'accept_otd' });
-    let r = await w.act('buyer', { type: 'request_finance', downPayment: 4000, outsideFinancing: true });
-    assert.equal(r.status, 200);
-    r = await w.act('dealer', { type: 'finance_quote', apr: 4.9, termMonths: 60 });
-    assert.equal(r.json.stage.payment.financeQuote.amountFinanced, OTD - 4000);
-    r = await w.act('buyer', { type: 'finance_accept' });
-    assert.equal(r.json.stage.payment.method, 'finance');
-    assert.equal(w.db.rfq.status, 'picked');
-    assert.equal(w.db.events.at(-1).payload.method, 'finance');
+    await w.act('buyer', { type: 'request_finance', downPayment: 4000 });
+    const r = await w.act('dealer', { type: 'finance_quote', apr: 4.9, termMonths: 60, lenderName: 'Ally', monthly: 500, amountFinanced: OTD - 4000 });
+    assert.equal(r.status, 409); assert.equal(r.json.code, 'math_mismatch');
+    assert.equal(JSON.parse(w.db.invite.stage_json).payment.financeQuote, null);
+  });
+  it('own financing and cash both go through the same final acceptance', async () => {
+    const w = world({ tradeInExpected: false });
+    await w.act('buyer', { type: 'accept_otd' });
+    let r = await w.act('buyer', { type: 'choose_own_financing', lenderName: 'Navy Federal' });
+    assert.equal(r.json.stage.stage, 'final'); assert.equal(r.json.stage.payment.method, 'own_financing');
+    r = await w.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    assert.equal(r.json.stage.final.summary.method, 'own_financing');
+  });
+});
+
+describe('handler: the buyer\'s details are released once, to the winning dealer only', () => {
+  const atFinal = async (opts) => { const w = world({ tradeInExpected: false, ...opts }); await w.act('buyer', { type: 'accept_otd' }); await w.act('buyer', { type: 'choose_cash' }); return w; };
+  it('stores them on this dealer\'s deal only after accept_final, and the event log never carries them', async () => {
+    const w = await atFinal();
+    assert.ok(!w.db.invite.stage_json.includes('pat@example.com'));
+    const r = await w.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    assert.deepEqual(r.json.stage.release.contact, CONTACT);
+    assert.deepEqual(JSON.parse(w.db.invite.stage_json).release.contact, CONTACT);
+    const logged = JSON.stringify(w.db.events);
+    for (const secret of ['pat@example.com', '555-0100', 'Pat Buyer']) assert.ok(!logged.includes(secret), secret);
+    assert.deepEqual(w.db.events.map((e) => e.type).slice(-2), ['buyer_picked', 'buyer_details_released']);
+  });
+  it('contact details sent with any other action, or by the dealer, are ignored', async () => {
+    const w = await atFinal();
+    let r = await w.act('dealer', { type: 'walk' }, { buyerContact: CONTACT });
+    assert.equal(r.json.stage.release, null);
+    const w2 = await atFinal();
+    r = await w2.act('dealer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    assert.equal(r.status, 403);
+    assert.ok(!w2.db.invite.stage_json.includes('pat@example.com'));
+    const w3 = world({ tradeInExpected: false });
+    r = await w3.act('buyer', { type: 'accept_otd' }, { buyerContact: CONTACT });
+    assert.ok(!w3.db.invite.stage_json.includes('pat@example.com'));
+  });
+  it('is refused without a usable email, and before the final review', async () => {
+    const w = await atFinal();
+    let r = await w.act('buyer', { type: 'accept_final' });
+    assert.equal(r.status, 409); assert.equal(r.json.code, 'no_contact');
+    const early = world({ tradeInExpected: false });
+    await early.act('buyer', { type: 'accept_otd' });
+    r = await early.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    assert.equal(r.json.code, 'wrong_stage');
+  });
+  it('a dealer who has been closed out (not selected) cannot act, even with the buyer\'s details on offer', async () => {
+    const w = await atFinal({ notSelected: true });
+    for (const [actor, action] of [['dealer', { type: 'trade_offer', value: 1000 }], ['dealer', { type: 'finance_quote', apr: 5, termMonths: 60, lenderName: 'X' }], ['dealer', { type: 'finance_hold' }], ['buyer', { type: 'accept_final' }]]) {
+      const r = await w.act(actor, action, { buyerContact: CONTACT });
+      assert.equal(r.status, 409, JSON.stringify(action)); assert.equal(r.json.code, 'closed');
+    }
+    assert.ok(!(w.db.invite.stage_json || '').includes('pat@example.com'));
+  });
+  it('a finished (picked) request takes no further moves', async () => {
+    const w = await atFinal();
+    await w.act('buyer', { type: 'accept_final' }, { buyerContact: CONTACT });
+    const again = await w.act('buyer', { type: 'accept_final' }, { buyerContact: { ...CONTACT, email: 'other@example.com' } });
+    assert.equal(again.status, 409);
+    assert.ok(!w.db.invite.stage_json.includes('other@example.com'));
   });
 });
 

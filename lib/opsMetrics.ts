@@ -20,6 +20,9 @@ export type OpsCounter =
   | "email_failed"
   | "email_parked_switch_off"
   | "notselected_sent"
+  | "buyerdetails_sent"
+  | "buyerdetails_failed"
+  | "buyerdetails_parked_switch_off"
   | "notselected_failed"
   | "notselected_parked_switch_off"
   /** An invite the outbox refused because its request hasn't been approved by an admin. */

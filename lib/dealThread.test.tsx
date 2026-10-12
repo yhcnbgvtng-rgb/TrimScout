@@ -135,12 +135,45 @@ describe("privacy: no buyer contact info before final acceptance", () => {
     assert.doesNotMatch(read("lib/dealThread.ts"), /buyerEmail|buyerPhone|buyerName|buyerUserId/);
     assert.doesNotMatch(read("app/api/quote-invite/thread/route.ts"), /buyerEmail|buyerPhone|buyerName|buyerUserId/);
   });
-  it("final acceptance (the buyer picked this quote, or the staged deal closed) is the only thing that lifts the blanking", () => {
+  it("final acceptance is only the buyer tapping Accept final deal (staged), or picked the quote (single sheet / lease)", () => {
+    const st = (over: object) => ({ ...leaky, stage: over as never });
     assert.equal(isFinallyAccepted({ pickedQuoteId: null }, leaky), false);
-    assert.equal(isFinallyAccepted({ pickedQuoteId: "q1" }, leaky), true);
+    assert.equal(isFinallyAccepted({ pickedQuoteId: "q1" }, leaky), true, "no staged deal: the pick is the acceptance");
     assert.equal(isFinallyAccepted({ pickedQuoteId: "q99" }, leaky), false);
-    assert.equal(isFinallyAccepted({ pickedQuoteId: null }, { ...leaky, stage: { stage: "closed" } as never }), true);
-    assert.equal(isFinallyAccepted({ pickedQuoteId: null }, { ...leaky, stage: { stage: "trade" } as never }), false, "locking the price is not final acceptance");
+    assert.equal(isFinallyAccepted({ pickedQuoteId: null }, st({ stage: "closed", final: { status: "accepted" } })), true);
+    assert.equal(isFinallyAccepted({ pickedQuoteId: null }, st({ stage: "closed" })), false, "closed without the final acceptance is not final");
+    for (const stage of ["otd", "trade", "payment", "final"]) assert.equal(isFinallyAccepted({ pickedQuoteId: "q1" }, st({ stage })), false, `locking ${stage} is not final acceptance`);
+  });
+  it("the stage log's later steps read as inline notes, and the release is recorded as a fact only — never the details", () => {
+    const staged = invite("1", "Alpha Motors", { stage: { stage: "closed", final: { status: "accepted" }, release: { at: "2026-10-11T15:00:00Z", contact: { name: "Jane Doe", email: "jane.doe@gmail.com", phone: "201-555-0147" } },
+      trade: { counter: { value: 8500, at: "2026-10-11T12:20:00Z", note: "call me 201-555-0147" } },
+      payment: { financeCounter: { apr: 5.9, termMonths: 60, monthly: 600, note: "Please do 5.9", at: "2026-10-11T13:00:00Z" } },
+      log: [
+        { at: "2026-10-11T12:15:00Z", actor: "dealer", type: "trade_hold", value: 9000 },
+        { at: "2026-10-11T13:30:00Z", actor: "dealer", type: "finance_quote", apr: 6.5, termMonths: 60, monthly: 610 },
+        { at: "2026-10-11T13:40:00Z", actor: "buyer", type: "finance_counter", apr: 5.9, termMonths: 60, monthly: 600 },
+        { at: "2026-10-11T13:50:00Z", actor: "dealer", type: "finance_accept_counter", apr: 5.9, termMonths: 60, monthly: 600 },
+        { at: "2026-10-11T14:59:00Z", actor: "buyer", type: "accept_final", trueOtd: 35000 },
+        { at: "2026-10-11T15:00:00Z", actor: "system", type: "buyer_details_released" },
+      ] } as never });
+    const r = rfqOf([staged], { buyerNote: null });
+    const forDealer = buildThread(r, staged, "dealer");
+    const blob = JSON.stringify(forDealer);
+    const events = forDealer.filter((e) => e.side === "system").map((e) => e.text);
+    assert.ok(events.includes("Dealer held firm at $9,000 for the trade-in"));
+    assert.ok(events.includes("Buyer countered financing at 5.9% for 60 mo — $600/mo"));
+    assert.ok(events.includes("Financing agreed — $600/mo at 5.9%"));
+    assert.ok(events.includes("Buyer accepted the final deal"));
+    assert.ok(events.includes("Buyer details were released to the winning dealer"));
+    assert.doesNotMatch(blob, /Jane|jane\.doe|gmail|555-0147/, "the release never leaks the contact into the thread");
+    assert.ok(forDealer.some((e) => e.text === "Please do 5.9"), "a harmless buyer counter note is shown");
+    assert.ok(forDealer.some((e) => e.text === REDACTED_BUYER_TEXT), "even after final acceptance a number typed into a note stays blanked: details only travel through the release");
+  });
+  it("before final acceptance a counter note carrying contact info is blanked for the dealer, but the buyer still sees their own words", () => {
+    const pre = invite("1", "Alpha Motors", { stage: { stage: "trade", trade: { counter: { value: 8500, at: "2026-10-11T12:20:00Z", note: "call me 201-555-0147" } }, log: [] } as never });
+    const r = rfqOf([pre], { buyerNote: null });
+    assert.doesNotMatch(JSON.stringify(buildThread(r, pre, "dealer")), /555-0147/);
+    assert.match(JSON.stringify(buildThread(r, pre, "buyer")), /555-0147/);
   });
   it("new messages with contact info are refused in the panel before sending", () => {
     const src = read("components/DealThreadPanel.tsx");
