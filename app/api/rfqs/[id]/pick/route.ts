@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, pickRfqQuote, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { isReachableEmail } from "@/lib/rfqLogic";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
+import { closeOutLosers } from "@/lib/inviteOutbox";
+import { inviteOfQuote, isNotSelected } from "@/lib/rfqClose";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -27,7 +29,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!isReachableEmail(buyer.email)) {
       return NextResponse.json({ error: "Add a reachable email to your account before accepting a quote." }, { status: 400 });
     }
+    const winner = inviteOfQuote(existing, String(body.quoteId));
+    if (winner && isNotSelected(winner)) {
+      return NextResponse.json({ error: "That dealer's quote is closed." }, { status: 409 });
+    }
     const rfq = await pickRfqQuote(id, body.quoteId);
+    // The buyer chose: tell every other invited dealer once ("not selected this time") and close their quotes.
+    // After the response; best effort and idempotent, so a failure here never undoes the pick.
+    if (winner) after(async () => { await closeOutLosers(existing, winner.id); });
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not record your pick.";

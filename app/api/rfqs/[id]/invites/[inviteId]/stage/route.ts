@@ -2,7 +2,7 @@
 // accept the out-the-door price, counter or accept the trade value, pay cash, ask for financing, accept it, or walk away.
 // The rules and the numbers live on the deals server (lib/dealStages.ts); this route only authenticates the buyer, passes
 // the buyer's state (for the trade-in tax note), and tells the dealer through the SAFE MODE sender. A request, not a bid.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, postDealStage, RfqApiError } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
@@ -13,6 +13,8 @@ import { buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
 import { zipStateTax } from "@/lib/counterSheet";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
+import { closeOutLosers } from "@/lib/inviteOutbox";
+import { isNotSelected } from "@/lib/rfqClose";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
   const session = await auth();
@@ -34,6 +36,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const invite = rfq.invites.find((i) => i.id === inviteId);
     if (!invite) return NextResponse.json({ error: "Dealer not found on this request." }, { status: 404 });
 
+    if (isNotSelected(invite) && action.type !== "walk") return NextResponse.json({ error: "You chose a different dealer, so this quote is closed." }, { status: 409 });
+
     const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : null;
     const result = await postDealStage(id, inviteId, { action: action as unknown as Record<string, unknown>, actor: "buyer", state: zipStateTax(zip)?.state ?? null });
 
@@ -49,6 +53,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       });
       await sendDealStageNotice(notice);
     }
+    // Accepting the out-the-door price is the buyer's choice of dealer: close and thank everyone else, once.
+    if (action.type === "accept_otd" && result.stage.otd.status === "locked") after(async () => { await closeOutLosers(rfq, inviteId); });
     return NextResponse.json({ rfq: publicRfqForBuyer(result.rfq), stage: result.stage });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not update this deal.";

@@ -11,6 +11,9 @@ After the vehicle links are entered, Step 2 asks one question: **Lease or buy?**
 | 3 | **Payment** | Buyer picks **Pay cash** (closes at the true OTD) or **Get financing**: down payment, optional preferred term, and "I have outside financing to compare". The dealer quotes APR + term; the monthly is **computed** from `trueOtd - down` (never typed). Buyer accepts, or still pays cash. | Cash chosen, or financing accepted. Either one closes the deal (the request becomes "picked" with that dealer's quote). | `payment.method`, monthly |
 
 No trade-in: stage 2 is skipped before it opens (`trade.status = "skipped"`), `trueOtd = otd`.
+**Add your trade-in after accepting:** with the OTD locked and payment not yet started, the buyer can still add a trade-in
+(`add_trade`): stage 2 re-opens, the OTD stays locked, and the dealer's offer reaches the true OTD. `skip_trade` carries on without
+one when a trade was expected but no offer exists yet. Other dealers are told "not selected" and their deals close: see `docs/NOT_SELECTED_NOTICE.md`.
 
 **Walk away:** either side can walk at any stage (`walk`); the deal becomes `walked`, nothing is possible after.
 Nothing binds anyone ("a request, not a bid"). **Multi-dealer:** every dealer has their own stage state

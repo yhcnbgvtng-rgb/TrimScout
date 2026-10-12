@@ -91,7 +91,7 @@ export function currentStage(state) {
 /**
  * Apply one action. `ctx` = { otdAmount, taxRate, state, hasTradeInOnFile, now } where otdAmount is the dealer's current
  * quoted OTD (derived on the server from the stored quote, never from the browser).
- * Actions (actor): accept_otd (buyer|dealer), trade_offer (dealer), trade_counter (buyer), trade_accept (buyer),
+ * Actions (actor): accept_otd (buyer|dealer), add_trade (buyer), skip_trade (buyer), trade_offer (dealer), trade_counter (buyer), trade_accept (buyer),
  * trade_accept_counter (dealer), choose_cash (buyer), request_finance (buyer), finance_quote (dealer),
  * finance_accept (buyer), walk (buyer|dealer).
  */
@@ -127,6 +127,29 @@ export function applyStageAction(prev, action, ctx = {}) {
         next.payment = { ...state.payment, status: "open" };
       }
       return done(next, at, { actor, type, stage: "otd", amount });
+    }
+
+    case "add_trade": {
+      // After the OTD is locked the buyer may still add a trade-in (the "Add your trade-in" step). The accepted OTD stays
+      // locked; the trade stage re-opens so the winning dealer can offer a value and reach the true OTD.
+      const bad = only("buyer"); if (bad) return bad;
+      if (state.otd.status !== "locked") return fail("wrong_stage", "Lock the out-the-door price first.");
+      if (!ctx.hasTradeInOnFile) return fail("no_trade", "Add your trade-in details and photos first.");
+      if (state.stage === "trade") return done({ ...state, tradeInExpected: true }, at, { actor, type, stage: "trade" });
+      if (state.stage !== "payment" || state.payment.method || state.payment.financeRequestedAt || state.trade.status !== "skipped") {
+        return fail("locked", "The payment step has already started, so a trade-in can't be added to this deal.");
+      }
+      const next = { ...state, stage: "trade", tradeInExpected: true, trueOtd: null, trade: { ...state.trade, status: "open" }, payment: { ...state.payment, status: "pending" } };
+      return done(next, at, { actor, type, stage: "trade" });
+    }
+
+    case "skip_trade": {
+      // The buyer said a trade-in was coming, then decided against it before any offer: carry on with no trade.
+      const bad = only("buyer"); if (bad) return bad;
+      if (state.stage !== "trade") return fail("wrong_stage", "There is no trade-in step to skip.");
+      if (state.trade.offer) return fail("locked", "The dealer already made a trade offer: accept it or walk away.");
+      const next = { ...state, stage: "payment", tradeInExpected: false, trueOtd: state.otd.amount, trade: { ...state.trade, status: "skipped" }, payment: { ...state.payment, status: "open" } };
+      return done(next, at, { actor, type, stage: "trade" });
     }
 
     case "trade_offer": {

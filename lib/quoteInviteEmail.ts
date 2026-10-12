@@ -277,3 +277,32 @@ export function tradePhotosUpdatedHtml(input: TradePhotosUpdatedEmailInput): str
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;
 }
+
+// ---------------------------------------------------------------------------
+// Buyer accepted another dealer's offer → every other invited dealer, once. Short and polite: thanks, the deal number
+// and vehicle, and nothing about the winning quote or the buyer (no price, no dealer name, no contact details).
+// Draft copy for Paul's review, see docs/NOT_SELECTED_NOTICE.md.
+// ---------------------------------------------------------------------------
+export interface NotSelectedEmailInput {
+  dealerName: string;
+  contactName: string;
+  vehicle: { vin: string; year?: number; make?: string; model?: string; trim?: string };
+  dealReference: string | null;
+}
+
+export function notSelectedSubject(input: NotSelectedEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `Not selected this time${input.dealReference ? ` (${input.dealReference})` : ""}: ${car}`;
+}
+
+export function notSelectedHtml(input: NotSelectedEmailInput): string {
+  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  return `
+  <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
+    ${emailHeader()}
+    <p style="font-size:15px">Hi ${escapeHtml(greetingName(input.contactName))},</p>
+    <p>Thank you for quoting on the <strong>${escapeHtml(car)}</strong>${input.dealReference ? ` (deal ${escapeHtml(input.dealReference)})` : ""}. The buyer has decided to go another way this time, so your quote is now closed and there is nothing more for you to do.</p>
+    <p>We appreciate the time you put in, and we hope to send you another request soon.</p>
+    <p style="font-size:12px;color:#64748b">This is a courtesy note from TrimScout. There is nothing to reply to.</p>
+  </div>`;
+}

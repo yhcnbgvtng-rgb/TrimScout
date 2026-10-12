@@ -55,7 +55,7 @@ export interface DealStageState {
 }
 
 export type StageActionType =
-  | "accept_otd" | "trade_offer" | "trade_counter" | "trade_accept" | "trade_accept_counter"
+  | "accept_otd" | "add_trade" | "skip_trade" | "trade_offer" | "trade_counter" | "trade_accept" | "trade_accept_counter"
   | "choose_cash" | "request_finance" | "finance_quote" | "finance_accept" | "walk";
 export interface StageAction {
   type: StageActionType;
@@ -92,8 +92,9 @@ export function stageOf(rfq: Pick<RfqRequest, "quotePrefs" | "leasePrefs" | "tra
 export const STAGE_LABELS: Record<StageId, string> = { otd: "Out-the-door price", trade: "Trade-in", payment: "Payment" };
 
 /** One short line for compare cards and the tracker: where this dealer is, in plain words. */
-export function stageSummary(state: DealStageState | null): string {
+export function stageSummary(state: DealStageState | null, notSelected = false): string {
   if (!state) return "";
+  if (notSelected && state.stage !== "walked") return "Not selected: you chose another dealer";
   if (state.stage === "walked") return `Walked away at ${state.walk ? STAGE_LABELS[state.walk.atStage as StageId] ?? "an earlier stage" : "an earlier stage"}`;
   if (state.stage === "closed") return state.payment.method === "finance" ? "Closed: financing accepted" : "Closed: paying cash";
   if (state.stage === "otd") return "Stage 1 of 3: out-the-door price";

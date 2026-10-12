@@ -143,6 +143,14 @@ export interface RfqInvite {
   tradePhotosNotifiedAt?: string | null;
   /** Staged Cash / Finance deal state for this desk (lib/dealStages.ts); null until its first action. */
   stage?: DealStageState | null;
+  /**
+   * Set when the buyer accepted a different dealer's offer (lib/rfqClose.ts): this desk's quote is closed and can no
+   * longer be countered or revised. Walking away stays possible. The box refuses new quotes/counters/stage moves.
+   */
+  notSelectedAt?: string | null;
+  /** Lease on the one "not selected this time" notice: claimed before the send, stamped after it (exactly once). */
+  notSelectedNoticeClaimedAt?: string | null;
+  notSelectedNoticeSentAt?: string | null;
 }
 
 export interface RfqSpec {

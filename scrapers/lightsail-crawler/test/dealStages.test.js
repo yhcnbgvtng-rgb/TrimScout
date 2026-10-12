@@ -256,3 +256,53 @@ describe('numbers from the stored quote', () => {
     assert.equal(s.log.length, 1);
   });
 });
+
+describe('add your trade-in after the OTD is accepted (add_trade / skip_trade)', () => {
+  it('no trade expected: add_trade re-opens the trade stage, the accepted OTD stays locked, true OTD waits for the dealer', () => {
+    const s = noTradePayment();
+    assert.equal(s.stage, 'payment');
+    const next = must(run(s, { type: 'add_trade', actor: 'buyer' }));
+    assert.equal(next.stage, 'trade');
+    assert.equal(next.trade.status, 'open');
+    assert.equal(next.tradeInExpected, true);
+    assert.equal(next.otd.status, 'locked');
+    assert.equal(next.otd.amount, 50000);
+    assert.equal(next.trueOtd, null);
+    assert.equal(next.payment.status, 'pending');
+    // the dealer can now offer a value and the buyer reaches the true OTD
+    const offered = must(run(next, { type: 'trade_offer', actor: 'dealer', value: 12000 }));
+    const locked = must(run(offered, { type: 'trade_accept', actor: 'buyer' }));
+    assert.equal(locked.trueOtd, 38000);
+  });
+  it('needs the trade-in on file, the buyer, and a locked OTD', () => {
+    refuse(run(noTradePayment(), { type: 'add_trade', actor: 'buyer' }, ctx({ hasTradeInOnFile: false })), 'no_trade');
+    refuse(run(noTradePayment(), { type: 'add_trade', actor: 'dealer' }), 'forbidden_actor');
+    refuse(run(initialStageState({ tradeInExpected: false }), { type: 'add_trade', actor: 'buyer' }), 'wrong_stage');
+  });
+  it('is refused once the payment step has begun (financing asked, cash chosen) or a trade was locked', () => {
+    const asked = must(run(noTradePayment(), { type: 'request_finance', actor: 'buyer', downPayment: 1000 }));
+    refuse(run(asked, { type: 'add_trade', actor: 'buyer' }), 'locked');
+    refuse(run(atPayment(), { type: 'add_trade', actor: 'buyer' }), 'locked');
+    const closed = must(run(noTradePayment(), { type: 'choose_cash', actor: 'buyer' }));
+    refuse(run(closed, { type: 'add_trade', actor: 'buyer' }), 'closed');
+  });
+  it('adding twice is harmless while the trade stage is open', () => {
+    const open = must(run(noTradePayment(), { type: 'add_trade', actor: 'buyer' }));
+    const again = must(run(open, { type: 'add_trade', actor: 'buyer' }));
+    assert.equal(again.stage, 'trade');
+  });
+  it('skip_trade (trade stage open, no offer yet) carries on to payment at the accepted OTD', () => {
+    const s = atTrade();
+    const skipped = must(run(s, { type: 'skip_trade', actor: 'buyer' }));
+    assert.equal(skipped.stage, 'payment');
+    assert.equal(skipped.trade.status, 'skipped');
+    assert.equal(skipped.trueOtd, 50000);
+    assert.equal(skipped.otd.status, 'locked');
+    refuse(run(s, { type: 'skip_trade', actor: 'dealer' }), 'forbidden_actor');
+    refuse(run(noTradePayment(), { type: 'skip_trade', actor: 'buyer' }), 'wrong_stage');
+  });
+  it('skip_trade is refused once the dealer has made an offer', () => {
+    const offered = must(run(atTrade(), { type: 'trade_offer', actor: 'dealer', value: 9000 }));
+    refuse(run(offered, { type: 'skip_trade', actor: 'buyer' }), 'locked');
+  });
+});

@@ -32,6 +32,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (rfq.buyerUserId !== buyer.id) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     if (rfq.status !== "collecting") return NextResponse.json({ error: "This request is closed." }, { status: 409 });
     const invite = rfq.invites.find((i) => i.id === inviteId);
+    if (invite?.notSelectedAt) return NextResponse.json({ error: "You chose a different dealer, so this quote is closed." }, { status: 409 });
     const kind = invite?.quote ? counterKindOf(invite.quote) : null;
     if (!invite?.quote || !kind) return NextResponse.json({ error: "This dealer has no current quote to counter." }, { status: 409 });
     // The browser sends the dealer's quote id plus the buyer's edits; the sheet is

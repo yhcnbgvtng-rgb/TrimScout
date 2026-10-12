@@ -5,7 +5,7 @@ import { TradeSummary, type SignedView } from "./TradeSummary";
 import { allowanceOf, computeEquity } from "../../lib/trade/otd";
 import { APPRAISAL_BASES, BASIS_COPY, BASIS_LABELS, OPTIONAL_PHOTO_SLOTS, PHOTO_SLOT_INFO, TRADE_ESTIMATE_COPY, type AppraisalBasis, type DealerTradeAppraisal, type OptionalSlot, type TradeInRecord, type TradePhotoRequest } from "../../lib/trade/types";
 
-interface Loaded { tradeIn: TradeInRecord | null; signed: SignedView[]; appraisal: DealerTradeAppraisal | null; photoRequest: TradePhotoRequest | null; inviteStatus: string; rfqStatus: string }
+interface Loaded { tradeIn: TradeInRecord | null; signed: SignedView[]; appraisal: DealerTradeAppraisal | null; photoRequest: TradePhotoRequest | null; inviteStatus: string; rfqStatus: string; appraisalOpen?: boolean }
 const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
 const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
 const usd = (n: number) => `${n < 0 ? "−" : ""}$${Math.abs(Math.round(n)).toLocaleString()}`;
@@ -47,7 +47,7 @@ export function DealerTradePanel({ token, defaultGoodUntil }: { token: string; d
 
   if (error) return <p className="rounded-xl border border-border bg-surface p-3 text-xs text-ink-muted">{error}</p>;
   if (!data || !trade) return null;
-  const closed = data.rfqStatus !== "collecting" || data.inviteStatus === "declined";
+  const closed = !(data.appraisalOpen ?? data.rfqStatus === "collecting") || data.inviteStatus === "declined";
 
   const submit = async (confirmOutlier = false) => {
     setBusy(true); setMsg(null); setProblem(null);

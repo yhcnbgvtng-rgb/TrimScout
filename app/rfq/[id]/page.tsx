@@ -9,6 +9,7 @@ import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
 import { StagedDeals } from "../../../components/StagedDeals";
+import { AddTradeInPrompt } from "../../../components/AddTradeInPrompt";
 import { isStagedRfq } from "../../../lib/dealStages";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -548,6 +549,8 @@ export default function RfqWorkspacePage() {
           <p className="text-sm font-bold text-ink-light">No quote chosen</p>
         </div>
       )}
+
+      <AddTradeInPrompt rfq={rfq} headers={guest.headers} onRfq={setRfq} />
 
       {rfq.tradeIn ? <BuyerTradeCard rfqId={rfqId} headers={guest.headers} version={rfq} /> : null}
 

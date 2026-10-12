@@ -36,6 +36,10 @@ function body(i: StageNoticeInput): { headline: string; text: string; cta: strin
       return s.stage === "trade"
         ? { headline: "Out-the-door price locked", text: `${i.dealerName} accepted your out-the-door price of ${usd(s.otd.amount)}. Next is your trade-in: they'll offer a trade value.`, cta: "See your deal" }
         : { headline: "Out-the-door price locked", text: `${i.dealerName} accepted your out-the-door price of ${usd(s.otd.amount)}. Next you can pay cash or ask them for financing.`, cta: "Choose how to pay" };
+    case "add_trade":
+      return { headline: "Buyer added a trade-in", text: `The buyer accepted your out-the-door price of ${usd(s.otd.amount)} (it stays locked) and added a trade-in. Open your quote page to see the vehicle, mileage, payoff and photos, then offer a trade value so the true out-the-door can be reached.`, cta: "Offer a trade value" };
+    case "skip_trade":
+      return { headline: "No trade-in on this deal", text: `The buyer decided not to add a trade-in. The out-the-door price of ${usd(s.otd.amount)} is the true out-the-door; the buyer picks cash or financing next.`, cta: "Open the quote page" };
     case "trade_offer":
       return { headline: "Trade-in offer", text: `${i.dealerName} offered ${usd(s.trade.offer?.value)} for your trade-in${s.trade.offer?.revised ? " (a revised offer after your counter)" : ""}. You can accept it${s.trade.counterUsed ? "" : ", counter once,"} or walk away.`, cta: "Review the offer" };
     case "trade_counter":
@@ -62,10 +66,25 @@ function body(i: StageNoticeInput): { headline: string; text: string; cta: strin
   }
 }
 
+/**
+ * Lease (and single-sheet cash) winners: the buyer accepted the quote and then added a trade-in. Same SAFE MODE layout as
+ * every stage notice; the accepted quote is locked and the dealer is asked for a trade value on their quote page.
+ */
+export function buildTradeAddedNotice(i: { dealerName: string; vehicle: string; url: string; lease: boolean }): StageNotice {
+  const text = i.lease
+    ? "The buyer chose your lease quote (it stays as quoted) and added a trade-in. Open your quote page to see the vehicle, mileage, payoff and photos, then give a trade value; it is applied as a cap cost reduction and your monthly is never recomputed."
+    : "The buyer chose your quote (it stays as quoted) and added a trade-in. Open your quote page to see the vehicle, mileage, payoff and photos, then give a trade value so the true out-the-door can be reached.";
+  return render({ headline: "Buyer added a trade-in", text, cta: "Offer a trade value" }, "dealer", i.vehicle, i.url);
+}
+
 export function buildStageNotice(i: StageNoticeInput): StageNotice | null {
   const b = body(i);
   if (!b) return null;
-  const audience: StageActor = i.actor === "buyer" ? "dealer" : "buyer";
+  return render(b, i.actor === "buyer" ? "dealer" : "buyer", i.vehicle, i.url);
+}
+
+function render(b: { headline: string; text: string; cta: string }, audience: StageActor, vehicle: string, url: string): StageNotice {
+  const i = { vehicle, url };
   const subject = `[SAFE MODE] ${b.headline}: ${i.vehicle}`;
   const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#111;">
     <p style="font-size:12px;color:#a16207;background:#fef9c3;border-radius:8px;padding:8px 10px;">
