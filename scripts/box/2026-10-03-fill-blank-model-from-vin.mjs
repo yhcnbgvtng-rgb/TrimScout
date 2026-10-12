@@ -12,7 +12,9 @@
 // Names: only a model the database already uses for that make is written. vPIC spells some models differently from dealers
 // ("Q6" vs "Q6 e-tron"); those are written under the names in APPROVED_MODEL_ALIASES (src/vinModelFill.js) and any other
 // spelling new to the database is HELD and listed in the report — --allow-new-spellings writes them as vPIC spells them.
-// VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST, e.g. 2026 Audi Q5 Sportback -> "SQ5") are never filled.
+// VIN patterns vPIC is known to decode wrongly (VPIC_PATTERN_BLOCKLIST, e.g. 2026 Audi Q5 Sportback -> "SQ5") never take vPIC's model.
+// An Audi row in one takes it from its own listing URL instead (tier L), only when that names exactly Q5 Sportback, SQ5 Sportback,
+// Q5 or SQ5 (SQ5 only if the listing says SQ5) and the database already uses that spelling; otherwise it stays blank.
 //
 // SAFE BY DEFAULT: with no flags this is a DRY RUN — it reads, decodes, prints the report and writes the full
 // decisions to ~/fill-blank-model-decisions-<time>.json, and changes nothing.
@@ -21,10 +23,14 @@
 //                          heartbeats it. Updates are by primary key in small batches with a pause between them.
 //   --decisions=FILE       with --apply: apply exactly the fills in a reviewed dry-run's file instead of recomputing.
 //   --make=Toyota          limit to one make (dry run or apply).
+//   --blocked-only         only the rows in a VIN pattern on VPIC_PATTERN_BLOCKLIST (tier L: model from the listing; no vPIC calls, no
+//                          decisions file, no whole-table counts). A dry run reads as the READER login and caps every statement at
+//                          20 s; with --apply it recomputes from the database (never combine it with --decisions).
 //   --allow-new-spellings  also write vPIC spellings the database has never used for the make (default: hold them).
 //
 // Run on the deals box from /opt/trimscout-deals (needs src/vinModelFill.js deployed next to it):
 //   sudo node 2026-10-03-fill-blank-model-from-vin.mjs                                  # dry run
+//   sudo node 2026-10-03-fill-blank-model-from-vin.mjs --blocked-only                  # read-only dry run of the Audi Q5 Sportback fill
 //   sudo node 2026-10-03-fill-blank-model-from-vin.mjs --apply --fleet-idle --decisions=/home/ubuntu/fill-blank-model-decisions-XXXX.json
 import fs from "node:fs";
 import os from "node:os";
@@ -39,6 +45,7 @@ const FLEET_IDLE = flag("fleet-idle");
 const ONLY_MAKE = opt("make");
 const DECISIONS_IN = opt("decisions");
 const ALLOW_NEW_SPELLINGS = flag("allow-new-spellings");
+const BLOCKED_ONLY = flag("blocked-only");
 const UPDATE_BATCH = 200; // (vin, dealer_id) pairs per UPDATE
 const PAUSE_MS = 150;
 const VPIC_BATCH = 50; // vPIC's batch limit
@@ -54,6 +61,7 @@ if (!fs.existsSync(modPath)) {
   console.error(`Missing ${modPath} — deploy src/vinModelFill.js to the box first.`);
   process.exit(1);
 }
+if (BLOCKED_ONLY && DECISIONS_IN) { console.error("--blocked-only recomputes from the database; do not combine it with --decisions."); process.exit(1); }
 const F = await import(modPath);
 
 function readEnvFile(file) {
@@ -77,10 +85,16 @@ const API_KEY = process.env.TRIMSCOUT_API_KEY || appEnv.TRIMSCOUT_API_KEY || dbE
 const DEALS = `http://127.0.0.1:${process.env.DEALS_API_PORT || dbEnv.DEALS_API_PORT || 3004}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// A dry run reads as the reader login (when the box has one) and every statement is capped at 20 s; --apply uses the writer.
+const readerUser = dbEnv.DB_READER_USER || process.env.DB_READER_USER;
+const useReader = !APPLY && Boolean(readerUser);
+if (!APPLY && BLOCKED_ONLY && !useReader) { console.error("--blocked-only dry run needs DB_READER_USER / DB_READER_PASSWORD (env or .env.trimscout-db)."); process.exit(1); }
 const pool = mysql.createPool({
   host: dbEnv.DB_HOST || process.env.DB_HOST, port: Number(dbEnv.DB_PORT || process.env.DB_PORT) || 3306, database: dbEnv.DB_NAME || process.env.DB_NAME || "trimscout",
-  user: dbEnv.DB_WRITER_USER || process.env.DB_WRITER_USER, password: dbEnv.DB_WRITER_PASSWORD || process.env.DB_WRITER_PASSWORD, connectionLimit: 2,
+  user: useReader ? readerUser : dbEnv.DB_WRITER_USER || process.env.DB_WRITER_USER,
+  password: useReader ? dbEnv.DB_READER_PASSWORD || process.env.DB_READER_PASSWORD : dbEnv.DB_WRITER_PASSWORD || process.env.DB_WRITER_PASSWORD, connectionLimit: 2,
 });
+if (!APPLY) pool.pool.on("connection", (c) => c.query("SET SESSION max_statement_time = 20"));
 
 // ---- sync lock (apply only) -------------------------------------------------------------------------------
 async function lockCall(action, owner, extra = {}) {
@@ -142,16 +156,20 @@ async function counts() {
 
 async function main() {
   console.log(`${APPLY ? "LIVE (--apply)" : "DRY RUN"}  ${new Date().toISOString()}${ONLY_MAKE ? `  make=${ONLY_MAKE}` : ""}`);
-  const before = await counts();
-  console.log(`In-stock rows: ${fmt(before.inStock)}; blank model: ${fmt(before.blank)} (${before.pct}%)`);
+  const before = BLOCKED_ONLY ? { inStock: 0, blank: 0, pct: "n/a" } : await counts();
+  if (!BLOCKED_ONLY) console.log(`In-stock rows: ${fmt(before.inStock)}; blank model: ${fmt(before.blank)} (${before.pct}%)`);
 
-  const makeClause = ONLY_MAKE ? " AND i.make = ?" : "";
+  // --blocked-only: prefix ranges on the primary key, one per blocklisted pattern (positions 1-8, any check digit, model-year character).
+  const patLike = BLOCKED_ONLY ? [...F.VPIC_PATTERN_BLOCKLIST.keys()].map((k) => `${k.slice(0, 8)}_${k[8]}%`) : [];
+  const makeClause = (ONLY_MAKE ? " AND i.make = ?" : "") + (BLOCKED_ONLY ? ` AND (${patLike.map(() => "i.vin LIKE ?").join(" OR ")})` : "");
+  const makeParams = [...(ONLY_MAKE ? [ONLY_MAKE] : []), ...patLike];
   // Only index-covered columns here (idx_inv_stock_make carries removed_at, make, model and the primary key): selecting
   // vdp_url as well made MariaDB scan all ~3M wide rows (EXPLAIN type ALL, minutes of I/O), and an ORDER BY made it walk
   // the table in primary-key order. The listing URL is fetched below, only for rows that need it.
   const [rowsRaw] = await pool.query(
     `SELECT i.vin, i.dealer_id AS dealerId, i.make, d.state FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id
-     WHERE i.removed_at IS NULL AND (i.model IS NULL OR i.model = '')${makeClause}`, ONLY_MAKE ? [ONLY_MAKE] : []);
+     WHERE i.removed_at IS NULL AND (i.model IS NULL OR i.model = '')${makeClause}`, makeParams);
+  if (BLOCKED_ONLY) rowsRaw.splice(0, rowsRaw.length, ...rowsRaw.filter((r) => F.isBlockedPattern(String(r.vin || "").toUpperCase())));
   rowsRaw.sort((a, b) => (a.vin < b.vin ? -1 : a.vin > b.vin ? 1 : a.dealerId - b.dealerId));
   const rows = rowsRaw.map((r) => ({ vin: String(r.vin || "").toUpperCase(), dealerId: Number(r.dealerId), make: r.make, vdpUrl: null, state: r.state }));
   // Listing URLs, by primary key (a plain OR of per-row comparisons), for the rows whose VIN fails its check digit
@@ -164,7 +182,7 @@ async function main() {
       for (const r of chunk) r.vdpUrl = byKey.get(`${r.vin}|${r.dealerId}`) ?? null;
     }
   };
-  await fetchUrls(rows.filter((r) => F.VIN_RE.test(r.vin) && !F.checkDigitValid(r.vin)));
+  await fetchUrls(rows.filter((r) => F.VIN_RE.test(r.vin) && (!F.checkDigitValid(r.vin) || F.isBlockedPattern(r.vin))));
   console.log(`Rows to consider: ${fmt(rows.length)} (${fmt(rows.filter((r) => F.VIN_RE.test(r.vin)).length)} with a 17-character VIN)`);
 
   let decisions;
@@ -176,9 +194,10 @@ async function main() {
     decisions = rows.map((r) => { const f = wanted.get(`${r.vin}|${r.dealerId}`); return f ? { action: "fill", model: f.model, tier: f.tier, seenInDb: f.seenInDb, aliased: f.aliased } : { action: "skip", reason: "not in the reviewed decisions file (or no longer blank)" }; });
     console.log(`Applying the reviewed decisions: ${fmt(saved.fills.length)} fills in ${DECISIONS_IN}`);
   } else {
-    const [groups] = await pool.query("SELECT make, model, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND model IS NOT NULL AND TRIM(model) <> '' GROUP BY make, model");
+    // --blocked-only only needs the Audi spellings; a whole-table GROUP BY could blow the 20 s cap
+    const [groups] = await pool.query(`SELECT make, model, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND model IS NOT NULL AND TRIM(model) <> ''${BLOCKED_ONLY ? " AND make = 'Audi'" : ""} GROUP BY make, model`);
     spellings = F.buildSpellings(groups.map((g) => ({ make: g.make, model: g.model, n: Number(g.n) })));
-    plan = F.planDecodeTargets(rows);
+    plan = F.planDecodeTargets(BLOCKED_ONLY ? [] : rows); // tier L needs no vPIC: a blocked pattern's model comes from the listing
     const sampleVins = [...plan.values()].flatMap((g) => g.sampleVins);
     console.log(`VIN patterns: ${fmt(plan.size)} (decoding ${fmt(sampleVins.length)} sample VINs, up to 3 per pattern, ${VPIC_BATCH} per vPIC call)`);
     const decoded = await decodeMany(sampleVins);
@@ -214,15 +233,15 @@ async function main() {
   const s = F.summarize(rows, decisions);
   console.log(`\n=== ${APPLY ? "Plan being applied" : "DRY-RUN REPORT"} ===`);
   console.log(`Blank in-stock rows considered: ${fmt(s.totals.blank)}   would fill: ${fmt(s.totals.fills)}   would skip: ${fmt(s.totals.skipped)}`);
-  console.log(`  tier A (clean VIN, make matches): ${fmt(decisions.filter((d) => d.tier === "A").length)}   tier B (check digit fails, listing URL names the model): ${fmt(decisions.filter((d) => d.tier === "B").length)}`);
+  console.log(`  tier A (clean VIN, make matches): ${fmt(decisions.filter((d) => d.tier === "A").length)}   tier B (check digit fails, listing URL names the model): ${fmt(decisions.filter((d) => d.tier === "B").length)}   tier L (blocked pattern, model from the listing): ${fmt(decisions.filter((d) => d.tier === "L").length)}`);
   console.log("\nBy make:");
-  console.log(`  ${pad("make", 16)}${pad("blank", 9)}${pad("fill A", 9)}${pad("fill B", 9)}skipped`);
-  for (const m of s.byMake) console.log(`  ${pad(m.make, 16)}${pad(fmt(m.blank), 9)}${pad(fmt(m.fillA), 9)}${pad(fmt(m.fillB), 9)}${fmt(m.skipped)}`);
+  console.log(`  ${pad("make", 16)}${pad("blank", 9)}${pad("fill A", 9)}${pad("fill B", 9)}${pad("fill L", 9)}skipped`);
+  for (const m of s.byMake) console.log(`  ${pad(m.make, 16)}${pad(fmt(m.blank), 9)}${pad(fmt(m.fillA), 9)}${pad(fmt(m.fillB), 9)}${pad(fmt(m.fillL), 9)}${fmt(m.skipped)}`);
   console.log("\nSkip reasons:");
   for (const r of s.reasons) console.log(`  ${pad(fmt(r.n), 8)}${r.reason}`);
 
   const fills = [];
-  decisions.forEach((d, i) => { if (d.action === "fill") fills.push({ ...rows[i], model: d.model, tier: d.tier, seenInDb: d.seenInDb, aliased: d.aliased }); });
+  decisions.forEach((d, i) => { if (d.action === "fill") fills.push({ ...rows[i], model: d.model, tier: d.tier, seenInDb: d.seenInDb, aliased: d.aliased, evidence: d.evidence }); });
   const aliasFills = new Map();
   for (const f of fills) if (f.aliased) aliasFills.set(`${f.make} → ${f.model}`, (aliasFills.get(`${f.make} → ${f.model}`) || 0) + 1);
   console.log(`\nFilled under an approved alias (vPIC's spelling differs from dealers'): ${fmt([...aliasFills.values()].reduce((a, b) => a + b, 0))} rows in ${fmt(aliasFills.size)} names`);
@@ -244,6 +263,15 @@ async function main() {
   console.log(`\nBlocked — VIN patterns vPIC is known to decode wrongly (stays blank): ${fmt([...blocked.values()].reduce((a, b) => a + b, 0))} rows`);
   for (const [k, n] of [...blocked.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${pad(fmt(n), 7)}${k.slice(0, 110)}`);
 
+  const tierL = fills.filter((f) => f.tier === "L");
+  const blockedRows = rows.filter((r) => F.isBlockedPattern(r.vin));
+  console.log(`\nTier L — blocked-pattern rows (${fmt(blockedRows.length)} blank in stock) given a model from the listing: ${fmt(tierL.length)}; left blank: ${fmt(blockedRows.length - tierL.length)}`);
+  const lBy = new Map();
+  for (const f of tierL) lBy.set(`${f.make} → ${f.model}`, (lBy.get(`${f.make} → ${f.model}`) || 0) + 1);
+  for (const [k, n] of [...lBy.entries()].sort((a, b) => b[1] - a[1])) console.log(`  ${pad(fmt(n), 7)}${k}`);
+  console.log("  sample evidence:");
+  for (const f of tierL.filter((_, i) => i % Math.max(1, Math.floor(tierL.length / 5)) === 0).slice(0, 5)) console.log(`    ${f.vin}  → ${f.model}  [${f.evidence}]`);
+
   const flToyota = fills.filter((f) => f.make === "Toyota" && f.state === "FL" && f.vin.startsWith("2T3"));
   const flToyotaAll = rows.filter((r) => r.make === "Toyota" && r.state === "FL" && r.vin.startsWith("2T3"));
   await fetchUrls(flToyota.slice(0, 10).filter((f) => !f.vdpUrl));
@@ -256,8 +284,12 @@ async function main() {
   const shown = new Map();
   decisions.forEach((d, i) => { if (d.action === "skip") { const k = d.reason.replace(/\(row ".*"\)/, "(row vs vPIC)"); const n = shown.get(k) || 0; if (n < 2) { shown.set(k, n + 1); console.log(`  [${k.slice(0, 48)}] ${rows[i].vin} make=${rows[i].make} ${d.reason.startsWith("make mismatch") ? d.reason : ""}`); } } });
 
-  const outFile = path.join(os.homedir(), `fill-blank-model-decisions-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
-  fs.writeFileSync(outFile, JSON.stringify({ generatedAt: new Date().toISOString(), before, totals: s.totals, fills: fills.map(({ vin, dealerId, make, model, tier, seenInDb, aliased }) => ({ vin, dealerId, make, model, tier, seenInDb, aliased })), skips: decisions.map((d, i) => (d.action === "skip" ? { vin: rows[i].vin, dealerId: rows[i].dealerId, make: rows[i].make, reason: d.reason, detail: d.detail } : null)).filter(Boolean) }));
+  if (BLOCKED_ONLY) {
+    // no decisions file, no whole-table counts: the report above is the dry run's whole output
+    if (!APPLY) { console.log("\nDRY RUN (--blocked-only) — nothing was written or changed."); await pool.end(); return; }
+  }
+  const outFile = BLOCKED_ONLY ? path.join(os.homedir(), `fill-blank-model-blocked-applied-${new Date().toISOString().replace(/[:.]/g, "-")}.json`) : path.join(os.homedir(), `fill-blank-model-decisions-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
+  fs.writeFileSync(outFile, JSON.stringify({ generatedAt: new Date().toISOString(), before, totals: s.totals, fills: fills.map(({ vin, dealerId, make, model, tier, seenInDb, aliased, evidence }) => ({ vin, dealerId, make, model, tier, seenInDb, aliased, evidence })), skips: decisions.map((d, i) => (d.action === "skip" ? { vin: rows[i].vin, dealerId: rows[i].dealerId, make: rows[i].make, reason: d.reason, detail: d.detail } : null)).filter(Boolean) }));
   console.log(`\nFull decisions written to ${outFile}`);
   if (!APPLY) { console.log("DRY RUN — nothing was changed."); await pool.end(); return; }
 
@@ -309,8 +341,10 @@ async function main() {
   } finally {
     await release();
   }
-  const after = await counts();
-  console.log(`In-stock rows: ${fmt(after.inStock)}; blank model: ${fmt(after.blank)} (${after.pct}%)   [before: ${fmt(before.blank)} (${before.pct}%)]`);
+  if (!BLOCKED_ONLY) {
+    const after = await counts();
+    console.log(`In-stock rows: ${fmt(after.inStock)}; blank model: ${fmt(after.blank)} (${after.pct}%)   [before: ${fmt(before.blank)} (${before.pct}%)]`);
+  }
   await pool.end();
 }
 main().catch((e) => { console.error(e); process.exit(1); });
