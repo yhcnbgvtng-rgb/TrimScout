@@ -36,6 +36,7 @@ import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryLis
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
 import { createGate, SearchBusyError } from "./searchGate.js";
 import { createRfqStageHandler } from "./rfqStages.js";
+import { createRfqMessagesHandler } from "./rfqMessages.js";
 import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createStatsCache } from "./statsCache.js";
@@ -1213,6 +1214,8 @@ function publicRfqInvite(row, quoteRow) {
     buyerCounterAt: row.buyer_counter_at || null,
     // Staged Cash / Finance deal state for this desk (OTD -> trade-in -> payment); null until the first action.
     stage: parseJsonCol(row.stage_json) || null,
+    // This desk's buyer <-> dealer chat, oldest first. Belongs to this invite only.
+    messages: parseJsonCol(row.messages_json) || [],
     // The buyer accepted a different dealer: this desk's quote is closed, and the one "not selected" note is tracked here.
     notSelectedAt: row.not_selected_at || null,
     notSelectedNoticeClaimedAt: row.not_selected_notice_claimed_at || null,
@@ -1259,6 +1262,7 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS buyer_counter_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS stage_json TEXT NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS messages_json TEXT NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_notice_claimed_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS not_selected_notice_sent_at DATETIME NULL");
@@ -1587,6 +1591,15 @@ const handleRfqStage = createRfqStageHandler({
   ensureColumns: ensureQuotePackageColumns,
   loadInvites: loadRfqInvitesWithQuotes,
   publicRfqRequest, logRfqEvent,
+  auditKind: (req) => req.audit?.kind || null,
+});
+
+// POST /api/rfqs/:id/invites/:inviteId/messages — chat message or fee_override event (module: rfqMessages.js).
+const handleRfqMessages = createRfqMessagesHandler({
+  getPool, readBody, sendJson,
+  ensureColumns: ensureQuotePackageColumns,
+  loadInvites: loadRfqInvitesWithQuotes,
+  publicRfqRequest, logRfqEvent, findContactInfo,
   auditKind: (req) => req.audit?.kind || null,
 });
 
@@ -4078,6 +4091,10 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   const rfqInviteNotSelectedMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/not-selected$/);
   if (req.method === "POST" && rfqInviteNotSelectedMatch) {
     return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));
+  }
+  const rfqInviteMessagesMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/messages$/);
+  if (req.method === "POST" && rfqInviteMessagesMatch) {
+    return run(handleRfqMessages, Number(rfqInviteMessagesMatch[1]), Number(rfqInviteMessagesMatch[2]));
   }
   const rfqInviteStageMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/);
   if (req.method === "POST" && rfqInviteStageMatch) {

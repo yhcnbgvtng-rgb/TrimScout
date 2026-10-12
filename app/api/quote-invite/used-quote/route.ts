@@ -3,7 +3,12 @@
 // quote page behind the invite token. Validated here (lib/usedQuote.ts)
 // against the buyer's locks before anything reaches the box.
 import { NextResponse } from "next/server";
-import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
+import { getRfq, getRfqInviteByViewToken, postRfqMessage, submitRfqQuote } from "@/lib/rfqApi";
+import { normalizeFeeOverrides, type FeeOverride } from "@/lib/feeOverride";
+import { buildFeeOverrideNotice } from "@/lib/feeOverrideNotice";
+import { sendFeeOverrideNotice } from "@/lib/dealerEmail";
+import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
+import { guestTrackerPath, isGuestBuyerId } from "@/lib/buyerAccess";
 import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 
@@ -57,7 +62,13 @@ export async function POST(req: Request) {
   const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
-  const used = quote as UsedQuote;
+  // TrimScout calculates sales tax and title & registration. A different amount is the dealer's override: it needs a
+  // reason, and the calculated figure is recomputed here, never taken from the browser. The doc fee can't be overridden.
+  const zip = rfq.quotePrefs.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs.cash.zip;
+  const fees = normalizeFeeOverrides({ dueAtSigning: quote.dueAtSigning, sellingPrice: quote.sellingPrice, addOns: quote.addOns, zip, submitted: raw.feeOverrides });
+  if (fees.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: fees.errors, warnings: v.warnings }, { status: 422 });
+
+  const used = { ...(quote as UsedQuote), feeOverrides: fees.overrides.length ? fees.overrides : null } as UsedQuote;
   await submitRfqQuote(found.rfqId, found.invite.id, {
     // Older readers see a number: the selling price and the itemized lines.
     price: used.sellingPrice,
@@ -69,5 +80,20 @@ export async function POST(req: Request) {
     notes: used.notes || null,
     used,
   });
+  if (fees.overrides.length) await announceOverrides({ rfq, invite: found.invite, rfqId: found.rfqId, vin, overrides: fees.overrides });
   return NextResponse.json({ ok: true, warnings: v.warnings, outTheDoor: used.kind === "cash" ? cashOutTheDoor(used) : null });
+}
+
+/** Best effort — the quote is already saved: log the override as a deal event, and tell the buyer through the SAFE MODE sender. */
+async function announceOverrides(i: { rfq: NonNullable<Awaited<ReturnType<typeof getRfq>>>; invite: { id: string; dealerName: string }; rfqId: string; vin: string; overrides: FeeOverride[] }) {
+  await postRfqMessage(i.rfqId, i.invite.id, { kind: "event", type: "fee_override", overrides: i.overrides as unknown as Array<Record<string, unknown>> }).catch((err) => {
+    console.warn("used-quote: could not log the fee_override event —", err instanceof Error ? err.message : err);
+  });
+  const notice = buildFeeOverrideNotice({
+    dealerName: i.invite.dealerName,
+    vehicle: [i.rfq.vehicleYear, i.rfq.vehicleMake, i.rfq.vehicleModel, i.rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
+    overrides: i.overrides,
+    url: `${DEALER_EMAIL_BASE_URL}${isGuestBuyerId(i.rfq.buyerUserId) ? guestTrackerPath(i.rfqId) : `/rfq/${encodeURIComponent(i.rfqId)}`}`,
+  });
+  await sendFeeOverrideNotice(notice);
 }

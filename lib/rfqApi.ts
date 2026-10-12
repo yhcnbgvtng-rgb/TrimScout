@@ -10,7 +10,7 @@ import type { DealStageState } from "./dealStages";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
-import type { RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
+import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
 const DEALS_API_PORT = 3004;
 const DEFAULT_TIMEOUT_MS = 8000;
@@ -213,6 +213,26 @@ export async function postDealStage(
   } catch (err) {
     if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") {
       throw new RfqApiError("The staged deal isn't available yet.", 503);
+    }
+    throw err;
+  }
+}
+
+/**
+ * One chat message on a desk's thread, or a deal event the app wants logged (the dealer's fee override). Needs the box patch
+ * scripts/box/2026-10-11-rfq-messages.sh; on an unpatched box this 404s and is reported as "not available yet".
+ */
+export async function postRfqMessage(
+  rfqId: string,
+  inviteId: string,
+  input: { kind: "message"; from: "buyer" | "dealer"; text: string } | { kind: "event"; type: "fee_override"; overrides: Array<Record<string, unknown>> }
+): Promise<{ rfq?: RfqRequest; message?: DealMessage }> {
+  try {
+    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, input);
+    return { rfq: json.rfq as RfqRequest | undefined, message: json.message as DealMessage | undefined };
+  } catch (err) {
+    if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") {
+      throw new RfqApiError("Messaging isn't available yet.", 503);
     }
     throw err;
   }

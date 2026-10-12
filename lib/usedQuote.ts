@@ -9,6 +9,7 @@
  */
 import type { LeaseTimeline, LineItem } from "./leaseQuote";
 import { parseCreditBand, type CreditBand } from "./creditBand";
+import type { FeeOverride } from "./feeOverride";
 
 export type UsedQuoteType = "finance" | "cash";
 export const FINANCE_TERMS = [36, 48, 60, 72, 84] as const;
@@ -88,6 +89,8 @@ interface UsedQuoteBase {
   /** ISO timestamp; must be in the future when submitted. */
   expiresAt: string;
   notes?: string | null;
+  /** Dealer replacements of the fees TrimScout calculates (sales tax, title & registration) — lib/feeOverride.ts. The doc fee is never here. */
+  feeOverrides?: FeeOverride[] | null;
 }
 export interface UsedCashQuote extends UsedQuoteBase {
   kind: "cash";

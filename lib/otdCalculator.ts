@@ -279,6 +279,11 @@ export function getEstimatedTaxRate(zipCode: string = "94107"): number {
   return getZipCoordinates(zipCode).taxRate;
 }
 
+/** TrimScout's own title & registration estimate: 1.1% of the selling price + $220. */
+export function estimateTitleRegistration(sellingPrice: number): number {
+  return Math.round(sellingPrice * 0.011 + 220);
+}
+
 export function calculateOtd(input: OtdCalculationInput): OtdCalculationResult {
   const msrp = input.msrp;
   const rebates = input.rebates || 0;
@@ -297,7 +302,7 @@ export function calculateOtd(input: OtdCalculationInput): OtdCalculationResult {
 
   const sellingPrice = Math.max(0, msrp - discountDollars - rebates);
   const salesTax = Math.round(sellingPrice * taxRate);
-  const dmvFees = Math.round(sellingPrice * 0.011 + 220);
+  const dmvFees = estimateTitleRegistration(sellingPrice);
   const totalOtdPrice = sellingPrice + salesTax + dmvFees + docFee + accessories;
   const quotedOtdPrice = sellingPrice + docFee + accessories;
 

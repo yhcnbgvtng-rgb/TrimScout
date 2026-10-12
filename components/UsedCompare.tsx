@@ -14,6 +14,8 @@ import { isExpired } from "../lib/leaseQuote";
 import type { RfqRequest } from "../lib/rfq";
 import type { LineItem } from "../lib/leaseQuote";
 import { stageOf } from "../lib/dealStages";
+import { DealerAdjustedFlag } from "./DealerAdjustedFlag";
+import { activeOverrides } from "../lib/feeOverride";
 
 /**
  * Finance / Cash compare — never the lease grid. Every row is the same
@@ -153,8 +155,8 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
     const feeLines = used ? used.dueAtSigning.filter((l) => !isTax(l.name)) : [];
     const cells: Record<string, React.ReactNode> = used ? {
       price: fmtMoney(used.sellingPrice),
-      fees: feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>,
-      tax: taxLines.length ? lines(dueAtSigningSum(taxLines), taxLines) : <span className="text-ink-muted">—</span>,
+      fees: <>{feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>}<DealerAdjustedFlag overrides={activeOverrides(used).filter((o) => o.key === "title_registration")} /></>,
+      tax: <>{taxLines.length ? lines(dueAtSigningSum(taxLines), taxLines) : <span className="text-ink-muted">—</span>}<DealerAdjustedFlag overrides={activeOverrides(used).filter((o) => o.key === "sales_tax")} /></>,
       addons: used.noAddOns || !used.addOns?.length ? <span className="text-ink-muted">None</span> : lines(dueAtSigningSum(used.addOns), used.addOns),
       rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
       miles: used.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—",
