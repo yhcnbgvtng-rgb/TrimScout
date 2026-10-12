@@ -18,8 +18,7 @@ test("the dry run flags exactly the junk rows and leaves real expensive cars alo
   const r = classifyRows(ROWS);
   assert.deepEqual(r.flagged.map((f) => f.vin), ["BRS", "PRV", "IO9", "PAL", "EXP"], "highest price first");
   assert.equal(r.scanned, 7);
-  assert.equal(r.byReason["over-make-ceiling"], 3, "Bronco Sport, Prevost, IONIQ 9 have no MSRP to compare with");
-  assert.equal(r.byReason["over-5x-msrp"], 2, "Palisade (msrp 52k) and Explorer (msrp 66k) are caught by the ratio first");
+  assert.deepEqual(r.byReason, { "over-make-ceiling": 5 }, "the ceiling is checked first, so it is the reason for all five");
   assert.equal(r.byMake.Hyundai, 2);
 });
 

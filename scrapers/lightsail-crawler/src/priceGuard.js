@@ -3,18 +3,19 @@
 // Downtown LA's Palisade and IONIQ 9 at $1.25-1.62M, a $3.6M Bronco Sport (PA), an Explorer (OH), a $3.5M Prevost.
 //
 // A price is REJECTED (-> null, never clamped or "fixed"; the upsert keeps the last stored price when the new one is null) when
-//   1. it is more than 5x the car's previous crawled price, or more than 5x its own MSRP — a decimal/extra-digit slip or a
-//      stock-number / phone-number scrape moves a price by far more than any real repricing does;
-//   2. it is over the absolute ceiling for its make (volume brands 150k, everything else 300k; exotics, Porsche, pre-1996 cars and
-//      known collectibles are exempt) unless its own MSRP supports it (price <= 2x a usable MSRP that is itself under 2x the ceiling).
-// An MSRP that is itself implausible (a fee or typo under 15k) never causes the price to be rejected; ratios use only usable references.
+//   1. it is over the absolute ceiling for its make (volume brands 150k, everything else 300k; exotics, Porsche, pre-1996 cars and
+//      known collectibles are exempt) unless its own MSRP supports it (price <= 2x a usable MSRP that is itself under 2x the ceiling);
+//   2. it is more than 5x its own MSRP (a usable one: 15k or more);
+//   3. it is more than 5x the car's previous crawled price (a usable one: 15k or more — a previous price under that is more often the
+//      broken value than the new one: a GLS now $105,900 was stored at $10,290).
+// The checks run in that order so the reported reason is the strongest evidence. Nothing is ever rejected for being too LOW.
 
 import { COLLECTIBLE_MODEL_RE, CEILING_EXEMPT_MAKES, CLASSIC_BEFORE_YEAR, isExoticMake, keyOf } from './ingestGuards.js';
 
 export const MAX_PRICE_JUMP = 5;
 export const DEFAULT_CEILING = 300_000;
 export const VOLUME_CEILING = 150_000;
-const MIN_PREV_PRICE = 5_000;   // a previous price under this is a teaser/placeholder, not evidence of the car's real price
+const MIN_PREV_PRICE = 15_000;  // a previous price under this is a teaser/placeholder/decimal slip, not evidence of the car's real price (live: GLS now $105,900, previously stored $10,290)
 const MIN_USABLE_MSRP = 15_000; // same floor as ingestGuards.js NORMAL_MSRP_FLOOR
 const MSRP_SUPPORT_RATIO = 2;
 
@@ -44,13 +45,6 @@ export function guardParsedPrice({ price, msrp = null, prevPrice = null, make = 
   const prev = num(prevPrice);
   const m = num(msrp);
 
-  if (prev !== null && prev >= MIN_PREV_PRICE && p > prev * MAX_PRICE_JUMP) {
-    return { reject: true, reason: 'over-5x-previous-price', limit: prev * MAX_PRICE_JUMP, ref: prev };
-  }
-  if (m !== null && m >= MIN_USABLE_MSRP && p > m * MAX_PRICE_JUMP) {
-    return { reject: true, reason: 'over-5x-msrp', limit: m * MAX_PRICE_JUMP, ref: m };
-  }
-
   const ceiling = ceilingForMake(make);
   const classic = num(year) !== null && year < CLASSIC_BEFORE_YEAR;
   if (ceiling !== null && p > ceiling && !classic && !COLLECTIBLE_MODEL_RE.test(`${make || ''} ${model || ''}`)) {
@@ -58,6 +52,14 @@ export function guardParsedPrice({ price, msrp = null, prevPrice = null, make = 
     // arrives with a junk MSRP equal to it.
     const supported = m !== null && m >= MIN_USABLE_MSRP && m <= ceiling * MSRP_SUPPORT_RATIO && p <= m * MSRP_SUPPORT_RATIO;
     if (!supported) return { reject: true, reason: 'over-make-ceiling', limit: ceiling, ref: m };
+  }
+
+  if (m !== null && m >= MIN_USABLE_MSRP && p > m * MAX_PRICE_JUMP) {
+    return { reject: true, reason: 'over-5x-msrp', limit: m * MAX_PRICE_JUMP, ref: m };
+  }
+
+  if (prev !== null && prev >= MIN_PREV_PRICE && p > prev * MAX_PRICE_JUMP) {
+    return { reject: true, reason: 'over-5x-previous-price', limit: prev * MAX_PRICE_JUMP, ref: prev };
   }
   return none;
 }

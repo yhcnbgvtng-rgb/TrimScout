@@ -2,7 +2,7 @@
 // price over 5x the car's previous price or its MSRP, or over the make's absolute ceiling. Writes nothing to any database, takes no
 // sync lock, restarts nothing. The CLEANUP of these rows is a separate, later step that needs Paul's GO in an idle window.
 //
-//   node 2026-10-12-junk-price-dry-run.mjs --env /opt/trimscout-deals/.env.trimscout-db [--out ./out] [--min-price 75000] [--limit 20000]
+//   node 2026-10-12-junk-price-dry-run.mjs --env /opt/trimscout-deals/.env.trimscout-db [--out ./out|none] [--min-price 75000] [--limit 20000] [--count]
 //
 // Limits: READER account only, the session is READ ONLY, every query has a 20 s server-side cap (SET STATEMENT max_statement_time=20), and
 // the one candidate query is an index range scan on idx_inv_stock_price (removed_at, price). A timeout stops the run; nothing is retried.
@@ -17,7 +17,8 @@ import { pointsAtDeadIp } from "../../config/boxes.mjs";
 const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 const envFile = opt("env", "/opt/trimscout-deals/.env.trimscout-db");
-const outDir = path.resolve(opt("out", "./out"));
+const outArg = opt("out", "./out"); // "none" = print only, write no files
+const outDir = outArg === "none" ? null : path.resolve(outArg);
 const MIN_PRICE = Math.max(25_000, Number(opt("min-price", 75_000)) || 75_000);
 const LIMIT = Math.min(100_000, Math.max(100, Number(opt("limit", 20_000)) || 20_000));
 const CAP_SECONDS = 20;
@@ -28,7 +29,9 @@ if (pointsAtDeadIp(env.DB_HOST, process.env.TRIMSCOUT_DEALS_HOST)) { console.err
 if (!env.DB_READER_USER) { console.error("No DB_READER_USER in the env file; this script only uses the reader account."); process.exit(1); }
 const pool = mysql.createPool({ host: env.DB_HOST, port: Number(env.DB_PORT || 3306), user: env.DB_READER_USER, password: env.DB_READER_PASSWORD, database: env.DB_NAME, connectionLimit: 1 });
 
-async function q(sql, params = []) {
+let shape = "start";
+async function q(name, sql, params = []) {
+  shape = name;
   const conn = await pool.getConnection();
   try {
     await conn.query("SET SESSION TRANSACTION READ ONLY");
@@ -39,20 +42,24 @@ async function q(sql, params = []) {
 
 const COLS = "vin, dealer_id, dealer_name, state, cond, year, make, model, `trim`, price, msrp, old_price, last_seen_at";
 try {
-  const [{ n: inStock }] = await q("SELECT COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND price IS NOT NULL");
+  // The in-stock total is a scan of the whole index, so it is opt-in (--count); the default run is the one bounded range query below.
+  const inStock = args.includes("--count") ? (await q("in-stock count", "SELECT COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND price IS NOT NULL"))[0].n : null;
   const rows = await q(
-    `SELECT ${COLS} FROM dealer_inventory WHERE removed_at IS NULL AND price > ? AND (price > 150000 OR (msrp >= 15000 AND price > msrp * 5) OR (old_price >= 5000 AND price > old_price * 5)) ORDER BY price DESC LIMIT ?`,
+    "candidate rows",
+    `SELECT ${COLS} FROM dealer_inventory FORCE INDEX (idx_inv_stock_price) WHERE removed_at IS NULL AND price > ? AND (price > 150000 OR (msrp >= 15000 AND price > msrp * 5) OR (old_price >= 15000 AND price > old_price * 5)) ORDER BY price DESC LIMIT ?`,
     [MIN_PRICE, LIMIT],
   );
   const result = classifyRows(rows);
   const named = namedCaseReport(result.flagged, rows);
-  const text = renderReport(result, named, { inStock: Number(inStock), minPrice: MIN_PRICE, truncated: rows.length >= LIMIT });
-  fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, "junk-price-dry-run.txt"), text + "\n");
-  fs.writeFileSync(path.join(outDir, "junk-price-dry-run.json"), JSON.stringify({ ...result, named, inStock: Number(inStock) }, null, 1));
+  const text = renderReport(result, named, { inStock: inStock === null ? null : Number(inStock), minPrice: MIN_PRICE, truncated: rows.length >= LIMIT });
   console.log(text);
-  console.log(`\nWrote ${path.join(outDir, "junk-price-dry-run.txt")} and .json`);
+  if (outDir) {
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.writeFileSync(path.join(outDir, "junk-price-dry-run.txt"), text + "\n");
+    fs.writeFileSync(path.join(outDir, "junk-price-dry-run.json"), JSON.stringify({ ...result, named, inStock: inStock === null ? null : Number(inStock) }, null, 1));
+    console.log(`\nWrote ${path.join(outDir, "junk-price-dry-run.txt")} and .json`);
+  }
 } catch (err) {
-  console.error(/max_statement_time/.test(err.message) ? `STOPPED: the query hit the ${CAP_SECONDS}s cap; nothing was retried.` : `STOPPED: ${err.message}`);
+  console.error(/max_statement_time/.test(err.message) ? `STOPPED: the "${shape}" query hit the ${CAP_SECONDS}s cap; nothing was retried.` : `STOPPED: ${err.message}`);
   process.exitCode = 1;
 } finally { await pool.end(); }

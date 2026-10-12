@@ -20,6 +20,17 @@ test('over 5x the previous price or 5x the MSRP is rejected, with the reason', (
   assert.equal(MAX_PRICE_JUMP, 5);
 });
 
+test('a previous price that is itself the broken one does not block the real price (live 2026-10-12: GLS $105,900, stored $10,290)', () => {
+  assert.equal(guardParsedPrice({ price: 105_900, msrp: 105_900, prevPrice: 10_290, make: 'Mercedes-Benz', model: 'GLS', year: 2024 }).reject, false);
+  assert.equal(guardParsedPrice({ price: 98_900, prevPrice: 9_590, make: 'Ford', model: 'F-150', year: 2023 }).reject, false);
+  assert.equal(guardParsedPrice({ price: 98_900, prevPrice: 15_000, make: 'Ford', model: 'F-150', year: 2023 }).reject, true, 'at the 15k floor the reference counts');
+});
+
+test('the reason is the strongest evidence: the ceiling is reported before the ratios', () => {
+  assert.equal(guardParsedPrice({ price: 727_872, msrp: 727_872, prevPrice: 35_797, make: 'Hyundai', model: 'KONA', year: 2027 }).reason, 'over-make-ceiling');
+  assert.equal(guardParsedPrice({ price: 260_508, msrp: 27_865, make: 'Nissan', model: 'Sentra', year: 2027 }).reason, 'over-make-ceiling');
+});
+
 test('exactly 5x is allowed; real repricings are untouched', () => {
   assert.equal(guardParsedPrice({ price: 250_000, prevPrice: 50_000, make: 'Ford', model: 'F-150', year: 2026 }).reject, false);
   assert.equal(guardParsedPrice({ price: 47_900, prevPrice: 52_000, msrp: 55_000, make: 'Toyota', model: 'Highlander', year: 2026 }).reject, false);
