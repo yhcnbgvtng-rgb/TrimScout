@@ -5,6 +5,7 @@
 // Body: { action: { type, ...fields }, actor: "buyer" | "dealer", state?: "NJ" }
 //   `state` is the buyer's two-letter state (from their ZIP, resolved by the Next app); it only decides whether the
 //   trade-in tax saving is shown. The OTD amount and tax rate always come from the quote on file, never from the body.
+// Counters, accepts and the release of the buyer's details are each logged as a stage event (rfq events + the state's own log).
 // Scoped audit keys are pinned to their own side: the audit buyer key can only act as "buyer", the audit
 // test-dealer key only as "dealer". Real emails are the Next app's job and stay under SAFE MODE there.
 import { applyStageAction, cashQuoteOtd, initialStageState, quoteTaxRate } from "./dealStages.js";
@@ -64,6 +65,11 @@ export function createRfqStageHandler(deps) {
       taxRate: quoteTaxRate(used),
       state: buyerState,
       hasTradeInOnFile: rfq.trade_in_json != null && rfq.trade_in_json !== "",
+      // The payoff the buyer stated on the trade-in on file, never a number from the browser.
+      tradePayoff: parse(rfq.trade_in_json)?.payoffEstimate ?? null,
+      // Contact details are only read by accept_final, and only when the buyer is the actor (the Next app supplies them
+      // from the signed-in buyer; no dealer-side request can carry them).
+      buyerContact: actor === "buyer" && action.type === "accept_final" ? body.buyerContact : null,
     });
     if (!outcome.ok) return sendJson(res, HTTP_BY_CODE[outcome.code] || 409, { error: outcome.error, code: outcome.code });
     const next = outcome.state;
@@ -93,6 +99,11 @@ export function createRfqStageHandler(deps) {
       inviteId, dealerName: invite.dealer_name, actor, action: action.type, stage: next.stage, vin: null, stockNumber: null, mustHaves: [],
       ...(next.stage === "closed" ? { pickedQuoteId: quote ? quote.id : null, method: next.payment.method } : {}),
     });
+    // The release of the buyer's details is its own stage event. It records THAT it happened and to which dealer; the details
+    // themselves live only in this invite's stage_json and are never written to the event log.
+    if (next.release && !before.release) {
+      await logRfqEvent(pool, rfqId, "buyer_details_released", { inviteId, dealerName: invite.dealer_name, actor: "system", action: "release", stage: next.stage, vin: null, stockNumber: null, mustHaves: [] });
+    }
     const [freshRfq] = await pool.query("SELECT * FROM rfq_requests WHERE id = ?", [rfqId]);
     const invites = await loadInvites(pool, rfqId);
     sendJson(res, 200, { rfq: publicRfqRequest(freshRfq[0], invites), stage: next });

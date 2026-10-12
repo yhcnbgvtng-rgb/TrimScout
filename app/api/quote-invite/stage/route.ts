@@ -4,7 +4,7 @@
 // revised quote.) The buyer is told through the SAFE MODE sender. A request, not a bid.
 import { NextResponse } from "next/server";
 import { getRfq, getRfqInviteByViewToken, postDealStage, RfqApiError } from "@/lib/rfqApi";
-import { isStagedRfq } from "@/lib/dealStages";
+import { isStagedRfq, stageForDealer } from "@/lib/dealStages";
 import { parseStageAction } from "@/lib/dealStageInput";
 import { buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       url: `${DEALER_EMAIL_BASE_URL}${isGuestBuyerId(rfq.buyerUserId) ? guestTrackerPath(found.rfqId) : `/rfq/${encodeURIComponent(found.rfqId)}`}`,
     });
     await sendDealStageNotice(notice);
-    return NextResponse.json({ ok: true, stage: result.stage });
+    return NextResponse.json({ ok: true, stage: stageForDealer(result.stage, { notSelected: Boolean(invite.notSelectedAt) }) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not update this deal.";
     const status = err instanceof RfqApiError ? err.status : 502;

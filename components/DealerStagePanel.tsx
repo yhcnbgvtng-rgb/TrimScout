@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FINANCE_TERM_OPTIONS, MAX_APR, monthlyPayment, stageSummary, type DealStageState, type StageAction } from "../lib/dealStages";
+import { CREDIT_RANGE_LABELS, FINANCE_TERM_OPTIONS, financeMath, liveTrueOtd, MAX_APR, PAYMENT_METHOD_LABELS, stageSummary, type CreditRange, type DealStageState, type StageAction } from "../lib/dealStages";
 import { DealStageBar } from "./DealStageBar";
 
 const usd = (n: number | null | undefined) => (typeof n === "number" ? `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—");
@@ -40,11 +40,15 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
   };
 
   const financeAmount = stage.trueOtd != null && p.downPayment != null ? Math.round((stage.trueOtd - p.downPayment) * 100) / 100 : null;
-  const previewMonthly = financeAmount != null && apr.trim() !== "" ? monthlyPayment(financeAmount, Number(apr), Number(term)) : null;
+  const aprNum = apr.trim() === "" ? NaN : Number(apr);
+  const math = stage.trueOtd != null && p.downPayment != null && Number.isFinite(aprNum) && aprNum >= 0 ? financeMath({ trueOtd: stage.trueOtd, downPayment: p.downPayment, apr: aprNum, termMonths: Number(term) }) : null;
+  // The dealer submits the monthly and amount financed too, and the server checks them against the numbers: they come from the same math.
+  const quoteAction = (): StageAction => ({ type: "finance_quote", apr, termMonths: term, lenderName: lender, ...(math ? { monthly: math.monthly, amountFinanced: math.amountFinanced } : {}) });
   const btn = "rounded-lg px-3 py-1.5 text-xs font-extrabold disabled:opacity-50";
   const primary = `${btn} bg-brand-500 text-black hover:bg-brand-400`;
   const ghost = `${btn} border border-border text-ink-light hover:text-white font-bold`;
-  const input = "w-32 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs text-white";
+  const input = "w-full min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-xs text-white sm:w-32 sm:py-1.5";
+  const live = liveTrueOtd(stage);
 
   return (
     <section className="space-y-3 rounded-2xl border border-border bg-surface p-5" data-testid="dealer-stage-panel" data-stage={stage.stage}>
@@ -68,17 +72,21 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
         <div className="space-y-2" data-testid="dealer-stage-trade">
           {!hasTrade ? (
             <p className="text-xs text-amber-200">The buyer hasn&apos;t added the trade-in yet, so there is nothing to value.</p>
-          ) : t.counter && !t.counterAnswered ? (
+          ) : t.turn === "dealer" && t.counter ? (
             <>
-              <p className="text-xs text-white">You offered <strong>{usd(t.offer?.value)}</strong>. The buyer countered <strong>{usd(t.counter.value)}</strong>.{t.counter.note ? ` "${t.counter.note}"` : ""} Accept it, or send one revised offer (then they accept or walk).</p>
+              <p className="text-xs text-white" data-testid="dealer-trade-counter">You offered <strong>{usd(t.offer?.value)}</strong>. The buyer countered <strong>{usd(t.counter.value)}</strong>.{t.counter.note ? ` "${t.counter.note}"` : ""} Accept it, send a revised offer, or hold firm.</p>
+              {live ? <p className="text-[11px] text-ink-muted" data-testid="live-true-otd">True out-the-door at their number: <strong>{usd(live.ifCounter)}</strong>, at yours: <strong>{usd(live.ifOffer)}</strong>{live.payoff > 0 ? ` (includes ${usd(live.payoff)} payoff)` : ""}</p> : null}
               <div className="flex flex-wrap items-center gap-2">
                 <button type="button" disabled={busy} onClick={() => act({ type: "trade_accept_counter" })} className={primary} data-testid="accept-trade-counter">Accept {usd(t.counter.value)}</button>
+                <button type="button" disabled={busy} onClick={() => act({ type: "trade_hold" })} className={ghost} data-testid="hold-trade">Hold firm at {usd(t.offer?.value)}</button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <input inputMode="decimal" aria-label="Revised trade value" placeholder="Revised value $" value={value} onChange={(e) => setValue(e.target.value)} className={input} />
                 <button type="button" disabled={busy || !value.trim()} onClick={() => act({ type: "trade_offer", value, basis })} className={ghost} data-testid="revise-trade-offer">Send revised offer</button>
               </div>
             </>
           ) : t.offer ? (
-            <p className="text-xs text-ink-muted">Your offer of {usd(t.offer.value)} is with the buyer. They accept, counter once, or walk away.</p>
+            <p className="text-xs text-ink-muted" data-testid="dealer-trade-waiting">Your {t.offer.held ? "firm position of " : "offer of "}{usd(t.offer.value)} is with the buyer. They accept, counter, or walk away.{live?.ifOffer != null ? ` True out-the-door if accepted: ${usd(live.ifOffer)}.` : ""}</p>
           ) : (
             <>
               <p className="text-xs text-ink-muted">Stage 2: value the buyer&apos;s trade-in (details and photos are in the trade section below). Your number is a request, not a bid.</p>
@@ -97,35 +105,70 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
 
       {open && stage.stage === "payment" ? (
         <div className="space-y-2" data-testid="dealer-stage-payment">
-          {!p.financeRequestedAt ? (
-            <p className="text-xs text-ink-muted">Stage 3: the buyer is choosing between paying cash at {usd(stage.trueOtd)} and asking you for financing.</p>
+          {p.method !== "dealer_finance" || !p.financeRequestedAt ? (
+            <p className="text-xs text-ink-muted">Stage 3: the buyer is choosing how to pay: cash at {usd(stage.trueOtd)}, their own financing, or a financing offer from you.</p>
           ) : (
             <>
               <p className="text-xs text-white">
-                The buyer wants financing: true out-the-door {usd(stage.trueOtd)} less {usd(p.downPayment)} down = <strong>{usd(financeAmount)}</strong> to finance.
+                The buyer wants a financing offer: true out-the-door {usd(stage.trueOtd)} less {usd(p.downPayment)} down = <strong>{usd(financeAmount)}</strong> to finance.
                 {p.preferredTermMonths ? ` They'd like ${p.preferredTermMonths} months.` : ""}
+                {p.creditRange ? ` Credit range: ${CREDIT_RANGE_LABELS[p.creditRange as CreditRange]}.` : ""}
                 {p.outsideFinancing ? " They have outside financing to compare." : ""}
               </p>
-              {p.financeQuote ? <p className="text-xs text-ink-muted" data-testid="dealer-finance-sent">Quoted {p.financeQuote.apr}% for {p.financeQuote.termMonths} months ({usd(p.financeQuote.monthly)}/mo). You can send a revised quote until they accept.</p> : null}
-              <div className="flex flex-wrap items-center gap-2">
-                <input inputMode="decimal" aria-label="APR percent" placeholder={`APR % (0-${MAX_APR})`} value={apr} onChange={(e) => setApr(e.target.value)} className={input} data-testid="apr-input" />
-                <select aria-label="Term" value={term} onChange={(e) => setTerm(e.target.value)} className={input}>
-                  {FINANCE_TERM_OPTIONS.map((m: number) => <option key={m} value={m}>{m} months</option>)}
-                </select>
-                <input aria-label="Lender (optional)" placeholder="Lender (optional)" value={lender} onChange={(e) => setLender(e.target.value)} className="w-40 rounded-lg border border-border bg-surface px-2 py-1.5 text-xs text-white" />
-                <button type="button" disabled={busy || apr.trim() === ""} onClick={() => act({ type: "finance_quote", apr, termMonths: term, lenderName: lender })} className={primary} data-testid="send-finance-quote">Send financing quote</button>
-              </div>
-              {previewMonthly != null ? <p className="text-[11px] text-ink-faint" data-testid="finance-preview">Payment on those terms: {usd(previewMonthly)}/mo (calculated from amount financed, APR and term; you don&apos;t type it).</p> : null}
+              {p.financeQuote ? <p className="text-xs text-ink-muted" data-testid="dealer-finance-sent">Offered {p.financeQuote.apr}% for {p.financeQuote.termMonths} months through {p.financeQuote.lenderName} ({usd(p.financeQuote.monthly)}/mo on {usd(p.financeQuote.amountFinanced)}){p.financeQuote.held ? ", holding firm" : ""}.</p> : null}
+              {p.financeTurn === "buyer" && p.financeQuote ? (
+                <p className="text-xs text-ink-muted" data-testid="dealer-finance-waiting">Your offer is with the buyer. They accept, counter the APR, or pay another way.</p>
+              ) : (
+                <>
+                  {p.financeCounter && p.financeQuote ? (
+                    <div className="space-y-2" data-testid="dealer-finance-counter">
+                      <p className="text-xs text-white">The buyer countered: <strong>{p.financeCounter.apr}%</strong> for <strong>{p.financeCounter.termMonths} months</strong> ({usd(p.financeCounter.monthly)}/mo).{p.financeCounter.note ? ` "${p.financeCounter.note}"` : ""}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button type="button" disabled={busy} onClick={() => act({ type: "finance_accept_counter" })} className={primary} data-testid="accept-finance-counter">Accept their counter</button>
+                        <button type="button" disabled={busy} onClick={() => act({ type: "finance_hold" })} className={ghost} data-testid="hold-finance">Hold firm at {p.financeQuote.apr}%</button>
+                      </div>
+                    </div>
+                  ) : null}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input inputMode="decimal" aria-label="APR percent" placeholder={`APR % (0-${MAX_APR})`} value={apr} onChange={(e) => setApr(e.target.value)} className={input} data-testid="apr-input" />
+                    <select aria-label="Term" value={term} onChange={(e) => setTerm(e.target.value)} className={input}>
+                      {FINANCE_TERM_OPTIONS.map((m: number) => <option key={m} value={m}>{m} months</option>)}
+                    </select>
+                    <input aria-label="Lender" placeholder="Lender" maxLength={80} value={lender} onChange={(e) => setLender(e.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-xs text-white sm:w-40 sm:py-1.5" data-testid="lender-input" />
+                    <button type="button" disabled={busy || apr.trim() === "" || !lender.trim() || !math} onClick={() => act(quoteAction())} className={p.financeCounter ? ghost : primary} data-testid="send-finance-quote">{p.financeCounter ? "Send revised offer" : "Send financing offer"}</button>
+                  </div>
+                  {math ? (
+                    <p className="text-[11px] text-ink-faint" data-testid="finance-preview">
+                      {usd(math.amountFinanced)} financed at {aprNum}% for {term} months = <strong className="text-white">{usd(math.monthly)}/mo</strong> ({usd(math.interest)} total interest). The monthly and amount financed are calculated and sent with your offer; they have to match.
+                    </p>
+                  ) : null}
+                </>
+              )}
             </>
           )}
         </div>
       ) : null}
 
-      {stage.stage === "closed" ? (
-        <p className="text-xs text-emerald-300" data-testid="dealer-stage-closed">
-          {p.method === "finance" ? `The buyer accepted financing: ${usd(p.financeQuote?.monthly)}/mo on ${usd(p.financeQuote?.amountFinanced)}.` : `The buyer is paying cash: ${usd(stage.trueOtd)} out the door.`} Nothing is binding until you both sign.
+      {open && stage.stage === "final" ? (
+        <p className="text-xs text-ink-muted" data-testid="dealer-stage-final">
+          Everything is agreed: true out-the-door {usd(stage.trueOtd)}, {stage.payment.method ? PAYMENT_METHOD_LABELS[stage.payment.method].toLowerCase() : "payment chosen"}{stage.payment.method === "dealer_finance" ? ` (${stage.payment.financeQuote?.apr}% for ${stage.payment.financeQuote?.termMonths} months, ${usd(stage.payment.financeQuote?.monthly)}/mo)` : ""}. The buyer is reviewing the final deal. You get their contact details the moment they accept it, and not before.
         </p>
       ) : null}
+
+      {stage.stage === "closed" ? (
+        <div className="space-y-2" data-testid="dealer-stage-closed">
+          <p className="text-xs text-emerald-300">The buyer accepted the final deal: {stage.payment.method === "dealer_finance" ? `${stage.payment.financeQuote?.apr}% for ${stage.payment.financeQuote?.termMonths} months, ${usd(stage.payment.financeQuote?.monthly)}/mo on ${usd(stage.payment.financeQuote?.amountFinanced)}` : `${PAYMENT_METHOD_LABELS[stage.payment.method ?? "cash"].toLowerCase()} at ${usd(stage.trueOtd)} out the door`}. Nothing is binding until you both sign.</p>
+          {stage.release ? (
+            <dl className="space-y-1 rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-3 text-xs" data-testid="buyer-details">
+              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Name</dt><dd className="font-bold text-white">{stage.release.contact.name ?? "Not provided"}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Email</dt><dd className="break-all font-bold text-white">{stage.release.contact.email}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Phone</dt><dd className="font-bold text-white">{stage.release.contact.phone ?? "Not provided"}</dd></div>
+              <div className="flex justify-between gap-3"><dt className="text-ink-faint">ZIP</dt><dd className="font-bold text-white">{stage.release.contact.zip ?? "Not provided"}</dd></div>
+            </dl>
+          ) : null}
+        </div>
+      ) : null}
+
       {stage.stage === "walked" ? <p className="text-xs text-rose-200" data-testid="dealer-stage-walked">{stage.walk?.by === "buyer" ? "The buyer walked away." : "You walked away."} Nothing was binding.</p> : null}
 
       {error ? <p className="text-xs text-rose-300" role="alert">{error}</p> : null}
