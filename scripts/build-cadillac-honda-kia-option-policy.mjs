@@ -18,10 +18,14 @@ import { fileURLToPath } from "node:url";
 import { normalizeOptionKey, parseCsv, DISCLAIMER_PATTERNS } from "./lib/optionPolicyCommon.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const BRANDS = ["cadillac", "honda", "kia"];
-const csvPath = (b) => path.join(root, `docs/cadillac-honda-kia-2026-2027/${b}_lineup_options_by_trim.csv`);
-const outPath = (b) => path.join(root, `scrapers/lightsail-crawler/src/optionPolicies/${b}-2026-2027.json`);
-const reportPath = (b) => path.join(root, `docs/cadillac-honda-kia-2026-2027/POLICY_REPORT_${b}.md`);
+const BRANDS = ["cadillac", "honda", "kia", "hyundai"];
+// Hyundai (2025-27: Kona Electric and Ioniq 6 are 2025 rows in the CSV) lives in its own docs dir and policy file; the other three share the original ones.
+const DOCS_DIR = { hyundai: "hyundai-2025-2027" };
+const YEARS = { hyundai: "2025-2027" };
+const docsDir = (b) => DOCS_DIR[b] || "cadillac-honda-kia-2026-2027";
+const csvPath = (b) => path.join(root, `docs/${docsDir(b)}/${b}_lineup_options_by_trim.csv`);
+const outPath = (b) => path.join(root, `scrapers/lightsail-crawler/src/optionPolicies/${b}-${YEARS[b] || "2026-2027"}.json`);
+const reportPath = (b) => path.join(root, `docs/${docsDir(b)}/POLICY_REPORT_${b}.md`);
 
 // CSV model -> extra DB `model` spellings it covers (normalizeOptionKey form; the CSV spelling itself is always included). None approved yet.
 // EXPECTED_MODELS is the contract with Paul's brief: a CSV with a model not listed here fails the build instead of silently growing the policy.
@@ -29,8 +33,9 @@ const EXPECTED_MODELS = {
   cadillac: ["CT5", "CT5-V", "Escalade", "Escalade ESV", "Escalade IQ", "Escalade IQL", "Lyriq", "Optiq", "Vistiq", "XT5"],
   honda: ["Accord", "CR-V", "CR-V e:FCEV", "Civic Hatchback", "Civic Sedan", "Civic Si Sedan", "Civic Type R", "HR-V", "Odyssey", "Passport", "Pilot", "Prologue", "Prelude", "Ridgeline"],
   kia: ["Carnival MPV", "Carnival MPV Hybrid", "EV3", "EV6", "EV9", "K4", "K4 Hatchback", "K5", "Niro", "Niro EV", "Seltos", "Sorento", "Sorento Hybrid", "Sorento Plug-in Hybrid", "Sportage", "Sportage Hybrid", "Sportage Plug-in Hybrid", "Telluride", "Telluride Hybrid"],
+  hyundai: ["Elantra", "Elantra Hybrid", "Elantra N", "Ioniq 5", "Ioniq 5 N", "Ioniq 6", "Ioniq 9", "Kona", "Kona Electric", "Palisade", "Palisade Hybrid", "Santa Cruz", "Santa Fe", "Santa Fe Hybrid", "Sonata", "Tucson", "Tucson Hybrid", "Tucson Plug-in Hybrid", "Venue"],
 };
-const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia" };
+const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia", hyundai: "hyundai" };
 
 // Trim words that describe the body / drivetrain, not the trim. Cab, bed and drivetrain are configuration choices; status words say where the car is in
 // its life. No trim aliases are approved for these makes: a trim the CSV does not list (e.g. an EV trim without its range suffix) is untrusted -> no options.
@@ -56,9 +61,10 @@ const GM_PRODUCT_PHRASES = [
   "(?:running|side|nerf|step)\\s*(?:boards?|bars?)", "side\\s*steps?", "cab\\s*steps?", "tow(?:ing)?\\s*hitch(?:\\s+receiver)?", "trailer\\s*hitch", "hitch\\s*receiver", "roof\\s*(?:rack|rails?|cross\\s*bars?|basket)", "cross\\s*bars?", "light\\s*bars?", "winch", "snorkel", "lift\\s*kit", "leveling\\s*kit",
   "brush\\s*guard", "grille\\s*guard", "push\\s*bar", "fender\\s*flares?", "spare\\s*tire\\s*cover", "key\\s*(?:fob\\s+)?cover", "license\\s*plate\\s*(?:frame|bracket)", "emblem\\s*overlays?", "hood\\s*graphics",
 ];
-const AROUND = "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
-const DEALER_ADDON_PATTERNS = GM_PRODUCT_PHRASES.map((p) => `^(?:${AROUND}\\s+)*(?:${p})(?:\\s+(?:set|kit|package|pkg|pair|installed))*$`);
-const ADDON_RES = DEALER_ADDON_PATTERNS.map((p) => new RegExp(p, "i"));
+const addonPatterns = (brand) => {
+  const around = brand === "hyundai" ? "(?:hyundai|genesis|genuine|dealer|port|installed|aftermarket)" : "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
+  return GM_PRODUCT_PHRASES.map((p) => `^(?:${around}\\s+)*(?:${p})(?:\\s+(?:set|kit|package|pkg|pair|installed))*$`);
+};
 
 const decoration = (t) => t.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
 const clean = (t) => t.replace(/®|™/g, "").replace(/\s+/g, " ").trim();
@@ -127,7 +133,7 @@ function aliasesFor(r, kind, key, code) {
   return [...out].filter(Boolean);
 }
 
-function buildCatalog(rows) {
+function buildCatalog(rows, ADDON_RES, defaultRe = /default-included|auto-included/i) {
   const trims = {}, drops = {}, dropRows = [], conflicts = [], defaultIncluded = [];
   for (const t of [...new Set(rows.map((r) => r.trim))]) if (t) trims[slug(t)] = { label: t, options: {} };
   // Every item name the CSV lists for a trim, kept or dropped. A vehicle line equal to one of these is that standalone item (priced or not), never evidence of a
@@ -154,7 +160,7 @@ function buildCatalog(rows) {
       if (trims[tk].options[useKey]) { conflicts.push(`${r.year} ${r.model} ${r.trim}: duplicate "${label}" $${r.price_usd} (kept one)`); continue; }
       conflicts.push(`${r.year} ${r.model} ${r.trim}: "${label}" appears at $${trims[tk].options[key].price} and $${r.price_usd}: both kept (second keyed "${useKey}"; a feed line by that name resolves to the first)`);
     }
-    if (/default-included|auto-included/i.test(r.notes || "")) defaultIncluded.push(`${r.year} ${r.model} ${r.trim}: ${label} ($${r.price_usd})`);
+    if (defaultRe.test(r.notes || "")) defaultIncluded.push(`${r.year} ${r.model} ${r.trim}: ${label} ($${r.price_usd})`);
     const rules = rulesOf(r);
     const byDt = priceByDrivetrain(r);
     trims[tk].options[useKey] = { label, kind, price: price(r), ...(byDt ? { priceByDrivetrain: byDt } : {}), ...(code ? { code } : {}), aliases: useKey === key ? aliasesFor(r, kind, key, code) : [], contents: r.contents || "", ...(rules.length ? { rules } : {}) };
@@ -204,14 +210,16 @@ for (const brand of BRANDS) {
   for (const m of EXPECTED_MODELS[brand]) if (!seenModels.has(m)) throw new Error(`${brand} CSV is missing the expected model "${m}"`);
 
   const policies = {};
-  const report = { models: [], conflicts: [], defaultIncluded: [], drops: {}, rulesCount: 0, codeKeys: [] };
+  const report = { unnamedDefaultPaint: [], presumedDefault: [], models: [], conflicts: [], defaultIncluded: [], drops: {}, rulesCount: 0, codeKeys: [] };
   for (const [g, rows] of [...byModel].sort()) {
     const [year, model] = g.split("|");
-    const cat = buildCatalog(rows);
+    const DEALER_ADDON_PATTERNS = addonPatterns(brand);
+    const cat = buildCatalog(rows, DEALER_ADDON_PATTERNS.map((p) => new RegExp(p, "i")), brand === "hyundai" ? /default-included|auto-included|default paint/i : undefined);
+    if (brand === "hyundai") for (const r of rows) if (r.category === "Base" && /unnamed \+\$[\d,]+ paint/.test(r.notes || "")) report.unnamedDefaultPaint.push(`${r.year} ${r.model} ${r.trim}: ${/unnamed (\+\$[\d,]+) paint/.exec(r.notes)[1]} paint, not identified (default paint not verified)`); else if (brand === "hyundai" && r.category !== "Base" && /presumed, not verified/.test(r.notes || "")) report.presumedDefault.push(`${r.year} ${r.model} ${r.trim}: ${clean(r.item)} ($${r.price_usd})`);
     report.conflicts.push(...cat.conflicts); report.defaultIncluded.push(...cat.defaultIncluded);
     for (const [k, v] of Object.entries(cat.drops)) report.drops[k] = (report.drops[k] || 0) + v;
     policies[`${MAKE[brand]}|${slug(model)}|${year}`] = {
-      source: `docs/cadillac-honda-kia-2026-2027/${brand}_lineup_options_by_trim.csv (${year} ${model})`,
+      source: `docs/${docsDir(brand)}/${brand}_lineup_options_by_trim.csv (${year} ${model})`,
       models: [slug(model)],
       keepBare: [],
       trimAliases: {},
@@ -236,7 +244,7 @@ for (const brand of BRANDS) {
 
   const Brand = brand[0].toUpperCase() + brand.slice(1);
   const md = [];
-  md.push(`# ${Brand} 2026-27 option policies - generated report`, "", `Generated by \`scripts/build-gm-option-policy.mjs\` from \`${brand}_lineup_options_by_trim.csv\`. Do not edit by hand.`, "");
+  md.push(`# ${Brand} ${(YEARS[brand] || "2026-2027").replace("-20", "-")} option policies - generated report`, "", `Generated by \`scripts/build-gm-option-policy.mjs\` from \`${brand}_lineup_options_by_trim.csv\`. Do not edit by hand.`, "");
   md.push(`**${totals.models} models, ${totals.policies} model-year policies, ${totals.trims} trims, ${totals.entries} option entries** (${totals.packages} packages, ${totals.options} options, ${totals.powertrain} powertrain, ${totals.paints} paints), ${totals.rules} stored rules, ${totals.codeKeys} RPO-code keys.`, "");
   md.push("## Model-name mapping (CSV model -> DB `model` spellings the policy matches)", "", "| Year | CSV model | DB spellings matched (normalized) |", "|---|---|---|");
   for (const m of report.models) md.push(`| ${m.year} | ${m.model} | ${slug(m.model)} |`);
@@ -247,8 +255,12 @@ for (const brand of BRANDS) {
   md.push("## CSV rows not kept (by rule)", "", ...Object.entries(report.drops).sort().map(([k, v]) => `- ${k}: ${v}`), "");
   md.push("## Trim handling (nothing is aliased)", "", "- no trim aliases are approved: a trim string that is not a CSV trim (after noise words) is untrusted and gets no options", "- drivetrain / body words (`AWD`, `4WD`, `Crew Cab`, `Short Bed`...) and status words (`Demo`, `Fleet`, `In Transit`) are ignored when matching a trim", "- Cadillac trims carry the drivetrain in the CSV name (`Sport AWD`, `Luxury 4WD`): a vehicle trim must carry it too (a bare `Sport` on CT5 is untrusted, it could be RWD or AWD); XT5 trims are plain. Kia `price by drivetrain` pairs are one entry, priced by the drivetrain word in the vehicle trim (default: the FWD price)", "");
   md.push(`## Keys that are explicit codes (${report.codeKeys.length})`, "", ...report.codeKeys.map((x) => `- ${x}`), "", "Every other entry is keyed on its full normalized name.", "");
-  md.push("## Judgment calls", "", "- `4WD (vs 2WD)` / `AWD (vs FWD)` rows are CSV \"Powertrain\" upgrades with a price, so they are kept as powertrain options (a feed line `4WD` / `AWD` matches). Honda, Kia and Cadillac AWD/4WD upgrades are paid sticker lines.");
+  md.push("## Judgment calls", "", ...(brand === "hyundai" ? ["- `AWD` / `N 8-speed Wet Dual Clutch Transmission` rows are CSV \"Powertrain\" upgrades with a price, so they are kept as powertrain options (a feed line `AWD` matches). The CSV carries one per-trim delta price (it differs by trim, e.g. Ioniq 5 Limited $3,900 vs SE $3,500).", "- The CSV has NO \"Factory package\" / \"Factory option\" rows at all and no paid interior colors or materials: only paints, drivetrain and one transmission. The policy cannot keep a line the CSV does not list; see the PR for the question this raises."] : ["- `4WD (vs 2WD)` / `AWD (vs FWD)` rows are CSV \"Powertrain\" upgrades with a price, so they are kept as powertrain options (a feed line `4WD` / `AWD` matches). Honda, Kia and Cadillac AWD/4WD upgrades are paid sticker lines."]));
   md.push("- Default-selected / default-included paid items (the CSV notes `default-selected paid paint`, `default-included`, `auto-included`) are kept at their price: the trim's base price leaves them out. Rows:", "", ...(report.defaultIncluded.length ? report.defaultIncluded.map((x) => `  - ${x}`) : ["  - none"]), "");
+  if (brand === "hyundai") {
+    md.push(`## Default paint the CSV could not name (${report.unnamedDefaultPaint.length} trims)`, "", "The base price leaves out a paid default paint on these trims, but the CSV does not say which paint it is, so no policy entry can match that sticker line. A car in that paint keeps no paint row until the CSV names it.", "", ...report.unnamedDefaultPaint.map((x) => `- ${x}`), "");
+    md.push(`## Paint rows kept that the CSV marks presumed / not verified (${report.presumedDefault.length})`, "", ...report.presumedDefault.map((x) => `- ${x}`), "");
+  }
   if (report.conflicts.length) md.push("## Duplicate rows inside one trim (kept once, or both when the price differs)", "", ...report.conflicts.map((c) => `- ${c}`), "");
   built[brand] = { jsonText: `${JSON.stringify(policies, null, 2)}\n`, mdText: `${md.join("\n")}\n`, totals };
 }

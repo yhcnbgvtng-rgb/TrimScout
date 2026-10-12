@@ -1,0 +1,294 @@
+year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,contents,notes,source_file
+2026,Elantra,SE,,22825,Base,,Base Price (trim MSRP),22825,,"Freight $1,295 not included",models/elantra_options.md:26
+2026,Elantra,SE,,22825,Exterior color,,Ultimate Red,500,,,models/elantra_options.md:32
+2026,Elantra,SE,,22825,Exterior color,,Serenity White,500,,,models/elantra_options.md:34
+2026,Elantra,SEL Sport,,23950,Base,,Base Price (trim MSRP),23950,,"Freight $1,295 not included",models/elantra_options.md:42
+2026,Elantra,SEL Sport,,23950,Exterior color,,Ultimate Red,500,,,models/elantra_options.md:45
+2026,Elantra,SEL Sport,,23950,Exterior color,,Serenity White,500,,,models/elantra_options.md:45
+2026,Elantra,SEL Sport Plus,,24450,Base,,Base Price (trim MSRP),24450,,"Freight $1,295 not included",models/elantra_options.md:51
+2026,Elantra,SEL Sport Plus,,24450,Exterior color,,Serenity White,500,,,models/elantra_options.md:54
+2026,Elantra,SEL Sport Premium,,25275,Base,,Base Price (trim MSRP),25275,,"Freight $1,295 not included",models/elantra_options.md:60
+2026,Elantra,SEL Sport Premium,,25275,Exterior color,,Ultimate Red,500,,,models/elantra_options.md:63
+2026,Elantra,SEL Sport Premium,,25275,Exterior color,,Serenity White,500,,,models/elantra_options.md:63
+2026,Elantra,N Line,,29600,Base,,Base Price (trim MSRP),29600,,"Freight $1,295 not included",models/elantra_options.md:69
+2026,Elantra,N Line,,29600,Exterior color,,Ultimate Red,500,,,models/elantra_options.md:72
+2026,Elantra,Limited,,27375,Base,,Base Price (trim MSRP),27375,,"Freight $1,295 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/elantra_options.md:78
+2026,Elantra,Limited,,27375,Exterior color,,Ultimate Red,500,,,models/elantra_options.md:81
+2026,Elantra,Limited,,27375,Exterior color,,Serenity White,500,,,models/elantra_options.md:81
+2026,Elantra Hybrid,Blue,,25650,Base,,Base Price (trim MSRP),25650,,"Freight $1,295 not included",models/elantrahybrid_options.md:24
+2026,Elantra Hybrid,Blue,,25650,Exterior color,,Ultimate Red,500,,,models/elantrahybrid_options.md:27
+2026,Elantra Hybrid,Blue,,25650,Exterior color,,Serenity White,500,,,models/elantrahybrid_options.md:27
+2026,Elantra Hybrid,SEL Sport,,27625,Base,,Base Price (trim MSRP),27625,,"Freight $1,295 not included",models/elantrahybrid_options.md:33
+2026,Elantra Hybrid,SEL Sport,,27625,Exterior color,,Ultimate Red,500,,,models/elantrahybrid_options.md:36
+2026,Elantra Hybrid,SEL Sport,,27625,Exterior color,,Serenity White,500,,,models/elantrahybrid_options.md:36
+2026,Elantra Hybrid,Limited,,30000,Base,,Base Price (trim MSRP),30000,,"Freight $1,295 not included",models/elantrahybrid_options.md:42
+2026,Elantra Hybrid,Limited,,30000,Exterior color,,Ultimate Red,500,,,models/elantrahybrid_options.md:45
+2026,Elantra Hybrid,Limited,,30000,Exterior color,,Serenity White,500,,,models/elantrahybrid_options.md:45
+2026,Elantra N,N,,35300,Base,,Base Price (trim MSRP),35300,,"Freight $1,295 not included; default build includes paid paint Performance Blue +$500 (presumed, not verified); excluded from base",models/elantran_options.md:21
+2026,Elantra N,N,,35300,Powertrain,Transmission,N 8-speed Wet Dual Clutch Transmission,1500,,8-speed wet DCT (automatic) over the default 6-speed manual,models/elantran_options.md:23
+2026,Elantra N,N,,35300,Exterior color,,Ultimate Red,500,,,models/elantran_options.md:24
+2026,Elantra N,N,,35300,Exterior color,,Cyber Gray,500,,,models/elantran_options.md:24
+2026,Elantra N,N,,35300,Exterior color,,Performance Blue,500,,"default paint (presumed, not verified)",models/elantran_options.md:24
+2026,Sonata,SE,,27450,Base,,Base Price (trim MSRP),27450,,"Freight $1,295 not included",models/sonata_options.md:26
+2026,Sonata,SE,,27450,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:29
+2026,Sonata,SE,,27450,Exterior color,,Serenity White,500,,,models/sonata_options.md:29
+2026,Sonata,SEL Sport,,29150,Base,,Base Price (trim MSRP),29150,,"Freight $1,295 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/sonata_options.md:35
+2026,Sonata,SEL Sport,,29150,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/sonata_options.md:37
+2026,Sonata,SEL Sport,,29150,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:38
+2026,Sonata,SEL Sport,,29150,Exterior color,,Serenity White,500,,,models/sonata_options.md:38
+2026,Sonata,Blue Hybrid,,29200,Base,,Base Price (trim MSRP),29200,,"Freight $1,295 not included",models/sonata_options.md:44
+2026,Sonata,Blue Hybrid,,29200,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:47
+2026,Sonata,Blue Hybrid,,29200,Exterior color,,Serenity White,500,,,models/sonata_options.md:47
+2026,Sonata,SEL Hybrid,,32450,Base,,Base Price (trim MSRP),32450,,"Freight $1,295 not included",models/sonata_options.md:53
+2026,Sonata,SEL Hybrid,,32450,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:56
+2026,Sonata,SEL Hybrid,,32450,Exterior color,,Serenity White,500,,,models/sonata_options.md:56
+2026,Sonata,N Line,,36050,Base,,Base Price (trim MSRP),36050,,"Freight $1,295 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/sonata_options.md:62
+2026,Sonata,N Line,,36050,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:65
+2026,Sonata,N Line,,36050,Exterior color,,Serenity White,500,,,models/sonata_options.md:65
+2026,Sonata,Limited Hybrid,,38250,Base,,Base Price (trim MSRP),38250,,"Freight $1,295 not included",models/sonata_options.md:71
+2026,Sonata,Limited Hybrid,,38250,Exterior color,,Ultimate Red,500,,,models/sonata_options.md:74
+2026,Sonata,Limited Hybrid,,38250,Exterior color,,Serenity White,500,,,models/sonata_options.md:74
+2026,Venue,SE,,20550,Base,,Base Price (trim MSRP),20550,,"Freight $1,650 not included; default build includes paid paint Ultimate Red +$500 (marked DEFAULT in the source); excluded from base",models/venue_options.md:23
+2026,Venue,SE,,20550,Exterior color,,Ultimate Red,500,,default paint,models/venue_options.md:26
+2026,Venue,SEL w/ 2-Tone Roof,,22600,Base,,Base Price (trim MSRP),22600,,"Freight $1,650 not included",models/venue_options.md:32
+2026,Venue,SEL,,22825,Base,,Base Price (trim MSRP),22825,,"Freight $1,650 not included",models/venue_options.md:41
+2026,Venue,SEL,,22825,Exterior color,,Ultimate Red,500,,,models/venue_options.md:44
+2027,Kona,SE,,25500,Base,,Base Price (trim MSRP),25500,,"Freight $1,650 not included",models/kona_options.md:23
+2027,Kona,SE,,25500,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/kona_options.md:25
+2027,Kona,SE,,25500,Exterior color,,Soultronic Orange,500,,,models/kona_options.md:26
+2027,Kona,SE,,25500,Exterior color,,Ultimate Red,500,,,models/kona_options.md:26
+2027,Kona,SE,,25500,Exterior color,,Cyber Gray,500,,,models/kona_options.md:26
+2027,Kona,SE,,25500,Exterior color,,Neoteric Yellow,500,,,models/kona_options.md:26
+2027,Kona,SEL Sport,,26825,Base,,Base Price (trim MSRP),26825,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/kona_options.md:32
+2027,Kona,SEL Sport,,26825,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/kona_options.md:34
+2027,Kona,SEL Sport,,26825,Exterior color,,Soultronic Orange,500,,,models/kona_options.md:35
+2027,Kona,SEL Sport,,26825,Exterior color,,Ultimate Red,500,,,models/kona_options.md:35
+2027,Kona,SEL Sport,,26825,Exterior color,,Cyber Gray,500,,,models/kona_options.md:35
+2027,Kona,SEL Sport,,26825,Exterior color,,Neoteric Yellow,500,,,models/kona_options.md:35
+2027,Kona,SEL Premium,,28425,Base,,Base Price (trim MSRP),28425,,"Freight $1,650 not included",models/kona_options.md:41
+2027,Kona,SEL Premium,,28425,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/kona_options.md:43
+2027,Kona,SEL Premium,,28425,Exterior color,,Soultronic Orange,500,,,models/kona_options.md:44
+2027,Kona,SEL Premium,,28425,Exterior color,,Ultimate Red,500,,,models/kona_options.md:44
+2027,Kona,SEL Premium,,28425,Exterior color,,Cyber Gray,500,,,models/kona_options.md:44
+2027,Kona,SEL Premium,,28425,Exterior color,,Neoteric Yellow,500,,,models/kona_options.md:44
+2027,Kona,Limited,,32535,Base,,Base Price (trim MSRP),32535,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/kona_options.md:50
+2027,Kona,Limited,,32535,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/kona_options.md:52
+2027,Kona,Limited,,32535,Exterior color,,Soultronic Orange,500,,,models/kona_options.md:53
+2027,Kona,Limited,,32535,Exterior color,,Ultimate Red,500,,,models/kona_options.md:53
+2027,Kona,Limited,,32535,Exterior color,,Cyber Gray,500,,,models/kona_options.md:53
+2027,Kona,Limited,,32535,Exterior color,,Neoteric Yellow,500,,,models/kona_options.md:53
+2025,Kona Electric,SE,,32975,Base,,Base Price (trim MSRP),32975,,"Freight $1,495 not included",models/konaelectric_options.md:24
+2025,Kona Electric,SE,,32975,Exterior color,,Ultimate Red Metallic,500,,,models/konaelectric_options.md:27
+2025,Kona Electric,SE,,32975,Exterior color,,Cyber Gray Metallic,500,,,models/konaelectric_options.md:27
+2025,Kona Electric,SE,,32975,Exterior color,,Neoteric Yellow,500,,,models/konaelectric_options.md:27
+2025,Kona Electric,SEL,,36975,Base,,Base Price (trim MSRP),36975,,"Freight $1,495 not included",models/konaelectric_options.md:33
+2025,Kona Electric,SEL,,36975,Exterior color,,Ultimate Red Metallic,500,,,models/konaelectric_options.md:36
+2025,Kona Electric,SEL,,36975,Exterior color,,Cyber Gray Metallic,500,,,models/konaelectric_options.md:36
+2025,Kona Electric,SEL,,36975,Exterior color,,Neoteric Yellow,500,,,models/konaelectric_options.md:36
+2025,Kona Electric,N Line,,38375,Base,,Base Price (trim MSRP),38375,,"Freight $1,495 not included",models/konaelectric_options.md:42
+2025,Kona Electric,N Line,,38375,Exterior color,,Ultimate Red Metallic,500,,,models/konaelectric_options.md:45
+2025,Kona Electric,Limited,,41150,Base,,Base Price (trim MSRP),41150,,"Freight $1,495 not included",models/konaelectric_options.md:51
+2025,Kona Electric,Limited,,41150,Exterior color,,Ultimate Red Metallic,500,,,models/konaelectric_options.md:54
+2025,Kona Electric,Limited,,41150,Exterior color,,Cyber Gray Metallic,500,,,models/konaelectric_options.md:54
+2025,Kona Electric,Limited,,41150,Exterior color,,Neoteric Yellow,500,,,models/konaelectric_options.md:54
+2026,Tucson,SE,,29700,Base,,Base Price (trim MSRP),29700,,"Freight $1,650 not included",models/tucson_options.md:25
+2026,Tucson,SE,,29700,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:27
+2026,Tucson,SE,,29700,Exterior color,,Ultimate Red,500,,,models/tucson_options.md:28
+2026,Tucson,SE,,29700,Exterior color,,Serenity White Pearl,500,,,models/tucson_options.md:28
+2026,Tucson,SEL,,31050,Base,,Base Price (trim MSRP),31050,,"Freight $1,650 not included",models/tucson_options.md:34
+2026,Tucson,SEL,,31050,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:36
+2026,Tucson,SEL,,31050,Exterior color,,Ultimate Red,500,,,models/tucson_options.md:37
+2026,Tucson,SEL,,31050,Exterior color,,Serenity White Pearl,500,,,models/tucson_options.md:37
+2026,Tucson,SEL Plus,,31550,Base,,Base Price (trim MSRP),31550,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/tucson_options.md:43
+2026,Tucson,SEL Plus,,31550,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:45
+2026,Tucson,SEL Plus,,31550,Exterior color,,Ultimate Red,500,,paint list 'same as SE' per source line 46,models/tucson_options.md:28
+2026,Tucson,SEL Plus,,31550,Exterior color,,Serenity White Pearl,500,,paint list 'same as SE' per source line 46,models/tucson_options.md:28
+2026,Tucson,XRT,,33725,Base,,Base Price (trim MSRP),33725,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/tucson_options.md:52
+2026,Tucson,XRT,,33725,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:54
+2026,Tucson,XRT,,33725,Exterior color,,Ultimate Red,500,,paint list 'same as SE' per source line 55,models/tucson_options.md:28
+2026,Tucson,XRT,,33725,Exterior color,,Serenity White Pearl,500,,paint list 'same as SE' per source line 55,models/tucson_options.md:28
+2026,Tucson,SEL Premium,,34050,Base,,Base Price (trim MSRP),34050,,"Freight $1,650 not included",models/tucson_options.md:61
+2026,Tucson,SEL Premium,,34050,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:63
+2026,Tucson,SEL Premium,,34050,Exterior color,,Ultimate Red,500,,paint list 'same as SE' per source line 64,models/tucson_options.md:28
+2026,Tucson,SEL Premium,,34050,Exterior color,,Serenity White Pearl,500,,paint list 'same as SE' per source line 64,models/tucson_options.md:28
+2026,Tucson,Limited,,39675,Base,,Base Price (trim MSRP),39675,,"Freight $1,650 not included",models/tucson_options.md:70
+2026,Tucson,Limited,,39675,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucson_options.md:72
+2026,Tucson,Limited,,39675,Exterior color,,Ultimate Red,500,,,models/tucson_options.md:73
+2026,Tucson,Limited,,39675,Exterior color,,Serenity White Pearl,500,,,models/tucson_options.md:73
+2026,Tucson,Limited,,39675,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/tucson_options.md:73
+2026,Tucson Hybrid,SE,,31300,Base,,Base Price (trim MSRP),31300,,"Freight $1,650 not included",models/tucsonhybrid_options.md:26
+2026,Tucson Hybrid,SE,,31300,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucsonhybrid_options.md:28
+2026,Tucson Hybrid,SE,,31300,Exterior color,,Ultimate Red,500,,,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,SE,,31300,Exterior color,,Creamy White Pearl,500,,,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,SEL,,32750,Base,,Base Price (trim MSRP),32750,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/tucsonhybrid_options.md:35
+2026,Tucson Hybrid,SEL,,32750,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/tucsonhybrid_options.md:37
+2026,Tucson Hybrid,SEL,,32750,Exterior color,,Ultimate Red,500,,,models/tucsonhybrid_options.md:38
+2026,Tucson Hybrid,SEL,,32750,Exterior color,,Creamy White Pearl,500,,,models/tucsonhybrid_options.md:38
+2026,Tucson Hybrid,SEL Convenience,,35250,Base,,Base Price (trim MSRP),35250,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/tucsonhybrid_options.md:44
+2026,Tucson Hybrid,SEL Convenience,,35250,Exterior color,,Ultimate Red,500,,paint list 'same as SE' per source line 47,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,SEL Convenience,,35250,Exterior color,,Creamy White Pearl,500,,paint list 'same as SE' per source line 47,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,Limited,,42425,Base,,Base Price (trim MSRP),42425,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/tucsonhybrid_options.md:53
+2026,Tucson Hybrid,Limited,,42425,Exterior color,,Ultimate Red,500,,paint list 'same as SE' per source line 56,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,Limited,,42425,Exterior color,,Creamy White Pearl,500,,paint list 'same as SE' per source line 56,models/tucsonhybrid_options.md:29
+2026,Tucson Hybrid,Night,,42925,Base,,Base Price (trim MSRP),42925,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/tucsonhybrid_options.md:62
+2026,Tucson Hybrid,Night,,42925,Exterior color,,Creamy White Pearl,500,,,models/tucsonhybrid_options.md:65
+2026,Tucson Plug-in Hybrid,SEL,,40675,Base,,Base Price (trim MSRP),40675,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/tucsonpluginhybrid_options.md:21
+2026,Tucson Plug-in Hybrid,SEL,,40675,Exterior color,,Ultimate Red,500,,,models/tucsonpluginhybrid_options.md:24
+2026,Tucson Plug-in Hybrid,SEL,,40675,Exterior color,,Creamy White Pearl,500,,,models/tucsonpluginhybrid_options.md:24
+2026,Tucson Plug-in Hybrid,Limited,,48900,Base,,Base Price (trim MSRP),48900,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/tucsonpluginhybrid_options.md:31
+2026,Tucson Plug-in Hybrid,Limited,,48900,Exterior color,,Ultimate Red,500,,,models/tucsonpluginhybrid_options.md:34
+2026,Tucson Plug-in Hybrid,Limited,,48900,Exterior color,,Creamy White Pearl,500,,,models/tucsonpluginhybrid_options.md:34
+2027,Santa Fe,SE,,35300,Base,,Base Price (trim MSRP),35300,,"Freight $1,650 not included",models/santafe_options.md:27
+2027,Santa Fe,SE,,35300,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafe_options.md:29
+2027,Santa Fe,SE,,35300,Exterior color,,Serenity White,500,,,models/santafe_options.md:30
+2027,Santa Fe,SEL,,37840,Base,,Base Price (trim MSRP),37840,,"Freight $1,650 not included",models/santafe_options.md:36
+2027,Santa Fe,SEL,,37840,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafe_options.md:38
+2027,Santa Fe,SEL,,37840,Exterior color,,Ultimate Red,500,,,models/santafe_options.md:39
+2027,Santa Fe,SEL,,37840,Exterior color,,Serenity White,500,,,models/santafe_options.md:39
+2027,Santa Fe,XRT,,42290,Base,,Base Price (trim MSRP),42290,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/santafe_options.md:45
+2027,Santa Fe,XRT,,42290,Exterior color,,Ultimate Red,500,,,models/santafe_options.md:48
+2027,Santa Fe,XRT,,42290,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/santafe_options.md:48
+2027,Santa Fe,XRT,,42290,Exterior color,,Serenity White,500,,,models/santafe_options.md:48
+2027,Santa Fe,XRT,,42290,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/santafe_options.md:48
+2027,Santa Fe,Limited,,44850,Base,,Base Price (trim MSRP),44850,,"Freight $1,650 not included",models/santafe_options.md:54
+2027,Santa Fe,Limited,,44850,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafe_options.md:56
+2027,Santa Fe,Limited,,44850,Exterior color,,Ultimate Red,500,,,models/santafe_options.md:57
+2027,Santa Fe,Limited,,44850,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/santafe_options.md:57
+2027,Santa Fe,Limited,,44850,Exterior color,,Serenity White,500,,,models/santafe_options.md:57
+2027,Santa Fe,Limited,,44850,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/santafe_options.md:57
+2027,Santa Fe,Calligraphy,,47850,Base,,Base Price (trim MSRP),47850,,"Freight $1,650 not included; default build includes an unnamed +$1,000 paint (not identified; default paint not verified); excluded from base",models/santafe_options.md:63
+2027,Santa Fe,Calligraphy,,47850,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafe_options.md:65
+2027,Santa Fe,Calligraphy,,47850,Exterior color,,Ultimate Red,500,,,models/santafe_options.md:66
+2027,Santa Fe,Calligraphy,,47850,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/santafe_options.md:66
+2027,Santa Fe,Calligraphy,,47850,Exterior color,,Serenity White,500,,,models/santafe_options.md:66
+2027,Santa Fe,Calligraphy,,47850,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/santafe_options.md:66
+2027,Santa Fe Hybrid,SE,,36650,Base,,Base Price (trim MSRP),36650,,"Freight $1,650 not included",models/santafehybrid_options.md:26
+2027,Santa Fe Hybrid,SE,,36650,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafehybrid_options.md:28
+2027,Santa Fe Hybrid,SE,,36650,Exterior color,,Serenity White,500,,,models/santafehybrid_options.md:29
+2027,Santa Fe Hybrid,SEL,,38940,Base,,Base Price (trim MSRP),38940,,"Freight $1,650 not included",models/santafehybrid_options.md:35
+2027,Santa Fe Hybrid,SEL,,38940,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafehybrid_options.md:37
+2027,Santa Fe Hybrid,SEL,,38940,Exterior color,,Ultimate Red,500,,,models/santafehybrid_options.md:38
+2027,Santa Fe Hybrid,SEL,,38940,Exterior color,,Serenity White,500,,,models/santafehybrid_options.md:38
+2027,Santa Fe Hybrid,Limited,,45950,Base,,Base Price (trim MSRP),45950,,"Freight $1,650 not included",models/santafehybrid_options.md:44
+2027,Santa Fe Hybrid,Limited,,45950,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafehybrid_options.md:46
+2027,Santa Fe Hybrid,Limited,,45950,Exterior color,,Ultimate Red,500,,,models/santafehybrid_options.md:47
+2027,Santa Fe Hybrid,Limited,,45950,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/santafehybrid_options.md:47
+2027,Santa Fe Hybrid,Limited,,45950,Exterior color,,Serenity White,500,,,models/santafehybrid_options.md:47
+2027,Santa Fe Hybrid,Limited,,45950,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/santafehybrid_options.md:47
+2027,Santa Fe Hybrid,Calligraphy,,48950,Base,,Base Price (trim MSRP),48950,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/santafehybrid_options.md:53
+2027,Santa Fe Hybrid,Calligraphy,,48950,Powertrain,Drivetrain,AWD,1800,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santafehybrid_options.md:55
+2027,Santa Fe Hybrid,Calligraphy,,48950,Exterior color,,Ultimate Red,500,,,models/santafehybrid_options.md:56
+2027,Santa Fe Hybrid,Calligraphy,,48950,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/santafehybrid_options.md:56
+2027,Santa Fe Hybrid,Calligraphy,,48950,Exterior color,,Serenity White,500,,,models/santafehybrid_options.md:56
+2027,Santa Fe Hybrid,Calligraphy,,48950,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/santafehybrid_options.md:56
+2027,Palisade,SE,,39735,Base,,Base Price (trim MSRP),39735,,"Freight $1,650 not included",models/palisade_options.md:28
+2027,Palisade,SE,,39735,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisade_options.md:30
+2027,Palisade,SE,,39735,Exterior color,,Creamy White,500,,,models/palisade_options.md:31
+2027,Palisade,SEL,,42240,Base,,Base Price (trim MSRP),42240,,"Freight $1,650 not included",models/palisade_options.md:37
+2027,Palisade,SEL,,42240,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisade_options.md:39
+2027,Palisade,SEL,,42240,Exterior color,,Creamy White,500,,,models/palisade_options.md:40
+2027,Palisade,SEL Premium,,45600,Base,,Base Price (trim MSRP),45600,,"Freight $1,650 not included",models/palisade_options.md:46
+2027,Palisade,SEL Premium,,45600,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisade_options.md:48
+2027,Palisade,SEL Premium,,45600,Exterior color,,Creamy White,500,,,models/palisade_options.md:49
+2027,Palisade,Limited,,50070,Base,,Base Price (trim MSRP),50070,,"Freight $1,650 not included",models/palisade_options.md:55
+2027,Palisade,Limited,,50070,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisade_options.md:57
+2027,Palisade,Limited,,50070,Exterior color,,Creamy White,500,,,models/palisade_options.md:58
+2027,Palisade,XRT PRO,,50170,Base,,Base Price (trim MSRP),50170,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/palisade_options.md:64
+2027,Palisade,XRT PRO,,50170,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/palisade_options.md:67
+2027,Palisade,XRT PRO,,50170,Exterior color,,Creamy White,500,,,models/palisade_options.md:67
+2027,Palisade,Calligraphy,,54860,Base,,Base Price (trim MSRP),54860,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/palisade_options.md:73
+2027,Palisade,Calligraphy,,54860,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisade_options.md:75
+2027,Palisade,Calligraphy,,54860,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/palisade_options.md:76
+2027,Palisade,Calligraphy,,54860,Exterior color,,Robust Emerald,500,,,models/palisade_options.md:76
+2027,Palisade,Calligraphy,,54860,Exterior color,,Creamy White,500,,,models/palisade_options.md:76
+2027,Palisade Hybrid,SEL,,44560,Base,,Base Price (trim MSRP),44560,,"Freight $1,650 not included; default paint $0 (unnamed) per source",models/palisadehybrid_options.md:8
+2027,Palisade Hybrid,SEL,,44560,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisadehybrid_options.md:8
+2027,Palisade Hybrid,SEL,,44560,Exterior color,,Creamy White,500,,,models/palisadehybrid_options.md:18
+2027,Palisade Hybrid,SEL Premium,,47920,Base,,Base Price (trim MSRP),47920,,"Freight $1,650 not included; default paint $0 (unnamed) per source",models/palisadehybrid_options.md:9
+2027,Palisade Hybrid,SEL Premium,,47920,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisadehybrid_options.md:9
+2027,Palisade Hybrid,SEL Premium,,47920,Exterior color,,Creamy White,500,,,models/palisadehybrid_options.md:18
+2027,Palisade Hybrid,Limited,,52390,Base,,Base Price (trim MSRP),52390,,"Freight $1,650 not included; default paint $0 (unnamed) per source",models/palisadehybrid_options.md:10
+2027,Palisade Hybrid,Limited,,52390,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisadehybrid_options.md:10
+2027,Palisade Hybrid,Limited,,52390,Exterior color,,Creamy White,500,,,models/palisadehybrid_options.md:18
+2027,Palisade Hybrid,Calligraphy,,57180,Base,,Base Price (trim MSRP),57180,,"Freight $1,650 not included; default paint $0 (unnamed) per source",models/palisadehybrid_options.md:11
+2027,Palisade Hybrid,Calligraphy,,57180,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisadehybrid_options.md:11
+2027,Palisade Hybrid,Calligraphy,,57180,Exterior color,,Earthy Brass Matte,1000,,matte paint,models/palisadehybrid_options.md:19
+2027,Palisade Hybrid,Calligraphy,,57180,Exterior color,,Robust Emerald,500,,,models/palisadehybrid_options.md:19
+2027,Palisade Hybrid,Calligraphy,,57180,Exterior color,,Creamy White,500,,,models/palisadehybrid_options.md:19
+2027,Palisade Hybrid,Calligraphy Black Ink,,57680,Base,,Base Price (trim MSRP),57680,,"Freight $1,650 not included; default paint $0 (unnamed) per source",models/palisadehybrid_options.md:12
+2027,Palisade Hybrid,Calligraphy Black Ink,,57680,Powertrain,Drivetrain,AWD,2000,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/palisadehybrid_options.md:12
+2027,Palisade Hybrid,Calligraphy Black Ink,,57680,Exterior color,,Creamy White,500,,,models/palisadehybrid_options.md:20
+2027,Ioniq 5,SE Standard Range,,35250,Base,,Base Price (trim MSRP),35250,,"Freight $1,650 not included; RWD only (no AWD option on this trim)",models/ioniq5_options.md:25
+2027,Ioniq 5,SE Standard Range,,35250,Exterior color,,Cyber Gray,500,,,models/ioniq5_options.md:28
+2027,Ioniq 5,SE,,37750,Base,,Base Price (trim MSRP),37750,,"Freight $1,650 not included",models/ioniq5_options.md:35
+2027,Ioniq 5,SE,,37750,Powertrain,Drivetrain,AWD,3500,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq5_options.md:37
+2027,Ioniq 5,SE,,37750,Exterior color,,Cyber Gray,500,,,models/ioniq5_options.md:38
+2027,Ioniq 5,SEL,,40200,Base,,Base Price (trim MSRP),40200,,"Freight $1,650 not included; default build includes an unnamed +$500 paint (not identified; default paint not verified); excluded from base",models/ioniq5_options.md:44
+2027,Ioniq 5,SEL,,40200,Powertrain,Drivetrain,AWD,3500,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq5_options.md:46
+2027,Ioniq 5,SEL,,40200,Exterior color,,Ultimate Red,500,,,models/ioniq5_options.md:47
+2027,Ioniq 5,SEL,,40200,Exterior color,,Atlas White Matte,1000,,matte paint,models/ioniq5_options.md:47
+2027,Ioniq 5,SEL,,40200,Exterior color,,Cyber Gray,500,,,models/ioniq5_options.md:47
+2027,Ioniq 5,SEL,,40200,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/ioniq5_options.md:47
+2027,Ioniq 5,Limited,,45225,Base,,Base Price (trim MSRP),45225,,"Freight $1,650 not included; default build includes an unnamed +$1,000 paint (not identified; default paint not verified); excluded from base",models/ioniq5_options.md:53
+2027,Ioniq 5,Limited,,45225,Powertrain,Drivetrain,AWD,3900,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq5_options.md:55
+2027,Ioniq 5,Limited,,45225,Exterior color,,Ultimate Red,500,,,models/ioniq5_options.md:56
+2027,Ioniq 5,Limited,,45225,Exterior color,,Atlas White Matte,1000,,matte paint,models/ioniq5_options.md:56
+2027,Ioniq 5,Limited,,45225,Exterior color,,Cyber Gray,500,,,models/ioniq5_options.md:56
+2027,Ioniq 5,Limited,,45225,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/ioniq5_options.md:56
+2027,Ioniq 5,XRT,,46525,Base,,Base Price (trim MSRP),46525,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/ioniq5_options.md:62
+2027,Ioniq 5,XRT,,46525,Exterior color,,Ultimate Red,500,,,models/ioniq5_options.md:65
+2027,Ioniq 5,XRT,,46525,Exterior color,,Cyber Gray,500,,,models/ioniq5_options.md:65
+2026,Ioniq 5 N,N,,59900,Base,,Base Price (trim MSRP),59900,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes an unnamed +$1,000 paint (not identified; default paint not verified); excluded from base",models/ioniq5n_options.md:20
+2026,Ioniq 5 N,N,,59900,Exterior color,,Soultronic Orange,500,,,models/ioniq5n_options.md:23
+2026,Ioniq 5 N,N,,59900,Exterior color,,Performance Blue Matte,1000,,matte paint,models/ioniq5n_options.md:23
+2026,Ioniq 5 N,N,,59900,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/ioniq5n_options.md:23
+2026,Ioniq 5 N,N,,59900,Exterior color,,Performance Blue,500,,,models/ioniq5n_options.md:23
+2025,Ioniq 6,SE Standard Range,,37850,Base,,Base Price (trim MSRP),37850,,"Freight $1,245 not included; RWD only (no AWD option on this trim); default build includes paid paint Serenity White +$500 (marked DEFAULT in the source); excluded from base",models/ioniq6_options.md:25
+2025,Ioniq 6,SE Standard Range,,37850,Exterior color,,Ultimate Red,500,,,models/ioniq6_options.md:28
+2025,Ioniq 6,SE Standard Range,,37850,Exterior color,,Serenity White,500,,default paint,models/ioniq6_options.md:28
+2025,Ioniq 6,SE,,42800,Base,,Base Price (trim MSRP),42800,,"Freight $1,245 not included; default build includes paid paint Serenity White +$500 (marked DEFAULT in the source); excluded from base",models/ioniq6_options.md:35
+2025,Ioniq 6,SE,,42800,Powertrain,Drivetrain,AWD,3500,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq6_options.md:37
+2025,Ioniq 6,SE,,42800,Exterior color,,Ultimate Red,500,,,models/ioniq6_options.md:38
+2025,Ioniq 6,SE,,42800,Exterior color,,Serenity White,500,,default paint,models/ioniq6_options.md:38
+2025,Ioniq 6,SEL,,45600,Base,,Base Price (trim MSRP),45600,,"Freight $1,245 not included; default build includes paid paint Serenity White +$500 (marked DEFAULT in the source); excluded from base",models/ioniq6_options.md:45
+2025,Ioniq 6,SEL,,45600,Powertrain,Drivetrain,AWD,3500,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq6_options.md:47
+2025,Ioniq 6,SEL,,45600,Exterior color,,Ultimate Red,500,,,models/ioniq6_options.md:48
+2025,Ioniq 6,SEL,,45600,Exterior color,,Serenity White,500,,default paint,models/ioniq6_options.md:48
+2025,Ioniq 6,SEL,,45600,Exterior color,,Gravity Gold Matte,1000,,matte paint,models/ioniq6_options.md:48
+2025,Ioniq 6,Limited,,51100,Base,,Base Price (trim MSRP),51100,,"Freight $1,245 not included; default build includes paid paint Serenity White +$500 (marked DEFAULT in the source); excluded from base",models/ioniq6_options.md:55
+2025,Ioniq 6,Limited,,51100,Powertrain,Drivetrain,AWD,3500,,AWD (HTRAC) upgrade over the default RWD build (per-trim delta),models/ioniq6_options.md:57
+2025,Ioniq 6,Limited,,51100,Exterior color,,Ultimate Red,500,,,models/ioniq6_options.md:58
+2025,Ioniq 6,Limited,,51100,Exterior color,,Serenity White,500,,default paint,models/ioniq6_options.md:58
+2025,Ioniq 6,Limited,,51100,Exterior color,,Gravity Gold Matte,1000,,matte paint,models/ioniq6_options.md:58
+2026,Ioniq 9,S,,58955,Base,,Base Price (trim MSRP),58955,,"Freight $1,650 not included; RWD only (no AWD option on this trim); default build includes paid paint Snow White Pearl +$500 (marked DEFAULT in the source); excluded from base",models/ioniq9_options.md:27
+2026,Ioniq 9,S,,58955,Exterior color,,Cyber Gray Metallic,500,,,models/ioniq9_options.md:30
+2026,Ioniq 9,S,,58955,Exterior color,,Snow White Pearl,500,,default paint,models/ioniq9_options.md:30
+2026,Ioniq 9,SE,,62765,Base,,Base Price (trim MSRP),62765,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes paid paint Snow White Pearl +$500 (presumed, not verified); excluded from base",models/ioniq9_options.md:36
+2026,Ioniq 9,SE,,62765,Exterior color,,Cyber Gray Metallic,500,,,models/ioniq9_options.md:39
+2026,Ioniq 9,SE,,62765,Exterior color,,Snow White Pearl,500,,"default paint (presumed, not verified)",models/ioniq9_options.md:39
+2026,Ioniq 9,SEL,,66320,Base,,Base Price (trim MSRP),66320,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes paid paint Snow White Pearl +$500 (presumed, not verified); excluded from base",models/ioniq9_options.md:45
+2026,Ioniq 9,SEL,,66320,Exterior color,,Ultimate Red,500,,,models/ioniq9_options.md:48
+2026,Ioniq 9,SEL,,66320,Exterior color,,Cyber Gray Metallic,500,,,models/ioniq9_options.md:48
+2026,Ioniq 9,SEL,,66320,Exterior color,,Snow White Pearl,500,,"default paint (presumed, not verified)",models/ioniq9_options.md:48
+2026,Ioniq 9,Limited,,71250,Base,,Base Price (trim MSRP),71250,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes paid paint Snow White Pearl +$500 (presumed, not verified); excluded from base",models/ioniq9_options.md:54
+2026,Ioniq 9,Limited,,71250,Exterior color,,Ultimate Red,500,,,models/ioniq9_options.md:57
+2026,Ioniq 9,Limited,,71250,Exterior color,,Cyber Gray Metallic,500,,,models/ioniq9_options.md:57
+2026,Ioniq 9,Limited,,71250,Exterior color,,Ecotronic Gray Matte,1000,,matte paint,models/ioniq9_options.md:57
+2026,Ioniq 9,Limited,,71250,Exterior color,,Snow White Pearl,500,,"default paint (presumed, not verified)",models/ioniq9_options.md:57
+2026,Ioniq 9,Calligraphy,,74990,Base,,Base Price (trim MSRP),74990,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes paid paint Snow White Pearl +$500 (presumed, not verified); excluded from base",models/ioniq9_options.md:63
+2026,Ioniq 9,Calligraphy,,74990,Exterior color,,Cyber Gray Metallic,500,,,models/ioniq9_options.md:66
+2026,Ioniq 9,Calligraphy,,74990,Exterior color,,Snow White Pearl,500,,"default paint (presumed, not verified)",models/ioniq9_options.md:66
+2026,Ioniq 9,Calligraphy Design,,76490,Base,,Base Price (trim MSRP),76490,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice); default build includes paid paint Sage Silver Matte +$1,000 (presumed, not verified); excluded from base",models/ioniq9_options.md:72
+2026,Ioniq 9,Calligraphy Design,,76490,Exterior color,,Gravity Gold Matte,1000,,matte paint,models/ioniq9_options.md:75
+2026,Ioniq 9,Calligraphy Design,,76490,Exterior color,,Sage Silver Matte,1000,,"matte paint; default paint (presumed, not verified)",models/ioniq9_options.md:75
+2027,Santa Cruz,SE,,30300,Base,,Base Price (trim MSRP),30300,,"Freight $1,650 not included",models/santacruz_options.md:25
+2027,Santa Cruz,SE,,30300,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santacruz_options.md:27
+2027,Santa Cruz,SE,,30300,Exterior color,,Sage Gray,500,,,models/santacruz_options.md:28
+2027,Santa Cruz,SE,,30300,Exterior color,,Blue Stone,500,,,models/santacruz_options.md:28
+2027,Santa Cruz,SEL Activity,,34700,Base,,Base Price (trim MSRP),34700,,"Freight $1,650 not included",models/santacruz_options.md:34
+2027,Santa Cruz,SEL Activity,,34700,Powertrain,Drivetrain,AWD,1500,,AWD (HTRAC) upgrade over the default FWD build (per-trim delta),models/santacruz_options.md:36
+2027,Santa Cruz,SEL Activity,,34700,Exterior color,,Sage Gray,500,,,models/santacruz_options.md:37
+2027,Santa Cruz,SEL Activity,,34700,Exterior color,,Blue Stone,500,,,models/santacruz_options.md:37
+2027,Santa Cruz,XRT,,42775,Base,,Base Price (trim MSRP),42775,,"Freight $1,650 not included; AWD only (included; no FWD/RWD choice)",models/santacruz_options.md:43
+2027,Santa Cruz,XRT,,42775,Exterior color,,Sage Gray,500,,,models/santacruz_options.md:46
+2027,Santa Cruz,XRT,,42775,Exterior color,,Blue Stone,500,,,models/santacruz_options.md:46
