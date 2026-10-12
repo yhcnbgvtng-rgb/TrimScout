@@ -14,6 +14,7 @@ import { findVehicleLd, readSchemaOrgVehicleFields } from './porscheSchemaOrgFie
 import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
 import { vdpSkipReason } from './vdpResponseGate.js';
 import { vehicleUrlLimits, planVehicleUrlPages, describeVehicleUrlPlan } from './vehicleUrlPaging.js';
+import { applyParsedPriceGuard, describePriceRejection } from './priceGuard.js';
 import { withProbeRetry } from './probeRetry.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
@@ -1233,6 +1234,11 @@ for (let i = 0; i < dealers.length; i++) {
                         // listing with no odometer becomes null instead of a 0 default.
                         vehicle.mileage = resolveMileage(vehicle.mileage, vehicle.inventoryType);
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
+                        // Parsed price sanity (priceGuard.js): over 5x the previous price or the MSRP, or over the make's ceiling -> blank.
+                        {
+                            const priceVerdict = applyParsedPriceGuard(vehicle, previousSnapshot[vehicle.vin]);
+                            if (priceVerdict.reject) console.log(describePriceRejection(vehicle, priceVerdict));
+                        }
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];
