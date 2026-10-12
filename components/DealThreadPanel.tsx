@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MessageSquare, Send, X } from "lucide-react";
 import { bubbleAlign, MAX_CHAT_LENGTH, unreadCount, type ThreadEntry, type ThreadViewer } from "../lib/dealThread";
-import { findContactInfo } from "../lib/piiFilter";
+import { findIdentityInfo } from "../lib/identityFilter";
 
 /**
  * The conversation on one dealer's quote, instant-messaging style (lib/dealThread.ts builds it from what the deal already
@@ -111,7 +111,7 @@ export function DealThreadPanel({
   }, [visible, newest, seen, seenKey]);
 
   const unread = visible ? 0 : unreadCount(entries, viewer, seen);
-  const blocked = findContactInfo(text);
+  const blocked = findIdentityInfo(text);
   const canSend = Boolean(data?.canPost && data.messaging) && !sending && text.trim().length > 0 && !blocked;
 
   const send = async () => {
@@ -156,7 +156,7 @@ export function DealThreadPanel({
         <header className="flex items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
           <div className="min-w-0">
             <h2 className="truncate text-sm font-extrabold text-white" data-testid="thread-heading">{heading}</h2>
-            <p className="text-[10px] text-ink-faint">Only this conversation. Contact details are shared only after the deal is final.</p>
+            <p className="text-[10px] text-ink-faint">Only this conversation. Names and contact details are never shared here.</p>
             {headerExtra}
           </div>
           <button type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-ink-muted hover:text-white lg:hidden" aria-label="Close messages" data-testid="thread-close"><X className="h-4 w-4" /></button>
@@ -193,7 +193,7 @@ export function DealThreadPanel({
 
         <footer className="space-y-1.5 border-t border-border/70 px-3 py-3">
           {disabledReason ? <p className="text-[10px] text-ink-muted" data-testid="thread-readonly">{disabledReason}</p> : null}
-          {blocked ? <p className="text-[10px] text-amber-200" data-testid="thread-contact-warning">That looks like {blocked}. TrimScout passes messages along without sharing contact details, so it can&apos;t be sent.</p> : null}
+          {blocked ? <p className="text-[10px] text-amber-200" data-testid="thread-contact-warning">That looks like {blocked}. Names, phone numbers (even spelled out), emails and addresses can&apos;t be shared in messages, so this can&apos;t be sent.</p> : null}
           {sendError ? <p className="text-[10px] text-rose-300" data-testid="thread-send-error">{sendError}</p> : null}
           <div className="flex items-end gap-2">
             <textarea

@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { getRfq, getRfqInviteByViewToken, postRfqMessage, RfqApiError } from "@/lib/rfqApi";
 import { buildThread, canPostToThread, isFinallyAccepted, MAX_CHAT_LENGTH } from "@/lib/dealThread";
-import { findContactInfo } from "@/lib/piiFilter";
+import { findIdentityInfo } from "@/lib/identityFilter";
 
 const TOKEN = /^[A-Za-z0-9_-]{8,80}$/;
 
@@ -52,8 +52,8 @@ export async function POST(req: Request) {
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   if (!text) return NextResponse.json({ error: "Write a message first." }, { status: 400 });
   if (text.length > MAX_CHAT_LENGTH) return NextResponse.json({ error: `Keep messages under ${MAX_CHAT_LENGTH} characters.` }, { status: 400 });
-  const found = findContactInfo(text);
-  if (found) return NextResponse.json({ error: `Messages can't include ${found} — TrimScout passes them along without sharing contact details.` }, { status: 400 });
+  const found = findIdentityInfo(text);
+  if (found) return NextResponse.json({ error: `Messages can't include ${found}. Names, phone numbers (even spelled out), emails and addresses can't be shared here.` }, { status: 400 });
   const row = await load(token);
   if (!row) return NextResponse.json({ error: "This quote request link is no longer valid." }, { status: 404 });
   const gate = canPostToThread(row.rfq, row.invite);

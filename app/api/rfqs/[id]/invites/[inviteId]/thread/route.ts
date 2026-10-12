@@ -7,7 +7,7 @@ import { auth } from "@/auth";
 import { getRfq, postRfqMessage, RfqApiError } from "@/lib/rfqApi";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { buildThread, canPostToThread, isFinallyAccepted, MAX_CHAT_LENGTH } from "@/lib/dealThread";
-import { findContactInfo } from "@/lib/piiFilter";
+import { findIdentityInfo } from "@/lib/identityFilter";
 
 async function authorize(req: Request, id: string, inviteId: string) {
   const session = await auth();
@@ -50,8 +50,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const text = typeof body?.text === "string" ? body.text.trim() : "";
   if (!text) return NextResponse.json({ error: "Write a message first." }, { status: 400 });
   if (text.length > MAX_CHAT_LENGTH) return NextResponse.json({ error: `Keep messages under ${MAX_CHAT_LENGTH} characters.` }, { status: 400 });
-  const found = findContactInfo(text);
-  if (found) return NextResponse.json({ error: `Messages can't include ${found} — TrimScout passes them along without sharing your contact details.` }, { status: 400 });
+  const found = findIdentityInfo(text);
+  if (found) return NextResponse.json({ error: `Messages can't include ${found}. Names, phone numbers (even spelled out), emails and addresses can't be shared here.` }, { status: 400 });
   const a = await authorize(req, id, inviteId).catch(() => ({ error: NextResponse.json({ error: "Could not send that message." }, { status: 502 }) }));
   if ("error" in a) return a.error;
   const gate = canPostToThread(a.rfq, a.invite);
