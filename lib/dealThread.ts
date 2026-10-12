@@ -16,7 +16,7 @@
 import type { DealMessage, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 import { counterSummary } from "./buyerCounter";
 import { activeOverrides, overrideSummary } from "./feeOverride";
-import { findContactInfo } from "./piiFilter";
+import { findIdentityInfo } from "./identityFilter";
 import { cashOutTheDoor } from "./usedQuote";
 import type { DealStageState } from "./dealStages";
 
@@ -31,7 +31,7 @@ export interface ThreadEntry {
   text: string;
 }
 
-export const REDACTED_BUYER_TEXT = "[Removed — contact details are only shared after the deal is final]";
+export const REDACTED_BUYER_TEXT = "[Removed — names and contact details are never shared in messages]";
 export const MAX_CHAT_LENGTH = 1000;
 
 type ThreadRfq = Pick<RfqRequest, "buyerNote" | "createdAt" | "status" | "pickedQuoteId">;
@@ -98,7 +98,7 @@ export function buildThread(rfq: ThreadRfq, invite: RfqInvite, viewer: ThreadVie
   const out: ThreadEntry[] = [];
   // Contact details in the buyer's free text are blanked for the dealer even after final acceptance: the dealer gets the buyer's details
   // through the one dedicated release (lib/dealStages.ts), never through a thread.
-  const buyerText = (t: string) => (viewer === "dealer" && findContactInfo(t) ? REDACTED_BUYER_TEXT : t);
+  const buyerText = (t: string) => (viewer === "dealer" && findIdentityInfo(t) ? REDACTED_BUYER_TEXT : t);
   const push = (e: ThreadEntry) => { if (e.text && e.at) out.push(e); };
 
   if (rfq.buyerNote) push({ id: "buyer-note", at: rfq.createdAt, side: "buyer", kind: "note", text: buyerText(rfq.buyerNote) });

@@ -107,7 +107,7 @@ describe("isolation: each dealer sees only their own thread", () => {
   it("posting is token/buyer scoped and rejects contact info before it reaches the box", () => {
     for (const f of ["app/api/quote-invite/thread/route.ts", "app/api/rfqs/[id]/invites/[inviteId]/thread/route.ts"]) {
       const r = read(f);
-      assert.match(r, /findContactInfo\(text\)/, f);
+      assert.match(r, /findIdentityInfo\(text\)/, f);
       assert.match(r, /canPostToThread\(/, f);
       assert.match(r, /postRfqMessage\(/, f);
     }
@@ -177,7 +177,7 @@ describe("privacy: no buyer contact info before final acceptance", () => {
   });
   it("new messages with contact info are refused in the panel before sending", () => {
     const src = read("components/DealThreadPanel.tsx");
-    assert.match(src, /findContactInfo\(text\)/);
+    assert.match(src, /findIdentityInfo\(text\)/);
     assert.match(src, /canSend = Boolean\(data\?\.canPost && data\.messaging\) && !sending && text\.trim\(\)\.length > 0 && !blocked/);
   });
 });

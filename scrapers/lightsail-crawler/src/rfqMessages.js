@@ -5,9 +5,11 @@
 // Body: { kind: "message", from: "buyer" | "dealer", text }   -> appended to that invite's thread (rfq_invites.messages_json)
 //       { kind: "event", type: "fee_override", overrides: [] } -> logged to rfq_events (dealer only); the thread itself is not touched
 // A thread belongs to ONE invite: the dealer's tokened page and the buyer's page for that desk read the same list, and no
-// other desk's invite is ever read or written here. Text never carries contact details (findContactInfo, same check the
-// request comment uses); the server refuses it outright rather than editing it. Scoped audit keys are pinned to their own
+// other desk's invite is ever read or written here. Text never carries identity: no names, no phone number in any form, no emails, handles or addresses
+// (identityFilter.js, plus the request-comment contact check); the server refuses it outright rather than editing it. Scoped audit keys are pinned to their own
 // side (buyer key -> from "buyer", test-dealer key -> "dealer"). Emails are the Next app's job and stay under SAFE MODE there.
+import { findIdentityInfo } from "./identityFilter.js";
+
 export const MAX_MESSAGES = 200;
 export const MAX_TEXT = 1000;
 const EVENT_TYPES = new Set(["fee_override"]);
@@ -67,8 +69,9 @@ export function createRfqMessagesHandler(deps) {
       return sendJson(res, 200, { ok: true });
     }
 
-    const found = findContactInfo ? findContactInfo(String(body.text ?? "")) : null;
-    if (found) return sendJson(res, 400, { error: `Messages can't include ${found} — TrimScout passes them along without sharing contact details.`, code: "contact_info" });
+    // Stricter than the request-comment check: no names either, and no number in any form (identityFilter.js). The injected contact check still runs too.
+    const found = findIdentityInfo(String(body.text ?? "")) || (findContactInfo ? findContactInfo(String(body.text ?? "")) : null);
+    if (found) return sendJson(res, 400, { error: `Messages can't include ${found}. Names, phone numbers (even spelled out), emails and addresses can't be shared here.`, code: "contact_info" });
 
     const rawBefore = invite.messages_json ?? null;
     const outcome = appendMessage(parse(rawBefore), { from: actor, text: body.text });

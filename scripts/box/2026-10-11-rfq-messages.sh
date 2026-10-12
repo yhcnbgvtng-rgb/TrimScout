@@ -2,11 +2,11 @@
 # Deals API: the buyer <-> dealer chat on one desk's quote, and the "fee_override" deal event.
 #   rfq_invites.messages_json   TEXT   that desk's thread, oldest first, capped at 200 (never edited by hand)
 #   POST /api/rfqs/:id/invites/:inviteId/messages
-#        { kind: "message", from: "buyer"|"dealer", text }   append to THIS invite's thread only; contact info is refused
+#        { kind: "message", from: "buyer"|"dealer", text }   append to THIS invite's thread only; names, phone numbers (any form), emails and addresses are refused
 #        { kind: "event", type: "fee_override", overrides }   log the dealer's fee override to rfq_events
 #   publicRfqInvite gains `messages`. Scoped audit keys are pinned to their own side.
 #
-# Adds one file next to the server (rfqMessages.js) and four small anchored edits to deals_api_server.js.
+# Adds two files next to the server (rfqMessages.js, identityFilter.js) and four small anchored edits to deals_api_server.js.
 # REQUIRES the 2026-10-11 deal-stages patch to be applied first (this patch anchors on the lines it adds); it asserts and
 # changes nothing otherwise. Until this is applied the app degrades: the chat panel shows the existing notes and system
 # events read-only and says sending isn't available yet; fee overrides still save and still email the buyer.
@@ -28,7 +28,7 @@ if [ "${TEST_ONLY:-0}" != "1" ]; then
   DIR=$(dirname "$FILE")
   sudo cp "$FILE" "$FILE.bak.$STAMP"
   echo "backup: $FILE.bak.$STAMP"
-  for m in rfqMessages.js; do
+  for m in identityFilter.js rfqMessages.js; do
     tmp=$(mktemp); curl -fsSL -o "$tmp" "$SRC_BASE/$m"; node --check "$tmp"
     sudo install -m 0644 "$tmp" "$DIR/$m"; rm -f "$tmp"; echo "installed $DIR/$m"
   done
