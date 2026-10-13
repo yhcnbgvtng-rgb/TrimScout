@@ -45,6 +45,22 @@ export function missingFinanceLocks(p: { termMonths?: number | "" | null; downPa
   return out;
 }
 
+/**
+ * Reads quote prefs that were STORED (not typed in a form): a cash request always comes back with a `cash` object (zip may be "" when it
+ * was never recorded) so views can read `prefs.cash.zip` without crashing; a finance request is only kept when every lock is present,
+ * because defaulting a term or credit band would show the buyer numbers they never chose. Anything else is null (the original flow).
+ */
+export function coerceQuotePrefs(raw: unknown): QuotePrefs | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  if (o.quoteType === "cash") {
+    const c = o.cash && typeof o.cash === "object" ? (o.cash as Record<string, unknown>) : {};
+    const tl = c.timeline === "asap" || c.timeline === "this_week" || c.timeline === "this_month" ? c.timeline : null;
+    return { quoteType: "cash", cash: { zip: typeof c.zip === "string" && /^\d{5}$/.test(c.zip) ? c.zip : "", timeline: tl }, ...(o.staged === true ? { staged: true } : {}) };
+  }
+  return parseQuotePrefs(raw);
+}
+
 /** Only the terms and bands the product offers; anything else is dropped, not guessed. */
 export function parseQuotePrefs(raw: unknown): QuotePrefs | null {
   if (!raw || typeof raw !== "object") return null;

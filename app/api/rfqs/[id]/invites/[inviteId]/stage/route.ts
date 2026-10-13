@@ -38,7 +38,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     if (isNotSelected(invite) && action.type !== "walk") return NextResponse.json({ error: "You chose a different dealer, so this quote is closed." }, { status: 409 });
 
-    const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : null;
+    const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash?.zip || null : null;
     // The buyer's details are assembled here, from the signed-in buyer (or the guest's own email), and sent to the box ONLY with
     // accept_final: no other action carries them, and the box stores them on this dealer's deal alone.
     const user = (session?.user ?? {}) as { name?: string | null; phone?: string | null };

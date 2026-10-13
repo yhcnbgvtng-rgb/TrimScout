@@ -45,7 +45,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const winner = deal.invite;
     const url = winner.viewToken ? `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(winner.viewToken)}` : DEALER_EMAIL_BASE_URL;
     if (isStagedRfq(rfq)) {
-      const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash.zip : null;
+      const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash?.zip || null : null;
       const result = await postDealStage(id, winner.id, { action: { type: "add_trade" }, actor: "buyer", state: zipStateTax(zip)?.state ?? null });
       updated = result.rfq;
       await sendDealStageNotice(buildStageNotice({ actor: "buyer", action: { type: "add_trade" }, state: result.stage, dealerName: winner.dealerName, vehicle, url }));

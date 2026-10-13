@@ -9,6 +9,7 @@ import type { BuyerCounter } from "./rfq";
 import type { DealStageState } from "./dealStages";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
 import { coerceTradeIn } from "./trade/coerce";
+import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
@@ -26,7 +27,11 @@ export class RfqApiError extends Error {
 
 /** Every request read from the box passes through here so a partial stored trade-in can't crash a page that renders it. */
 export function asRfq(r: any): RfqRequest {
-  return r && typeof r === "object" && r.tradeIn ? { ...r, tradeIn: coerceTradeIn(r.tradeIn) } : r;
+  if (!r || typeof r !== "object" || (!r.tradeIn && !r.quotePrefs)) return r;
+  const out = { ...r };
+  if (out.tradeIn) out.tradeIn = coerceTradeIn(out.tradeIn);
+  if (out.quotePrefs) out.quotePrefs = coerceQuotePrefs(out.quotePrefs);
+  return out;
 }
 export function asRfqs(list: any): RfqRequest[] {
   return Array.isArray(list) ? list.map(asRfq) : [];
