@@ -44,6 +44,12 @@ export function TradeSummary({ trade: stored, signed }: { trade: TradeInRecord |
         {row("Warning lights", trade.warningLights ? (trade.warningLights.on ? `On${trade.warningLights.which ? `: ${trade.warningLights.which}` : ""}` : "None") : null)}
         {row("Buyer's intent", INTENT_LABELS[trade.intent])}
       </dl>
+      {trade.dealerNotes ? (
+        <div className="rounded-lg border border-border/60 bg-background/40 p-3 text-xs" data-testid="trade-dealer-notes">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Note from the buyer</p>
+          <p className="mt-1 whitespace-pre-wrap break-words text-white">{trade.dealerNotes}</p>
+        </div>
+      ) : null}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${progress.complete ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"}`} data-testid="required-photos-chip">{progress.have}/{progress.total} required photos</span>

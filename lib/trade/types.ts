@@ -121,6 +121,8 @@ export interface TradeInFields {
   mods: string | null;
   warningLights: { on: boolean; which: string | null } | null;
   intent: TradeIntent;
+  /** Optional "Anything the dealer should know?" (accidents, damage, mechanical, aftermarket). Absent on older records. */
+  dealerNotes?: string | null;
   /** "Mileage in photo matches what I entered". */
   odometerConfirmed: boolean;
 }
@@ -170,6 +172,7 @@ export interface TradePhotoRequest {
   fulfilledAt: string | null;
 }
 
+export const DEALER_NOTES_MAX = 1000;
 export const TRADE_PHOTO_COPY = "Dealers need these 6 photos to give you a real trade number instead of a guess.";
 export const TRADE_PRIVACY_COPY = "Photos and details go only to the dealers you send this request to. We remove location data from your photos.";
 export const TRADE_ESTIMATE_COPY = "Trade values are dealer estimates and may change after inspection.";

@@ -7,7 +7,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { TradePhotoSlots } from "../../../../components/trade/TradePhotoSlots";
 import { useTradeDraft } from "../../../../components/trade/useTradeDraft";
 import { TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY } from "../../../../lib/trade/types";
-import { requiredPhotoProgress } from "../../../../lib/trade/validate";
+import { requiredPhotoProgress, tradeReadiness } from "../../../../lib/trade/validate";
 
 // The phone side of "Continue on my phone": the same draft, photos only, camera-first, one slot at a time.
 // The link carries the draft's own token, so no login is needed on the phone.
@@ -16,6 +16,8 @@ function PhonePhotos() {
   const k = useSearchParams().get("k") || "";
   const draft = useTradeDraft(true, { draftId: id, token: k, poll: true });
   const progress = requiredPhotoProgress(draft.photos);
+  const readiness = tradeReadiness(draft.fields, draft.photos, { uploading: Boolean(draft.busySlot) });
+  const detailsLeft = readiness.missing.filter((m) => !/photo/i.test(m));
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 py-6">
       <h1 className="text-lg font-extrabold text-white">Trade-in photos</h1>
@@ -25,7 +27,15 @@ function PhonePhotos() {
       {draft.sent ? <p className="rounded-xl border border-border bg-surface p-3 text-sm text-ink-light">This trade-in was already sent with a request. You can change photos from the request page.</p> : (
         <TradePhotoSlots guided photos={draft.photos} urls={draft.urls} busySlot={draft.busySlot} slotError={draft.slotError} onPick={draft.uploadPhoto} onRemove={draft.removePhoto} />
       )}
-      {progress.complete ? <p className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3 text-sm text-emerald-200" data-testid="phone-done">All 6 required photos are in. Go back to your computer and continue; they&apos;re already there.</p> : null}
+      {progress.complete ? <p className="rounded-xl border border-emerald-500/40 bg-emerald-950/20 p-3 text-sm text-emerald-200" data-testid="phone-done">All 6 required photos are in. They&apos;re already saved to your draft.</p> : null}
+      {progress.complete && detailsLeft.length ? (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-xs text-amber-100" role="status" data-testid="phone-details-left">
+          <p className="font-bold">Photos done. To continue, the trade-in details still need:</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4">{detailsLeft.map((m) => <li key={m}>{m}</li>)}</ul>
+          <p className="mt-2 text-amber-200/80">Fill these in on the quote request, where this draft opens with your photos already attached. This page only collects photos.</p>
+        </div>
+      ) : null}
+      {progress.complete && !detailsLeft.length ? <p className="text-xs text-emerald-200" data-testid="phone-ready">Details and photos are complete. Go back to the quote request and continue.</p> : null}
     </main>
   );
 }
