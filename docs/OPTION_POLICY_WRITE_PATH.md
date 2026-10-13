@@ -55,6 +55,12 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
 - **Files back**: copy the two `.bak.<timestamp>` files over `factoryOptionAllowlist.js` and `deals_api_server.js`, then restart.
 - **Rows back**: `--phase=restore` of the apply script puts the backed-up rows back for exactly the cars it applied (dry unless `--go`). The 2026-10-10 Toyota backup is `/home/ubuntu/toyota-option-apply-EsvcAP/state/backup.jsonl` (md5 2bb0af068fcc446966f686a7fcf9f8a8).
 
+## Exact aliases and the apply scripts (Hyundai, BMW, Mercedes-Benz)
+
+- `scripts/lib/optionPolicyAliases.mjs` holds the approved exact spellings (model spellings, trim aliases, `modelTrim` pairs, noise words) the builder bakes into the policy JSON. Same ruling as the Ford aliases: exact only, no fuzzy matching, no year-to-year mapping. A model-year with no policy (for example a 2026 Santa Fe against a 2027-only policy) stays uncovered.
+- A `modelTrim` pair ("GLE 350|4MATIC" -> "GLE 350 4MATIC SUV") is for feeds that put trim words in the model. It is tried only after every other trim rule failed.
+- The apply scripts' plan phase now SKIPS a covered car whose trim is blank or not trusted (counted as `skippedNoTrustedTrim`); it no longer plans to remove that car's stored rows. The nightly sync write path is unchanged: a non-blank trim the policy does not trust still yields zero rows (rule 6).
+
 ## Known limits
 
 - Policy matching uses the stored make / model / year / trim. A model spelling the policy does not list (for example a trim-suffixed model name) is simply not covered and stays on the generic rules.
