@@ -37,8 +37,8 @@ function Block({ title, hint, children }: { title: string; hint?: string; childr
  * The Trade-In step of Configure Quote Request. Toggle "I have a trade-in" (off = nothing is collected or sent).
  * On: required details + six required photos (nothing sends until both are complete) + optional sharper-number fields.
  */
-export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState }: { enabled: boolean; onToggle: (on: boolean) => void; defaultZip?: string | null; attempted: boolean; onState: (s: TradeStepState) => void }) {
-  const draft = useTradeDraft(enabled, { poll: true });
+export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState, draftRef, hideToggle }: { enabled: boolean; onToggle: (on: boolean) => void; defaultZip?: string | null; attempted: boolean; onState: (s: TradeStepState) => void; /** Open this exact draft (the phone link) instead of looking one up. */ draftRef?: { id: string; token: string }; hideToggle?: boolean }) {
+  const draft = useTradeDraft(enabled, { poll: true, ...(draftRef ? { draftId: draftRef.id, token: draftRef.token } : {}) });
   const f = draft.fields as Fields & Record<string, any>;
   const set = (patch: Fields) => draft.setFields((prev) => ({ ...prev, ...patch }));
   const [decode, setDecode] = useState<{ state: "idle" | "loading" | "ok" | "fail"; text?: string }>({ state: "idle" });
@@ -100,11 +100,11 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState 
           <p className="text-sm font-bold text-white">Trade-in</p>
           <p className="text-[11px] text-ink-muted">Dealers show it as its own line next to the price, never buried in the monthly.</p>
         </div>
-        <button type="button" role="switch" aria-checked={enabled} aria-label="I have a trade-in" onClick={() => onToggle(!enabled)} data-testid="trade-toggle"
+        {hideToggle ? null : <button type="button" role="switch" aria-checked={enabled} aria-label="I have a trade-in" onClick={() => onToggle(!enabled)} data-testid="trade-toggle"
           className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold ${enabled ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light"}`}>
           <span className={`inline-block h-4 w-7 rounded-full p-0.5 transition-colors ${enabled ? "bg-brand-500" : "bg-border"}`}><span className={`block h-3 w-3 rounded-full bg-white transition-transform ${enabled ? "translate-x-3" : ""}`} /></span>
           I have a trade-in
-        </button>
+        </button>}
       </div>
 
       {!enabled ? null : draft.error ? <p className="text-xs text-rose-300" role="alert">{draft.error}</p> : draft.loading && !draft.ref ? <p className="text-xs text-ink-muted">Loading your trade-in…</p> : (

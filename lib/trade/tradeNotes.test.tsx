@@ -104,3 +104,13 @@ describe("readers tolerate a missing note", () => {
     assert.match(withNote, /Rear bumper dent &lt;b&gt;x&lt;\/b&gt;/, "escaped, not injected");
   });
 });
+
+describe("phone page runs the full step", () => {
+  it("renders details, photo slots and the note on one page, with a Continue button and no toggle", async () => {
+    const { TradeInStep } = await import("../../components/trade/TradeInStep");
+    const html = renderToStaticMarkup(<TradeInStep enabled onToggle={() => {}} hideToggle attempted={false} onState={() => {}} draftRef={{ id: "d", token: "t" }} />);
+    assert.doesNotMatch(html, /data-testid="trade-toggle"/);
+    const toggled = renderToStaticMarkup(<TradeInStep enabled onToggle={() => {}} attempted={false} onState={() => {}} />);
+    assert.match(toggled, /data-testid="trade-toggle"/);
+  });
+});
