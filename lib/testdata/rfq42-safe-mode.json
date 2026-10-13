@@ -1,0 +1,361 @@
+{
+ "rfq": {
+  "id": "42",
+  "buyerUserId": "safe-mode-test-buyer",
+  "vin": "1HGCM82633A004352",
+  "stockNumber": null,
+  "vehicleYear": 2026,
+  "vehicleMake": "Honda",
+  "vehicleModel": "Accord",
+  "vehicleTrim": "EX",
+  "mustHaves": [],
+  "invites": [
+   {
+    "id": "59",
+    "dealerName": "ZZ SAFE MODE TEST DEALER",
+    "dealerContactEmail": null,
+    "status": "quoted",
+    "declineReason": null,
+    "invitedAt": "2026-10-13T19:20:28.000Z",
+    "respondedAt": "2026-10-13T19:20:28.000Z",
+    "quote": {
+     "id": "28",
+     "inviteId": "59",
+     "dealerName": "ZZ SAFE MODE TEST DEALER",
+     "price": 30000,
+     "fees": [
+      {
+       "label": "Sales tax",
+       "amount": 1987.5
+      },
+      {
+       "label": "Doc fee",
+       "amount": 400
+      }
+     ],
+     "totalOtdPrice": 32387.5,
+     "vin": "1HGCM82633A004352",
+     "stockNumber": null,
+     "expiresAt": "2026-10-16T19:20:28.000Z",
+     "submittedAt": "2026-10-13T19:20:28.000Z",
+     "mustHaveAcknowledgement": true,
+     "notes": "SAFE MODE test quote",
+     "lease": null,
+     "used": {
+      "kind": "cash",
+      "sellingPrice": 30000,
+      "dueAtSigning": [
+       {
+        "name": "Sales tax",
+        "amount": 1987.5
+       },
+       {
+        "name": "Doc fee",
+        "amount": 400
+       }
+      ],
+      "addOns": [],
+      "rebates": []
+     },
+     "supersededAt": null
+    },
+    "desk": {
+     "name": "Test Desk"
+    },
+    "vehicle": {
+     "vin": "1HGCM82633A004352"
+    },
+    "deliveryStatus": "queued",
+    "queuedAt": "2026-10-13T19:20:28.000Z",
+    "sentAt": null,
+    "viewedAt": null,
+    "buyerCounter": null,
+    "buyerCounterAt": null,
+    "tradeAppraisal": null,
+    "tradePhotoRequest": null,
+    "tradeSeenAt": null,
+    "tradePhotosNotifiedAt": null,
+    "stage": {
+     "v": 2,
+     "path": "cash_finance",
+     "stage": "closed",
+     "tradeInExpected": true,
+     "otd": {
+      "status": "locked",
+      "amount": 32387.5,
+      "lockedAt": "2026-10-13T19:20:28.441Z",
+      "lockedBy": "buyer"
+     },
+     "trade": {
+      "status": "locked",
+      "offer": {
+       "value": 12000,
+       "at": "2026-10-13T19:20:28.483Z",
+       "basis": "preliminary",
+       "revised": false,
+       "held": true
+      },
+      "counter": {
+       "value": 14000,
+       "at": "2026-10-13T19:20:28.470Z",
+       "note": "safe mode counter"
+      },
+      "turn": null,
+      "rounds": 3,
+      "history": [
+       {
+        "by": "dealer",
+        "kind": "offer",
+        "value": 12000,
+        "at": "2026-10-13T19:20:28.455Z"
+       },
+       {
+        "by": "buyer",
+        "kind": "counter",
+        "value": 14000,
+        "at": "2026-10-13T19:20:28.470Z"
+       },
+       {
+        "by": "dealer",
+        "kind": "hold",
+        "value": 12000,
+        "at": "2026-10-13T19:20:28.483Z"
+       },
+       {
+        "by": "buyer",
+        "kind": "accept",
+        "value": 12000,
+        "at": "2026-10-13T19:20:28.494Z"
+       }
+      ],
+      "payoff": 4000,
+      "value": 12000,
+      "taxSavings": 795,
+      "lockedAt": "2026-10-13T19:20:28.494Z",
+      "taxCreditState": true
+     },
+     "payment": {
+      "status": "closed",
+      "method": "dealer_finance",
+      "lenderName": null,
+      "outsideFinancing": false,
+      "creditRange": null,
+      "downPayment": 3000,
+      "preferredTermMonths": 60,
+      "financeRequestedAt": "2026-10-13T19:20:28.506Z",
+      "financeQuote": {
+       "apr": 6.9,
+       "termMonths": 60,
+       "monthly": 422.49,
+       "amountFinanced": 21387.5,
+       "downPayment": 3000,
+       "trueOtd": 24387.5,
+       "lenderName": "Safe Mode Test Bank",
+       "totalPaid": 25349.4,
+       "interest": 3961.9,
+       "revised": false,
+       "held": false,
+       "at": "2026-10-13T19:20:28.542Z"
+      },
+      "financeCounter": {
+       "apr": 6.9,
+       "termMonths": 60,
+       "monthly": 422.49,
+       "amountFinanced": 21387.5,
+       "note": "safe mode apr counter",
+       "at": "2026-10-13T19:20:28.530Z"
+      },
+      "financeTurn": null,
+      "financeHistory": [
+       {
+        "by": "dealer",
+        "kind": "offer",
+        "apr": 7.9,
+        "termMonths": 60,
+        "monthly": 432.64,
+        "at": "2026-10-13T19:20:28.517Z"
+       },
+       {
+        "by": "buyer",
+        "kind": "counter",
+        "apr": 6.9,
+        "termMonths": 60,
+        "monthly": 422.49,
+        "at": "2026-10-13T19:20:28.530Z"
+       },
+       {
+        "by": "dealer",
+        "kind": "accept",
+        "apr": 6.9,
+        "termMonths": 60,
+        "monthly": 422.49,
+        "at": "2026-10-13T19:20:28.542Z"
+       }
+      ],
+      "agreedAt": "2026-10-13T19:20:28.542Z",
+      "closedAt": "2026-10-13T19:20:28.553Z"
+     },
+     "final": {
+      "status": "accepted",
+      "summary": {
+       "otd": 32387.5,
+       "tradeValue": 12000,
+       "payoff": 4000,
+       "trueOtd": 24387.5,
+       "method": "dealer_finance",
+       "lenderName": "Safe Mode Test Bank",
+       "downPayment": 3000,
+       "apr": 6.9,
+       "termMonths": 60,
+       "monthly": 422.49,
+       "amountFinanced": 21387.5
+      },
+      "acceptedAt": "2026-10-13T19:20:28.553Z"
+     },
+     "release": {
+      "at": "2026-10-13T19:20:28.553Z",
+      "contact": {
+       "name": "Safe Mode Buyer",
+       "email": "buyer@example.test",
+       "phone": "5550100",
+       "zip": "07030"
+      }
+     },
+     "trueOtd": 24387.5,
+     "walk": null,
+     "log": [
+      {
+       "at": "2026-10-13T19:20:28.441Z",
+       "actor": "buyer",
+       "type": "accept_otd",
+       "stage": "otd",
+       "amount": 32387.5
+      },
+      {
+       "at": "2026-10-13T19:20:28.455Z",
+       "actor": "dealer",
+       "type": "trade_offer",
+       "stage": "trade",
+       "value": 12000
+      },
+      {
+       "at": "2026-10-13T19:20:28.470Z",
+       "actor": "buyer",
+       "type": "trade_counter",
+       "stage": "trade",
+       "value": 14000
+      },
+      {
+       "at": "2026-10-13T19:20:28.483Z",
+       "actor": "dealer",
+       "type": "trade_hold",
+       "stage": "trade",
+       "value": 12000
+      },
+      {
+       "at": "2026-10-13T19:20:28.494Z",
+       "actor": "buyer",
+       "type": "trade_accept",
+       "stage": "trade",
+       "value": 12000,
+       "payoff": 4000,
+       "trueOtd": 24387.5
+      },
+      {
+       "at": "2026-10-13T19:20:28.506Z",
+       "actor": "buyer",
+       "type": "request_finance",
+       "stage": "payment",
+       "down": 3000
+      },
+      {
+       "at": "2026-10-13T19:20:28.517Z",
+       "actor": "dealer",
+       "type": "finance_quote",
+       "stage": "payment",
+       "apr": 7.9,
+       "termMonths": 60,
+       "monthly": 432.64
+      },
+      {
+       "at": "2026-10-13T19:20:28.530Z",
+       "actor": "buyer",
+       "type": "finance_counter",
+       "stage": "payment",
+       "apr": 6.9,
+       "termMonths": 60,
+       "monthly": 422.49
+      },
+      {
+       "at": "2026-10-13T19:20:28.542Z",
+       "actor": "dealer",
+       "type": "finance_accept_counter",
+       "stage": "payment",
+       "apr": 6.9,
+       "termMonths": 60,
+       "monthly": 422.49
+      },
+      {
+       "at": "2026-10-13T19:20:28.553Z",
+       "actor": "buyer",
+       "type": "accept_final",
+       "stage": "final",
+       "method": "dealer_finance",
+       "trueOtd": 24387.5,
+       "monthly": 422.49
+      },
+      {
+       "at": "2026-10-13T19:20:28.553Z",
+       "actor": "system",
+       "type": "buyer_details_released",
+       "stage": "final"
+      }
+     ]
+    },
+    "messages": [
+     {
+      "id": "mv72fxsrgedk3",
+      "from": "dealer",
+      "text": "Happy to hold the car until Friday.",
+      "at": "2026-10-13T19:20:28.635Z"
+     }
+    ],
+    "notSelectedAt": null,
+    "notSelectedNoticeClaimedAt": null,
+    "notSelectedNoticeSentAt": null,
+    "dealerUnsubscribedAt": null,
+    "priorQuotes": []
+   }
+  ],
+  "status": "picked",
+  "pickedQuoteId": "28",
+  "createdAt": "2026-10-13T19:20:28.000Z",
+  "packageKind": "links",
+  "linkPastes": [
+   {
+    "url": "https://example.com/safe-mode-test-listing",
+    "vin": "1HGCM82633A004352"
+   }
+  ],
+  "dealReference": null,
+  "leasePrefs": null,
+  "quotePrefs": {
+   "quoteType": "cash",
+   "staged": true
+  },
+  "buyerNote": "SAFE MODE TEST DEAL 2026-10-13 - ignore",
+  "tradeInExpected": true,
+  "tradeIn": null,
+  "lane": "same_spec",
+  "alternateAsk": null,
+  "auditForcedSafeMode": false,
+  "audit": true,
+  "approvalStatus": "approved",
+  "approvalDecidedAt": "2026-10-13T19:20:28.000Z",
+  "approvalDecidedBy": "safe-mode-test",
+  "rejectionReason": null,
+  "adminEdits": [],
+  "leaseSheetLockedAt": null,
+  "leaseSheetLockedByInviteId": null
+ }
+}

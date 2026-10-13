@@ -43,7 +43,7 @@ export async function buildInviteEmailFromStored(
   const car = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin)) || rfqVehicles(rfq)[0] || null;
   const directoryRow = desk.source === "directory" ? matchDirectoryDealership(directory, { dealerName: invite.dealerName, state: car?.dealerState || "" }) : null;
   const quoteType: QuoteEmailType = rfq.leasePrefs ? "lease" : rfq.quotePrefs?.quoteType === "finance" ? "finance" : "cash";
-  const timeline = rfq.leasePrefs?.timeline || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.timeline : rfq.quotePrefs?.cash.timeline) || null;
+  const timeline = rfq.leasePrefs?.timeline || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance?.timeline : rfq.quotePrefs?.cash?.timeline) || null;
   const input: QuoteInviteEmailInput = {
     quoteType,
     dealerName: invite.dealerName,
@@ -57,7 +57,7 @@ export async function buildInviteEmailFromStored(
     viewUrl: `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken || "")}`,
     unsubscribeUrl: directoryRow ? unsubscribeUrlFor(directoryRow.id) : null,
     purchaseTimelineLabel: timeline ? LEASE_TIMELINE_LABELS[timeline] : null,
-    buyerZip: rfq.leasePrefs?.zip || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance.zip : rfq.quotePrefs?.cash.zip) || null,
+    buyerZip: rfq.leasePrefs?.zip || (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance?.zip : rfq.quotePrefs?.cash?.zip) || null,
     leasePrefs: rfq.leasePrefs || null,
     financePrefs: rfq.quotePrefs?.quoteType === "finance" ? { termMonths: rfq.quotePrefs.finance.termMonths, downPayment: rfq.quotePrefs.finance.downPayment, creditBand: rfq.quotePrefs.finance.creditBand } : null,
     buyerNote: rfq.buyerNote || null,

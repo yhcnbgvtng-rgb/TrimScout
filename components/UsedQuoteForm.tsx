@@ -59,7 +59,7 @@ export function UsedQuoteForm({
 }) {
   const kind = prefs.quoteType;
   const used = condition !== "new";
-  const zip = kind === "finance" ? prefs.finance.zip : prefs.cash.zip;
+  const zip = (kind === "finance" ? prefs.finance?.zip : prefs.cash?.zip) || "";
   const zipRate = zip ? getZipCoordinates(zip).taxRate : null;
   const initFin = initial?.kind === "finance" ? initial : null;
   const [f, setF] = useState({
