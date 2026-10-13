@@ -8,7 +8,7 @@
 # What changes on the box (/opt/trimscout-deals/src):
 #   factoryOptionAllowlist.js        replaced by the repo copy (the box has the OLD file: no model policies at all). inventoryOptionRows.js is
 #                                    already identical to the repo; it is checked, not copied.
-#   optionPolicies/*.json            new: toyota-rav4-2026, toyota-2026-2027, ford-2026, chevrolet-2026-2027, gmc-2026-2027, buick-2026-2027, cadillac-2026-2027, honda-2026-2027, kia-2026-2027, hyundai-2025-2027
+#   optionPolicies/*.json            new: toyota-rav4-2026, toyota-2026-2027, ford-2026, chevrolet-2026-2027, gmc-2026-2027, buick-2026-2027, cadillac-2026-2027, honda-2026-2027, kia-2026-2027, hyundai-2025-2027, audi-2026-2027
 #   deals_api_server.js              3 anchored edits (the box copy differs from the repo's, so no whole-file copy): import line, the facet-row
 #                                    derivation in handleInventoryBulk, options in inventoryRowFromDb. Each anchor must match exactly once or the
 #                                    script stops before changing anything. Every replaced file gets a .bak.<timestamp> next to it.
