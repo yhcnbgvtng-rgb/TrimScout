@@ -1,5 +1,7 @@
 "use client";
 
+import { ErrorBoundary } from "../ErrorBoundary";
+import { coerceTradeIn } from "../../lib/trade/coerce";
 import React, { useEffect, useMemo, useState } from "react";
 import { TradeSummary, type SignedView } from "./TradeSummary";
 import { allowanceOf, computeEquity } from "../../lib/trade/otd";
@@ -38,7 +40,7 @@ export function DealerTradePanel({ token, defaultGoodUntil }: { token: string; d
     setBasis(a.basis); setGoodUntil(a.goodUntil.slice(0, 10)); if (a.conditions) setConditions(a.conditions);
   }, [data?.appraisal]);
 
-  const trade = data?.tradeIn ?? null;
+  const trade = coerceTradeIn(data?.tradeIn);
   const lien = Boolean(trade && (trade.ownership !== "owned" || trade.payoffEstimate > 0));
   const live = useMemo(() => {
     const v = allowanceOf(mode === "single" ? { allowanceSingle: toNum(single), allowanceLow: null, allowanceHigh: null } : { allowanceSingle: null, allowanceLow: toNum(low), allowanceHigh: toNum(high) });
@@ -73,7 +75,7 @@ export function DealerTradePanel({ token, defaultGoodUntil }: { token: string; d
   return (
     <section className="space-y-5 rounded-2xl border border-sky-500/40 bg-sky-950/10 p-5" data-testid="dealer-trade-panel">
       <div><h3 className="text-sm font-bold text-white">The buyer included a trade-in</h3><p className="text-[11px] text-ink-muted">Appraise it here as its own line. Quote the car separately, exactly as you would without a trade.</p></div>
-      <TradeSummary trade={trade} signed={data.signed} />
+      <ErrorBoundary label="trade summary" resetKey={trade?.updatedAt}><TradeSummary trade={trade} signed={data.signed} /></ErrorBoundary>
 
       {closed ? <p className="text-xs text-ink-muted">This request is closed. No appraisal is needed.</p> : (
         <>

@@ -5,17 +5,22 @@ import {
   DRIVETRAIN_LABELS, INTENT_LABELS, OWNERSHIP_LABELS, SERVICE_LABELS, TIRE_BRAKE_LABELS, TITLE_LABELS, TRADE_CONDITION_COPY, TRADE_OPTION_LABELS, type TradeInRecord, type TradePhoto,
 } from "../../lib/trade/types";
 import { photoProgressLabel, requiredPhotoProgress } from "../../lib/trade/validate";
+import { coerceTradeIn } from "../../lib/trade/coerce";
 
 export interface SignedView { slot: TradePhoto["slot"]; label: string; required: boolean; url: string }
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 /** Read-only trade summary: everything the buyer told us, then the labelled photo gallery with a lightbox. */
-export function TradeSummary({ trade, signed }: { trade: TradeInRecord; signed: SignedView[] }) {
+export function TradeSummary({ trade: stored, signed }: { trade: TradeInRecord | null | undefined; signed: SignedView[] }) {
   const [open, setOpen] = useState<SignedView | null>(null);
+  // A stored record can be partial (older build, script, unfinished draft): read it tolerantly instead of crashing the page.
+  const trade = coerceTradeIn(stored);
+  if (!trade) return <p className="text-xs text-ink-muted" data-testid="trade-summary-empty">The trade-in details aren't available.</p>;
   const progress = requiredPhotoProgress(trade.photos);
   const row = (k: string, v: React.ReactNode) => v ? <div className="flex justify-between gap-3 border-b border-border/40 py-1.5"><dt className="text-ink-muted">{k}</dt><dd className="text-right text-white">{v}</dd></div> : null;
   const options = [trade.drivetrain ? DRIVETRAIN_LABELS[trade.drivetrain] : null, ...trade.options.filter((o) => o !== "other").map((o) => TRADE_OPTION_LABELS[o]), trade.optionsOther].filter(Boolean).join(", ");
-  const required = signed.filter((s) => s.required), extras = signed.filter((s) => !s.required);
+  const gallery = Array.isArray(signed) ? signed : [];
+  const required = gallery.filter((s) => s.required), extras = gallery.filter((s) => !s.required);
   return (
     <div className="space-y-4" data-testid="trade-summary">
       <div>

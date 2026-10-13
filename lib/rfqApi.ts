@@ -8,6 +8,7 @@ import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
 import type { DealStageState } from "./dealStages";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
+import { coerceTradeIn } from "./trade/coerce";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
@@ -21,6 +22,14 @@ export class RfqApiError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+/** Every request read from the box passes through here so a partial stored trade-in can't crash a page that renders it. */
+export function asRfq(r: any): RfqRequest {
+  return r && typeof r === "object" && r.tradeIn ? { ...r, tradeIn: coerceTradeIn(r.tradeIn) } : r;
+}
+export function asRfqs(list: any): RfqRequest[] {
+  return Array.isArray(list) ? list.map(asRfq) : [];
 }
 
 async function request(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<any> {
@@ -90,13 +99,13 @@ export async function createRfq(input: {
   buyerTestMode?: boolean;
 }): Promise<RfqRequest> {
   const json = await request("POST", "/api/rfqs", input);
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 export async function getRfq(id: string): Promise<RfqRequest | null> {
   try {
     const json = await request("GET", `/api/rfqs/${id}`);
-    return json.rfq as RfqRequest;
+    return asRfq(json.rfq);
   } catch (err) {
     if (err instanceof RfqApiError && err.status === 404) return null;
     throw err;
@@ -106,18 +115,18 @@ export async function getRfq(id: string): Promise<RfqRequest | null> {
 /** Buyer adjusting the lease ask before any dealer has looked. The box answers 409 once locked. */
 export async function updateRfqLeasePrefs(rfqId: string, leasePrefs: LeaseRequestPrefs): Promise<RfqRequest> {
   const json = await request("PATCH", `/api/rfqs/${rfqId}/lease-prefs`, { leasePrefs });
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /** Every buyer's requests, newest first — the admin desk only. Raw rows (tokens included); the admin route decides what to expose. */
 export async function listAllRfqs(limit = 200): Promise<RfqRequest[]> {
   const json = await request("GET", `/api/rfqs?all=1&limit=${limit}`);
-  return json.rfqs as RfqRequest[];
+  return asRfqs(json.rfqs);
 }
 
 export async function listRfqsForBuyer(buyerUserId: string): Promise<RfqRequest[]> {
   const json = await request("GET", `/api/rfqs?buyerUserId=${encodeURIComponent(buyerUserId)}`);
-  return json.rfqs as RfqRequest[];
+  return asRfqs(json.rfqs);
 }
 
 export async function createRfqInvite(
@@ -136,25 +145,25 @@ export async function createRfqInvite(
 /** The admin gate: release, reject (reason required), or put back to pending (buyer resubmit). */
 export async function setRfqApproval(rfqId: string, input: { decision: "approved" | "rejected" | "pending"; by?: string | null; reason?: string | null }): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/approval`, input);
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /** An admin correcting the quote sheet before release; 409 once released. */
 export async function adminPatchRfq(rfqId: string, patch: Record<string, unknown> & { adminEdit?: { by?: string | null; summary: string } }): Promise<RfqRequest> {
   const json = await request("PATCH", `/api/rfqs/${rfqId}`, patch);
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /** An admin dropping a dealer before release; 409 once released or sent. */
 export async function deleteRfqInvite(rfqId: string, inviteId: string): Promise<RfqRequest> {
   const json = await request("DELETE", `/api/rfqs/${rfqId}/invites/${inviteId}`);
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /** Every buyer's requests awaiting an admin decision, oldest first. */
 export async function listPendingRfqs(limit = 200): Promise<RfqRequest[]> {
   const json = await request("GET", `/api/rfqs?all=1&approval=pending&limit=${limit}`);
-  return (json.rfqs as RfqRequest[]) || [];
+  return asRfqs(json.rfqs);
 }
 
 /** Advances an invite's delivery leg. The box logs the matching audit event. */
@@ -195,7 +204,7 @@ export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: s
 /** The buyer's counter to one desk's quote — the box supersedes the quote and reopens the invite. */
 export async function submitBuyerCounter(rfqId: string, inviteId: string, counter: BuyerCounter): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/buyer-counter`, { counter });
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /**
@@ -209,7 +218,7 @@ export async function postDealStage(
 ): Promise<{ rfq: RfqRequest; stage: DealStageState }> {
   try {
     const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/stage`, input);
-    return { rfq: json.rfq as RfqRequest, stage: json.stage as DealStageState };
+    return { rfq: asRfq(json.rfq), stage: json.stage as DealStageState };
   } catch (err) {
     if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") {
       throw new RfqApiError("The staged deal isn't available yet.", 503);
@@ -236,7 +245,7 @@ export async function postChatMessage(rfqId: string, inviteId: string, input: { 
   try {
     const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/messages`, { kind: "message", ...input });
     // A box with only the earlier rfq-messages patch answers { rfq, message } with no status: that is a delivery.
-    if (!json.status) return { status: "delivered", rfq: json.rfq as RfqRequest | undefined, message: json.message as DealMessage | undefined };
+    if (!json.status) return { status: "delivered", rfq: json.rfq ? asRfq(json.rfq) : undefined, message: json.message as DealMessage | undefined };
     return json as ChatPostResult;
   } catch (err) {
     if (chatUnavailable(err)) throw new RfqApiError("Messaging isn't available yet.", 503);
@@ -302,13 +311,13 @@ export async function liftChatPause(dealerKey: string, by: string): Promise<void
  */
 export async function submitRfqTradeIn(rfqId: string, tradeIn: TradeInRecord): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/trade-in`, { tradeIn });
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 /** Replace the request's photo list (buyer changed a photo after sending). `notify` lists invites owed one notice. */
 export async function putRfqTradePhotos(rfqId: string, photos: TradePhoto[]): Promise<{ rfq: RfqRequest; notifyInviteIds: string[] }> {
   const json = await request("PUT", `/api/rfqs/${rfqId}/trade-in/photos`, { photos });
-  return { rfq: json.rfq as RfqRequest, notifyInviteIds: (json.notifyInviteIds as string[]) || [] };
+  return { rfq: asRfq(json.rfq), notifyInviteIds: (json.notifyInviteIds as string[]) || [] };
 }
 
 export async function submitTradeAppraisal(rfqId: string, inviteId: string, appraisal: DealerTradeAppraisal): Promise<void> {
@@ -362,10 +371,10 @@ export async function submitRfqQuote(
 
 export async function pickRfqQuote(rfqId: string, quoteId: string): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/pick`, { quoteId });
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }
 
 export async function walkAwayFromRfq(rfqId: string): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/walk`);
-  return json.rfq as RfqRequest;
+  return asRfq(json.rfq);
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { ErrorBoundary } from "../ErrorBoundary";
+import { coerceTradeIn } from "../../lib/trade/coerce";
 import React, { useCallback, useEffect, useState } from "react";
 import { TradeSummary, type SignedView } from "./TradeSummary";
 import { TradePhotoSlots } from "./TradePhotoSlots";
@@ -21,8 +23,8 @@ export function BuyerTradeCard({ rfqId, headers, version }: { rfqId: string; hea
   const hdr = { "Content-Type": "application/json", ...(headers || {}) };
   const load = useCallback(() => fetch(`/api/rfqs/${rfqId}/trade`, { headers: hdr }).then((r) => r.json()).then((j: Loaded) => { setData(j); setUrls(Object.fromEntries((j.signed || []).map((s) => [s.slot, s.url]))); }).catch(() => undefined), [rfqId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { void load(); }, [load, version]);
-  if (!data?.tradeIn) return null;
-  const trade = data.tradeIn;
+  const trade = coerceTradeIn(data?.tradeIn);
+  if (!data || !trade) return null;
   const requested = Array.from(new Set(data.photoRequests.flatMap((r) => r.slots)));
   const locked = Boolean(data.locked);
 
@@ -62,7 +64,7 @@ export function BuyerTradeCard({ rfqId, headers, version }: { rfqId: string; hea
       ) : null}
       {show || data.photoRequests.length ? (
         <>
-          {show ? <TradeSummary trade={trade} signed={data.signed} /> : null}
+          {show ? <ErrorBoundary label="trade summary" resetKey={trade.updatedAt}><TradeSummary trade={trade} signed={data.signed} /></ErrorBoundary> : null}
           <div className="space-y-2 border-t border-border/60 pt-3">
             <p className="text-xs font-bold text-white">{locked ? "Photos are locked (the request is closed)" : "Replace a photo or add more until you pick a quote"}</p>
             {locked ? null : <p className="text-[11px] text-ink-muted">Dealers are told once when photos change. {TRADE_PRIVACY_COPY}</p>}
