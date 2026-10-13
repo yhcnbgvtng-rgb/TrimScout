@@ -6,8 +6,8 @@ import QRCode from "qrcode";
 import { useTradeDraft, type Fields } from "./useTradeDraft";
 import { TradePhotoSlots } from "./TradePhotoSlots";
 import {
-  HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, SERVICE_HISTORIES, SERVICE_LABELS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
-  DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_INTENTS, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
+  HISTORY_FLAGS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
+  DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
 } from "../../lib/trade/types";
 import { isValidVin, parseTradeFields, requiredPhotoProgress, tradeReadiness } from "../../lib/trade/validate";
 
@@ -188,18 +188,11 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
           </Block>
 
           <Block title="Helps you get a sharper number" hint="Optional.">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div><label className={labelCls}>Exterior color</label><input value={String(f.extColor || "")} onChange={(e) => set({ extColor: e.target.value })} className={inputCls} /></div>
-              <div><label className={labelCls}>Interior color</label><input value={String(f.intColor || "")} onChange={(e) => set({ intColor: e.target.value })} className={inputCls} /></div>
-            </div>
-            <div className="space-y-1.5"><label className={labelCls}>Service history</label><Chips value={f.serviceHistory} options={SERVICE_HISTORIES} labels={SERVICE_LABELS} onChange={(v) => set({ serviceHistory: v })} />
-              <input value={String(f.serviceNotes || "")} onChange={(e) => set({ serviceNotes: e.target.value })} placeholder="Major work done (timing belt, transmission…)" className={inputCls} /><Err k="serviceNotes" /></div>
             <div className="space-y-1.5"><label className={labelCls}>Tire and brake life</label><Chips value={f.tireBrake} options={TIRE_BRAKES} labels={TIRE_BRAKE_LABELS} onChange={(v) => set({ tireBrake: v })} /></div>
             <div><label className={labelCls}>Aftermarket mods</label><input value={String(f.mods || "")} onChange={(e) => set({ mods: e.target.value })} className={inputCls} /><Err k="mods" /></div>
             <div className="space-y-1.5"><label className={labelCls}>Any warning lights on?</label>
               <Chips value={f.warningLights?.on === true ? "yes" : f.warningLights?.on === false ? "no" : null} options={["yes", "no"] as const} labels={{ yes: "Yes", no: "No" }} onChange={(v) => set({ warningLights: { on: v === "yes", which: f.warningLights?.which || "" } })} />
               {f.warningLights?.on ? <input value={String(f.warningLights?.which || "")} onChange={(e) => set({ warningLights: { on: true, which: e.target.value } })} placeholder="Which ones?" className={inputCls} /> : null}<Err k="warningLights" /></div>
-            <div className="space-y-1.5"><label className={labelCls}>What do you want to do with it?</label><Chips value={f.intent || "apply_to_deal"} options={TRADE_INTENTS} labels={INTENT_LABELS} onChange={(v) => set({ intent: v })} testId="trade-intent" /></div>
           </Block>
 
           <Block title="Anything the dealer should know?" hint="Optional. Accidents, damage, mechanical issues, aftermarket parts. No names, phone numbers, emails, social handles or links.">

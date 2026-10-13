@@ -114,3 +114,15 @@ describe("phone page runs the full step", () => {
     assert.match(toggled, /data-testid="trade-toggle"/);
   });
 });
+
+describe("questions no longer asked", () => {
+  it("colors, service history and intent are not collected, and stray values are ignored", () => {
+    const p = parseTradeFields({ ...GOOD, extColor: "Blue", intColor: "Tan", serviceHistory: "full", serviceNotes: "timing belt", intent: "sell_outright" });
+    assert.ok(p.ok);
+    if (p.ok) { assert.equal(p.fields.extColor, null); assert.equal(p.fields.intColor, null); assert.equal(p.fields.serviceHistory, null); assert.equal(p.fields.serviceNotes, null); assert.equal(p.fields.intent, "apply_to_deal"); }
+  });
+  it("older records that have them still read back", () => {
+    const t = coerceTradeIn({ extColor: "Blue", serviceNotes: "timing belt", intent: "sell_outright" })!;
+    assert.equal(t.extColor, "Blue"); assert.equal(t.serviceNotes, "timing belt"); assert.equal(t.intent, "sell_outright");
+  });
+});

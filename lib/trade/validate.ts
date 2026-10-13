@@ -6,7 +6,7 @@
 import { findContactInfo } from "../piiFilter";
 import { findIdentityInfo } from "../identityFilter";
 import {
-  DEALER_NOTES_MAX, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS,
+  DEALER_NOTES_MAX, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS,
   isRequiredSlot, type PhotoSlot, type TradeInFields, type TradePhoto,
 } from "./types";
 
@@ -98,9 +98,7 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
 
   if (o.odometerConfirmed !== true) e.odometerConfirmed = "Confirm the mileage in the odometer photo matches what you entered.";
 
-  const serviceHistory = oneOf(SERVICE_HISTORIES, o.serviceHistory);
   const tireBrake = oneOf(TIRE_BRAKES, o.tireBrake);
-  const intent = oneOf(TRADE_INTENTS, o.intent) ?? "apply_to_deal";
   const wl = o.warningLights && typeof o.warningLights === "object" ? (o.warningLights as Record<string, unknown>) : null;
   const warningLights = wl ? { on: wl.on === true, which: wl.on === true ? free("warningLights", wl.which, 200, "the warning lights") || null : null } : null;
 
@@ -117,10 +115,8 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
     conditionBand: conditionBand ?? "good", titleStatus: titleStatus ?? "not_sure", ownership: ownership ?? "owned",
     lenderName, payoffEstimate, keys: keys ?? "1", historyFlag: historyFlag ?? "no", historyNotes,
     drivetrain: null, options: [], optionsOther: null, // no longer asked; old records keep theirs (coerceTradeIn)
-    extColor: free("extColor", o.extColor, 40, "the color") || null,
-    intColor: free("intColor", o.intColor, 40, "the color") || null,
-    serviceHistory, serviceNotes: free("serviceNotes", o.serviceNotes, 500, "the service notes") || null,
-    tireBrake, mods: free("mods", o.mods, 300, "the mods") || null, warningLights, intent, dealerNotes,
+    extColor: null, intColor: null, serviceHistory: null, serviceNotes: null, // no longer asked; old records keep theirs (coerceTradeIn)
+    tireBrake, mods: free("mods", o.mods, 300, "the mods") || null, warningLights, intent: "apply_to_deal", dealerNotes,
     odometerConfirmed: o.odometerConfirmed === true,
   };
   return Object.keys(e).length ? { ok: false, errors: e } : { ok: true, fields };
