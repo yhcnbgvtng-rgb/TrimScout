@@ -27,7 +27,7 @@ test("every live box IP in config appears in BOXES.md and none is dead", () => {
 
 test("standalone-deployed scripts default to the deals box in config", () => {
   const deals = cfg.boxes[cfg.dealsBox].host;
-  for (const f of ["scripts/box/inventory-sync.mjs", "scrapers/lightsail-crawler/src/crawl_claims.js"]) {
+  for (const f of ["scripts/box/inventory-sync.mjs", "scrapers/lightsail-crawler/src/crawl_claims.js", "scrapers/lightsail-crawler/src/crawlQueueClient.js"]) {
     assert.ok(readFileSync(root + f, "utf-8").includes(`|| ${f.endsWith(".mjs") ? '"' : "'"}${deals}`), `${f} default drifted from config`);
   }
 });

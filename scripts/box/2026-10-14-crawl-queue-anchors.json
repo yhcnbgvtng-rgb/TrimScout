@@ -1,0 +1,38 @@
+[
+ {
+  "id": "driver-hook",
+  "file": "driver",
+  "old": "export async function main() {\n",
+  "new": "export async function main() {\n  // crawl-queue (flag-gated, OFF by default \u2014 see docs/CRAWL_QUEUE.md): with the flag on, the night's work comes from the\n  // shared shard queue instead of this box's fixed CRAWL_STATES. Flag off, or the flag module absent: falls through untouched.\n  {\n    let q = null;\n    try { q = (await import('../src/crawlQueueFlag.js')).readFlag(ROOT); } catch { /* queue code not installed: off */ }\n    if (q && q.enabled) {\n      if (q.role === 'host') { console.log(`[driver] crawl queue is on and ${q.box} hosts it: this box does not crawl \u2014 exiting`); return { skipped: true, reason: 'queue host' }; }\n      return (await import('./run-crawl-queue.mjs')).queueModeMain();\n    }\n  }\n"
+ },
+ {
+  "id": "sync-import",
+  "file": "sync",
+  "old": "import path from \"node:path\";\n",
+  "new": "import path from \"node:path\";\nimport { selectShards, queueApi } from \"./syncManifest.js\";\n"
+ },
+ {
+  "id": "sync-files-rename",
+  "file": "sync",
+  "old": "const files = isDir\n",
+  "new": "const filesAll = isDir\n"
+ },
+ {
+  "id": "sync-files-select",
+  "file": "sync",
+  "old": "  : [inputPath];\nif (files.length === 0) {",
+  "new": "  : [inputPath];\nconst files = selectShards(filesAll);\nif (files.length === 0) {"
+ },
+ {
+  "id": "sync-backpressure",
+  "file": "sync",
+  "old": "const dealsApi = (path, body, opts) => api(DEALS_PORT, path, body, opts);",
+  "new": "const dealsApi = queueApi((path, body, opts) => api(DEALS_PORT, path, body, opts));"
+ },
+ {
+  "id": "server-routes",
+  "file": "server",
+  "old": "  // cross-box crawl claim queue (dynamic work-stealing)\n",
+  "new": "  // crawl queue + shared VIN cache + sync backpressure (crawl boxes call these only with the crawl-queue flag on)\n  if (pathname.startsWith(\"/api/ops/crawl-queue/\") || pathname.startsWith(\"/api/ops/vin-cache/\") || pathname === \"/api/ops/sync-pressure\") {\n    return run(async (rq, rs) => { await (await import(\"./crawlQueueServer.js\")).handle(rq, rs, { pathname, url, getPool, readBody, sendJson }); });\n  }\n  // cross-box crawl claim queue (dynamic work-stealing)\n"
+ }
+]
