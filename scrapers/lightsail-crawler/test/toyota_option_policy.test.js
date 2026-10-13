@@ -67,7 +67,7 @@ describe('rule 2: standard, no-cost, unknown, no-cost colors, interiors, Base an
   });
   it('the generated policies hold no Cab/Bed, Interior, Base or $0 entries', () => {
     for (const [scope, p] of Object.entries(loadBundledModelPoliciesRaw())) for (const t of Object.values(p.trims)) for (const o of Object.values(t.options)) {
-      assert.ok(o.price > 0, `${scope} ${t.label} ${o.label}`);
+      assert.ok(o.price > 0 || o.additive === false, `${scope} ${t.label} ${o.label}`); // Audi package-only wheels / interiors: price 0, additive false
       assert.ok(['package', 'option', 'paint', 'powertrain'].includes(o.kind), `${scope} ${o.label}`);
     }
   });
