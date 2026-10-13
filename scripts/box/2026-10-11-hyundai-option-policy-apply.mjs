@@ -76,7 +76,7 @@ async function plan() {
   const batches = chunks(ids, BATCH).map((d, i) => ({ batch: i + 1, dealerIds: d }));
   fs.writeFileSync(P("batches.json"), JSON.stringify(batches));
   const bk = fs.openSync(P("backup.jsonl"), "w"), pl = fs.openSync(P("plan.jsonl"), "w");
-  const t = { dealers: ids.length, batches: batches.length, policyCars: 0, changedCars: 0, backupRows: 0, rowsToRemove: 0, rowsToChangeLabel: 0, rowsToAdd: 0 };
+  const t = { dealers: ids.length, batches: batches.length, policyCars: 0, skippedNoTrustedTrim: 0, changedCars: 0, backupRows: 0, rowsToRemove: 0, rowsToChangeLabel: 0, rowsToAdd: 0 };
   async function readDealers(dealerIds, label, canSplit) {
     try {
       const cars = await q(conn, `cars ${label}`, CAR_SQL, [dealerIds]);
@@ -100,6 +100,8 @@ async function plan() {
       let o = null; try { o = c.options_json ? (typeof c.options_json === "string" ? JSON.parse(c.options_json) : c.options_json) : null; } catch { o = null; }
       const res = optionRowsForVehicle(allow, { vin: c.vin, make: c.make, model: c.model, year: c.year, trim: c.trim }, Array.isArray(o) ? o : []);
       if (!res) continue;
+      // No trusted trim (blank, or a trim the policy does not know): SKIP the car and leave its stored rows alone. Never plan a wipe from a trim we cannot read.
+      if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }
       const before = by.get(`${c.vin}|${c.dealer_id}`) || [];
       const after = res.rows.map((r) => [r.key, r.label, r.code ?? null]);
       const bm = new Map(before.map((r) => [r[0], r[1]])), am = new Map(after.map((r) => [r[0], r[1]]));

@@ -17,7 +17,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -39,7 +40,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -841,10 +844,21 @@
   "bmw|3 series sedan|2026": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2026 3 Series Sedan)",
     "models": [
-      "3 series sedan"
+      "3 series sedan",
+      "3 series",
+      "330i"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "330i|xdrive": "330i xdrive sedan",
+      "330i|330i": "330i sedan",
+      "330i|330i xdrive": "330i xdrive sedan",
+      "3 series|330i": "330i sedan",
+      "3 series|330i xdrive": "330i xdrive sedan",
+      "3 series|m340i xdrive": "m340i xdrive sedan",
+      "3 series|m340i": "m340i sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -856,7 +870,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -878,7 +893,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -2108,10 +2125,19 @@
   "bmw|x3|2026": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2026 X3)",
     "models": [
-      "x3"
+      "x3",
+      "x3 30 xdrive"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "30 xdrive": "x3 30 xdrive",
+      "m50 xdrive": "x3 m50 xdrive"
+    },
+    "modelTrimAliases": {
+      "x3 30 xdrive|awd automatic": "x3 30 xdrive",
+      "x3 30 xdrive|all wheel drive automatic": "x3 30 xdrive",
+      "x3 30 xdrive|sports activity vehicle": "x3 30 xdrive"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2123,7 +2149,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2145,7 +2172,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -2679,7 +2708,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2701,7 +2731,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3230,7 +3262,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3252,7 +3285,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -4050,7 +4085,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4072,7 +4108,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -5266,7 +5304,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -5288,7 +5327,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -6503,7 +6544,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -6525,7 +6567,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -7604,10 +7648,27 @@
   "bmw|5 series sedan|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 5 Series Sedan)",
     "models": [
-      "5 series sedan"
+      "5 series sedan",
+      "5 series",
+      "530i",
+      "540i",
+      "550e"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "530i|xdrive": "530i xdrive sedan",
+      "530i|530i": "530i sedan",
+      "530i|530i xdrive": "530i xdrive sedan",
+      "5 series|530i": "530i sedan",
+      "5 series|530i xdrive": "530i xdrive sedan",
+      "5 series|540i xdrive": "540i xdrive sedan",
+      "5 series|550e xdrive": "550e xdrive sedan",
+      "540i|xdrive": "540i xdrive sedan",
+      "540i|540i xdrive": "540i xdrive sedan",
+      "550e|xdrive": "550e xdrive sedan",
+      "550e|550e xdrive": "550e xdrive sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -7619,7 +7680,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -7641,7 +7703,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -9253,10 +9317,19 @@
   "bmw|7 series sedan|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 7 Series Sedan)",
     "models": [
-      "7 series sedan"
+      "7 series sedan",
+      "7 series",
+      "740i"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "740i|xdrive": "740 xdrive sedan",
+      "740i|740i": "740 sedan",
+      "740i|740i xdrive": "740 xdrive sedan",
+      "7 series|740i": "740 sedan",
+      "7 series|740i xdrive": "740 xdrive sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -9268,7 +9341,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -9290,7 +9364,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -10337,7 +10413,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -10359,7 +10436,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -10804,7 +10883,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -10826,7 +10906,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -11755,7 +11837,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -11777,7 +11860,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -12132,7 +12217,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -12154,7 +12240,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -13068,7 +13156,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -13090,7 +13179,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -13291,7 +13382,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -13313,7 +13405,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -13490,10 +13584,14 @@
   "bmw|x1|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 X1)",
     "models": [
-      "x1"
+      "x1",
+      "x1 xdrive28i"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "xdrive28i": "x1 xdrive28i",
+      "m35i": "x1 m35i"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -13505,7 +13603,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -13527,7 +13626,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -14060,7 +14161,10 @@
       "x2"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "xdrive28i": "x2 xdrive28i",
+      "m35i": "x2 m35i"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -14072,7 +14176,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -14094,7 +14199,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -14672,10 +14779,17 @@
   "bmw|x5|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 X5)",
     "models": [
-      "x5"
+      "x5",
+      "x5 40",
+      "x5 40 xdrive"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "40 xdrive": "x5 40 xdrive"
+    },
+    "modelTrimAliases": {
+      "x5 40|xdrive": "x5 40 xdrive"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -14687,7 +14801,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -14709,7 +14824,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -15127,10 +15244,16 @@
   "bmw|x6|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 X6)",
     "models": [
-      "x6"
+      "x6",
+      "x6 m",
+      "x6 xdrive40i"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "xdrive40i": "x6 xdrive40i",
+      "m60i": "x6 m60i",
+      "competition": "x6 m competition"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -15142,7 +15265,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -15164,7 +15288,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -15928,10 +16054,18 @@
   "bmw|x7|2027": {
     "source": "docs/option-catalogs-2026-10-12/bmw_lineup_options_by_trim.csv (2027 X7)",
     "models": [
-      "x7"
+      "x7",
+      "x7 xdrive40i"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "xdrive40i": "x7 xdrive40i",
+      "m60i": "x7 m60i"
+    },
+    "modelTrimAliases": {
+      "x7 xdrive40i|awd automatic": "x7 xdrive40i",
+      "x7 xdrive40i|all wheel drive automatic": "x7 xdrive40i"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -15943,7 +16077,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -15965,7 +16100,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -16504,7 +16641,9 @@
       "xm"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "label": "xm label"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -16516,7 +16655,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -16538,7 +16678,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -16646,7 +16788,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -16668,7 +16811,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -17093,7 +17238,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -17115,7 +17261,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -18347,7 +18495,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -18369,7 +18518,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -19307,7 +19458,9 @@
       "ix3"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "50 xdrive": "ix3 50 xdrive"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -19319,7 +19472,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -19341,7 +19495,9 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sports activity vehicle",
+      "sports activity"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",

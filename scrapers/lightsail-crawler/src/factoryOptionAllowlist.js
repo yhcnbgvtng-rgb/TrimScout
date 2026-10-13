@@ -173,6 +173,8 @@ export function buildModelPolicies(raw) {
       models: new Set((p.models || []).map(normalizeOptionKey)), make: normalizeOptionKey(make), year: String(year),
       keepBare: new Set((p.keepBare || []).map(normalizeOptionKey)),
       trimAliases: new Map(Object.entries(p.trimAliases || {}).map(([from, to]) => [normalizeOptionKey(from), normalizeOptionKey(to)]).filter(([from, to]) => from && to)),
+      // Exact (DB model, DB trim) -> policy trim pairs, for makes whose feed puts trim words in the model ("GLE 350" + "4MATIC" = "GLE 350 4MATIC SUV"). Keys are "model|trim".
+      modelTrimAliases: new Map(Object.entries(p.modelTrimAliases || {}).map(([k, to]) => { const [m, t] = k.split("|"); return [`${normalizeOptionKey(m)}|${normalizeOptionKey(t)}`, normalizeOptionKey(to)]; }).filter(([k, to]) => k.length > 1 && to)),
       trimNoise: new Set((p.trimNoise || []).map(normalizeOptionKey)),
       // Ford: a trailing order code on the trim string ("XLT 302A", "Big Bend 222A") is not part of the trim. See stripOrderCode.
       stripOrderCodes: Boolean(p.trimStripOrderCodes),
@@ -233,6 +235,9 @@ export function resolvePolicyTrim(policy, rawTrim, model = null) {
   if (!key) return null;
   const hit = resolveTrimKey(policy, key, model);
   if (hit) return hit;
+  // An approved exact pair for this DB model + trim string (after every other rule has failed, so a trim that already resolves is never re-pointed).
+  const pair = model && policy.modelTrimAliases.size ? policy.trims.get(policy.modelTrimAliases.get(`${normalizeOptionKey(model)}|${key}`) || "") : null;
+  if (pair) return { trim: pair, via: "alias" };
   // A dealer who writes the model into the trim ("Tacoma TRD Off Road", "Tundra Platinum"): drop that leading model name and resolve the rest the
   // same way. Tried only after the whole string failed, so a trim that really starts with the model's name ("GR Corolla Premium Plus") is untouched.
   for (const m of [...policy.models].sort((a, b) => b.length - a.length)) {

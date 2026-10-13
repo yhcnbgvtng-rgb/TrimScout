@@ -17,7 +17,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -232,7 +234,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -429,7 +433,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -585,7 +591,11 @@
       "elantra n"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sedan": "n",
+      "dct": "n",
+      "manual": "n"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -597,7 +607,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -743,7 +755,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -950,7 +964,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1096,7 +1112,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1318,8 +1336,12 @@
   "hyundai|sonata|2026": {
     "source": "docs/hyundai-2025-2027/hyundai_lineup_options_by_trim.csv (2026 Sonata)",
     "models": [
-      "sonata"
+      "sonata",
+      "sonata hybrid"
     ],
+    "modelImplied": {
+      "sonata hybrid": "hybrid"
+    },
     "keepBare": [],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
@@ -1333,7 +1355,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1558,7 +1582,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1766,7 +1792,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1917,7 +1945,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2166,7 +2196,10 @@
       "venue"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sel w two tone roof": "sel w 2 tone roof",
+      "sel wtwo tone roof": "sel w 2 tone roof"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2178,7 +2211,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2321,7 +2356,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2553,7 +2590,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2795,7 +2834,8 @@
   "hyundai|palisade hybrid|2027": {
     "source": "docs/hyundai-2025-2027/hyundai_lineup_options_by_trim.csv (2027 Palisade Hybrid)",
     "models": [
-      "palisade hybrid"
+      "palisade hybrid",
+      "palisade hev"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -2810,7 +2850,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2832,7 +2874,13 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "6p",
+      "7p",
+      "8p",
+      "6 passenger",
+      "7 passenger",
+      "8 passenger"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3024,7 +3072,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3046,7 +3096,13 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "6p",
+      "7p",
+      "8p",
+      "6 passenger",
+      "7 passenger",
+      "8 passenger"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3255,7 +3311,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3435,7 +3493,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3457,7 +3517,13 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "6p",
+      "7p",
+      "8p",
+      "6 passenger",
+      "7 passenger",
+      "8 passenger"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3662,7 +3728,9 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "automatic",
+      "cvt"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3684,7 +3752,13 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "6p",
+      "7p",
+      "8p",
+      "6 passenger",
+      "7 passenger",
+      "8 passenger"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",

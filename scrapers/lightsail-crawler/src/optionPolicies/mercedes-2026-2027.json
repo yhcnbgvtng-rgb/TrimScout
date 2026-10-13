@@ -2,10 +2,19 @@
   "mercedes-benz|c class sedan|2026": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2026 C-Class Sedan)",
     "models": [
-      "c class sedan"
+      "c class sedan",
+      "c class",
+      "c 300"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "c class|c 300": "c 300 sedan",
+      "c 300|c 300": "c 300 sedan",
+      "c 300|4matic": "c 300 4matic sedan",
+      "c class|c 300 4matic": "c 300 4matic sedan",
+      "c 300|c 300 4matic": "c 300 4matic sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -17,7 +26,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1256,7 +1266,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2023,10 +2034,19 @@
   "mercedes-benz|gla suv|2026": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2026 GLA SUV)",
     "models": [
-      "gla suv"
+      "gla suv",
+      "gla",
+      "gla 250"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "gla 250|4matic": "gla 250 4matic suv",
+      "gla 250|4matic suv": "gla 250 4matic suv",
+      "gla 250|gla 250": "gla 250 suv",
+      "gla|gla 250": "gla 250 suv",
+      "gla|250 4matic": "gla 250 4matic suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2038,7 +2058,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3042,10 +3063,19 @@
   "mercedes-benz|glb suv|2026": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2026 GLB SUV)",
     "models": [
-      "glb suv"
+      "glb suv",
+      "glb",
+      "glb 250"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "glb 250|4matic": "glb 250 4matic suv",
+      "glb 250|4matic suv": "glb 250 4matic suv",
+      "glb 250|glb 250": "glb 250 suv",
+      "glb|glb 250": "glb 250 suv",
+      "glb|250 4matic": "glb 250 4matic suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -3057,7 +3087,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4073,7 +4104,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4395,10 +4427,20 @@
   "mercedes-benz|cla sedan|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 CLA Sedan)",
     "models": [
-      "cla sedan"
+      "cla sedan",
+      "cla",
+      "cla 220",
+      "cla 250",
+      "cla 350"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "cla 220": "cla 220 hybrid sedan",
+      "cla 220 hybrid": "cla 220 hybrid sedan",
+      "cla 250": "cla 250 electric sedan",
+      "cla 250 electric": "cla 250 electric sedan",
+      "cla 350 electric 4matic": "cla 350 4matic electric sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -4410,7 +4452,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -5308,7 +5351,10 @@
   "mercedes-benz|cle cabriolet|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 CLE Cabriolet)",
     "models": [
-      "cle cabriolet"
+      "cle cabriolet",
+      "cle",
+      "cle 300",
+      "cle 450"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -5323,7 +5369,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -6185,7 +6232,10 @@
   "mercedes-benz|cle coupe|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 CLE Coupe)",
     "models": [
-      "cle coupe"
+      "cle coupe",
+      "cle",
+      "cle 300",
+      "cle 450"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -6200,7 +6250,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -7090,10 +7141,14 @@
   "mercedes-benz|e class sedan|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 E-Class Sedan)",
     "models": [
-      "e class sedan"
+      "e class sedan",
+      "e class"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "e 350": "e 350 sedan",
+      "e 350 4matic": "e 350 4matic sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -7105,7 +7160,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -8478,7 +8534,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -9106,7 +9163,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -9719,7 +9777,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -10532,7 +10591,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -11669,10 +11729,15 @@
   "mercedes-benz|g class suv|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 G-Class SUV)",
     "models": [
-      "g class suv"
+      "g class suv",
+      "g class"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "g 580e suv": "g 580 electric suv",
+      "g 580 electric": "g 580 electric suv",
+      "amg g 63": "amg g 63 suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -11684,7 +11749,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -12913,7 +12979,9 @@
   "mercedes-benz|glc coupe|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLC Coupe)",
     "models": [
-      "glc coupe"
+      "glc coupe",
+      "glc",
+      "glc 300"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -12928,7 +12996,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -13677,10 +13746,14 @@
   "mercedes-benz|glc electric suv|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLC Electric SUV)",
     "models": [
-      "glc electric suv"
+      "glc electric suv",
+      "glc 400"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "glc 400|4matic": "glc 400 4matic electric suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -13692,7 +13765,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -14183,10 +14257,17 @@
   "mercedes-benz|glc suv|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLC SUV)",
     "models": [
-      "glc suv"
+      "glc suv",
+      "glc",
+      "glc 300",
+      "glc 350e"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "glc 350e|4matic": "glc 350e 4matic suv",
+      "glc 350e|4matic suv": "glc 350e 4matic suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -14198,7 +14279,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -15535,7 +15617,9 @@
   "mercedes-benz|gle coupe|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLE Coupe)",
     "models": [
-      "gle coupe"
+      "gle coupe",
+      "gle",
+      "gle 450"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -15550,7 +15634,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -16348,10 +16433,19 @@
   "mercedes-benz|gle suv|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLE SUV)",
     "models": [
-      "gle suv"
+      "gle suv",
+      "gle",
+      "gle 350",
+      "gle 450"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "gle 350|4matic": "gle 350 4matic suv",
+      "gle 350|4matic suv": "gle 350 4matic suv",
+      "gle 350|gle 350": "gle 350 4matic suv",
+      "gle 450|4matic suv": "gle 450 4matic suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -16363,7 +16457,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -17094,10 +17189,17 @@
   "mercedes-benz|gls suv|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 GLS SUV)",
     "models": [
-      "gls suv"
+      "gls suv",
+      "gls",
+      "gls 450"
     ],
     "keepBare": [],
     "trimAliases": {},
+    "modelTrimAliases": {
+      "gls 450|4matic": "gls 450 4matic suv",
+      "gls 450|4matic suv": "gls 450 4matic suv",
+      "gls 450|gls 450": "gls 450 4matic suv"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -17109,7 +17211,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -18045,7 +18148,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -20877,7 +20981,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -21237,7 +21342,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -22420,7 +22526,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -22886,10 +22993,13 @@
   "mercedes-benz|s class sedan|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 S-Class Sedan)",
     "models": [
-      "s class sedan"
+      "s class sedan",
+      "s class"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "s 580": "s 580 4matic sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -22901,7 +23011,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -23987,7 +24098,8 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "reg"
     ],
     "trimNoisePhrases": [
       "in transit",
