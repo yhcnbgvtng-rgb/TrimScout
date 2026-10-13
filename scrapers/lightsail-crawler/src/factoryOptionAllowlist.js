@@ -140,6 +140,7 @@ export const BUNDLED_MODEL_POLICY_PATHS = Object.freeze([
   optionPolicyPath("kia-2026-2027.json"),
   optionPolicyPath("hyundai-2025-2027.json"),
   optionPolicyPath("audi-2026-2027.json"),
+  optionPolicyPath("bmw-2026-2027.json"),
 ]);
 
 
