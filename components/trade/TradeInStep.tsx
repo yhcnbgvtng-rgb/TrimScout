@@ -6,8 +6,8 @@ import QRCode from "qrcode";
 import { useTradeDraft, type Fields } from "./useTradeDraft";
 import { TradePhotoSlots } from "./TradePhotoSlots";
 import {
-  DRIVETRAIN_LABELS, DRIVETRAINS, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, SERVICE_HISTORIES, SERVICE_LABELS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
-  DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_INTENTS, TRADE_OPTIONS, TRADE_OPTION_LABELS, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
+  HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, SERVICE_HISTORIES, SERVICE_LABELS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
+  DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_INTENTS, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
 } from "../../lib/trade/types";
 import { isValidVin, parseTradeFields, requiredPhotoProgress, tradeReadiness } from "../../lib/trade/validate";
 
@@ -162,13 +162,9 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
             <div className="space-y-1.5"><label className={labelCls}>Number of keys</label><Chips value={f.keys} options={KEYS} labels={{ "1": "1", "2+": "2 or more" }} onChange={(v) => set({ keys: v })} testId="trade-keys" /><Err k="keys" /></div>
           </Block>
 
-          <Block title="History and options">
+          <Block title="History">
             <div className="space-y-1.5"><label className={labelCls}>Accident, airbag or flood history?</label><Chips value={f.historyFlag} options={HISTORY_FLAGS} labels={{ no: "No", yes: "Yes", not_sure: "Not sure" }} onChange={(v) => set({ historyFlag: v })} testId="trade-history" /><Err k="historyFlag" />
               {f.historyFlag === "yes" ? <><textarea rows={2} maxLength={500} value={String(f.historyNotes || "")} onChange={(e) => set({ historyNotes: e.target.value })} onBlur={touch("historyNotes")} placeholder="What happened, and when?" className={`${inputCls} resize-none`} data-testid="trade-history-notes" /><Err k="historyNotes" /></> : null}</div>
-            <div className="space-y-1.5"><label className={labelCls}>Drivetrain</label><Chips value={f.drivetrain} options={DRIVETRAINS} labels={DRIVETRAIN_LABELS} onChange={(v) => set({ drivetrain: v })} testId="trade-drivetrain" /><Err k="drivetrain" /></div>
-            <div className="space-y-1.5"><label className={labelCls}>Options that move the value</label>
-              <Chips multi value={(f.options as string[]) || []} options={TRADE_OPTIONS} labels={TRADE_OPTION_LABELS} onChange={(v) => { const cur = ((f.options as string[]) || []); set({ options: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); }} testId="trade-options" />
-              {((f.options as string[]) || []).includes("other") ? <><input value={String(f.optionsOther || "")} onChange={(e) => set({ optionsOther: e.target.value })} onBlur={touch("optionsOther")} placeholder="What else?" className={inputCls} /><Err k="optionsOther" /></> : null}</div>
           </Block>
 
           <Block title="Photos" hint={TRADE_PHOTO_COPY}>
