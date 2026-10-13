@@ -26,10 +26,10 @@ fetch() { # fetch <repo path under src> <dest>
 
 fetch factoryOptionAllowlist.js "$TMP/factoryOptionAllowlist.js"
 fetch inventoryOptionRows.js "$TMP/inventoryOptionRows.js"
-for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027; do fetch "optionPolicies/$p.json" "$TMP/optionPolicies/$p.json"; done
+for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027; do fetch "optionPolicies/$p.json" "$TMP/optionPolicies/$p.json"; done
 grep -q "export function policyFacetRows" "$TMP/factoryOptionAllowlist.js" || { echo "ERROR: fetched factoryOptionAllowlist.js lacks policyFacetRows (stale copy? merge not live yet?)" >&2; exit 1; }
 cmp -s "$TMP/inventoryOptionRows.js" "$DIR/inventoryOptionRows.js" || { echo "ERROR: $DIR/inventoryOptionRows.js differs from the repo copy; the new allowlist file imports optionRowsFromOptions from it. Stop and compare." >&2; exit 1; }
-for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027; do node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$TMP/optionPolicies/$p.json"; done
+for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027; do node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$TMP/optionPolicies/$p.json"; done
 
 # Patch a COPY of deals_api_server.js first; only install if every anchor matched once and the syntax checks.
 cp "$DIR/deals_api_server.js" "$TMP/deals_api_server.js"
