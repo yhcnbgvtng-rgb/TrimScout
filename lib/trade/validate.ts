@@ -6,7 +6,7 @@
 import { findContactInfo } from "../piiFilter";
 import { findIdentityInfo } from "../identityFilter";
 import {
-  DEALER_NOTES_MAX, DRIVETRAINS, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS, TRADE_OPTIONS,
+  DEALER_NOTES_MAX, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS,
   isRequiredSlot, type PhotoSlot, type TradeInFields, type TradePhoto,
 } from "./types";
 
@@ -95,14 +95,6 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
     if (!historyNotes && !e.historyNotes) e.historyNotes = "Tell the dealer briefly what happened.";
   }
 
-  const drivetrain = oneOf(DRIVETRAINS, o.drivetrain);
-  if (!drivetrain) e.drivetrain = "Pick the drivetrain.";
-  const options = Array.from(new Set((Array.isArray(o.options) ? o.options : []).map((x) => oneOf(TRADE_OPTIONS, x)).filter((x): x is NonNullable<typeof x> => Boolean(x))));
-  let optionsOther: string | null = null;
-  if (options.includes("other")) {
-    optionsOther = free("optionsOther", o.optionsOther, 200, "the options") || null;
-    if (!optionsOther && !e.optionsOther) e.optionsOther = "Say what the other option is.";
-  }
 
   if (o.odometerConfirmed !== true) e.odometerConfirmed = "Confirm the mileage in the odometer photo matches what you entered.";
 
@@ -124,7 +116,7 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
     mileage: Number.isInteger(mileage) ? mileage : 0, zip,
     conditionBand: conditionBand ?? "good", titleStatus: titleStatus ?? "not_sure", ownership: ownership ?? "owned",
     lenderName, payoffEstimate, keys: keys ?? "1", historyFlag: historyFlag ?? "no", historyNotes,
-    drivetrain: drivetrain ?? null, options, optionsOther,
+    drivetrain: null, options: [], optionsOther: null, // no longer asked; old records keep theirs (coerceTradeIn)
     extColor: free("extColor", o.extColor, 40, "the color") || null,
     intColor: free("intColor", o.intColor, 40, "the color") || null,
     serviceHistory, serviceNotes: free("serviceNotes", o.serviceNotes, 500, "the service notes") || null,

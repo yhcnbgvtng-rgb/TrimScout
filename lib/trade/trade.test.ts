@@ -29,7 +29,7 @@ describe("VIN + fields", () => {
   it("accepts a complete, owned vehicle", () => assert.ok(parseTradeFields(goodFields()).ok));
   it("blocks submit on every missing required field", () => {
     const r = parseTradeFields({});
-    assert.ok(!r.ok); if (!r.ok) for (const k of ["vin", "year", "make", "model", "trim", "mileage", "zip", "conditionBand", "titleStatus", "ownership", "keys", "historyFlag", "drivetrain", "odometerConfirmed"]) assert.ok(r.errors[k], k);
+    assert.ok(!r.ok); if (!r.ok) for (const k of ["vin", "year", "make", "model", "trim", "mileage", "zip", "conditionBand", "titleStatus", "ownership", "keys", "historyFlag", "odometerConfirmed"]) assert.ok(r.errors[k], k);
   });
   it("financed / leased need a lender and a payoff estimate; owned does not", () => {
     for (const ownership of ["financed", "leased"]) {
@@ -44,7 +44,9 @@ describe("VIN + fields", () => {
   it("history 'Yes' needs a note; 'other' option needs text; mileage and ZIP are bounded", () => {
     assert.ok(!parseTradeFields({ ...goodFields(), historyFlag: "yes" }).ok);
     assert.ok(parseTradeFields({ ...goodFields(), historyFlag: "yes", historyNotes: "Rear bumper repaired 2022" }).ok);
-    assert.ok(!parseTradeFields({ ...goodFields(), options: ["other"] }).ok);
+    // Drivetrain and "options that move the value" are no longer asked: neither is required, and stray values are ignored.
+    const gone = parseTradeFields({ ...goodFields(), drivetrain: undefined, options: ["other"] });
+    assert.ok(gone.ok && gone.fields.drivetrain === null && gone.fields.options.length === 0);
     assert.ok(!parseTradeFields({ ...goodFields(), mileage: 900000 }).ok);
     assert.ok(!parseTradeFields({ ...goodFields(), mileage: "abc" }).ok);
     assert.ok(!parseTradeFields({ ...goodFields(), zip: "0798" }).ok);
