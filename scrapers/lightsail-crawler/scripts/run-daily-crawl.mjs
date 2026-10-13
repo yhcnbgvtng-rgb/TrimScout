@@ -1116,6 +1116,16 @@ async function writeBoxReport(summary, date) {
 }
 
 export async function main() {
+  // crawl-queue (flag-gated, OFF by default — see docs/CRAWL_QUEUE.md): with the flag on, the night's work comes from the
+  // shared shard queue instead of this box's fixed CRAWL_STATES. Flag off, or the flag module absent: falls through untouched.
+  {
+    let q = null;
+    try { q = (await import('../src/crawlQueueFlag.js')).readFlag(ROOT); } catch { /* queue code not installed: off */ }
+    if (q && q.enabled) {
+      if (q.role === 'host') { console.log(`[driver] crawl queue is on and ${q.box} hosts it: this box does not crawl — exiting`); return { skipped: true, reason: 'queue host' }; }
+      return (await import('./run-crawl-queue.mjs')).queueModeMain();
+    }
+  }
   await fs.mkdir(LOGS_DIR, { recursive: true });
   await fs.mkdir(RUNS_DIR, { recursive: true });
 

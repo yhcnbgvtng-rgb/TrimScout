@@ -45,6 +45,12 @@ All four crawler checkouts are at `b8ea6e3` (2026-09-22), **150 commits behind `
 
 `CRAWL_STATES` order is the order claims are tried, not an exclusive allotment (CAPACITY_SLA.md). Re-verify with `crontab -l` before relying on these.
 
+## Crawl queue mode (flag off by default — docs/CRAWL_QUEUE.md)
+
+With `data/crawl_queue/flag.json` enabled on a box, the 22:00 crons above are unchanged but `CRAWL_STATES` stops mattering: workers (box3, box4) take
+(state, brand) shards from a queue hosted on box2, box2 (`role: host`) does not crawl and its sync exits at once, and each worker's sync uploads only
+the shards in its own manifest. box1 stays on its fixed cron until it has the per-brand shard code (#480). Flag off (the default) = everything above as written.
+
 ## Do not use
 
 Retired addresses. They are dead or belong to someone else now. They may appear **only here**; `test/boxes_doc.test.mjs` fails if they show up anywhere else in the repo.
