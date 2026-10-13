@@ -122,7 +122,7 @@ describe("error boundaries", () => {
     let next: unknown = null;
     b.setState = ((s: unknown) => { next = s; }) as never;
     b.state = { failed: true };
-    b.props = { children: <span>ok</span>, resetKey: 2 };
+    Object.assign(b, { props: { children: <span>ok</span>, resetKey: 2 } });
     b.componentDidUpdate({ resetKey: 1 });
     assert.deepEqual(next, { failed: false });
   });
