@@ -130,9 +130,9 @@ Every other entry is keyed on its full normalized name.
 
   - none
 
-## Package-only wheels and interiors, not additive (82)
+## Package-only lines, not additive (82)
 
-The CSV marks these "available only inside a package; price shown is the package price (not additive to the package row)". Each stays as an entry keyed by its full name, with price 0, `additive: false` and the CSV price kept as `packagePrice`: it never adds to a price.
+Audi: the CSV marks these "available only inside a package; price shown is the package price (not additive to the package row)". Mercedes: 15 unmarked `(inside package ...)` rows priced at exactly their package's price. Each stays as an entry keyed by its full name, with price 0, `additive: false` and the CSV price kept as `packagePrice`: it never adds to a price.
 
 - 2026 Q4 Sportback e-tron Premium 55 e-tron quattro: Leather seating surfaces w/ embossed S emblem (contained in Black optic plus package), Seats Black w/ Rock Gray (package price $1250)
 - 2026 Q4 Sportback e-tron Premium Plus 55 e-tron quattro: 21" 5-W-spoke design, platinum gray (contained in Sport package) (package price $1800)
