@@ -18,9 +18,9 @@ import { fileURLToPath } from "node:url";
 import { normalizeOptionKey, parseCsv, DISCLAIMER_PATTERNS } from "./lib/optionPolicyCommon.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const BRANDS = ["cadillac", "honda", "kia", "hyundai", "audi"];
+const BRANDS = ["cadillac", "honda", "kia", "hyundai", "audi", "bmw"];
 // Hyundai (2025-27: Kona Electric and Ioniq 6 are 2025 rows in the CSV) lives in its own docs dir and policy file; the other three share the original ones.
-const DOCS_DIR = { hyundai: "hyundai-2025-2027", audi: "option-catalogs-2026-10-12" };
+const DOCS_DIR = { hyundai: "hyundai-2025-2027", audi: "option-catalogs-2026-10-12", bmw: "option-catalogs-2026-10-12" };
 const YEARS = { hyundai: "2025-2027" };
 const docsDir = (b) => DOCS_DIR[b] || "cadillac-honda-kia-2026-2027";
 const csvPath = (b) => path.join(root, `docs/${docsDir(b)}/${b}_lineup_options_by_trim.csv`);
@@ -34,9 +34,10 @@ const EXPECTED_MODELS = {
   honda: ["Accord", "CR-V", "CR-V e:FCEV", "Civic Hatchback", "Civic Sedan", "Civic Si Sedan", "Civic Type R", "HR-V", "Odyssey", "Passport", "Pilot", "Prologue", "Prelude", "Ridgeline"],
   kia: ["Carnival MPV", "Carnival MPV Hybrid", "EV3", "EV6", "EV9", "K4", "K4 Hatchback", "K5", "Niro", "Niro EV", "Seltos", "Sorento", "Sorento Hybrid", "Sorento Plug-in Hybrid", "Sportage", "Sportage Hybrid", "Sportage Plug-in Hybrid", "Telluride", "Telluride Hybrid"],
   audi: ["A3", "A5 Sedan", "A6 Sedan", "A6 Sportback e-tron", "A8 Sedan", "Q3", "Q4 Sportback e-tron", "Q4 e-tron", "Q5", "Q5 Sportback", "Q6 Sportback e-tron", "Q6 e-tron", "Q7", "Q8", "Q9", "RS 3 Sedan", "RS 6 Avant", "RS 7", "RS Q8", "RS e-tron GT", "S e-tron GT", "S3", "S5 Sedan", "S6 Sportback e-tron", "S8 Sedan", "SQ5", "SQ5 Sportback", "SQ6 Sportback e-tron", "SQ6 e-tron", "SQ7", "SQ8", "SQ9"],
+  bmw: ["2 Series Coupe", "2 Series Gran Coupe", "3 Series Sedan", "4 Series Convertible", "4 Series Coupe", "4 Series Gran Coupe", "5 Series Sedan", "7 Series Sedan", "M2 Coupe", "M3 Sedan", "M4 Convertible", "M4 Coupe", "M5 Sedan", "M5 Touring", "X1", "X2", "X3", "X5", "X6", "X7", "XM", "i3 Sedan", "i5 Sedan", "i7 Sedan", "iX3"],
   hyundai: ["Elantra", "Elantra Hybrid", "Elantra N", "Ioniq 5", "Ioniq 5 N", "Ioniq 6", "Ioniq 9", "Kona", "Kona Electric", "Palisade", "Palisade Hybrid", "Santa Cruz", "Santa Fe", "Santa Fe Hybrid", "Sonata", "Tucson", "Tucson Hybrid", "Tucson Plug-in Hybrid", "Venue"],
 };
-const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia", hyundai: "hyundai", audi: "audi" };
+const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia", hyundai: "hyundai", audi: "audi", bmw: "bmw" };
 
 // Trim words that describe the body / drivetrain, not the trim. Cab, bed and drivetrain are configuration choices; status words say where the car is in
 // its life. No trim aliases are approved for these makes: a trim the CSV does not list (e.g. an EV trim without its range suffix) is untrusted -> no options.
@@ -63,7 +64,7 @@ const GM_PRODUCT_PHRASES = [
   "brush\\s*guard", "grille\\s*guard", "push\\s*bar", "fender\\s*flares?", "spare\\s*tire\\s*cover", "key\\s*(?:fob\\s+)?cover", "license\\s*plate\\s*(?:frame|bracket)", "emblem\\s*overlays?", "hood\\s*graphics",
 ];
 const addonPatterns = (brand) => {
-  const around = brand === "hyundai" ? "(?:hyundai|genesis|genuine|dealer|port|installed|aftermarket)" : brand === "audi" ? "(?:audi|vw|volkswagen|genuine|dealer|port|installed|aftermarket)" : "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
+  const around = brand === "hyundai" ? "(?:hyundai|genesis|genuine|dealer|port|installed|aftermarket)" : brand === "audi" ? "(?:audi|vw|volkswagen|genuine|dealer|port|installed|aftermarket)" : brand === "bmw" ? "(?:bmw|mini|genuine|dealer|port|installed|aftermarket)" : "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
   return GM_PRODUCT_PHRASES.map((p) => `^(?:${around}\\s+)*(?:${p})(?:\\s+(?:set|kit|package|pkg|pair|installed))*$`);
 };
 
@@ -87,12 +88,12 @@ function classify(r) {
   return { kind };
 }
 
-/** An explicit code a row is keyed on (`key=ABC` in the notes), or null when it is keyed on its name (`key=name:...`, the only form these CSVs use). */
+/** An explicit code a row is keyed on (`key=ABC` in the notes), or null when it is keyed on its name (`key=name:...`; BMW also has three `key=code:XYZ` rows, keyed on the code). */
 function codeOf(r) {
   const m = /(?:^|;\s*)key=([^;]+)/.exec(r.notes || "");
   if (!m) return null;
   const k = m[1].trim();
-  return k.startsWith("name:") ? null : k;
+  return k.startsWith("name:") ? null : k.replace(/^code:\s*/i, "");
 }
 
 /** Kia FWD/AWD package pair merged into one CSV row: "price by drivetrain: FWD $1,500; AWD $1,000" -> { fwd: 1500, awd: 1000 } (null when the note is absent). */
