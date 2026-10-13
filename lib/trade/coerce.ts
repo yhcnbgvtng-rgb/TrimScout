@@ -5,7 +5,7 @@
 // parseTradeFields uses, and photos without a usable slot are dropped. Use it wherever a stored record is rendered.
 import {
   DRIVETRAINS, HISTORY_FLAGS, KEYS, OWNERSHIPS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS, TRADE_OPTIONS,
-  OPTIONAL_PHOTO_SLOTS, REQUIRED_PHOTO_SLOTS,
+  DEALER_NOTES_MAX, OPTIONAL_PHOTO_SLOTS, REQUIRED_PHOTO_SLOTS,
   type TradeInRecord, type TradePhoto,
 } from "./types";
 
@@ -64,6 +64,7 @@ export function coerceTradeIn(raw: unknown): TradeInRecord | null {
     tireBrake: oneOf(TIRE_BRAKES, o.tireBrake), mods: strOrNull(o.mods, 300),
     warningLights: wl ? { on: wl.on === true, which: wl.on === true ? strOrNull(wl.which, 200) : null } : null,
     intent: oneOf(TRADE_INTENTS, o.intent) ?? "apply_to_deal",
+    dealerNotes: strOrNull(o.dealerNotes, DEALER_NOTES_MAX),
     odometerConfirmed: o.odometerConfirmed === true,
     photos: coercePhotos(o.photos),
     createdAt: str(o.createdAt, 40) || now, updatedAt: str(o.updatedAt, 40) || str(o.createdAt, 40) || now,

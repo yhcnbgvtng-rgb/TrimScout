@@ -4,8 +4,9 @@
  * whatever the browser did. Errors are keyed by field so the UI can point at the first problem.
  */
 import { findContactInfo } from "../piiFilter";
+import { findIdentityInfo } from "../identityFilter";
 import {
-  DRIVETRAINS, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS, TRADE_OPTIONS,
+  DEALER_NOTES_MAX, DRIVETRAINS, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIPS, REQUIRED_PHOTO_SLOTS, SERVICE_HISTORIES, TIRE_BRAKES, TITLE_STATUSES, TRADE_CONDITIONS, TRADE_INTENTS, TRADE_OPTIONS,
   isRequiredSlot, type PhotoSlot, type TradeInFields, type TradePhoto,
 } from "./types";
 
@@ -111,6 +112,13 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
   const wl = o.warningLights && typeof o.warningLights === "object" ? (o.warningLights as Record<string, unknown>) : null;
   const warningLights = wl ? { on: wl.on === true, which: wl.on === true ? free("warningLights", wl.which, 200, "the warning lights") || null : null } : null;
 
+  // Optional note for the dealer. Same identity rules as the buyer <-> dealer chat: no names, phones, emails, handles or links.
+  const dealerNotes = text(o.dealerNotes, DEALER_NOTES_MAX) || null;
+  if (dealerNotes) {
+    const hit = findIdentityInfo(dealerNotes);
+    if (hit) e.dealerNotes = `Leave ${hit} out of the note. TrimScout passes messages along without it.`;
+  }
+
   const fields: TradeInFields = {
     vin, year: Number.isInteger(year) ? year : null, make, model, trim, decodedFromVin: o.decodedFromVin === true,
     mileage: Number.isInteger(mileage) ? mileage : 0, zip,
@@ -120,7 +128,7 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
     extColor: free("extColor", o.extColor, 40, "the color") || null,
     intColor: free("intColor", o.intColor, 40, "the color") || null,
     serviceHistory, serviceNotes: free("serviceNotes", o.serviceNotes, 500, "the service notes") || null,
-    tireBrake, mods: free("mods", o.mods, 300, "the mods") || null, warningLights, intent,
+    tireBrake, mods: free("mods", o.mods, 300, "the mods") || null, warningLights, intent, dealerNotes,
     odometerConfirmed: o.odometerConfirmed === true,
   };
   return Object.keys(e).length ? { ok: false, errors: e } : { ok: true, fields };
@@ -157,3 +165,31 @@ export function validatePhotoSet(photos: ReadonlyArray<TradePhoto>): { ok: boole
 }
 
 export { INTENT_LABELS };
+
+// ---- what is still missing --------------------------------------------------
+const FIELD_LABELS: Record<string, string> = {
+  vin: "the VIN", year: "the model year", make: "the make", model: "the model", trim: "the trim", mileage: "the mileage", zip: "the vehicle ZIP",
+  conditionBand: "the condition", titleStatus: "the title status", ownership: "ownership", lenderName: "the lender name", payoffEstimate: "the approximate payoff",
+  keys: "the number of keys", historyFlag: "the accident question", historyNotes: "what happened in the accident", drivetrain: "the drivetrain",
+  optionsOther: "the other option", odometerConfirmed: "the \u201cmileage matches the photo\u201d box", dealerNotes: "the note for the dealer",
+  warningLights: "the warning lights", serviceNotes: "the service notes", mods: "the mods", extColor: "the exterior color", intColor: "the interior color",
+};
+
+export interface TradeReadiness { ready: boolean; missing: string[]; message: string | null }
+
+/**
+ * One answer to "why can't I continue?": every unmet requirement in plain words, details first, then photos.
+ * Shared by the step (button reason), the phone page (checklist) and tests so they cannot disagree.
+ */
+export function tradeReadiness(fields: unknown, photos: ReadonlyArray<Pick<TradePhoto, "slot">>, opts: { uploading?: boolean } = {}): TradeReadiness {
+  const missing: string[] = [];
+  const parsed = parseTradeFields(fields);
+  if (!parsed.ok) {
+    const items = Object.entries(parsed.errors).map(([k, err]) => `${/^Leave /.test(err || "") ? "Fix" : "Add"} ${FIELD_LABELS[k] || k}`);
+    missing.push(...Array.from(new Set(items)));
+  }
+  const progress = requiredPhotoProgress(photos);
+  if (!progress.complete) missing.push(`Add the ${progress.missing.map((s) => s.replace("_", " ")).join(", ")} photo${progress.missing.length > 1 ? "s" : ""} (${progress.have} of ${progress.total} required photos)`);
+  if (opts.uploading) missing.push("Wait for the photo that is uploading");
+  return { ready: missing.length === 0, missing, message: missing.length ? `Still needed: ${missing.join("; ")}.` : null };
+}

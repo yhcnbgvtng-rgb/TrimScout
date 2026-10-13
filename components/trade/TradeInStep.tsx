@@ -7,9 +7,9 @@ import { useTradeDraft, type Fields } from "./useTradeDraft";
 import { TradePhotoSlots } from "./TradePhotoSlots";
 import {
   DRIVETRAIN_LABELS, DRIVETRAINS, HISTORY_FLAGS, INTENT_LABELS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, SERVICE_HISTORIES, SERVICE_LABELS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
-  TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_INTENTS, TRADE_OPTIONS, TRADE_OPTION_LABELS, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
+  DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_INTENTS, TRADE_OPTIONS, TRADE_OPTION_LABELS, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
 } from "../../lib/trade/types";
-import { isValidVin, parseTradeFields, requiredPhotoProgress } from "../../lib/trade/validate";
+import { isValidVin, parseTradeFields, requiredPhotoProgress, tradeReadiness } from "../../lib/trade/validate";
 
 export interface TradeStepState { ready: boolean; draftId: string | null; token: string | null; firstError: string | null }
 
@@ -73,8 +73,9 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState 
   const parsed = useMemo(() => parseTradeFields(f), [f]);
   const progress = requiredPhotoProgress(draft.photos);
   const errors = parsed.ok ? {} : parsed.errors;
-  const firstError = !enabled ? null : !parsed.ok ? Object.values(errors)[0] ?? "Finish the trade-in details." : !progress.complete ? `Add the ${progress.firstMissing?.replace("_", " ")} photo (${progress.have} of ${progress.total} required photos).` : null;
-  const ready = enabled && parsed.ok && progress.complete && !draft.busySlot;
+  const readiness = tradeReadiness(f, draft.photos, { uploading: Boolean(draft.busySlot) });
+  const firstError = !enabled ? null : readiness.message;
+  const ready = enabled && readiness.ready;
   useEffect(() => {
     onState({ ready: !enabled || ready, draftId: draft.ref?.id ?? null, token: draft.ref?.token ?? null, firstError: ready || !enabled ? null : firstError });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,7 +206,12 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState 
             <div className="space-y-1.5"><label className={labelCls}>What do you want to do with it?</label><Chips value={f.intent || "apply_to_deal"} options={TRADE_INTENTS} labels={INTENT_LABELS} onChange={(v) => set({ intent: v })} testId="trade-intent" /></div>
           </Block>
 
-          {attempted && firstError ? <p className="text-xs font-semibold text-amber-300" role="alert" data-testid="trade-first-error">{firstError}</p> : null}
+          <Block title="Anything the dealer should know?" hint="Optional. Accidents, damage, mechanical issues, aftermarket parts. No names, phone numbers, emails, social handles or links.">
+            <textarea rows={3} maxLength={DEALER_NOTES_MAX} value={String(f.dealerNotes || "")} onChange={(e) => set({ dealerNotes: e.target.value })} onBlur={touch("dealerNotes")} placeholder="e.g. small dent on the rear bumper, aftermarket exhaust, A/C needs a recharge" className={`${inputCls} resize-none`} data-testid="trade-dealer-notes" aria-label="Anything the dealer should know?" />
+            <div className="flex justify-between gap-3"><Err k="dealerNotes" /><span className="ml-auto text-[10px] text-ink-faint" data-testid="trade-dealer-notes-count">{String(f.dealerNotes || "").length}/{DEALER_NOTES_MAX}</span></div>
+          </Block>
+
+          {firstError && (attempted || progress.have > 0) ? <p className={`text-xs font-semibold ${attempted ? "text-amber-300" : "text-ink-muted"}`} role={attempted ? "alert" : "status"} data-testid="trade-first-error">{firstError}</p> : null}
         </div>
       )}
     </div>

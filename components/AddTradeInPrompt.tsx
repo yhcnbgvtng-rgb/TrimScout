@@ -67,6 +67,7 @@ export function AddTradeInPrompt({ rfq, headers, defaultZip, onRfq }: { rfq: Rfq
       </div>
       <TradeInStep enabled onToggle={(on) => { if (!on) void skip(); }} defaultZip={defaultZip} attempted={attempted} onState={setStep} />
       {error ? <p className="text-xs font-semibold text-rose-300" role="alert" data-testid="trade-prompt-error">{error}</p> : null}
+      {!step.ready && step.firstError ? <p className="text-xs font-semibold text-amber-300" data-testid="trade-prompt-reason">{step.firstError}</p> : null}
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={submit} disabled={busy} className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="trade-prompt-submit">{TRADE_PROMPT_COPY.submit}</button>
         <button type="button" onClick={skip} disabled={busy} className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="trade-prompt-skip">{TRADE_PROMPT_COPY.skip}</button>
