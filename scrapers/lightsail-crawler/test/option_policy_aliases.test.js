@@ -238,3 +238,19 @@ describe('the nightly sync never empties a car because of a trim it cannot read'
     assert.deepEqual(policyApiOptions(ALLOW, { make: 'BMW', model: 'X3', year: 2026, trim: 'Base' }, [{ name: 'Weather Package' }]), []);
   });
 });
+
+describe('Hyundai restore --only (targeted restore)', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-11-hyundai-option-policy-apply.mjs'), 'utf8');
+  const restore = src.slice(src.indexOf('async function restore()'));
+  it('restores only the listed cars, refuses a car this apply never changed, and re-checks inside the lock that each still holds no rows', () => {
+    assert.match(restore, /args\.only/);
+    assert.match(restore, /which this apply never changed/);
+    assert.match(restore, /SELECT vin, dealer_id FROM dealer_inventory_options WHERE vin IN \(\?\)/);
+    assert.ok(restore.indexOf('takeLock') < restore.indexOf('restore check'), 'the has-rows check runs after the lock is taken');
+    assert.ok(restore.indexOf('restore check') < restore.indexOf('DELETE FROM dealer_inventory_options'), 'and before anything is deleted');
+  });
+  it('without --only it is the old full restore, and it is still dry unless --go', () => {
+    assert.match(restore, /\(!only \|\| only\.has/);
+    assert.match(restore, /if \(!args\.go\) return;/);
+  });
+});

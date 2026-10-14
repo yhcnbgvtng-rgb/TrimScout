@@ -192,13 +192,25 @@ async function apply() {
 async function restore() {
   const upto = Number(args["through-batch"] || 1e9);
   const applied = new Set(fs.readFileSync(P("applied.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((o) => o.batch <= upto).map((o) => `${o.vin}|${o.dealer_id}`));
-  const lines = fs.readFileSync(P("backup.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((o) => applied.has(`${o.vin}|${o.dealer_id}`));
-  console.log(`${args.go ? "RESTORE" : "[DRY] restore"} ${lines.length} cars (${lines.reduce((a, b) => a + b.rows.length, 0)} rows)`);
+  // --only=<file.json>: a JSON array of "vin|dealer_id" keys. Restores just those cars (a targeted restore), and only cars that STILL hold no rows when the
+  // restore runs (checked inside the lock): a car whose rows were rewritten since is never overwritten. Without --only: every applied car, as before.
+  const only = args.only ? new Set(JSON.parse(fs.readFileSync(path.resolve(String(args.only)), "utf8"))) : null;
+  if (only) for (const k of only) if (!applied.has(k)) throw new Error(`--only lists ${k}, which this apply never changed`);
+  let lines = fs.readFileSync(P("backup.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((o) => applied.has(`${o.vin}|${o.dealer_id}`) && (!only || only.has(`${o.vin}|${o.dealer_id}`)));
+  console.log(`${args.go ? "RESTORE" : "[DRY] restore"}${only ? " (--only)" : ""} ${lines.length} cars (${lines.reduce((a, b) => a + b.rows.length, 0)} rows)`);
   if (!args.go) return;
   await takeLock("hyundai-option-policy-restore");
+  let skippedHasRows = 0;
   try {
-    for (const part of chunks(lines, 100)) {
+    for (const part0 of chunks(lines, 100)) {
       if (lostLock) throw new Error("lock lost");
+      let part = part0;
+      if (only) {
+        const have = await q(pool, "restore check", "SELECT vin, dealer_id FROM dealer_inventory_options WHERE vin IN (?) GROUP BY vin, dealer_id", [[...new Set(part0.map((c) => c.vin))]]);
+        const hasRows = new Set(have.map((r) => `${r.vin}|${r.dealer_id}`));
+        part = part0.filter((c) => !hasRows.has(`${c.vin}|${c.dealer_id}`)); skippedHasRows += part0.length - part.length;
+        if (!part.length) continue;
+      }
       const conn = await pool.getConnection();
       try {
         await conn.beginTransaction();
@@ -209,7 +221,7 @@ async function restore() {
         await conn.commit();
       } catch (e) { await conn.rollback().catch(() => {}); throw e; } finally { conn.release(); }
     }
-    console.log("restore done");
+    console.log(`restore done${only ? ` (${skippedHasRows} cars skipped because they hold rows again)` : ""}`);
   } finally { await releaseLock(); }
 }
 
