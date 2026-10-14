@@ -136,8 +136,8 @@ describe('Hyundai specifics', () => {
     assert.deepEqual(run({ model: 'Tucson', year: 2026, trim: null }, ['Ultimate Red']).rows, []);
     assert.deepEqual(run({ model: 'Venue', year: 2026, trim: 'SEL w/ 2-Tone Roof' }, ['Ultimate Red']).rows, []);
   });
-  it('a blank trim on the sync payload leaves stored rows alone, a bad trim yields zero rows', () => {
+  it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Hyundai', model: 'Tucson', year: 2026, trim: '' }, [{ name: 'Ultimate Red' }]), { skip: true });
-    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Hyundai', model: 'Tucson', year: 2026, trim: 'Nope' }, [{ name: 'Ultimate Red' }]).rows, []);
+    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Hyundai', model: 'Tucson', year: 2026, trim: 'Nope' }, [{ name: 'Ultimate Red' }]), { skip: true });
   });
 });

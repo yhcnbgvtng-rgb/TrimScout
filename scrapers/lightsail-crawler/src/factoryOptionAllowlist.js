@@ -355,8 +355,8 @@ export function optionRowsForVehicle(allowlist, vehicle, options) {
 /**
  * The facet rows the nightly sync writes for a vehicle under a model policy, or null when no policy covers it (the caller then uses the
  * generic rules, unchanged). The sync COALESCEs trim, so a payload with a blank trim says nothing about the stored trim: for a policy-covered
- * vehicle that is { skip: true } (leave the stored rows alone) rather than "no trusted trim -> wipe". A non-blank trim the policy does not
- * trust still yields zero rows, per the policy's rule 6.
+ * vehicle that is { skip: true } (leave the stored rows alone) rather than "no trusted trim -> wipe". So is a non-blank trim the policy does not
+ * trust (2026-10-13 ruling; the policy's rule 6 "no trusted trim -> no options" still decides what the LIST shows, it just no longer deletes stored rows).
  * -> null | { skip: true } | { rows: [{ key, label, code }], junkDropped }
  */
 export function policyFacetRows(allowlist, vehicle, options) {
@@ -364,6 +364,9 @@ export function policyFacetRows(allowlist, vehicle, options) {
   if (!String(vehicle.trim ?? "").trim()) return { skip: true };
   const res = optionRowsForVehicle(allowlist, vehicle, Array.isArray(options) ? options : []);
   if (!res) return null;
+  // A trim the policy does not trust is "we cannot read this car", not "this car has no options": leave its stored rows alone (same as a blank trim).
+  // Ruling 2026-10-13: the nightly sync never empties a car because of a trim string we don't recognise.
+  if (!res.trimTrusted) return { skip: true };
   return { rows: res.rows.map((r) => ({ key: r.key, label: r.label, code: r.code ?? null })), junkDropped: res.junkDropped };
 }
 
