@@ -168,7 +168,12 @@ describe('Mercedes-Benz', () => {
   });
   it('AMG strings that are ambiguous or unconfirmed stay untrusted (CLE 53 body, GLE 53e vs 53 Hybrid, E 53 sedan or wagon)', () => {
     untrusted('Mercedes-Benz', 2027, 'AMG CLE 53', '4MATIC');
-    uncovered('Mercedes-Benz', 2027, 'AMG GLE 53e'); // not mapped: is "53e" the policy's "53 Hybrid"? left for a ruling
+    // GLE "53e" = the policy's "53 Hybrid" (mbusa.com: model pages gle53ew4 / gle53ec4 are titled "AMG GLE 53 HYBRID 4MATIC+"; the 2027 GLE launch page calls the same plug-in "53e HYBRID")
+    trusted('Mercedes-Benz', 2027, 'AMG GLE 53e', 'AMG &reg; GLE 53e 4MATIC+ &reg; SUV', 'mercedes-benz|gle suv|2027', 'amg gle 53 hybrid suv');
+    trusted('Mercedes-Benz', 2027, 'AMG GLE 53e', 'AMG &reg; GLE 53e 4MATIC+ &reg; Coupe', 'mercedes-benz|gle coupe|2027', 'amg gle 53 hybrid coupe');
+    trusted('Mercedes-Benz', 2027, 'GLE', 'AMG &reg; GLE 53e 4MATIC+ &reg; Coupe', 'mercedes-benz|gle coupe|2027', 'amg gle 53 hybrid coupe');
+    untrusted('Mercedes-Benz', 2027, 'AMG GLE 53e', '4MATIC'); // body not stated: SUV or coupe
+    untrusted('Mercedes-Benz', 2027, 'AMG GLE 53e', 'AMG GLE 53e');
     untrusted('Mercedes-Benz', 2027, 'E-Class', 'AMG E 53 HYBRID');
   });
   it('ambiguous strings stay untrusted (SUV or coupe? RWD or 4MATIC?)', () => {
