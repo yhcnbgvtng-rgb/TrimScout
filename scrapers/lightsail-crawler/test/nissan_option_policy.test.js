@@ -26,8 +26,8 @@ const ACCESSORY_RE = /\baccessor|aftermarket|\bdealer[- ](?:installed|added|opti
 const builderDrops = (r) => SUBSCRIPTION_RE.test(r.item) || ACCESSORY_RE.test(r.item);
 const csvPaid = CSV.filter((r) => r.category !== 'Base' && price(r) > 0);
 const paid = csvPaid.filter((r) => !builderDrops(r));
-// Lines the engine's global non-option filter drops before any policy sees them (shared by every make; see the PR description).
-const ENGINE_DROPS = /ProPILOT Assist/i;
+// Lines the engine's global non-option filter drops before any policy sees them: none (the ProPILOT carve-out, #519, lets the Armada packages through).
+const ENGINE_DROPS = /(?!)/;
 const matchable = paid.filter((r) => !ENGINE_DROPS.test(r.item));
 const run = (vehicle, names) => optionRowsForVehicle(ALLOW, { make: 'Nissan', ...vehicle }, names.map((name) => ({ name })));
 const entries = Object.entries(RAW).flatMap(([scope, p]) => Object.entries(p.trims).flatMap(([tk, t]) => Object.entries(t.options).map(([k, o]) => ({ scope, tk, k, o, trim: t.label }))));
@@ -113,6 +113,11 @@ describe('the CSV is the contract: every paid factory line is in, nothing else i
 });
 
 describe('Nissan specifics', () => {
+  it('the 2026 Armada ProPILOT Assist 2.1 packages match ($3,370 SL, $3,300 Platinum, $2,900 Platinum Reserve)', () => {
+    for (const [trim, name, p] of [['SL', 'SL ProPILOT Assist 2.1 Package', 3370], ['Platinum', 'Platinum ProPILOT Assist 2.1 Package', 3300], ['Platinum Reserve', 'Platinum Reserve ProPILOT Assist 2.1 Package', 2900]]) {
+      assert.deepEqual(run({ model: 'Armada', year: 2026, trim }, [name]).rows.map((x) => [x.kind, x.price]), [['package', p]], trim);
+    }
+  });
   it('a paid line comes back with its kind and price (Scarlet Ember Tintcoat $450 on the 2026 SR)', () => {
     const r = run({ model: RAW['nissan|altima|2026'].models[0], year: 2026, trim: 'SR' }, ['Scarlet Ember Tintcoat']);
     assert.deepEqual(r.rows.map((x) => [x.kind, x.price]), [['paint', 450]]);
