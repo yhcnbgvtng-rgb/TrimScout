@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement, MAX_DUPLICATE_VINS } from '../src/vinKeeper.js';
+import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement, storeMatchesMake, MAX_DUPLICATE_VINS } from '../src/vinKeeper.js';
 import { distinctVins, runDuplicateVins, DUPLICATE_VINS_PATH } from '../../../scripts/box/syncSuperseded.js';
 
 const V1 = '3N1AB8CV6RY276712', V2 = 'KMHGC4DD9DU247439';
@@ -127,5 +127,40 @@ describe('sync client: distinctVins / runDuplicateVins', () => {
     assert.equal(old.calls, 1);
     const lost = await runDuplicateVins({ api: async () => { throw new Error('should not be called'); }, rows, foreignBefore: FB, isLockLost: () => true, log: () => {} });
     assert.equal(lost.calls, 0);
+  });
+});
+
+describe('brand tiebreak (a store whose name carries the car\'s make beats one that does not, before earliest first_seen)', () => {
+  const fresh = '2026-10-14T14:00:00Z';
+  const r = (dealerId, dealerName, make, first) => ({ vin: V1, dealerId, dealerName, make, firstSeenAt: first, lastSeenAt: fresh, source: 'nightly' });
+  it('storeMatchesMake: whole words, several makes per store, false for a missing name or make or an unlisted make', () => {
+    assert.equal(storeMatchesMake('Freedom Chevrolet Buick GMC', 'Chevrolet'), true);
+    assert.equal(storeMatchesMake('Freedom Chevrolet Buick GMC', 'GMC'), true);
+    assert.equal(storeMatchesMake('ED MORSE NISSAN', 'Chevrolet'), false);
+    assert.equal(storeMatchesMake('Mercedes-Benz of Pompano', 'Mercedes-Benz'), true);
+    assert.equal(storeMatchesMake('Ramsey Auto Group', 'Ram'), false);
+    assert.equal(storeMatchesMake('Stafford Motors', 'Ford'), false);
+    assert.equal(storeMatchesMake('Murray Chrysler Dodge Jeep Ram of Starke', 'Jeep'), true);
+    assert.equal(storeMatchesMake('Hendrick MINI', 'MINI'), true);
+    assert.equal(storeMatchesMake('', 'Ford'), false); assert.equal(storeMatchesMake('Some Ford Store', ''), false); assert.equal(storeMatchesMake('Some Maybach Store', 'Maybach'), false);
+  });
+  it('the live example: a 2026 Silverado under Freedom Chevrolet Buick GMC (later first seen) and ED MORSE NISSAN (earlier): the Chevrolet store keeps it', () => {
+    const rows = [r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-28T00:00:00Z'), r(9630, 'Freedom Chevrolet Buick GMC By Owner', 'Chevrolet', '2026-09-30T00:00:00Z')];
+    assert.deepEqual(planVinKeepers(rows, { foreignBefore: FB }).keep, [[V1, 9630]]);
+    assert.deepEqual(planVinKeepers([...rows].reverse(), { foreignBefore: FB }).keep, [[V1, 9630]]);
+  });
+  it('freshness and a real store still outrank the brand: a stale matching store loses to a fresh non-matching one, and dealer_id 0 never wins on brand', () => {
+    const stale = { ...r(9630, 'Freedom Chevrolet', 'Chevrolet', '2026-09-30T00:00:00Z'), lastSeenAt: '2026-09-01T00:00:00Z' };
+    assert.deepEqual(planVinKeepers([stale, r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-28T00:00:00Z')], { foreignBefore: FB }).keep, [[V1, 16951]]);
+    assert.deepEqual(planVinKeepers([r(0, 'Freedom Chevrolet', 'Chevrolet', '2026-09-28T00:00:00Z'), r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-30T00:00:00Z')], { foreignBefore: FB }).keep, [[V1, 16951]]);
+  });
+  it('both or neither matching falls through to the incumbent, and rows without a name or make behave exactly as before', () => {
+    assert.deepEqual(planVinKeepers([r(2, 'Fred Anderson Toyota', 'Toyota', '2026-09-30T00:00:00Z'), r(1, 'Fred Anderson Toyota North', 'Toyota', '2026-09-28T00:00:00Z')], { foreignBefore: FB }).keep, [[V1, 1]]);
+    assert.deepEqual(planVinKeepers([r(2, 'Alpha Honda', 'Toyota', '2026-09-30T00:00:00Z'), r(1, 'Beta Kia', 'Toyota', '2026-09-28T00:00:00Z')], { foreignBefore: FB }).keep, [[V1, 1]]);
+    const plain = [{ vin: V1, dealerId: 2, firstSeenAt: '2026-09-30T00:00:00Z', lastSeenAt: fresh }, { vin: V1, dealerId: 1, firstSeenAt: '2026-09-28T00:00:00Z', lastSeenAt: fresh }];
+    assert.deepEqual(planVinKeepers(plain, { foreignBefore: FB }).keep, [[V1, 1]]);
+  });
+  it('the keeper query reads the store name and make', () => {
+    assert.match(buildRowsSelect([V1]).sql, /dealer_name AS dealerName, make,/);
   });
 });

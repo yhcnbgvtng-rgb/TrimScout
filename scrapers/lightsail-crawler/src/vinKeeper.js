@@ -15,13 +15,36 @@
 //   1. a row refreshed within the freshness window (last_seen_at >= foreignBefore) beats one that is not — a car listed only by a store that
 //      stopped listing it never outranks a store that still does;
 //   2. a row filed under a real store (dealer_id > 0) beats the "no store matched" bucket (0);
-//   3. the incumbent: the earliest first_seen_at (the store that has had the car longest keeps it);
-//   4. the lowest dealer_id, so the choice is total.
+//   3. a store whose NAME carries the car's brand beats one that does not ("Freedom Chevrolet Buick GMC" over "ED MORSE NISSAN" for a Silverado; see storeMatchesMake) —
+//      only when the row carries both the store name and the make, otherwise this rule ties and the next one decides, exactly as before;
+//   4. the incumbent: the earliest first_seen_at (the store that has had the car longest keeps it);
+//   5. the lowest dealer_id, so the choice is total.
 // Only source = 'nightly' rows take part; rows from any other source are neither keepers nor retired.
 // For merged-feed groups with real evidence (stock-number prefix, a one-rooftop re-crawl) use dedupeMergedFeeds.js first; this rule is a stable
 // convention, not evidence of where the car physically is.
 
 export const MAX_DUPLICATE_VINS = 500;
+
+// Dealer-name words that say a store sells a make. A name is matched on whole words (so "Ram" is not "Ramsey", "Ford" is not "Stafford"). A make not listed here
+// never matches, so the rule falls through to the incumbent for it. Several makes can match one store ("Chevrolet Buick GMC").
+const MAKE_WORDS = {
+  acura: ["acura"], "alfa romeo": ["alfa"], audi: ["audi"], bmw: ["bmw"], buick: ["buick"], cadillac: ["cadillac"], chevrolet: ["chevrolet", "chevy"],
+  chrysler: ["chrysler", "dodge", "jeep", "ram", "cdjr", "fiat"], dodge: ["chrysler", "dodge", "jeep", "ram", "cdjr", "fiat"], jeep: ["chrysler", "dodge", "jeep", "ram", "cdjr", "fiat"],
+  ram: ["chrysler", "dodge", "jeep", "ram", "cdjr", "fiat"], fiat: ["chrysler", "dodge", "jeep", "ram", "cdjr", "fiat"], ford: ["ford"], genesis: ["genesis"], gmc: ["gmc"],
+  honda: ["honda"], hyundai: ["hyundai"], infiniti: ["infiniti"], jaguar: ["jaguar"], kia: ["kia"], "land rover": ["land rover", "range rover"], lexus: ["lexus"], lincoln: ["lincoln"],
+  mazda: ["mazda"], "mercedes-benz": ["mercedes", "benz"], mini: ["mini"], mitsubishi: ["mitsubishi"], nissan: ["nissan"], polestar: ["polestar"], porsche: ["porsche"],
+  subaru: ["subaru"], tesla: ["tesla"], toyota: ["toyota", "scion"], volkswagen: ["volkswagen", "vw"], volvo: ["volvo"],
+};
+const normName = (v) => String(v || "").toLowerCase().replace(/&amp;/g, "&").replace(/[^a-z0-9]+/g, " ").trim();
+/** True when the dealer's name carries a word for the car's make. False for a missing name or make, an unlisted make, or no match. */
+export function storeMatchesMake(dealerName, make) {
+  const name = normName(dealerName), m = normName(make).replace(/ /g, " ");
+  if (!name || !m) return false;
+  const words = MAKE_WORDS[m === "mercedes benz" ? "mercedes-benz" : m];
+  if (!words) return false;
+  const padded = ` ${name} `;
+  return words.some((w) => padded.includes(` ${w} `));
+}
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
 const ts = (v) => (v == null ? null : v instanceof Date ? v.getTime() : Date.parse(String(v).replace(" ", "T")));
 
@@ -60,13 +83,14 @@ export function planVinKeepers(rows, { foreignBefore }) {
     const vin = String(r.vin || "").toUpperCase();
     if (!vin) continue;
     if (!byVin.has(vin)) byVin.set(vin, []);
-    byVin.get(vin).push({ vin, dealerId: Number(r.dealerId), first: ts(r.firstSeenAt), last: ts(r.lastSeenAt) });
+    byVin.get(vin).push({ vin, dealerId: Number(r.dealerId), first: ts(r.firstSeenAt), last: ts(r.lastSeenAt), brand: storeMatchesMake(r.dealerName ?? r.name, r.make) ? 1 : 0 });
   }
   const rank = (a, b) => {
     const fa = a.last != null && a.last >= cutoff ? 1 : 0, fb = b.last != null && b.last >= cutoff ? 1 : 0;
     if (fa !== fb) return fb - fa;
     const sa = a.dealerId > 0 ? 1 : 0, sb = b.dealerId > 0 ? 1 : 0;
     if (sa !== sb) return sb - sa;
+    if (a.brand !== b.brand) return b.brand - a.brand;
     const ia = a.first ?? Infinity, ib = b.first ?? Infinity;
     if (ia !== ib) return ia - ib;
     return a.dealerId - b.dealerId;
@@ -85,7 +109,7 @@ export function planVinKeepers(rows, { foreignBefore }) {
 /** Live nightly rows of the given VINs (primary-key prefix lookups; the table's PK is (vin, dealer_id)). */
 export function buildRowsSelect(vins) {
   return {
-    sql: `SELECT vin, dealer_id AS dealerId, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND source = 'nightly' AND vin IN (${vins.map(() => "?").join(", ")})`,
+    sql: `SELECT vin, dealer_id AS dealerId, dealer_name AS dealerName, make, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND source = 'nightly' AND vin IN (${vins.map(() => "?").join(", ")})`,
     args: [...vins],
   };
 }

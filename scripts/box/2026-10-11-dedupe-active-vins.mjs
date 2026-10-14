@@ -58,13 +58,13 @@ if (!APPLY) {
   console.log(`DRY RUN  live rows ${fmt(live)}, distinct VINs ${fmt(holders.size)}, VINs held by 2+ stores ${fmt(dupVins.length)}`);
   const rows = [];
   for (let i = 0; i < dupVins.length; i += 300) {
-    const [r] = await conn.query("SELECT vin, dealer_id AS dealerId, dealer_name AS name, state, source_box AS box, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND vin IN (?)", [dupVins.slice(i, i + 300)]);
+    const [r] = await conn.query("SELECT vin, dealer_id AS dealerId, dealer_name AS name, make, state, source_box AS box, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND vin IN (?)", [dupVins.slice(i, i + 300)]);
     rows.push(...r);
   }
   const plan = planVinKeepers(rows, { foreignBefore });
   const keeperOf = new Map(plan.keep);
   const byKey = new Map(rows.map((r) => [`${r.vin}|${r.dealerId}`, r]));
-  const retire = plan.retire.map(([vin, dealerId]) => { const r = byKey.get(`${vin}|${dealerId}`); return { vin, dealerId, name: r.name, state: r.state, box: r.box, lastSeenAt: r.lastSeenAt, keeperDealerId: keeperOf.get(vin) }; });
+  const retire = plan.retire.map(([vin, dealerId]) => { const r = byKey.get(`${vin}|${dealerId}`); const k = byKey.get(`${vin}|${keeperOf.get(vin)}`); return { vin, dealerId, name: r.name, make: r.make, state: r.state, box: r.box, lastSeenAt: r.lastSeenAt, keeperDealerId: keeperOf.get(vin), keeperName: k ? k.name : null }; });
   const out = path.join(os.homedir(), `dedupe-vins-plan-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
   fs.writeFileSync(out, JSON.stringify({ generatedAt: new Date().toISOString(), foreignBefore, vinsWithDuplicates: plan.vinsWithDuplicates, retire }));
   console.log(`Would retire ${fmt(retire.length)} rows (${fmt(retire.filter((r) => r.dealerId === 0).length)} of them in the "no store matched" bucket); keeps one row for each of ${fmt(plan.keep.length)} VINs.`);

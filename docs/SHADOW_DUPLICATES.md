@@ -39,7 +39,7 @@ Same-box, same-state VINs (the case #449 was written for) are 38,064 of the 176,
 
 ## What this PR changes (code only; nothing runs until deployed and enabled)
 
-- `scrapers/lightsail-crawler/src/vinKeeper.js` — the keeper rule, one live row per VIN, chosen only from stored facts so every box and every night picks the same row (no ping-pong): refreshed within 48h → real store over dealer_id 0 → earliest `first_seen_at` (the incumbent) → lowest dealer id. Only `source = 'nightly'` rows take part.
+- `scrapers/lightsail-crawler/src/vinKeeper.js` — the keeper rule, one live row per VIN, chosen only from stored facts so every box and every night picks the same row (no ping-pong): refreshed within 48h → real store over dealer_id 0 → **a store whose name carries the car's make** (2026-10-14: the sample plan kept ED MORSE NISSAN over Freedom Chevrolet for a Silverado) → earliest `first_seen_at` (the incumbent) → lowest dealer id. Only `source = 'nightly'` rows take part.
 - `POST /api/inventory/duplicate-vins { vins, foreignBefore, dryRun? }` in `deals_api_server.js` — selects the VINs' live nightly rows by primary-key prefix, plans in JS, retires by primary key (re-checking `removed_at IS NULL`).
 - `inventory-sync.mjs` — after a **complete** run, `RETIRE_DUPLICATE_VINS=1` retires, `RETIRE_DUPLICATE_VINS_DRY_RUN=1` only counts. **Off by default**, like #449.
 - `scripts/box/2026-10-11-dedupe-active-vins.mjs` — the one-off cleanup: dry run by default (reader, 20 s cap, dealer-id ranges, writes a plan file that doubles as the rollback list); `--apply --fleet-idle --plan=FILE` takes the sync lock and retires exactly the reviewed plan.

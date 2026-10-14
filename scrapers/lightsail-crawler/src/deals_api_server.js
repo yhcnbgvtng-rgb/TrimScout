@@ -2627,7 +2627,7 @@ async function handleInventoryDuplicateVins(req, res) {
   if (!parsed.ok) return badRequest(res, parsed.error);
   const sel = buildRowsSelect(parsed.vins);
   const [found] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sel.sql}`, sel.args);
-  const plan = planVinKeepers(found.map((r) => ({ vin: r.vin, dealerId: r.dealerId, firstSeenAt: r.firstSeenAt, lastSeenAt: r.lastSeenAt, source: r.source })), { foreignBefore: parsed.foreignBefore });
+  const plan = planVinKeepers(found.map((r) => ({ vin: r.vin, dealerId: r.dealerId, dealerName: r.dealerName, make: r.make, firstSeenAt: r.firstSeenAt, lastSeenAt: r.lastSeenAt, source: r.source })), { foreignBefore: parsed.foreignBefore });
   if (parsed.dryRun || plan.retire.length === 0) return sendJson(res, 200, { dryRun: parsed.dryRun, vinsWithDuplicates: plan.vinsWithDuplicates, ...(parsed.dryRun ? { wouldRetire: plan.retire.length } : { retired: 0 }) });
   let retired = 0;
   for (let i = 0; i < plan.retire.length; i += 200) {
