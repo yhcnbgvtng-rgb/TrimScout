@@ -474,7 +474,7 @@ describe('model option policies — nightly sync write path (the real handler, i
   });
 
   it('a make with no policy is byte-for-byte what it was, with or without the policy loaded', async () => {
-    const cars = [veh(1, [HEATED, ROOF], { make: 'Honda', model: 'Civic', year: 2026, trim: 'Sport' }), veh(2, [TOW, FEE], { make: 'Subaru', model: 'Outback', year: 2026, trim: 'Premium' })];
+    const cars = [veh(1, [HEATED, ROOF], { make: 'Honda', model: 'Civic', year: 2026, trim: 'Sport' }), veh(2, [TOW, FEE], { make: 'Mazda', model: 'CX-5', year: 2026, trim: 'Premium' })];
     const a = makeDb(); await loadHandlers(a).bulk(cars);
     const b = makeDb(); const hb = loadHandlers(b); hb.ctx.OPTION_ALLOWLIST = POLICY; await hb.bulk(cars);
     assert.equal(b.pool.optionTable(), a.pool.optionTable());
