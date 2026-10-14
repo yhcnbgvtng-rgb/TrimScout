@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Pencil, RefreshCw, Trash2, X } from "lucide-react";
 import type { AdminRfq, AdminRfqInvite } from "../../api/admin/rfqs/route";
+import { CREDIT_BANDS, EDITOR_QUOTE_TYPES, EDITOR_TIMELINES, FINANCE_TERMS, LEASE_MILES, LEASE_TERMS, prefsPatch, prefsToForm, type PrefsForm } from "../../../lib/adminQuotePrefs";
 import { DESK_ROLE_LABELS } from "../../../lib/quotePackage";
 import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqVehicleSummary } from "../../../lib/rfqTracker";
 
@@ -305,7 +306,9 @@ function RemoveDealer({ rfq, invite, onChanged }: { rfq: AdminRfq; invite: Admin
   );
 }
 
-function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq: AdminRfq, msg?: string) => void; onClose: () => void }) {
+type DealerHit = { id: string; dealerName: string; city: string | null; state: string | null; email: string; emailOptOut: boolean };
+
+export function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq: AdminRfq, msg?: string) => void; onClose: () => void }) {
   const [form, setForm] = useState({
     vin: rfq.vin,
     vehicleYear: String(rfq.vehicleYear),
@@ -314,61 +317,102 @@ function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq
     vehicleTrim: rfq.vehicleTrim || "",
     buyerNote: rfq.buyerNote || "",
     tradeInExpected: rfq.tradeInExpected === true ? "yes" : rfq.tradeInExpected === false ? "no" : "",
-    prefs: JSON.stringify(rfq.leasePrefs || rfq.quotePrefs || null, null, 2),
     summary: "",
   });
+  const stored = { leasePrefs: rfq.leasePrefs || null, quotePrefs: rfq.quotePrefs || null };
+  const [prefs, setPrefs] = useState<PrefsForm>(() => prefsToForm(stored));
+  const [showJson, setShowJson] = useState(false);
   const [dealer, setDealer] = useState({ dealerName: "", dealerState: "", providedEmail: "" });
+  const [hits, setHits] = useState<DealerHit[]>([]);
+  const [picked, setPicked] = useState<DealerHit | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const setP = (k: keyof PrefsForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setPrefs((p) => ({ ...p, [k]: e.target.value }));
   const field = "w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none";
+  const label = "block space-y-1 text-[10px] font-bold text-ink-muted";
+
+  const searchDealers = async (q: string) => {
+    setDealer((d) => ({ ...d, dealerName: q }));
+    setPicked(null);
+    if (q.trim().length < 2) return setHits([]);
+    try {
+      const res = await fetch("/api/admin/dealer-search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q }) });
+      const json = await res.json().catch(() => ({}));
+      setHits(Array.isArray(json.matches) ? json.matches : []);
+    } catch {
+      setHits([]);
+    }
+  };
+  const pickDealer = (h: DealerHit) => {
+    setPicked(h);
+    setHits([]);
+    setErr(null);
+    setDealer({ dealerName: h.dealerName, dealerState: h.state || "", providedEmail: h.email });
+  };
 
   const save = async () => {
     setBusy(true);
     setErr(null);
+    setNote(null);
     try {
       const patch: Record<string, unknown> = {};
-      if (form.vin.trim().toUpperCase() !== rfq.vin) patch.vin = form.vin.trim().toUpperCase();
-      if (Number(form.vehicleYear) !== rfq.vehicleYear) patch.vehicleYear = Number(form.vehicleYear);
-      if (form.vehicleMake.trim() !== rfq.vehicleMake) patch.vehicleMake = form.vehicleMake.trim();
-      if (form.vehicleModel.trim() !== rfq.vehicleModel) patch.vehicleModel = form.vehicleModel.trim();
-      if (form.vehicleTrim.trim() !== (rfq.vehicleTrim || "")) patch.vehicleTrim = form.vehicleTrim.trim();
-      if (form.buyerNote.trim() !== (rfq.buyerNote || "")) patch.buyerNote = form.buyerNote.trim() || null;
+      const changed: string[] = [];
+      const put = (key: string, value: unknown, labelText: string) => {
+        patch[key] = value;
+        changed.push(labelText);
+      };
+      if (form.vin.trim().toUpperCase() !== rfq.vin) put("vin", form.vin.trim().toUpperCase(), "VIN");
+      if (Number(form.vehicleYear) !== rfq.vehicleYear) put("vehicleYear", Number(form.vehicleYear), "year");
+      if (form.vehicleMake.trim() !== rfq.vehicleMake) put("vehicleMake", form.vehicleMake.trim(), "make");
+      if (form.vehicleModel.trim() !== rfq.vehicleModel) put("vehicleModel", form.vehicleModel.trim(), "model");
+      if (form.vehicleTrim.trim() !== (rfq.vehicleTrim || "")) put("vehicleTrim", form.vehicleTrim.trim(), "trim");
+      if (form.buyerNote.trim() !== (rfq.buyerNote || "")) put("buyerNote", form.buyerNote.trim() || null, "buyer note");
       const trade = form.tradeInExpected === "yes" ? true : form.tradeInExpected === "no" ? false : null;
-      if (trade !== (rfq.tradeInExpected ?? null)) patch.tradeInExpected = trade;
-      const prefsRaw = form.prefs.trim();
-      const original = JSON.stringify(rfq.leasePrefs || rfq.quotePrefs || null, null, 2);
-      if (prefsRaw !== original) {
-        const parsed = prefsRaw ? JSON.parse(prefsRaw) : null;
-        if (rfq.leasePrefs) patch.leasePrefs = parsed;
-        else patch.quotePrefs = parsed;
+      if (trade !== (rfq.tradeInExpected ?? null)) put("tradeInExpected", trade, "trade-in");
+      const pp = prefsPatch(prefs, stored);
+      if (!pp.ok) {
+        setErr(pp.errors.join(" "));
+        return;
+      }
+      if (Object.keys(pp.patch).length) {
+        Object.assign(patch, pp.patch);
+        changed.push("quote preferences");
       }
       if (Object.keys(patch).length === 0) {
-        setErr("Nothing changed.");
+        setNote("Nothing was saved — no field differs from what's already on the quote sheet.");
         return;
       }
       const res = await fetch(`/api/admin/rfqs/${rfq.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...patch, summary: form.summary.trim() || undefined }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Could not save.");
-      onChanged(json.rfq as AdminRfq, "Correction saved — not released yet.");
+      onChanged(json.rfq as AdminRfq, `Saved ${changed.join(", ")}. Not released to dealers yet.`);
       setForm((f) => ({ ...f, summary: "" }));
     } catch (e) {
-      setErr(e instanceof Error ? (e.name === "SyntaxError" ? "Locks must be valid JSON." : e.message) : "Could not save.");
+      setErr(e instanceof Error ? e.message : "Could not save.");
     } finally {
       setBusy(false);
     }
   };
 
   const addDealer = async () => {
-    if (!dealer.dealerName.trim()) return;
-    setBusy(true);
     setErr(null);
+    setNote(null);
+    const missing: string[] = [];
+    if (!dealer.dealerName.trim()) missing.push("dealer name");
+    if (!/^[A-Za-z]{2}$/.test(dealer.dealerState.trim())) missing.push("2-letter state");
+    if (missing.length) return setErr(`Add dealer needs a ${missing.join(" and a ")}.`);
+    const email = dealer.providedEmail.trim();
+    if (email && !/^[^@\s]+@[^@\s.]+(\.[^@\s.]+)+$/.test(email)) return setErr("That email address doesn't look valid.");
+    setBusy(true);
     try {
       const res = await fetch(`/api/admin/rfqs/${rfq.id}/invites`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(dealer) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Could not add the dealer.");
       onChanged(json.rfq as AdminRfq, `Added ${dealer.dealerName.trim()} (${json.routing}).`);
       setDealer({ dealerName: "", dealerState: "", providedEmail: "" });
+      setPicked(null);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not add the dealer.");
     } finally {
@@ -376,6 +420,8 @@ function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq
     }
   };
 
+  const isLease = prefs.type === "lease";
+  const isFinance = prefs.type === "finance";
   return (
     <div className="space-y-3 rounded-xl border border-sky-500/40 bg-sky-950/20 p-3" data-testid="edit-sheet">
       <p className="text-[11px] font-bold text-sky-200">Correct the quote sheet — saves without releasing. The buyer sees your summary as &quot;Corrected by TrimScout&quot;.</p>
@@ -391,21 +437,122 @@ function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChanged: (rfq
           <option value="no">Trade-in: no</option>
         </select>
         <textarea value={form.buyerNote} onChange={set("buyerNote")} placeholder="Buyer note to dealers" rows={2} className={`${field} sm:col-span-5`} />
-        <textarea value={form.prefs} onChange={set("prefs")} placeholder="Quote locks (JSON)" rows={5} className={`${field} font-mono sm:col-span-5`} />
+      </div>
+      <fieldset className="space-y-2 rounded-lg border border-border/60 p-2" data-testid="prefs-fields">
+        <legend className="px-1 text-[10px] font-black uppercase tracking-wide text-ink-muted">Quote preferences</legend>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <label className={label}>
+            Quote type
+            <select value={prefs.type} onChange={setP("type")} className={field} data-testid="quote-type">
+              <option value="">None</option>
+              {EDITOR_QUOTE_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+          </label>
+          {prefs.type ? (
+            <>
+              <label className={label}>
+                ZIP
+                <input value={prefs.zip} onChange={setP("zip")} inputMode="numeric" maxLength={5} placeholder="07836" className={field} />
+              </label>
+              <label className={label}>
+                Timeline
+                <select value={prefs.timeline} onChange={setP("timeline")} className={field}>
+                  {EDITOR_TIMELINES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </label>
+            </>
+          ) : null}
+          {isLease || isFinance ? (
+            <label className={label}>
+              Term
+              <select value={prefs.termMonths} onChange={setP("termMonths")} className={field}>
+                <option value="">Pick…</option>
+                {(isLease ? LEASE_TERMS : FINANCE_TERMS).map((t) => (
+                  <option key={t} value={t}>{t} months</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {isLease ? (
+            <label className={label}>
+              Miles per year
+              <select value={prefs.milesPerYear} onChange={setP("milesPerYear")} className={field}>
+                <option value="">Pick…</option>
+                {LEASE_MILES.map((m) => (
+                  <option key={m} value={m}>{m.toLocaleString("en-US")}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {isFinance ? (
+            <label className={label}>
+              Down payment ($)
+              <input value={prefs.downPayment} onChange={setP("downPayment")} inputMode="numeric" placeholder="0" className={field} />
+            </label>
+          ) : null}
+          {isLease || isFinance ? (
+            <label className={label}>
+              Credit band
+              <select value={prefs.creditBand} onChange={setP("creditBand")} className={field}>
+                <option value="">{isLease ? "Not set" : "Pick…"}</option>
+                {CREDIT_BANDS.map((b) => (
+                  <option key={b} value={b}>{b[0].toUpperCase() + b.slice(1)}</option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+          {isLease ? (
+            <label className={`${label} sm:col-span-2`}>
+              Due at signing
+              <select value={prefs.dueAtSigningIntent} onChange={setP("dueAtSigningIntent")} className={field}>
+                <option value="">Not set</option>
+                <option value="first_month_only">First month + fees only</option>
+                <option value="cash_down">Putting money down</option>
+              </select>
+            </label>
+          ) : null}
+        </div>
+        <button type="button" onClick={() => setShowJson((v) => !v)} className="text-[10px] font-bold text-ink-muted hover:text-white" data-testid="advanced-toggle">
+          {showJson ? "Hide advanced" : "Advanced"}
+        </button>
+        {showJson ? (
+          <pre className="max-h-40 overflow-auto rounded-lg border border-border bg-background p-2 font-mono text-[10px] text-ink-muted" data-testid="advanced-json">{JSON.stringify(stored.leasePrefs || stored.quotePrefs || null, null, 2)}</pre>
+        ) : null}
+      </fieldset>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         <input value={form.summary} onChange={set("summary")} placeholder="Summary the buyer will see (e.g. 'trim corrected to XLE')" className={`${field} sm:col-span-4`} />
         <button type="button" onClick={save} disabled={busy} className="rounded-lg bg-sky-400 px-3 py-1.5 text-[11px] font-black text-black hover:bg-sky-300 disabled:opacity-50" data-testid="save-edit">
           Save correction
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        <input value={dealer.dealerName} onChange={(e) => setDealer((d) => ({ ...d, dealerName: e.target.value }))} placeholder="Add dealer — name (as in the directory)" className={`${field} sm:col-span-2`} />
-        <input value={dealer.dealerState} onChange={(e) => setDealer((d) => ({ ...d, dealerState: e.target.value }))} placeholder="State" className={field} maxLength={2} />
-        <input value={dealer.providedEmail} onChange={(e) => setDealer((d) => ({ ...d, providedEmail: e.target.value }))} placeholder="Sales advisor email (optional)" className={field} />
-        <button type="button" onClick={addDealer} disabled={busy || !dealer.dealerName.trim()} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="add-dealer">
+      <div className="relative grid grid-cols-2 gap-2 sm:grid-cols-5" data-testid="add-dealer-row">
+        <div className="relative sm:col-span-2">
+          <input value={dealer.dealerName} onChange={(e) => searchDealers(e.target.value)} placeholder="Add dealer — search the directory" className={field} autoComplete="off" data-testid="dealer-name" />
+          {hits.length ? (
+            <ul className="absolute left-0 right-0 z-10 mt-1 max-h-56 overflow-auto rounded-lg border border-border bg-background shadow-lg" data-testid="dealer-hits">
+              {hits.map((h) => (
+                <li key={h.id}>
+                  <button type="button" onClick={() => pickDealer(h)} className="block w-full px-2.5 py-1.5 text-left text-[11px] text-ink-light hover:bg-sky-950/60">
+                    <span className="font-bold">{h.dealerName}</span>
+                    <span className="text-ink-muted"> · {[h.city, h.state].filter(Boolean).join(", ")}{h.emailOptOut ? " · opted out" : h.email ? "" : " · no email on file"}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+        <input value={dealer.dealerState} onChange={(e) => setDealer((d) => ({ ...d, dealerState: e.target.value.toUpperCase() }))} placeholder="State" className={field} maxLength={2} data-testid="dealer-state" />
+        <input value={dealer.providedEmail} onChange={(e) => setDealer((d) => ({ ...d, providedEmail: e.target.value }))} placeholder={picked && !picked.email ? "No email on file — add one" : "Sales email"} className={field} data-testid="dealer-email" />
+        <button type="button" onClick={addDealer} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="add-dealer">
           Add dealer
         </button>
       </div>
-      {err ? <p className="text-[11px] text-rose-300">{err}</p> : null}
+      {err ? <p className="text-[11px] text-rose-300" data-testid="edit-error">{err}</p> : null}
+      {note ? <p className="text-[11px] text-amber-200" data-testid="edit-note">{note}</p> : null}
       <button type="button" onClick={onClose} className="text-[11px] font-bold text-ink-muted hover:text-white">Close editor</button>
     </div>
   );
