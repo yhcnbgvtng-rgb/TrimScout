@@ -73,6 +73,7 @@ function makeDb() {
       if (/^INSERT INTO dealer_inventory_days/.test(sql)) { for (const d of params[0]) db.days.set(`${d[0]}|${d[1]}|${d[2]}`, d); return [{ affectedRows: params[0].length }]; }
       if (/^SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE/.test(sql)) {
         db.n.optionSelects++;
+        assert.ok(params.length > 0, 'never an empty WHERE (a chunk whose every vehicle is skipped has nothing to look up; MariaDB rejects `WHERE ` with no condition)');
         assert.equal((sql.match(/\(vin = \? AND dealer_id = \?\)/g) || []).length, params.length / 2, 'one PK probe per vehicle');
         assert.doesNotMatch(sql, /\(\s*vin\s*,\s*dealer_id\s*\)\s+IN/i, 'never a row-value IN-list');
         const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
@@ -453,6 +454,17 @@ describe('model option policies — nightly sync write path (the real handler, i
     db.n.optionDeletes = db.n.optionInserts = 0;
     const r = await h.bulk([rav4()]);
     assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts, unch: r.json.optionSetsUnchanged }, { d: 0, i: 0, unch: 1 });
+  });
+
+  it('a chunk whose every vehicle is skipped (untrusted trim) is a normal 200: nothing is looked up, nothing is written, the stored rows stay', async () => {
+    const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTION_ALLOWLIST = POLICY;
+    const rav4 = (extra = {}) => ({ vin: '4T1DAACK0TU000002', dealerId: 7, dealerName: 'Dealer 7', make: 'Toyota', model: 'RAV4', year: 2026, trim: 'XSE', source: 'nightly', price: 40000, options: [{ name: 'Weather Package' }], ...extra });
+    assert.equal((await h.bulk([rav4()])).status, 200);
+    const before = db.pool.optionTable();
+    const r = await h.bulk([rav4({ trim: 'Totally Unknown Trim' }), rav4({ vin: '4T1DAACK0TU000003', trim: 'Another Unknown Trim' })]);
+    assert.equal(r.status, 200);
+    assert.deepEqual({ rep: r.json.optionSetsReplaced, rows: r.json.optionRowsWritten }, { rep: 0, rows: 0 });
+    assert.equal(db.pool.optionTable(), before);
   });
 
   it('a payload with a blank trim says nothing about the stored trim (the upsert COALESCEs it): the stored policy rows are left alone', async () => {
