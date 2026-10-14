@@ -73,10 +73,11 @@ export const ALIASES = {
     "2027|GLC Coupe": { models: ["GLC", "GLC 300", "AMG GLC 53", "AMG GLC 53 All-Wheel Drive 4MATIC+"] },
     "2027|GLC Electric SUV": { models: ["GLC 400"], modelTrim: { "GLC 400|4MATIC": "GLC 400 4MATIC Electric SUV" } },
     "2027|GLE SUV": {
-      models: ["GLE", "GLE 350", "GLE 450"],
+      models: ["GLE", "GLE 350", "GLE 450", "AMG GLE 53e"],
+      trimAliases: { "AMG GLE 53e 4MATIC SUV": "AMG GLE 53 Hybrid SUV" }, // mbusa.com: the 2027 "AMG GLE 53 HYBRID" plug-in (model page id gle53ew4) is the launch page's "GLE 53e HYBRID"
       modelTrim: { "GLE 350|4MATIC": "GLE 350 4MATIC SUV", "GLE 350|4MATIC SUV": "GLE 350 4MATIC SUV", "GLE 350|GLE 350": "GLE 350 4MATIC SUV", "GLE 450|4MATIC SUV": "GLE 450 4MATIC SUV" },
     },
-    "2027|GLE Coupe": { models: ["GLE", "GLE 450"] },
+    "2027|GLE Coupe": { models: ["GLE", "GLE 450", "AMG GLE 53e"], trimAliases: { "AMG GLE 53e 4MATIC Coupe": "AMG GLE 53 Hybrid Coupe" } },
     "2027|GLS SUV": { models: ["GLS", "GLS 450"], modelTrim: { "GLS 450|4MATIC": "GLS 450 4MATIC SUV", "GLS 450|4MATIC SUV": "GLS 450 4MATIC SUV", "GLS 450|GLS 450": "GLS 450 4MATIC SUV" } },
     "2027|E-Class Sedan": { models: ["E-Class"], trimAliases: { "E 350": "E 350 Sedan", "E 350 4MATIC": "E 350 4MATIC Sedan" } }, // "E 350 RWD Sedan" resolves on its own (RWD is noise)
     "2027|S-Class Sedan": { models: ["S-Class"], trimAliases: { "S 580": "S 580 4MATIC Sedan" } },

@@ -15649,10 +15649,13 @@
     "models": [
       "gle coupe",
       "gle",
-      "gle 450"
+      "gle 450",
+      "amg gle 53e"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg gle 53e 4matic coupe": "amg gle 53 hybrid coupe"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -16466,10 +16469,13 @@
       "gle suv",
       "gle",
       "gle 350",
-      "gle 450"
+      "gle 450",
+      "amg gle 53e"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg gle 53e 4matic suv": "amg gle 53 hybrid suv"
+    },
     "modelTrimAliases": {
       "gle 350|4matic": "gle 350 4matic suv",
       "gle 350|4matic suv": "gle 350 4matic suv",
