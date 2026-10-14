@@ -14,6 +14,9 @@ export const BRAND_NOISE = {
   hyundai: { noise: ["automatic", "cvt"], noisePhrases: [] }, // transmission words ("SEL FWD Automatic")
   bmw: { noise: ["automatic"], noisePhrases: ["sports activity vehicle", "sports activity"] },
   mercedes: { noise: ["reg"], noisePhrases: [] }, // "&reg;" left in the feed text for (R): "C 300 4MATIC &reg; Sedan"
+  // Subaru: "cvt" is the transmission ("Limited AWD CVT"); "All Wheel" is the drivetrain spelled out ("Touring XT All Wheel", "Limited Hybrid All Wheel"); "Lifetime Powertrain"
+  // is a dealer warranty tag ("Premium LIFETIME POWERTRAIN"). None distinguishes a trim.
+  subaru: { noise: ["cvt"], noisePhrases: ["all wheel", "lifetime powertrain"] },
 };
 const SEATS = ["6p", "7p", "8p", "6 passenger", "7 passenger", "8 passenger"]; // seating count, not a trim (same ruling as the Toyota 7/8 passenger alias)
 
@@ -89,5 +92,20 @@ export const ALIASES = {
     "2027|CLE Coupe": { models: ["CLE", "CLE 300", "CLE 450", "AMG CLE 53"], trimAliases: { "AMG CLE 53 4MATIC Coupe": "AMG CLE 53 Coupe" } },
     "2027|CLE Cabriolet": { models: ["CLE", "CLE 300", "CLE 450", "AMG CLE 53"], trimAliases: { "AMG CLE 53 4MATIC Cabriolet": "AMG CLE 53 Cabriolet" } },
     "2027|G-Class SUV": { models: ["G-Class", "AMG G 63"], trimAliases: { "G 580e SUV": "G 580 Electric SUV", "G 580 Electric": "G 580 Electric SUV", "AMG G 63": "AMG G 63 SUV", "G 63 AMG": "AMG G 63 SUV" } },
+  },
+  // Subaru (2026-10-14, from subaru.com's own Build & Price data). Every alias below names exactly ONE policy trim; anything that could be two is left unmapped
+  // (Ascent "Premium" / "Limited" = 7- or 8-Passenger; Forester "Standard Model"; "2.5RS"; "Series.Yellow"; equipment-abbreviation trims such as "Premium w/BSD/RCTA/PRG").
+  subaru: {
+    "2026|Crosstrek": { models: ["Crosstrek Hybrid"], modelImplied: { "Crosstrek Hybrid": "hybrid" } }, // Sport Hybrid / Limited Hybrid are the only Crosstrek Hybrid trims
+    "2026|Forester": {
+      models: ["Forester Hybrid"], modelImplied: { "Forester Hybrid": "hybrid" },
+      trimAliases: { "Sport Onyx Edition": "Sport" }, // the Onyx Edition is Option Package 25 on the Sport trim ("Onyx Edition Package" $1,700 in the CSV): 1,738 cars
+    },
+    "2026|Ascent": { trimAliases: { Touring: "Touring 7-Passenger", "Onyx Edition Touring": "Onyx Edition Touring 7-Passenger", "Limited Bronze Edition": "Limited Bronze Edition 7-Passenger" } }, // 7-Passenger is the only seating those trims come in
+    "2027|Ascent": { trimAliases: { Touring: "Touring 7-Passenger", "Onyx Edition Touring": "Onyx Edition Touring 7-Passenger", "Limited Bronze Edition": "Limited Bronze Edition 7-Passenger" } },
+    "2026|Uncharted": { trimAliases: { Premium: "Premium FWD" } }, // the only Premium trim
+    "2027|Uncharted": { trimAliases: { Premium: "Premium FWD" } },
+    "2026|Trailseeker": { trimAliases: { "Touring w/Leather": "Touring Leather" } }, // the only trim with Leather in its name
+    "2027|Trailseeker": { trimAliases: { "Touring w/Leather": "Touring Leather" } },
   },
 };

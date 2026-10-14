@@ -19,9 +19,9 @@ import { normalizeOptionKey, parseCsv, DISCLAIMER_PATTERNS } from "./lib/optionP
 import { ALIASES, BRAND_NOISE } from "./lib/optionPolicyAliases.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const BRANDS = ["cadillac", "honda", "kia", "hyundai", "audi", "bmw", "mercedes", "nissan"];
+const BRANDS = ["cadillac", "honda", "kia", "hyundai", "audi", "bmw", "mercedes", "subaru", "nissan"];
 // Hyundai (2025-27: Kona Electric and Ioniq 6 are 2025 rows in the CSV) lives in its own docs dir and policy file; the other three share the original ones.
-const DOCS_DIR = { hyundai: "hyundai-2025-2027", audi: "option-catalogs-2026-10-12", bmw: "option-catalogs-2026-10-12", mercedes: "option-catalogs-2026-10-12", nissan: "option-catalogs-2026-10-14" };
+const DOCS_DIR = { hyundai: "hyundai-2025-2027", audi: "option-catalogs-2026-10-12", bmw: "option-catalogs-2026-10-12", mercedes: "option-catalogs-2026-10-12", subaru: "option-catalogs-2026-10-14", nissan: "option-catalogs-2026-10-14" };
 const YEARS = { hyundai: "2025-2027" };
 const docsDir = (b) => DOCS_DIR[b] || "cadillac-honda-kia-2026-2027";
 const csvPath = (b) => path.join(root, `docs/${docsDir(b)}/${b}_lineup_options_by_trim.csv`);
@@ -38,9 +38,10 @@ const EXPECTED_MODELS = {
   bmw: ["2 Series Coupe", "2 Series Gran Coupe", "3 Series Sedan", "4 Series Convertible", "4 Series Coupe", "4 Series Gran Coupe", "5 Series Sedan", "7 Series Sedan", "M2 Coupe", "M3 Sedan", "M4 Convertible", "M4 Coupe", "M5 Sedan", "M5 Touring", "X1", "X2", "X3", "X5", "X6", "X7", "XM", "i3 Sedan", "i5 Sedan", "i7 Sedan", "iX3"],
   mercedes: ["C-Class Sedan", "CLA Sedan", "CLE Cabriolet", "CLE Coupe", "E-Class Sedan", "E-Class Wagon", "EQE SUV", "EQS SUV", "EQS Sedan", "G-Class SUV", "GLA SUV", "GLB SUV", "GLC Coupe", "GLC Electric SUV", "GLC SUV", "GLE Coupe", "GLE SUV", "GLS SUV", "Mercedes-AMG GT 2-door Coupe", "Mercedes-AMG GT 4-door Coupe", "Mercedes-Maybach GLS SUV", "Mercedes-Maybach S-Class Sedan", "Mercedes-Maybach SL Roadster", "S-Class Sedan", "SL Roadster"],
   nissan: ["Altima", "Armada", "Frontier", "Kicks", "LEAF", "Murano", "Pathfinder", "Rogue", "Rogue Plug-in Hybrid", "Sentra", "Z"],
+  subaru: ["Ascent", "BRZ", "Crosstrek", "Forester", "Impreza", "Outback", "Solterra", "Trailseeker", "Uncharted", "WRX"],
   hyundai: ["Elantra", "Elantra Hybrid", "Elantra N", "Ioniq 5", "Ioniq 5 N", "Ioniq 6", "Ioniq 9", "Kona", "Kona Electric", "Palisade", "Palisade Hybrid", "Santa Cruz", "Santa Fe", "Santa Fe Hybrid", "Sonata", "Tucson", "Tucson Hybrid", "Tucson Plug-in Hybrid", "Venue"],
 };
-const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia", hyundai: "hyundai", audi: "audi", bmw: "bmw", mercedes: "mercedes-benz", nissan: "nissan" };
+const MAKE = { cadillac: "cadillac", honda: "honda", kia: "kia", hyundai: "hyundai", audi: "audi", bmw: "bmw", mercedes: "mercedes-benz", subaru: "subaru", nissan: "nissan" };
 
 // Trim words that describe the body / drivetrain, not the trim. Cab, bed and drivetrain are configuration choices; status words say where the car is in
 // its life. No trim aliases are approved for these makes: a trim the CSV does not list (e.g. an EV trim without its range suffix) is untrusted -> no options.
@@ -67,7 +68,7 @@ const GM_PRODUCT_PHRASES = [
   "brush\\s*guard", "grille\\s*guard", "push\\s*bar", "fender\\s*flares?", "spare\\s*tire\\s*cover", "key\\s*(?:fob\\s+)?cover", "license\\s*plate\\s*(?:frame|bracket)", "emblem\\s*overlays?", "hood\\s*graphics",
 ];
 const addonPatterns = (brand) => {
-  const around = brand === "hyundai" ? "(?:hyundai|genesis|genuine|dealer|port|installed|aftermarket)" : brand === "audi" ? "(?:audi|vw|volkswagen|genuine|dealer|port|installed|aftermarket)" : brand === "bmw" ? "(?:bmw|mini|genuine|dealer|port|installed|aftermarket)" : brand === "mercedes" ? "(?:mercedes|mercedes-benz|benz|amg|genuine|dealer|port|installed|aftermarket)" : brand === "nissan" ? "(?:nissan|infiniti|genuine|dealer|port|installed|aftermarket)" : "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
+  const around = brand === "hyundai" ? "(?:hyundai|genesis|genuine|dealer|port|installed|aftermarket)" : brand === "audi" ? "(?:audi|vw|volkswagen|genuine|dealer|port|installed|aftermarket)" : brand === "bmw" ? "(?:bmw|mini|genuine|dealer|port|installed|aftermarket)" : brand === "mercedes" ? "(?:mercedes|mercedes-benz|benz|amg|genuine|dealer|port|installed|aftermarket)" : brand === "nissan" ? "(?:nissan|infiniti|genuine|dealer|port|installed|aftermarket)" : brand === "subaru" ? "(?:subaru|genuine|dealer|port|installed|aftermarket)" : "(?:cadillac|honda|acura|kia|genuine|dealer|port|installed|aftermarket)";
   return GM_PRODUCT_PHRASES.map((p) => `^(?:${around}\\s+)*(?:${p})(?:\\s+(?:set|kit|package|pkg|pair|installed))*$`);
 };
 
