@@ -125,5 +125,17 @@ export const ALIASES = {
     "2026|Z": { trimAliases: { "Heritage Edition": "Heritage Edition (Z32 Midnight Purple)" } }, // the only Heritage trim
     "2027|Armada": { trimAliases: { "PRO-4X": "PRO-4X Premium" } }, // the only PRO-4X trim in 2027
     "2026|Rogue Plug-in Hybrid": { noisePhrases: ["plug in hybrid", "phev", "sport utility 4d"] }, // "Platinum PLUG IN HYBRID", "SL Sport Utility 4D"
+    // Frontier (ruling 2026-10-14). The site's trims carry the cab and bed; a feed that says just "SV" / "PRO-4X" / "PRO-X" means the Crew Cab (the short-bed Crew Cab and
+    // its Long Bed twin carry the same paid options except one 2027 SV package; PRO-X exists only as a Crew Cab). Spelling, drivetrain-suffix and package-in-trim variants
+    // ("Pro 4x", "SV 4WD Automatic", "PRO-4X w/R Package", "...R by Roush", "w/Wheel & Tire Package") resolve the same way. The truncated "Long" of an SV / PRO-4X
+    // ("Crew Cab SV Long": "Crew Cab" is a noise phrase, so the key is "sv long") is the Long Bed. LEFT UNMAPPED on purpose: bare "S" (the site only has King Cab S), "Crew Cab S", "Crew Cab 4x4 Long", Dark Armor / Sport Edition without a cab, dealer text.
+    "2026|Frontier": {
+      trimAliases: { SV: "Crew Cab SV", "PRO-4X": "Crew Cab PRO-4X", "PRO-X": "Crew Cab PRO-X", "SV Long": "Crew Cab SV Long Bed", "PRO-4X Long": "Crew Cab PRO-4X Long Bed" },
+      noise: ["r"], noisePhrases: ["w r package", "wr package", "w wheel tire package", "r by roush", "by r roush"],
+    },
+    "2027|Frontier": {
+      trimAliases: { SV: "Crew Cab SV", "PRO-4X": "Crew Cab PRO-4X", "PRO-X": "Crew Cab PRO-X", "SV Long": "Crew Cab SV Long Bed", "PRO-4X Long": "Crew Cab PRO-4X Long Bed" },
+      noise: ["r"], noisePhrases: ["w r package", "wr package", "w wheel tire package", "r by roush", "by r roush"],
+    },
   },
 };

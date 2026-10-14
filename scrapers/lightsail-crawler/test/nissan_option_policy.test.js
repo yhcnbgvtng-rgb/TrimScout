@@ -158,10 +158,21 @@ describe('exact trim aliases (every feed string is a real one from the 2026-10-1
     ok(2026, 'Z', 'HERITAGE EDITION', 'Heritage Edition (Z32 Midnight Purple)'); ok(2027, 'Armada', 'PRO-4X', 'PRO-4X Premium');
     ok(2026, 'Rogue Plug-in Hybrid', 'Platinum PLUG IN HYBRID', 'Platinum'); ok(2026, 'Rogue Plug-in Hybrid', 'SL Sport Utility 4D', 'SL');
   });
-  it('ambiguous or unknown trims stay untrusted: Frontier SV / S / PRO-4X (Crew, King, Long Bed), trims not on the site, blanks, dealer text', () => {
-    for (const y of [2026, 2027]) for (const t of ['SV', 'S', 'PRO-4X', 'Sv', 'PRO 4X', 'Pro 4x', 'PRO-X']) bad(y, 'Frontier', t);
+  it('ambiguous or unknown trims stay untrusted: Frontier bare S, Crew Cab S, Crew Cab 4x4 Long (no cab or bed to choose), trims not on the site, blanks, dealer text', () => {
+    for (const y of [2026, 2027]) for (const t of ['S', 'Crew Cab S', 'Crew Cab S 4x4', 'S Crew Cab 4x2', 'Crew Cab 4x4 S', 'Crew Cab 4x4 Long', 'Dark Armor', 'Sport Edition', 'PRO4X Truck Wilsonville OR', 'SV Truck Wilsonville OR', '', null]) bad(y, 'Frontier', t);
     bad(2026, 'Rogue', 'SL'); bad(2027, 'Murano', 'SV'); bad(2026, 'Pathfinder', 'S'); bad(2026, 'Rogue', 'Base');
     bad(2026, 'Rogue', ''); bad(2026, 'Rogue', null); bad(2026, 'Rogue', 'Platinum SUV Wilsonville OR'); bad(2026, 'Rogue', '20265 Awd Platinum'); bad(2027, 'Sentra', 'S S Sedan Regular');
+  });
+  it('Frontier (ruling 2026-10-14): SV / PRO-4X / PRO-X and their spelling, drivetrain-suffix and package-in-trim variants map to the Crew Cab trim', () => {
+    for (const y of [2026, 2027]) {
+      for (const t of ['SV', 'Sv', 'SV 4WD Automatic']) ok(y, 'Frontier', t, 'Crew Cab SV');
+      for (const t of ['PRO-4X', 'PRO 4X', 'Pro 4x', 'PRO-4X 4WD Automatic', 'PRO-4X w/R Package', 'PRO 4X Wr Package', 'PRO-4X R', 'Crew Cab PRO-4X® R', 'Crew Cab PRO-4X R', 'Crew_cab_pro 4x®_r_by_roush®', 'Pro 4x_by_r_roush', 'PRO-4X w/Wheel & Tire Package']) ok(y, 'Frontier', t, 'Crew Cab PRO-4X');
+      for (const t of ['PRO-X', 'PRO X', 'Pro X']) ok(y, 'Frontier', t, 'Crew Cab PRO-X');
+      ok(y, 'Frontier', 'Crew Cab SV Long', 'Crew Cab SV Long Bed'); ok(y, 'Frontier', 'Crew Cab PRO-4X® Long', 'Crew Cab PRO-4X Long Bed'); ok(y, 'Frontier', 'Crew Cab PRO-4X Long', 'Crew Cab PRO-4X Long Bed');
+    }
+  });
+  it('Frontier: the trims that already resolved still resolve to themselves (no re-pointing)', () => {
+    for (const y of [2026, 2027]) { ok(y, 'Frontier', 'Crew Cab SV', 'Crew Cab SV'); ok(y, 'Frontier', 'SV Crew Cab 4x4', 'Crew Cab SV'); ok(y, 'Frontier', 'Crew Cab SV Long Bed', 'Crew Cab SV Long Bed'); ok(y, 'Frontier', 'King Cab S', 'King Cab S'); ok(y, 'Frontier', 'S King Cab 4x2', 'King Cab S'); }
   });
   it('an alias never maps one model year to another', () => {
     assert.equal(resolve(2027, 'LEAF', 'SV&#x2B').scope, null);

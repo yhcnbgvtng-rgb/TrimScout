@@ -34,6 +34,7 @@ Not covered (untouched): every other Nissan model and every other model year. Ex
 | Year | CSV model | Trim aliases | Model + trim pairs | Extra noise phrases |
 |---|---|---|---|---|
 | 2026 | Altima | 4 | 0 | 0 |
+| 2026 | Frontier | 5 | 0 | 5 |
 | 2026 | Kicks | 0 | 0 | 4 |
 | 2026 | LEAF | 0 | 0 | 0 |
 | 2026 | Rogue Plug-in Hybrid | 0 | 0 | 3 |
@@ -41,6 +42,7 @@ Not covered (untouched): every other Nissan model and every other model year. Ex
 | 2026 | Sentra | 0 | 0 | 1 |
 | 2026 | Z | 1 | 0 | 0 |
 | 2027 | Armada | 1 | 0 | 0 |
+| 2027 | Frontier | 5 | 0 | 5 |
 | 2027 | Kicks | 0 | 0 | 4 |
 | 2027 | Rogue | 1 | 0 | 1 |
 | 2027 | Sentra | 0 | 0 | 1 |
