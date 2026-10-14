@@ -2482,7 +2482,8 @@ async function handleInventoryBulk(req, res) {
       // rewritten. Measured 2026-09-30: ~284k vehicles / 3.7M facet rows per box per night were being deleted and
       // re-inserted unchanged — see inventoryOptionsDiff.js. The rewrite itself is unchanged.
       let toReplace = desired;
-      if (OPTIONS_DIFF_WRITE) {
+      // `desired` is empty when every vehicle in the chunk was skipped (untrusted / blank trim): nothing to compare, and an empty list would build `WHERE ` with no condition (a 500).
+      if (OPTIONS_DIFF_WRITE && desired.length) {
         const tRead = performance.now();
         const existing = await selectExistingOptionRows(pool, desired);
         timings.optionsReadMs += performance.now() - tRead;
