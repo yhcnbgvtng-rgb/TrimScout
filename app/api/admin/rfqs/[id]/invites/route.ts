@@ -6,7 +6,8 @@ import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { rfqIsReleased } from "@/lib/rfq";
-import { queueInvite, resolveInviteDesk } from "@/lib/inviteDesk";
+import { queueInvite, resolveAdminInviteDesk } from "@/lib/inviteDesk";
+import { isPlausibleDealerEmail } from "@/lib/emailShape";
 import { inviteRouting } from "@/lib/quotePackage";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,11 +18,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const dealerName = typeof body?.dealerName === "string" ? body.dealerName.trim() : "";
   const dealerState = typeof body?.dealerState === "string" ? body.dealerState.trim() : "";
   if (!dealerName) return NextResponse.json({ error: "A dealer name is required." }, { status: 400 });
+  if (!/^[A-Za-z]{2}$/.test(dealerState)) return NextResponse.json({ error: "A 2-letter dealer state is required." }, { status: 400 });
+  const providedEmail = typeof body?.providedEmail === "string" ? body.providedEmail.trim() : "";
+  if (providedEmail && !isPlausibleDealerEmail(providedEmail)) return NextResponse.json({ error: "That email address doesn't look valid." }, { status: 400 });
   try {
     const rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
     if (rfqIsReleased(rfq)) return NextResponse.json({ error: "This request has already been released to dealers." }, { status: 409 });
-    const resolved = await resolveInviteDesk(rfq, { dealerName, dealerState, providedEmail: typeof body?.providedEmail === "string" ? body.providedEmail : null });
+    const resolved = await resolveAdminInviteDesk(rfq, { dealerName, dealerState, providedEmail: providedEmail || null });
     if (!resolved.ok) return NextResponse.json({ error: resolved.error, code: resolved.code }, { status: resolved.status });
     const queued = await queueInvite(rfq, dealerName, resolved.desk);
     if (!queued.ok) return NextResponse.json({ error: queued.error, code: queued.code }, { status: queued.status });

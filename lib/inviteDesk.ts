@@ -50,6 +50,35 @@ export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: st
   return { ok: true, desk };
 }
 
+/**
+ * Admin add-dealer desk. Unlike the buyer's flow, a typed email is honoured on
+ * every package kind and when the directory has none on file; the admin may
+ * use a shared mailbox (shape-checked only). Opt-out, sister-store and
+ * already-invited checks still apply. Returns the desk (email may be "").
+ */
+export async function resolveAdminInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; providedEmail?: string | null }, directoryOverride?: Awaited<ReturnType<typeof listDealerships>>): Promise<InviteDeskOutcome> {
+  const dealerName = input.dealerName.trim();
+  const dealerState = (input.dealerState || "").trim().toUpperCase();
+  const typed = (input.providedEmail || "").trim().toLowerCase();
+  const directory = directoryOverride ?? (await listDealerships().catch(() => []));
+  const row = matchDirectoryDealership(directory, { dealerName, state: dealerState });
+  if (row?.emailOptOut) return { ok: false, code: "dealer_opted_out", error: INVITE_BLOCK_MESSAGES.dealer_opted_out, status: 422 };
+  const base = row ? deskFromDealership(row) : null;
+  let desk: DealerDesk;
+  if (typed) {
+    desk = deskFromBuyerEmail(dealerName, dealerState, typed) || { dealerName, dealerState: dealerState || null, contactName: "Sales desk", role: "sales", email: typed, emailDomain: typed.split("@")[1] || "", source: "rooftop", knownNamed: false, emailOptOut: false };
+  } else {
+    desk = base?.knownNamed ? base : row ? deskFromRooftop(row) : { dealerName, dealerState: dealerState || null, contactName: "Sales desk", role: "sales", email: "", emailDomain: "", source: "rooftop", knownNamed: false, emailOptOut: false };
+  }
+  const existingDesks = rfq.invites
+    .filter((i) => i.status !== "declined" && i.status !== "expired")
+    .map((i) => (i.dealerContactEmail ? ({ emailDomain: i.dealerContactEmail.split("@")[1] || "" } as DealerDesk) : null));
+  if (sisterStoreConflicts([...existingDesks, desk]).has(existingDesks.length)) {
+    return { ok: false, code: "sister_store", error: INVITE_BLOCK_MESSAGES.sister_store, status: 422 };
+  }
+  return { ok: true, desk };
+}
+
 /** The vehicle this desk quotes, from the package's own pastes (or the request's headline car). */
 export function inviteVehicleFor(rfq: RfqRequest, dealerName: string) {
   const paste = (rfq.linkPastes || []).find((p) => typeof p.dealerName === "string" && p.dealerName.trim().toLowerCase() === dealerName.trim().toLowerCase()) as Record<string, unknown> | undefined;
