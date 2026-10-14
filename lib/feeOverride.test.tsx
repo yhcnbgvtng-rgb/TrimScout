@@ -187,7 +187,7 @@ describe("wiring", () => {
   });
   it("the dealer form: Edit + a required reason on tax and title & registration only; the doc fee row has none", () => {
     const f = read("components/UsedQuoteForm.tsx");
-    assert.match(f, /data-testid=\{`fee-edit-\$\{k\}`\}/);
+    assert.doesNotMatch(f, /fee-edit-/, "no Edit buttons: both fees are live fields");
     assert.match(f, /data-testid=\{`fee-reason-\$\{k\}`\}/);
     assert.match(f, /list === fees && standing \? overridableKey\(it\.name\) : null/);
     assert.match(f, /feeOverrides: feeCheck\.overrides/);
@@ -199,13 +199,11 @@ describe("wiring", () => {
 describe("the dealer's sheet", () => {
   const prefs = { quoteType: "cash", cash: { zip: ZIP, timeline: null } } as const;
   const form = (initial: UsedCashQuote) => renderToStaticMarkup(<UsedQuoteForm token="tok12345678" vin="V" stockNumber={null} prefs={prefs} buyerMiles={null} initial={initial} onSubmitted={() => {}} />);
-  it("shows TrimScout's amount: Edit on sales tax only, title & registration is directly editable, and the doc fee has none", () => {
+  it("shows TrimScout's amount: sales tax and title & registration are directly editable, and the doc fee has no override", () => {
     const html = form(cash());
-    assert.match(html, /data-testid="fee-edit-sales_tax"/);
-    assert.doesNotMatch(html, /data-testid="fee-edit-title_registration"/, "title & registration is directly editable — no Edit button");
-    assert.equal((html.match(/data-testid="fee-edit-/g) || []).length, 1, "only sales tax keeps an Edit button — the doc fee has none");
+    assert.doesNotMatch(html, /data-testid="fee-edit-/, "sales tax and title & registration are directly editable — no Edit buttons, and the doc fee never had one");
     assert.doesNotMatch(html, /fee-reason-/, "no reason box until the dealer taps Edit");
-    assert.match(html, /value="2,650.00"/, "TrimScout's calculated tax");
+    assert.match(html, /data-testid="fee-amount-sales_tax"[^>]*value="2,650"/, "TrimScout's calculated tax");
     assert.match(html, /data-testid="fee-amount-title_registration"[^>]*value="660"/, "title & registration pre-filled with TrimScout's estimate");
   });
   it("title & registration is a live, pre-filled field with a state-estimate hint and no reason box until the amount changes", () => {
@@ -224,6 +222,13 @@ describe("the dealer's sheet", () => {
     assert.match(flag, /Dealer adjusted/);
     assert.match(flag, /data-testid="adjusted-original">\$660</);
     assert.match(flag, /data-testid="adjusted-new">\$700</);
+  });
+  it("sales tax is a live, pre-filled field with a state-estimate hint and no reason box until the amount changes", () => {
+    const html = form(cash());
+    assert.match(html, /data-testid="fee-amount-sales_tax"[^>]*value="2,650"/);
+    assert.doesNotMatch(html, /aria-label="Sales tax amount \(calculated by TrimScout\)"/, "not the read-only variant");
+    assert.match(html, /data-testid="tax-estimate-hint">TrimScout estimate for NJ: \$2,650</);
+    assert.doesNotMatch(html, /fee-override-sales_tax/);
   });
   it("typing the estimate back is not an override (nothing submitted)", () => {
     const f = read("components/UsedQuoteForm.tsx");
