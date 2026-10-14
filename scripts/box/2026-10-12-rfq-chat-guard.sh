@@ -32,7 +32,7 @@ if [ "${TEST_ONLY:-0}" != "1" ]; then
   for m in identityFilter.js rfqMessages.js; do sudo cp "$DIR/$m" "$DIR/$m.bak.$STAMP"; done
   echo "backup: $FILE.bak.$STAMP (and identityFilter.js / rfqMessages.js .bak.$STAMP)"
   for m in identityFilter.js rfqChatGuard.js rfqMessages.js rfqChatAdmin.js; do
-    tmp=$(mktemp); curl -fsSL -o "$tmp" "$SRC_BASE/$m"; node --check "$tmp"
+    tmp=$(mktemp --suffix=.js); curl -fsSL -o "$tmp" "$SRC_BASE/$m"; node --check "$tmp"
     sudo install -m 0644 "$tmp" "$DIR/$m"; rm -f "$tmp"; echo "installed $DIR/$m"
   done
 fi
