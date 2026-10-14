@@ -9,9 +9,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyFacetRows } from '../src/factoryOptionAllowlist.js';
+import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyFacetRows, resolvePolicyTrim } from '../src/factoryOptionAllowlist.js';
 import { parseCsv } from '../../../scripts/lib/optionPolicyCommon.mjs';
 import { normalizeOptionKey } from '../src/inventoryOptionRows.js';
+import { ALIASES } from '../../../scripts/lib/optionPolicyAliases.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, '../../..');
@@ -132,3 +133,43 @@ describe('Nissan specifics', () => {
     for (const trim of ['', 'Nope']) assert.deepEqual(policyFacetRows(ALLOW, { make: 'Nissan', model: p.models[0], year: yr, trim }, [{ name: 'Cold Weather Package' }]), { skip: true });
   });
 });
+
+describe('exact trim aliases (every feed string is a real one from the 2026-10-14 box2 read-only dry run)', () => {
+  const resolve = (year, model, trim) => {
+    const v = { make: 'Nissan', year, model, trim };
+    const ps = modelPoliciesFor(ALLOW, v);
+    if (!ps.length) return { scope: null, trim: null };
+    for (const p of ps) { const hit = resolvePolicyTrim(p, trim, model); if (hit) return { scope: p.scope, trim: hit.trim.label }; }
+    return { scope: ps[0].scope, trim: null };
+  };
+  const ok = (year, model, feed, want) => { const r = resolve(year, model, feed); assert.ok(r.scope, `${year} ${model} covered`); assert.equal(r.trim, want, `${year} ${model} | ${feed}`); };
+  const bad = (year, model, feed) => { const r = resolve(year, model, feed); assert.ok(r.scope, `${year} ${model} covered`); assert.equal(r.trim, null, `${year} ${model} | ${feed} must stay untrusted`); };
+  it('transmission, drivetrain, body, "Ltd Avail" and warranty words are noise', () => {
+    ok(2026, 'Murano', 'SL AWD Automatic', 'SL'); ok(2026, 'Murano', 'Awd Sl Ltd Avail', 'SL'); ok(2026, 'Pathfinder', 'SL 4WD Automatic', 'SL');
+    ok(2027, 'Rogue', 'Dark Armor AWD CVT', 'Dark Armor'); ok(2027, 'Rogue', 'Dark Armor All Wheel', 'Dark Armor'); ok(2027, 'Sentra', 'SV Sedan', 'SV'); ok(2027, 'Sentra', 'SV FWD CVT', 'SV');
+    ok(2026, 'Armada', '4x4 SV Ltd Avail', 'SV'); ok(2027, 'Kicks', 'S w/ Lifetime Powertrain', 'S'); ok(2027, 'Z', 'Performance Auto', 'Performance'); ok(2027, 'Z', 'Sport Manual', 'Sport'); ok(2027, 'Z', 'Performance M T', 'Performance');
+  });
+  it('package names written into the trim: Rogue / Kicks / Sentra', () => {
+    ok(2026, 'Rogue', 'SV Cold Weather Package', 'SV'); ok(2026, 'Kicks', 'SV AWD Premium Package', 'SV'); ok(2026, 'Kicks', 'SR AWD Cold Weather', 'SR'); ok(2026, 'Kicks', 'SR PREMIUM', 'SR'); ok(2026, 'Sentra', 'SR Premium Package', 'SR');
+  });
+  it('spelling variants of one trim', () => {
+    ok(2026, 'Rogue', 'Darkarmor', 'Dark Armor'); ok(2026, 'Altima', '2.5 SV', 'SV'); ok(2026, 'Altima', '25 SR', 'SR');
+    ok(2026, 'LEAF', 'SV&#x2B', 'SV+'); ok(2026, 'LEAF', 'PLATINUM&#x2B', 'Platinum+'); ok(2026, 'LEAF', 'SV&#x2B FWD Automatic', 'SV+');
+    ok(2026, 'Z', 'HERITAGE EDITION', 'Heritage Edition (Z32 Midnight Purple)'); ok(2027, 'Armada', 'PRO-4X', 'PRO-4X Premium');
+    ok(2026, 'Rogue Plug-in Hybrid', 'Platinum PLUG IN HYBRID', 'Platinum'); ok(2026, 'Rogue Plug-in Hybrid', 'SL Sport Utility 4D', 'SL');
+  });
+  it('ambiguous or unknown trims stay untrusted: Frontier SV / S / PRO-4X (Crew, King, Long Bed), trims not on the site, blanks, dealer text', () => {
+    for (const y of [2026, 2027]) for (const t of ['SV', 'S', 'PRO-4X', 'Sv', 'PRO 4X', 'Pro 4x', 'PRO-X']) bad(y, 'Frontier', t);
+    bad(2026, 'Rogue', 'SL'); bad(2027, 'Murano', 'SV'); bad(2026, 'Pathfinder', 'S'); bad(2026, 'Rogue', 'Base');
+    bad(2026, 'Rogue', ''); bad(2026, 'Rogue', null); bad(2026, 'Rogue', 'Platinum SUV Wilsonville OR'); bad(2026, 'Rogue', '20265 Awd Platinum'); bad(2027, 'Sentra', 'S S Sedan Regular');
+  });
+  it('an alias never maps one model year to another', () => {
+    assert.equal(resolve(2027, 'LEAF', 'SV&#x2B').scope, null);
+    assert.equal(resolve(2027, 'Altima', '2.5 SV').scope, null);
+    assert.equal(resolve(2026, 'Armada', 'PRO-4X').trim, 'PRO-4X');
+  });
+  it('every alias key in the table is a scope the policy really has', () => {
+    for (const k of Object.keys(ALIASES.nissan)) assert.ok(RAW[`nissan|${slug(k.split('|')[1])}|${k.split('|')[0]}`], k);
+  });
+});
+
