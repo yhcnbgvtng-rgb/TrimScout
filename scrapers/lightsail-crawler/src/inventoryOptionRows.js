@@ -101,6 +101,9 @@ const MENTIONS_MILEAGE = /\bmiles?\b/i;
 // a dictionary, so those are left as a known, accepted residual — same trade-off this file already
 // documents elsewhere for low-confidence cases.
 const LONG_CAPS_RUN_GLUED_ON = /[a-z][A-Z]{4,}/;
+// The one exact brand spelling that trips the rule above on its own: Nissan's "ProPILOT" (a lowercase "o" then PILOT). It is blanked before the test, so
+// "ProPILOT Assist 2.1 Package" is a normal option name, while "ProPILOT AssistEXTERIOR20" (a real glued header) still matches.
+const PROPILOT = /ProPILOT/g;
 
 // The rules below were added 2026-10-01. Each is written so it means the same thing on a raw label
 // and on its normalized canonical_key (lowercased, punctuation collapsed to single spaces), so the
@@ -238,7 +241,7 @@ export function looksLikeLegacyNonOptionText(label) {
     BARE_DATE.test(trimmed) ||
     BARE_NUMBER_OR_CURRENCY.test(trimmed) ||
     MENTIONS_MILEAGE.test(label) ||
-    LONG_CAPS_RUN_GLUED_ON.test(label) ||
+    LONG_CAPS_RUN_GLUED_ON.test(label.replace(PROPILOT, "ProPilot")) ||
     looksLikeFragmentOrBoilerplate(unbulleted)
   );
 }

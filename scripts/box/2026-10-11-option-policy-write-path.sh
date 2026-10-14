@@ -28,7 +28,10 @@ fetch factoryOptionAllowlist.js "$TMP/factoryOptionAllowlist.js"
 fetch inventoryOptionRows.js "$TMP/inventoryOptionRows.js"
 for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027; do fetch "optionPolicies/$p.json" "$TMP/optionPolicies/$p.json"; done
 grep -q "export function policyFacetRows" "$TMP/factoryOptionAllowlist.js" || { echo "ERROR: fetched factoryOptionAllowlist.js lacks policyFacetRows (stale copy? merge not live yet?)" >&2; exit 1; }
-cmp -s "$TMP/inventoryOptionRows.js" "$DIR/inventoryOptionRows.js" || { echo "ERROR: $DIR/inventoryOptionRows.js differs from the repo copy; the new allowlist file imports optionRowsFromOptions from it. Stop and compare." >&2; exit 1; }
+# inventoryOptionRows.js is normally identical to the repo. When it differs (the ProPILOT carve-out in the glued-caps rule) it is installed with the rest, with a .bak; the
+# check below runs against the NEW copy. Anything else still has to be compared by hand, so only the files named here may differ.
+INV_CHANGED=0; cmp -s "$TMP/inventoryOptionRows.js" "$DIR/inventoryOptionRows.js" || INV_CHANGED=1
+if [ "$INV_CHANGED" = 1 ]; then grep -q "const PROPILOT" "$TMP/inventoryOptionRows.js" || { echo "ERROR: $DIR/inventoryOptionRows.js differs from the repo copy and the repo copy is not the ProPILOT carve-out; stop and compare." >&2; exit 1; }; echo "NOTE: inventoryOptionRows.js differs from the box copy; it will be installed (with a .bak)."; fi
 for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027; do node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$TMP/optionPolicies/$p.json"; done
 
 # Patch a COPY of deals_api_server.js first; only install if every anchor matched once and the syntax checks.
@@ -61,15 +64,16 @@ PY
 node --check "$TMP/deals_api_server.js"
 node --check "$TMP/factoryOptionAllowlist.js"
 # The new allowlist module must load against the box's own inventoryOptionRows.js (catches an import mismatch before anything is installed).
-mkdir -p "$TMP/chk" && cp "$DIR"/*.js "$TMP/chk/" && cp "$TMP/factoryOptionAllowlist.js" "$TMP/chk/" && cp -r "$TMP/optionPolicies" "$TMP/chk/" && echo '{"type":"module"}' > "$TMP/chk/package.json"
+mkdir -p "$TMP/chk" && cp "$DIR"/*.js "$TMP/chk/" && cp "$TMP/factoryOptionAllowlist.js" "$TMP/inventoryOptionRows.js" "$TMP/chk/" && cp -r "$TMP/optionPolicies" "$TMP/chk/" && echo '{"type":"module"}' > "$TMP/chk/package.json"
 (cd "$TMP/chk" && node --input-type=module -e 'const m=await import("./factoryOptionAllowlist.js"); const a=m.buildAllowlist(null,m.loadBundledModelPoliciesRaw()); if(!a.models.size) throw new Error("no policies loaded"); console.log("policy module loads:", a.models.size, "model-year scopes")')
 
 # Install (backups first).
 mkdir -p "$DIR/optionPolicies"
-for f in factoryOptionAllowlist.js deals_api_server.js; do cp -p "$DIR/$f" "$DIR/$f.bak.$TS"; done
+for f in factoryOptionAllowlist.js deals_api_server.js inventoryOptionRows.js; do cp -p "$DIR/$f" "$DIR/$f.bak.$TS"; done
 cp "$TMP/factoryOptionAllowlist.js" "$DIR/factoryOptionAllowlist.js"
+[ "$INV_CHANGED" = 1 ] && cp "$TMP/inventoryOptionRows.js" "$DIR/inventoryOptionRows.js"
 cp "$TMP/deals_api_server.js" "$DIR/deals_api_server.js"
 cp "$TMP"/optionPolicies/*.json "$DIR/optionPolicies/"
 echo "Installed. NOT restarted; policy is OFF until OPTION_MODEL_POLICY_PATH is set at the restart."
-echo "Rollback: cp -p $DIR/factoryOptionAllowlist.js.bak.$TS $DIR/factoryOptionAllowlist.js && cp -p $DIR/deals_api_server.js.bak.$TS $DIR/deals_api_server.js   (then restart only if it was already restarted)"
+echo "Rollback: cp -p $DIR/factoryOptionAllowlist.js.bak.$TS $DIR/factoryOptionAllowlist.js && cp -p $DIR/deals_api_server.js.bak.$TS $DIR/deals_api_server.js && cp -p $DIR/inventoryOptionRows.js.bak.$TS $DIR/inventoryOptionRows.js   (then restart only if it was already restarted)"
 rm -rf "$TMP"

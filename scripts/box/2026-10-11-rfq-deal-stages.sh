@@ -27,7 +27,7 @@ if [ "${TEST_ONLY:-0}" != "1" ]; then
   sudo cp "$FILE" "$FILE.bak.$STAMP"
   echo "backup: $FILE.bak.$STAMP"
   for m in dealStages.js rfqStages.js; do
-    tmp=$(mktemp); curl -fsSL -o "$tmp" "$SRC_BASE/$m"; node --check "$tmp"
+    tmp=$(mktemp --suffix=.js); curl -fsSL -o "$tmp" "$SRC_BASE/$m"; node --check "$tmp"
     sudo install -m 0644 "$tmp" "$DIR/$m"; rm -f "$tmp"; echo "installed $DIR/$m"
   done
 fi

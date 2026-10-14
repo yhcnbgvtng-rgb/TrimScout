@@ -3,7 +3,10 @@
 // real server at import time).
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { denyRuleFor, repairTruncatedLabel, normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey, splitOptionLabel } from '../src/inventoryOptionRows.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { denyRuleFor, repairTruncatedLabel, normalizeOptionKey, optionRowsFromOptions, payloadHasOptions, looksLikeJunkCanonicalKey, splitOptionLabel, looksLikeLegacyNonOptionText, looksLikeNonOptionText } from '../src/inventoryOptionRows.js';
 
 describe('optionRowsFromOptions', () => {
   it('canonicalizes by name and dedupes, keeping the first label/code seen', () => {
@@ -102,6 +105,16 @@ describe('optionRowsFromOptions', () => {
   // two real Monroney-sticker-style spec lines glued together with no separator. Only the LONG
   // (4+) all-caps-run shape is targeted; a bare single-capital transition ("RatioNormal",
   // "DisplayRadio") is a known, accepted residual — see LONG_CAPS_RUN_GLUED_ON's own comment.
+  it('keeps Nissan\'s ProPILOT Assist packages (the brand name alone is not a glued ALL-CAPS header), and still drops a header glued onto them', () => {
+    const names = ['SL ProPILOT Assist 2.1 Package', 'Platinum ProPILOT Assist 2.1 Package', 'Platinum Reserve ProPILOT Assist 2.1 Package', 'ProPILOT Assist', 'ProPILOT Assist with Navi-link'];
+    for (const name of names) {
+      assert.equal(looksLikeLegacyNonOptionText(name), false, name);
+      assert.equal(looksLikeNonOptionText(name), false, name);
+      assert.deepEqual(optionRowsFromOptions([{ name }]).rows.map((r) => r.label), [name]);
+    }
+    for (const name of ['ProPILOT AssistEXTERIOR20', 'Standard EquipmentMECHANICAL3', 'ProPILOT Assist 2.1 PackageSAFETY']) assert.equal(looksLikeLegacyNonOptionText(name), true, name);
+    assert.equal(looksLikeLegacyNonOptionText('Hill Hold ControlEXTERIOR20 x 8'), true);
+  });
   it('drops a real option glued to a following ALL-CAPS section header with no separator', () => {
     const { rows, junkDropped } = optionRowsFromOptions([
       { name: 'Standard EquipmentMECHANICAL3' },
@@ -544,3 +557,11 @@ describe('deny rules added 2026-10-08 — sentence fragments (real live strings)
     for (const ok of ['Sync 4', '10-Speed Automatic', 'Heated mirrors', 'Rear Cross Traffic Alert', 'Premium Package', '4WD', 'AWD', 'Apple CarPlay / Android Auto', '2 USB Data Ports', '20 Inch Aluminum Wheels', '6 Speaker Audio System Feature', 'Heated Driver & Front Passenger Seats', 'Remote Vehicle Starter System', 'Wi-Fi Hot Spot Capable', 'Dual Rear USB Ports (Charge Only)', 'Teen Driver', 'Panoramic Moonroof', 'Black Cloth', 'Siri', 'Unlock', 'Driver Information Center', 'Toyota Safety Sense (TSS) 3']) assert.equal(denyRuleFor(ok), null, ok);
   });
 });
+
+describe('the box install script ships the ProPILOT carve-out', () => {
+  it('2026-10-11-option-policy-write-path.sh installs a changed inventoryOptionRows.js (with a .bak) only when it is the ProPILOT carve-out', () => {
+    const sh = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../scripts/box/2026-10-11-option-policy-write-path.sh'), 'utf8');
+    assert.ok(sh.includes('INV_CHANGED') && sh.includes('const PROPILOT') && sh.includes('inventoryOptionRows.js.bak.$TS'));
+  });
+});
+
