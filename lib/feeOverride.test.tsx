@@ -199,14 +199,35 @@ describe("wiring", () => {
 describe("the dealer's sheet", () => {
   const prefs = { quoteType: "cash", cash: { zip: ZIP, timeline: null } } as const;
   const form = (initial: UsedCashQuote) => renderToStaticMarkup(<UsedQuoteForm token="tok12345678" vin="V" stockNumber={null} prefs={prefs} buyerMiles={null} initial={initial} onSubmitted={() => {}} />);
-  it("shows TrimScout's amount with Edit on sales tax and title & registration, and no Edit on the doc fee", () => {
+  it("shows TrimScout's amount: Edit on sales tax only, title & registration is directly editable, and the doc fee has none", () => {
     const html = form(cash());
     assert.match(html, /data-testid="fee-edit-sales_tax"/);
-    assert.match(html, /data-testid="fee-edit-title_registration"/);
-    assert.equal((html.match(/data-testid="fee-edit-/g) || []).length, 2, "exactly two Edit buttons — the doc fee has none");
+    assert.doesNotMatch(html, /data-testid="fee-edit-title_registration"/, "title & registration is directly editable — no Edit button");
+    assert.equal((html.match(/data-testid="fee-edit-/g) || []).length, 1, "only sales tax keeps an Edit button — the doc fee has none");
     assert.doesNotMatch(html, /fee-reason-/, "no reason box until the dealer taps Edit");
     assert.match(html, /value="2,650.00"/, "TrimScout's calculated tax");
-    assert.match(html, /value="660.00"/, "TrimScout's calculated title & registration");
+    assert.match(html, /data-testid="fee-amount-title_registration"[^>]*value="660"/, "title & registration pre-filled with TrimScout's estimate");
+  });
+  it("title & registration is a live, pre-filled field with a state-estimate hint and no reason box until the amount changes", () => {
+    const html = form(cash());
+    assert.match(html, /data-testid="fee-amount-title_registration"[^>]*/);
+    assert.doesNotMatch(html, /aria-label="Title &amp; registration amount \(calculated by TrimScout\)"/, "not the read-only variant");
+    assert.match(html, /data-testid="title-estimate-hint">TrimScout estimate for NJ: \$660</);
+    assert.doesNotMatch(html, /fee-override-title_registration/);
+  });
+  it("a changed title & registration amount opens with its reason, and the buyer's flag shows the estimate beside the dealer's number", () => {
+    const ov = norm(lines(CALC_TAX, 799, 700), [{ key: "title_registration", reason: "plate transfer" }]).overrides;
+    const html = form(cash({ dueAtSigning: lines(CALC_TAX, 799, 700), feeOverrides: ov }));
+    assert.match(html, /data-testid="fee-override-title_registration"/);
+    assert.match(html, /value="plate transfer"/);
+    const flag = renderToStaticMarkup(<DealerAdjustedFlag overrides={ov} />);
+    assert.match(flag, /Dealer adjusted/);
+    assert.match(flag, /data-testid="adjusted-original">\$660</);
+    assert.match(flag, /data-testid="adjusted-new">\$700</);
+  });
+  it("typing the estimate back is not an override (nothing submitted)", () => {
+    const f = read("components/UsedQuoteForm.tsx");
+    assert.match(f, /editing\[k\] && \(calcs\[k\] == null \|\| Math\.abs/);
   });
   it("a revision that already differs from TrimScout opens with the earlier reason in place", () => {
     const ov = norm(lines(2750), [{ key: "sales_tax", reason: "county rate 6.875%" }]).overrides;

@@ -5,7 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { CREDIT_BAND_LABELS, FINANCE_TERMS, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
-import { counterPriceChanged, TAX_PROMPT_COPY, type CounterSheet } from "../lib/counterSheet";
+import { counterPriceChanged, TAX_PROMPT_COPY, zipStateTax, type CounterSheet } from "../lib/counterSheet";
 import { TaxUpdatePrompt } from "./TaxUpdatePrompt";
 import { calcFee, normalizeFeeOverrides, OVERRIDE_LABELS, OVERRIDE_REASON_MAX, overridableKey, type FeeOverride, type OverridableFee } from "../lib/feeOverride";
 
@@ -164,13 +164,13 @@ export function UsedQuoteForm({
       addOns: d.addOnLines,
       zip,
       submitted: (["sales_tax", "title_registration"] as const)
-        .filter((k) => editing[k])
+        .filter((k) => editing[k] && (calcs[k] == null || Math.abs((num(fees.find((x) => overridableKey(x.name) === k)?.amount ?? "") ?? NaN) - (calcs[k] as number)) >= 0.005))
         .map((k) => {
           const prior = initial?.feeOverrides?.find((o) => o.key === k);
           return { key: k, reason: reasons[k] || "", amount: prior?.amount, at: prior?.at };
         }),
     }),
-    [d.items, d.sellingPrice, d.addOnLines, zip, editing, reasons, initial]
+    [d.items, d.sellingPrice, d.addOnLines, zip, editing, reasons, initial, fees, calcs.sales_tax, calcs.title_registration]
   );
   const base = {
     sellingPrice: d.sellingPrice ?? undefined,
@@ -266,26 +266,33 @@ export function UsedQuoteForm({
   /** Sales tax / title & registration: TrimScout's amount with Edit; open, it takes the dealer's amount and a required reason. */
   const calcRow = (it: Item, i: number, k: OverridableFee) => {
     const calc = calcs[k] as number;
-    const open = Boolean(editing[k]);
-    const entered = num(it.amount);
-    const diff = open && entered != null ? Math.round((entered - calc) * 100) / 100 : 0;
+    // Title & registration is always a live field pre-filled with TrimScout's estimate (no Edit button); sales tax keeps Edit.
+    const inline = k === "title_registration";
+    const touched = Boolean(editing[k]);
+    const open = inline || touched;
+    const entered = touched ? num(it.amount) : calc;
+    const diff = entered != null ? Math.round((entered - calc) * 100) / 100 : 0;
+    const adjusted = open && Math.abs(diff) >= 0.005;
+    const shown = touched ? it.amount : String(calc);
+    const state = zipStateTax(zip)?.state;
     return (
-      <div key={i} className="space-y-1.5" data-testid={`fee-calc-${k}`} data-overridden={open && Math.abs(diff) >= 0.005 ? "true" : "false"}>
+      <div key={i} className="space-y-1.5" data-testid={`fee-calc-${k}`} data-overridden={adjusted ? "true" : "false"}>
         <div className="grid grid-cols-[1fr_140px_60px] items-center gap-2">
           <input type="text" value={it.name} readOnly aria-label="fee description" className={input} />
           <span className="relative block">
             <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
             {open ? (
-              <input type="text" inputMode="decimal" value={focused === `fee:${i}` ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")} onFocus={() => setFocused(`fee:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => setFees((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} aria-label={`${it.name} amount`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono`} />
+              <input type="text" inputMode="decimal" value={focused === `fee:${i}` ? shown : formatMoneyInput(shown).replace(/^\$/, "")} onFocus={() => setFocused(`fee:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => { const v = e.target.value; setFees((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x))); setEditing((p) => ({ ...p, [k]: true })); }} aria-label={`${it.name} amount`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono`} />
             ) : (
               <input type="text" readOnly value={calc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} aria-label={`${it.name} amount (calculated by TrimScout)`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono text-ink-light`} />
             )}
           </span>
-          {open ? <span /> : <button type="button" onClick={() => startEdit(k, i)} className="rounded-md border border-border px-2 py-1 text-[10px] font-bold text-brand-300 hover:bg-brand-500/10" data-testid={`fee-edit-${k}`}>Edit</button>}
+          {inline ? <span /> : open ? <span /> : <button type="button" onClick={() => startEdit(k, i)} className="rounded-md border border-border px-2 py-1 text-[10px] font-bold text-brand-300 hover:bg-brand-500/10" data-testid={`fee-edit-${k}`}>Edit</button>}
         </div>
-        {open ? (
+        {inline ? <p className={hintCls} data-testid="title-estimate-hint">TrimScout estimate{state ? ` for ${state}` : ""}: {money(calc, Number.isInteger(calc) ? 0 : 2)}</p> : null}
+        {open && (!inline || adjusted) ? (
           <div className="space-y-1 rounded-lg border border-amber-500/30 bg-amber-950/20 px-2.5 py-2" data-testid={`fee-override-${k}`}>
-            <p className="text-[10px] text-amber-100">TrimScout calculated <strong>{money(calc, 2)}</strong>{Math.abs(diff) >= 0.005 ? <> · your amount is <strong>{diff < 0 ? "−" : "+"}{money(Math.abs(diff), 2)}</strong> from that</> : null}. The buyer sees a &ldquo;Dealer adjusted&rdquo; flag with both amounts and your reason.</p>
+            <p className="text-[10px] text-amber-100">TrimScout calculated <strong>{money(calc, 2)}</strong>{adjusted ? <> · your amount is <strong>{diff < 0 ? "−" : "+"}{money(Math.abs(diff), 2)}</strong> from that</> : null}. The buyer sees a &ldquo;Dealer adjusted&rdquo; flag with both amounts and your reason.</p>
             <label className="block space-y-0.5">
               <span className={labelCls}>Reason <span className="text-amber-300">*</span></span>
               <input type="text" value={reasons[k] || ""} maxLength={OVERRIDE_REASON_MAX} onChange={(e) => setReasons((p) => ({ ...p, [k]: e.target.value }))} placeholder={k === "sales_tax" ? "e.g. county rate 6.875%" : "e.g. plate transfer"} data-testid={`fee-reason-${k}`} className={input} />
