@@ -4,7 +4,7 @@ Code-only change. Nothing is deployed, restarted or rebuilt by merging it. The p
 
 ## What it does
 
-With the policy loaded (bundled files: `toyota-rav4-2026`, `toyota-2026-2027`, `ford-2026`, `chevrolet-2026-2027`, `gmc-2026-2027`, `buick-2026-2027`, `cadillac-2026-2027`, `honda-2026-2027`, `kia-2026-2027`, `hyundai-2025-2027`, `audi-2026-2027`, `bmw-2026-2027`, `mercedes-2026-2027`):
+With the policy loaded (bundled files: `toyota-rav4-2026`, `toyota-2026-2027`, `ford-2026`, `chevrolet-2026-2027`, `gmc-2026-2027`, `buick-2026-2027`, `cadillac-2026-2027`, `honda-2026-2027`, `kia-2026-2027`, `hyundai-2025-2027`, `audi-2026-2027`, `bmw-2026-2027`, `mercedes-2026-2027`, `subaru-2026-2027`):
 
 1. **Nightly sync write path** (`handleInventoryBulk`): for a vehicle covered by a policy (make + model + year), only the policy's options are written to `dealer_inventory_options`. Re-synced cars can no longer bring the generic rows back. Every other vehicle takes the generic path, unchanged.
    - A payload with a **blank trim** is treated as "no information" (the upsert COALESCEs `trim`), so the stored rows are left alone rather than wiped by "no trusted trim -> no options".
@@ -38,7 +38,7 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
 5. **One restart with the policy on** (pm2 process `deals-api`; it currently runs with `DISABLE_FACET_REBUILD=1`, keep it):
    ```bash
    P=/opt/trimscout-deals/src/optionPolicies
-   DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH=$P/toyota-rav4-2026.json,$P/toyota-2026-2027.json,$P/ford-2026.json,$P/chevrolet-2026-2027.json,$P/gmc-2026-2027.json,$P/buick-2026-2027.json,$P/cadillac-2026-2027.json,$P/honda-2026-2027.json,$P/kia-2026-2027.json,$P/hyundai-2025-2027.json,$P/audi-2026-2027.json,$P/bmw-2026-2027.json,$P/mercedes-2026-2027.json pm2 restart deals-api --update-env && pm2 save
+   DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH=$P/toyota-rav4-2026.json,$P/toyota-2026-2027.json,$P/ford-2026.json,$P/chevrolet-2026-2027.json,$P/gmc-2026-2027.json,$P/buick-2026-2027.json,$P/cadillac-2026-2027.json,$P/honda-2026-2027.json,$P/kia-2026-2027.json,$P/hyundai-2025-2027.json,$P/audi-2026-2027.json,$P/bmw-2026-2027.json,$P/mercedes-2026-2027.json,$P/subaru-2026-2027.json pm2 restart deals-api --update-env && pm2 save
    pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s).find(x=>x.name==="deals-api").pm2_env;console.log(p.DISABLE_FACET_REBUILD,p.OPTION_MODEL_POLICY_PATH)})'
    ```
    Wait for boot; `pm2 logs deals-api --lines 30 --nostream` must NOT contain `[options] allowlist not loaded`.

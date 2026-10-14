@@ -22,6 +22,10 @@ describe('option policy dry-run aggregation', () => {
     assert.equal(r.zeroOptionsBeforePct, 0);
     assert.equal(r.zeroOptionsAfterPct, 50);
     assert.equal(r.noTrustedTrim, 1);
+    // trusted cars: A, B, C. A and C keep a different set than stored (A loses Apple CarPlay, C loses its only row and gains nothing); B is unchanged.
+    assert.equal(r.carsTrustedTrim, 3);
+    assert.equal(r.trustedTrimPct, 75);
+    assert.equal(r.carsWouldChange, 2);
     assert.deepEqual(r.topAfter.map((x) => [x.label, x.vehicles]), [['Convenience Package', 2]]);
     assert.deepEqual(r.topUntrustedTrims, [['FORD CUSTOM GARAGE', 1]]);
   });

@@ -10,7 +10,7 @@ export function newTally() {
 const scopeTally = (t, scope) => {
   if (!t.scopes.has(scope)) t.scopes.set(scope, {
     vehicles: 0, rawLines: 0, genericRows: 0, storedRows: 0, storedKept: 0, storedRemoved: 0, afterRows: 0, kept: 0, rolledUp: 0, dealerAddons: 0, droppedLines: 0,
-    zeroBefore: 0, zeroAfter: 0, noTrusted: 0, untrustedTrims: new Map(), after: new Map(), afterLabels: new Map(), before: new Map(), droppedRules: new Map(), byTrim: new Map(),
+    zeroBefore: 0, zeroAfter: 0, noTrusted: 0, trusted: 0, changed: 0, untrustedTrims: new Map(), after: new Map(), afterLabels: new Map(), before: new Map(), droppedRules: new Map(), byTrim: new Map(),
   });
   return t.scopes.get(scope);
 };
@@ -47,6 +47,12 @@ export function addVehicle(t, allow, vehicle, options, stored) {
   for (const d of res.dropped) bump(s.droppedRules, d.rule);
   if (!res.rows.length) s.zeroAfter++;
   if (!res.trimTrusted) { s.noTrusted++; bump(s.untrustedTrims, vehicle.trim || "(blank)"); }
+  else {
+    // A car with a trusted trim "would change" when the option keys the policy keeps differ from the keys stored for it today.
+    s.trusted++;
+    const have = new Set(stored.map((r) => r.key)), want = new Set(res.rows.map((r) => r.key));
+    if (have.size !== want.size || [...want].some((k) => !have.has(k))) s.changed++;
+  }
   const tr = s.byTrim.get(res.trim || "(blank)") || { vehicles: 0, trusted: res.trimTrusted, zeroAfter: 0, afterRows: 0 };
   tr.vehicles++; tr.afterRows += res.rows.length; if (!res.rows.length) tr.zeroAfter++;
   s.byTrim.set(res.trim || "(blank)", tr);
@@ -68,6 +74,7 @@ export function finalize(t) {
       rowsBefore: s.storedRows, rowsKept: s.storedKept, rowsRemoved: s.storedRemoved, rowsAfter: s.afterRows,
       afterKept: s.kept, afterRolledUp: s.rolledUp, dealerAddons: s.dealerAddons,
       zeroOptionsBeforePct: +(100 * s.zeroBefore / Math.max(1, s.vehicles)).toFixed(1), zeroOptionsAfterPct: +(100 * s.zeroAfter / Math.max(1, s.vehicles)).toFixed(1),
+      carsTrustedTrim: s.trusted, trustedTrimPct: +(100 * s.trusted / Math.max(1, s.vehicles)).toFixed(1), carsWouldChange: s.changed,
       noTrustedTrim: s.noTrusted, topUntrustedTrims: top(s.untrustedTrims, 12),
       topBefore: top(s.before).map(([k, n]) => [k.split("\t")[1], n]),
       // Counted by option KEY (the same option can reach a policy under two spellings of its label, e.g. a hyphen vs an en dash); the commonest label is shown.
