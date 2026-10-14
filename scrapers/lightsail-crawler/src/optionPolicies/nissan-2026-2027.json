@@ -668,7 +668,13 @@
       "frontier"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sv": "crew cab sv",
+      "pro 4x": "crew cab pro 4x",
+      "pro x": "crew cab pro x",
+      "sv long": "crew cab sv long bed",
+      "pro 4x long": "crew cab pro 4x long bed"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -684,7 +690,8 @@
       "cvt",
       "automatic",
       "auto",
-      "manual"
+      "manual",
+      "r"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -713,7 +720,12 @@
       "ltd avail",
       "w lifetime powertrain",
       "lifetime powertrain",
-      "m t"
+      "m t",
+      "w r package",
+      "wr package",
+      "w wheel tire package",
+      "r by roush",
+      "by r roush"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -3281,7 +3293,13 @@
       "frontier"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sv": "crew cab sv",
+      "pro 4x": "crew cab pro 4x",
+      "pro x": "crew cab pro x",
+      "sv long": "crew cab sv long bed",
+      "pro 4x long": "crew cab pro 4x long bed"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -3297,7 +3315,8 @@
       "cvt",
       "automatic",
       "auto",
-      "manual"
+      "manual",
+      "r"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3326,7 +3345,12 @@
       "ltd avail",
       "w lifetime powertrain",
       "lifetime powertrain",
-      "m t"
+      "m t",
+      "w r package",
+      "wr package",
+      "w wheel tire package",
+      "r by roush",
+      "by r roush"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
