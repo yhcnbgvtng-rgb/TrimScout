@@ -38,7 +38,7 @@ describe('what is covered: make + model + year + trim', () => {
       { make: 'Cadillac', model: 'Escalade', year: 2025 }, { make: 'Cadillac', model: 'CT4', year: 2026 }, { make: 'Cadillac', model: 'XT5', year: 2027 },
       { make: 'Honda', model: 'Civic', year: 2026 }, { make: 'Honda', model: 'Accord', year: 2027 }, { make: 'Honda', model: 'Pilot', year: 2025 },
       { make: 'Kia', model: 'Forte', year: 2026 }, { make: 'Kia', model: 'Telluride', year: 2026 }, { make: 'Kia', model: 'Soul', year: 2027 },
-      { make: 'Acura', model: 'MDX', year: 2026 }, { make: 'Hyundai', model: 'Palisade', year: 2026 }, { make: 'Nissan', model: 'Rogue', year: 2027 },
+      { make: 'Acura', model: 'MDX', year: 2026 }, { make: 'Hyundai', model: 'Palisade', year: 2026 }, { make: 'Mazda', model: 'CX-5', year: 2027 },
     ]) {
       assert.deepEqual(modelPoliciesFor(ALLOW, v), [], JSON.stringify(v));
       assert.equal(optionRowsForVehicle(ALLOW, { ...v, trim: 'LX' }, [{ name: 'Sunroof Package' }]), null);

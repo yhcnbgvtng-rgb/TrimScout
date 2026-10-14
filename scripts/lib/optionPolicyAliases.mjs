@@ -17,6 +17,9 @@ export const BRAND_NOISE = {
   // Subaru: "cvt" is the transmission ("Limited AWD CVT"); "All Wheel" is the drivetrain spelled out ("Touring XT All Wheel", "Limited Hybrid All Wheel"); "Lifetime Powertrain"
   // is a dealer warranty tag ("Premium LIFETIME POWERTRAIN"). None distinguishes a trim.
   subaru: { noise: ["cvt"], noisePhrases: ["all wheel", "lifetime powertrain"] },
+  // Nissan: transmission words ("SL AWD Automatic", "SV FWD CVT", "Performance M T"), the drivetrain spelled out ("All Wheel", "Four Wheel"), the body word on a sedan
+  // ("SV Sedan"), the dealer "Ltd Avail" tag and the Lifetime Powertrain warranty tag. None distinguishes a trim.
+  nissan: { noise: ["cvt", "automatic", "auto", "manual"], noisePhrases: ["all wheel", "four wheel", "sedan", "ltd avail", "w lifetime powertrain", "lifetime powertrain", "m t"] },
 };
 const SEATS = ["6p", "7p", "8p", "6 passenger", "7 passenger", "8 passenger"]; // seating count, not a trim (same ruling as the Toyota 7/8 passenger alias)
 
@@ -107,5 +110,20 @@ export const ALIASES = {
     "2027|Uncharted": { trimAliases: { Premium: "Premium FWD" } },
     "2026|Trailseeker": { trimAliases: { "Touring w/Leather": "Touring Leather" } }, // the only trim with Leather in its name
     "2027|Trailseeker": { trimAliases: { "Touring w/Leather": "Touring Leather" } },
+  },
+  // Nissan (2026-10-14, from nissanusa.com's own Build & Price pages). Every alias names exactly ONE policy trim; anything that could be two is left unmapped
+  // (Frontier "SV" / "S" / "PRO-4X": the site has Crew Cab, King Cab and Long Bed versions of each; Rogue 2026 "SL" and Murano 2027 "SV" and Pathfinder "S" are not on the site).
+  nissan: {
+    "2026|Rogue": { trimAliases: { Darkarmor: "Dark Armor" }, noisePhrases: ["cold weather package"] }, // "SV Cold Weather Package" is the SV trim with that package
+    "2027|Rogue": { trimAliases: { Darkarmor: "Dark Armor" }, noisePhrases: ["cold weather package"] },
+    "2026|Kicks": { noisePhrases: ["premium package", "cold weather package", "cold weather", "premium"] }, // "SR AWD Premium Package", "SR PREMIUM": package names on the SR / SV trims
+    "2027|Kicks": { noisePhrases: ["premium package", "cold weather package", "cold weather", "premium"] },
+    "2026|Sentra": { noisePhrases: ["premium package"] },
+    "2027|Sentra": { noisePhrases: ["premium package"] },
+    "2026|Altima": { trimAliases: { "2.5 SV": "SV", "25 SV": "SV", "2.5 SR": "SR", "25 SR": "SR" } }, // the 2.5 is the engine; "25" is the same spelled without the dot
+    "2026|LEAF": { noise: ["x2b"] }, // "SV&#x2B" is "SV+" with the plus left as an HTML entity
+    "2026|Z": { trimAliases: { "Heritage Edition": "Heritage Edition (Z32 Midnight Purple)" } }, // the only Heritage trim
+    "2027|Armada": { trimAliases: { "PRO-4X": "PRO-4X Premium" } }, // the only PRO-4X trim in 2027
+    "2026|Rogue Plug-in Hybrid": { noisePhrases: ["plug in hybrid", "phev", "sport utility 4d"] }, // "Platinum PLUG IN HYBRID", "SL Sport Utility 4D"
   },
 };
