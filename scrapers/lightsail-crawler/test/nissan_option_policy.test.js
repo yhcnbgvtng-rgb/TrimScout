@@ -184,3 +184,17 @@ describe('exact trim aliases (every feed string is a real one from the 2026-10-1
   });
 });
 
+describe('the Nissan apply script (scripts/box/2026-10-14-nissan-option-policy-apply.mjs)', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-14-nissan-option-policy-apply.mjs'), 'utf8');
+  it('is Nissan-only: Nissan 2026-27 car and dealer queries, its own lock owners, no other make named', () => {
+    assert.ok(src.includes("make = 'Nissan' AND year IN (2026, 2027)") && src.includes("AND make = 'Nissan'"));
+    assert.ok(src.includes('nissan-option-policy-apply') && src.includes('nissan-option-policy-restore'));
+    assert.doesNotMatch(src, /hyundai|subaru/i);
+  });
+  it('keeps the safety rails: untrusted trims are skipped (never a wipe), backup first, deadline, sync lock, restore', () => {
+    assert.ok(src.includes('if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }'));
+    assert.ok(src.includes('backup.jsonl') && src.includes('pastDeadline()') && src.includes('takeLock(') && src.includes('async function restore()'));
+    assert.ok(src.includes('LOCK BUSY') && src.includes('stale'));
+  });
+});
+
