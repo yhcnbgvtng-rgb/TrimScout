@@ -154,8 +154,8 @@ describe('Mercedes specifics', () => {
     assert.deepEqual(run({ model: 'GLC SUV', year: 2027, trim: 'Nope' }, ['Digital Extra: MB.DRIVE ASSIST']).rows, []);
     assert.deepEqual(run({ model: 'GLC SUV', year: 2027, trim: null }, ['Digital Extra: MB.DRIVE ASSIST']).rows, []);
   });
-  it('a blank trim on the sync payload leaves stored rows alone, a bad trim yields zero rows', () => {
+  it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Mercedes-Benz', model: 'GLC SUV', year: 2027, trim: '' }, [{ name: 'Digital Extra: MB.DRIVE ASSIST' }]), { skip: true });
-    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Mercedes-Benz', model: 'GLC SUV', year: 2027, trim: 'Nope' }, [{ name: 'Digital Extra: MB.DRIVE ASSIST' }]).rows, []);
+    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Mercedes-Benz', model: 'GLC SUV', year: 2027, trim: 'Nope' }, [{ name: 'Digital Extra: MB.DRIVE ASSIST' }]), { skip: true });
   });
 });

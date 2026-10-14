@@ -155,9 +155,9 @@ describe('rule 6: no trusted trim -> no options', () => {
     assert.deepEqual(run('Chevrolet', { model: 'Silverado EV', trim: 'LT' }, ['Sunroof Package']).rows, [], 'EV trims are listed with their range; plain LT is untrusted');
     assert.deepEqual(run('Buick', { model: 'Envista', trim: 'Preferred Essence' }, ['Convenience I Package']).rows, []);
   });
-  it('a blank trim on the sync payload leaves the stored rows alone (skip), a bad trim yields zero rows', () => {
+  it('a blank trim on the sync payload leaves the stored rows alone (skip), a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Chevrolet', model: 'Trax', year: 2026, trim: '' }, [{ name: 'Sunroof Package' }]), { skip: true });
-    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Chevrolet', model: 'Trax', year: 2026, trim: 'Premier' }, [{ name: 'Sunroof Package' }]).rows, []);
+    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Chevrolet', model: 'Trax', year: 2026, trim: 'Premier' }, [{ name: 'Sunroof Package' }]), { skip: true });
   });
   it('drivetrain and body words around a trim are noise ("Z71 4WD Crew Cab" is Z71, "Trail Boss 4WD" is Trail Boss)', () => {
     assert.deepEqual(run('Chevrolet', { model: 'Colorado', trim: 'Trail Boss 4WD Crew Cab' }, ['Midnight Edition']).rows.map((x) => x.price), [4195]);

@@ -205,9 +205,9 @@ describe('Kia', () => {
     assert.deepEqual(run('Kia', { model: 'Sportage', trim: 'Prestige' }, ['Glacial White Pearl']).rows, []);
     assert.deepEqual(run('Kia', { model: 'Sportage', trim: '' }, ['Glacial White Pearl']).rows, []);
   });
-  it('a blank trim on the sync payload leaves stored rows alone, a bad trim yields zero rows', () => {
+  it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Kia', model: 'K5', year: 2027, trim: '' }, [{ name: 'GT1 Package' }]), { skip: true });
-    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Kia', model: 'K5', year: 2027, trim: 'Nope' }, [{ name: 'GT1 Package' }]).rows, []);
+    assert.deepEqual(policyFacetRows(ALLOW, { make: 'Kia', model: 'K5', year: 2027, trim: 'Nope' }, [{ name: 'GT1 Package' }]), { skip: true });
   });
 });
 

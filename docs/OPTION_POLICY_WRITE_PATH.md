@@ -8,7 +8,7 @@ With the policy loaded (bundled files: `toyota-rav4-2026`, `toyota-2026-2027`, `
 
 1. **Nightly sync write path** (`handleInventoryBulk`): for a vehicle covered by a policy (make + model + year), only the policy's options are written to `dealer_inventory_options`. Re-synced cars can no longer bring the generic rows back. Every other vehicle takes the generic path, unchanged.
    - A payload with a **blank trim** is treated as "no information" (the upsert COALESCEs `trim`), so the stored rows are left alone rather than wiped by "no trusted trim -> no options".
-   - A non-blank trim the policy does not trust still yields zero options (policy rule 6).
+   - A non-blank trim the policy does not trust is skipped the same way (2026-10-13 ruling), so the stored rows stay.
 2. **`/api/inventory` per-vehicle `options`** (`inventoryRowFromDb`, which also serves by-listing-url, VIN history and the export): for a covered vehicle the list is the policy result for that car's `options_json`, as `{ code, name, price, kind }` (price and kind from the policy). It is the same engine and the same input as the facet rows, so list, filters and facets agree. A car with no policy gets the very same array back.
 3. `options_json` itself is **not** rewritten. The list is filtered on the way out.
 
@@ -59,7 +59,7 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
 
 - `scripts/lib/optionPolicyAliases.mjs` holds the approved exact spellings (model spellings, trim aliases, `modelTrim` pairs, noise words) the builder bakes into the policy JSON. Same ruling as the Ford aliases: exact only, no fuzzy matching, no year-to-year mapping. A model-year with no policy (for example a 2026 Santa Fe against a 2027-only policy) stays uncovered.
 - A `modelTrim` pair ("GLE 350|4MATIC" -> "GLE 350 4MATIC SUV") is for feeds that put trim words in the model. It is tried only after every other trim rule failed.
-- The apply scripts' plan phase now SKIPS a covered car whose trim is blank or not trusted (counted as `skippedNoTrustedTrim`); it no longer plans to remove that car's stored rows. The nightly sync write path is unchanged: a non-blank trim the policy does not trust still yields zero rows (rule 6).
+- The apply scripts' plan phase now SKIPS a covered car whose trim is blank or not trusted (counted as `skippedNoTrustedTrim`); it no longer plans to remove that car's stored rows. The nightly sync write path skips them too (2026-10-13 ruling): a policy-covered car whose trim is blank OR not trusted keeps its stored rows (`policyFacetRows` returns `{ skip: true }`, counted in `optionSetsKept`). Only a trusted trim is rewritten. Rule 6 ("no trusted trim -> no options") still decides what `/api/inventory` lists for such a car.
 
 ## Known limits
 

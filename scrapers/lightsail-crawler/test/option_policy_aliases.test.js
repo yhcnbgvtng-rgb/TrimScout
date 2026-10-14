@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAllowlist, buildModelPolicies, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, resolvePolicyTrim } from '../src/factoryOptionAllowlist.js';
+import { buildAllowlist, buildModelPolicies, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyApiOptions, policyFacetRows, resolvePolicyTrim } from '../src/factoryOptionAllowlist.js';
 import { ALIASES } from '../../../scripts/lib/optionPolicyAliases.mjs';
 
 const repo = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -187,5 +187,21 @@ describe('apply scripts skip, never strip, a car with no trusted trim', () => {
     assert.equal(run('').trimTrusted, false);
     assert.equal(run('Base').trimTrusted, false);
     assert.equal(run('30 xDrive').trimTrusted, true);
+  });
+});
+
+describe('the nightly sync never empties a car because of a trim it cannot read', () => {
+  const sync = (vehicle) => policyFacetRows(ALLOW, vehicle, [{ name: 'Weather Package' }]);
+  it('blank trim, unknown trim and a listed-but-ambiguous string all skip; a trusted trim still writes rows', () => {
+    assert.deepEqual(sync({ make: 'Hyundai', model: 'Tucson Hybrid', year: 2026, trim: 'Blue' }), { skip: true });
+    assert.deepEqual(sync({ make: 'BMW', model: 'X3', year: 2026, trim: '' }), { skip: true });
+    assert.deepEqual(sync({ make: 'BMW', model: 'X3', year: 2026, trim: 'Base' }), { skip: true });
+    assert.deepEqual(sync({ make: 'Mercedes-Benz', model: 'GLC 300', year: 2027, trim: '4MATIC' }), { skip: true });
+    const ok = sync({ make: 'BMW', model: 'X3', year: 2026, trim: '30 xDrive' });
+    assert.ok(Array.isArray(ok.rows) && !ok.skip, 'a trusted trim is written as before');
+  });
+  it('a car no policy covers is still the generic path (null), and the list for an untrusted car is unchanged', () => {
+    assert.equal(sync({ make: 'Hyundai', model: 'Santa Fe', year: 2026, trim: 'SEL' }), null);
+    assert.deepEqual(policyApiOptions(ALLOW, { make: 'BMW', model: 'X3', year: 2026, trim: 'Base' }, [{ name: 'Weather Package' }]), []);
   });
 });

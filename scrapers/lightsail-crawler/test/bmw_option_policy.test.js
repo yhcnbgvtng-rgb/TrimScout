@@ -139,8 +139,8 @@ describe('BMW specifics', () => {
     assert.deepEqual(run({ model: 'X5', year: 2027, trim: 'Nope' }, ['BMW Glass Controls']).rows, []);
     assert.deepEqual(run({ model: 'X5', year: 2027, trim: null }, ['BMW Glass Controls']).rows, []);
   });
-  it('a blank trim on the sync payload leaves stored rows alone, a bad trim yields zero rows', () => {
+  it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'BMW', model: 'X5', year: 2027, trim: '' }, [{ name: 'BMW Glass Controls' }]), { skip: true });
-    assert.deepEqual(policyFacetRows(ALLOW, { make: 'BMW', model: 'X5', year: 2027, trim: 'Nope' }, [{ name: 'BMW Glass Controls' }]).rows, []);
+    assert.deepEqual(policyFacetRows(ALLOW, { make: 'BMW', model: 'X5', year: 2027, trim: 'Nope' }, [{ name: 'BMW Glass Controls' }]), { skip: true });
   });
 });
