@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildAllowlist, loadBundledModelPoliciesRaw } from '../src/factoryOptionAllowlist.js';
 import { newTally, addVehicle, finalize } from '../../../scripts/lib/optionPolicyDryRun.mjs';
+import { replay } from '../../../scripts/box/2026-10-14-option-policy-replay.mjs';
 
 const ALLOW = buildAllowlist(null, loadBundledModelPoliciesRaw());
 const car = (o) => ({ vin: 'V', make: 'Ford', year: 2026, model: 'Ranger', trim: 'XLT', ...o });
@@ -38,3 +39,22 @@ describe('option policy dry-run aggregation', () => {
     assert.deepEqual(f.untouched.map((x) => x[0]).sort(), ['2025 Ranger', '2026 Explorer']);
   });
 });
+
+describe('offline replay of a saved dry-run pull', () => {
+  it('gives the same tallies as feeding the cars straight to addVehicle, and can filter by make', async () => {
+    const cars = [
+      { vin: 'A', ...car({}), options: [{ name: 'Convenience Package' }, { name: 'Apple CarPlay' }], stored: [{ key: 'convenience package', label: 'Convenience Package' }, { key: 'apple carplay', label: 'Apple CarPlay' }] },
+      { vin: 'B', ...car({}), options: [{ name: 'Convenience Package' }], stored: [{ key: 'convenience package', label: 'Convenience Package' }] },
+      { vin: 'C', ...car({ trim: 'FORD CUSTOM GARAGE' }), options: [{ name: 'Convenience Package' }], stored: [] },
+      { vin: 'D', make: 'Honda', model: 'Civic', year: 2026, trim: 'LX', options: [], stored: [] },
+    ];
+    const lines = (async function* () { for (const c of cars) yield JSON.stringify(c); yield ''; })();
+    const direct = newTally();
+    for (const c of cars.filter((x) => x.make === 'Ford')) addVehicle(direct, ALLOW, { vin: c.vin, make: c.make, model: c.model, year: c.year, trim: c.trim }, c.options, c.stored);
+    const r = await replay(lines, ALLOW, 'Ford');
+    assert.equal(r.carsInScope, 3);
+    assert.deepEqual(r.scopes, finalize(direct).scopes);
+    assert.equal(r.scopes['ford|ranger|2026'].carsWouldChange, 1); // A loses Apple CarPlay; B unchanged; C untrusted
+  });
+});
+

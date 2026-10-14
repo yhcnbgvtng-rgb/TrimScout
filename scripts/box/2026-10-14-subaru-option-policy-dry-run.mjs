@@ -9,6 +9,7 @@
 // Uses the READER account only. "Before" is what is stored today (dealer_inventory_options); "after" is what the policy keeps from options_json.
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 import mysql from "mysql2/promise";
 import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle } from "../../scrapers/lightsail-crawler/src/factoryOptionAllowlist.js";
 import { newTally, addVehicle, finalize } from "../lib/optionPolicyDryRun.mjs";
@@ -17,6 +18,11 @@ const args = process.argv.slice(2);
 const opt = (n, d = null) => { const i = args.indexOf(`--${n}`); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 const envFile = opt("env", "/opt/trimscout-deals/.env.trimscout-db");
 const outDir = path.resolve(opt("out", "./out"));
+// --dump <file.ndjson.gz>: also save what was read (one JSON line per car: vin, dealer, make, year, model, trim, options_json, stored option rows) so the policy and its aliases
+// can be replayed offline with the same matcher (scripts/box/2026-10-14-option-policy-replay.mjs) without reading the live database again.
+const dumpPath = opt("dump");
+const dump = dumpPath ? zlib.createGzip() : null;
+if (dump) dump.pipe(fs.createWriteStream(path.resolve(dumpPath)));
 const BATCH = Math.min(25, Math.max(10, Number(opt("batch", 20)) || 20));
 const CAP_SECONDS = 20;
 
@@ -98,6 +104,7 @@ try {
       const stored = byVin.get(`${c.vin}|${c.dealer_id}`) || [];
       const res = samples.length < 3 && modelPoliciesFor(allow, c).length ? optionRowsForVehicle(allow, c, Array.isArray(options) ? options : []) : null;
       if (res && stored.length && res.rows.length && res.rows.length !== stored.length) samples.push({ vin: c.vin, dealerId: c.dealer_id, year: c.year, model: c.model, trim: c.trim, trimTrusted: res.trimTrusted, before: stored.map((r) => r.label), after: res.rows.map((r) => `${r.label} $${r.price} (${r.kind})`) });
+      if (dump) dump.write(JSON.stringify({ vin: c.vin, dealerId: c.dealer_id, make: c.make, year: c.year, model: c.model, trim: c.trim, options: Array.isArray(options) ? options : null, stored: stored }) + "\n");
       addVehicle(tally, allow, { vin: c.vin, make: c.make, model: c.model, year: c.year, trim: c.trim }, options, byVin.get(`${c.vin}|${c.dealer_id}`) || []);
     }
     if ((i / BATCH + 1) % 10 === 0) console.log(`  ${Math.min(i + BATCH, ids.length)}/${ids.length} dealers, ${carsInScope} 2026-27 Subaru cars, ${queries} queries, slowest ${slowest} ms`);
@@ -111,5 +118,6 @@ try {
   console.error(err instanceof StopRun ? `STOPPED: ${err.message}` : `FAILED: ${err.stack || err.message}`);
   process.exitCode = err instanceof StopRun ? 3 : 1;
 } finally {
+  if (dump) dump.end();
   await pool.end();
 }
