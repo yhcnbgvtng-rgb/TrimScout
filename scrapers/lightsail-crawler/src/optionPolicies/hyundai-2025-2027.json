@@ -594,7 +594,8 @@
     "trimAliases": {
       "sedan": "n",
       "dct": "n",
-      "manual": "n"
+      "manual": "n",
+      "base": "n"
     },
     "orderCodePattern": "(?!)",
     "trimNoise": [

@@ -25,7 +25,7 @@ export const ALIASES = {
     "2027|Santa Fe": { noisePhrases: SEATS }, // "Limited 6P/7P": ~400 cars
     "2027|Santa Fe Hybrid": { noisePhrases: SEATS },
     "2026|Venue": { trimAliases: { "SEL w/Two-Tone Roof": "SEL w/2-Tone Roof", "SEL Wtwo Tone Roof": "SEL w/2-Tone Roof" } }, // same trim, spelled out: 618 cars
-    "2026|Elantra N": { trimAliases: { Sedan: "N", DCT: "N", Manual: "N" } }, // the only Elantra N trim; body / transmission words: ~1,000 cars
+    "2026|Elantra N": { trimAliases: { Sedan: "N", DCT: "N", Manual: "N", Base: "N" } }, // the only Elantra N trim; body / transmission words: ~1,000 cars
   },
   bmw: {
     // The feed drops the model prefix BMW puts in the trim name ("X3 30 xDrive").
@@ -47,8 +47,10 @@ export const ALIASES = {
     "2027|iX3": { trimAliases: { "50 xDrive": "iX3 50 xDrive" } },
     // Sedans: only model names that are sedan-only in the US ("330i", "3 Series", "5 Series", "7 Series"). 2 / 4 Series span coupe, gran coupe and convertible, so they are left out.
     "2026|3 Series Sedan": {
-      models: ["3 Series", "330i"],
-      modelTrim: { "330i|xDrive": "330i xDrive Sedan", "330i|330i": "330i Sedan", "330i|330i xDrive": "330i xDrive Sedan", "3 Series|330i": "330i Sedan", "3 Series|330i xDrive": "330i xDrive Sedan", "3 Series|M340i xDrive": "M340i xDrive Sedan", "3 Series|M340i": "M340i Sedan" },
+      models: ["3 Series", "330i", "330i NA", "330i NA xDrive", "M340", "M340i"],
+      noise: ["na"], // "NA" = the North America market tag BMW appends ("330i NA xDrive"); ruling 2026-10-13
+      trimAliases: { "330i xDrive": "330i xDrive Sedan", "330i": "330i Sedan", "M340i xDrive": "M340i xDrive Sedan", M340i: "M340i Sedan" },
+      modelTrim: { "M340|i": "M340i Sedan", "M340|i xDrive": "M340i xDrive Sedan", "330i NA xDrive|xDrive": "330i xDrive Sedan", "330i|NA xDrive": "330i xDrive Sedan", "330i|xDrive NA": "330i xDrive Sedan", "330i|xDrive": "330i xDrive Sedan", "330i|330i": "330i Sedan", "330i|330i xDrive": "330i xDrive Sedan", "3 Series|330i": "330i Sedan", "3 Series|330i xDrive": "330i xDrive Sedan", "3 Series|M340i xDrive": "M340i xDrive Sedan", "3 Series|M340i": "M340i Sedan" },
     },
     "2027|5 Series Sedan": {
       models: ["5 Series", "530i", "540i", "550e"],
@@ -64,11 +66,11 @@ export const ALIASES = {
   },
   mercedes: {
     // The feed puts the series number in the model and leaves the drivetrain / body in the trim. A pair is listed only when the model + trim name ONE policy trim.
-    "2026|C-Class Sedan": { models: ["C-Class", "C 300"], modelTrim: { "C-Class|C 300": "C 300 Sedan", "C 300|C 300": "C 300 Sedan", "C 300|4MATIC": "C 300 4MATIC Sedan", "C-Class|C 300 4MATIC": "C 300 4MATIC Sedan", "C 300|C 300 4MATIC": "C 300 4MATIC Sedan" } },
-    "2026|GLA SUV": { models: ["GLA", "GLA 250"], modelTrim: { "GLA 250|4MATIC": "GLA 250 4MATIC SUV", "GLA 250|4MATIC SUV": "GLA 250 4MATIC SUV", "GLA 250|GLA 250": "GLA 250 SUV", "GLA|GLA 250": "GLA 250 SUV", "GLA|250 4MATIC": "GLA 250 4MATIC SUV" } },
-    "2026|GLB SUV": { models: ["GLB", "GLB 250"], modelTrim: { "GLB 250|4MATIC": "GLB 250 4MATIC SUV", "GLB 250|4MATIC SUV": "GLB 250 4MATIC SUV", "GLB 250|GLB 250": "GLB 250 SUV", "GLB|GLB 250": "GLB 250 SUV", "GLB|250 4MATIC": "GLB 250 4MATIC SUV" } },
-    "2027|GLC SUV": { models: ["GLC", "GLC 300", "GLC 350e"], modelTrim: { "GLC 350e|4MATIC": "GLC 350e 4MATIC SUV", "GLC 350e|4MATIC SUV": "GLC 350e 4MATIC SUV" } },
-    "2027|GLC Coupe": { models: ["GLC", "GLC 300"] },
+    "2026|C-Class Sedan": { models: ["C-Class", "C 300", "AMG C 43"], trimAliases: { "AMG C 43 4MATIC Sedan": "Mercedes-AMG C 43 Sedan", "C 43 AMG": "Mercedes-AMG C 43 Sedan", "AMG C 43": "Mercedes-AMG C 43 Sedan" }, modelTrim: { "AMG C 43|4MATIC": "Mercedes-AMG C 43 Sedan", "C-Class|C 300": "C 300 Sedan", "C 300|C 300": "C 300 Sedan", "C 300|4MATIC": "C 300 4MATIC Sedan", "C-Class|C 300 4MATIC": "C 300 4MATIC Sedan", "C 300|C 300 4MATIC": "C 300 4MATIC Sedan" } },
+    "2026|GLA SUV": { models: ["GLA", "GLA 250", "AMG GLA 35"], trimAliases: { "AMG GLA 35 4MATIC SUV": "AMG GLA 35 SUV", "GLA 35 AMG": "AMG GLA 35 SUV", "AMG GLA 35": "AMG GLA 35 SUV" }, modelTrim: { "AMG GLA 35|4MATIC": "AMG GLA 35 SUV", "GLA 250|4MATIC": "GLA 250 4MATIC SUV", "GLA 250|4MATIC SUV": "GLA 250 4MATIC SUV", "GLA 250|GLA 250": "GLA 250 SUV", "GLA|GLA 250": "GLA 250 SUV", "GLA|250 4MATIC": "GLA 250 4MATIC SUV" } },
+    "2026|GLB SUV": { models: ["GLB", "GLB 250", "AMG GLB 35"], trimAliases: { "AMG GLB 35 4MATIC SUV": "AMG GLB 35 SUV", "GLB 35 AMG": "AMG GLB 35 SUV", "AMG GLB 35": "AMG GLB 35 SUV" }, modelTrim: { "AMG GLB 35|4MATIC": "AMG GLB 35 SUV", "GLB 250|4MATIC": "GLB 250 4MATIC SUV", "GLB 250|4MATIC SUV": "GLB 250 4MATIC SUV", "GLB 250|GLB 250": "GLB 250 SUV", "GLB|GLB 250": "GLB 250 SUV", "GLB|250 4MATIC": "GLB 250 4MATIC SUV" } },
+    "2027|GLC SUV": { models: ["GLC", "GLC 300", "GLC 350e", "AMG GLC 53", "AMG GLC 53 All-Wheel Drive 4MATIC+"], modelTrim: { "GLC 350e|4MATIC": "GLC 350e 4MATIC SUV", "GLC 350e|4MATIC SUV": "GLC 350e 4MATIC SUV" } },
+    "2027|GLC Coupe": { models: ["GLC", "GLC 300", "AMG GLC 53", "AMG GLC 53 All-Wheel Drive 4MATIC+"] },
     "2027|GLC Electric SUV": { models: ["GLC 400"], modelTrim: { "GLC 400|4MATIC": "GLC 400 4MATIC Electric SUV" } },
     "2027|GLE SUV": {
       models: ["GLE", "GLE 350", "GLE 450"],
@@ -82,8 +84,9 @@ export const ALIASES = {
       models: ["CLA", "CLA 220", "CLA 250+", "CLA 350"],
       trimAliases: { "CLA 220": "CLA 220 Hybrid Sedan", "CLA 220 Hybrid": "CLA 220 Hybrid Sedan", "CLA 250": "CLA 250 Electric Sedan", "CLA 250 Electric": "CLA 250 Electric Sedan", "CLA 350 Electric 4MATIC": "CLA 350 4MATIC Electric Sedan" },
     },
-    "2027|CLE Coupe": { models: ["CLE", "CLE 300", "CLE 450"] },
-    "2027|CLE Cabriolet": { models: ["CLE", "CLE 300", "CLE 450"] },
-    "2027|G-Class SUV": { models: ["G-Class"], trimAliases: { "G 580e SUV": "G 580 Electric SUV", "G 580 Electric": "G 580 Electric SUV", "AMG G 63": "AMG G 63 SUV" } },
+    "2027|Mercedes-AMG GT 2-door Coupe": { models: ["AMG GT"] }, // "AMG &reg; GT 55 Coupe" etc. resolve exactly once the model spelling is covered
+    "2027|CLE Coupe": { models: ["CLE", "CLE 300", "CLE 450", "AMG CLE 53"], trimAliases: { "AMG CLE 53 4MATIC Coupe": "AMG CLE 53 Coupe" } },
+    "2027|CLE Cabriolet": { models: ["CLE", "CLE 300", "CLE 450", "AMG CLE 53"], trimAliases: { "AMG CLE 53 4MATIC Cabriolet": "AMG CLE 53 Cabriolet" } },
+    "2027|G-Class SUV": { models: ["G-Class", "AMG G 63"], trimAliases: { "G 580e SUV": "G 580 Electric SUV", "G 580 Electric": "G 580 Electric SUV", "AMG G 63": "AMG G 63 SUV", "G 63 AMG": "AMG G 63 SUV" } },
   },
 };

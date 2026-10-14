@@ -846,11 +846,25 @@
     "models": [
       "3 series sedan",
       "3 series",
-      "330i"
+      "330i",
+      "330i na",
+      "330i na xdrive",
+      "m340",
+      "m340i"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "330i xdrive": "330i xdrive sedan",
+      "330i": "330i sedan",
+      "m340i xdrive": "m340i xdrive sedan",
+      "m340i": "m340i sedan"
+    },
     "modelTrimAliases": {
+      "m340|i": "m340i sedan",
+      "m340|i xdrive": "m340i xdrive sedan",
+      "330i na xdrive|xdrive": "330i xdrive sedan",
+      "330i|na xdrive": "330i xdrive sedan",
+      "330i|xdrive na": "330i xdrive sedan",
       "330i|xdrive": "330i xdrive sedan",
       "330i|330i": "330i sedan",
       "330i|330i xdrive": "330i xdrive sedan",
@@ -871,7 +885,8 @@
       "demo",
       "fleet",
       "intransit",
-      "automatic"
+      "automatic",
+      "na"
     ],
     "trimNoisePhrases": [
       "in transit",

@@ -4,11 +4,17 @@
     "models": [
       "c class sedan",
       "c class",
-      "c 300"
+      "c 300",
+      "amg c 43"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg c 43 4matic sedan": "mercedes amg c 43 sedan",
+      "c 43 amg": "mercedes amg c 43 sedan",
+      "amg c 43": "mercedes amg c 43 sedan"
+    },
     "modelTrimAliases": {
+      "amg c 43|4matic": "mercedes amg c 43 sedan",
       "c class|c 300": "c 300 sedan",
       "c 300|c 300": "c 300 sedan",
       "c 300|4matic": "c 300 4matic sedan",
@@ -2036,11 +2042,17 @@
     "models": [
       "gla suv",
       "gla",
-      "gla 250"
+      "gla 250",
+      "amg gla 35"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg gla 35 4matic suv": "amg gla 35 suv",
+      "gla 35 amg": "amg gla 35 suv",
+      "amg gla 35": "amg gla 35 suv"
+    },
     "modelTrimAliases": {
+      "amg gla 35|4matic": "amg gla 35 suv",
       "gla 250|4matic": "gla 250 4matic suv",
       "gla 250|4matic suv": "gla 250 4matic suv",
       "gla 250|gla 250": "gla 250 suv",
@@ -3065,11 +3077,17 @@
     "models": [
       "glb suv",
       "glb",
-      "glb 250"
+      "glb 250",
+      "amg glb 35"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg glb 35 4matic suv": "amg glb 35 suv",
+      "glb 35 amg": "amg glb 35 suv",
+      "amg glb 35": "amg glb 35 suv"
+    },
     "modelTrimAliases": {
+      "amg glb 35|4matic": "amg glb 35 suv",
       "glb 250|4matic": "glb 250 4matic suv",
       "glb 250|4matic suv": "glb 250 4matic suv",
       "glb 250|glb 250": "glb 250 suv",
@@ -5354,10 +5372,13 @@
       "cle cabriolet",
       "cle",
       "cle 300",
-      "cle 450"
+      "cle 450",
+      "amg cle 53"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg cle 53 4matic cabriolet": "amg cle 53 cabriolet"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -6235,10 +6256,13 @@
       "cle coupe",
       "cle",
       "cle 300",
-      "cle 450"
+      "cle 450",
+      "amg cle 53"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "amg cle 53 4matic coupe": "amg cle 53 coupe"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -11730,13 +11754,15 @@
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 G-Class SUV)",
     "models": [
       "g class suv",
-      "g class"
+      "g class",
+      "amg g 63"
     ],
     "keepBare": [],
     "trimAliases": {
       "g 580e suv": "g 580 electric suv",
       "g 580 electric": "g 580 electric suv",
-      "amg g 63": "amg g 63 suv"
+      "amg g 63": "amg g 63 suv",
+      "g 63 amg": "amg g 63 suv"
     },
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -12981,7 +13007,9 @@
     "models": [
       "glc coupe",
       "glc",
-      "glc 300"
+      "glc 300",
+      "amg glc 53",
+      "amg glc 53 all wheel drive 4matic"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -14260,7 +14288,9 @@
       "glc suv",
       "glc",
       "glc 300",
-      "glc 350e"
+      "glc 350e",
+      "amg glc 53",
+      "amg glc 53 all wheel drive 4matic"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -18133,7 +18163,8 @@
   "mercedes-benz|mercedes amg gt 2 door coupe|2027": {
     "source": "docs/option-catalogs-2026-10-12/mercedes_lineup_options_by_trim.csv (2027 Mercedes-AMG GT 2-door Coupe)",
     "models": [
-      "mercedes amg gt 2 door coupe"
+      "mercedes amg gt 2 door coupe",
+      "amg gt"
     ],
     "keepBare": [],
     "trimAliases": {},

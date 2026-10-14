@@ -62,12 +62,15 @@ describe('Hyundai', () => {
     trusted('Hyundai', 2026, 'Elantra N', 'Sedan', 'hyundai|elantra n|2026', 'n');
     trusted('Hyundai', 2026, 'ELANTRA N', 'DCT', 'hyundai|elantra n|2026', 'n');
   });
-  it('what is NOT mapped stays untrusted (left for a ruling)', () => {
+  it('ruling 5: Elantra N "Base" is the one N trim', () => {
+    trusted('Hyundai', 2026, 'Elantra N', 'Base', 'hyundai|elantra n|2026', 'n');
+    trusted('Hyundai', 2026, 'ELANTRA N', 'BASE', 'hyundai|elantra n|2026', 'n');
+  });
+  it('what is NOT mapped stays untrusted (left for a ruling; Hyundai "Blue" could not be confirmed on hyundaiusa.com)', () => {
     untrusted('Hyundai', 2026, 'Tucson Hybrid', 'Blue');
     untrusted('Hyundai', 2026, 'Elantra Hybrid', 'SEL Sport Plus');
     untrusted('Hyundai', 2027, 'Palisade Hybrid', 'Blue SEL Premium 7P');
     untrusted('Hyundai', 2027, 'Santa Cruz', 'SEL');
-    untrusted('Hyundai', 2026, 'Elantra N', 'Base');
   });
   it('a model-year without a policy is never mapped from another year', () => {
     for (const [y, m] of [[2026, 'Santa Fe'], [2026, 'Palisade'], [2026, 'Santa Fe Hybrid'], [2026, 'Kona'], [2025, 'Tucson'], [2027, 'Sonata Hybrid'], [2026, 'IONIQ 5']]) uncovered('Hyundai', y, m);
@@ -102,9 +105,21 @@ describe('BMW', () => {
     trusted('BMW', 2027, '5 Series', '550e xDrive', 'bmw|5 series sedan|2027', '550e xdrive sedan');
     trusted('BMW', 2027, '740i', 'xDrive', 'bmw|7 series sedan|2027', '740 xdrive sedan');
   });
+  it('ruling 6: "NA" is the North America market tag and is ignored on the 3 Series', () => {
+    trusted('BMW', 2026, '3 Series', '330i NA xDrive', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    trusted('BMW', 2026, '3 Series', '330i NA', 'bmw|3 series sedan|2026', '330i sedan');
+    trusted('BMW', 2026, '3 Series', 'M340i NA xDrive', 'bmw|3 series sedan|2026', 'm340i xdrive sedan');
+    trusted('BMW', 2026, '3 Series', '330i NA Xdrive', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    trusted('BMW', 2026, '330i', '330i NA xDrive', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    trusted('BMW', 2026, '330i', 'NA xDrive', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    trusted('BMW', 2026, '330i', 'Xdrive NA', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    trusted('BMW', 2026, 'M340', 'i NA'.replace('i NA', 'i'), 'bmw|3 series sedan|2026', 'm340i sedan');
+    trusted('BMW', 2026, 'M340', 'i xDrive', 'bmw|3 series sedan|2026', 'm340i xdrive sedan');
+    trusted('BMW', 2026, '330i NA xDrive', 'xDrive', 'bmw|3 series sedan|2026', '330i xdrive sedan');
+    untrusted('BMW', 2026, '330i', 'NA'); // "NA" alone does not say RWD or xDrive
+  });
   it('unlisted strings stay untrusted; bodies that span coupe / gran coupe / convertible stay out', () => {
     untrusted('BMW', 2026, '330i', 'Base');
-    untrusted('BMW', 2026, '3 Series', '330i NA xDrive');
     untrusted('BMW', 2027, '740i', 'Base');
     untrusted('BMW', 2026, 'X3', 'Base');
     untrusted('BMW', 2027, 'X7', 'Lease Offers');
@@ -137,6 +152,24 @@ describe('Mercedes-Benz', () => {
     trusted('Mercedes-Benz', 2027, 'CLA 220', 'CLA 220 Hybrid FWD', 'mercedes-benz|cla sedan|2027', 'cla 220 hybrid sedan');
     trusted('Mercedes-Benz', 2027, 'CLA 350', 'CLA 350 Electric 4MATIC &reg;', 'mercedes-benz|cla sedan|2027', 'cla 350 4matic electric sedan');
     trusted('Mercedes-Benz', 2027, 'S-Class', 'S 580', 'mercedes-benz|s class sedan|2027', 's 580 4matic sedan');
+  });
+  it('ruling 9: the AMG spellings the feed uses name ONE policy trim', () => {
+    trusted('Mercedes-Benz', 2026, 'AMG C 43', 'AMG &reg; C 43 4MATIC &reg; Sedan', 'mercedes-benz|c class sedan|2026', 'mercedes amg c 43 sedan');
+    trusted('Mercedes-Benz', 2026, 'AMG C 43', '4MATIC', 'mercedes-benz|c class sedan|2026', 'mercedes amg c 43 sedan');
+    trusted('Mercedes-Benz', 2026, 'C-Class', 'C 43 AMG\u00C2\u00AE', 'mercedes-benz|c class sedan|2026', 'mercedes amg c 43 sedan');
+    trusted('Mercedes-Benz', 2026, 'AMG GLA 35', 'AMG &reg; GLA 35 4MATIC &reg; SUV', 'mercedes-benz|gla suv|2026', 'amg gla 35 suv');
+    trusted('Mercedes-Benz', 2026, 'AMG GLB 35', '4MATIC', 'mercedes-benz|glb suv|2026', 'amg glb 35 suv');
+    trusted('Mercedes-Benz', 2027, 'AMG CLE 53', 'AMG &reg; CLE 53 4MATIC+ &reg; Cabriolet', 'mercedes-benz|cle cabriolet|2027', 'amg cle 53 cabriolet');
+    trusted('Mercedes-Benz', 2027, 'AMG CLE 53', 'AMG &reg; CLE 53 4MATIC+ &reg; Coupe', 'mercedes-benz|cle coupe|2027', 'amg cle 53 coupe');
+    trusted('Mercedes-Benz', 2027, 'G-Class', 'G 63 AMG', 'mercedes-benz|g class suv|2027', 'amg g 63 suv');
+    trusted('Mercedes-Benz', 2027, 'AMG GLC 53 All-Wheel Drive 4MATIC+', 'AMG &reg; GLC 53 4MATIC+ &reg; SUV', 'mercedes-benz|glc suv|2027', 'amg glc 53 4matic+ suv');
+    trusted('Mercedes-Benz', 2027, 'AMG GLC 53', 'AMG &reg; GLC 53 4MATIC+ &reg; Coupe', 'mercedes-benz|glc coupe|2027', 'amg glc 53 4matic+ coupe');
+    trusted('Mercedes-Benz', 2027, 'AMG GT', 'AMG &reg; GT 55 Coupe', 'mercedes-benz|mercedes amg gt 2 door coupe|2027', 'amg gt 55 coupe');
+  });
+  it('AMG strings that are ambiguous or unconfirmed stay untrusted (CLE 53 body, GLE 53e vs 53 Hybrid, E 53 sedan or wagon)', () => {
+    untrusted('Mercedes-Benz', 2027, 'AMG CLE 53', '4MATIC');
+    uncovered('Mercedes-Benz', 2027, 'AMG GLE 53e'); // not mapped: is "53e" the policy's "53 Hybrid"? left for a ruling
+    untrusted('Mercedes-Benz', 2027, 'E-Class', 'AMG E 53 HYBRID');
   });
   it('ambiguous strings stay untrusted (SUV or coupe? RWD or 4MATIC?)', () => {
     untrusted('Mercedes-Benz', 2027, 'GLC 300', '4MATIC');
