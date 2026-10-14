@@ -34,7 +34,7 @@ Not covered (untouched): every other Hyundai model and every other model year. E
 
 | Year | CSV model | Trim aliases | Model + trim pairs | Extra noise phrases |
 |---|---|---|---|---|
-| 2026 | Elantra N | 3 | 0 | 0 |
+| 2026 | Elantra N | 4 | 0 | 0 |
 | 2026 | Sonata | 0 | 0 | 0 |
 | 2026 | Venue | 2 | 0 | 0 |
 | 2027 | Palisade Hybrid | 0 | 0 | 6 |

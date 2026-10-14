@@ -219,6 +219,7 @@ for (const brand of BRANDS) {
   for (const m of seenModels) if (!EXPECTED_MODELS[brand].includes(m)) throw new Error(`${brand} CSV has an unexpected model "${m}" - add it to EXPECTED_MODELS deliberately or remove it from the CSV`);
   for (const m of EXPECTED_MODELS[brand]) if (!seenModels.has(m)) throw new Error(`${brand} CSV is missing the expected model "${m}"`);
 
+  const unusedAliasScopes = new Set(Object.keys((ALIASES[brand] || {})));
   const policies = {};
   const report = { unnamedDefaultPaint: [], presumedDefault: [], models: [], conflicts: [], defaultIncluded: [], partial: [], nonAdditiveRows: [], drops: {}, rulesCount: 0, codeKeys: [] };
   for (const [g, rows] of [...byModel].sort()) {
@@ -229,6 +230,7 @@ for (const brand of BRANDS) {
     report.conflicts.push(...cat.conflicts); report.defaultIncluded.push(...cat.defaultIncluded); report.partial.push(...cat.partial); report.nonAdditiveRows.push(...cat.nonAdditiveRows);
     for (const [k, v] of Object.entries(cat.drops)) report.drops[k] = (report.drops[k] || 0) + v;
     // Approved exact aliases (scripts/lib/optionPolicyAliases.mjs). Every target must be a trim this scope really has: a typo fails the build.
+    unusedAliasScopes.delete(`${year}|${model}`);
     const al = (ALIASES[brand] || {})[`${year}|${model}`] || {};
     const brandNoise = BRAND_NOISE[brand] || { noise: [], noisePhrases: [] };
     const target = (to) => { const k = slug(to); if (!cat.trims[k]) throw new Error(`${brand} ${year} ${model}: alias target "${to}" is not a trim of this policy (${Object.keys(cat.trims).join(", ")})`); return k; };
@@ -255,6 +257,7 @@ for (const brand of BRANDS) {
     });
     report.models.push({ year, model, counts });
   }
+  if (unusedAliasScopes.size) throw new Error(`${brand}: alias scope(s) with no policy (typo?): ${[...unusedAliasScopes].join(", ")}`);
   const totals = { policies: Object.keys(policies).length, models: seenModels.size, trims: 0, entries: 0, packages: 0, options: 0, powertrain: 0, paints: 0, rules: report.rulesCount, codeKeys: report.codeKeys.length };
   for (const m of report.models) for (const c of m.counts) { totals.trims++; totals.packages += c.packages; totals.options += c.options; totals.powertrain += c.powertrain; totals.paints += c.paints; }
   totals.entries = totals.packages + totals.options + totals.powertrain + totals.paints;
