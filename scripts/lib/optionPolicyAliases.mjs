@@ -20,8 +20,14 @@ export const BRAND_NOISE = {
   // Nissan: transmission words ("SL AWD Automatic", "SV FWD CVT", "Performance M T"), the drivetrain spelled out ("All Wheel", "Four Wheel"), the body word on a sedan
   // ("SV Sedan"), the dealer "Ltd Avail" tag and the Lifetime Powertrain warranty tag. None distinguishes a trim.
   nissan: { noise: ["cvt", "automatic", "auto", "manual"], noisePhrases: ["all wheel", "four wheel", "sedan", "ltd avail", "w lifetime powertrain", "lifetime powertrain", "m t"] },
+  // Mazda: the transmission words dealers append ("2.5 S Preferred Auto", "Club Manual", "Premium AWD CVT"). None distinguishes a trim.
+  mazda: { noise: ["cvt", "automatic", "auto", "manual"], noisePhrases: [] },
 };
 const SEATS = ["6p", "7p", "8p", "6 passenger", "7 passenger", "8 passenger"]; // seating count, not a trim (same ruling as the Toyota 7/8 passenger alias)
+
+// Mazda feeds drop the decimal in the engine size ("25 S Preferred" for "2.5 S Preferred", "33 Turbo Preferred" for "3.3 Turbo Preferred"); each is the same trim, spelled out.
+const ENGINE25 = (...trims) => Object.fromEntries(trims.map((t) => [t.replace("2.5", "25"), t]));
+const ENGINE33 = (...trims) => Object.fromEntries(trims.map((t) => [t.replace("3.3", "33"), t]));
 
 export const ALIASES = {
   hyundai: {
@@ -137,5 +143,26 @@ export const ALIASES = {
       trimAliases: { SV: "Crew Cab SV", "PRO-4X": "Crew Cab PRO-4X", "PRO-X": "Crew Cab PRO-X", "SV Long": "Crew Cab SV Long Bed", "PRO-4X Long": "Crew Cab PRO-4X Long Bed" },
       noise: ["r"], noisePhrases: ["w r package", "wr package", "w wheel tire package", "r by roush", "by r roush"],
     },
+  },
+  // Mazda (2026-10-14, from mazdausa.com's Build & Price data; every string below is a real one from the 2026-10-14 box2 read-only dry run). Every alias names exactly ONE
+  // policy trim. LEFT UNMAPPED on purpose (listed in POLICY_REPORT_mazda.md / the PR): blank trims, dealer text ("Inventory", "Base"), paint words glued to the trim
+  // ("Club Jet Black Mica"), a bare "Premium" on the CX-90 / CX-90 PHEV (Premium Plus or Premium Sport), "3.3 Turbo Premium" and "3.3 Turbo S Premium" on the CX-90 (the
+  // site has only Premium Plus / Premium Sport there), the body-less "Mazda3" / "MAZDA3" models (hatchback or sedan), "MX-5" (soft top or RF), "CX-70 MHEV".
+  mazda: {
+    "2026|CX-5": { models: ["Mazda CX-5"], trimAliases: ENGINE25("2.5 S", "2.5 S Select", "2.5 S Preferred", "2.5 S Premium", "2.5 S Premium Plus") },
+    "2026|CX-30": { models: ["Mazda CX-30"], trimAliases: ENGINE25("2.5 S", "2.5 S Select Sport", "2.5 S Preferred", "2.5 S Premium", "2.5 S Carbon Edition", "2.5 S Aire Edition", "2.5 Turbo Aire Edition", "2.5 Turbo Premium Plus") },
+    "2026|CX-50": { models: ["Mazda CX-50"], trimAliases: ENGINE25("2.5 S Select", "2.5 S Preferred", "2.5 S Premium", "2.5 S Meridian Edition", "2.5 Turbo", "2.5 Turbo Meridian Edition", "2.5 Turbo Premium Plus") },
+    "2026|CX-50 Hybrid": { models: ["Mazda CX-50 Hybrid"], trimAliases: { Preferred: "Hybrid Preferred", Premium: "Hybrid Premium", "Premium Plus": "Hybrid Premium Plus" } }, // the Hybrid model's only trims
+    "2026|CX-70": { models: ["Mazda CX-70"], trimAliases: ENGINE33("3.3 Turbo Preferred", "3.3 Turbo Premium", "3.3 Turbo Premium Plus", "3.3 Turbo S Premium", "3.3 Turbo S Premium Plus") },
+    "2026|CX-70 PHEV": { models: ["CX-70 Plug-In Hybrid", "Mazda CX-70 Plug-In Hybrid", "Mazda CX-70 PHEV"], trimAliases: { SC: "PHEV SC", "SC Plus": "PHEV SC Plus" } },
+    "2026|CX-90": {
+      models: ["Mazda CX-90", "Mazda CX90"],
+      trimAliases: { ...ENGINE33("3.3 Turbo Select", "3.3 Turbo Preferred", "3.3 Turbo Premium Plus", "3.3 Turbo Premium Sport", "3.3 Turbo S Premium Plus", "3.3 Turbo S Premium Sport"), Select: "3.3 Turbo Select", Preferred: "3.3 Turbo Preferred", "Premium Plus": "3.3 Turbo Premium Plus", "Premium Sport": "3.3 Turbo Premium Sport", "S Premium Plus": "3.3 Turbo S Premium Plus", "S Premium Sport": "3.3 Turbo S Premium Sport" },
+    },
+    "2026|CX-90 PHEV": { models: ["CX-90 Plug-In Hybrid", "Mazda CX-90 Plug-In Hybrid", "Mazda CX-90 PHEV"], trimAliases: { Preferred: "PHEV Preferred", "Premium Plus": "PHEV Premium Plus", "Premium Sport": "PHEV Premium Sport" } },
+    "2026|Mazda3 Hatchback": { noisePhrases: ["hatchback"], trimAliases: ENGINE25("2.5 S", "2.5 S Select Sport", "2.5 S Preferred", "2.5 S Premium", "2.5 S Carbon Edition", "2.5 Turbo Premium Plus") },
+    "2026|Mazda3 Sedan": { models: ["3 Sedan"], noisePhrases: ["sedan"], trimAliases: ENGINE25("2.5 S", "2.5 S Select Sport", "2.5 S Preferred", "2.5 S Carbon Edition", "2.5 Turbo Premium Plus") },
+    "2026|MX-5 Miata": { models: ["Mazda MX-5 Miata"] },
+    "2026|MX-5 Miata RF": { models: ["Mazda MX-5 Miata RF"] },
   },
 };

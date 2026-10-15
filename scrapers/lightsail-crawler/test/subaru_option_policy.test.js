@@ -50,7 +50,7 @@ describe('what is covered: make + model + year + trim', () => {
     for (const v of [
       { make: 'Subaru', model: 'Crosstrek', year: 2027 }, { make: 'Subaru', model: 'Impreza', year: 2027 }, { make: 'Subaru', model: 'Solterra', year: 2027 },
       { make: 'Subaru', model: 'Outback', year: 2025 }, { make: 'Subaru', model: 'Legacy', year: 2026 }, { make: 'Subaru', model: 'Baja', year: 2026 },
-      { make: 'Mazda', model: 'CX-5', year: 2026 }, { make: 'Toyota', model: 'GR86', year: 2026 },
+      { make: 'Volkswagen', model: 'Tiguan', year: 2026 }, { make: 'Toyota', model: 'GR86', year: 2026 },
     ]) {
       assert.deepEqual(modelPoliciesFor(ALLOW, v), [], JSON.stringify(v));
       const same = [{ name: 'Option Package 13' }];

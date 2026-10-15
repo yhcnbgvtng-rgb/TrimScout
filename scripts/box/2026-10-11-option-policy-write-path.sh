@@ -8,7 +8,7 @@
 # What changes on the box (/opt/trimscout-deals/src):
 #   factoryOptionAllowlist.js        replaced by the repo copy (the box has the OLD file: no model policies at all). inventoryOptionRows.js is
 #                                    already identical to the repo; it is checked, not copied.
-#   optionPolicies/*.json            new: toyota-rav4-2026, toyota-2026-2027, ford-2026, chevrolet-2026-2027, gmc-2026-2027, buick-2026-2027, cadillac-2026-2027, honda-2026-2027, kia-2026-2027, hyundai-2025-2027, audi-2026-2027, bmw-2026-2027, mercedes-2026-2027, subaru-2026-2027, nissan-2026-2027
+#   optionPolicies/*.json            new: toyota-rav4-2026, toyota-2026-2027, ford-2026, chevrolet-2026-2027, gmc-2026-2027, buick-2026-2027, cadillac-2026-2027, honda-2026-2027, kia-2026-2027, hyundai-2025-2027, audi-2026-2027, bmw-2026-2027, mercedes-2026-2027, subaru-2026-2027, nissan-2026-2027, mazda-2026-2027
 #   deals_api_server.js              3 anchored edits (the box copy differs from the repo's, so no whole-file copy): import line, the facet-row
 #                                    derivation in handleInventoryBulk, options in inventoryRowFromDb. Each anchor must match exactly once or the
 #                                    script stops before changing anything. Every replaced file gets a .bak.<timestamp> next to it.
@@ -26,13 +26,13 @@ fetch() { # fetch <repo path under src> <dest>
 
 fetch factoryOptionAllowlist.js "$TMP/factoryOptionAllowlist.js"
 fetch inventoryOptionRows.js "$TMP/inventoryOptionRows.js"
-for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027; do fetch "optionPolicies/$p.json" "$TMP/optionPolicies/$p.json"; done
+for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027 mazda-2026-2027; do fetch "optionPolicies/$p.json" "$TMP/optionPolicies/$p.json"; done
 grep -q "export function policyFacetRows" "$TMP/factoryOptionAllowlist.js" || { echo "ERROR: fetched factoryOptionAllowlist.js lacks policyFacetRows (stale copy? merge not live yet?)" >&2; exit 1; }
 # inventoryOptionRows.js is normally identical to the repo. When it differs (the ProPILOT carve-out in the glued-caps rule) it is installed with the rest, with a .bak; the
 # check below runs against the NEW copy. Anything else still has to be compared by hand, so only the files named here may differ.
 INV_CHANGED=0; cmp -s "$TMP/inventoryOptionRows.js" "$DIR/inventoryOptionRows.js" || INV_CHANGED=1
 if [ "$INV_CHANGED" = 1 ]; then grep -q "const PROPILOT" "$TMP/inventoryOptionRows.js" || { echo "ERROR: $DIR/inventoryOptionRows.js differs from the repo copy and the repo copy is not the ProPILOT carve-out; stop and compare." >&2; exit 1; }; echo "NOTE: inventoryOptionRows.js differs from the box copy; it will be installed (with a .bak)."; fi
-for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027; do node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$TMP/optionPolicies/$p.json"; done
+for p in toyota-rav4-2026 toyota-2026-2027 ford-2026 chevrolet-2026-2027 gmc-2026-2027 buick-2026-2027 cadillac-2026-2027 honda-2026-2027 kia-2026-2027 hyundai-2025-2027 audi-2026-2027 bmw-2026-2027 mercedes-2026-2027 subaru-2026-2027 nissan-2026-2027 mazda-2026-2027; do node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$TMP/optionPolicies/$p.json"; done
 
 # Patch a COPY of deals_api_server.js first; only install if every anchor matched once and the syntax checks.
 cp "$DIR/deals_api_server.js" "$TMP/deals_api_server.js"
