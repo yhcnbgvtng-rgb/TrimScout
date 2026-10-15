@@ -165,4 +165,31 @@ export const ALIASES = {
     "2026|MX-5 Miata": { models: ["Mazda MX-5 Miata"] },
     "2026|MX-5 Miata RF": { models: ["Mazda MX-5 Miata RF"] },
   },
+  // Audi (2026-10-15, every string below is a real one from the 2026-10-15 box2 read-only dry run: trim text + counts only). The feed drops the transmission words the policy
+  // trims end in ("tiptronic", "S tronic"), glues words together ("Premiumplustfsiquattrotiptronic") or ends the trim with the start of the dealer's name. Every alias names
+  // exactly ONE policy trim of its own model + year: either the string is that trim with those words missing, or the policy has only ONE trim at that level / on that model.
+  // LEFT UNMAPPED on purpose (listed in the PR): blank trims; any trim ending in a dealer's name ("quattro Audi San", "TFSI tiptronic Audi Chantilly", "Rusnak/Westlake");
+  // the A3 "Sedan TFSI quattro S" (the 40 TFSI or the S line plus: two trims); "Q5 quat. 2.0 R4200/D14A7" (a part number, not a trim); the Q6 e-tron "Q6 e-tron Audi ..." strings.
+  audi: {
+    "2026|RS 6 Avant": { trimAliases: { "4.0T performance": "RS 6 Avant performance" } }, // the engine, the model's only trim
+    "2026|S e-tron GT": { trimAliases: { "Premium Plus": "Premium Plus quattro", Prestige: "Prestige quattro", "Premium Plus quattro Audi": "Premium Plus quattro" } }, // the S e-tron GT is all-wheel drive
+    "2027|A3": { trimAliases: { "Sedan 40 TFSI quattro": "40 TFSI quattro S tronic (A3 Sedan)", "Sedan TFSI quattro Black": "TFSI quattro Black optic plus S tronic (A3 Sedan)" } }, // "40" and "Black" each belong to one trim only
+    "2027|A6 Sedan": { trimAliases: { "Premium TFSI quattro S": "Premium TFSI quattro S tronic" } }, // the model's only trim ("S" = S tronic)
+    "2027|Q3": { trimAliases: { "SUV TFSI quattro S": "TFSI quattro S tronic", Tfsiquattrostronic: "TFSI quattro S tronic" } }, // the model's only trim
+    "2027|Q6 e-tron": { trimAliases: { Premium: "Premium quattro", "Premium Plus": "Premium Plus quattro", Prestige: "Prestige quattro", "Premium quattro Audi": "Premium quattro", "Premium Plus quattro Audi": "Premium Plus quattro" } },
+    "2027|Q6 Sportback e-tron": { trimAliases: { Premium: "Premium quattro", "Premium Plus": "Premium Plus quattro", Prestige: "Prestige quattro", "Premium quattro Audi": "Premium quattro", "Premium Plus quattro Audi": "Premium Plus quattro" } },
+    "2027|Q7": { trimAliases: { "Premium Plus TFSI quattro": "Premium Plus TFSI quattro tiptronic", Premiumplustfsiquattrotiptronic: "Premium Plus TFSI quattro tiptronic" } },
+    "2027|Q8": {
+      trimAliases: {
+        "Premium 55 TFSI quattro": "Premium 55 TFSI quattro tiptronic", "Premium Plus 55 TFSI": "Premium Plus 55 TFSI quattro tiptronic", "Prestige 55 TFSI quattro": "Prestige 55 TFSI quattro tiptronic",
+        Premium: "Premium 55 TFSI quattro tiptronic", "Premium Plus": "Premium Plus 55 TFSI quattro tiptronic", Prestige: "Prestige 55 TFSI quattro tiptronic", Premiumplus55tfsiquattrotiptronic: "Premium Plus 55 TFSI quattro tiptronic", Premiumplus: "Premium Plus 55 TFSI quattro tiptronic",
+      },
+    },
+    "2027|Q9": { trimAliases: { "Premium Plus TFSI quattro": "Premium Plus TFSI quattro tiptronic", Prestigetfsiquattrotiptronic: "Prestige TFSI quattro tiptronic" } },
+    "2027|RS Q8": { trimAliases: { Performance: "quattro tiptronic (RS Q8 performance)" } }, // the model's only trim
+    "2027|S3": { trimAliases: { "Sedan TFSI quattro S": "TFSI quattro S tronic" } }, // the model's only trim
+    "2027|SQ6 e-tron": { trimAliases: { "Premium Plus": "Premium Plus quattro", Prestige: "Prestige quattro", "Premium Plus quattro Audi": "Premium Plus quattro" } }, // the model's only two trims
+    "2027|SQ6 Sportback e-tron": { trimAliases: { "Premium Plus quattro Audi": "Premium Plus quattro" } },
+    "2027|SQ8": { trimAliases: { "Premium Plus TFSI quattro": "Premium Plus TFSI quattro tiptronic", "Premium Plus": "Premium Plus TFSI quattro tiptronic", Prestige: "Prestige TFSI quattro tiptronic" } },
+  },
 };

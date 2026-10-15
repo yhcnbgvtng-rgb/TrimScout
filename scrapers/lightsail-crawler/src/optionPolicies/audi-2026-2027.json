@@ -712,7 +712,9 @@
       "rs 6 avant"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "4 0t performance": "rs 6 avant performance"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -1399,7 +1401,11 @@
       "s e tron gt"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus": "premium plus quattro",
+      "prestige": "prestige quattro",
+      "premium plus quattro audi": "premium plus quattro"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -1720,7 +1726,10 @@
       "a3"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sedan 40 tfsi quattro": "40 tfsi quattro s tronic a3 sedan",
+      "sedan tfsi quattro black": "tfsi quattro black optic plus s tronic a3 sedan"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2388,7 +2397,9 @@
       "a6 sedan"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium tfsi quattro s": "premium tfsi quattro s tronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -3568,7 +3579,10 @@
       "q3"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "suv tfsi quattro s": "tfsi quattro s tronic",
+      "tfsiquattrostronic": "tfsi quattro s tronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -4355,7 +4369,13 @@
       "q6 sportback e tron"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium": "premium quattro",
+      "premium plus": "premium plus quattro",
+      "prestige": "prestige quattro",
+      "premium quattro audi": "premium quattro",
+      "premium plus quattro audi": "premium plus quattro"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -4669,7 +4689,13 @@
       "q6 e tron"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium": "premium quattro",
+      "premium plus": "premium plus quattro",
+      "prestige": "prestige quattro",
+      "premium quattro audi": "premium quattro",
+      "premium plus quattro audi": "premium plus quattro"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -4997,7 +5023,10 @@
       "q7"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus tfsi quattro": "premium plus tfsi quattro tiptronic",
+      "premiumplustfsiquattrotiptronic": "premium plus tfsi quattro tiptronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -5364,7 +5393,16 @@
       "q8"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium 55 tfsi quattro": "premium 55 tfsi quattro tiptronic",
+      "premium plus 55 tfsi": "premium plus 55 tfsi quattro tiptronic",
+      "prestige 55 tfsi quattro": "prestige 55 tfsi quattro tiptronic",
+      "premium": "premium 55 tfsi quattro tiptronic",
+      "premium plus": "premium plus 55 tfsi quattro tiptronic",
+      "prestige": "prestige 55 tfsi quattro tiptronic",
+      "premiumplus55tfsiquattrotiptronic": "premium plus 55 tfsi quattro tiptronic",
+      "premiumplus": "premium plus 55 tfsi quattro tiptronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -5801,7 +5839,10 @@
       "q9"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus tfsi quattro": "premium plus tfsi quattro tiptronic",
+      "prestigetfsiquattrotiptronic": "prestige tfsi quattro tiptronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -6333,7 +6374,9 @@
       "rs q8"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "performance": "quattro tiptronic rs q8 performance"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -6900,7 +6943,9 @@
       "s3"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sedan tfsi quattro s": "tfsi quattro s tronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -8614,7 +8659,9 @@
       "sq6 sportback e tron"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus quattro audi": "premium plus quattro"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -8919,7 +8966,11 @@
       "sq6 e tron"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus": "premium plus quattro",
+      "prestige": "prestige quattro",
+      "premium plus quattro audi": "premium plus quattro"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -9510,7 +9561,11 @@
       "sq8"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "premium plus tfsi quattro": "premium plus tfsi quattro tiptronic",
+      "premium plus": "premium plus tfsi quattro tiptronic",
+      "prestige": "prestige tfsi quattro tiptronic"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
