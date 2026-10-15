@@ -16,6 +16,7 @@ import type { BuyerCounter } from "./rfq";
 import { counterPriceChanged, isTaxLine } from "./counterSheet";
 import type { LineItem } from "./leaseQuote";
 import { sumItems } from "./leaseMath";
+import { salesTaxBase } from "./salesTax";
 import { cashOutTheDoor, type QuotePrefs, type UsedCashQuote, type UsedQuote } from "./usedQuote";
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -35,7 +36,7 @@ export function acceptableCashCounter(prefs: QuotePrefs | null | undefined, coun
   return counter as BuyerCounter & { sheet: NonNullable<BuyerCounter["sheet"]> };
 }
 
-const taxableBase = (q: Pick<UsedCashQuote, "sellingPrice" | "addOns">) => q.sellingPrice + sumItems(q.addOns);
+const taxableBase = (q: Pick<UsedCashQuote, "sellingPrice" | "addOns">) => salesTaxBase(q.sellingPrice, q.addOns);
 const taxTotal = (lines: LineItem[]) => lines.filter((l) => isTaxLine(l.name)).reduce((t, l) => t + l.amount, 0);
 
 /** The dealer's own effective rate: tax on their original quote ÷ its taxable amount (price + add-ons); null when there is nothing to divide by. */

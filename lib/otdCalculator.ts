@@ -1,4 +1,5 @@
 import { EXACT_ZIP_LOOKUP, ExactZipData } from "./zipCoordinates";
+import { salesTaxBase } from "./salesTax";
 
 export interface OtdCalculationInput {
   msrp: number;
@@ -301,7 +302,8 @@ export function calculateOtd(input: OtdCalculationInput): OtdCalculationResult {
   }
 
   const sellingPrice = Math.max(0, msrp - discountDollars - rebates);
-  const salesTax = Math.round(sellingPrice * taxRate);
+  // Same base as every other sales-tax path (lib/salesTax.ts): selling price + dealer add-ons. Doc fee and DMV fees stay untaxed.
+  const salesTax = Math.round(salesTaxBase(sellingPrice, [{ amount: accessories }]) * taxRate);
   const dmvFees = estimateTitleRegistration(sellingPrice);
   const totalOtdPrice = sellingPrice + salesTax + dmvFees + docFee + accessories;
   const quotedOtdPrice = sellingPrice + docFee + accessories;
