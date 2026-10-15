@@ -8,10 +8,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyFacetRows } from '../src/factoryOptionAllowlist.js';
+import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyFacetRows, resolvePolicyTrim } from '../src/factoryOptionAllowlist.js';
 import { parseCsv } from '../../../scripts/lib/optionPolicyCommon.mjs';
 import { normalizeOptionKey } from '../src/inventoryOptionRows.js';
 import { looksLikeOptionSentence } from '../src/optionSentenceFilter.js';
+import { ALIASES } from '../../../scripts/lib/optionPolicyAliases.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, '../../..');
@@ -151,5 +152,62 @@ describe('Audi specifics', () => {
   it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Audi', model: 'Q9', year: 2027, trim: '' }, [{ name: 'Trailer hitch' }]), { skip: true });
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Audi', model: 'Q9', year: 2027, trim: 'Nope' }, [{ name: 'Trailer hitch' }]), { skip: true });
+  });
+});
+
+describe('approved exact trim aliases (scripts/lib/optionPolicyAliases.mjs, audi)', () => {
+  const trimOf = (model, year, trim) => { const p = modelPoliciesFor(ALLOW, { make: 'Audi', model, year })[0]; return p ? resolvePolicyTrim(p, trim, model)?.trim?.label ?? null : null; };
+  const trusted = (model, year, trim) => run({ model, year, trim }, ['Glacier White metallic'])?.trimTrusted === true;
+  // [model, year, feed trim string, policy trim label]: every string is a real one from the 2026-10-15 box2 dry run
+  const MAPPED = [
+    ['Q7', 2027, 'Premium Plus TFSI® quattro®', 'Premium Plus TFSI quattro tiptronic'],
+    ['Q7', 2027, 'Premiumplustfsiquattrotiptronic', 'Premium Plus TFSI quattro tiptronic'],
+    ['Q8', 2027, 'Premium Plus 55 TFSI®', 'Premium Plus 55 TFSI quattro tiptronic'],
+    ['Q8', 2027, 'Prestige 55 TFSI® quattro®', 'Prestige 55 TFSI quattro tiptronic'],
+    ['Q8', 2027, 'Premium 55 TFSI® quattro®', 'Premium 55 TFSI quattro tiptronic'],
+    ['Q8', 2027, 'Prestige', 'Prestige 55 TFSI quattro tiptronic'],
+    ['Q9', 2027, 'Premium Plus TFSI® quattro®', 'Premium Plus TFSI quattro tiptronic'],
+    ['SQ8', 2027, 'Premium Plus TFSI® quattro®', 'Premium Plus TFSI quattro tiptronic'],
+    ['A6 Sedan', 2027, 'Premium TFSI® quattro® S', 'Premium TFSI quattro S tronic'],
+    ['Q3', 2027, 'SUV TFSI® quattro® S', 'TFSI quattro S tronic'],
+    ['S3', 2027, 'Sedan TFSI® quattro® S', 'TFSI quattro S tronic'],
+    ['A3', 2027, 'Sedan 40 TFSI® quattro®', '40 TFSI quattro S tronic (A3 Sedan)'],
+    ['A3', 2027, 'Sedan TFSI® quattro® Black', 'TFSI quattro Black optic plus S tronic (A3 Sedan)'],
+    ['Q6 e-tron', 2027, 'Premium Plus quattro® Audi', 'Premium Plus quattro'],
+    ['Q6 e-tron', 2027, 'Premium Plus', 'Premium Plus quattro'],
+    ['Q6 Sportback e-tron', 2027, 'Prestige', 'Prestige quattro'],
+    ['SQ6 e-tron', 2027, 'Prestige', 'Prestige quattro'],
+    ['S e-tron GT', 2026, 'Premium Plus', 'Premium Plus quattro'],
+    ['RS 6 Avant', 2026, '4.0T performance', 'RS 6 Avant performance'],
+    ['RS Q8', 2027, 'Performance', 'quattro tiptronic (RS Q8 performance)'],
+  ];
+  for (const [model, year, trim, want] of MAPPED) it(`${year} ${model} "${trim}" = ${want}`, () => assert.equal(trimOf(model, year, trim), want));
+
+  // [model, year, feed trim string]: stays unmapped (skipped, never stripped) because it is blank, ends in a dealer's name, names two trims, or is not a trim
+  const UNMAPPED = [
+    ['Q8', 2027, ''], ['Q6 e-tron', 2027, ''], ['Q6 e-tron', 2027, 'Prestige quattro® Audi San'], ['Q6 e-tron', 2027, 'Premium Plus quattro® Rusnak/Westlake'],
+    ['Q6 e-tron', 2027, 'Q6 e-tron Audi Chantilly'], ['SQ7', 2027, 'TFSI® tiptronic® Audi Chantilly'], ['SQ9', 2027, 'TFSI® tiptronic® Audi of'],
+    ['A3', 2027, 'Sedan TFSI® quattro® S'], ['Q5', 2027, 'Q5 quat. 2.0 R4200/D14A7'],
+    ['A6 Sportback e-tron', 2027, 'Premium Plus'], // RWD or quattro: two trims at that level
+    ['Q4 e-tron', 2026, 'Premium'], // 45 RWD or 55 quattro
+  ];
+  for (const [model, year, trim] of UNMAPPED) it(`${year} ${model} "${trim}" stays untrusted`, () => assert.equal(trusted(model, year, trim), false));
+
+  it('every Audi alias points at exactly one real trim of its own model + year, and no alias crosses model years', () => {
+    let n = 0;
+    for (const [scope, al] of Object.entries(ALIASES.audi)) {
+      const [year, model] = scope.split('|');
+      const key = Object.keys(RAW).find((k) => RAW[k].source.endsWith(`(${year} ${model})`));
+      assert.ok(key, `${scope} has a policy`);
+      for (const to of Object.values(al.trimAliases || {})) { n++; assert.ok(Object.values(RAW[key].trims).some((t) => t.label === to), `${scope}: ${to}`); }
+    }
+    assert.ok(n >= 40, `checked ${n} aliases`);
+    assert.equal(trusted('Q8', 2026, 'Premium Plus'), false); // 2026 Q8 has no policy
+    assert.equal(trusted('Q6 e-tron', 2026, 'Premium Plus'), false);
+  });
+  it('an aliased trim gets exactly the rows its policy trim gets', () => {
+    const a = run({ model: 'Q8', year: 2027, trim: 'Premium Plus 55 TFSI®' }, ['Glacier White metallic']);
+    const b = run({ model: 'Q8', year: 2027, trim: 'Premium Plus 55 TFSI quattro tiptronic' }, ['Glacier White metallic']);
+    assert.deepEqual(a.rows, b.rows);
   });
 });
