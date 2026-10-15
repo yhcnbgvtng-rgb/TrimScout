@@ -156,7 +156,7 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
     const feeLines = used ? used.dueAtSigning.filter((l) => !isTax(l.name)) : [];
     const cells: Record<string, React.ReactNode> = used ? {
       price: fmtMoney(used.sellingPrice),
-      fees: <>{feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>}<DealerAdjustedFlag overrides={activeOverrides(used).filter((o) => o.key === "title_registration")} /></>,
+      fees: <>{feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>}</>,
       tax: <>{taxLines.length ? lines(dueAtSigningSum(taxLines), taxLines) : <span className="text-ink-muted">—</span>}<DealerAdjustedFlag overrides={activeOverrides(used).filter((o) => o.key === "sales_tax")} /></>,
       addons: used.noAddOns || !used.addOns?.length ? <span className="text-ink-muted">None</span> : lines(dueAtSigningSum(used.addOns), used.addOns),
       rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
