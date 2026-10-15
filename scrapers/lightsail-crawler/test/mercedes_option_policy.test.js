@@ -159,3 +159,22 @@ describe('Mercedes specifics', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Mercedes-Benz', model: 'GLC SUV', year: 2027, trim: 'Nope' }, [{ name: 'Digital Extra: MB.DRIVE ASSIST' }]), { skip: true });
   });
 });
+
+describe('the Mercedes-Benz apply script and car picker (scripts/box/2026-10-15-mercedes-option-policy-apply.mjs)', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-15-mercedes-option-policy-apply.mjs'), 'utf8');
+  const pick = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-15-pick-test-cars-mercedes.mjs'), 'utf8');
+  it('is Mercedes-Benz-only: Mercedes-Benz 2026-27 car and dealer queries, its own lock owners, no other make named', () => {
+    assert.ok(src.includes("make = 'Mercedes-Benz' AND year IN (2026, 2027)") && src.includes("AND make = 'Mercedes-Benz'"));
+    assert.ok(src.includes('mercedes-option-policy-apply') && src.includes('mercedes-option-policy-restore'));
+    assert.doesNotMatch(src, /hyundai|subaru|nissan|mazda/i);
+  });
+  it('keeps the safety rails: untrusted trims are skipped (never a wipe), backup first, deadline, sync lock, restore', () => {
+    assert.ok(src.includes('if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }'));
+    assert.ok(src.includes('backup.jsonl') && src.includes('pastDeadline()') && src.includes('takeLock(') && src.includes('async function restore()'));
+    assert.ok(src.includes('LOCK BUSY') && src.includes('stale'));
+  });
+  it('the car picker is Mercedes-Benz-only and reader-only (no writer account, no sync lock, no writes)', () => {
+    assert.ok(pick.includes("make = 'Mercedes-Benz' AND year IN (2026, 2027)") && pick.includes('DB_READER_USER'));
+    assert.doesNotMatch(pick, /DB_WRITER|sync-lock|INSERT INTO|DELETE FROM|UPDATE |mazda/i);
+  });
+});

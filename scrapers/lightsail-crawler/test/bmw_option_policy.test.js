@@ -144,3 +144,22 @@ describe('BMW specifics', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'BMW', model: 'X5', year: 2027, trim: 'Nope' }, [{ name: 'BMW Glass Controls' }]), { skip: true });
   });
 });
+
+describe('the BMW apply script and car picker (scripts/box/2026-10-15-bmw-option-policy-apply.mjs)', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-15-bmw-option-policy-apply.mjs'), 'utf8');
+  const pick = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-15-pick-test-cars-bmw.mjs'), 'utf8');
+  it('is BMW-only: BMW 2026-27 car and dealer queries, its own lock owners, no other make named', () => {
+    assert.ok(src.includes("make = 'BMW' AND year IN (2026, 2027)") && src.includes("AND make = 'BMW'"));
+    assert.ok(src.includes('bmw-option-policy-apply') && src.includes('bmw-option-policy-restore'));
+    assert.doesNotMatch(src, /hyundai|subaru|nissan|mazda/i);
+  });
+  it('keeps the safety rails: untrusted trims are skipped (never a wipe), backup first, deadline, sync lock, restore', () => {
+    assert.ok(src.includes('if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }'));
+    assert.ok(src.includes('backup.jsonl') && src.includes('pastDeadline()') && src.includes('takeLock(') && src.includes('async function restore()'));
+    assert.ok(src.includes('LOCK BUSY') && src.includes('stale'));
+  });
+  it('the car picker is BMW-only and reader-only (no writer account, no sync lock, no writes)', () => {
+    assert.ok(pick.includes("make = 'BMW' AND year IN (2026, 2027)") && pick.includes('DB_READER_USER'));
+    assert.doesNotMatch(pick, /DB_WRITER|sync-lock|INSERT INTO|DELETE FROM|UPDATE |mazda/i);
+  });
+});
