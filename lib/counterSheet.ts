@@ -297,6 +297,8 @@ export function counterDiff(sheet: CounterSheet): DiffRow[] {
   const rows: DiffRow[] = [
     item("sellingPrice", "Selling price", b.sellingPrice, a.sellingPrice),
     ...lineRows("addOn", "Add-on", b.addOns, a.addOns),
+    // The dealer's surcharges ride through a counter untouched (the buyer can't edit them); shown so the out-the-door adds up.
+    ...lineRows("surcharge", "Surcharge", b.surcharges ?? [], a.surcharges ?? []).map((r) => ({ ...r, locked: true })),
     ...lineRows("fee", "Fee", b.dueAtSigning, a.dueAtSigning).map(lockFee),
     ...lineRows("rebate", "Rebate", b.rebates ?? [], a.rebates ?? [], -1),
   ];

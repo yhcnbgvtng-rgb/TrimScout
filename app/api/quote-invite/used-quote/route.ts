@@ -39,6 +39,9 @@ export async function POST(req: Request) {
     dueAtSigning: toLines(raw.dueAtSigning),
     addOns: toLines(raw.addOns) ?? [],
     noAddOns: Boolean(raw.noAddOns),
+    // Each surcharge also carries the dealer's short reason (shown to the buyer as "Dealer-imposed").
+    surcharges: Array.isArray(raw.surcharges) ? (raw.surcharges as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN, reason: typeof l?.reason === "string" ? l.reason.trim().replace(/\s+/g, " ").slice(0, 140) : "" })) : [],
+    noSurcharges: Boolean(raw.noSurcharges),
     rebates: toLines(raw.rebates) ?? [],
     miles: condition === "new" ? null : num(raw.miles) ?? undefined,
     stockNumber,
@@ -61,7 +64,7 @@ export async function POST(req: Request) {
           lenderName: typeof raw.lenderName === "string" && raw.lenderName.trim() ? raw.lenderName.trim().slice(0, 80) : null,
         }
       : { ...base, kind: "cash" };
-  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition, requireMsrp: true });
+  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition, requireMsrp: true, requireSurcharges: true });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
   // TrimScout calculates sales tax and title & registration. A different amount is the dealer's override: it needs a

@@ -96,6 +96,8 @@ export function verifyAcceptedQuote(submitted: Partial<UsedQuote> | null | undef
   if (!(typeof submitted.sellingPrice === "number") || Math.abs(submitted.sellingPrice - after.sellingPrice) >= 0.005) diff("The selling price");
   if (canon(submitted.addOns) !== canon(after.addOns)) diff("Add-ons");
   if (Boolean(submitted.noAddOns) !== Boolean(after.noAddOns)) diff("The add-ons confirmation");
+  if (canon(submitted.surcharges) !== canon(after.surcharges)) diff("Surcharges");
+  if (Boolean(submitted.noSurcharges) !== Boolean(after.noSurcharges)) diff("The surcharges confirmation");
   if (canon(submitted.rebates) !== canon(after.rebates)) diff("Rebates");
   const subDas = Array.isArray(submitted.dueAtSigning) ? submitted.dueAtSigning : [];
   if (canon(subDas.filter((l) => !isTaxLine(String(l?.name ?? "")))) !== canon(after.dueAtSigning.filter((l) => !isTaxLine(l.name)))) diff("Doc fee, title & registration and the other fees");
@@ -111,6 +113,6 @@ export function verifyAcceptedQuote(submitted: Partial<UsedQuote> | null | undef
 }
 
 /** The final out-the-door the dealer confirms and the buyer is told. */
-export function acceptedOutTheDoor(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning" | "addOns" | "rebates">): number {
+export function acceptedOutTheDoor(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning" | "addOns" | "rebates"> & Partial<Pick<UsedCashQuote, "surcharges">>): number {
   return cashOutTheDoor(q);
 }
