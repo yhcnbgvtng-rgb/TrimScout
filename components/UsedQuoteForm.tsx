@@ -76,7 +76,7 @@ export function UsedQuoteForm({
     apr: initFin ? String(initFin.apr) : "",
     termMonths: initFin ? String(initFin.termMonths) : kind === "finance" ? String(prefs.finance.termMonths) : "",
     lenderName: initFin?.lenderName || "",
-    msrp: msrp && msrp > 0 ? String(msrp) : "",
+    msrp: initial?.msrp && initial.msrp > 0 ? String(initial.msrp) : msrp && msrp > 0 ? String(msrp) : "",
   });
   const asItems = (list: { name: string; amount: number }[] | undefined | null): Item[] => (list || []).map((l) => ({ name: l.name, amount: String(l.amount) }));
   const [noTaxEstimate, setNoTaxEstimate] = useState(initFin ? initFin.monthlyPaymentWithEstTax == null : false);
@@ -173,6 +173,7 @@ export function UsedQuoteForm({
   );
   const base = {
     sellingPrice: d.sellingPrice ?? undefined,
+    msrp: d.msrp ?? undefined,
     dueAtSigning: d.items,
     addOns: d.addOnLines,
     noAddOns,
@@ -199,7 +200,7 @@ export function UsedQuoteForm({
           monthlyPaymentWithEstTax: noTaxEstimate ? null : d.taxed,
           lenderName: f.lenderName.trim() || null,
         };
-  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition }), [quote, prefs, f.vin, f.stockNumber, condition]);
+  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition, requireMsrp: true }), [quote, prefs, f.vin, f.stockNumber, condition]);
   const [taxConfirmed, setTaxConfirmed] = useState(false);
   const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
@@ -239,6 +240,13 @@ export function UsedQuoteForm({
       </label>
     );
   };
+  const msrpMissing = !(num(f.msrp) != null && (num(f.msrp) as number) > 0);
+  const msrpField = (
+    <div data-testid="msrp-field">
+      {field({ k: "msrp", title: "MSRP", required: true, hint: msrp && msrp > 0 ? "From the factory sticker." : "Required — from the sticker. The buyer sees % off MSRP." })}
+      {touched && msrpMissing ? <span className="mt-1 block text-[10px] font-bold text-rose-300" role="alert" data-testid="msrp-error">MSRP is required — enter the sticker MSRP.</span> : null}
+    </div>
+  );
   const opBadge = (op: "+" | "−" | "=") => (
     <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded font-mono text-[11px] font-black ${op === "=" ? "bg-brand-500 text-black" : op === "−" ? "bg-rose-500/20 text-rose-300" : "bg-border text-white"}`}>{op}</span>
   );
@@ -352,7 +360,7 @@ export function UsedQuoteForm({
               {eqBlock("+", "Selling price", "eq-selling-price", (
                 <div className="grid grid-cols-2 gap-3">
                   {field({ k: "sellingPrice", title: "Selling price", required: true, hint: "Before fees and taxes." })}
-                  {field({ k: "msrp", title: "MSRP", hint: msrp && msrp > 0 ? "From the factory sticker." : "From the sticker — for the % of MSRP line." })}
+                  {msrpField}
                 </div>
               ))}
               {eqBlock("+", "Add-ons", "add-ons", (
@@ -399,6 +407,7 @@ export function UsedQuoteForm({
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">2 · Price</h4>
             <div className="grid grid-cols-2 gap-3">
               {field({ k: "sellingPrice", title: "Selling price", required: true, hint: "Before fees and taxes." })}
+              {msrpField}
               {kind === "finance" ? field({ k: "downPayment", title: "Down payment applied", required: true, hint: `Buyer's lock: $${prefs.finance.downPayment.toLocaleString()} — must match.` }) : null}
               {kind === "finance" ? field({ k: "tradeEquity", title: "Trade equity", hint: "Optional — positive reduces the amount financed." }) : null}
             </div>

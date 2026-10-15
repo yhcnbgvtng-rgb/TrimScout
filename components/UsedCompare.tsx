@@ -9,7 +9,8 @@ import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlter
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { allowanceOf, applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
 import { BASIS_LABELS, TRADE_ESTIMATE_COPY } from "../lib/trade/types";
-import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
+import { compareCashQuotes, msrpDiscount, otdExcludingAddOns } from "../lib/cashCompare";
+import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import { waitingDeliveryLabel } from "../lib/quotePackage";
 import type { RfqRequest } from "../lib/rfq";
@@ -65,6 +66,9 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
   const bestAfter = finance && trade ? lowest((_u, r) => (eqOf(r).status === "quoted" ? otdOf(r).after : null)) : null;
   const quotedNets = trade ? live.map((r) => eqOf(r)).filter((e) => e.status === "quoted").map((e) => e.net as number) : [];
   const bestNet = quotedNets.length > 1 ? Math.max(...quotedNets) : null;
+  // Cash only: best-value picks among the ranked quotes (alternates sit outside `live`, so they never move a badge or a gap).
+  const cashLive = finance ? [] : live.filter((r) => r.used!.kind === "cash");
+  const cmp = compareCashQuotes(cashLive.map((r) => ({ id: r.invite.id, otd: otdOf(r).after, quote: r.used as UsedCashQuote })));
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
@@ -85,11 +89,13 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
   const rowDefs: QuoteRowDef[] = [
     ...(finance ? [{ key: "monthly", label: "Monthly" }, { key: "cashdue", label: "Cash due at signing" }, { key: "apr", label: "APR · financed" }] : []),
     { key: "price", label: "Selling price" },
+    ...(!finance ? [{ key: "pctoff", label: "% off MSRP" }] : []),
     { key: "fees", label: "Fees (named)" },
     { key: "tax", label: "Sales tax" },
     { key: "addons", label: "Add-ons" },
     { key: "rebates", label: "Rebates / credits" },
     ...(trade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }] : []),
+    ...(!finance ? [{ key: "otdex", label: "Out the door, excluding add-ons" }] : []),
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
     ...(trade
@@ -120,10 +126,22 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
       if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
       if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
       if (used.kind === "cash" && (trade ? otdBeforeAfter(cashOutTheDoor(used), eq).after : cashOutTheDoor(used)) === bestOtd) best.push(trade ? "otdafter" : "otd");
+      if (used.kind === "cash" && cmp.biggestDiscount.includes(invite.id)) best.push("pctoff");
       if (trade && eq.status === "quoted" && bestNet != null && eq.net === bestNet) best.push("netequity");
       if (trade && finance && eq.status === "quoted" && bestAfter != null && otdBeforeAfter(cashOutTheDoor(used), eq).after === bestAfter) best.push("otdafter");
     }
     const otd = used ? otdBeforeAfter(cashOutTheDoor(used), eq) : null;
+    const disc = used?.kind === "cash" ? msrpDiscount(used) : null;
+    const pctOffCell = !disc ? null : disc.status === "none" ? <span className="text-ink-muted" data-testid="msrp-not-provided">MSRP not provided</span>
+      : <span data-testid="pct-off-msrp">
+          {disc.status === "above" ? <span className="text-amber-200">{fmtMoney(disc.dollars)} · above MSRP</span>
+            : disc.status === "at" ? <>At MSRP</>
+            : <>{fmtMoney(disc.dollars)} · {disc.pct}% off</>}
+          <span className="block text-[10px] font-normal text-ink-muted">MSRP {fmtMoney(disc.msrp)}</span>
+        </span>;
+    const gap = used?.kind === "cash" && !excluded && !expired ? cmp.gapToBest[invite.id] : undefined;
+    const vsBest = gap === undefined || cashLive.length < 2 ? null
+      : <span className="block text-[10px] font-normal text-ink-muted" data-testid="vs-best">{gap === 0 ? "Lowest quote" : `+${fmtMoney(gap)} vs. best`}</span>;
     const tradeCells: Record<string, React.ReactNode> = trade ? {
       tradeallow: eq.status === "quoted" && eq.allowance
         ? <div data-testid="trade-allowance"><span className="font-bold text-white">{eq.allowance.isRange ? `${fmtMoney(eq.allowance.low)} to ${fmtMoney(eq.allowance.high)}` : fmtMoney(eq.allowance.mid)}</span>
@@ -142,6 +160,7 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         otdbefore: fmtMoney(otd!.before),
         otdafter: <>
           {fmtMoney(otd!.after)}
+          {used.kind === "cash" ? vsBest : null}
           {eq.status === "quoted" && eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted">{fmtMoney(otd!.afterLow)} to {fmtMoney(otd!.afterHigh)}</span> : null}
           {eq.status !== "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{eq.status === "expired" ? "trade expired; not applied" : "trade pending; not applied"}</span> : null}
         </>,
@@ -167,7 +186,11 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         cashdue: fmtMoney(financeCashDue(fin)),
         apr: <>{fmtPct(fin.apr)} · {fin.termMonths} mo<span className="block text-[10px] text-ink-muted">{fmtMoney(fin.amountFinanced)} financed{fin.lenderName ? ` · ${fin.lenderName}` : ""}</span></>,
       } : {}),
-      ...(used.kind === "cash" && !trade ? { otd: fmtMoney(cashOutTheDoor(used)) } : {}),
+      ...(used.kind === "cash" ? {
+        pctoff: pctOffCell,
+        otdex: <span data-testid="otd-excl-addons">{fmtMoney(otdExcludingAddOns(used))}</span>,
+      } : {}),
+      ...(used.kind === "cash" && !trade ? { otd: <>{fmtMoney(cashOutTheDoor(used))}{vsBest}</> } : {}),
       ...tradeCells,
     } : { ...tradeCells };
     const header = (
@@ -175,6 +198,9 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         <span className="block text-sm font-bold leading-snug text-white">{invite.dealerName}</span>
         <div className="flex flex-wrap items-center gap-1.5">
           {status}
+          {used?.kind === "cash" && !expired && !excluded && cmp.lowestOtd.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest out the door", "badge-lowest-otd") : null}
+          {used?.kind === "cash" && !expired && !excluded && cmp.biggestDiscount.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Biggest discount", "badge-biggest-discount") : null}
+          {used?.kind === "cash" && !expired && !excluded && cmp.lowestFees.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest fees", "badge-lowest-fees") : null}
           {alternate ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" ? " — not ranked" : ""}</span> : null}
         </div>
         {multiCar && invite.vehicle ? <span className="block text-[11px] font-semibold text-ink-light" data-testid="column-vehicle">{[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}</span> : null}

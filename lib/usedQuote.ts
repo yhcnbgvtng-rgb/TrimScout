@@ -91,6 +91,8 @@ export function parseQuotePrefs(raw: unknown): QuotePrefs | null {
 // ---------------------------------------------------------------------------
 interface UsedQuoteBase {
   sellingPrice: number;
+  /** Sticker MSRP the dealer typed — required on every new quote. Quotes sent before it was required have none; the compare table says "MSRP not provided". */
+  msrp?: number | null;
   /** Itemized — sales tax, doc fee, title/registration, each named. Never one lump. */
   dueAtSigning: LineItem[];
   /** Dealer add-ons, each its own line — or none, said explicitly. Never buried in price or payment. */
@@ -154,7 +156,7 @@ const TITLE_REG_RE = /title|registr/i;
 export function validateUsedQuote(
   q: Partial<UsedQuote>,
   prefs: QuotePrefs,
-  car: { vin?: string | null; stockNumber?: string | null; condition?: "new" | "used" | "cpo" | null },
+  car: { vin?: string | null; stockNumber?: string | null; condition?: "new" | "used" | "cpo" | null; /** New and revised dealer sheets must carry an MSRP. Accepting a buyer counter re-validates an older quote that has none, so it leaves this off. */ requireMsrp?: boolean },
   now: Date = new Date()
 ): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
@@ -162,6 +164,8 @@ export function validateUsedQuote(
   if (!(car.vin || "").trim() && !(car.stockNumber || "").trim()) errors.push("VIN or stock number is required.");
   if (q.kind !== prefs.quoteType) errors.push(`The buyer asked for a ${prefs.quoteType} quote.`);
   if (!pos(q.sellingPrice)) errors.push("Selling price must be greater than 0.");
+  if (car.requireMsrp && !pos(q.msrp)) errors.push("MSRP is required — enter the sticker MSRP (greater than 0) so the buyer can see the discount.");
+  else if (pos(q.msrp) && pos(q.sellingPrice) && q.sellingPrice > q.msrp * 3) warnings.push("Selling price is more than 3× the MSRP — double-check both numbers.");
   const used = car.condition === "used" || car.condition === "cpo";
   if (used && !nonneg(q.miles)) errors.push("Miles on the car are required (0 or more).");
   const das = Array.isArray(q.dueAtSigning) ? q.dueAtSigning : null;

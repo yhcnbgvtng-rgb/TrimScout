@@ -130,7 +130,7 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     assert.equal((dealerPage.match(/<TradeInNote expected=\{ctx\.tradeInExpected\} \/>/g) || []).length, 2, "cash/finance intro and the lease intro both carry the trade-in note");
     assert.match(dealerPage, /Trade-ins are handled after an out-the-door price is agreed/);
     const f = read("components/UsedQuoteForm.tsx");
-    assert.match(f, /validateUsedQuote\(quote, prefs, \{ vin: f\.vin, stockNumber: f\.stockNumber, condition \}\)/);
+    assert.match(f, /validateUsedQuote\(quote, prefs, \{ vin: f\.vin, stockNumber: f\.stockNumber, condition, requireMsrp: true \}\)/);
     assert.match(f, /financeMonthly\(amountFinanced, apr, term\)/);
     assert.match(f, /data-testid="add-ons"/);
     assert.match(f, /data-testid="no-add-ons"/);
@@ -141,7 +141,7 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     assert.doesNotMatch(f, /checklist|mustConfirm|acks/i, "dealer submit needs no checklist answers");
     assert.doesNotMatch(f, /monthlyPaymentPreTax: num\(f\./, "no typed monthly");
     const route = read("app/api/quote-invite/used-quote/route.ts");
-    assert.match(route, /validateUsedQuote\(quote, rfq\.quotePrefs, \{ vin, stockNumber, condition \}\)/);
+    assert.match(route, /validateUsedQuote\(quote, rfq\.quotePrefs, \{ vin, stockNumber, condition, requireMsrp: true \}\)/);
     assert.match(route, /addOns: toLines\(raw\.addOns\) \?\? \[\],\s*noAddOns: Boolean\(raw\.noAddOns\),\s*rebates: toLines\(raw\.rebates\) \?\? \[\],/);
     assert.doesNotMatch(route, /checklist|mustConfirm/i);
   });
