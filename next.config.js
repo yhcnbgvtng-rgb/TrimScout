@@ -19,6 +19,13 @@ const nextConfig = {
     "/api/ford-comparables": ["./lib/testdata/ford-stickers/**/*"],
     "/app/api/ford-comparables/**/*": ["./lib/testdata/ford-stickers/**/*"],
   },
+  async redirects() {
+    // MarketPulse was removed from the site; send any old URL to the home page.
+    return [
+      { source: "/market-pulse", destination: "/", permanent: true },
+      { source: "/api/market-pulse", destination: "/", permanent: true },
+    ];
+  },
   async headers() {
     // script-src allows 'unsafe-inline'/'unsafe-eval' because Next.js's own
     // hydration/data scripts need it without per-request nonces — a
