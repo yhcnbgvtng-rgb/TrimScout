@@ -211,3 +211,24 @@ describe('approved exact trim aliases (scripts/lib/optionPolicyAliases.mjs, audi
     assert.deepEqual(a.rows, b.rows);
   });
 });
+
+describe('the Audi apply script (scripts/box/2026-10-15-audi-option-policy-apply.mjs)', () => {
+  const read = (f) => fs.readFileSync(path.join(repo, 'scripts/box', f), 'utf8');
+  const src = read('2026-10-15-audi-option-policy-apply.mjs');
+  it('is Audi-only: Audi 2026-27 car and dealer queries, its own lock owners, no other make named', () => {
+    assert.ok(src.includes("make = 'Audi' AND year IN (2026, 2027)") && src.includes("AND make = 'Audi'"));
+    assert.ok(src.includes('audi-option-policy-apply') && src.includes('audi-option-policy-restore'));
+    assert.doesNotMatch(src, /mazda|hyundai|subaru|nissan|bmw|mercedes|toyota|ford/i);
+  });
+  it('keeps the safety rails: untrusted trims are skipped (never a wipe), backup first, deadline, sync lock, restore', () => {
+    assert.ok(src.includes('if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }'));
+    assert.ok(src.indexOf('if (!res.trimTrusted)') < src.indexOf('const before = by.get'), 'the skip comes before anything is planned or backed up');
+    assert.ok(src.includes('backup.jsonl') && src.includes('pastDeadline()') && src.includes('takeLock(') && src.includes('async function restore()'));
+    assert.ok(src.includes('LOCK BUSY') && src.includes('stale'));
+    assert.ok(src.includes('DB_READER_USER') && src.includes('const write = PHASE === "apply" || (PHASE === "restore" && args.go);'), 'plan uses the reader account; restore is dry without --go');
+  });
+  it('is the Mazda script with only the make and the lock owners changed (so the rails that ran on 2026-10-15 are the rails here)', () => {
+    const mazda = read('2026-10-15-mazda-option-policy-apply.mjs').replace(/Mazda/g, 'Audi').replace(/mazda/g, 'audi');
+    assert.equal(src, mazda);
+  });
+});
