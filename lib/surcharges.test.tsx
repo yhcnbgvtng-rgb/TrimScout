@@ -92,7 +92,7 @@ describe("sales tax stays on price + add-ons", () => {
   it("a surcharge never moves the calculated tax, in the form, the server check or a counter", () => {
     assert.equal(calcSalesTax(ZIP, 40000, []), 2650);
     const f = read("components/UsedQuoteForm.tsx");
-    assert.match(f, /const calcInput = \{ zip, sellingPrice: num\(f\.sellingPrice\), addOns: toLines\(addOns\) \}/, "surcharges are not an input to the calculation");
+    assert.match(f, /const calcInput = \{ zip, sellingPrice: num\(f\.sellingPrice\), addOns: toLines\(addOns\), isNew: isNewCar \}/, "surcharges are not an input to the calculation (#540 added isNew)");
     const zero = { name: "Sales tax", amount: 0 };
     const q = cash({ surcharges: SUR, dueAtSigning: [zero, { name: "Doc fee", amount: 495 }, { name: "Title & registration", amount: 660 }] });
     assert.equal(applyCashCounter(q, {}, ZIP).dueAtSigning[0].amount, 2650);
