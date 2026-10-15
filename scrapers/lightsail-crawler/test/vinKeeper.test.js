@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement, storeMatchesMake, MAX_DUPLICATE_VINS } from '../src/vinKeeper.js';
+import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement, storeMatchesMake, canonicalMake, buildBlockedIdsSelect, BLOCKED_RANK_MODES, MAX_DUPLICATE_VINS } from '../src/vinKeeper.js';
 import { distinctVins, runDuplicateVins, DUPLICATE_VINS_PATH } from '../../../scripts/box/syncSuperseded.js';
 
 const V1 = '3N1AB8CV6RY276712', V2 = 'KMHGC4DD9DU247439';
@@ -162,5 +162,122 @@ describe('brand tiebreak (a store whose name carries the car\'s make beats one t
   });
   it('the keeper query reads the store name and make', () => {
     assert.match(buildRowsSelect([V1]).sql, /dealer_name AS dealerName, make,/);
+  });
+});
+
+describe('unparseable dates are treated like NULL (the order stays total and never depends on row order)', () => {
+  const fresh = '2026-10-14T14:00:00Z';
+  const both = (rows, opts = { foreignBefore: FB }) => [planVinKeepers(rows, opts).keep, planVinKeepers([...rows].reverse(), opts).keep];
+  it('an Invalid Date / 0000-00-00 first_seen_at on both rows falls to the lowest dealer id, in either row order (it used to depend on the order)', () => {
+    for (const bad of [new Date('invalid'), '0000-00-00 00:00:00', 'garbage']) {
+      const [a, b] = both([row(V1, 9, bad, fresh), row(V1, 5, bad, fresh)]);
+      assert.deepEqual(a, [[V1, 5]]); assert.deepEqual(b, [[V1, 5]]);
+    }
+  });
+  it('an unparseable first_seen_at ranks last, like NULL: the row with a real date keeps the VIN, in either order', () => {
+    const [a, b] = both([row(V1, 5, new Date('invalid'), fresh), row(V1, 9, '2026-10-01T00:00:00Z', fresh)]);
+    assert.deepEqual(a, [[V1, 9]]); assert.deepEqual(b, [[V1, 9]]);
+    const [c, d] = both([row(V1, 5, null, fresh), row(V1, 9, new Date('invalid'), fresh)]);
+    assert.deepEqual(c, [[V1, 5]]); assert.deepEqual(d, [[V1, 5]]);
+  });
+  it('an unparseable last_seen_at is not fresh (same as NULL): a fresh row beats it, and two of them fall through the usual way', () => {
+    const [a, b] = both([row(V1, 5, '2026-09-01T00:00:00Z', '0000-00-00 00:00:00'), row(V1, 9, '2026-10-01T00:00:00Z', fresh)]);
+    assert.deepEqual(a, [[V1, 9]]); assert.deepEqual(b, [[V1, 9]]);
+    const [c, d] = both([row(V1, 5, '2026-10-01T00:00:00Z', new Date('invalid')), row(V1, 9, '2026-09-01T00:00:00Z', null)]);
+    assert.deepEqual(c, [[V1, 9]]); assert.deepEqual(d, [[V1, 9]]);
+  });
+  it('the tiebreak order itself is unchanged: valid dates still go freshness, real store, brand, earliest first seen, lowest dealer id', () => {
+    assert.deepEqual(planVinKeepers([row(V1, 9, '2026-09-01T00:00:00Z', fresh), row(V1, 5, '2026-09-02T00:00:00Z', fresh)], { foreignBefore: FB }).keep, [[V1, 9]]);
+    assert.deepEqual(planVinKeepers([row(V1, 9, '2026-09-01T00:00:00Z', fresh), row(V1, 5, '2026-09-01T00:00:00Z', fresh)], { foreignBefore: FB }).keep, [[V1, 5]]);
+  });
+  it('a missing or unparseable foreignBefore still throws', () => {
+    assert.throws(() => planVinKeepers([], { foreignBefore: 'nope' }), /foreignBefore/);
+    assert.throws(() => planVinKeepers([], {}), /foreignBefore/);
+  });
+});
+
+describe('one normalized make per VIN (aliases folded, the most common spelling decides for every row)', () => {
+  const fresh = '2026-10-14T14:00:00Z';
+  const r = (dealerId, dealerName, make, first) => ({ vin: V1, dealerId, dealerName, make, firstSeenAt: first, lastSeenAt: fresh, source: 'nightly' });
+  const both = (rows) => [planVinKeepers(rows, { foreignBefore: FB }).keep, planVinKeepers([...rows].reverse(), { foreignBefore: FB }).keep];
+  it('canonicalMake folds the usual spellings and keeps unknown makes as they are', () => {
+    for (const [a, b] of [['Chevy', 'chevrolet'], ['CHEVROLET', 'chevrolet'], ['VW', 'volkswagen'], ['Mercedes', 'mercedes-benz'], ['Mercedes-Benz', 'mercedes-benz'], ['Mercedes Benz', 'mercedes-benz'], ['Land-Rover', 'land rover'], ['Landrover', 'land rover'], ['Range Rover', 'land rover'], ['Alfa', 'alfa romeo'], ['Ram Trucks', 'ram'], ['MINI Cooper', 'mini'], ['Infinity', 'infiniti'], ['Maserati', 'maserati']]) assert.equal(canonicalMake(a), b, a);
+    assert.equal(canonicalMake(''), ''); assert.equal(canonicalMake(null), ''); assert.equal(canonicalMake(undefined), '');
+  });
+  it('storeMatchesMake accepts the aliases too', () => {
+    assert.equal(storeMatchesMake('Freedom Chevrolet Buick GMC', 'Chevy'), true);
+    assert.equal(storeMatchesMake('Hendrick Volkswagen', 'VW'), true);
+    assert.equal(storeMatchesMake('Mercedes-Benz of Pompano', 'Mercedes'), true);
+    assert.equal(storeMatchesMake('ED MORSE NISSAN', 'Chevy'), false);
+  });
+  it('a row spelled "Chevy" is no longer treated differently from its sister row spelled "Chevrolet": the Chevrolet store keeps the car, in either order', () => {
+    const rows = [r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-28T00:00:00Z'), r(9630, 'Freedom Chevrolet Buick GMC', 'Chevy', '2026-09-30T00:00:00Z')];
+    const [a, b] = both(rows);
+    assert.deepEqual(a, [[V1, 9630]]); assert.deepEqual(b, [[V1, 9630]]);
+  });
+  it('a blank make on one row takes the VIN\'s make from its sister rows', () => {
+    const rows = [r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-28T00:00:00Z'), r(9630, 'Freedom Chevrolet', '', '2026-09-30T00:00:00Z')];
+    const [a, b] = both(rows);
+    assert.deepEqual(a, [[V1, 9630]]); assert.deepEqual(b, [[V1, 9630]]);
+  });
+  it('the most common spelling wins when the rows disagree (one noisy row cannot flip the brand test), and a tie is broken alphabetically', () => {
+    const noisy = [r(1, 'Smith Honda', 'Honda', '2026-09-01T00:00:00Z'), r(2, 'Bob Chevrolet', 'Chevrolet', '2026-09-10T00:00:00Z'), r(3, 'Al Chevrolet', 'Chevy', '2026-09-20T00:00:00Z')];
+    const [a, b] = both(noisy);
+    assert.deepEqual(a, [[V1, 2]]); assert.deepEqual(b, [[V1, 2]]); // chevrolet x2 beats honda x1 -> the Chevrolet stores match; Bob has the earlier first seen
+    const tie = [r(1, 'Smith Honda', 'Honda', '2026-09-20T00:00:00Z'), r(2, 'Bob Chevrolet', 'Chevrolet', '2026-09-10T00:00:00Z')];
+    const [c, d] = both(tie);
+    assert.deepEqual(c, [[V1, 2]]); assert.deepEqual(d, [[V1, 2]]); // 1-1: 'chevrolet' < 'honda' -> Chevrolet is the VIN's make, in either order
+  });
+  it('all makes blank or unlisted: no brand credit for anyone, the incumbent decides exactly as before', () => {
+    const rows = [r(9, 'Some Store', '', '2026-09-01T00:00:00Z'), r(5, 'Other Store', '', '2026-09-02T00:00:00Z')];
+    const [a, b] = both(rows);
+    assert.deepEqual(a, [[V1, 9]]); assert.deepEqual(b, [[V1, 9]]);
+  });
+});
+
+describe('blocked-store rank (OFF by default; a row at a store whose site blocked tonight\'s crawl ranks below a crawlable store\'s row)', () => {
+  const fresh = '2026-10-14T14:00:00Z';
+  const r = (dealerId, dealerName, make, first, last = fresh) => ({ vin: V1, dealerId, dealerName, make, firstSeenAt: first, lastSeenAt: last, source: 'nightly' });
+  const keep = (rows, opts) => [planVinKeepers(rows, { foreignBefore: FB, ...opts }).keep, planVinKeepers([...rows].reverse(), { foreignBefore: FB, ...opts }).keep];
+  const same = (res, expected) => { assert.deepEqual(res[0], expected); assert.deepEqual(res[1], expected); };
+  // Freedom Chevrolet is the brand match and the incumbent; ED MORSE NISSAN is crawlable, no brand match, later first seen.
+  const rows = [r(9630, 'Freedom Chevrolet Buick GMC', 'Chevrolet', '2026-09-01T00:00:00Z'), r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-20T00:00:00Z')];
+  it('the modes are off / before-brand / after-brand; a request may omit blockedRank (null) or send a valid mode, and an unknown one is rejected', () => {
+    assert.deepEqual(BLOCKED_RANK_MODES, ['off', 'before-brand', 'after-brand']);
+    assert.equal(parseDuplicateVinRequest({ vins: [V1], foreignBefore: FB }).blockedRank, null);
+    assert.equal(parseDuplicateVinRequest({ vins: [V1], foreignBefore: FB, blockedRank: 'before-brand' }).blockedRank, 'before-brand');
+    assert.equal(parseDuplicateVinRequest({ vins: [V1], foreignBefore: FB, blockedRank: 'sometimes' }).ok, false);
+    assert.throws(() => planVinKeepers(rows, { foreignBefore: FB, blockedRank: 'sometimes' }), /blockedRank/);
+  });
+  it('OFF is the default and changes nothing, even when blocked ids are passed: the brand store keeps the car', () => {
+    same(keep(rows, {}), [[V1, 9630]]);
+    same(keep(rows, { blockedDealerIds: [9630] }), [[V1, 9630]]);
+    same(keep(rows, { blockedRank: 'off', blockedDealerIds: [9630] }), [[V1, 9630]]);
+  });
+  it('before-brand: the crawlable store beats the blocked brand-matching one', () => {
+    same(keep(rows, { blockedRank: 'before-brand', blockedDealerIds: [9630] }), [[V1, 16951]]);
+  });
+  it('after-brand: the brand still wins first, the blocked flag only breaks a brand tie', () => {
+    same(keep(rows, { blockedRank: 'after-brand', blockedDealerIds: [9630] }), [[V1, 9630]]);
+    const tied = [r(9, 'Smith Auto', 'Ford', '2026-09-01T00:00:00Z'), r(5, 'Jones Auto', 'Ford', '2026-09-20T00:00:00Z')];
+    same(keep(tied, {}), [[V1, 9]]); // incumbent: earliest first seen
+    same(keep(tied, { blockedRank: 'after-brand', blockedDealerIds: [9] }), [[V1, 5]]); // the earlier one is blocked tonight -> the crawlable one
+    same(keep(tied, { blockedRank: 'before-brand', blockedDealerIds: [9] }), [[V1, 5]]);
+  });
+  it('both blocked, or neither, or an empty blocked set: falls through to the incumbent exactly as before', () => {
+    same(keep(rows, { blockedRank: 'before-brand', blockedDealerIds: [9630, 16951] }), [[V1, 9630]]);
+    same(keep(rows, { blockedRank: 'before-brand', blockedDealerIds: [4242] }), [[V1, 9630]]);
+    same(keep(rows, { blockedRank: 'before-brand', blockedDealerIds: [] }), [[V1, 9630]]);
+  });
+  it('freshness and a real store still outrank it: a blocked fresh row beats a crawlable stale one, and a blocked real store beats the dealer_id 0 bucket', () => {
+    const staleOpen = [r(9630, 'Freedom Chevrolet', 'Chevrolet', '2026-09-01T00:00:00Z'), r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-20T00:00:00Z', '2026-09-01T00:00:00Z')];
+    same(keep(staleOpen, { blockedRank: 'before-brand', blockedDealerIds: [9630] }), [[V1, 9630]]);
+    const zero = [r(0, 'Freedom Chevrolet', 'Chevrolet', '2026-09-01T00:00:00Z'), r(16951, 'ED MORSE NISSAN', 'Chevrolet', '2026-09-20T00:00:00Z')];
+    same(keep(zero, { blockedRank: 'before-brand', blockedDealerIds: [16951] }), [[V1, 16951]]);
+  });
+  it('the blocked ids come from crawl_blocked_stores (dealer ids only)', () => {
+    const q = buildBlockedIdsSelect();
+    assert.match(q.sql, /SELECT dealer_id AS dealerId FROM crawl_blocked_stores/);
+    assert.deepEqual(q.args, []);
   });
 });

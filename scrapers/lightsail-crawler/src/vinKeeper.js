@@ -20,10 +20,18 @@
 //   4. the incumbent: the earliest first_seen_at (the store that has had the car longest keeps it);
 //   5. the lowest dealer_id, so the choice is total.
 // Only source = 'nightly' rows take part; rows from any other source are neither keepers nor retired.
+// Dates: an unparseable first_seen_at / last_seen_at (MariaDB's 0000-00-00 comes back as an Invalid Date) is treated exactly like NULL, so the order is total and
+// never depends on the order the rows arrive in.
+// Make: ONE normalized make per VIN (the most common non-blank spelling across its rows, aliases folded: Chevy -> Chevrolet, VW -> Volkswagen, ...) is used for
+// every row's brand test, so a row with a blank or odd spelling of the make is not treated differently from its sister rows.
+// Optional, OFF by default (blockedRank): a row filed under a store whose site blocked the crawl tonight (crawl_blocked_stores) ranks below a crawlable store's
+// row. 'before-brand' puts that between rules 2 and 3, 'after-brand' between rules 3 and 4. The order above is unchanged when the option is off.
 // For merged-feed groups with real evidence (stock-number prefix, a one-rooftop re-crawl) use dedupeMergedFeeds.js first; this rule is a stable
 // convention, not evidence of where the car physically is.
 
 export const MAX_DUPLICATE_VINS = 500;
+/** blockedRank modes (see the header): off is the default and leaves the rule order untouched. */
+export const BLOCKED_RANK_MODES = ["off", "before-brand", "after-brand"];
 
 // Dealer-name words that say a store sells a make. A name is matched on whole words (so "Ram" is not "Ramsey", "Ford" is not "Stafford"). A make not listed here
 // never matches, so the rule falls through to the incumbent for it. Several makes can match one store ("Chevrolet Buick GMC").
@@ -36,22 +44,40 @@ const MAKE_WORDS = {
   subaru: ["subaru"], tesla: ["tesla"], toyota: ["toyota", "scion"], volkswagen: ["volkswagen", "vw"], volvo: ["volvo"],
 };
 const normName = (v) => String(v || "").toLowerCase().replace(/&amp;/g, "&").replace(/[^a-z0-9]+/g, " ").trim();
+// Spellings of a make that feeds really use, folded to the key MAKE_WORDS uses (keys are normName() output).
+const MAKE_ALIASES = {
+  chevy: "chevrolet", "chevrolet trucks": "chevrolet", "gmc trucks": "gmc", "ram trucks": "ram", "ram truck": "ram",
+  mercedes: "mercedes-benz", "mercedes benz": "mercedes-benz", benz: "mercedes-benz", "mercedes benz usa": "mercedes-benz",
+  vw: "volkswagen", volks: "volkswagen", landrover: "land rover", "range rover": "land rover", "alfa": "alfa romeo",
+  "mini cooper": "mini", infinity: "infiniti", scion: "toyota",
+};
+/** The normalized make: lower-case, punctuation folded, aliases mapped (Chevy -> chevrolet, Mercedes -> mercedes-benz). '' for a blank make. */
+export function canonicalMake(make) {
+  const m = normName(make);
+  if (!m) return "";
+  return MAKE_ALIASES[m] || m;
+}
 /** True when the dealer's name carries a word for the car's make. False for a missing name or make, an unlisted make, or no match. */
 export function storeMatchesMake(dealerName, make) {
-  const name = normName(dealerName), m = normName(make).replace(/ /g, " ");
+  const name = normName(dealerName), m = canonicalMake(make);
   if (!name || !m) return false;
-  const words = MAKE_WORDS[m === "mercedes benz" ? "mercedes-benz" : m];
+  const words = MAKE_WORDS[m];
   if (!words) return false;
   const padded = ` ${name} `;
   return words.some((w) => padded.includes(` ${w} `));
 }
 const VIN_RE = /^[A-HJ-NPR-Z0-9]{17}$/;
-const ts = (v) => (v == null ? null : v instanceof Date ? v.getTime() : Date.parse(String(v).replace(" ", "T")));
+/** A timestamp in ms, or null when missing OR unparseable (an Invalid Date, '0000-00-00 00:00:00'): null sorts like NULL, never as NaN. */
+const ts = (v) => {
+  if (v == null) return null;
+  const t = v instanceof Date ? v.getTime() : Date.parse(String(v).replace(" ", "T"));
+  return Number.isFinite(t) ? t : null;
+};
 
 /**
  * @param {any} body
  * @param {{ toStr: (v: any, n: number) => string | null }} h
- * @returns {{ ok: true, vins: string[], foreignBefore: Date, dryRun: boolean } | { ok: false, error: string }}
+ * @returns {{ ok: true, vins: string[], foreignBefore: Date, dryRun: boolean, blockedRank: string|null } | { ok: false, error: string }}
  */
 export function parseDuplicateVinRequest(body, { toStr: _toStr } = {}) {
   const foreignBefore = typeof body?.foreignBefore === "string" ? new Date(body.foreignBefore) : null;
@@ -65,32 +91,49 @@ export function parseDuplicateVinRequest(body, { toStr: _toStr } = {}) {
     if (!VIN_RE.test(vin)) return { ok: false, error: "every entry must be a 17-character VIN" };
     if (!seen.has(vin)) { seen.add(vin); vins.push(vin); }
   }
-  return { ok: true, vins, foreignBefore, dryRun: body.dryRun === true };
+  // blockedRank: null = not asked (the server then falls back to DEDUPE_BLOCKED_RANK, default off).
+  let blockedRank = null;
+  if (body.blockedRank != null) {
+    if (!BLOCKED_RANK_MODES.includes(body.blockedRank)) return { ok: false, error: `blockedRank must be one of ${BLOCKED_RANK_MODES.join(", ")}` };
+    blockedRank = body.blockedRank;
+  }
+  return { ok: true, vins, foreignBefore, dryRun: body.dryRun === true, blockedRank };
 }
 
 /**
  * Decide, per VIN, which live nightly row stays. Pure.
  * @param {Array<{ vin: string, dealerId: number, firstSeenAt?: Date|string|null, lastSeenAt?: Date|string|null, source?: string|null, removedAt?: any }>} rows
- * @param {{ foreignBefore: Date|string }} opts
+ * @param {{ foreignBefore: Date|string, blockedRank?: 'off'|'before-brand'|'after-brand', blockedDealerIds?: Iterable<number> }} opts
  * @returns {{ keep: Array<[string, number]>, retire: Array<[string, number]>, vinsWithDuplicates: number }}
  */
-export function planVinKeepers(rows, { foreignBefore }) {
+export function planVinKeepers(rows, { foreignBefore, blockedRank = "off", blockedDealerIds = [] }) {
   const cutoff = ts(foreignBefore);
-  if (cutoff == null || Number.isNaN(cutoff)) throw new Error("planVinKeepers needs foreignBefore");
+  if (cutoff == null) throw new Error("planVinKeepers needs foreignBefore");
+  if (!BLOCKED_RANK_MODES.includes(blockedRank)) throw new Error(`blockedRank must be one of ${BLOCKED_RANK_MODES.join(", ")}`);
+  const blockedIds = new Set([...blockedDealerIds].map(Number));
+  const useBlocked = blockedRank !== "off" && blockedIds.size > 0;
   const byVin = new Map();
   for (const r of rows) {
     if (r.removedAt != null || (r.source != null && r.source !== "nightly")) continue;
     const vin = String(r.vin || "").toUpperCase();
     if (!vin) continue;
     if (!byVin.has(vin)) byVin.set(vin, []);
-    byVin.get(vin).push({ vin, dealerId: Number(r.dealerId), first: ts(r.firstSeenAt), last: ts(r.lastSeenAt), brand: storeMatchesMake(r.dealerName ?? r.name, r.make) ? 1 : 0 });
+    byVin.get(vin).push({ vin, dealerId: Number(r.dealerId), first: ts(r.firstSeenAt), last: ts(r.lastSeenAt), name: r.dealerName ?? r.name, make: canonicalMake(r.make) });
   }
+  // One make per VIN: the most common non-blank normalized make across its rows (ties: alphabetical, so it never depends on row order).
+  const vinMake = (list) => {
+    const n = new Map();
+    for (const r of list) if (r.make) n.set(r.make, (n.get(r.make) || 0) + 1);
+    return [...n].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0]?.[0] || "";
+  };
   const rank = (a, b) => {
     const fa = a.last != null && a.last >= cutoff ? 1 : 0, fb = b.last != null && b.last >= cutoff ? 1 : 0;
     if (fa !== fb) return fb - fa;
     const sa = a.dealerId > 0 ? 1 : 0, sb = b.dealerId > 0 ? 1 : 0;
     if (sa !== sb) return sb - sa;
+    if (useBlocked && blockedRank === "before-brand" && a.blocked !== b.blocked) return a.blocked - b.blocked;
     if (a.brand !== b.brand) return b.brand - a.brand;
+    if (useBlocked && blockedRank === "after-brand" && a.blocked !== b.blocked) return a.blocked - b.blocked;
     const ia = a.first ?? Infinity, ib = b.first ?? Infinity;
     if (ia !== ib) return ia - ib;
     return a.dealerId - b.dealerId;
@@ -98,6 +141,8 @@ export function planVinKeepers(rows, { foreignBefore }) {
   const keep = [], retire = [];
   let vinsWithDuplicates = 0;
   for (const [vin, list] of [...byVin].sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+    const make = vinMake(list);
+    for (const r of list) { r.brand = storeMatchesMake(r.name, make) ? 1 : 0; r.blocked = blockedIds.has(r.dealerId) ? 1 : 0; }
     list.sort(rank);
     keep.push([vin, list[0].dealerId]);
     if (list.length > 1) vinsWithDuplicates++;
@@ -112,6 +157,11 @@ export function buildRowsSelect(vins) {
     sql: `SELECT vin, dealer_id AS dealerId, dealer_name AS dealerName, make, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND source = 'nightly' AND vin IN (${vins.map(() => "?").join(", ")})`,
     args: [...vins],
   };
+}
+
+/** The stores flagged as blocking tonight's crawl (blockedStores.js): dealer ids only. Used only when blockedRank is not 'off'. */
+export function buildBlockedIdsSelect() {
+  return { sql: "SELECT dealer_id AS dealerId FROM crawl_blocked_stores", args: [] };
 }
 
 /** Retires the planned (vin, dealer_id) pairs by primary key; re-checks removed_at so a concurrent change is never double-counted. */

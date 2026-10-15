@@ -20,6 +20,9 @@ const flag = (n) => args.includes(`--${n}`);
 const opt = (n) => { const a = args.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : null; };
 const APPLY = flag("apply");
 const PLAN_IN = opt("plan");
+// Optional, OFF by default: --blocked-rank=before-brand|after-brand --blocked-file=<JSON [{name}] of stores that blocked tonight's crawl>. Dry run only (the plan it writes is what --apply retires).
+const BLOCKED_RANK = opt("blocked-rank") || "off";
+const BLOCKED_FILE = opt("blocked-file");
 const BATCH = 200;
 const PAUSE_MS = 150;
 const RANGE = 200;
@@ -61,7 +64,11 @@ if (!APPLY) {
     const [r] = await conn.query("SELECT vin, dealer_id AS dealerId, dealer_name AS name, make, state, source_box AS box, first_seen_at AS firstSeenAt, last_seen_at AS lastSeenAt, source FROM dealer_inventory WHERE removed_at IS NULL AND vin IN (?)", [dupVins.slice(i, i + 300)]);
     rows.push(...r);
   }
-  const plan = planVinKeepers(rows, { foreignBefore });
+  const normName = (v) => String(v || "").toLowerCase().replace(/&amp;/g, "&").replace(/[^a-z0-9]+/g, " ").trim();
+  const blockedNames = BLOCKED_RANK !== "off" && BLOCKED_FILE ? new Set(JSON.parse(fs.readFileSync(BLOCKED_FILE, "utf8")).map((s) => normName(s.name))) : null;
+  const blockedDealerIds = blockedNames ? [...new Set(rows.filter((r) => r.dealerId > 0 && blockedNames.has(normName(r.name))).map((r) => r.dealerId))] : [];
+  if (BLOCKED_RANK !== "off") console.log(`blocked-store rank ${BLOCKED_RANK}: ${blockedDealerIds.length} store ids matched by name`);
+  const plan = planVinKeepers(rows, { foreignBefore, blockedRank: BLOCKED_RANK, blockedDealerIds });
   const keeperOf = new Map(plan.keep);
   const byKey = new Map(rows.map((r) => [`${r.vin}|${r.dealerId}`, r]));
   const retire = plan.retire.map(([vin, dealerId]) => { const r = byKey.get(`${vin}|${dealerId}`); const k = byKey.get(`${vin}|${keeperOf.get(vin)}`); return { vin, dealerId, name: r.name, make: r.make, state: r.state, box: r.box, lastSeenAt: r.lastSeenAt, keeperDealerId: keeperOf.get(vin), keeperName: k ? k.name : null }; });
