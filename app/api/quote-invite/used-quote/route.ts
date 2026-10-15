@@ -34,6 +34,7 @@ export async function POST(req: Request) {
   const condition = car?.condition || "new";
   const base = {
     sellingPrice: num(raw.sellingPrice),
+    msrp: num(raw.msrp),
     dueAtSigning: toLines(raw.dueAtSigning),
     addOns: toLines(raw.addOns) ?? [],
     noAddOns: Boolean(raw.noAddOns),
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
           lenderName: typeof raw.lenderName === "string" && raw.lenderName.trim() ? raw.lenderName.trim().slice(0, 80) : null,
         }
       : { ...base, kind: "cash" };
-  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition });
+  const v = validateUsedQuote(quote, rfq.quotePrefs, { vin, stockNumber, condition, requireMsrp: true });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
   // TrimScout calculates sales tax and title & registration. A different amount is the dealer's override: it needs a
