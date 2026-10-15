@@ -85,7 +85,7 @@ export function LeaseCompare({
       : r.kind === "declined" ? badge("bg-rose-500/15 text-rose-300", "Declined")
       : r.kind === "countered" ? badge("bg-sky-500/15 text-sky-300", "Buyer countered")
       : r.kind === "unsubscribed" ? badge("bg-border text-ink-muted", "Unsubscribed — won't reply", "unsub-chip")
-      : badge("bg-border text-ink-muted", "Waiting");
+      : badge("bg-border text-ink-muted", `Waiting · ${r.deliveryLabel}`);
     const isOpen = !!open[r.inviteId];
     const names = (items: { name: string; amount: number }[], sign = "") => items.length ? (
       <ul className="space-y-0.5 text-[11px]" data-testid="itemized-lines">

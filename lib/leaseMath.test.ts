@@ -59,9 +59,9 @@ describe("wiring — lease deals record dealer quotes through the calculator she
   const sheet = read("components/LeaseCalculatorSheet.tsx");
   const route = read("app/api/rfqs/[id]/invites/[inviteId]/quotes/route.ts");
 
-  it("InviteRow branches on rfq.leasePrefs", () => {
-    assert.match(page, /mode === "quote" && rfq\.leasePrefs && \([\s\S]*?<LeaseCalculatorSheet/);
-    assert.match(page, /mode === "quote" && !rfq\.leasePrefs && \([\s\S]*?<QuoteIntakeForm/);
+  it("the buyer's request page no longer renders an Invited dealers card; the compare header carries the responded line", () => {
+    assert.doesNotMatch(page, /Invited dealers|InviteRow/);
+    assert.match(page, /data-testid="responded-line"/);
   });
 
   it("the sheet has the five sections, starts blank, and never carries third-party branding or auction copy", () => {

@@ -340,6 +340,12 @@ export function inviteStage(invite: Pick<RfqInvite, "status"> & Partial<QuoteInv
   return invite.deliveryStatus === "viewed" ? "viewed" : invite.deliveryStatus === "sent" ? "sent" : "queued";
 }
 
+/** Where a still-unanswered invite is, for the compare table's dealer header (queued, sent, or opened). */
+export function waitingDeliveryLabel(invite: Pick<RfqInvite, "status"> & Partial<QuoteInviteDelivery>): string {
+  const stage = inviteStage(invite);
+  return stage === "viewed" ? "Opened by dealer" : stage === "sent" ? "Sent" : "Queued";
+}
+
 export const INVITE_STAGE_LABELS: Record<QuoteInviteStage, string> = {
   queued: "Under review",
   sent: "Sent",

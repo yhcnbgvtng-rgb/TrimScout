@@ -11,6 +11,7 @@ import { allowanceOf, applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfte
 import { BASIS_LABELS, TRADE_ESTIMATE_COPY } from "../lib/trade/types";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
+import { waitingDeliveryLabel } from "../lib/quotePackage";
 import type { RfqRequest } from "../lib/rfq";
 import type { LineItem } from "../lib/leaseQuote";
 import { stageOf } from "../lib/dealStages";
@@ -107,7 +108,7 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
       : !used
       ? invite.status === "declined" ? chip("bg-rose-500/15 text-rose-300", "Declined")
         : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — won't reply", "unsub-chip")
-        : chip("bg-border text-ink-muted", "Waiting")
+        : chip("bg-border text-ink-muted", `Waiting · ${waitingDeliveryLabel(invite)}`)
       : expired ? chip("bg-border text-ink-muted", "Expired")
       : picked ? chip("bg-brand-500/15 text-brand-300", "Chosen")
       : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — quote still valid", "unsub-chip")

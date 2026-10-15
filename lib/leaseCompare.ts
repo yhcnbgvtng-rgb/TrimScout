@@ -10,6 +10,7 @@
  * numbers only.
  */
 import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
+import { waitingDeliveryLabel } from "./quotePackage";
 import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 import { alternateAskSummary, askedVinForInvite, isAlternateQuote, type RfqLane } from "./alternateAsk";
 
@@ -21,6 +22,8 @@ export interface LeaseCompareRow {
   dealerName: string;
   contactName: string | null;
   emailMasked: string | null;
+  /** Queued / Sent / Opened by dealer — only meaningful while the row is "waiting". */
+  deliveryLabel: string;
   kind: LeaseRowKind;
   lease: LeaseQuote | null;
   monthly: number | null;
@@ -91,6 +94,7 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     dealerName: invite.dealerName,
     contactName: invite.desk?.contactName ?? null,
     emailMasked: invite.desk?.emailMasked ?? null,
+    deliveryLabel: waitingDeliveryLabel(invite),
     lease: invite.quote?.lease ?? null,
     bestMonthly: false,
     bestDas: false,
