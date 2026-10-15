@@ -42,14 +42,14 @@ describe("lease sheet lock — editable until a dealer views, then frozen (box +
     assert.match(sheet, /\/lease-prefs`, \{ method: "PATCH"/);
   });
 
-  it("invited-dealer card on a lease deal: read-only format (blank, never $0) by default; calculator only behind an explicit phone-quote link", () => {
+  it("lease deal: read-only format (blank, never $0) by default; calculator only behind an explicit phone-quote link", () => {
     assert.match(format, /AWAITING_DEALER_COPY = "Waiting on dealer — quote format below; numbers appear when they reply\."/);
     assert.match(format, /data-testid=\{q \? "lease-quote-filled" : "lease-quote-awaiting"\}/);
     assert.doesNotMatch(format, /<input|<select|<textarea/);
     assert.doesNotMatch(format, /["'`]\$0["'`]|money\(0[,)]/, "no literal $0 placeholder");
-    assert.match(detail, /rfq\.leasePrefs && mode !== "quote" && \(invite\.status === "invited" \|\| invite\.quote\) \? \(\s*<LeaseQuoteFormat/);
-    assert.match(detail, /Log a quote the dealer gave by phone or email/);
-    // The green "Record Dealer's Quote" button is only the cash/finance path now.
-    assert.match(detail, /invite\.status === "invited" && mode === "idle" && !rfq\.leasePrefs && !rfq\.quotePrefs && \([\s\S]*?Record Dealer&apos;s Quote/);
+    // The card is gone: the phone-quote / decline actions now live in the dealer's compare-column header.
+    assert.match(detail, /data-testid="record-quote"[\s\S]*?Record quote/);
+    assert.match(detail, /data-testid="mark-declined"[\s\S]*?Mark declined/);
+    assert.match(detail, /mode === "quote" && rfq\.leasePrefs[\s\S]*?<LeaseCalculatorSheet/);
   });
 });

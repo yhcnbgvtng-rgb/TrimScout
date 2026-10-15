@@ -130,3 +130,23 @@ describe("deal page: compare wins the first screen once a quote exists; actions 
     assert.match(sheet, /reduce<Record<string, ReturnType<typeof rfqVehicles>\[number\] & \{ dealers:/, "one row per VIN, rooftops listed under it");
   });
 });
+
+describe("per-dealer actions in the column header", () => {
+  const waiting = { ...invite("25", "Waiting Lexus", "Sales desk", lease({})), status: "invited", quote: undefined, desk: { contactName: "Sales desk", role: "sales", emailMasked: "s•••@x.com" }, deliveryStatus: "sent" } as unknown as RfqInvite;
+  const r2 = { ...rfq, invites: [...rfq.invites, waiting] } as unknown as RfqRequest;
+  const d = analyzeLeaseQuotes(r2, NOW)!;
+  const html = renderToStaticMarkup(
+    <LeaseCompare data={d} collecting onPick={() => {}} onWalk={() => {}} busy={false}
+      inviteActions={(id) => <span data-testid="invite-actions" data-invite={id}><button data-testid="record-quote">Record quote</button><button data-testid="mark-declined">Mark declined</button></span>} />,
+  );
+  it("only the dealer who hasn't answered gets Record quote + Mark declined, beside its queued/sent/opened status", () => {
+    assert.equal((html.match(/data-testid="record-quote"/g) || []).length, 1);
+    assert.equal((html.match(/data-testid="mark-declined"/g) || []).length, 1);
+    assert.match(html, /data-invite="25"/);
+    assert.match(html, /Waiting · Sent/);
+  });
+  it("without the prop nothing extra renders", () => {
+    const plain = renderToStaticMarkup(<LeaseCompare data={d} collecting onPick={() => {}} onWalk={() => {}} busy={false} />);
+    assert.doesNotMatch(plain, /record-quote|mark-declined/);
+  });
+});

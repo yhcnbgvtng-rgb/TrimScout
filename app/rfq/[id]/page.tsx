@@ -5,8 +5,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { LeaseCompare } from "@/components/LeaseCompare";
 import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib/leaseCompare";
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
-import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
-import { LeaseQuoteFormat } from "@/components/LeaseQuoteFormat";
 import { UsedCompare } from "@/components/UsedCompare";
 import { DealThreadPanel } from "@/components/DealThreadPanel";
 import { StagedDeals } from "../../../components/StagedDeals";
@@ -30,10 +28,11 @@ import {
   X as XIcon,
 } from "lucide-react";
 import type { RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
-import type { CounterEditsPayload } from "@/lib/buyerCounter";
 import { RFQ_DECLINE_REASON_LABELS } from "@/lib/rfq";
+import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
+import type { CounterEditsPayload } from "@/lib/buyerCounter";
 import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
-import { inviteStage, DESK_ROLE_LABELS, NON_BINDING_COPY } from "@/lib/quotePackage";
+import { NON_BINDING_COPY } from "@/lib/quotePackage";
 import { formatFactoryOptionLine } from "@/lib/fordCompetitionUi";
 import { formatCurrency } from "@/lib/otdCalculator";
 
@@ -244,12 +243,15 @@ function DeclineForm({ onSubmit, onCancel }: { onSubmit: (reason: RfqDeclineReas
   );
 }
 
-function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqRequest; onAction: () => void }) {
+/**
+ * The buyer's per-dealer actions, rendered inside that dealer's compare-column header for a dealer who
+ * hasn't answered yet: log a quote the dealer gave by phone/email, or mark them declined. Same handlers
+ * and routes as before; the forms open in an overlay because a column is narrow.
+ */
+function InviteActions({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqRequest; onAction: () => void }) {
   const [mode, setMode] = useState<"idle" | "quote" | "decline">("idle");
+  if (invite.status !== "invited") return null;
 
-  // Lease deals record the dealer's reply as the structured lease quote
-  // (same contract as the dealer's own calculator); cash/finance deals
-  // keep the price + fees form. Both post to the same route.
   const submitQuote = async (input: Parameters<React.ComponentProps<typeof QuoteIntakeForm>["onSubmit"]>[0] | Parameters<React.ComponentProps<typeof LeaseCalculatorSheet>["onSubmit"]>[0]) => {
     const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/quotes`, {
       method: "POST",
@@ -274,90 +276,30 @@ function InviteRow({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqReque
     }
   };
 
-  const stage = inviteStage(invite);
-  const statusChip = {
-    queued: { label: "Queued", cls: "bg-border text-ink-muted border-border" },
-    sent: { label: "Sent", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    viewed: { label: "Opened by dealer", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-    quoted: { label: "Quoted", cls: "bg-positive-500/15 text-positive-300 border-positive-500/30" },
-    declined: { label: "Declined", cls: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
-    expired: { label: "Expired", cls: "bg-border text-ink-muted border-border" },
-  }[stage];
-  const audit = [
-    invite.queuedAt ? `queued ${new Date(invite.queuedAt).toLocaleString()}` : null,
-    invite.sentAt ? `sent ${new Date(invite.sentAt).toLocaleString()}` : null,
-    invite.viewedAt ? `opened ${new Date(invite.viewedAt).toLocaleString()}` : null,
-    invite.respondedAt ? `replied ${new Date(invite.respondedAt).toLocaleString()}` : null,
-  ].filter(Boolean);
-
   return (
-    <div className="rounded-xl border border-border bg-surface p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-sm font-bold text-white">{invite.dealerName}</div>
-          {invite.desk ? (
-            <div className="text-[11px] text-ink-muted">
-              {invite.desk.contactName}
-              {invite.desk.role ? ` · ${(DESK_ROLE_LABELS as Record<string, string>)[invite.desk.role] || invite.desk.role}` : ""}
-              {invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}
-            </div>
-          ) : null}
-          {invite.vehicle ? (
-            <div className="text-[11px] text-ink-faint">
-              {[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}
-              <span className="font-mono"> · {invite.vehicle.vin}</span>
-            </div>
-          ) : null}
-          {audit.length > 0 ? <div className="text-[10px] text-ink-faint">{audit.join(" · ")}</div> : null}
-        </div>
-        <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase border ${statusChip.cls}`}>{statusChip.label}</span>
+    <div data-testid="invite-actions">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <button type="button" onClick={() => setMode("quote")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white" data-testid="record-quote">
+          Record quote
+        </button>
+        <button type="button" onClick={() => setMode("decline")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white" data-testid="mark-declined">
+          Mark declined
+        </button>
       </div>
-      {invite.status === "declined" && invite.declineReason && (
-        <p className="text-[11px] text-ink-muted">Reason: {RFQ_DECLINE_REASON_LABELS[invite.declineReason]}</p>
-      )}
-      {/* Lease deals: the dealer fills the numbers through their calculator.
-          The buyer's card is the pricing format, read-only — blank while
-          waiting, populated once they reply. Logging a quote the dealer gave
-          by phone is a separate, explicit step, never the default. */}
-      {rfq.leasePrefs && mode !== "quote" && (invite.status === "invited" || invite.quote) ? (
-        <LeaseQuoteFormat lease={invite.quote?.lease} prefs={rfq.leasePrefs} />
-      ) : null}
-      {invite.status === "invited" && mode === "idle" && rfq.leasePrefs && (
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={() => setMode("quote")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white">
-            Log a quote the dealer gave by phone or email
-          </button>
-          <button type="button" onClick={() => setMode("decline")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white">
-            Mark declined
-          </button>
+      {mode !== "idle" ? (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black/70 p-4" role="dialog" aria-label={mode === "quote" ? `Record a quote from ${invite.dealerName}` : `Mark ${invite.dealerName} declined`}>
+          <div className="mx-auto max-w-3xl space-y-3 rounded-2xl border border-border bg-surface p-5">
+            <h2 className="text-sm font-bold text-white">{mode === "quote" ? `Record a quote from ${invite.dealerName}` : `Mark ${invite.dealerName} declined`}</h2>
+            {mode === "quote" && rfq.leasePrefs ? (
+              <LeaseCalculatorSheet prefs={rfq.leasePrefs} vin={invite.vehicle?.vin || rfq.vin} stockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
+            ) : null}
+            {mode === "quote" && !rfq.leasePrefs ? (
+              <QuoteIntakeForm rfqVin={rfq.vin} rfqStockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
+            ) : null}
+            {mode === "decline" ? <DeclineForm onSubmit={submitDecline} onCancel={() => setMode("idle")} /> : null}
+          </div>
         </div>
-      )}
-      {rfq.quotePrefs && invite.status === "invited" && mode === "idle" ? (
-        <p className="text-[11px] text-ink-muted">Waiting on the dealer&apos;s {rfq.quotePrefs.quoteType} sheet — their numbers appear here and in the compare below.</p>
       ) : null}
-      {invite.status === "invited" && mode === "idle" && !rfq.leasePrefs && !rfq.quotePrefs && (
-        <div className="flex gap-2">
-          <button
-            onClick={() => setMode("quote")}
-            className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400"
-          >
-            Record Dealer&apos;s Quote
-          </button>
-          <button
-            onClick={() => setMode("decline")}
-            className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white"
-          >
-            Mark Declined
-          </button>
-        </div>
-      )}
-      {mode === "quote" && rfq.leasePrefs && (
-        <LeaseCalculatorSheet prefs={rfq.leasePrefs} vin={invite.vehicle?.vin || rfq.vin} stockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
-      )}
-      {mode === "quote" && !rfq.leasePrefs && (
-        <QuoteIntakeForm rfqVin={rfq.vin} rfqStockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
-      )}
-      {mode === "decline" && <DeclineForm onSubmit={submitDecline} onCancel={() => setMode("idle")} />}
     </div>
   );
 }
@@ -573,16 +515,22 @@ export default function RfqWorkspacePage() {
           {rfq.leasePrefs && (
             <div className="space-y-3">
               <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
+              <p className="text-[11px] text-ink-muted" data-testid="responded-line">
+                {respondedCount} of {rfq.invites.length} dealers have responded so far.
+              </p>
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
           {rfq.quotePrefs && (
             <div className="space-y-3">
               <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
+              <p className="text-[11px] text-ink-muted" data-testid="responded-line">
+                {respondedCount} of {rfq.invites.length} dealers have responded so far.
+              </p>
               <p className="text-[11px] text-ink-muted">
                 {rfq.quotePrefs.quoteType === "finance"
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
@@ -641,23 +589,6 @@ export default function RfqWorkspacePage() {
                 ))}
               </div>
             )}
-
-            <div className="space-y-3">
-              <h2 className="text-sm font-bold text-white">Invited dealers</h2>
-              {rfq.invites.length === 0 ? (
-                <p className="text-xs text-ink-muted">No dealers invited yet.</p>
-              ) : (
-                <>
-                  <p className="text-[11px] text-ink-muted">
-                    {respondedCount} of {rfq.invites.length} dealers have responded so far.
-                  </p>
-                  {rfq.invites.map((invite) => (
-                    <InviteRow key={invite.id} invite={invite} rfq={rfq} onAction={load} />
-                  ))}
-                </>
-              )}
-            </div>
-
         </div>
       </details>
       {!hasQuotes ? (
@@ -671,16 +602,22 @@ export default function RfqWorkspacePage() {
           {rfq.leasePrefs && (
             <div className="space-y-3">
               <h2 className="text-sm font-bold text-white">Compare lease quotes</h2>
+              <p className="text-[11px] text-ink-muted" data-testid="responded-line">
+                {respondedCount} of {rfq.invites.length} dealers have responded so far.
+              </p>
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
           {rfq.quotePrefs && (
             <div className="space-y-3">
               <h2 className="text-sm font-bold text-white">Compare {rfq.quotePrefs.quoteType === "finance" ? "finance" : "cash"} quotes</h2>
+              <p className="text-[11px] text-ink-muted" data-testid="responded-line">
+                {respondedCount} of {rfq.invites.length} dealers have responded so far.
+              </p>
               <p className="text-[11px] text-ink-muted">
                 {rfq.quotePrefs.quoteType === "finance"
                   ? `You asked for ${rfq.quotePrefs.finance.termMonths} months · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down. Counters on term or down are flagged; expired quotes can't be chosen.`
@@ -698,6 +635,9 @@ export default function RfqWorkspacePage() {
       {quotedInvites.length > 0 && !rfq.leasePrefs && !rfq.quotePrefs && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-white">Compare quotes</h2>
+              <p className="text-[11px] text-ink-muted" data-testid="responded-line">
+                {respondedCount} of {rfq.invites.length} dealers have responded so far.
+              </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {quotedInvites.map((invite) => (
               <QuoteCompareCard

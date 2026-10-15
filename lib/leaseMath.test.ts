@@ -59,9 +59,21 @@ describe("wiring — lease deals record dealer quotes through the calculator she
   const sheet = read("components/LeaseCalculatorSheet.tsx");
   const route = read("app/api/rfqs/[id]/invites/[inviteId]/quotes/route.ts");
 
-  it("InviteRow branches on rfq.leasePrefs", () => {
-    assert.match(page, /mode === "quote" && rfq\.leasePrefs && \([\s\S]*?<LeaseCalculatorSheet/);
-    assert.match(page, /mode === "quote" && !rfq\.leasePrefs && \([\s\S]*?<QuoteIntakeForm/);
+  it("the buyer's request page no longer renders an Invited dealers card; the compare header carries the responded line", () => {
+    assert.doesNotMatch(page, /Invited dealers|InviteRow/);
+    assert.match(page, /data-testid="responded-line"/);
+  });
+
+  it("Record quote / Mark declined live in the dealer's compare-column header and reuse the same routes", () => {
+    assert.match(page, /<LeaseCompare [^\n]*inviteActions=/);
+    assert.match(page, /data-testid="record-quote"[\s\S]*?Record quote/);
+    assert.match(page, /data-testid="mark-declined"[\s\S]*?Mark declined/);
+    assert.match(page, /\/invites\/\$\{invite\.id\}\/quotes`/);
+    assert.match(page, /\/invites\/\$\{invite\.id\}\/decline`/);
+    assert.match(page, /mode === "quote" && rfq\.leasePrefs[\s\S]*?<LeaseCalculatorSheet/);
+    assert.match(page, /mode === "decline" \? <DeclineForm/);
+    // Only a dealer who hasn't answered gets them.
+    assert.match(page, /if \(invite\.status !== "invited"\) return null;/);
   });
 
   it("the sheet has the five sections, starts blank, and never carries third-party branding or auction copy", () => {
