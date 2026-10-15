@@ -7,6 +7,7 @@ import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
 import { counterPriceChanged, TAX_PROMPT_COPY, zipStateTax, type CounterSheet } from "../lib/counterSheet";
 import { TaxUpdatePrompt } from "./TaxUpdatePrompt";
+import { NJ_LUXURY_SURCHARGE_THRESHOLD, SALES_TAX_ESTIMATE_NOTE, njLuxurySurchargeApplies, salesTaxBase } from "../lib/salesTax";
 import { calcFee, normalizeFeeOverrides, OVERRIDE_LABELS, OVERRIDE_REASON_MAX, overridableKey, type FeeOverride, type OverridableFee } from "../lib/feeOverride";
 
 /**
@@ -106,7 +107,8 @@ export function UsedQuoteForm({
   const toLines = (list: Item[]) => list.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN })).filter((i) => i.name && Number.isFinite(i.amount));
   // Sales tax is TrimScout-calculated (lib/feeOverride.ts). The dealer may replace it with their own amount (the field is live,
   // pre-filled with the estimate) and a required reason. The doc fee and title & registration are plain required fields the dealer enters.
-  const calcInput = { zip, sellingPrice: num(f.sellingPrice), addOns: toLines(addOns) };
+  const isNewCar = condition === "new";
+  const calcInput = { zip, sellingPrice: num(f.sellingPrice), addOns: toLines(addOns), isNew: isNewCar };
   const calcs: Record<OverridableFee, number | null> = {
     sales_tax: calcFee("sales_tax", calcInput),
   };
@@ -117,7 +119,7 @@ export function UsedQuoteForm({
     const initAdd = (initial?.addOns || []).filter((a) => a.name.trim());
     for (const it of initial?.dueAtSigning || []) {
       const key = overridableKey(it.name);
-      const calc = key ? calcFee(key, { zip, sellingPrice: price, addOns: initAdd }) : null;
+      const calc = key ? calcFee(key, { zip, sellingPrice: price, addOns: initAdd, isNew: condition === "new" }) : null;
       if (key && calc != null && Math.abs(it.amount - calc) >= 0.005) out[key] = true;
     }
     return out;
@@ -147,7 +149,8 @@ export function UsedQuoteForm({
     const amountFinanced = sellingPrice != null && sellingPrice > 0 ? Math.max(0, sellingPrice + addOnTotal - rebateTotal - (down ?? 0) - (trade ?? 0) + dasTotal) : null;
     const monthly = amountFinanced != null && apr != null && term != null ? financeMonthly(amountFinanced, apr, term) : null;
     const taxed = monthly != null && zipRate != null && !noTaxEstimate ? Math.round(monthly * (1 + zipRate) * 100) / 100 : null;
-    const estTaxOnPrice = sellingPrice != null && zipRate != null ? Math.round(sellingPrice * zipRate) : null;
+    // Same base as the calculated line: selling price + add-ons (lib/salesTax.ts).
+    const estTaxOnPrice = sellingPrice != null && zipRate != null ? Math.round(salesTaxBase(sellingPrice, addOnLines) * zipRate) : null;
     const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
     const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
     // The equation's own lines: sales tax is the standing first line; every other fee is "mandatory fees".
@@ -166,6 +169,7 @@ export function UsedQuoteForm({
       dueAtSigning: d.items,
       sellingPrice: d.sellingPrice,
       addOns: d.addOnLines,
+      isNew: isNewCar,
       zip,
       submitted: (["sales_tax"] as const)
         .filter((k) => editing[k] && (calcs[k] == null || Math.abs((num(fees.find((x) => overridableKey(x.name) === k)?.amount ?? "") ?? NaN) - (calcs[k] as number)) >= 0.005))
@@ -303,7 +307,8 @@ export function UsedQuoteForm({
           </span>
           <span />
         </div>
-        {inline ? <p className={hintCls} data-testid="tax-estimate-hint">TrimScout estimate{state ? ` for ${state}` : ""}: {money(calc, Number.isInteger(calc) ? 0 : 2)}</p> : null}
+        {inline ? <p className={hintCls} data-testid="tax-estimate-hint">TrimScout estimate{state ? ` for ${state}` : ""}: {money(calc, Number.isInteger(calc) ? 0 : 2)}, on price + add-ons{njLuxurySurchargeApplies({ state, isNew: isNewCar, sellingPrice: calcInput.sellingPrice }) ? ` (includes NJ's 0.4% surcharge on new cars of ${money(NJ_LUXURY_SURCHARGE_THRESHOLD)}+)` : ""}</p> : null}
+        {inline ? <p className={hintCls} data-testid="tax-estimate-note">{SALES_TAX_ESTIMATE_NOTE}</p> : null}
         {open && (!inline || adjusted) ? (
           <div className="space-y-1 rounded-lg border border-amber-500/30 bg-amber-950/20 px-2.5 py-2" data-testid={`fee-override-${k}`}>
             <p className="text-[10px] text-amber-100">TrimScout calculated <strong>{money(calc, 2)}</strong>{adjusted ? <> · your amount is <strong>{diff < 0 ? "−" : "+"}{money(Math.abs(diff), 2)}</strong> from that</> : null}. The buyer sees a &ldquo;Dealer adjusted&rdquo; flag with both amounts and your reason.</p>
@@ -400,7 +405,7 @@ export function UsedQuoteForm({
                 <>
                   {counterPriceChanged(counterSheet) ? <TaxUpdatePrompt pending={taxPending} confirmed={taxConfirmed} onConfirm={setTaxConfirmed} /> : null}
                   {feeRow(fees[0], 0, fees, setFees, "fee", true, d.estTaxOnPrice != null ? String(d.estTaxOnPrice) : "0")}
-                  <p className={hintCls}>For the buyer&apos;s ZIP {zip}{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` — tax on the price at that rate ≈ ${money(d.estTaxOnPrice)}` : ""}. Required as its own line ($0 if none applies). TrimScout fills in the state-rate amount; type your own to change it — a reason is required and the buyer is told.</p>
+                  <p className={hintCls}>For the buyer&apos;s ZIP {zip}{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` — tax on price + add-ons at that rate ≈ ${money(d.estTaxOnPrice)}` : ""}. Required as its own line ($0 if none applies). TrimScout fills in the state-rate amount; type your own to change it — a reason is required and the buyer is told.</p>
                 </>
               ), `for ZIP ${zip}`)}
               {eqBlock("−", "Rebates / credits", "rebates", (
@@ -459,7 +464,7 @@ export function UsedQuoteForm({
             </div>
             {fees.map((it, i) => feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES, i === 0 && d.estTaxOnPrice != null ? String(d.estTaxOnPrice) : "0"))}
             <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add another fee</button>
-            <p className={hintCls}>Sales tax, doc fee and title & registration are always listed — enter the amounts{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` (tax on the price at ${zip}'s rate ≈ ${money(d.estTaxOnPrice)})` : ""}. Sales tax is required as its own line ($0 if none). TrimScout fills in sales tax — type your own to change it, with a reason. Doc fee and title &amp; registration are yours to enter, with no estimate and no override. A single unlabeled lump can&apos;t be submitted.</p>
+            <p className={hintCls}>Sales tax, doc fee and title & registration are always listed — enter the amounts{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` (tax on price + add-ons at ${zip}'s rate ≈ ${money(d.estTaxOnPrice)})` : ""}. Sales tax is required as its own line ($0 if none). TrimScout fills in sales tax — type your own to change it, with a reason. Doc fee and title &amp; registration are yours to enter, with no estimate and no override. A single unlabeled lump can&apos;t be submitted.</p>
             {kind === "finance" ? (
               <label className="flex items-start gap-2 text-[11px] text-ink-light">
                 <input type="checkbox" checked={noTaxEstimate} onChange={(e) => setNoTaxEstimate(e.target.checked)} className="mt-0.5 h-3.5 w-3.5" />

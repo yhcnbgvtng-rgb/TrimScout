@@ -67,7 +67,7 @@ export async function POST(req: Request) {
   // TrimScout calculates sales tax and title & registration. A different amount is the dealer's override: it needs a
   // reason, and the calculated figure is recomputed here, never taken from the browser. The doc fee can't be overridden.
   const zip = (rfq.quotePrefs?.quoteType === "finance" ? rfq.quotePrefs.finance?.zip : rfq.quotePrefs?.cash?.zip) || "";
-  const fees = normalizeFeeOverrides({ dueAtSigning: quote.dueAtSigning, sellingPrice: quote.sellingPrice, addOns: quote.addOns, zip, submitted: raw.feeOverrides });
+  const fees = normalizeFeeOverrides({ dueAtSigning: quote.dueAtSigning, sellingPrice: quote.sellingPrice, addOns: quote.addOns, isNew: condition === "new", zip, submitted: raw.feeOverrides });
   if (fees.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: fees.errors, warnings: v.warnings }, { status: 422 });
 
   const used = { ...(quote as UsedQuote), feeOverrides: fees.overrides.length ? fees.overrides : null } as UsedQuote;
