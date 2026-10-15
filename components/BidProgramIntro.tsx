@@ -10,7 +10,6 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { MarketPulse } from "./MarketPulse";
 
 interface BidProgramIntroProps {
   /** Opens Configure Quote Request; the placement names which button. */
@@ -122,8 +121,6 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           ))}
         </div>
       </div>
-
-      <MarketPulse />
 
       {/* THE DIFFERENCE */}
       <div className="space-y-8">
