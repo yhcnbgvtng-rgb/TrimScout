@@ -140,7 +140,7 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
           {disc.status === "above" ? <span className="text-amber-200">{fmtMoney(disc.dollars)} · above MSRP</span>
             : disc.status === "at" ? <>At MSRP</>
             : <>{fmtMoney(disc.dollars)} · {disc.pct}% off</>}
-          <span className="block text-[10px] font-normal text-ink-muted">MSRP {fmtMoney(disc.msrp)}</span>
+          <span className="block text-[10px] font-normal text-ink-muted">MSRP {fmtMoney(disc.msrp)}{used?.surcharges?.length ? " · on price + surcharges" : ""}</span>
         </span>;
     const gap = used?.kind === "cash" && !excluded && !expired ? cmp.gapToBest[invite.id] : undefined;
     const vsBest = gap === undefined || cashLive.length < 2 ? null
@@ -181,7 +181,19 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
       fees: <>{feeLines.length ? lines(dueAtSigningSum(feeLines), feeLines) : <span className="text-ink-muted">None</span>}</>,
       tax: <>{taxLines.length ? lines(dueAtSigningSum(taxLines), taxLines) : <span className="text-ink-muted">—</span>}<DealerAdjustedFlag overrides={activeOverrides(used).filter((o) => o.key === "sales_tax")} /></>,
       addons: used.noAddOns || !used.addOns?.length ? <span className="text-ink-muted">None</span> : lines(dueAtSigningSum(used.addOns), used.addOns),
-      surcharges: used.surcharges?.length ? lines(dueAtSigningSum(used.surcharges), used.surcharges) : used.noSurcharges ? <span className="text-ink-muted">None</span> : <span className="text-ink-muted">—</span>,
+      surcharges: used.surcharges?.length ? (
+        <div data-testid="itemized-lines">
+          <span className="font-bold text-white">{fmtMoney(dueAtSigningSum(used.surcharges))}</span>
+          <ul className="mt-1 space-y-1 text-[10px] text-ink-light tabular-nums">
+            {used.surcharges.map((l, i) => (
+              <li key={i}>
+                <span className="flex justify-between gap-3"><span className="text-ink-muted">{l.name}</span><span>{fmtMoney(l.amount)}</span></span>
+                <span className="block text-[9px] font-normal text-amber-200/90" data-testid="dealer-imposed">Dealer-imposed{l.reason ? ` — ${l.reason}` : ""}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : used.noSurcharges ? <span className="text-ink-muted">None</span> : <span className="text-ink-muted">—</span>,
       rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
       miles: used.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—",
       expires: <span className={expired ? "text-rose-300" : ""}>{new Date(used.expiresAt).toLocaleDateString()}</span>,

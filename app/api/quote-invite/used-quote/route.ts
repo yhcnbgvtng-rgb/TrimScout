@@ -38,7 +38,8 @@ export async function POST(req: Request) {
     dueAtSigning: toLines(raw.dueAtSigning),
     addOns: toLines(raw.addOns) ?? [],
     noAddOns: Boolean(raw.noAddOns),
-    surcharges: toLines(raw.surcharges) ?? [],
+    // Each surcharge also carries the dealer's short reason (shown to the buyer as "Dealer-imposed").
+    surcharges: Array.isArray(raw.surcharges) ? (raw.surcharges as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN, reason: typeof l?.reason === "string" ? l.reason.trim().replace(/\s+/g, " ").slice(0, 140) : "" })) : [],
     noSurcharges: Boolean(raw.noSurcharges),
     rebates: toLines(raw.rebates) ?? [],
     miles: condition === "new" ? null : num(raw.miles) ?? undefined,

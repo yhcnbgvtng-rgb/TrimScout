@@ -191,6 +191,9 @@ export function validateUsedQuote(
   if (q.noAddOns && addOns.length > 0) errors.push("Either list the add-ons or mark none — not both.");
   const surcharges = Array.isArray(q.surcharges) ? q.surcharges : [];
   if (!surcharges.every((a) => a && typeof a.name === "string" && a.name.trim().length >= 2 && nonneg(a.amount))) errors.push("Every surcharge needs a name and an amount (0 or more).");
+  if (car.requireSurcharges && !surcharges.every((a) => typeof a?.reason === "string" && a.reason.trim().length >= SURCHARGE_REASON_MIN && a.reason.trim().length <= SURCHARGE_REASON_MAX)) errors.push(`Every surcharge needs a short reason (${SURCHARGE_REASON_MIN}-${SURCHARGE_REASON_MAX} characters) — the buyer sees it as dealer-imposed.`);
+  const surchargeTotal = dueAtSigningSum(surcharges);
+  if (pos(q.sellingPrice) && surchargeTotal > q.sellingPrice * SURCHARGE_WARN_RATIO + 0.005) warnings.push(`Surcharges total $${surchargeTotal.toLocaleString("en-US", { maximumFractionDigits: 2 })}, more than ${Math.round(SURCHARGE_WARN_RATIO * 100)}% of the selling price — double-check them. The buyer sees each one as dealer-imposed.`);
   if (car.requireSurcharges && !q.noSurcharges && surcharges.length === 0) errors.push("Surcharges: list each one with its amount, or confirm there are none.");
   if (q.noSurcharges && surcharges.length > 0) errors.push("Either list the surcharges or mark none — not both.");
   const rebates = Array.isArray(q.rebates) ? q.rebates : [];
@@ -215,10 +218,15 @@ export function validateUsedQuote(
   return { errors, warnings };
 }
 
-/** "Doc surcharge $400, Market adjustment $1,000" — null when the quote has none (older quotes, or "No surcharges"). */
+export const SURCHARGE_REASON_MIN = 3;
+export const SURCHARGE_REASON_MAX = 140;
+/** A soft warning (never a block) once surcharges total more than this share of the selling price. */
+export const SURCHARGE_WARN_RATIO = 0.1;
+
+/** "Doc surcharge $400 (reason), Market adjustment $1,000 (reason)" — null when the quote has none (older quotes, or "No surcharges"). */
 export function surchargeSummary(q: { surcharges?: LineItem[] | null } | null | undefined): string | null {
   const lines = (q?.surcharges || []).filter((l) => l && String(l.name || "").trim() && Number(l.amount) > 0);
-  return lines.length ? lines.map((l) => `${String(l.name).trim()} $${Number(l.amount).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`).join(", ") : null;
+  return lines.length ? lines.map((l) => `${String(l.name).trim()} $${Number(l.amount).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}${l.reason?.trim() ? ` (${l.reason.trim()})` : ""}`).join(", ") : null;
 }
 
 export function lineSum(items: LineItem[] | null | undefined): number {

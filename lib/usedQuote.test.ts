@@ -142,7 +142,7 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     assert.doesNotMatch(f, /monthlyPaymentPreTax: num\(f\./, "no typed monthly");
     const route = read("app/api/quote-invite/used-quote/route.ts");
     assert.match(route, /validateUsedQuote\(quote, rfq\.quotePrefs, \{ vin, stockNumber, condition, requireMsrp: true, requireSurcharges: true \}\)/);
-    assert.match(route, /addOns: toLines\(raw\.addOns\) \?\? \[\],\s*noAddOns: Boolean\(raw\.noAddOns\),\s*surcharges: toLines\(raw\.surcharges\) \?\? \[\],\s*noSurcharges: Boolean\(raw\.noSurcharges\),\s*rebates: toLines\(raw\.rebates\) \?\? \[\],/);
+    assert.match(route, /addOns: toLines\(raw\.addOns\) \?\? \[\],\s*noAddOns: Boolean\(raw\.noAddOns\),\s*(?:\/\/[^\n]*\s*)?surcharges: Array\.isArray\(raw\.surcharges\)[\s\S]*?noSurcharges: Boolean\(raw\.noSurcharges\),\s*rebates: toLines\(raw\.rebates\) \?\? \[\],/);
     assert.doesNotMatch(route, /checklist|mustConfirm/i);
   });
   it("deal page: used deals use UsedCompare (Finance / Cash columns), never the lease grid; the lease calculator is untouched", () => {
