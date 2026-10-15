@@ -232,7 +232,7 @@ describe("the dealer's sheet", () => {
     const html = form(cash());
     assert.match(html, /data-testid="fee-amount-sales_tax"[^>]*value="2,650"/);
     assert.doesNotMatch(html, /aria-label="Sales tax amount \(calculated by TrimScout\)"/, "not the read-only variant");
-    assert.match(html, /data-testid="tax-estimate-hint">TrimScout estimate for NJ: \$2,650</);
+    assert.match(html, /data-testid="tax-estimate-hint">TrimScout estimate for NJ: \$2,650, on price \+ add-ons</);
     assert.doesNotMatch(html, /fee-override-sales_tax/);
   });
   it("typing the estimate back is not an override (nothing submitted)", () => {

@@ -15,7 +15,7 @@
  */
 import { isDocFee, isTaxLine, zipStateTax } from "./counterSheet";
 import type { LineItem } from "./leaseQuote";
-import { sumItems } from "./leaseMath";
+import { computeSalesTax } from "./salesTax";
 
 export type OverridableFee = "sales_tax";
 
@@ -45,14 +45,14 @@ export function overridableKey(name: string): OverridableFee | null {
 }
 export const canOverrideFee = (name: string) => overridableKey(name) !== null;
 
-/** TrimScout's sales tax: the buyer's ZIP-state rate on price + add-ons; null with no usable ZIP (nothing calculated, nothing to override). */
-export function calcSalesTax(zip: string | null | undefined, sellingPrice: number | null | undefined, addOns: LineItem[] | null | undefined): number | null {
+/** TrimScout's sales tax: the buyer's ZIP-state rate on price + add-ons (lib/salesTax.ts), plus NJ's 0.4% surcharge on a new car of $45,000+; null with no usable ZIP (nothing calculated, nothing to override). */
+export function calcSalesTax(zip: string | null | undefined, sellingPrice: number | null | undefined, addOns: LineItem[] | null | undefined, isNew?: boolean | null): number | null {
   const t = zipStateTax(zip);
   if (!t || !(typeof sellingPrice === "number" && sellingPrice > 0)) return null;
-  return r2(Math.max(0, t.rate * (sellingPrice + sumItems(addOns || []))));
+  return computeSalesTax({ rate: t.rate, state: t.state, isNew, sellingPrice, addOns });
 }
-export function calcFee(_key: OverridableFee, input: { zip: string | null | undefined; sellingPrice: number | null | undefined; addOns?: LineItem[] | null }): number | null {
-  return calcSalesTax(input.zip, input.sellingPrice, input.addOns);
+export function calcFee(_key: OverridableFee, input: { zip: string | null | undefined; sellingPrice: number | null | undefined; addOns?: LineItem[] | null; isNew?: boolean | null }): number | null {
+  return calcSalesTax(input.zip, input.sellingPrice, input.addOns, input.isNew);
 }
 
 /** The first due-at-signing line for a fee. */
@@ -71,6 +71,8 @@ export function normalizeFeeOverrides(input: {
   dueAtSigning: LineItem[] | null | undefined;
   sellingPrice: number | null | undefined;
   addOns?: LineItem[] | null;
+  /** New car (the NJ surcharge only applies to one). */
+  isNew?: boolean | null;
   zip: string | null | undefined;
   submitted: unknown;
   now?: Date;
