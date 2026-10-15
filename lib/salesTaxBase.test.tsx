@@ -96,7 +96,7 @@ describe("the field and its note", () => {
   it("shows the NJ surcharge in the hint for a new car at $45,000+, and not for a used one", () => {
     const q = quote({ sellingPrice: 50000, addOns: [] });
     assert.match(html(q, "new"), /includes NJ&#x27;s 0\.4% surcharge/);
-    assert.doesNotMatch(html(q, "used"), /surcharge/);
+    assert.doesNotMatch(html(q, "used"), /includes NJ&#x27;s 0\.4% surcharge/, "the hint only; the form now has its own Surcharges section");
   });
   it("keeps the dealer-adjusted flag and the required reason when the amount is changed", () => {
     const f = fs.readFileSync(path.join(process.cwd(), "components/UsedQuoteForm.tsx"), "utf8");
