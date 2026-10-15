@@ -246,7 +246,7 @@ function DeclineForm({ onSubmit, onCancel }: { onSubmit: (reason: RfqDeclineReas
 /**
  * The buyer's per-dealer actions, rendered inside that dealer's compare-column header for a dealer who
  * hasn't answered yet: log a quote the dealer gave by phone/email, or mark them declined. Same handlers
- * and routes as the old Invited dealers card; the forms open in an overlay because a column is narrow.
+ * and routes as before; the forms open in an overlay because a column is narrow.
  */
 function InviteActions({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqRequest; onAction: () => void }) {
   const [mode, setMode] = useState<"idle" | "quote" | "decline">("idle");
