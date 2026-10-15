@@ -43,6 +43,7 @@ export function LeaseCompare({
   onCounter,
   trade,
   busy,
+  inviteActions,
 }: {
   /** The request's trade-in and each desk's appraisal. Shown as its own lines; the dealer's monthly is never recomputed. */
   trade?: { record: TradeInRecord; byInvite: Record<string, DealerTradeAppraisal | null> } | null;
@@ -53,6 +54,8 @@ export function LeaseCompare({
   /** Buyer counter to one desk; resolves once the box has it. */
   onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>;
   busy: boolean;
+  /** Per-dealer buyer actions (record a quote / mark declined) for the dealer's column header; null once they've answered. */
+  inviteActions?: (inviteId: string) => React.ReactNode;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [countering, setCountering] = useState<string | null>(null);
@@ -110,6 +113,7 @@ export function LeaseCompare({
         {statusNotes.map((c) => <span key={c} className="block text-[10px] leading-snug text-ink-muted">{c}</span>)}
         {r.kind === "countered" && r.buyerCounter ? <span className="block text-[10px] leading-snug text-sky-200">You asked: {counterSummary(r.buyerCounter)}</span> : null}
         <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
+        {inviteActions && !r.lease ? inviteActions(r.inviteId) : null}
       </div>
     );
     const eq = tradeEquity(Boolean(trade), trade?.record.payoffEstimate, trade?.byInvite[r.inviteId]);

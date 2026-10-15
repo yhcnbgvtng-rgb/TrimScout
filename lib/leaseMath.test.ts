@@ -64,6 +64,18 @@ describe("wiring — lease deals record dealer quotes through the calculator she
     assert.match(page, /data-testid="responded-line"/);
   });
 
+  it("Record quote / Mark declined live in the dealer's compare-column header and reuse the same routes", () => {
+    assert.match(page, /<LeaseCompare [^\n]*inviteActions=/);
+    assert.match(page, /data-testid="record-quote"[\s\S]*?Record quote/);
+    assert.match(page, /data-testid="mark-declined"[\s\S]*?Mark declined/);
+    assert.match(page, /\/invites\/\$\{invite\.id\}\/quotes`/);
+    assert.match(page, /\/invites\/\$\{invite\.id\}\/decline`/);
+    assert.match(page, /mode === "quote" && rfq\.leasePrefs[\s\S]*?<LeaseCalculatorSheet/);
+    assert.match(page, /mode === "decline" \? <DeclineForm/);
+    // Only a dealer who hasn't answered gets them.
+    assert.match(page, /if \(invite\.status !== "invited"\) return null;/);
+  });
+
   it("the sheet has the five sections, starts blank, and never carries third-party branding or auction copy", () => {
     for (const h of ["1 · Deal inputs", "2 · Lease terms", "3 · Tax context", "4 · Results", "Quote details"]) assert.match(sheet, new RegExp(h.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(sheet, /msrp: "",\s*capCost: "",\s*capReduction: "",\s*acquisitionFee: "",\s*termMonths: "",\s*milesPerYear: "",\s*residualPercent: "",\s*residualAmount: "",\s*moneyFactor: ""/);

@@ -27,12 +27,282 @@ import {
   Trash2,
   X as XIcon,
 } from "lucide-react";
-import type { RfqInvite, RfqRequest } from "@/lib/rfq";
+import type { RfqDeclineReason, RfqInvite, RfqRequest } from "@/lib/rfq";
+import { RFQ_DECLINE_REASON_LABELS } from "@/lib/rfq";
+import { LeaseCalculatorSheet } from "@/components/LeaseCalculatorSheet";
 import type { CounterEditsPayload } from "@/lib/buyerCounter";
 import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
 import { NON_BINDING_COPY } from "@/lib/quotePackage";
 import { formatFactoryOptionLine } from "@/lib/fordCompetitionUi";
 import { formatCurrency } from "@/lib/otdCalculator";
+
+interface DraftFee {
+  label: string;
+  amount: string;
+}
+
+function QuoteIntakeForm({
+  rfqVin,
+  rfqStockNumber,
+  onSubmit,
+  onCancel,
+}: {
+  rfqVin: string;
+  rfqStockNumber: string | null;
+  onSubmit: (input: {
+    price: number;
+    fees: { label: string; amount: number }[];
+    vin: string;
+    stockNumber: string | null;
+    expiresAt: string;
+    mustHaveAcknowledgement: boolean;
+    notes: string | null;
+  }) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [price, setPrice] = useState("");
+  const [fees, setFees] = useState<DraftFee[]>([{ label: "Doc fee", amount: "" }]);
+  const [vin, setVin] = useState(rfqVin);
+  const [stockNumber, setStockNumber] = useState(rfqStockNumber || "");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [ack, setAck] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateFee = (i: number, field: keyof DraftFee, value: string) => {
+    setFees((prev) => prev.map((f, idx) => (idx === i ? { ...f, [field]: value } : f)));
+  };
+  const addFee = () => setFees((prev) => [...prev, { label: "", amount: "" }]);
+  const removeFee = (i: number) => setFees((prev) => prev.filter((_, idx) => idx !== i));
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onSubmit({
+        price: Number(price),
+        fees: fees.filter((f) => f.label.trim()).map((f) => ({ label: f.label.trim(), amount: Number(f.amount) || 0 })),
+        vin: vin.trim(),
+        stockNumber: stockNumber.trim() || null,
+        expiresAt: expiresAt ? new Date(expiresAt).toISOString() : "",
+        mustHaveAcknowledgement: ack,
+        notes: notes.trim() || null,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not record this quote.");
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 rounded-xl border border-border bg-background p-4">
+      <p className="text-[11px] text-ink-muted">
+        Enter exactly what the dealer quoted — over email, phone, or text. This is a record of their response, not a new
+        request.
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="space-y-1">
+          <span className="text-[10px] font-bold uppercase text-ink-light">Price (before fees)</span>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
+          />
+        </label>
+        <label className="space-y-1">
+          <span className="text-[10px] font-bold uppercase text-ink-light">Quote expires</span>
+          <input
+            type="date"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
+          />
+        </label>
+      </div>
+
+      <div className="space-y-1.5">
+        <span className="text-[10px] font-bold uppercase text-ink-light">Itemized fees</span>
+        {fees.map((f, i) => (
+          <div key={i} className="flex gap-2">
+            <input
+              type="text"
+              value={f.label}
+              onChange={(e) => updateFee(i, "label", e.target.value)}
+              placeholder="Fee label"
+              className="flex-1 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
+            />
+            <input
+              type="number"
+              value={f.amount}
+              onChange={(e) => updateFee(i, "amount", e.target.value)}
+              placeholder="Amount"
+              className="w-28 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
+            />
+            {fees.length > 1 && (
+              <button onClick={() => removeFee(i)} className="text-ink-muted hover:text-rose-400">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        ))}
+        <button onClick={addFee} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300">
+          <Plus className="h-3 w-3" />
+          Add fee
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="space-y-1">
+          <span className="text-[10px] font-bold uppercase text-ink-light">VIN quoted</span>
+          <input
+            type="text"
+            value={vin}
+            onChange={(e) => setVin(e.target.value)}
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none"
+          />
+        </label>
+        <label className="space-y-1">
+          <span className="text-[10px] font-bold uppercase text-ink-light">Stock # (optional)</span>
+          <input
+            type="text"
+            value={stockNumber}
+            onChange={(e) => setStockNumber(e.target.value)}
+            className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
+          />
+        </label>
+      </div>
+
+      <label className="space-y-1 block">
+        <span className="text-[10px] font-bold uppercase text-ink-light">Notes (optional)</span>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={2}
+          className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
+        />
+      </label>
+
+      <label className="flex items-start gap-2 text-[11px] text-ink-light cursor-pointer">
+        <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="mt-0.5 h-3.5 w-3.5 rounded border-border text-brand-500 focus:ring-0" />
+        <span>The dealer confirmed all locked must-haves are on this VIN before quoting.</span>
+      </label>
+
+      {error && <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">{error}</div>}
+
+      <div className="flex gap-2">
+        <button
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="flex-1 rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50"
+        >
+          {submitting ? "Saving…" : "Save Quote"}
+        </button>
+        <button onClick={onCancel} className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-ink-light hover:text-white">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DeclineForm({ onSubmit, onCancel }: { onSubmit: (reason: RfqDeclineReason) => Promise<void>; onCancel: () => void }) {
+  const [reason, setReason] = useState<RfqDeclineReason>("soft_lead");
+  const [submitting, setSubmitting] = useState(false);
+  return (
+    <div className="space-y-2 rounded-xl border border-border bg-background p-4">
+      <span className="text-[10px] font-bold uppercase text-ink-light">Why did the desk decline?</span>
+      <select
+        value={reason}
+        onChange={(e) => setReason(e.target.value as RfqDeclineReason)}
+        className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
+      >
+        {(Object.keys(RFQ_DECLINE_REASON_LABELS) as RfqDeclineReason[]).map((r) => (
+          <option key={r} value={r}>
+            {RFQ_DECLINE_REASON_LABELS[r]}
+          </option>
+        ))}
+      </select>
+      <div className="flex gap-2">
+        <button
+          onClick={async () => {
+            setSubmitting(true);
+            await onSubmit(reason);
+          }}
+          disabled={submitting}
+          className="flex-1 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-extrabold text-black hover:bg-rose-400 transition-all disabled:opacity-50"
+        >
+          {submitting ? "Saving…" : "Record Decline"}
+        </button>
+        <button onClick={onCancel} className="rounded-lg border border-border px-4 py-2 text-xs font-bold text-ink-light hover:text-white">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The buyer's per-dealer actions, rendered inside that dealer's compare-column header for a dealer who
+ * hasn't answered yet: log a quote the dealer gave by phone/email, or mark them declined. Same handlers
+ * and routes as the old Invited dealers card; the forms open in an overlay because a column is narrow.
+ */
+function InviteActions({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqRequest; onAction: () => void }) {
+  const [mode, setMode] = useState<"idle" | "quote" | "decline">("idle");
+  if (invite.status !== "invited") return null;
+
+  const submitQuote = async (input: Parameters<React.ComponentProps<typeof QuoteIntakeForm>["onSubmit"]>[0] | Parameters<React.ComponentProps<typeof LeaseCalculatorSheet>["onSubmit"]>[0]) => {
+    const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/quotes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Could not record this quote.");
+    setMode("idle");
+    onAction();
+  };
+
+  const submitDecline = async (reason: RfqDeclineReason) => {
+    const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/decline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ declineReason: reason }),
+    });
+    if (res.ok) {
+      setMode("idle");
+      onAction();
+    }
+  };
+
+  return (
+    <div data-testid="invite-actions">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <button type="button" onClick={() => setMode("quote")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white" data-testid="record-quote">
+          Record quote
+        </button>
+        <button type="button" onClick={() => setMode("decline")} className="text-[11px] font-bold text-ink-muted underline underline-offset-2 hover:text-white" data-testid="mark-declined">
+          Mark declined
+        </button>
+      </div>
+      {mode !== "idle" ? (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black/70 p-4" role="dialog" aria-label={mode === "quote" ? `Record a quote from ${invite.dealerName}` : `Mark ${invite.dealerName} declined`}>
+          <div className="mx-auto max-w-3xl space-y-3 rounded-2xl border border-border bg-surface p-5">
+            <h2 className="text-sm font-bold text-white">{mode === "quote" ? `Record a quote from ${invite.dealerName}` : `Mark ${invite.dealerName} declined`}</h2>
+            {mode === "quote" && rfq.leasePrefs ? (
+              <LeaseCalculatorSheet prefs={rfq.leasePrefs} vin={invite.vehicle?.vin || rfq.vin} stockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
+            ) : null}
+            {mode === "quote" && !rfq.leasePrefs ? (
+              <QuoteIntakeForm rfqVin={rfq.vin} rfqStockNumber={rfq.stockNumber} onSubmit={submitQuote} onCancel={() => setMode("idle")} />
+            ) : null}
+            {mode === "decline" ? <DeclineForm onSubmit={submitDecline} onCancel={() => setMode("idle")} /> : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite; rfq: RfqRequest; onPick: () => void; picking: boolean }) {
   const q = invite.quote;
@@ -251,7 +521,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
@@ -338,7 +608,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
