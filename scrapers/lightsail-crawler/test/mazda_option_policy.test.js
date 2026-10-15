@@ -168,3 +168,31 @@ describe('exact aliases (every feed string is a real one from the 2026-10-14 box
     for (const m of ['Mazda3', 'MAZDA3', 'MX-5', 'Mazda CX-70 MHEV']) assert.deepEqual(modelPoliciesFor(ALLOW, { make: 'Mazda', year: 2026, model: m }), [], `${m} stays uncovered`);
   });
 });
+
+describe('the Mazda apply script (scripts/box/2026-10-15-mazda-option-policy-apply.mjs)', () => {
+  const src = fs.readFileSync(path.join(repo, 'scripts/box/2026-10-15-mazda-option-policy-apply.mjs'), 'utf8');
+  it('is Mazda-only: Mazda 2026-27 car and dealer queries, its own lock owners, no other make named', () => {
+    assert.ok(src.includes("make = 'Mazda' AND year IN (2026, 2027)") && src.includes("AND make = 'Mazda'"));
+    assert.ok(src.includes('mazda-option-policy-apply') && src.includes('mazda-option-policy-restore'));
+    assert.doesNotMatch(src, /hyundai|subaru|nissan/i);
+  });
+  it('keeps the safety rails: untrusted trims are skipped (never a wipe), backup first, deadline, sync lock, restore', () => {
+    assert.ok(src.includes('if (!res.trimTrusted) { t.skippedNoTrustedTrim++; continue; }'));
+    assert.ok(src.includes('backup.jsonl') && src.includes('pastDeadline()') && src.includes('takeLock(') && src.includes('async function restore()'));
+    assert.ok(src.includes('LOCK BUSY') && src.includes('stale'));
+  });
+});
+
+describe('the read-only audit and test helpers (scripts/box/2026-10-15-*.mjs)', () => {
+  const read = (f) => fs.readFileSync(path.join(repo, 'scripts/box', f), 'utf8');
+  it('the audit and car picker use the reader account only and never take the sync lock', () => {
+    for (const f of ['2026-10-15-applied-audit.mjs', '2026-10-15-pick-test-cars.mjs']) {
+      const s = read(f);
+      assert.ok(s.includes('DB_READER_USER') && !/DB_WRITER|sync-lock|INSERT INTO|DELETE FROM|UPDATE /.test(s), f);
+    }
+  });
+  it('the upsert test only posts to /api/inventory/bulk and reads back with the reader account', () => {
+    const s = read('2026-10-15-mazda-upsert-test.mjs');
+    assert.ok(s.includes('/api/inventory/bulk') && s.includes('DB_READER_USER') && !s.includes('DB_WRITER'));
+  });
+});
