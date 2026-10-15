@@ -138,3 +138,33 @@ describe('Mazda specifics', () => {
     for (const trim of ['', 'Nope']) assert.deepEqual(policyFacetRows(ALLOW, { make: 'Mazda', model: 'CX-5', year: 2026, trim }, [{ name: 'Soul Red Crystal Metallic' }]), { skip: true });
   });
 });
+
+describe('exact aliases (every feed string is a real one from the 2026-10-14 box2 read-only dry run)', () => {
+  const resolve = (model, trim) => {
+    const v = { make: 'Mazda', year: 2026, model, trim };
+    const ps = modelPoliciesFor(ALLOW, v);
+    if (!ps.length) return { scope: null, trim: null };
+    for (const p of ps) { const hit = resolvePolicyTrim(p, trim, model); if (hit) return { scope: p.scope, trim: hit.trim.label }; }
+    return { scope: ps[0].scope, trim: null };
+  };
+  const ok = (model, feed, want) => { const r = resolve(model, feed); assert.ok(r.scope, `${model} covered`); assert.equal(r.trim, want, `${model} | ${feed}`); };
+  const bad = (model, feed) => { const r = resolve(model, feed); assert.ok(r.scope, `${model} covered`); assert.equal(r.trim, null, `${model} | ${feed} must stay untrusted`); };
+  it('"Mazda " + model, "Plug-In Hybrid" / "PHEV" and "3 Sedan" are the same model', () => {
+    for (const m of ['CX-5', 'CX-30', 'CX-50', 'CX-50 Hybrid', 'CX-70', 'CX-90', 'MX-5 Miata', 'MX-5 Miata RF']) assert.equal(modelPoliciesFor(ALLOW, { make: 'Mazda', year: 2026, model: `Mazda ${m}` }).length, 1, m);
+    for (const m of ['CX-90 Plug-In Hybrid', 'Mazda CX-90 Plug-In Hybrid', 'Mazda CX-90 PHEV', 'CX-70 Plug-In Hybrid', 'Mazda CX-70 PHEV']) assert.equal(modelPoliciesFor(ALLOW, { make: 'Mazda', year: 2026, model: m }).length, 1, m);
+    assert.equal(modelPoliciesFor(ALLOW, { make: 'Mazda', year: 2026, model: '3 Sedan' })[0].scope, 'mazda|mazda3 sedan|2026');
+  });
+  it('the decimal-less engine size, transmission and drivetrain words and the body word are noise', () => {
+    ok('Mazda CX-5', '25 S Select AWD', '2.5 S Select'); ok('CX-5', '2.5 S AWD Automatic', '2.5 S'); ok('CX-50', '2.5 Turbo AWD Automatic', '2.5 Turbo'); ok('CX-30', '25 S Aire Edition', '2.5 S Aire Edition');
+    ok('Mazda3 Hatchback', '2.5 S Premium Manual', '2.5 S Premium'); ok('Mazda3 Hatchback', '2.5 S Carbon Edition AWD Hatchback', '2.5 S Carbon Edition'); ok('Mazda3 Sedan', '25 S Preferred FWD', '2.5 S Preferred'); ok('3 Sedan', '25 Turbo Premium Plus', '2.5 Turbo Premium Plus');
+    ok('MX-5 Miata', 'Club RWD Manual', 'Club'); ok('MX-5 Miata RF', 'Grand Touring RWD Automatic', 'Grand Touring'); ok('CX-50 Hybrid', 'Premium AWD CVT', 'Hybrid Premium');
+  });
+  it('the Hybrid / PHEV models take their only trims, and the CX-90 short names map to the one trim they are', () => {
+    ok('CX-50 Hybrid', 'Preferred AWD', 'Hybrid Preferred'); ok('Mazda CX-50 Hybrid', 'Premium Plus', 'Hybrid Premium Plus'); ok('CX-90 Plug-In Hybrid', 'Premium Plus', 'PHEV Premium Plus'); ok('CX-70 Plug-In Hybrid', 'SC Plus', 'PHEV SC Plus');
+    ok('CX-90', 'Preferred', '3.3 Turbo Preferred'); ok('CX-90', 'Premium Sport', '3.3 Turbo Premium Sport'); ok('CX-90', 'S Premium Plus', '3.3 Turbo S Premium Plus'); ok('CX-90', '33 Turbo Preferred AWD', '3.3 Turbo Preferred');
+  });
+  it('ambiguous or unknown trims stay untrusted: blanks, dealer text, paint words, CX-90 bare Premium / 3.3 Turbo (S) Premium, body-less Mazda3, MX-5, MHEV', () => {
+    for (const [m, t] of [['CX-5', ''], ['CX-5', null], ['CX-5', 'Inventory'], ['Mazda3 Sedan', 'Base'], ['MX-5 Miata', 'Club Jet Black Mica'], ['CX-90', 'Premium'], ['CX-90', '3.3 Turbo Premium'], ['CX-90', '3.3 Turbo S Premium'], ['CX-90 PHEV', 'Premium'], ['CX-30', 'PREMIUM'], ['CX-50', 'AWD Automatic'], ['CX-5', '2.5 S AWD Machine']]) bad(m, t);
+    for (const m of ['Mazda3', 'MAZDA3', 'MX-5', 'Mazda CX-70 MHEV']) assert.deepEqual(modelPoliciesFor(ALLOW, { make: 'Mazda', year: 2026, model: m }), [], `${m} stays uncovered`);
+  });
+});

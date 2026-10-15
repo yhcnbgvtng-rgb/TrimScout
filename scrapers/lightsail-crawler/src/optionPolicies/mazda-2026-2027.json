@@ -2,10 +2,20 @@
   "mazda|cx 30|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-30)",
     "models": [
-      "cx 30"
+      "cx 30",
+      "mazda cx 30"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "25 s": "2 5 s",
+      "25 s select sport": "2 5 s select sport",
+      "25 s preferred": "2 5 s preferred",
+      "25 s premium": "2 5 s premium",
+      "25 s carbon edition": "2 5 s carbon edition",
+      "25 s aire edition": "2 5 s aire edition",
+      "25 turbo aire edition": "2 5 turbo aire edition",
+      "25 turbo premium plus": "2 5 turbo premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -17,7 +27,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -817,10 +831,17 @@
   "mazda|cx 5|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-5)",
     "models": [
-      "cx 5"
+      "cx 5",
+      "mazda cx 5"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "25 s": "2 5 s",
+      "25 s select": "2 5 s select",
+      "25 s preferred": "2 5 s preferred",
+      "25 s premium": "2 5 s premium",
+      "25 s premium plus": "2 5 s premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -832,7 +853,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1309,10 +1334,15 @@
   "mazda|cx 50 hybrid|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-50 Hybrid)",
     "models": [
-      "cx 50 hybrid"
+      "cx 50 hybrid",
+      "mazda cx 50 hybrid"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "preferred": "hybrid preferred",
+      "premium": "hybrid premium",
+      "premium plus": "hybrid premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -1324,7 +1354,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -1609,10 +1643,19 @@
   "mazda|cx 50|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-50)",
     "models": [
-      "cx 50"
+      "cx 50",
+      "mazda cx 50"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "25 s select": "2 5 s select",
+      "25 s preferred": "2 5 s preferred",
+      "25 s premium": "2 5 s premium",
+      "25 s meridian edition": "2 5 s meridian edition",
+      "25 turbo": "2 5 turbo",
+      "25 turbo meridian edition": "2 5 turbo meridian edition",
+      "25 turbo premium plus": "2 5 turbo premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -1624,7 +1667,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2349,10 +2396,16 @@
   "mazda|cx 70 phev|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-70 PHEV)",
     "models": [
-      "cx 70 phev"
+      "cx 70 phev",
+      "cx 70 plug in hybrid",
+      "mazda cx 70 plug in hybrid",
+      "mazda cx 70 phev"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "sc": "phev sc",
+      "sc plus": "phev sc plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2364,7 +2417,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -2616,10 +2673,17 @@
   "mazda|cx 70|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-70)",
     "models": [
-      "cx 70"
+      "cx 70",
+      "mazda cx 70"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "33 turbo preferred": "3 3 turbo preferred",
+      "33 turbo premium": "3 3 turbo premium",
+      "33 turbo premium plus": "3 3 turbo premium plus",
+      "33 turbo s premium": "3 3 turbo s premium",
+      "33 turbo s premium plus": "3 3 turbo s premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -2631,7 +2695,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3108,10 +3176,17 @@
   "mazda|cx 90 phev|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-90 PHEV)",
     "models": [
-      "cx 90 phev"
+      "cx 90 phev",
+      "cx 90 plug in hybrid",
+      "mazda cx 90 plug in hybrid",
+      "mazda cx 90 phev"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "preferred": "phev preferred",
+      "premium plus": "phev premium plus",
+      "premium sport": "phev premium sport"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -3123,7 +3198,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3450,10 +3529,25 @@
   "mazda|cx 90|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 CX-90)",
     "models": [
-      "cx 90"
+      "cx 90",
+      "mazda cx 90",
+      "mazda cx90"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "33 turbo select": "3 3 turbo select",
+      "33 turbo preferred": "3 3 turbo preferred",
+      "33 turbo premium plus": "3 3 turbo premium plus",
+      "33 turbo premium sport": "3 3 turbo premium sport",
+      "33 turbo s premium plus": "3 3 turbo s premium plus",
+      "33 turbo s premium sport": "3 3 turbo s premium sport",
+      "select": "3 3 turbo select",
+      "preferred": "3 3 turbo preferred",
+      "premium plus": "3 3 turbo premium plus",
+      "premium sport": "3 3 turbo premium sport",
+      "s premium plus": "3 3 turbo s premium plus",
+      "s premium sport": "3 3 turbo s premium sport"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -3465,7 +3559,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -3975,7 +4073,8 @@
   "mazda|mx 5 miata rf|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 MX-5 Miata RF)",
     "models": [
-      "mx 5 miata rf"
+      "mx 5 miata rf",
+      "mazda mx 5 miata rf"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -3990,7 +4089,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4272,7 +4375,8 @@
   "mazda|mx 5 miata|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 MX-5 Miata)",
     "models": [
-      "mx 5 miata"
+      "mx 5 miata",
+      "mazda mx 5 miata"
     ],
     "keepBare": [],
     "trimAliases": {},
@@ -4287,7 +4391,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4659,7 +4767,14 @@
       "mazda3 hatchback"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "25 s": "2 5 s",
+      "25 s select sport": "2 5 s select sport",
+      "25 s preferred": "2 5 s preferred",
+      "25 s premium": "2 5 s premium",
+      "25 s carbon edition": "2 5 s carbon edition",
+      "25 turbo premium plus": "2 5 turbo premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -4671,7 +4786,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -4693,7 +4812,8 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "hatchback"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
@@ -5223,10 +5343,17 @@
   "mazda|mazda3 sedan|2026": {
     "source": "docs/option-catalogs-2026-10-14/mazda_lineup_options_by_trim.csv (2026 Mazda3 Sedan)",
     "models": [
-      "mazda3 sedan"
+      "mazda3 sedan",
+      "3 sedan"
     ],
     "keepBare": [],
-    "trimAliases": {},
+    "trimAliases": {
+      "25 s": "2 5 s",
+      "25 s select sport": "2 5 s select sport",
+      "25 s preferred": "2 5 s preferred",
+      "25 s carbon edition": "2 5 s carbon edition",
+      "25 turbo premium plus": "2 5 turbo premium plus"
+    },
     "orderCodePattern": "(?!)",
     "trimNoise": [
       "awd",
@@ -5238,7 +5365,11 @@
       "4x2",
       "demo",
       "fleet",
-      "intransit"
+      "intransit",
+      "cvt",
+      "automatic",
+      "auto",
+      "manual"
     ],
     "trimNoisePhrases": [
       "in transit",
@@ -5260,7 +5391,8 @@
       "standard bed",
       "short box",
       "long box",
-      "standard box"
+      "standard box",
+      "sedan"
     ],
     "disclaimerPatterns": [
       "^(?:does not|doesn t|do not|don t) include\\b",
