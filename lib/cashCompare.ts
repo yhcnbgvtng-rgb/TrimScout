@@ -8,7 +8,7 @@ import { dueAtSigningSum, type UsedCashQuote } from "./usedQuote";
 const TAX_RE = /tax/i;
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
-export type CashFigures = Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "rebates" | "msrp">>;
+export type CashFigures = Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "surcharges" | "rebates" | "msrp">>;
 
 export type MsrpDiscount =
   | { status: "none" }
@@ -24,12 +24,12 @@ export function msrpDiscount(q: Pick<CashFigures, "sellingPrice" | "msrp">): Msr
   return { status: dollars > 0 ? "off" : dollars < 0 ? "above" : "at", msrp, dollars: Math.abs(dollars), pct, ratio };
 }
 
-/** Named fees only: everything due at signing that is not sales tax (doc fee, title & registration, …). Add-ons are not fees. */
+/** Named fees only: everything due at signing that is not sales tax (doc fee, title & registration, …). Add-ons and surcharges are not fees — the lowest-fees badge never counts them. */
 export function feesTotal(q: Pick<CashFigures, "dueAtSigning">): number {
   return r2(dueAtSigningSum(q.dueAtSigning.filter((l) => !TAX_RE.test(l.name))));
 }
 
-/** Out the door with the dealer add-ons taken out: selling price + fees + tax − rebates. */
+/** Out the door with the dealer add-ons taken out: selling price + fees + tax − rebates. Surcharges stay out too — they sit in "Out the door" only. */
 export function otdExcludingAddOns(q: CashFigures): number {
   return r2(q.sellingPrice + dueAtSigningSum(q.dueAtSigning) - dueAtSigningSum(q.rebates));
 }

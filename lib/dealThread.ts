@@ -17,7 +17,7 @@ import type { DealMessage, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 import { counterSummary } from "./buyerCounter";
 import { activeOverrides, overrideSummary } from "./feeOverride";
 import { findIdentityInfo } from "./identityFilter";
-import { cashOutTheDoor } from "./usedQuote";
+import { cashOutTheDoor, surchargeSummary } from "./usedQuote";
 import type { DealStageState } from "./dealStages";
 
 export type ThreadViewer = "buyer" | "dealer";
@@ -61,10 +61,13 @@ export function canPostToThread(rfq: Pick<RfqRequest, "status">, invite: Pick<Rf
   return { ok: true };
 }
 
+/** " (includes surcharges: Doc surcharge $400)" — empty for quotes with none, including every quote sent before surcharges existed. */
+const surchargeNote = (u: Parameters<typeof surchargeSummary>[0]) => { const t = surchargeSummary(u); return t ? ` (includes surcharges: ${t})` : ""; };
+
 function quoteHeadline(q: RfqQuote): string {
   if (q.lease) return `${usd(q.lease.monthlyPaymentPreTax)}/mo lease`;
-  if (q.used?.kind === "finance") return `${usd(q.used.monthlyPaymentPreTax)}/mo at ${q.used.apr}% for ${q.used.termMonths} mo`;
-  if (q.used?.kind === "cash") return `${usd(cashOutTheDoor(q.used))} out the door`;
+  if (q.used?.kind === "finance") return `${usd(q.used.monthlyPaymentPreTax)}/mo at ${q.used.apr}% for ${q.used.termMonths} mo${surchargeNote(q.used)}`;
+  if (q.used?.kind === "cash") return `${usd(cashOutTheDoor(q.used))} out the door${surchargeNote(q.used)}`;
   return usd(q.totalOtdPrice) ? `${usd(q.totalOtdPrice)} out the door` : "a quote";
 }
 

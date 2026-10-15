@@ -83,6 +83,8 @@ export function UsedQuoteForm({
   const [noTaxEstimate, setNoTaxEstimate] = useState(initFin ? initFin.monthlyPaymentWithEstTax == null : false);
   const [addOns, setAddOns] = useState<Item[]>(asItems(initial?.addOns));
   const [noAddOns, setNoAddOns] = useState(initial?.noAddOns ?? false);
+  const [surcharges, setSurcharges] = useState<Item[]>(asItems(initial?.surcharges));
+  const [noSurcharges, setNoSurcharges] = useState(initial?.noSurcharges ?? false);
   const [rebates, setRebates] = useState<Item[]>(asItems(initial?.rebates));
   const [fees, setFees] = useState<Item[]>(
     initial?.dueAtSigning?.length
@@ -135,19 +137,22 @@ export function UsedQuoteForm({
     const rebateLines = toLines(rebates);
     const dasTotal = dueAtSigningSum(items);
     const addOnTotal = dueAtSigningSum(addOnLines);
+    // Surcharges are in the out-the-door, amount financed and cash due — never in the sales-tax base (price + add-ons).
+    const surchargeLines = toLines(surcharges);
+    const surchargeTotal = dueAtSigningSum(surchargeLines);
     const rebateTotal = dueAtSigningSum(rebateLines);
     const down = num(f.downPayment);
     const trade = num(f.tradeEquity);
     const apr = num(f.apr);
     const term = num(f.termMonths);
-    // Amount financed = selling price + add-ons − rebates − down − trade equity + fees rolled in (all fees assumed rolled in for the estimate).
-    const amountFinanced = sellingPrice != null && sellingPrice > 0 ? Math.max(0, sellingPrice + addOnTotal - rebateTotal - (down ?? 0) - (trade ?? 0) + dasTotal) : null;
+    // Amount financed = selling price + add-ons + surcharges − rebates − down − trade equity + fees rolled in (all fees assumed rolled in for the estimate).
+    const amountFinanced = sellingPrice != null && sellingPrice > 0 ? Math.max(0, sellingPrice + addOnTotal + surchargeTotal - rebateTotal - (down ?? 0) - (trade ?? 0) + dasTotal) : null;
     const monthly = amountFinanced != null && apr != null && term != null ? financeMonthly(amountFinanced, apr, term) : null;
     const taxed = monthly != null && zipRate != null && !noTaxEstimate ? Math.round(monthly * (1 + zipRate) * 100) / 100 : null;
-    // Same base as the calculated line: selling price + add-ons (lib/salesTax.ts).
+    // Same base as the calculated line: selling price + add-ons (lib/salesTax.ts). Surcharges are not in the tax base.
     const estTaxOnPrice = sellingPrice != null && zipRate != null ? Math.round(salesTaxBase(sellingPrice, addOnLines) * zipRate) : null;
-    const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
-    const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
+    const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal + surchargeTotal - rebateTotal) * 100) / 100 : null;
+    const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal + surchargeTotal - rebateTotal) * 100) / 100 : null;
     // The equation's own lines: sales tax is the standing first line; every other fee is "mandatory fees".
     const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
     const mandatoryTotal = dasTotal - taxTotal;
@@ -156,8 +161,8 @@ export function UsedQuoteForm({
     const msrpNum = num(f.msrp);
     const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
     const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
-    return { sellingPrice, items, addOnLines, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
-  }, [f, effFees, addOns, rebates, noTaxEstimate, zipRate]);
+    return { sellingPrice, items, addOnLines, surchargeLines, surchargeTotal, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
+  }, [f, effFees, addOns, surcharges, rebates, noTaxEstimate, zipRate]);
 
   const feeCheck = useMemo(
     () => normalizeFeeOverrides({
@@ -181,6 +186,8 @@ export function UsedQuoteForm({
     dueAtSigning: d.items,
     addOns: d.addOnLines,
     noAddOns,
+    surcharges: d.surchargeLines,
+    noSurcharges,
     rebates: d.rebateLines,
     miles: used ? num(f.miles) ?? undefined : null,
     stockNumber: f.stockNumber.trim() || null,
@@ -204,7 +211,7 @@ export function UsedQuoteForm({
           monthlyPaymentWithEstTax: noTaxEstimate ? null : d.taxed,
           lenderName: f.lenderName.trim() || null,
         };
-  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition, requireMsrp: true }), [quote, prefs, f.vin, f.stockNumber, condition]);
+  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition, requireMsrp: true, requireSurcharges: true }), [quote, prefs, f.vin, f.stockNumber, condition]);
   const [taxConfirmed, setTaxConfirmed] = useState(false);
   const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
@@ -382,6 +389,21 @@ export function UsedQuoteForm({
                   ) : null}
                 </>
               ), "$0 or each one listed")}
+              {eqBlock("+", "Surcharges", "eq-surcharges", (
+                <>
+                  <label className="flex items-start gap-2 text-[11px] text-ink-light">
+                    <input type="checkbox" checked={noSurcharges} onChange={(e) => { setNoSurcharges(e.target.checked); if (e.target.checked) setSurcharges([]); }} className="mt-0.5 h-3.5 w-3.5" data-testid="no-surcharges" />
+                    <span>No surcharges — $0</span>
+                  </label>
+                  {!noSurcharges ? (
+                    <>
+                      {surcharges.map((it, i) => feeRow(it, i, surcharges, setSurcharges, "surcharge", false))}
+                      <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
+                    </>
+                  ) : null}
+                  <p className={hintCls}>Not part of the sales-tax base. Counted in the out-the-door price, never folded into the selling price.</p>
+                </>
+              ), "$0 or each one named")}
               {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
                 <>
                   {fees.map((it, i) => (i === 0 ? null : feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES)))}
@@ -485,6 +507,21 @@ export function UsedQuoteForm({
             <p className={hintCls}>Each add-on is its own line with its own price — never folded into the selling price or the payment. Either list them or confirm none.</p>
           </section>
 
+          <section className="space-y-2.5" data-testid="surcharges">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Surcharges</h4>
+            <label className="flex items-start gap-2 text-[11px] text-ink-light">
+              <input type="checkbox" checked={noSurcharges} onChange={(e) => { setNoSurcharges(e.target.checked); if (e.target.checked) setSurcharges([]); }} className="mt-0.5 h-3.5 w-3.5" data-testid="no-surcharges" />
+              <span>No surcharges — $0</span>
+            </label>
+            {!noSurcharges ? (
+              <>
+                {surcharges.map((it, i) => feeRow(it, i, surcharges, setSurcharges, "surcharge", false))}
+                <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
+              </>
+            ) : null}
+            <p className={hintCls}>Each surcharge is its own named line. Not part of the sales-tax base; it is rolled into the amount financed and cash due. Either list them or confirm none.</p>
+          </section>
+
           <section className="space-y-2.5" data-testid="rebates">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Rebates / incentives <span className="font-normal normal-case">(optional)</span></h4>
             {rebates.map((it, i) => (
@@ -534,6 +571,7 @@ export function UsedQuoteForm({
                 {out("APR · term", d.apr != null && d.term != null ? `${d.apr}% · ${d.term} mo` : null)}
                 {out("Cash due at signing", money(d.cashDue))}
                 {d.addOnTotal ? out("Add-ons", money(d.addOnTotal)) : null}
+                {d.surchargeTotal ? out("Surcharges", money(d.surchargeTotal)) : null}
                 {d.rebateTotal ? out("Rebates", `−${money(d.rebateTotal)}`) : null}
               </div>
             </>
@@ -543,6 +581,7 @@ export function UsedQuoteForm({
               <div className="border-t border-border/60 pt-2 space-y-1">
                 {out("Selling price", money(d.sellingPrice))}
                 {out("Add-ons", d.sellingPrice != null ? money(d.addOnTotal) : null)}
+                {out("Surcharges", d.sellingPrice != null ? money(d.surchargeTotal) : null)}
                 {out("Mandatory fees", d.sellingPrice != null ? money(d.mandatoryTotal) : null)}
                 {out("Sales tax", d.sellingPrice != null ? money(d.taxTotal) : null)}
                 {d.rebateTotal ? out("Rebates / credits", `−${money(d.rebateTotal)}`) : null}

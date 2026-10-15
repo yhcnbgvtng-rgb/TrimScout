@@ -10,7 +10,7 @@ import { isStagedRfq } from "@/lib/dealStages";
 import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, verifyAcceptedQuote } from "@/lib/acceptCounter";
 import { isTaxLine } from "@/lib/counterSheet";
 import { activeOverrides } from "@/lib/feeOverride";
-import { validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
+import { surchargeSummary, validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { sendCounterAcceptedNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
@@ -40,6 +40,8 @@ export async function POST(req: Request) {
     dueAtSigning: toLines(raw.dueAtSigning),
     addOns: toLines(raw.addOns) ?? [],
     noAddOns: Boolean(raw.noAddOns),
+    surcharges: toLines(raw.surcharges) ?? [],
+    noSurcharges: Boolean(raw.noSurcharges),
     rebates: toLines(raw.rebates) ?? [],
     miles: num(raw.miles) ?? null,
     cpo: Boolean(raw.cpo),
@@ -95,6 +97,7 @@ export async function POST(req: Request) {
     dealerName: invite.dealerName,
     vehicle: [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
     outTheDoor,
+    surcharges: surchargeSummary(used),
     rfqUrl: `${DEALER_EMAIL_BASE_URL}/rfq/${encodeURIComponent(found.rfqId)}`,
   });
   return NextResponse.json({ ok: true, outTheDoor, warnings: v.warnings, stageLocked });

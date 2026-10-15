@@ -116,6 +116,7 @@ export const QUOTE_EQUATIONS: Record<DealStructureMethod, { returns: string; lin
     lines: [
       { op: "+", label: "Selling price" },
       { op: "+", label: "Add-ons", note: "$0 or each one listed" },
+      { op: "+", label: "Surcharges", note: "$0 or each one named" },
       { op: "+", label: "Mandatory fees", note: "doc, title & registration, each named" },
       { op: "+", label: "Sales tax", note: "for your ZIP" },
       { op: "−", label: "Rebates / credits", note: "each named" },
@@ -127,6 +128,7 @@ export const QUOTE_EQUATIONS: Record<DealStructureMethod, { returns: string; lin
     lines: [
       { op: "+", label: "Selling price" },
       { op: "+", label: "Add-ons", note: "$0 or each one listed" },
+      { op: "+", label: "Surcharges", note: "$0 or each one named" },
       { op: "+", label: "Mandatory fees", note: "doc, title & registration, each named" },
       { op: "+", label: "Sales tax", note: "for your ZIP" },
       { op: "−", label: "Rebates / credits", note: "each named" },

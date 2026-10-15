@@ -98,6 +98,13 @@ interface UsedQuoteBase {
   /** Dealer add-ons, each its own line — or none, said explicitly. Never buried in price or payment. */
   addOns: LineItem[];
   noAddOns: boolean;
+  /**
+   * Dealer surcharges, each its own named line — or none, said explicitly. NOT in the sales-tax base (that stays selling price + add-ons)
+   * and not one of the named "fees" in the compare. They are in the out-the-door total, the amount financed and cash due.
+   * Quotes sent before surcharges existed carry neither field and show nothing.
+   */
+  surcharges?: LineItem[];
+  noSurcharges?: boolean;
   /** Rebates / incentives the dealer is applying, each named. Reduce cash due at signing. */
   rebates?: LineItem[];
   /** Used cars only — null on a new car. */
@@ -156,7 +163,7 @@ const TITLE_REG_RE = /title|registr/i;
 export function validateUsedQuote(
   q: Partial<UsedQuote>,
   prefs: QuotePrefs,
-  car: { vin?: string | null; stockNumber?: string | null; condition?: "new" | "used" | "cpo" | null; /** New and revised dealer sheets must carry an MSRP. Accepting a buyer counter re-validates an older quote that has none, so it leaves this off. */ requireMsrp?: boolean },
+  car: { vin?: string | null; stockNumber?: string | null; condition?: "new" | "used" | "cpo" | null; /** New and revised dealer sheets must carry an MSRP. Accepting a buyer counter re-validates an older quote that has none, so it leaves this off. */ requireMsrp?: boolean; /** New and revised dealer sheets must list surcharges or confirm none. Accepting a buyer counter re-validates an older quote that has no such field, so it leaves this off. */ requireSurcharges?: boolean },
   now: Date = new Date()
 ): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
@@ -182,6 +189,10 @@ export function validateUsedQuote(
   if (!addOns.every((a) => a && typeof a.name === "string" && a.name.trim().length >= 2 && pos(a.amount))) errors.push("Every add-on needs a name and a price above $0.");
   if (!q.noAddOns && addOns.length === 0) errors.push("Add-ons: list each one with its price, or confirm there are none.");
   if (q.noAddOns && addOns.length > 0) errors.push("Either list the add-ons or mark none — not both.");
+  const surcharges = Array.isArray(q.surcharges) ? q.surcharges : [];
+  if (!surcharges.every((a) => a && typeof a.name === "string" && a.name.trim().length >= 2 && nonneg(a.amount))) errors.push("Every surcharge needs a name and an amount (0 or more).");
+  if (car.requireSurcharges && !q.noSurcharges && surcharges.length === 0) errors.push("Surcharges: list each one with its amount, or confirm there are none.");
+  if (q.noSurcharges && surcharges.length > 0) errors.push("Either list the surcharges or mark none — not both.");
   const rebates = Array.isArray(q.rebates) ? q.rebates : [];
   if (!rebates.every((r) => r && typeof r.name === "string" && r.name.trim().length >= 2 && pos(r.amount))) errors.push("Every rebate / incentive needs a name and an amount above $0.");
   if (!q.expiresAt || Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("An expiry date is required.");
@@ -195,13 +206,19 @@ export function validateUsedQuote(
     if (!(FINANCE_TERMS as readonly number[]).includes(Number(f.termMonths))) errors.push("Pick a term the calculator can quote to.");
     if (!pos(f.monthlyPaymentPreTax)) errors.push("Monthly payment must be greater than 0 — it's calculated from the amount financed, APR and term.");
     if (f.monthlyPaymentWithEstTax != null && !pos(f.monthlyPaymentWithEstTax)) errors.push("Monthly with estimated tax must be greater than 0 when given.");
-    if (pos(f.amountFinanced) && pos(f.sellingPrice) && nonneg(f.downPayment) && f.amountFinanced > f.sellingPrice - f.downPayment + dueAtSigningSum(das) + 1) {
+    if (pos(f.amountFinanced) && pos(f.sellingPrice) && nonneg(f.downPayment) && f.amountFinanced > f.sellingPrice - f.downPayment + dueAtSigningSum(das) + dueAtSigningSum(surcharges) + 1) {
       warnings.push("Amount financed is more than selling price − down + fees — double-check what's being rolled in.");
     }
     if (pos(f.termMonths) && f.termMonths !== prefs.finance.termMonths) errors.push(`Term must be the buyer's lock: ${prefs.finance.termMonths} months.`);
     if (nonneg(f.downPayment) && Math.round(f.downPayment) !== prefs.finance.downPayment) errors.push(`Down payment must be the buyer's lock: $${prefs.finance.downPayment.toLocaleString()}.`);
   }
   return { errors, warnings };
+}
+
+/** "Doc surcharge $400, Market adjustment $1,000" — null when the quote has none (older quotes, or "No surcharges"). */
+export function surchargeSummary(q: { surcharges?: LineItem[] | null } | null | undefined): string | null {
+  const lines = (q?.surcharges || []).filter((l) => l && String(l.name || "").trim() && Number(l.amount) > 0);
+  return lines.length ? lines.map((l) => `${String(l.name).trim()} $${Number(l.amount).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`).join(", ") : null;
 }
 
 export function lineSum(items: LineItem[] | null | undefined): number {
@@ -213,8 +230,8 @@ export function lineSum(items: LineItem[] | null | undefined): number {
  * rebates. The second ranking key next to the monthly, so a cheap payment
  * can't hide money moved to the front.
  */
-export function financeCashDue(q: Pick<UsedFinanceQuote, "downPayment" | "dueAtSigning" | "addOns" | "rebates">): number {
-  return Math.round((q.downPayment + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) - dueAtSigningSum(q.rebates)) * 100) / 100;
+export function financeCashDue(q: Pick<UsedFinanceQuote, "downPayment" | "dueAtSigning" | "addOns" | "rebates"> & Partial<Pick<UsedFinanceQuote, "surcharges">>): number {
+  return Math.round((q.downPayment + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - dueAtSigningSum(q.rebates)) * 100) / 100;
 }
 
 /**
@@ -225,7 +242,7 @@ export function compareFinanceQuotes(a: UsedFinanceQuote, b: UsedFinanceQuote): 
   return a.monthlyPaymentPreTax - b.monthlyPaymentPreTax || financeCashDue(a) - financeCashDue(b) || a.amountFinanced - b.amountFinanced;
 }
 
-/** Buyer-comparable out-the-door figure for a cash quote: selling price + itemized fees & tax + add-ons − rebates. */
-export function cashOutTheDoor(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "rebates">>): number {
-  return Math.round((q.sellingPrice + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) - dueAtSigningSum(q.rebates)) * 100) / 100;
+/** Buyer-comparable out-the-door figure for a cash quote: selling price + itemized fees & tax + add-ons + surcharges − rebates. */
+export function cashOutTheDoor(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "surcharges" | "rebates">>): number {
+  return Math.round((q.sellingPrice + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - dueAtSigningSum(q.rebates)) * 100) / 100;
 }
