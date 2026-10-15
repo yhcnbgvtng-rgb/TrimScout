@@ -99,12 +99,11 @@ export function UsedQuoteForm({
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
 
   const toLines = (list: Item[]) => list.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN })).filter((i) => i.name && Number.isFinite(i.amount));
-  // Sales tax and title & registration are TrimScout-calculated (lib/feeOverride.ts). The dealer may replace either with their
-  // own amount (the fields are live, pre-filled with the estimate) and a required reason; the doc fee has no override — it stays exactly as the dealer set it.
+  // Sales tax is TrimScout-calculated (lib/feeOverride.ts). The dealer may replace it with their own amount (the field is live,
+  // pre-filled with the estimate) and a required reason. The doc fee and title & registration are plain required fields the dealer enters.
   const calcInput = { zip, sellingPrice: num(f.sellingPrice), addOns: toLines(addOns) };
   const calcs: Record<OverridableFee, number | null> = {
     sales_tax: calcFee("sales_tax", calcInput),
-    title_registration: calcFee("title_registration", calcInput),
   };
   const [editing, setEditing] = useState<Record<string, boolean>>(() => {
     // A revision opens with the dealer's earlier overrides still in place, and any line already off TrimScout's figure open for a reason.
@@ -125,7 +124,7 @@ export function UsedQuoteForm({
       return key && calcs[key] != null && !editing[key] ? { ...it, amount: String(calcs[key]) } : it;
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fees, editing, calcs.sales_tax, calcs.title_registration]
+    [fees, editing, calcs.sales_tax]
   );
   const d = useMemo(() => {
     const sellingPrice = num(f.sellingPrice);
@@ -163,14 +162,14 @@ export function UsedQuoteForm({
       sellingPrice: d.sellingPrice,
       addOns: d.addOnLines,
       zip,
-      submitted: (["sales_tax", "title_registration"] as const)
+      submitted: (["sales_tax"] as const)
         .filter((k) => editing[k] && (calcs[k] == null || Math.abs((num(fees.find((x) => overridableKey(x.name) === k)?.amount ?? "") ?? NaN) - (calcs[k] as number)) >= 0.005))
         .map((k) => {
           const prior = initial?.feeOverrides?.find((o) => o.key === k);
           return { key: k, reason: reasons[k] || "", amount: prior?.amount, at: prior?.at };
         }),
     }),
-    [d.items, d.sellingPrice, d.addOnLines, zip, editing, reasons, initial, fees, calcs.sales_tax, calcs.title_registration]
+    [d.items, d.sellingPrice, d.addOnLines, zip, editing, reasons, initial, fees, calcs.sales_tax]
   );
   const base = {
     sellingPrice: d.sellingPrice ?? undefined,
@@ -258,10 +257,10 @@ export function UsedQuoteForm({
     setEditing((p) => ({ ...p, [k]: false }));
     setReasons((p) => ({ ...p, [k]: "" }));
   };
-  /** Sales tax / title & registration: a live field pre-filled with TrimScout's amount; a different amount asks for a required reason. */
+  /** Sales tax: a live field pre-filled with TrimScout's amount; a different amount asks for a required reason. */
   const calcRow = (it: Item, i: number, k: OverridableFee) => {
     const calc = calcs[k] as number;
-    // Sales tax and title & registration are always live fields pre-filled with TrimScout's estimate (no Edit button).
+    // Sales tax is always a live field pre-filled with TrimScout's estimate (no Edit button).
     const inline = true;
     const touched = Boolean(editing[k]);
     const open = inline || touched;
@@ -284,13 +283,13 @@ export function UsedQuoteForm({
           </span>
           <span />
         </div>
-        {inline ? <p className={hintCls} data-testid={k === "title_registration" ? "title-estimate-hint" : "tax-estimate-hint"}>TrimScout estimate{state ? ` for ${state}` : ""}: {money(calc, Number.isInteger(calc) ? 0 : 2)}</p> : null}
+        {inline ? <p className={hintCls} data-testid="tax-estimate-hint">TrimScout estimate{state ? ` for ${state}` : ""}: {money(calc, Number.isInteger(calc) ? 0 : 2)}</p> : null}
         {open && (!inline || adjusted) ? (
           <div className="space-y-1 rounded-lg border border-amber-500/30 bg-amber-950/20 px-2.5 py-2" data-testid={`fee-override-${k}`}>
             <p className="text-[10px] text-amber-100">TrimScout calculated <strong>{money(calc, 2)}</strong>{adjusted ? <> · your amount is <strong>{diff < 0 ? "−" : "+"}{money(Math.abs(diff), 2)}</strong> from that</> : null}. The buyer sees a &ldquo;Dealer adjusted&rdquo; flag with both amounts and your reason.</p>
             <label className="block space-y-0.5">
               <span className={labelCls}>Reason <span className="text-amber-300">*</span></span>
-              <input type="text" value={reasons[k] || ""} maxLength={OVERRIDE_REASON_MAX} onChange={(e) => setReasons((p) => ({ ...p, [k]: e.target.value }))} placeholder={k === "sales_tax" ? "e.g. county rate 6.875%" : "e.g. plate transfer"} data-testid={`fee-reason-${k}`} className={input} />
+              <input type="text" value={reasons[k] || ""} maxLength={OVERRIDE_REASON_MAX} onChange={(e) => setReasons((p) => ({ ...p, [k]: e.target.value }))} placeholder="e.g. county rate 6.875%" data-testid={`fee-reason-${k}`} className={input} />
             </label>
             <button type="button" onClick={() => stopEdit(k)} className="text-[10px] font-bold text-brand-400 hover:text-brand-300" data-testid={`fee-reset-${k}`}>Use TrimScout&apos;s amount</button>
           </div>
@@ -373,6 +372,7 @@ export function UsedQuoteForm({
               {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
                 <>
                   {fees.map((it, i) => (i === 0 ? null : feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES)))}
+                  <p className={hintCls} data-testid="title-reg-hint">Title &amp; registration is required — enter your amount ($0 if none).</p>
                   <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add another fee</button>
                 </>
               ), "doc, title & registration, each named")}
@@ -438,7 +438,7 @@ export function UsedQuoteForm({
             </div>
             {fees.map((it, i) => feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES, i === 0 && d.estTaxOnPrice != null ? String(d.estTaxOnPrice) : "0"))}
             <button type="button" onClick={() => setFees((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add another fee</button>
-            <p className={hintCls}>Sales tax, doc fee and title & registration are always listed — enter the amounts{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` (tax on the price at ${zip}'s rate ≈ ${money(d.estTaxOnPrice)})` : ""}. Sales tax is required as its own line ($0 if none). TrimScout fills in sales tax and title &amp; registration — type your own to change either, with a reason; the doc fee stays as you set it and has no override. A single unlabeled lump can&apos;t be submitted.</p>
+            <p className={hintCls}>Sales tax, doc fee and title & registration are always listed — enter the amounts{d.estTaxOnPrice != null && calcs.sales_tax == null ? ` (tax on the price at ${zip}'s rate ≈ ${money(d.estTaxOnPrice)})` : ""}. Sales tax is required as its own line ($0 if none). TrimScout fills in sales tax — type your own to change it, with a reason. Doc fee and title &amp; registration are yours to enter, with no estimate and no override. A single unlabeled lump can&apos;t be submitted.</p>
             {kind === "finance" ? (
               <label className="flex items-start gap-2 text-[11px] text-ink-light">
                 <input type="checkbox" checked={noTaxEstimate} onChange={(e) => setNoTaxEstimate(e.target.checked)} className="mt-0.5 h-3.5 w-3.5" />

@@ -55,6 +55,9 @@ describe("Finance / Cash quote locks — structured, itemized, apples to apples"
     const noTax = validateUsedQuote(cash({ dueAtSigning: [{ name: "Doc fee", amount: 299 }, { name: "Title", amount: 380 }] }), cashPrefs, USED, NOW);
     assert.ok(noTax.errors.some((e) => /Sales tax .* own line/.test(e)));
     assert.deepEqual(validateUsedQuote(cash({ dueAtSigning: [{ name: "Sales tax", amount: 0 }, { name: "Doc fee", amount: 299 }, { name: "Title", amount: 380 }] }), cashPrefs, USED, NOW).errors, [], "$0 tax is a valid tax line");
+    const noTitle = validateUsedQuote(cash({ dueAtSigning: [{ name: "Sales tax", amount: 0 }, { name: "Doc fee", amount: 299 }] }), cashPrefs, USED, NOW);
+    assert.ok(noTitle.errors.some((e) => /Title & registration is required/.test(e)), "title & registration is a required line");
+    assert.deepEqual(validateUsedQuote(cash({ dueAtSigning: [{ name: "Sales tax", amount: 0 }, { name: "Doc fee", amount: 299 }, { name: "Title & registration", amount: 0 }] }), cashPrefs, USED, NOW).errors, [], "$0 title & registration is a valid line");
     const past = validateUsedQuote(cash({ expiresAt: "2026-09-01T00:00:00Z" }), cashPrefs, USED, NOW);
     assert.ok(past.errors.some((e) => /must be in the future/.test(e)));
     const bad = validateUsedQuote(cash({ sellingPrice: 0, miles: -1 }), cashPrefs, USED, NOW);

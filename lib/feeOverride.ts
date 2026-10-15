@@ -1,10 +1,10 @@
 /**
  * Dealer overrides of the fees TrimScout calculates.
  *
- * TrimScout calculates two lines on a Cash / Finance sheet: sales tax (the buyer's ZIP-state rate on selling price +
- * add-ons, the same figure the counter sheet uses) and title & registration (lib/otdCalculator estimate). The dealer may
- * replace either with their own amount, with a required short reason ("county rate 6.875%", "plate transfer"). The doc
- * fee is never overridable — it is the dealer's own number and stays locked to what they quoted.
+ * TrimScout calculates one line on a Cash / Finance sheet: sales tax (the buyer's ZIP-state rate on selling price +
+ * add-ons, the same figure the counter sheet uses). The dealer may replace it with their own amount, with a required
+ * short reason ("county rate 6.875%"). The doc fee and title & registration are never calculated or overridden — they are
+ * the dealer's own numbers, entered as plain required lines.
  *
  * Both values are stored: the quote's due-at-signing line carries the dealer's amount (so every total — out the door,
  * amount financed, cash due — recomputes from the lines with no special case), and `feeOverrides` on the stored quote
@@ -15,10 +15,9 @@
  */
 import { isDocFee, isTaxLine, zipStateTax } from "./counterSheet";
 import type { LineItem } from "./leaseQuote";
-import { estimateTitleRegistration } from "./otdCalculator";
 import { sumItems } from "./leaseMath";
 
-export type OverridableFee = "sales_tax" | "title_registration";
+export type OverridableFee = "sales_tax";
 
 export interface FeeOverride {
   key: OverridableFee;
@@ -34,16 +33,14 @@ export interface FeeOverride {
 
 export const OVERRIDE_REASON_MIN = 3;
 export const OVERRIDE_REASON_MAX = 140;
-export const OVERRIDE_LABELS: Record<OverridableFee, string> = { sales_tax: "Sales tax", title_registration: "Title & registration" };
+export const OVERRIDE_LABELS: Record<OverridableFee, string> = { sales_tax: "Sales tax" };
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
-const isTitleRegLine = (name: string) => /title|registr/i.test(name) && !/tax/i.test(name);
 
 /** Which overridable fee a due-at-signing line is, or null. The doc fee — and every other fee — is never overridable. */
 export function overridableKey(name: string): OverridableFee | null {
   if (isDocFee(name)) return null;
   if (isTaxLine(name)) return "sales_tax";
-  if (isTitleRegLine(name)) return "title_registration";
   return null;
 }
 export const canOverrideFee = (name: string) => overridableKey(name) !== null;
@@ -54,11 +51,8 @@ export function calcSalesTax(zip: string | null | undefined, sellingPrice: numbe
   if (!t || !(typeof sellingPrice === "number" && sellingPrice > 0)) return null;
   return r2(Math.max(0, t.rate * (sellingPrice + sumItems(addOns || []))));
 }
-export function calcTitleRegistration(sellingPrice: number | null | undefined): number | null {
-  return typeof sellingPrice === "number" && sellingPrice > 0 ? estimateTitleRegistration(sellingPrice) : null;
-}
-export function calcFee(key: OverridableFee, input: { zip: string | null | undefined; sellingPrice: number | null | undefined; addOns?: LineItem[] | null }): number | null {
-  return key === "sales_tax" ? calcSalesTax(input.zip, input.sellingPrice, input.addOns) : calcTitleRegistration(input.sellingPrice);
+export function calcFee(_key: OverridableFee, input: { zip: string | null | undefined; sellingPrice: number | null | undefined; addOns?: LineItem[] | null }): number | null {
+  return calcSalesTax(input.zip, input.sellingPrice, input.addOns);
 }
 
 /** The first due-at-signing line for a fee. */
@@ -87,14 +81,14 @@ export function normalizeFeeOverrides(input: {
   const byKey = new Map<string, Record<string, unknown>>();
   for (const s of sent) {
     const key = String(s?.key ?? "");
-    if (key !== "sales_tax" && key !== "title_registration") {
-      errors.push(`${String(s?.label || key || "That line")} can't be overridden — only sales tax and title & registration can; the doc fee stays locked.`);
+    if (key !== "sales_tax") {
+      errors.push(`${String(s?.label || key || "That line")} can't be overridden — only sales tax can; the doc fee and title & registration are entered as they are.`);
       continue;
     }
     byKey.set(key, s);
   }
   const overrides: FeeOverride[] = [];
-  for (const key of ["sales_tax", "title_registration"] as const) {
+  for (const key of ["sales_tax"] as const) {
     const line = lineFor(input.dueAtSigning, key);
     const calculated = calcFee(key, input);
     const s = byKey.get(key);

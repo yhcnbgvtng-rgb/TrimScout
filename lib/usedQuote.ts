@@ -143,6 +143,7 @@ const pos = (n: unknown): n is number => typeof n === "number" && Number.isFinit
 const nonneg = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0;
 const LUMP_RE = /^(due|total|dueatsigning|das|down|other|misc|fees?|taxesandfees|otd|outthedoor)$/i;
 const TAX_RE = /tax/i;
+const TITLE_REG_RE = /title|registr/i;
 
 /**
  * The submit gate for a Finance / Cash sheet — mirrored on the dealer form
@@ -170,6 +171,7 @@ export function validateUsedQuote(
     const positive = das.filter((f) => f && f.amount > 0);
     if (positive.length === 1 && LUMP_RE.test((positive[0].name || "").replace(/[^a-z]/gi, ""))) errors.push("Due at signing can't be a single unlabeled lump — itemize it.");
     if (!das.some((f) => f && TAX_RE.test(f.name || ""))) errors.push("Sales tax for the buyer's ZIP is required as its own line ($0 if none applies).");
+    if (!das.some((f) => f && TITLE_REG_RE.test(f.name || "") && !TAX_RE.test(f.name || ""))) errors.push("Title & registration is required as its own line — enter your amount ($0 if none applies).");
     if (das.some((f) => f && f.amount > 0 && (f.name || "").trim().length < 3)) warnings.push("Some fees have unclear names — buyers compare these line by line.");
   }
   const addOns = Array.isArray(q.addOns) ? q.addOns : [];
