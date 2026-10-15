@@ -1,0 +1,2405 @@
+{
+  "source": "https://www.mazdausa.com/api/bp?m=<model code>&t=<trim code> (public Build & Price JSON)",
+  "fetchedAt": "2026-10-14T23:59:11.674Z",
+  "gaps": [
+    {
+      "year": 2027,
+      "model": "CX-5",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-30",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-50",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-50 Hybrid",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-70",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-70 PHEV",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-90",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "CX-90 PHEV",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "Mazda3 Sedan",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "Mazda3 Hatchback",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "MX-5 Miata",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    },
+    {
+      "year": 2027,
+      "model": "MX-5 Miata RF",
+      "reason": "mazdausa.com returns an empty Build & Price response for this model year"
+    }
+  ],
+  "trims": [
+    {
+      "year": 2026,
+      "model": "CX-5",
+      "modelCode": "26CX5",
+      "trimCode": "26CX525S",
+      "trim": "2.5 S",
+      "baseMsrp": 29990,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26CX5/26CX525S",
+      "api": "api/bp?m=26CX5&t=26CX525S",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 36
+    },
+    {
+      "year": 2026,
+      "model": "CX-5",
+      "modelCode": "26CX5",
+      "trimCode": "26CX5SE",
+      "trim": "2.5 S SELECT",
+      "baseMsrp": 31990,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26CX5/26CX5SE",
+      "api": "api/bp?m=26CX5&t=26CX5SE",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 36
+    },
+    {
+      "year": 2026,
+      "model": "CX-5",
+      "modelCode": "26CX5",
+      "trimCode": "26CX5PF",
+      "trim": "2.5 S PREFERRED",
+      "baseMsrp": 34250,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26CX5/26CX5PF",
+      "api": "api/bp?m=26CX5&t=26CX5PF",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 36
+    },
+    {
+      "year": 2026,
+      "model": "CX-5",
+      "modelCode": "26CX5",
+      "trimCode": "26CX5PR",
+      "trim": "2.5 S PREMIUM",
+      "baseMsrp": 36900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26CX5/26CX5PR",
+      "api": "api/bp?m=26CX5&t=26CX5PR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 36
+    },
+    {
+      "year": 2026,
+      "model": "CX-5",
+      "modelCode": "26CX5",
+      "trimCode": "26CX5PP",
+      "trim": "2.5 S PREMIUM PLUS",
+      "baseMsrp": 38990,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26CX5/26CX5PP",
+      "api": "api/bp?m=26CX5&t=26CX5PP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 36
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C3025S",
+      "trim": "2.5 S",
+      "baseMsrp": 26375,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C3025S",
+      "api": "api/bp?m=26C30&t=26C3025S",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30SES",
+      "trim": "2.5 S SELECT SPORT",
+      "baseMsrp": 28060,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30SES",
+      "api": "api/bp?m=26C30&t=26C30SES",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30PF",
+      "trim": "2.5 S PREFERRED",
+      "baseMsrp": 29690,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30PF",
+      "api": "api/bp?m=26C30&t=26C30PF",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30PR",
+      "trim": "2.5 S PREMIUM",
+      "baseMsrp": 33640,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30PR",
+      "api": "api/bp?m=26C30&t=26C30PR",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30CE",
+      "trim": "2.5 S CARBON EDITION",
+      "baseMsrp": 31430,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30CE",
+      "api": "api/bp?m=26C30&t=26C30CE",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30AE",
+      "trim": "2.5 S AIRE EDITION",
+      "baseMsrp": 30250,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30AE",
+      "api": "api/bp?m=26C30&t=26C30AE",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30AET",
+      "trim": "2.5 TURBO AIRE EDITION",
+      "baseMsrp": 34410,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30AET",
+      "api": "api/bp?m=26C30&t=26C30AET",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-30",
+      "modelCode": "26C30",
+      "trimCode": "26C30PPT",
+      "trim": "2.5 TURBO PREMIUM PLUS",
+      "baseMsrp": 37900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C30/26C30PPT",
+      "api": "api/bp?m=26C30&t=26C30PPT",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C5025T",
+      "trim": "2.5 Turbo",
+      "baseMsrp": 37900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C5025T",
+      "api": "api/bp?m=26C50&t=26C5025T",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50SE",
+      "trim": "2.5 S Select",
+      "baseMsrp": 29900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50SE",
+      "api": "api/bp?m=26C50&t=26C50SE",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50PF",
+      "trim": "2.5 S Preferred",
+      "baseMsrp": 32400,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50PF",
+      "api": "api/bp?m=26C50&t=26C50PF",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50PR",
+      "trim": "2.5 S Premium",
+      "baseMsrp": 34900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50PR",
+      "api": "api/bp?m=26C50&t=26C50PR",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50MR",
+      "trim": "2.5 S Meridian Edition",
+      "baseMsrp": 33150,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50MR",
+      "api": "api/bp?m=26C50&t=26C50MR",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50MRT",
+      "trim": "2.5 Turbo Meridian Edition",
+      "baseMsrp": 40400,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50MRT",
+      "api": "api/bp?m=26C50&t=26C50MRT",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50",
+      "modelCode": "26C50",
+      "trimCode": "26C50PPT",
+      "trim": "2.5 Turbo Premium Plus",
+      "baseMsrp": 42900,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C50/26C50PPT",
+      "api": "api/bp?m=26C50&t=26C50PPT",
+      "paints": [
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_VC1",
+          "title": "White Leather",
+          "price": 200
+        }
+      ],
+      "packages": [],
+      "accessoriesDropped": 39
+    },
+    {
+      "year": 2026,
+      "model": "CX-50 Hybrid",
+      "modelCode": "2650H",
+      "trimCode": "2650HPF",
+      "trim": "Hybrid Preferred",
+      "baseMsrp": 34750,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/2650H/2650HPF",
+      "api": "api/bp?m=2650H&t=2650HPF",
+      "paints": [
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-50 Hybrid",
+      "modelCode": "2650H",
+      "trimCode": "2650HPR",
+      "trim": "Hybrid Premium",
+      "baseMsrp": 38150,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/2650H/2650HPR",
+      "api": "api/bp?m=2650H&t=2650HPR",
+      "paints": [
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-50 Hybrid",
+      "modelCode": "2650H",
+      "trimCode": "2650HPP",
+      "trim": "Hybrid Premium Plus",
+      "baseMsrp": 40450,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/2650H/2650HPP",
+      "api": "api/bp?m=2650H&t=2650HPP",
+      "paints": [
+        {
+          "code": "48K",
+          "title": "Wind Chill Pearl",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-70",
+      "modelCode": "26C70",
+      "trimCode": "26C70PF",
+      "trim": "3.3 Turbo Preferred",
+      "baseMsrp": 42750,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C70/26C70PF",
+      "api": "api/bp?m=26C70&t=26C70PF",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 29
+    },
+    {
+      "year": 2026,
+      "model": "CX-70",
+      "modelCode": "26C70",
+      "trimCode": "26C70PR",
+      "trim": "3.3 Turbo Premium",
+      "baseMsrp": 46780,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C70/26C70PR",
+      "api": "api/bp?m=26C70&t=26C70PR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 29
+    },
+    {
+      "year": 2026,
+      "model": "CX-70",
+      "modelCode": "26C70",
+      "trimCode": "26C70PP",
+      "trim": "3.3 Turbo Premium Plus",
+      "baseMsrp": 49570,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C70/26C70PP",
+      "api": "api/bp?m=26C70&t=26C70PP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 29
+    },
+    {
+      "year": 2026,
+      "model": "CX-70",
+      "modelCode": "26C70",
+      "trimCode": "26C70SPR",
+      "trim": "3.3 Turbo S Premium",
+      "baseMsrp": 53440,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C70/26C70SPR",
+      "api": "api/bp?m=26C70&t=26C70SPR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 29
+    },
+    {
+      "year": 2026,
+      "model": "CX-70",
+      "modelCode": "26C70",
+      "trimCode": "26C70SPP",
+      "trim": "3.3 Turbo S Premium Plus",
+      "baseMsrp": 56870,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C70/26C70SPP",
+      "api": "api/bp?m=26C70&t=26C70SPP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 29
+    },
+    {
+      "year": 2026,
+      "model": "CX-70 PHEV",
+      "modelCode": "26C7P",
+      "trimCode": "26C7PSC",
+      "trim": "PHEV SC",
+      "baseMsrp": 44450,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C7P/26C7PSC",
+      "api": "api/bp?m=26C7P&t=26C7PSC",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-70 PHEV",
+      "modelCode": "26C7P",
+      "trimCode": "26C7PSCP",
+      "trim": "PHEV SC Plus",
+      "baseMsrp": 47450,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C7P/26C7PSCP",
+      "api": "api/bp?m=26C7P&t=26C7PSCP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "48T",
+          "title": "Zircon Sand Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "52H",
+          "title": "Melting Copper Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 28
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90SE",
+      "trim": "3.3 Turbo Select",
+      "baseMsrp": 39300,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90SE",
+      "api": "api/bp?m=26C90&t=26C90SE",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90PF",
+      "trim": "3.3 Turbo Preferred",
+      "baseMsrp": 43450,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90PF",
+      "api": "api/bp?m=26C90&t=26C90PF",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90PR",
+      "trim": "3.3 Turbo Premium Sport",
+      "baseMsrp": 47480,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90PR",
+      "api": "api/bp?m=26C90&t=26C90PR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90PP",
+      "trim": "3.3 Turbo Premium Plus",
+      "baseMsrp": 50270,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90PP",
+      "api": "api/bp?m=26C90&t=26C90PP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90SPR",
+      "trim": "3.3 Turbo S Premium Sport",
+      "baseMsrp": 54140,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90SPR",
+      "api": "api/bp?m=26C90&t=26C90SPR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90",
+      "modelCode": "26C90",
+      "trimCode": "26C90SPP",
+      "trim": "3.3 Turbo S Premium Plus",
+      "baseMsrp": 57570,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C90/26C90SPP",
+      "api": "api/bp?m=26C90&t=26C90SPP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 33
+    },
+    {
+      "year": 2026,
+      "model": "CX-90 PHEV",
+      "modelCode": "26C9P",
+      "trimCode": "26C9PPF",
+      "trim": "PHEV Preferred",
+      "baseMsrp": 50695,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C9P/26C9PPF",
+      "api": "api/bp?m=26C9P&t=26C9PPF",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "CX-90 PHEV",
+      "modelCode": "26C9P",
+      "trimCode": "26C9PPR",
+      "trim": "PHEV Premium Sport",
+      "baseMsrp": 55500,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C9P/26C9PPR",
+      "api": "api/bp?m=26C9P&t=26C9PPR",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "CX-90 PHEV",
+      "modelCode": "26C9P",
+      "trimCode": "26C9PPP",
+      "trim": "PHEV Premium Plus",
+      "baseMsrp": 58700,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26C9P/26C9PPP",
+      "api": "api/bp?m=26C9P&t=26C9PPP",
+      "paints": [
+        {
+          "code": "51K",
+          "title": "Rhodium White Premium",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "51F",
+          "title": "Artisan Red Premium",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Sedan",
+      "modelCode": "26M3S",
+      "trimCode": "26M3S25S",
+      "trim": "2.5 S",
+      "baseMsrp": 24650,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3S/26M3S25S",
+      "api": "api/bp?m=26M3S&t=26M3S25S",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 26
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Sedan",
+      "modelCode": "26M3S",
+      "trimCode": "26M3SSES",
+      "trim": "2.5 S Select Sport",
+      "baseMsrp": 25540,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3S/26M3SSES",
+      "api": "api/bp?m=26M3S&t=26M3SSES",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 26
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Sedan",
+      "modelCode": "26M3S",
+      "trimCode": "26M3SPF",
+      "trim": "2.5 S Preferred",
+      "baseMsrp": 27290,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3S/26M3SPF",
+      "api": "api/bp?m=26M3S&t=26M3SPF",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 26
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Sedan",
+      "modelCode": "26M3S",
+      "trimCode": "26M3SCE",
+      "trim": "2.5 S Carbon Edition",
+      "baseMsrp": 29815,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3S/26M3SCE",
+      "api": "api/bp?m=26M3S&t=26M3SCE",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 26
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Sedan",
+      "modelCode": "26M3S",
+      "trimCode": "26M3SPPT",
+      "trim": "2.5 Turbo Premium Plus",
+      "baseMsrp": 36940,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3S/26M3SPPT",
+      "api": "api/bp?m=26M3S&t=26M3SPPT",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 26
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3H25S",
+      "trim": "2.5 S",
+      "baseMsrp": 25650,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3H25S",
+      "api": "api/bp?m=26M3H&t=26M3H25S",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3HSES",
+      "trim": "2.5 S Select Sport",
+      "baseMsrp": 26840,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3HSES",
+      "api": "api/bp?m=26M3H&t=26M3HSES",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3HPF",
+      "trim": "2.5 S Preferred",
+      "baseMsrp": 28640,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3HPF",
+      "api": "api/bp?m=26M3H&t=26M3HPF",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3HPR",
+      "trim": "2.5 S Premium",
+      "baseMsrp": 31650,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3HPR",
+      "api": "api/bp?m=26M3H&t=26M3HPR",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3HCE",
+      "trim": "2.5 S Carbon Edition",
+      "baseMsrp": 30965,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3HCE",
+      "api": "api/bp?m=26M3H&t=26M3HCE",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "Mazda3 Hatchback",
+      "modelCode": "26M3H",
+      "trimCode": "26M3HPPT",
+      "trim": "2.5 Turbo Premium Plus",
+      "baseMsrp": 38090,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26M3H/26M3HPPT",
+      "api": "api/bp?m=26M3H&t=26M3HPPT",
+      "paints": [
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "47A",
+          "title": "Ceramic Metallic",
+          "price": 595
+        },
+        {
+          "code": "47C",
+          "title": "Polymetal Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [],
+      "packages": [],
+      "accessoriesDropped": 30
+    },
+    {
+      "year": 2026,
+      "model": "MX-5 Miata",
+      "modelCode": "26MX5",
+      "trimCode": "26MX5SP",
+      "trim": "Sport",
+      "baseMsrp": 30730,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26MX5/26MX5SP",
+      "api": "api/bp?m=26MX5&t=26MX5SP",
+      "paints": [
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray",
+          "price": 595
+        },
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_NZ9",
+          "title": "Tan Nappa Leather",
+          "price": 300
+        }
+      ],
+      "packages": [
+        {
+          "code": "2BB",
+          "title": "Brembo/BBS RECARO Package",
+          "price": 5050
+        }
+      ],
+      "accessoriesDropped": 22
+    },
+    {
+      "year": 2026,
+      "model": "MX-5 Miata",
+      "modelCode": "26MX5",
+      "trimCode": "26MX5CL",
+      "trim": "Club",
+      "baseMsrp": 34230,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26MX5/26MX5CL",
+      "api": "api/bp?m=26MX5&t=26MX5CL",
+      "paints": [
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray",
+          "price": 595
+        },
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_NZ9",
+          "title": "Tan Nappa Leather",
+          "price": 300
+        }
+      ],
+      "packages": [
+        {
+          "code": "2BB",
+          "title": "Brembo/BBS RECARO Package",
+          "price": 5050
+        }
+      ],
+      "accessoriesDropped": 22
+    },
+    {
+      "year": 2026,
+      "model": "MX-5 Miata",
+      "modelCode": "26MX5",
+      "trimCode": "26MX5GT",
+      "trim": "Grand Touring",
+      "baseMsrp": 36030,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26MX5/26MX5GT",
+      "api": "api/bp?m=26MX5&t=26MX5GT",
+      "paints": [
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray",
+          "price": 595
+        },
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_NZ9",
+          "title": "Tan Nappa Leather",
+          "price": 300
+        }
+      ],
+      "packages": [
+        {
+          "code": "2BB",
+          "title": "Brembo/BBS RECARO Package",
+          "price": 5050
+        }
+      ],
+      "accessoriesDropped": 22
+    },
+    {
+      "year": 2026,
+      "model": "MX-5 Miata RF",
+      "modelCode": "26MXR",
+      "trimCode": "26MXRCL",
+      "trim": "Club",
+      "baseMsrp": 42200,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26MXR/26MXRCL",
+      "api": "api/bp?m=26MXR&t=26MXRCL",
+      "paints": [
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_NZ9,L_NZ8,L_NZ7",
+          "title": "Tan Nappa Leather",
+          "price": 300
+        }
+      ],
+      "packages": [
+        {
+          "code": "3BB",
+          "title": "Brembo/BBS RECARO Package (Recaro replaces Cloth)",
+          "price": 4900
+        }
+      ],
+      "accessoriesDropped": 21
+    },
+    {
+      "year": 2026,
+      "model": "MX-5 Miata RF",
+      "modelCode": "26MXR",
+      "trimCode": "26MXRGT",
+      "trim": "Grand Touring",
+      "baseMsrp": 38750,
+      "url": "https://www.mazdausa.com/shopping-tools/build-and-price#/26MXR/26MXRGT",
+      "api": "api/bp?m=26MXR&t=26MXRGT",
+      "paints": [
+        {
+          "code": "46V",
+          "title": "Soul Red Crystal Metallic",
+          "price": 595
+        },
+        {
+          "code": "25D",
+          "title": "Snowflake White Pearl Mica",
+          "price": 595
+        },
+        {
+          "code": "52C",
+          "title": "Aero Gray Metallic",
+          "price": 595
+        },
+        {
+          "code": "46G",
+          "title": "Machine Gray Metallic",
+          "price": 595
+        }
+      ],
+      "roofs": [],
+      "interiors": [
+        {
+          "code": "L_NZ9,L_NZ8,L_NZ7",
+          "title": "Tan Nappa Leather",
+          "price": 300
+        }
+      ],
+      "packages": [
+        {
+          "code": "3BB",
+          "title": "Brembo/BBS RECARO Package (Recaro replaces Cloth)",
+          "price": 4900
+        }
+      ],
+      "accessoriesDropped": 21
+    }
+  ]
+}

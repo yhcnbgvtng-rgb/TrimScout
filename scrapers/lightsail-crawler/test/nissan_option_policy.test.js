@@ -47,7 +47,7 @@ describe('what is covered: make + model + year + trim', () => {
     assert.deepEqual([...Object.keys(RAW)].sort(), [...new Set(CSV.map(scopeOf))].sort());
   });
   it('another model year, a model the CSV lacks and other makes are untouched', () => {
-    for (const v of [{ make: 'Nissan', model: 'Rogue', year: 2025 }, { make: 'Nissan', model: 'Versa', year: 2026 }, { make: 'Nissan', model: 'Titan', year: 2026 }, { make: 'Nissan', model: 'Ariya', year: 2026 }, { make: 'Infiniti', model: 'QX60', year: 2026 }, { make: 'Mazda', model: 'CX-5', year: 2026 }]) {
+    for (const v of [{ make: 'Nissan', model: 'Rogue', year: 2025 }, { make: 'Nissan', model: 'Versa', year: 2026 }, { make: 'Nissan', model: 'Titan', year: 2026 }, { make: 'Nissan', model: 'Ariya', year: 2026 }, { make: 'Infiniti', model: 'QX60', year: 2026 }, { make: 'Volkswagen', model: 'Tiguan', year: 2026 }]) {
       assert.deepEqual(modelPoliciesFor(ALLOW, v), [], JSON.stringify(v));
       const same = [{ name: 'Cold Weather Package' }];
       assert.equal(optionRowsForVehicle(ALLOW, { ...v, trim: 'SV' }, same), null);
