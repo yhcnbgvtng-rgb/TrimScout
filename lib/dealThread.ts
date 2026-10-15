@@ -36,7 +36,7 @@ export interface ThreadEntry {
 export const REDACTED_BUYER_TEXT = "[Removed — names and contact details are never shared in messages]";
 export const MAX_CHAT_LENGTH = 1000;
 
-type ThreadRfq = Pick<RfqRequest, "buyerNote" | "createdAt" | "status" | "pickedQuoteId">;
+type ThreadRfq = Pick<RfqRequest, "buyerNote" | "createdAt" | "status" | "pickedQuoteId"> & Partial<Pick<RfqRequest, "tradeIn">>;
 
 const usd = (n: number | null | undefined) => (typeof n === "number" && Number.isFinite(n) ? `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}` : "");
 
@@ -134,6 +134,23 @@ export function buildThread(rfq: ThreadRfq, invite: RfqInvite, viewer: ThreadVie
   if (tc?.note) push({ id: `trade-counter-note-${tc.at}`, at: tc.at, side: "buyer", kind: "note", text: buyerText(tc.note) });
   const fc = stg?.payment?.financeCounter;
   if (fc?.note && fc.at) push({ id: `finance-counter-note-${fc.at}`, at: fc.at, side: "buyer", kind: "note", text: buyerText(fc.note) });
+
+  // In-app notices around the trade number (no email needed to see them): the desk's answer, the buyer changing the trade after it,
+  // and the confirm-or-revise step after the buyer selects this desk.
+  const ap = invite.tradeAppraisal;
+  if (ap?.declined) push({ id: "trade-declined", at: ap.createdAt, side: "system", kind: "event", text: `Dealer can't quote this trade${ap.declined.note ? `: ${ap.declined.note}` : ""}. Their vehicle quote still counts` });
+  const given = ap ? ap.reconfirmedAt || ap.createdAt : null;
+  if (rfq.tradeIn && ap && !ap.declined && given && rfq.tradeIn.updatedAt > given) {
+    push({ id: `trade-stale-${ap.createdAt}`, at: rfq.tradeIn.updatedAt, side: "system", kind: "event", text: viewer === "dealer" ? "Buyer updated the trade-in. Your trade number shows as “Based on earlier details” until you update it or say it still stands" : "You updated the trade-in. This dealer's trade number is marked “Based on earlier details” until they reconfirm it" });
+  }
+  const tconf = invite.tradeConfirmation;
+  if (tconf) {
+    push({ id: "trade-confirm-open", at: tconf.requestedAt, side: "system", kind: "event", text: viewer === "dealer" ? `Buyer selected your quote. Confirm or revise the trade value by ${new Date(tconf.deadlineAt).toLocaleString()}` : `You selected this quote. The dealer confirms or revises the trade value by ${new Date(tconf.deadlineAt).toLocaleString()}` });
+    if (tconf.resolvedAt && tconf.status === "confirmed") push({ id: "trade-confirm-done", at: tconf.resolvedAt, side: "system", kind: "event", text: `Dealer confirmed the trade value at ${usd(tconf.allowanceFinal ?? tconf.allowancePrelim)}` });
+    if (tconf.resolvedAt && tconf.status === "expired") push({ id: "trade-confirm-expired", at: tconf.resolvedAt, side: "system", kind: "event", text: `Confirmation deadline passed; the original trade value of ${usd(tconf.allowancePrelim)} stands` });
+    if (tconf.resolvedAt && tconf.status === "revised") push({ id: "trade-confirm-revised", at: tconf.resolvedAt, side: "system", kind: "event", text: `Dealer revised the trade value from ${usd(tconf.allowancePrelim)} to ${usd(tconf.allowanceFinal ?? tconf.allowancePrelim)}` });
+    if (tconf.buyerDecidedAt && tconf.buyerDecision) push({ id: `trade-confirm-buyer-${tconf.buyerDecision}`, at: tconf.buyerDecidedAt, side: "system", kind: "event", text: tconf.buyerDecision === "accepted" ? "Buyer accepted the revised trade value" : tconf.buyerDecision === "went_back" ? "Buyer went back to compare other quotes" : "Buyer walked away from the request" });
+  }
 
   if (invite.tradeAppraisal) {
     const a = invite.tradeAppraisal;

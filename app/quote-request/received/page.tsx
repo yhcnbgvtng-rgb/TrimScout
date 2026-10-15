@@ -17,6 +17,7 @@ import { UsedQuoteForm } from "../../../components/UsedQuoteForm";
 import { DealerStagePanel } from "../../../components/DealerStagePanel";
 import type { DealStageState } from "../../../lib/dealStages";
 import { DealerTradePanel } from "../../../components/trade/DealerTradePanel";
+import { useDealerTradeFeed, useTradeQuoteForm } from "../../../components/trade/useDealerTrade";
 import { SiteFooter } from "../../../components/SiteFooter";
 import { DealThreadPanel } from "../../../components/DealThreadPanel";
 import type { QuotePrefs } from "../../../lib/usedQuote";
@@ -93,6 +94,10 @@ function ReceivedBody() {
   const [declining, setDeclining] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [acceptedOtd, setAcceptedOtd] = useState<number | null>(null);
+  // The buyer's trade-in, this desk's allowance and (once selected) its confirm step. The allowance is part of the vehicle quote:
+  // while the invite is open it is a section of the quote form below, not a separate step.
+  const tradeFeed = useDealerTradeFeed(token, Boolean(ctx?.hasTrade));
+  const tradeForm = useTradeQuoteForm(tradeFeed, Boolean(ctx?.hasTrade) && ctx?.inviteStatus === "invited");
 
   const decline = async () => {
     setDeclining(true);
@@ -201,25 +206,30 @@ function ReceivedBody() {
                   ))}
                 </ul>
               ) : null}
-              {ctx.hasTrade ? <p className="text-xs text-sky-200">The buyer included a trade-in. Appraise it below.</p> : null}
+              {ctx.hasTrade ? <p className="text-xs text-sky-200">Your trade allowance went with the quote. You can update it below until the buyer picks.</p> : null}
             </div>
             {stagePanel}
-            {ctx.hasTrade ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
+            {ctx.hasTrade ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           ) : ctx.rfqStatus !== "collecting" ? (
             <>
               {stagePanel}
-              <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
-                The buyer has closed this request{stagePanel ? " (see the progress above for how this deal ended)" : " — no quote is needed"}. Thanks for looking.
-              </p>
+              {tradeFeed.data?.confirmation ? (
+                <p className="rounded-2xl border border-brand-500/40 bg-brand-500/5 p-5 text-sm text-ink-light" data-testid="selected-banner">The buyer selected your quote. One step is left: confirm or revise your trade value below.</p>
+              ) : (
+                <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
+                  The buyer has closed this request{stagePanel ? " (see the progress above for how this deal ended)" : " — no quote is needed"}. Thanks for looking.
+                </p>
+              )}
+              {ctx.hasTrade && tradeFeed.data?.confirmation ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           ) : ctx.inviteStatus !== "invited" ? (
             <>
               {stagePanel}
               <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
-                This invite already has a response ({ctx.inviteStatus}). {ctx.hasTrade && ctx.inviteStatus === "quoted" ? "The buyer's trade-in is below; you can appraise it or update your appraisal." : stagePanel ? "Your deal's next step is above." : "Nothing more to do."}
+                This invite already has a response ({ctx.inviteStatus}). {ctx.hasTrade && ctx.inviteStatus === "quoted" ? "The buyer's trade-in is below; you can update your trade allowance." : stagePanel ? "Your deal's next step is above." : "Nothing more to do."}
               </p>
-              {ctx.hasTrade && ctx.inviteStatus === "quoted" ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
+              {ctx.hasTrade && ctx.inviteStatus === "quoted" ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           ) : ctx.quotePrefs ? (
             <>
@@ -255,11 +265,11 @@ function ReceivedBody() {
                   <strong className="text-white">Quote through the sheet below.</strong> Selling price, itemized fees with a sales-tax line, add-ons listed (or none), {ctx.condition === "new" ? "" : "miles, "}and a good-until date are required
                   {ctx.quotePrefs.quoteType === "finance" ? "; term and down must equal the buyer's lock, and the monthly is calculated from amount financed, APR and term — a monthly-only reply can't be submitted" : ""}.
                 </p>
-                {ctx.hasTrade ? <p className="text-xs text-sky-200 border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">The buyer included a trade-in. Quote the car on its own, then appraise the trade as its own line in the section below the sheet.</p> : <TradeInNote expected={ctx.tradeInExpected} />}
+                {ctx.hasTrade ? <p className="text-xs text-sky-200 border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">The buyer included a trade-in. Quote the car on its own, then give your trade allowance in the section at the bottom of the sheet: it is part of the price the buyer compares, so the quote can&apos;t be sent without it.</p> : <TradeInNote expected={ctx.tradeInExpected} />}
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              {ctx.staged && ctx.stage && ctx.stage.otd.status === "locked" ? null : <UsedQuoteForm token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />}
-              {ctx.hasTrade ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
+              {ctx.staged && ctx.stage && ctx.stage.otd.status === "locked" ? null : <UsedQuoteForm trade={tradeForm} token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />}
+              {ctx.hasTrade ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           ) : !ctx.leasePrefs ? (
             <div className="rounded-2xl border border-border bg-surface p-5 space-y-3 text-sm text-ink-light" data-testid="login-to-quote">
@@ -307,6 +317,7 @@ function ReceivedBody() {
                 </div>
               )}
               <LeaseCalculatorForm
+                trade={tradeForm}
                 token={token}
                 vin={ctx.vin}
                 stockNumber={ctx.stockNumber}
@@ -315,7 +326,7 @@ function ReceivedBody() {
                 counterSheet={ctx.buyerCounter?.sheet ?? null}
                 onSubmitted={setDone}
               />
-              {ctx.hasTrade ? <DealerTradePanel token={token} defaultGoodUntil={ctx.quoteExpiresAt ?? null} /> : null}
+              {ctx.hasTrade ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           )}
           </fieldset>

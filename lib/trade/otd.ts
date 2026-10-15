@@ -14,6 +14,7 @@
  *   lease    positive equity is a cap cost reduction, negative equity is rolled into the cap cost.
  * The dealer's monthly is not recomputed here; the applied amount and the adjusted principal are shown instead.
  */
+import { appraisalState } from "../../scrapers/lightsail-crawler/src/tradeConfirm.js";
 import type { AppraisalBasis, DealerTradeAppraisal } from "./types";
 
 const cents = (n: number) => Math.round(n * 100) / 100;
@@ -32,7 +33,7 @@ export function allowanceOf(a: Pick<DealerTradeAppraisal, "allowanceSingle" | "a
   return null;
 }
 
-export type TradeStatus = "none" | "pending" | "expired" | "quoted";
+export type TradeStatus = "none" | "pending" | "expired" | "quoted" | "declined";
 
 export interface TradeEquity {
   status: TradeStatus;
@@ -45,21 +46,38 @@ export interface TradeEquity {
   negative: boolean;
   basis: AppraisalBasis | null;
   goodUntil: string | null;
+  /** The buyer changed the trade after this number was given; shown as "Based on earlier details" until the desk reconfirms. */
+  stale: boolean;
+  /** "Can't quote this trade": the reason code and note. The vehicle quote still counts, the desk sits out the best-deal badge. */
+  declined: { code: string; note: string | null } | null;
+  conditions: string | null;
+  conditionChips: string[];
+}
+
+export interface TradeEquityOpts {
+  /** The vehicle quote's expiry: the allowance expires with it. */
+  quoteExpiresAt?: string | null;
+  /** When the buyer last changed the trade (details or photos). */
+  tradeUpdatedAt?: string | null;
 }
 
 /**
  * `hasTrade` is whether the buyer sent one. No trade → "none"; trade but no (or an expired) appraisal → the
  * dealer's totals are left alone and the column says pending / expired.
  */
-export function tradeEquity(hasTrade: boolean, payoffEstimate: number | null | undefined, appraisal: DealerTradeAppraisal | null | undefined, now: Date = new Date()): TradeEquity {
+export function tradeEquity(hasTrade: boolean, payoffEstimate: number | null | undefined, appraisal: DealerTradeAppraisal | null | undefined, now: Date = new Date(), opts: TradeEquityOpts = {}): TradeEquity {
   const payoff = payoffEstimate && payoffEstimate > 0 ? cents(payoffEstimate) : 0;
-  const empty = { allowance: null, payoff, net: null, netLow: null, netHigh: null, negative: false, basis: null, goodUntil: null };
+  const empty = { allowance: null, payoff, net: null, netLow: null, netHigh: null, negative: false, basis: null, goodUntil: null, stale: false, declined: null, conditions: null, conditionChips: [] as string[] };
   if (!hasTrade) return { status: "none", ...empty, payoff: 0 };
-  const allowance = allowanceOf(appraisal);
-  if (!appraisal || !allowance) return { status: "pending", ...empty };
-  if (new Date(appraisal.goodUntil).getTime() <= now.getTime()) return { status: "expired", ...empty, basis: appraisal.basis, goodUntil: appraisal.goodUntil };
+  const st = appraisalState(appraisal, { now, quoteExpiresAt: opts.quoteExpiresAt ?? null, tradeUpdatedAt: opts.tradeUpdatedAt ?? null }) as
+    { kind: "none" | "declined" | "expired" | "quoted"; stale: boolean; goodUntil: string | null; declined?: { code: string; note: string | null } };
+  if (st.kind === "declined") return { status: "declined", ...empty, declined: { code: st.declined!.code, note: st.declined!.note ?? null } };
+  if (!appraisal || st.kind === "none") return { status: "pending", ...empty };
+  const allowance = allowanceOf(appraisal)!;
+  const meta = { conditions: appraisal.conditions ?? null, conditionChips: appraisal.conditionChips ?? [] };
+  if (st.kind === "expired") return { status: "expired", ...empty, ...meta, basis: appraisal.basis, goodUntil: st.goodUntil };
   const net = cents(allowance.mid - payoff);
-  return { status: "quoted", allowance, payoff, net, netLow: cents(allowance.low - payoff), netHigh: cents(allowance.high - payoff), negative: net < 0, basis: appraisal.basis, goodUntil: appraisal.goodUntil };
+  return { status: "quoted", allowance, payoff, net, netLow: cents(allowance.low - payoff), netHigh: cents(allowance.high - payoff), negative: net < 0, basis: appraisal.basis, goodUntil: st.goodUntil, stale: st.stale, declined: null, ...meta };
 }
 
 /** The equity the dealer computed when they entered the allowance (midpoint − payoff used). */

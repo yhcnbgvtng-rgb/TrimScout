@@ -159,9 +159,15 @@ export interface DealerTradeAppraisal {
   /** Midpoint (or single) allowance minus payoffUsed. */
   equityComputed: number;
   conditions: string | null;
+  /** Structured conditions the desk ticked (keys of CONDITION_CHIPS); the revision guardrail lets a revision cite them. */
+  conditionChips?: string[];
+  /** "Can't quote this trade": no allowance, a reason instead. The vehicle quote still counts. */
+  declined?: { code: string; note: string | null } | null;
   /** Set when the dealer confirmed a value far from the guide. */
   outlierConfirmed?: boolean;
   createdAt: string;
+  /** The desk re-affirmed this number after the buyer changed the trade ("Based on earlier details" clears). */
+  reconfirmedAt?: string | null;
 }
 
 export interface TradePhotoRequest {

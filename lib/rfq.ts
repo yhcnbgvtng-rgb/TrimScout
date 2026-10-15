@@ -12,6 +12,7 @@ export const RFQ_MAX_INVITES = 3;
 // real "miss", not an unknown.
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "./trade/types";
+import { publicConfirmation, type TradeConfirmation } from "./trade/confirm";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
@@ -144,6 +145,8 @@ export interface RfqInvite {
   priorQuotes?: RfqQuote[];
   /** This desk's appraisal of the request's trade-in (the box column behind the spec's dealer_trade_appraisal). */
   tradeAppraisal?: DealerTradeAppraisal | null;
+  /** The confirm-or-revise step after the buyer selected this desk (spec: trade_confirmation). Internal metrics read it too. */
+  tradeConfirmation?: TradeConfirmation | null;
   /** The desk's single open/fulfilled ask for more photos (spec: trade_photo_request). */
   tradePhotoRequest?: TradePhotoRequest | null;
   /** When this desk last opened the trade; a photo change after it earns one new notice. */
@@ -242,7 +245,7 @@ export function rfqIsReleased(rfq: Pick<RfqRequest, "approvalStatus">): boolean 
 export function publicRfqForBuyer(rfq: RfqRequest): RfqRequest {
   return {
     ...rfq,
-    invites: rfq.invites.map(({ dealerContactEmail: _email, viewToken: _token, ...rest }) => ({ ...rest, dealerContactEmail: null })),
+    invites: rfq.invites.map(({ dealerContactEmail: _email, viewToken: _token, ...rest }) => ({ ...rest, dealerContactEmail: null, ...(rest.tradeConfirmation ? { tradeConfirmation: publicConfirmation(rest.tradeConfirmation) } : {}) })),
   };
 }
 

@@ -9,6 +9,7 @@ import { UsedCompare } from "@/components/UsedCompare";
 import { DealThreadPanel } from "@/components/DealThreadPanel";
 import { StagedDeals } from "../../../components/StagedDeals";
 import { AddTradeInPrompt } from "../../../components/AddTradeInPrompt";
+import { BuyerTradeConfirm } from "../../../components/trade/BuyerTradeConfirm";
 import { isStagedRfq } from "../../../lib/dealStages";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -490,6 +491,7 @@ export default function RfqWorkspacePage() {
       {rfq.status === "picked" && (
         <div className="rounded-2xl border border-brand-500/60 bg-brand-950/20 p-5 text-center">
           <p className="text-sm font-bold text-brand-400">You chose this quote</p>
+          {rfq.tradeIn ? <p className="mt-1 text-xs text-ink-muted">Your trade value is confirmed in the next step below.</p> : null}
         </div>
       )}
       {rfq.status === "walked" && (
@@ -497,6 +499,8 @@ export default function RfqWorkspacePage() {
           <p className="text-sm font-bold text-ink-light">No quote chosen</p>
         </div>
       )}
+
+      <BuyerTradeConfirm rfq={rfq} headers={guest.headers} onRfq={(r) => { setRfq(r); setLeaseCompare(null); }} />
 
       <AddTradeInPrompt rfq={rfq} headers={guest.headers} onRfq={setRfq} />
 
@@ -521,7 +525,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
@@ -608,7 +612,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 

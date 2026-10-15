@@ -11,6 +11,7 @@ import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { guestTrackerPath, isGuestBuyerId } from "@/lib/buyerAccess";
 import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
+import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -70,6 +71,9 @@ export async function POST(req: Request) {
   if (fees.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: fees.errors, warnings: v.warnings }, { status: 422 });
 
   const used = { ...(quote as UsedQuote), feeOverrides: fees.overrides.length ? fees.overrides : null } as UsedQuote;
+  // A request with a trade-in takes no quote without the desk's trade allowance (or "can't quote this trade").
+  const traded = await recordTradeWithQuote({ rfq, invite: found.invite, body, quoteExpiresAt: used.expiresAt });
+  if (!traded.ok) return NextResponse.json(traded.body, { status: traded.status });
   await submitRfqQuote(found.rfqId, found.invite.id, {
     // Older readers see a number: the selling price and the itemized lines.
     price: used.sellingPrice,

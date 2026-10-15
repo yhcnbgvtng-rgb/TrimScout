@@ -4,12 +4,14 @@
 //   POST { t, kind: "appraisal", … }           the trade appraisal (allowance single | range, basis, good-until, payoff)
 //   POST { t, kind: "photo_request", slots, note }   ONE in-app ask for more photos; no email thread.
 // Only a desk invited on this request resolves; anyone else gets a 404. Never a public photo URL.
-import { NextResponse } from "next/server";
-import { getRfq, getRfqInviteByViewToken, markTradeSeen, RfqApiError, submitTradeAppraisal, submitTradePhotoRequest } from "@/lib/rfqApi";
+import { NextResponse, after } from "next/server";
+import { getRfq, getRfqInviteByViewToken, markTradeSeen, reconfirmTradeAppraisal, RfqApiError, submitTradeAppraisal, submitTradePhotoRequest } from "@/lib/rfqApi";
 import { dealerMayViewTrade, signTradePhotos } from "@/lib/trade/access";
 import { s3Storage } from "@/lib/trade/storage";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
-import { parseAppraisalInput, parsePhotoRequestInput } from "@/lib/trade/dealer";
+import { parseAppraisalInput, parsePhotoRequestInput, parseTradeDecline } from "@/lib/trade/dealer";
+import { effectiveStatus, publicConfirmation, tradeConfirmConfig } from "@/lib/trade/confirm";
+import { settleAndCloseOut, sweepIfDue } from "@/lib/trade/confirmFlow";
 import { guideValue, isOutlier } from "@/lib/trade/guide";
 import { dealerMayAppraise } from "@/lib/acceptTrade";
 
@@ -29,14 +31,24 @@ async function resolve(token: string) {
 export async function GET(req: Request) {
   const r = await resolve((new URL(req.url).searchParams.get("t") || "").trim());
   if (r.res) return r.res;
-  const { rfq, invite } = r;
-  if (!rfq.tradeIn) return NextResponse.json({ tradeIn: null });
+  const { rfq: loaded, invite: loadedInvite } = r;
+  if (!loaded.tradeIn) return NextResponse.json({ tradeIn: null });
   try {
-    const signed = await signTradePhotos(s3Storage, rfq.tradeIn.photos);
+    // A confirm-step deadline that passed is written now (the original number stands) before this desk is shown anything.
+    const swept = await sweepIfDue(loaded);
+    if (swept.settledInviteIds.length) { const ids = swept.settledInviteIds; after(async () => { for (const w of ids) await settleAndCloseOut(loaded.id, w); }); }
+    const rfq = swept.rfq;
+    const invite = rfq.invites.find((i) => i.id === loadedInvite.id) ?? loadedInvite;
+    const signed = await signTradePhotos(s3Storage, rfq.tradeIn!.photos);
     await markTradeSeen(rfq.id, invite.id).catch(() => undefined);
     return NextResponse.json({
       tradeIn: rfq.tradeIn, signed, appraisal: invite.tradeAppraisal ?? null, photoRequest: invite.tradePhotoRequest ?? null,
       inviteStatus: invite.status, rfqStatus: rfq.status, appraisalOpen: dealerMayAppraise(rfq, invite),
+      // The confirm-or-revise step: present only for the desk the buyer selected.
+      confirmation: publicConfirmation(invite.tradeConfirmation),
+      confirmationStatus: effectiveStatus(invite.tradeConfirmation, new Date()),
+      quoteExpiresAt: invite.quote?.expiresAt ?? null,
+      thresholdPct: tradeConfirmConfig().thresholdPct,
     });
   } catch (err) {
     return tradeErrorResponse(err);
@@ -65,6 +77,16 @@ export async function POST(req: Request) {
       }
       await submitTradeAppraisal(rfq.id, invite.id, { ...parsed.value, outlierConfirmed: outlier ? true : undefined });
       return NextResponse.json({ ok: true, equityComputed: parsed.value.equityComputed });
+    }
+    if (body?.kind === "decline") {
+      const parsed = parseTradeDecline(body, { quoteExpiresAt: invite.quote?.expiresAt ?? null });
+      if (!parsed.ok) return NextResponse.json({ error: parsed.errors.join(" "), errors: parsed.errors }, { status: 422 });
+      await submitTradeAppraisal(rfq.id, invite.id, parsed.value);
+      return NextResponse.json({ ok: true });
+    }
+    if (body?.kind === "reconfirm") {
+      await reconfirmTradeAppraisal(rfq.id, invite.id);
+      return NextResponse.json({ ok: true });
     }
     if (body?.kind === "photo_request") {
       if (invite.tradePhotoRequest?.status === "open") return NextResponse.json({ error: "You already have an open photo request. The buyer will see it in TrimScout." }, { status: 409 });

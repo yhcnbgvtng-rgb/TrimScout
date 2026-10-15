@@ -8,7 +8,10 @@ import { counterSummary } from "../lib/buyerCounter";
 import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
 import { applyToLease, tradeEquity } from "../lib/trade/otd";
-import { BASIS_LABELS, TRADE_ESTIMATE_COPY, type DealerTradeAppraisal, type TradeInRecord } from "../lib/trade/types";
+import { TRADE_ESTIMATE_COPY, type DealerTradeAppraisal, type TradeInRecord } from "../lib/trade/types";
+import { appraisalForCompare, type TradeConfirmation } from "../lib/trade/confirm";
+import { bestDeal, leaseAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
+import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import type { CounterEditsPayload } from "../lib/buyerCounter";
 
@@ -44,9 +47,10 @@ export function LeaseCompare({
   trade,
   busy,
   inviteActions,
+  initialSort = "post_trade",
 }: {
   /** The request's trade-in and each desk's appraisal. Shown as its own lines; the dealer's monthly is never recomputed. */
-  trade?: { record: TradeInRecord; byInvite: Record<string, DealerTradeAppraisal | null> } | null;
+  trade?: { record: TradeInRecord; byInvite: Record<string, DealerTradeAppraisal | null>; /** Each desk's confirm-or-revise step, once the buyer selected one. */ confirmations?: Record<string, TradeConfirmation | null> } | null;
   data: LeaseCompareData;
   collecting: boolean;
   onPick: (quoteId: string) => void;
@@ -56,11 +60,26 @@ export function LeaseCompare({
   busy: boolean;
   /** Per-dealer buyer actions (record a quote / mark declined) for the dealer's column header; null once they've answered. */
   inviteActions?: (inviteId: string) => React.ReactNode;
+  /** Which order the table opens in (the buyer can switch). */
+  initialSort?: TradeSortMode;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [countering, setCountering] = useState<string | null>(null);
+  const [sort, setSort] = useState<TradeSortMode>(initialSort);
   const { rows, glance, prefs, counts, lane, askSummary } = data;
-  const eligible = rows.filter((r) => r.kind === "eligible" && (lane === "alternate" || !r.alternate));
+  // The allowance that counts is the confirmed number once settled, else what the desk quoted; it dies with the vehicle quote.
+  const eqOfRow = (r: LeaseCompareRow) => tradeEquity(Boolean(trade), trade?.record.payoffEstimate, appraisalForCompare(trade?.byInvite[r.inviteId], trade?.confirmations?.[r.inviteId]), new Date(), { quoteExpiresAt: r.expiresAt, tradeUpdatedAt: trade?.record.updatedAt ?? null });
+  const baseEligible = rows.filter((r) => r.kind === "eligible" && (lane === "alternate" || !r.alternate));
+  // With a trade, desks are ordered on the monthly after the equity is applied to the cap cost (then due at signing); a desk with no
+  // live trade number sorts after those that have one and never wears "best deal". "Vehicle OTD only" keeps the server's order.
+  const originalIndex = new Map(baseEligible.map((r, i) => [r.inviteId, i]));
+  const hasTrade = Boolean(trade);
+  const eligible = orderDesks(baseEligible, {
+    mode: sort, hasTrade, eligible: (r) => tradeEligible(eqOfRow(r)),
+    byVehicle: (a, b) => (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
+    byPostTrade: (a, b) => (a.lease && b.lease ? leaseAfterTrade(a.lease, eqOfRow(a)).monthly - leaseAfterTrade(b.lease, eqOfRow(b)).monthly : 0) || (a.dueAtSigning ?? 0) - (b.dueAtSigning ?? 0) || (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
+  });
+  const bestDealId = eligible.length > 1 ? bestDeal(eligible, { hasTrade, eligible: (r) => tradeEligible(eqOfRow(r)) })?.inviteId ?? null : null;
   const alternates = lane === "alternate" ? [] : rows.filter((r) => r.kind === "eligible" && r.alternate);
   const counters = rows.filter((r) => r.kind === "counter");
   const rest = rows.filter((r) => r.kind === "countered" || r.kind === "expired" || r.kind === "waiting" || r.kind === "declined" || r.kind === "unsubscribed");
@@ -73,6 +92,7 @@ export function LeaseCompare({
     ? LEASE_ROWS.flatMap((row) => row.key === "rebates" ? [row, { key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }, { key: "applied", label: "How equity is applied" }] : [row])
     : LEASE_ROWS;
 
+  const eq0 = eqOfRow;
   const toColumn = (r: LeaseCompareRow): QuoteColumn => {
     const l = r.lease;
     const muted = r.kind === "expired" || r.kind === "declined" || r.kind === "countered" || r.kind === "unsubscribed";
@@ -109,21 +129,23 @@ export function LeaseCompare({
           {status}
           {r.alternate ? badge("bg-sky-500/15 text-sky-300", "Alternate vehicle", "alternate-badge") : null}
           {r.revised ? badge("bg-sky-500/15 text-sky-300", "Revised") : null}
+          {trade?.confirmations?.[r.inviteId]?.status === "revised" ? badge("bg-sky-500/15 text-sky-300", "Revised trade", "revised-chip") : null}
+          {bestDealId === r.inviteId ? badge("bg-brand-500/15 text-brand-300", hasTrade && sort === "post_trade" ? "Best deal after trade" : "Best deal", "badge-best-deal") : null}
         </div>
+        {trade && r.lease && r.kind === "eligible" && eq0(r).status !== "quoted" && eq0(r).status !== "expired" ? <span className="block text-[10px] text-amber-200" data-testid="no-best-deal-note">{eq0(r).status === "declined" ? "Not in the best-deal ranking: no trade quote." : "Not in the best-deal ranking: no trade quote yet."}</span> : null}
+        <RevisedNote conf={trade?.confirmations?.[r.inviteId]} />
         {statusNotes.map((c) => <span key={c} className="block text-[10px] leading-snug text-ink-muted">{c}</span>)}
         {r.kind === "countered" && r.buyerCounter ? <span className="block text-[10px] leading-snug text-sky-200">You asked: {counterSummary(r.buyerCounter)}</span> : null}
         <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
         {inviteActions && !r.lease ? inviteActions(r.inviteId) : null}
       </div>
     );
-    const eq = tradeEquity(Boolean(trade), trade?.record.payoffEstimate, trade?.byInvite[r.inviteId]);
+    const eq = eqOfRow(r);
     const tradeCells: Record<string, React.ReactNode> = trade ? {
-      tradeallow: eq.status === "quoted" && eq.allowance
-        ? <div data-testid="trade-allowance"><span className="font-bold text-white">{eq.allowance.isRange ? `${fmtMoney(eq.allowance.low)} to ${fmtMoney(eq.allowance.high)}` : fmtMoney(eq.allowance.mid)}</span><span className={`mt-1 block text-[10px] font-bold uppercase ${eq.basis === "firm" ? "text-emerald-300" : "text-amber-200"}`} data-testid="trade-basis">{BASIS_LABELS[eq.basis!]}</span></div>
-        : eq.status === "expired" ? <span className="font-bold text-rose-300">Trade value expired</span> : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
+      tradeallow: <TradeAllowanceCell eq={eq} desk={r.lease ? "quoted" : "waiting"} />,
       payoff: eq.payoff ? fmtMoney(eq.payoff) : <span className="text-ink-muted">None</span>,
       netequity: eq.status !== "quoted" ? <span className="text-ink-muted">—</span> : <span className={eq.negative ? "font-bold text-rose-300" : "font-bold text-emerald-300"} data-testid={eq.negative ? "negative-equity" : "positive-equity"}>{eq.negative ? "−" : "+"}{fmtMoney(Math.abs(eq.net!))}{eq.negative ? <span className="block text-[10px] font-bold uppercase">Negative equity</span> : null}</span>,
-      applied: l ? (() => { const a = applyToLease(eq, l.capCost); return a.how === "none" ? <span className="text-ink-muted">{eq.status === "quoted" ? "No equity to apply" : "—"}</span> : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">cap cost {fmtMoney(l.capCost)} → {fmtMoney(a.adjusted)} (the monthly is the dealer&apos;s, not recomputed)</span></span>; })() : undefined,
+      applied: l ? (() => { const a = applyToLease(eq, l.capCost); return a.how === "none" ? <span className="text-ink-muted">{eq.status === "quoted" ? "No equity to apply" : "—"}</span> : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">cap cost {fmtMoney(l.capCost)} → {fmtMoney(a.adjusted)} (the monthly is the dealer&apos;s, not recomputed)</span><span className="block text-[10px] text-ink-muted" data-testid="monthly-after-trade">ranked on ≈ {fmtMoney(leaseAfterTrade(l, eq).monthly)}/mo with the cap cost change</span></span>; })() : undefined,
     } : {};
     const cells: Record<string, React.ReactNode> = l ? {
       ...tradeCells,
@@ -259,6 +281,7 @@ export function LeaseCompare({
 
       {/* 2 — dealers as columns */}
       {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY}</p> : null}
+      {trade && eligible.length > 1 ? <TradeSortToggle mode={sort} onChange={setSort} /> : null}
       {mainRows.length ? <QuoteColumns testId="lease-table" caption="Lease quotes, one column per dealer" rows={leaseRows} columns={mainRows.map(toColumn)} /> : null}
 
       {counters.length ? (
