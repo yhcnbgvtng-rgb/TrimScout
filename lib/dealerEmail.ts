@@ -265,7 +265,7 @@ export function buildDealerUnsubscribedNotice(dealerName: string, rfqUrl?: strin
  * out-the-door. Same SAFE MODE sender as every email in this module (see the
  * header) — it lands at SAFE_MODE_RECIPIENT, never at a buyer or dealer.
  */
-export function buildCounterAcceptedNotice(input: { dealerName: string; vehicle: string; outTheDoor: number; rfqUrl?: string | null }): { subject: string; html: string } {
+export function buildCounterAcceptedNotice(input: { dealerName: string; vehicle: string; outTheDoor: number; /** e.g. "Doc surcharge $400 (reason)" — the out-the-door already includes them. */ surcharges?: string | null; rfqUrl?: string | null }): { subject: string; html: string } {
   const otd = `$${input.outTheDoor.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const subject = `[SAFE MODE] Dealer accepted your counter — ${otd} out the door`;
   const cta = input.rfqUrl
@@ -276,7 +276,7 @@ export function buildCounterAcceptedNotice(input: { dealerName: string; vehicle:
       <strong>SAFE MODE:</strong> this buyer notification was redirected here for approval instead of the buyer, per site-owner override.
     </p>
     <h1 style="font-size:18px;margin:16px 0 8px;">Dealer accepted your counter</h1>
-    <p style="font-size:14px;line-height:1.6;color:#374151;">${escapeHtml(input.dealerName || "The dealer")} accepted your counter on the ${escapeHtml(input.vehicle)}. Final out-the-door: <strong>${escapeHtml(otd)}</strong> (sales tax updated to the new price). It is a revised quote on your compare — you pick it, or walk away.</p>
+    <p style="font-size:14px;line-height:1.6;color:#374151;">${escapeHtml(input.dealerName || "The dealer")} accepted your counter on the ${escapeHtml(input.vehicle)}. Final out-the-door: <strong>${escapeHtml(otd)}</strong> (sales tax updated to the new price)${input.surcharges ? `, including dealer-imposed surcharges: ${escapeHtml(input.surcharges)}` : ""}. It is a revised quote on your compare — you pick it, or walk away.</p>
     ${cta}
   </div>`.trim();
   return { subject, html };

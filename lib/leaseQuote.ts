@@ -59,6 +59,8 @@ export function parseLeasePrefs(raw: unknown): LeaseRequestPrefs | null {
 export interface LineItem {
   name: string;
   amount: number;
+  /** Surcharge lines only: the dealer's short reason, shown to the buyer under a "Dealer-imposed" label. */
+  reason?: string;
 }
 
 /** Itemized, always — a single unlabeled lump is not a quote. */

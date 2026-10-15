@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { CREDIT_BAND_LABELS, FINANCE_TERMS, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
+import { CREDIT_BAND_LABELS, FINANCE_TERMS, SURCHARGE_REASON_MAX, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
 import { counterPriceChanged, TAX_PROMPT_COPY, zipStateTax, type CounterSheet } from "../lib/counterSheet";
@@ -20,7 +20,7 @@ import { calcFee, normalizeFeeOverrides, OVERRIDE_LABELS, OVERRIDE_REASON_MAX, o
  * Monthly is computed from amount financed / APR / term — there is no
  * monthly-only entry. A request, not a bid.
  */
-type Item = { name: string; amount: string };
+type Item = { name: string; amount: string; /** Surcharge lines only. */ reason?: string };
 const STANDING_FEES = 3;
 
 const money = (n: number | null, digits = 0) => (n == null ? null : `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`);
@@ -83,6 +83,8 @@ export function UsedQuoteForm({
   const [noTaxEstimate, setNoTaxEstimate] = useState(initFin ? initFin.monthlyPaymentWithEstTax == null : false);
   const [addOns, setAddOns] = useState<Item[]>(asItems(initial?.addOns));
   const [noAddOns, setNoAddOns] = useState(initial?.noAddOns ?? false);
+  const [surcharges, setSurcharges] = useState<Item[]>((initial?.surcharges || []).map((l) => ({ name: l.name, amount: String(l.amount), reason: l.reason || "" })));
+  const [noSurcharges, setNoSurcharges] = useState(initial?.noSurcharges ?? false);
   const [rebates, setRebates] = useState<Item[]>(asItems(initial?.rebates));
   const [fees, setFees] = useState<Item[]>(
     initial?.dueAtSigning?.length
@@ -135,29 +137,32 @@ export function UsedQuoteForm({
     const rebateLines = toLines(rebates);
     const dasTotal = dueAtSigningSum(items);
     const addOnTotal = dueAtSigningSum(addOnLines);
+    // Surcharges are in the out-the-door, amount financed and cash due — never in the sales-tax base (price + add-ons).
+    const surchargeLines = surcharges.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN, reason: (i.reason || "").trim() })).filter((i) => i.name && Number.isFinite(i.amount));
+    const surchargeTotal = dueAtSigningSum(surchargeLines);
     const rebateTotal = dueAtSigningSum(rebateLines);
     const down = num(f.downPayment);
     const trade = num(f.tradeEquity);
     const apr = num(f.apr);
     const term = num(f.termMonths);
-    // Amount financed = selling price + add-ons − rebates − down − trade equity + fees rolled in (all fees assumed rolled in for the estimate).
-    const amountFinanced = sellingPrice != null && sellingPrice > 0 ? Math.max(0, sellingPrice + addOnTotal - rebateTotal - (down ?? 0) - (trade ?? 0) + dasTotal) : null;
+    // Amount financed = selling price + add-ons + surcharges − rebates − down − trade equity + fees rolled in (all fees assumed rolled in for the estimate).
+    const amountFinanced = sellingPrice != null && sellingPrice > 0 ? Math.max(0, sellingPrice + addOnTotal + surchargeTotal - rebateTotal - (down ?? 0) - (trade ?? 0) + dasTotal) : null;
     const monthly = amountFinanced != null && apr != null && term != null ? financeMonthly(amountFinanced, apr, term) : null;
     const taxed = monthly != null && zipRate != null && !noTaxEstimate ? Math.round(monthly * (1 + zipRate) * 100) / 100 : null;
-    // Same base as the calculated line: selling price + add-ons (lib/salesTax.ts).
+    // Same base as the calculated line: selling price + add-ons (lib/salesTax.ts). Surcharges are not in the tax base.
     const estTaxOnPrice = sellingPrice != null && zipRate != null ? Math.round(salesTaxBase(sellingPrice, addOnLines) * zipRate) : null;
-    const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
-    const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal - rebateTotal) * 100) / 100 : null;
+    const cashDue = down != null ? Math.round((down + dasTotal + addOnTotal + surchargeTotal - rebateTotal) * 100) / 100 : null;
+    const otd = sellingPrice != null ? Math.round((sellingPrice + dasTotal + addOnTotal + surchargeTotal - rebateTotal) * 100) / 100 : null;
     // The equation's own lines: sales tax is the standing first line; every other fee is "mandatory fees".
     const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
     const mandatoryTotal = dasTotal - taxTotal;
     const docFee = dueAtSigningSum(items.filter((i) => /\bdoc/i.test(i.name)));
     // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges.
     const msrpNum = num(f.msrp);
-    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
+    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + surchargeTotal + docFee) * 100) / 100 : null;
     const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
-    return { sellingPrice, items, addOnLines, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
-  }, [f, effFees, addOns, rebates, noTaxEstimate, zipRate]);
+    return { sellingPrice, items, addOnLines, surchargeLines, surchargeTotal, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
+  }, [f, effFees, addOns, surcharges, rebates, noTaxEstimate, zipRate]);
 
   const feeCheck = useMemo(
     () => normalizeFeeOverrides({
@@ -181,6 +186,8 @@ export function UsedQuoteForm({
     dueAtSigning: d.items,
     addOns: d.addOnLines,
     noAddOns,
+    surcharges: d.surchargeLines,
+    noSurcharges,
     rebates: d.rebateLines,
     miles: used ? num(f.miles) ?? undefined : null,
     stockNumber: f.stockNumber.trim() || null,
@@ -204,7 +211,7 @@ export function UsedQuoteForm({
           monthlyPaymentWithEstTax: noTaxEstimate ? null : d.taxed,
           lenderName: f.lenderName.trim() || null,
         };
-  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition, requireMsrp: true }), [quote, prefs, f.vin, f.stockNumber, condition]);
+  const validation = useMemo(() => validateUsedQuote(quote, prefs, { vin: f.vin, stockNumber: f.stockNumber, condition, requireMsrp: true, requireSurcharges: true }), [quote, prefs, f.vin, f.stockNumber, condition]);
   const [taxConfirmed, setTaxConfirmed] = useState(false);
   const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
@@ -325,6 +332,13 @@ export function UsedQuoteForm({
       {standing ? <span /> : <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${key} line`}><Trash2 className="h-3.5 w-3.5" /></button>}
     </div>
   );
+  /** A surcharge line: name, amount, remove — plus the required short reason the buyer sees under a "Dealer-imposed" label. */
+  const surchargeRow = (it: Item, i: number) => (
+    <div key={i} className="space-y-1" data-testid="surcharge-line">
+      {plainFeeRow(it, i, surcharges, setSurcharges, "surcharge", false)}
+      <input type="text" value={it.reason || ""} maxLength={SURCHARGE_REASON_MAX} onChange={(e) => setSurcharges((p) => p.map((x, j) => (j === i ? { ...x, reason: e.target.value } : x)))} placeholder="Reason — shown to the buyer as dealer-imposed, e.g. dealer-installed lot protection" aria-label="Surcharge reason" data-testid="surcharge-reason" className={input} />
+    </div>
+  );
   const out = (title: string, value: string | null, strong = false) => (
     <div className="flex items-baseline justify-between gap-3">
       <span className="text-[11px] text-ink-muted">{title}</span>
@@ -382,6 +396,21 @@ export function UsedQuoteForm({
                   ) : null}
                 </>
               ), "$0 or each one listed")}
+              {eqBlock("+", "Surcharges", "eq-surcharges", (
+                <>
+                  <label className="flex items-start gap-2 text-[11px] text-ink-light">
+                    <input type="checkbox" checked={noSurcharges} onChange={(e) => { setNoSurcharges(e.target.checked); if (e.target.checked) setSurcharges([]); }} className="mt-0.5 h-3.5 w-3.5" data-testid="no-surcharges" />
+                    <span>No surcharges — $0</span>
+                  </label>
+                  {!noSurcharges ? (
+                    <>
+                      {surcharges.map((it, i) => surchargeRow(it, i))}
+                      <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
+                    </>
+                  ) : null}
+                  <p className={hintCls}>Not part of the sales-tax base. Counted in the out-the-door price and in % off MSRP, never folded into the selling price. Each needs a short reason; the buyer sees it as dealer-imposed.</p>
+                </>
+              ), "$0 or each one named")}
               {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
                 <>
                   {fees.map((it, i) => (i === 0 ? null : feeRow(it, i, fees, setFees, "fee", i < STANDING_FEES)))}
@@ -485,6 +514,21 @@ export function UsedQuoteForm({
             <p className={hintCls}>Each add-on is its own line with its own price — never folded into the selling price or the payment. Either list them or confirm none.</p>
           </section>
 
+          <section className="space-y-2.5" data-testid="surcharges">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Surcharges</h4>
+            <label className="flex items-start gap-2 text-[11px] text-ink-light">
+              <input type="checkbox" checked={noSurcharges} onChange={(e) => { setNoSurcharges(e.target.checked); if (e.target.checked) setSurcharges([]); }} className="mt-0.5 h-3.5 w-3.5" data-testid="no-surcharges" />
+              <span>No surcharges — $0</span>
+            </label>
+            {!noSurcharges ? (
+              <>
+                {surcharges.map((it, i) => surchargeRow(it, i))}
+                <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
+              </>
+            ) : null}
+            <p className={hintCls}>Each surcharge is its own named line. Not part of the sales-tax base; it is rolled into the amount financed and cash due and counted in % off MSRP. Each needs a short reason; the buyer sees it as dealer-imposed. Either list them or confirm none.</p>
+          </section>
+
           <section className="space-y-2.5" data-testid="rebates">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Rebates / incentives <span className="font-normal normal-case">(optional)</span></h4>
             {rebates.map((it, i) => (
@@ -534,6 +578,7 @@ export function UsedQuoteForm({
                 {out("APR · term", d.apr != null && d.term != null ? `${d.apr}% · ${d.term} mo` : null)}
                 {out("Cash due at signing", money(d.cashDue))}
                 {d.addOnTotal ? out("Add-ons", money(d.addOnTotal)) : null}
+                {d.surchargeTotal ? out("Surcharges", money(d.surchargeTotal)) : null}
                 {d.rebateTotal ? out("Rebates", `−${money(d.rebateTotal)}`) : null}
               </div>
             </>
@@ -543,12 +588,13 @@ export function UsedQuoteForm({
               <div className="border-t border-border/60 pt-2 space-y-1">
                 {out("Selling price", money(d.sellingPrice))}
                 {out("Add-ons", d.sellingPrice != null ? money(d.addOnTotal) : null)}
+                {out("Surcharges", d.sellingPrice != null ? money(d.surchargeTotal) : null)}
                 {out("Mandatory fees", d.sellingPrice != null ? money(d.mandatoryTotal) : null)}
                 {out("Sales tax", d.sellingPrice != null ? money(d.taxTotal) : null)}
                 {d.rebateTotal ? out("Rebates / credits", `−${money(d.rebateTotal)}`) : null}
               </div>
               <div className="border-t border-border/60 pt-2 space-y-1" data-testid="pct-of-msrp">
-                {out("Price + add-ons + doc fee", money(d.dealerAsk))}
+                {out("Price + add-ons + surcharges + doc fee", money(d.dealerAsk))}
                 {out("as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.dealerAsk != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
               </div>
             </>
