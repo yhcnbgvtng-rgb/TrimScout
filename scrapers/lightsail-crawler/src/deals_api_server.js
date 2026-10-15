@@ -1935,8 +1935,18 @@ async function logRfqEvent(pool, rfqId, eventType, payload) {
 // sweep once a store's crawl no longer lists the VIN, so "in stock" = removed_at IS NULL.
 // ---------------------------------------------------------------------------
 let inventoryReady = false;
+let inventoryReadyPromise = null;
+// The table / index / trigger DDL runs once per process, by ONE caller: concurrent first requests (the first requests after a restart can arrive together) wait for
+// that run instead of each running the whole sequence — two interleaved DROP TRIGGER / CREATE TRIGGER sequences made one request fail with HTTP 500 "Trigger ...
+// already exists" (box2, 2026-10-14). A failed run is forgotten, so the next request retries it from scratch.
 async function ensureInventoryTable(pool) {
   if (inventoryReady) return;
+  if (!inventoryReadyPromise) {
+    inventoryReadyPromise = ensureInventoryTableOnce(pool).catch((err) => { inventoryReadyPromise = null; throw err; });
+  }
+  return inventoryReadyPromise;
+}
+async function ensureInventoryTableOnce(pool) {
   await pool.query(`CREATE TABLE IF NOT EXISTS dealer_inventory (
     vin CHAR(17) NOT NULL,
     dealer_id INT NOT NULL DEFAULT 0,
@@ -2138,13 +2148,14 @@ async function ensureInventoryTable(pool) {
   // Triggers, not generated columns (see note above) — plain BEFORE INSERT/UPDATE writes,
   // unrestricted in what functions they may call. Backfilling existing rows is a separate,
   // one-off step (scripts/box/2026-09-22-…), not done here — it only matters on first deploy.
-  // DROP+CREATE (not IF NOT EXISTS) so a trigger body change — like vdp_url_norm below,
+  // CREATE OR REPLACE (not IF NOT EXISTS) so a trigger body change — like vdp_url_norm below,
   // added 2026-09-23 for the paste-a-link VIN lookup — actually takes effect on an existing
   // box after a restart, instead of silently keeping whatever body was first created there.
+  // One statement (MariaDB >= 10.1.4), not DROP then CREATE: no moment without the trigger, so a write that lands
+  // during a restart still fills vin_rev / dealer_name_rev / vdp_url_norm / state, and a second session can't collide.
   for (const when of ["INSERT", "UPDATE"]) {
-    await pool.query(`DROP TRIGGER IF EXISTS trg_inv_rev_${when.toLowerCase()}`);
     await pool.query(`
-      CREATE TRIGGER trg_inv_rev_${when.toLowerCase()} BEFORE ${when} ON dealer_inventory
+      CREATE OR REPLACE TRIGGER trg_inv_rev_${when.toLowerCase()} BEFORE ${when} ON dealer_inventory
       FOR EACH ROW BEGIN
         SET NEW.vin_rev = REVERSE(NEW.vin);
         SET NEW.dealer_name_rev = REVERSE(NEW.dealer_name);
