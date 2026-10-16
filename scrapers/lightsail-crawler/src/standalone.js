@@ -44,6 +44,7 @@ process.on('exit', () => {
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
+import { candidateSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
 import {
@@ -622,8 +623,12 @@ function decodeXmlEntities(str) {
 const LOC_RE = /<loc>\s*(?:<!\[CDATA\[([^\]]+)\]\]>|([^<]+))\s*<\/loc>/gi;
 const locMatches = (xml) => [...xml.matchAll(LOC_RE)].map((m) => decodeXmlEntities((m[1] ?? m[2] ?? '').trim())).filter(Boolean);
 
-async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage = null) {
+// `attempts` (optional) receives one record per sitemap actually requested: { url, status, error, locs, vdp }. A failure still returns [] so
+// callers behave as before, but the record says WHY (see sitemapDiscovery.js: ok / empty / failed).
+async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage = null, attempts = []) {
     if (depth > 2) return [];
+    const attempt = { url: sitemapUrl, status: null, error: null, locs: 0, vdp: 0 };
+    attempts.push(attempt);
     const brandWord = brand.name.toLowerCase();
     try {
         let xml = '';
@@ -633,6 +638,8 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
             // browser already transparently decompresses gzip transfer
             // encoding), which covers every case actually seen live so far.
             const res = await patchrightPage.goto(sitemapUrl, { waitUntil: 'domcontentloaded', timeout: 8000 });
+            attempt.status = res ? res.status() : null;
+            if (!res) attempt.error = 'NO_RESPONSE';
             xml = res ? await res.text() : '';
         } else {
             const res = await gotScraping({
@@ -641,6 +648,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
                 timeout: { request: 8000 },
                 retry: { limit: 1 },
             });
+            attempt.status = res.statusCode;
             if (sitemapUrl.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
                 try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
             } else {
@@ -654,34 +662,40 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
             const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
             let nested = [];
             for (const child of targets.slice(0, 8)) {
-                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand, patchrightPage));
+                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand, patchrightPage, attempts));
             }
+            attempt.locs = childSitemaps.length;
+            attempt.vdp = nested.length;
             return nested;
         }
 
         const allUrls = locMatches(xml);
-        return allUrls.filter((u) => isLikelyVdpUrl(u, brand));
-    } catch {
+        const vdpUrls = allUrls.filter((u) => isLikelyVdpUrl(u, brand));
+        attempt.locs = allUrls.length;
+        attempt.vdp = vdpUrls.length;
+        return vdpUrls;
+    } catch (err) {
+        // got throws on 4xx/5xx (HTTPError carries the response); anything else is a network/timeout error.
+        if (err && err.response && err.response.statusCode) attempt.status = err.response.statusCode;
+        else attempt.error = (err && (err.code || err.name)) || 'ERROR';
         return [];
     }
 }
 
-async function resolveSitemapUrls(dealer, brand, patchrightPage = null) {
-    const candidateUrls = [
-        dealer.sitemapUrl,
-        dealer.inventorySitemapUrl,
-        `https://${dealer.domain || new URL(dealer.sitemapUrl).hostname}/sitemap-inventory.xml`,
-        `https://${dealer.domain || new URL(dealer.sitemapUrl).hostname}/sitemap.xml`,
-        dealer.fallbackUrl
-    ].filter(Boolean);
-
-    for (const url of candidateUrls) {
-        const found = await fetchSitemapXmlUrls(url, 0, brand, patchrightPage);
-        if (found.length > 0) {
-            return found;
-        }
+// Walks the candidate sitemaps in order and stops at the first that yields vehicle URLs. Returns the URLs plus one attempt record per sitemap
+// requested and the ok / empty / failed outcome, so the caller can tell a failed fetch from a store that lists nothing.
+async function resolveSitemapDiscovery(dealer, brand, patchrightPage = null, { apexFirst = false } = {}) {
+    const attempts = [];
+    let urls = [];
+    for (const url of candidateSitemapUrls(dealer, { apexFirst })) {
+        const found = await fetchSitemapXmlUrls(url, 0, brand, patchrightPage, attempts);
+        if (found.length > 0) { urls = found; break; }
     }
-    return [];
+    return { urls, attempts, ...summarizeDiscovery(attempts, urls.length) };
+}
+
+async function resolveSitemapUrls(dealer, brand, patchrightPage = null) {
+    return (await resolveSitemapDiscovery(dealer, brand, patchrightPage)).urls;
 }
 
 async function pMap(items, mapper, concurrency = 8) {
@@ -823,6 +837,8 @@ const dealerStats = {};
 // A vehicle whose dealer lands in this set is excluded from the sold-diff
 // below rather than being marked SOLD on no real evidence either way.
 const failedDealerNames = new Set();
+// Dealers skipped by the bot-protection probe this run (reported as such in the zero-VDP alert, never retried).
+const botSkippedNames = new Set();
 
 let activeDealersCount = 0;
 let erroredDealersCount = 0;
@@ -838,20 +854,26 @@ const dealerContacts = await loadDealerContacts();
 // on within seconds of the timeout firing, not "eventually."
 const DEALER_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 
-for (let i = 0; i < dealers.length; i++) {
-    const dealer = dealers[i];
-    const progress = `[${i + 1}/${dealers.length}]`;
-    console.log(`${progress} 🏢 Crawling ${dealer.name} (${dealer.city}, ${dealer.state})...`);
+// Second pass: a dealer whose sitemap discovery FAILED (not "answered but empty") is queued here and retried once after every other dealer,
+// apex host first, when the box is least busy. Appending to `work` while iterating is deliberate. CRAWLER_SITEMAP_RETRY_PASS=false turns it off.
+const SITEMAP_RETRY_PASS = process.env.CRAWLER_SITEMAP_RETRY_PASS !== 'false';
+const work = dealers.map((d) => ({ dealer: d, retry: false }));
+for (let i = 0; i < work.length; i++) {
+    const { dealer, retry } = work[i];
+    const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
+    console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
     runProgress.currentDealer = dealer.name;
     await flushRunProgress();
 
-    const botProbe = await probeDealerBotProtectionWithRetry(dealer);
+    // The retry pass already passed the bot-protection probe once; it never re-probes (and never retries a refusal).
+    const botProbe = retry ? { classification: 'NONE' } : await probeDealerBotProtectionWithRetry(dealer);
     if (isUncrawlable(botProbe.classification)) {
         if (isBotProtected(botProbe.classification)) skippedBotProtection++;
+        botSkippedNames.add(dealer.name);
         failedDealerNames.add(dealer.name);
         dealerStats[dealer.name] = 0;
         runProgress.skippedForBotProtection = skippedBotProtection;
-        runProgress.dealersDone = i + 1;
+        runProgress.dealersDone = Math.min(i + 1, dealers.length);
         runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
         const kind = isBotProtected(botProbe.classification) ? 'bot protection' : 'uncrawlable';
         console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || kind} [${botProbe.url || dealer.domain}]`);
@@ -859,7 +881,7 @@ for (let i = 0; i < dealers.length; i++) {
         continue;
     }
 
-    try {
+    if (!retry) try {
         const contact = await collectSalesEmail(dealer, {
             getHtml: async (url) => {
                 try {
@@ -901,7 +923,10 @@ for (let i = 0; i < dealers.length; i++) {
     }, DEALER_TIMEOUT_MS);
 
     try {
-        let vehicleUrls = await resolveSitemapUrls(dealer, brand);
+        const discovery = await resolveSitemapDiscovery(dealer, brand, null, { apexFirst: retry });
+        let vehicleUrls = discovery.urls;
+        // One line per candidate sitemap: HTTP status or error, <loc> count, VDP count, and whether it counts as ok / empty / failed.
+        for (const a of discovery.attempts) console.log(describeAttempt(a));
         if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
             // Challenge / WAF pages were already skipped above. This fallback
             // is only for a sitemap that came back empty without a detected
@@ -916,9 +941,13 @@ for (let i = 0; i < dealers.length; i++) {
             }
         }
         if (vehicleUrls.length === 0) {
-            console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}.`);
+            console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}. [${discovery.note}]`);
             dealerStats[dealer.name] = 0;
             failedDealerNames.add(dealer.name);
+            if (discovery.outcome === 'failed' && !retry && SITEMAP_RETRY_PASS) {
+                work.push({ dealer, retry: true });
+                console.log(`${progress} ↻ ${dealer.name} queued for the end-of-run sitemap retry (apex host first).`);
+            }
             continue;
         }
         // Large rooftops are crawled in pages (CRAWLER_MAX_VEHICLES_PER_DEALER = page size) up to a hard ceiling
@@ -1275,6 +1304,10 @@ for (let i = 0; i < dealers.length; i++) {
 
         dealerStats[dealer.name] = dealerCount;
         if (dealerCount > 0) {
+            if (retry) {
+                failedDealerNames.delete(dealer.name);
+                console.log(`${progress} ✅ Retry recovered ${dealer.name}: ${dealerCount} vehicles.`);
+            }
             activeDealersCount++;
         } else {
             // Pages were fetched but nothing survived extraction — same "no
@@ -1300,7 +1333,7 @@ for (let i = 0; i < dealers.length; i++) {
         if (patchrightFallback) {
             await patchrightFallback.context.close().catch(() => {});
         }
-        runProgress.dealersDone = i + 1;
+        runProgress.dealersDone = Math.min(i + 1, dealers.length);
         runProgress.skippedForBotProtection = skippedBotProtection;
         await flushRunProgress();
         try {
@@ -1368,6 +1401,7 @@ console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 // authoritative, so a bit of staleness there is harmless; only the actual
 // merge below needs the freshest possible base.
 let latestPreviousSnapshot = {};
+let previousCountsByDealerName = new Map();
 let dailyChangesDoc;
 let updatedSnapshot;
 let allRecords;
@@ -1379,6 +1413,7 @@ let soldVehicles;
 await withSharedDataLock(async () => {
     try {
         latestPreviousSnapshot = await readBrandSnapshot();
+        previousCountsByDealerName = previousCountsByDealer(latestPreviousSnapshot);
     } catch {
         latestPreviousSnapshot = {};
     }
@@ -1477,6 +1512,10 @@ console.log(`New Arrivals Today:     ${newArrivals.length}`);
 console.log(`Price Drops Today:      ${priceDrops.length}`);
 console.log(`Sold / Removed Today:   ${soldVehicles.length}`);
 console.log(`Skipped bot protection: ${skippedBotProtection}`);
+// A store that had more than 100 vehicles last run and returned none this run: a crawl that stopped seeing a whole store, not stock selling out.
+const zeroVdpStores = zeroVdpAlerts({ dealerStats, previousCounts: previousCountsByDealerName, failedDealerNames, skippedBotProtection: botSkippedNames });
+console.log(`Zero-VDP alerts:        ${zeroVdpStores.length}`);
+for (const a of zeroVdpStores) console.log(formatZeroVdpAlert(a));
 console.log(`Data Output:            ${DATA_DIR}`);
 console.log('====================================================\n');
 
