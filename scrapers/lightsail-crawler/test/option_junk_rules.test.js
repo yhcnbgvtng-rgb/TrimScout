@@ -215,3 +215,161 @@ describe('SiriusXM trial-subscription lines become "SiriusXM"', () => {
     } finally { setJunkRules(null); }
   });
 });
+
+// ---- dealer-ad-prose / vehicle-spec-not-option / dealer-protection-appearance (2026-10-16.2) --------------------------------------------
+// Sized by the read-only box2 report of 2026-10-15 (junk-options-report). The structural "drop code=FEATURE rows" rule is NOT part of this.
+const POLICY_DIR = path.join(here, '../src/optionPolicies');
+const POLICY_FILES = fs.readdirSync(POLICY_DIR).filter((f) => f.endsWith('.json')).sort();
+const POLICY_RAW = Object.fromEntries(POLICY_FILES.map((f) => [f, JSON.parse(fs.readFileSync(path.join(POLICY_DIR, f), 'utf8'))]));
+const ALLOW_ALL = buildAllowlist(null, Object.assign({}, ...Object.values(POLICY_RAW)));
+const SHIPPED = compileJunkRules(SHIPPED_RAW);
+const NEW_RULES = ['dealer-ad-prose', 'vehicle-spec-not-option', 'dealer-protection-appearance'];
+
+// Every policy entry: its label, aliases and normalized key, with where it lives.
+function* policyNames() {
+  for (const [file, raw] of Object.entries(POLICY_RAW)) {
+    for (const [scope, pol] of Object.entries(raw)) {
+      for (const [trimKey, trim] of Object.entries(pol.trims || {})) {
+        for (const [optKey, o] of Object.entries(trim.options || {})) {
+          for (const name of new Set([o.label, ...(o.aliases || []), optKey].filter(Boolean))) yield { file, scope, pol, trimKey, trim, optKey, o, name };
+        }
+      }
+    }
+  }
+}
+// A vehicle that the policy resolves to the given trim.
+const vehicleOf = (e) => { const [make, , year] = e.scope.split('|'); return { make: e.pol.makeName || make, model: e.pol.models[0], year: Number(year), trim: e.trim.label || e.trimKey }; };
+const firstEntry = (file, name) => { for (const e of policyNames()) if (e.file === file && e.name.toLowerCase() === name.toLowerCase()) return e; return null; };
+
+describe('the three new rules are in the shipped file and sit after the original seven', () => {
+  it('names and order', () => assert.deepEqual(SHIPPED.rules.map((r) => r.name), ['roadside', 'inspection', 'warranty', 'maintenance-service-plan', 'subscription-trial', 'fee-charge', 'standard-or-no-charge', ...NEW_RULES]));
+  it('compiles with no bad pattern', () => assert.deepEqual(SHIPPED.errors, []));
+  it('the 16 policy files are all present (a new policy file must be added to this check)', () => assert.equal(POLICY_FILES.length, 16));
+});
+
+const NEW_JUNK = {
+  'dealer-ad-prose': ['Priced below KBB Fair Purchase Price!', 'All vehicles are subject to prior sale', 'With our live market pricing philosophy', 'Vehicle Details', 'Road trips used to be stressful',
+    'Set it and forget it', 'VISIT US TODAY', 'WHY BUY FROM US', 'January 2017', 'Summary', 'Source: KBB', 'please contact the dealer for more information', 'Local Trade In', 'See toyota.com for details'],
+  'vehicle-spec-not-option': ['4D Sport Utility', '4D Crew Cab', '2D Coupe', '10-Speed Automatic', '8-Speed Automatic', 'CVT', 'Jet Black', 'Black Cloth', 'Black Leather', 'Black', 'blackwall', 'AWD', '4WD', '4x4', 'All Wheel Drive', 'FWD', 'Four wheel drive'],
+  'dealer-protection-appearance': ['Paint Protection Film', 'Paint Protection', 'Fabric Protection', 'Window Tint ($399)', 'Dealer Accessories include Window Tint', 'VIN Etch', 'Nitrogen Tires', 'Pinstripe', 'LoJack',
+    'dealer-installed options', 'New vehicle pricing excludes dealer installed accessories', 'Price includes dealer added accessories', 'All-Weather Floor Liner (LPO)', 'Wheel Locks (Set of 4) (LPO)', 'Rustproofing', 'Undercoating', 'Anti-Theft Etch', 'Theft Deterrent Plan'],
+};
+// Real equipment and real factory packages that the broader first drafts of these patterns would have hit. None may be dropped.
+const NEW_KEEP = ['Lariat Black Appearance Package', 'XLT Sport Appearance Package', 'Black Appearance Package', 'Chrome Appearance Package', 'Appearance Package',
+  'Z71 Off-Road & Protection Package', 'Z71 Off-Road and Protection Package', 'Load Area Protection Package', 'Protection Package', 'Interior Protection Package', 'Bed Protection Package', 'Sun Protection Package',
+  'Theft Deterrent System (Unauthorized Entry)', 'Theft Deterrent System', 'Electrical Theft Deterrent System', 'Anti-Theft Package', 'Battery Protection Package',
+  'Leather', 'Cloth', 'Leather Seats', 'Cloth Seat Trim', 'Leather-Wrapped Steering Wheel', 'Leatherette Seat Trim', 'Heated Seats', 'Power Liftgate', 'Technology Package', 'Safety Connect', 'Driver Assist', 'Convenience Package',
+  'Black Roof', 'Black Wheels', 'Black Cloth Seat Trim', 'Jet Black Leather Seats', 'Black Mirror Caps', 'AWD Package', '4WD Package', 'Off-Road Package', 'Trailering Package', 'Tow Package', 'Premium Package', 'Summary Package',
+  'Mobile Hotspot', 'Wi-Fi Hotspot Capable', 'Window Sticker', 'Tinted Glass', 'Deep-Tinted Glass', 'Privacy Glass', 'Rust-Resistant Coating Package'];
+
+describe('new rules: what they drop', () => {
+  for (const [rule, labels] of Object.entries(NEW_JUNK)) for (const label of labels) it(`${rule}: drops "${label}"`, () => assert.equal(globalJunkRuleFor(label, { name: label }, SHIPPED), rule));
+  for (const label of NEW_KEEP) it(`keeps "${label}"`, () => assert.equal(globalJunkRuleFor(label, { name: label, price: 495 }, SHIPPED), null));
+  it('an original category still wins over a new one on the same line (rule order is unchanged)', () => {
+    assert.equal(globalJunkRuleFor('Roadside Assistance', {}, SHIPPED), 'roadside');
+    assert.equal(globalJunkRuleFor('Complimentary Oil Change (dealer-installed)', {}, SHIPPED), 'maintenance-service-plan');
+  });
+  it('the existing exemptions and the SiriusXM rewrite still behave', () => {
+    assert.equal(globalJunkRuleFor('Roadside Assistance Kit', {}, SHIPPED), null);
+    assert.deepEqual(optionRowsFromOptions([{ name: 'SiriusXM Trial Subscription' }], { junkRules: SHIPPED }).rows.map((r) => r.label), ['SiriusXM']);
+  });
+});
+
+describe('new rules vs the 16 model-policy files', () => {
+  const touched = new Map(); // "file|rule|name" -> rule
+  let checked = 0;
+  before(() => {
+    for (const e of policyNames()) { checked++; const rule = globalJunkRuleFor(e.name, { name: e.name }, SHIPPED); if (rule) touched.set(`${e.file}|${rule}|${e.name.toLowerCase()}`, rule); }
+  });
+  it('checks every label, alias and key in all 16 files', () => assert.ok(checked > 25000, String(checked)));
+  it('the 7 original rules, dealer-ad-prose and dealer-protection-appearance touch NO policy label', () => {
+    const bad = [...touched].filter(([, r]) => r !== 'vehicle-spec-not-option');
+    assert.deepEqual(bad, []);
+  });
+  // The ONLY policy names a new rule matches as bare text. They are paid options for the brand and are spared by the policy vouching
+  // (see "survive the real write path" below). If a pattern change touches another policy label, this list changes and the diff is reviewed.
+  const EXPECTED_TOUCHED = [
+    'audi-2026-2027.json|black',
+    'buick-2026-2027.json|awd',
+    'cadillac-2026-2027.json|awd',
+    'chevrolet-2026-2027.json|4wd', 'chevrolet-2026-2027.json|awd',
+    'gmc-2026-2027.json|4wd', 'gmc-2026-2027.json|awd',
+    'hyundai-2025-2027.json|awd',
+    'kia-2026-2027.json|awd',
+    'mercedes-2026-2027.json|black leather',
+    'subaru-2026-2027.json|6 speed automatic', 'subaru-2026-2027.json|6-speed automatic',
+    'toyota-2026-2027.json|4 wheel drive', 'toyota-2026-2027.json|4-wheel drive', 'toyota-2026-2027.json|4wd', 'toyota-2026-2027.json|4x4', 'toyota-2026-2027.json|8 speed automatic', 'toyota-2026-2027.json|8-speed automatic',
+    'toyota-2026-2027.json|all wheel drive', 'toyota-2026-2027.json|all-wheel drive', 'toyota-2026-2027.json|awd', 'toyota-2026-2027.json|four wheel drive',
+    'toyota-rav4-2026.json|all wheel drive', 'toyota-rav4-2026.json|all-wheel drive', 'toyota-rav4-2026.json|awd',
+  ].sort();
+  it('lists exactly the policy labels the vehicle-spec rule touches', () => {
+    assert.deepEqual([...touched.keys()].map((k) => { const [f, , n] = k.split('|'); return `${f}|${n}`; }).sort(), EXPECTED_TOUCHED);
+  });
+});
+
+describe('every policy label survives the real write path (policy cars)', () => {
+  before(() => installJunkRulesFromEnv({}, quiet));
+  after(() => setJunkRules(null));
+  it('no label, alias or key of any trim in any of the 16 files is dropped by a junk rule (and the label is kept)', () => {
+    const failures = []; let n = 0;
+    for (const e of policyNames()) {
+      if (e.name === e.optKey && e.name !== e.o.label && !(e.o.aliases || []).includes(e.name)) continue; // the normalized key is an index entry, not a feed spelling
+      n++;
+      const r = optionRowsForVehicle(ALLOW_ALL, vehicleOf(e), [{ name: e.name }]);
+      if (!r) { failures.push(`${e.file} ${e.scope}: no policy resolved`); continue; }
+      const junk = r.dropped.filter((d) => String(d.rule).startsWith('junk:'));
+      if (junk.length) failures.push(`${e.file} ${e.scope} ${e.trimKey}: "${e.name}" -> ${junk[0].rule}`);
+    }
+    assert.ok(n > 15000, String(n));
+    assert.deepEqual(failures.slice(0, 20), []);
+  });
+});
+
+describe('controls: the same words are junk on a car with no policy and kept where the policy sells them', () => {
+  before(() => installJunkRulesFromEnv({}, quiet));
+  after(() => setJunkRules(null));
+  const dropped = (opts, o = {}) => optionRowsFromOptions(opts.map((name) => ({ name })), o).dropped.map((d) => `${d.label}:${d.rule}`);
+  const generic = (name) => optionRowsFromOptions([{ name }]).dropped.map((d) => d.rule);
+  const CASES = [
+    { what: 'Toyota 4Runner 4WD', file: 'toyota-2026-2027.json', name: '4WD', generic: '4WD' },
+    { what: 'Toyota Camry AWD', file: 'toyota-2026-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Toyota RAV4 All-Wheel Drive', file: 'toyota-rav4-2026.json', name: 'All-Wheel Drive', generic: 'All-Wheel Drive' },
+    { what: 'Chevrolet 4WD', file: 'chevrolet-2026-2027.json', name: '4WD', generic: '4WD' },
+    { what: 'GMC AWD', file: 'gmc-2026-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Buick AWD', file: 'buick-2026-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Cadillac AWD', file: 'cadillac-2026-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Hyundai AWD', file: 'hyundai-2025-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Kia AWD', file: 'kia-2026-2027.json', name: 'AWD', generic: 'AWD' },
+    { what: 'Mercedes Black Leather', file: 'mercedes-2026-2027.json', name: 'Black Leather', generic: 'Black Leather' },
+    { what: 'Audi Black', file: 'audi-2026-2027.json', name: 'Black', generic: 'Black' },
+    { what: 'Subaru BRZ 6-Speed Automatic', file: 'subaru-2026-2027.json', name: '6-Speed Automatic', generic: '6-Speed Automatic' },
+    { what: 'Toyota Tacoma 8-Speed Automatic', file: 'toyota-2026-2027.json', name: '8-Speed Automatic', generic: '8-Speed Automatic' },
+  ];
+  for (const c of CASES) {
+    it(`${c.what}: dropped on a car with no policy, kept on the policy car that sells it`, () => {
+      assert.deepEqual(generic(c.generic), ['junk:vehicle-spec-not-option']);
+      const e = firstEntry(c.file, c.name);
+      assert.ok(e, `${c.name} not found in ${c.file}`);
+      const r = optionRowsForVehicle(ALLOW_ALL, vehicleOf(e), [{ name: c.name }]);
+      assert.deepEqual(r.dropped, []);
+      assert.equal(r.rows.length, 1);
+      assert.equal(r.rows[0].label, e.o.label);
+    });
+  }
+  it('a policy car that does NOT sell AWD on its trim still loses a bare "AWD" line (as standard-or-unknown, not by the junk list)', () => {
+    const e = firstEntry('toyota-2026-2027.json', '4WD');
+    const r = optionRowsForVehicle(ALLOW_ALL, { ...vehicleOf(e), trim: e.trim.label || e.trimKey }, [{ name: 'Heated Mirrors Spec' }]);
+    assert.equal(r.rows.length, 0);
+  });
+  it('the vouching is per trim: a junk-list line next to a vouched one is still dropped on the same policy car', () => {
+    const e = firstEntry('toyota-2026-2027.json', '4WD');
+    const r = optionRowsForVehicle(ALLOW_ALL, vehicleOf(e), [{ name: '4WD' }, { name: 'Priced below KBB Fair Purchase Price!' }, { name: 'Window Tint ($399)' }]);
+    assert.deepEqual(r.rows.map((x) => x.label), [e.o.label]);
+    assert.deepEqual(r.dropped.map((d) => d.rule).sort(), ['junk:dealer-ad-prose', 'junk:dealer-protection-appearance']);
+  });
+  it('the rejected broad patterns stay out: a car with no policy keeps its real appearance / protection packages and feature lines', () => {
+    const keep = ['Lariat Black Appearance Package', 'Z71 Off-Road & Protection Package', 'Theft Deterrent System (Unauthorized Entry)', 'Leather', 'Cloth', 'Anti-Theft Package'];
+    assert.deepEqual(dropped(keep), []);
+    assert.deepEqual(optionRowsFromOptions(keep.map((name) => ({ name }))).rows.map((r) => r.label), keep);
+  });
+});
