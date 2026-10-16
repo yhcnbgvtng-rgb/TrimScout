@@ -263,9 +263,48 @@ export function splitOptionLabel(rawName) {
   return parts.length ? parts : [];
 }
 
+// ---- Global junk list (data-driven; src/optionJunkRules.json) ----------------------------------------
+// Applied at write time to EVERY car's option lines, policy or not: roadside assistance, inspections, warranties, maintenance/service
+// plans, subscriptions and trials, fees, and $0 / standard lines. Off until a compiled list is installed (setJunkRules), so importing this
+// module alone changes nothing. The list is pure data (patterns + one zero-price switch), loaded by factoryOptionAllowlist.js's
+// loadJunkRulesFromEnv; this file stays free of fs so the website bundle is unaffected.
+let activeJunkRules = null;
+
+/** Raw JSON -> { version, rules: [{ name, res }], zeroPrice: { enabled, exemptCodes }, errors }. A pattern that does not compile is skipped and listed in errors. */
+export function compileJunkRules(raw) {
+  const errors = [];
+  const rules = [];
+  for (const r of Array.isArray(raw?.rules) ? raw.rules : []) {
+    const res = [];
+    for (const p of Array.isArray(r?.patterns) ? r.patterns : []) {
+      try { res.push(new RegExp(String(p), "i")); } catch (e) { errors.push(`${r?.name || "?"}: ${p}: ${e.message}`); }
+    }
+    if (r?.name && res.length) rules.push({ name: String(r.name), res });
+  }
+  const z = raw?.zeroPrice || {};
+  const exemptCodes = new Set((Array.isArray(z.exemptCodes) ? z.exemptCodes : []).map((c) => String(c).trim().toUpperCase()));
+  return { version: String(raw?.version || ""), rules, zeroPrice: { enabled: z.enabled === true, exemptCodes }, errors };
+}
+
+export function setJunkRules(compiled) { activeJunkRules = compiled && (compiled.rules?.length || compiled.zeroPrice?.enabled) ? compiled : null; }
+export function getJunkRules() { return activeJunkRules; }
+
+const isExplicitZero = (price) => price === 0 || (typeof price === "string" && /^\$?0+(?:\.0+)?$/.test(price.trim()));
+
+/** The global junk rule one option line trips ("roadside", ..., "zero-price"), or null. `label` is the (already split) text; `option` carries price and code. */
+export function globalJunkRuleFor(label, option, rules = activeJunkRules) {
+  if (!rules) return null;
+  const text = String(label || "").replace(/^[^a-z0-9]+/i, "");
+  for (const r of rules.rules) if (r.res.some((re) => re.test(text))) return r.name;
+  const z = rules.zeroPrice;
+  if (z?.enabled && option && isExplicitZero(option.price) && !z.exemptCodes.has(String(option.code ?? "").trim().toUpperCase())) return "zero-price";
+  return null;
+}
+
 /**
  * @param {unknown} options
- * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null) }} [opts]
+ * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null), protect?: (label: string, option: object) => boolean, junkRules?: object | null }} [opts]
+ *   protect: a line it vouches for (a model-policy entry) is never dropped by the global junk list. junkRules: overrides the installed list (null = none).
  *   resolveKey maps a dealer key to an allowlisted canonical option (factoryOptionAllowlist.js's
  *   resolveAllowlisted, bound to the vehicle's make). A hit stores the canonical key and label so
  *   every dealer spelling of one real option lands on one key; a miss keeps the dealer key as-is
@@ -277,6 +316,8 @@ export function splitOptionLabel(rawName) {
  */
 export function optionRowsFromOptions(options, opts = {}) {
   const resolveKey = typeof opts.resolveKey === "function" ? opts.resolveKey : null;
+  const protect = typeof opts.protect === "function" ? opts.protect : null;
+  const junkRules = "junkRules" in opts ? opts.junkRules : activeJunkRules;
   const byKey = new Map();
   let junkDropped = 0;
   const dropped = []; // { label, rule } for every dropped label — the backfill's per-make report reads this
@@ -304,6 +345,13 @@ export function optionRowsFromOptions(options, opts = {}) {
       let key = normalizeOptionKey(label);
       if (!key) continue;
       const canonical = resolveKey ? resolveKey(key) : null;
+      // Global junk list. A vouched factory option (make allowlist hit, or the caller's protect: a model-policy entry) is never dropped by it.
+      const junkRule = junkRules ? globalJunkRuleFor(part, parts.length === 1 ? o : { ...o, price: null }, junkRules) : null;
+      if (junkRule && !canonical && !(protect && protect(part, o))) {
+        junkDropped++;
+        dropped.push({ label: part, rule: `junk:${junkRule}` });
+        continue;
+      }
       if (canonical) ({ key, label } = canonical);
       if (!byKey.has(key)) byKey.set(key, { key, label, code });
     }

@@ -67,7 +67,11 @@ const PORT = process.env.DEALS_API_PORT || 3004;
 // a JSON file, so until Phase B ships real sticker/brochure data this changes nothing. Loaded once
 // at boot; a bad path is logged and falls back to the heuristic catalog rather than failing boot.
 const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadAllowlistFromEnv();
+import { installJunkRulesFromEnv } from "./factoryOptionAllowlist.js"; // hoisted; kept next to its use so the box patch needs no knowledge of the import line above
 const OPTION_CATALOG_MODE = catalogModeFromEnv();
+// Global write-time junk list (src/optionJunkRules.json; OPTION_JUNK_RULES=off or OPTION_JUNK_RULES_PATH=<file> to change it). Applies to every car, policy or not.
+const OPTION_JUNK_RULES = installJunkRulesFromEnv();
+console.log(OPTION_JUNK_RULES ? `[options] junk rules ${OPTION_JUNK_RULES.version}: ${OPTION_JUNK_RULES.rules.length} rules, zero-price ${OPTION_JUNK_RULES.zeroPrice.enabled ? "on" : "off"}` : "[options] junk rules off");
 if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${optionAllowlistError}); using the heuristic catalog`);
 
 // handleInventoryBulk rewrites a vehicle's factory-option facet rows only when they differ from what is
