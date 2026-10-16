@@ -132,7 +132,9 @@ const verify = async () => {
   const keep = ["Weather Package", "Blind Spot Monitor"];
   const got = names([...junk, ...keep].map((name) => ({ name })));
   if (JSON.stringify(got) !== JSON.stringify(keep)) throw new Error(`junk list check failed: kept ${JSON.stringify(got)}`);
-  if (names([{ name: "Rear Spoiler", price: 0 }, { name: "Roof Rails" }]).join() !== "Roof Rails") throw new Error("zero-price check failed");
+  // The $0 rule follows the shipped switch: off = a $0 line is kept, on = dropped. A vouched line survives either way.
+  const wantZero = compiled.zeroPrice.enabled ? "Roof Rails" : "Rear Spoiler,Roof Rails";
+  if (names([{ name: "Rear Spoiler", price: 0 }, { name: "Roof Rails" }]).join() !== wantZero) throw new Error("zero-price check failed");
   if (names([{ name: "Rear Spoiler", price: 0 }], { resolveKey: (k) => (k === "rear spoiler" ? { key: k, label: "Rear Spoiler" } : null) }).join() !== "Rear Spoiler") throw new Error("vouched line was dropped");
   rows.setJunkRules(null);
   if (names(junk.map((name) => ({ name }))).length !== 3) throw new Error("with no list installed the module must behave as before");
