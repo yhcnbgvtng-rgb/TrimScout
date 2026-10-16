@@ -7,8 +7,11 @@ import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
-import { allowanceOf, applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
-import { BASIS_LABELS, TRADE_ESTIMATE_COPY } from "../lib/trade/types";
+import { applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
+import { TRADE_ESTIMATE_COPY } from "../lib/trade/types";
+import { appraisalForCompare } from "../lib/trade/confirm";
+import { bestDeal, financeAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
+import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { compareCashQuotes, msrpDiscount, otdExcludingAddOns } from "../lib/cashCompare";
 import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
@@ -27,9 +30,11 @@ import { activeOverrides } from "../lib/feeOverride";
  * so a cheap monthly can't hide junk. Cash ranks by out the door.
  * Expired rows grey out; waiting rows show dashes.
  */
-export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; /** Cash / Finance stages: accepting, the trade-in and payment live in the steps above, so no shortcut pick or request-level walk here. */ staged?: boolean; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
+export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_trade", onPick, onWalk, onCounter, busy }: { rfq: RfqRequest; prefs: QuotePrefs; /** Cash / Finance stages: accepting, the trade-in and payment live in the steps above, so no shortcut pick or request-level walk here. */ staged?: boolean; /** Which order the table opens in (the buyer can switch). */ initialSort?: TradeSortMode; onPick: (quoteId: string) => void; onWalk: () => void; onCounter?: (inviteId: string, counter: CounterEditsPayload) => Promise<void>; busy: boolean }) {
   // Which row has the counter sheet open — one at a time.
   const [countering, setCountering] = useState<string | null>(null);
+  // With a trade the table orders on what the buyer pays after it; "Vehicle OTD only" ignores the trade for ordering.
+  const [sort, setSort] = useState<TradeSortMode>(initialSort);
   const collecting = rfq.status === "collecting";
   const finance = prefs.quoteType === "finance";
   const lane = rfq.lane ?? "same_spec";
@@ -46,30 +51,48 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
   // Trade-in lines (request-level trade, per-dealer appraisal). The dealer's own quote is never edited; the trade
   // sits beside it. TODO(tax): no trade-in tax credit; sales tax stays as each dealer quoted it on the full price.
   const trade = rfq.tradeIn ?? null;
-  const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity => tradeEquity(Boolean(trade), trade?.payoffEstimate, r.invite.tradeAppraisal);
+  // The number that counts is the confirmed one once the winner has settled it; before that, or after the buyer went back from a
+  // revision, it is what the desk originally quoted. The allowance dies with the vehicle quote it came with.
+  const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity =>
+    tradeEquity(Boolean(trade), trade?.payoffEstimate, appraisalForCompare(r.invite.tradeAppraisal, r.invite.tradeConfirmation), new Date(), { quoteExpiresAt: r.invite.quote?.expiresAt ?? null, tradeUpdatedAt: trade?.updatedAt ?? null });
   const otdOf = (r: (typeof rows)[number]) => otdBeforeAfter(cashOutTheDoor(r.used!), eqOf(r));
-  // Cash ranks on post-trade OTD (ties: more net equity), so a big trade offset by a higher price can't hide.
-  // Finance keeps its monthly-first order, with the trade shown beside it.
-  const ranked = [...live].sort((a, b) =>
+  const hasTrade = Boolean(trade);
+  const eligibleRow = (r: (typeof rows)[number]) => tradeEligible(eqOf(r));
+  // Cash ranks on post-trade OTD (ties: more net equity), so a big trade offset by a higher price can't hide, and negative equity
+  // can't hide behind a low price. Finance ranks on the monthly its dealer rate and term give on the amount financed after the equity
+  // is applied, then cash due. A desk with no live trade number sorts after the desks that have one and never wears "best deal".
+  const vehicleOrder = (a: (typeof rows)[number], b: (typeof rows)[number]) =>
     finance && a.used!.kind === "finance" && b.used!.kind === "finance"
       ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote)
-      : compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after })
-  );
-  const best = ranked[0] || null;
+      : cashOutTheDoor(a.used as UsedCashQuote) - cashOutTheDoor(b.used as UsedCashQuote);
+  const postTradeOrder = (a: (typeof rows)[number], b: (typeof rows)[number]) => {
+    if (finance && a.used!.kind === "finance" && b.used!.kind === "finance") {
+      const fa = a.used as UsedFinanceQuote, fb = b.used as UsedFinanceQuote;
+      return financeAfterTrade(fa, eqOf(a)).monthly - financeAfterTrade(fb, eqOf(b)).monthly || financeCashDue(fa) - financeCashDue(fb) || fa.amountFinanced - fb.amountFinanced;
+    }
+    return compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after });
+  };
+  const ranked = orderDesks(live, { mode: sort, hasTrade, eligible: eligibleRow, byPostTrade: postTradeOrder, byVehicle: hasTrade && !finance ? vehicleOrder : (a, b) => (finance && a.used!.kind === "finance" && b.used!.kind === "finance" ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote) : compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after })) });
+  const best = bestDeal(ranked, { hasTrade, eligible: eligibleRow });
+  // Badges and gaps only count desks that can be compared on the post-trade basis (all of them when there is no trade).
+  const badgeRows = hasTrade ? live.filter(eligibleRow) : live;
+  const comparedOtd = (r: (typeof rows)[number]) => (hasTrade && sort === "vehicle" ? cashOutTheDoor(r.used as UsedCashQuote) : otdOf(r).after);
   const lowest = (pick: (u: UsedQuote, r: (typeof rows)[number]) => number | null) => {
-    const vals = live.map((r) => pick(r.used!, r)).filter((v): v is number => v != null);
+    const vals = badgeRows.map((r) => pick(r.used!, r)).filter((v): v is number => v != null);
     return vals.length ? Math.min(...vals) : null;
   };
   const bestMonthly = finance ? lowest((u) => (u.kind === "finance" ? u.monthlyPaymentPreTax : null)) : null;
   const bestCashDue = finance ? lowest((u) => (u.kind === "finance" ? financeCashDue(u) : null)) : null;
   const bestOtd = !finance ? lowest((u, r) => (u.kind === "cash" ? otdOf(r).after : null)) : null;
   const bestAfter = finance && trade ? lowest((_u, r) => (eqOf(r).status === "quoted" ? otdOf(r).after : null)) : null;
-  const quotedNets = trade ? live.map((r) => eqOf(r)).filter((e) => e.status === "quoted").map((e) => e.net as number) : [];
+  const quotedNets = trade ? badgeRows.map((r) => eqOf(r)).filter((e) => e.status === "quoted").map((e) => e.net as number) : [];
   const bestNet = quotedNets.length > 1 ? Math.max(...quotedNets) : null;
   // Cash only: best-value picks among the ranked quotes (alternates sit outside `live`, so they never move a badge or a gap).
-  const cashLive = finance ? [] : live.filter((r) => r.used!.kind === "cash");
-  const cmp = compareCashQuotes(cashLive.map((r) => ({ id: r.invite.id, otd: otdOf(r).after, quote: r.used as UsedCashQuote })));
+  const cashLive = finance ? [] : badgeRows.filter((r) => r.used!.kind === "cash");
+  const cmp = compareCashQuotes(cashLive.map((r) => ({ id: r.invite.id, otd: comparedOtd(r), quote: r.used as UsedCashQuote })));
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
+  const bestDealId = best?.invite.id ?? null;
+  const glanceBest = best ?? ranked[0] ?? null;
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
@@ -146,12 +169,7 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
     const vsBest = gap === undefined || cashLive.length < 2 ? null
       : <span className="block text-[10px] font-normal text-ink-muted" data-testid="vs-best">{gap === 0 ? "Lowest quote" : `+${fmtMoney(gap)} vs. best`}</span>;
     const tradeCells: Record<string, React.ReactNode> = trade ? {
-      tradeallow: eq.status === "quoted" && eq.allowance
-        ? <div data-testid="trade-allowance"><span className="font-bold text-white">{eq.allowance.isRange ? `${fmtMoney(eq.allowance.low)} to ${fmtMoney(eq.allowance.high)}` : fmtMoney(eq.allowance.mid)}</span>
-            <span className={`mt-1 block text-[10px] font-bold uppercase ${eq.basis === "firm" ? "text-emerald-300" : "text-amber-200"}`} data-testid="trade-basis">{BASIS_LABELS[eq.basis!]}</span>
-            <span className="block text-[10px] font-normal text-ink-muted">good until {new Date(eq.goodUntil!).toLocaleDateString()}</span></div>
-        : eq.status === "expired" ? <span className="font-bold text-rose-300" data-testid="trade-expired">Trade value expired</span>
-        : <span className="font-bold text-amber-200" data-testid="trade-pending">Trade value pending</span>,
+      tradeallow: <TradeAllowanceCell eq={eq} desk={used ? "quoted" : "waiting"} />,
       payoff: eq.payoff ? fmtMoney(eq.payoff) : <span className="text-ink-muted">None</span>,
       netequity: eq.status !== "quoted" ? <span className="text-ink-muted">—</span>
         : <span className={eq.negative ? "font-bold text-rose-300" : "font-bold text-emerald-300"} data-testid={eq.negative ? "negative-equity" : "positive-equity"}>
@@ -165,12 +183,12 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
           {fmtMoney(otd!.after)}
           {used.kind === "cash" ? vsBest : null}
           {eq.status === "quoted" && eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted">{fmtMoney(otd!.afterLow)} to {fmtMoney(otd!.afterHigh)}</span> : null}
-          {eq.status !== "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{eq.status === "expired" ? "trade expired; not applied" : "trade pending; not applied"}</span> : null}
+          {eq.status !== "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{eq.status === "expired" ? "trade expired; not applied" : eq.status === "declined" ? "no trade quote; not applied" : used ? "no trade quote; not applied" : "trade pending; not applied"}</span> : null}
         </>,
         ...(used.kind === "finance" ? { applied: (() => {
           const a = applyToFinance(eq, used.amountFinanced);
           return a.how === "none" ? <span className="text-ink-muted">{eq.status === "quoted" ? "No equity to apply" : "—"}</span>
-            : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">amount financed {fmtMoney(used.amountFinanced)} → {fmtMoney(a.adjusted)} (your monthly is the dealer&apos;s, not recomputed)</span></span>;
+            : <span data-testid="equity-applied">{a.label}: {fmtMoney(a.amount)}<span className="block text-[10px] text-ink-muted">amount financed {fmtMoney(used.amountFinanced)} → {fmtMoney(a.adjusted)} (your monthly is the dealer&apos;s, not recomputed)</span><span className="block text-[10px] text-ink-muted" data-testid="monthly-after-trade">ranked on ≈ {fmtMoney(financeAfterTrade(used, eq).monthly)}/mo at their rate and term</span></span>;
         })() } : {}),
       } : {}),
     } : {};
@@ -214,6 +232,8 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         <span className="block text-sm font-bold leading-snug text-white">{invite.dealerName}</span>
         <div className="flex flex-wrap items-center gap-1.5">
           {status}
+          {invite.tradeConfirmation?.status === "revised" ? chip("bg-sky-500/15 text-sky-300", "Revised", "revised-chip") : null}
+          {bestDealId === invite.id && !excluded && !expired && quoted > 1 ? chip("bg-brand-500/15 text-brand-300", hasTrade && sort === "post_trade" ? "Best deal after trade" : "Best deal", "badge-best-deal") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestOtd.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest out the door", "badge-lowest-otd") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.biggestDiscount.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Biggest discount", "badge-biggest-discount") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestFees.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest fees", "badge-lowest-fees") : null}
@@ -222,6 +242,8 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         {multiCar && invite.vehicle ? <span className="block text-[11px] font-semibold text-ink-light" data-testid="column-vehicle">{[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}</span> : null}
         {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
         {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
+        {hasTrade && used && !expired && eq.status !== "quoted" && eq.status !== "expired" ? <span className="block text-[10px] text-amber-200" data-testid="no-best-deal-note">{eq.status === "declined" ? "Not in the best-deal ranking: no trade quote." : "Not in the best-deal ranking: no trade quote yet."}</span> : null}
+        <RevisedNote conf={invite.tradeConfirmation} />
         {used?.kind === "cash" && used.counterAccepted ? <span className="block text-[10px] font-bold text-emerald-300" data-testid="counter-accepted-badge">Dealer accepted your counter</span> : null}
         {invite.buyerCounter && invite.status === "invited" ? <span className="block text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
         <span className={`block text-[10px] ${expired ? "text-rose-300" : "text-ink-faint"}`}>{used ? `Expires ${new Date(used.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
@@ -270,19 +292,20 @@ export function UsedCompare({ rfq, prefs, staged = false, onPick, onWalk, onCoun
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light" data-testid="used-glance-none">
           Waiting on {rows.length} dealer{rows.length === 1 ? "" : "s"} — quotes appear here as they reply. Nothing you need to do.
         </p>
-      ) : best ? (
+      ) : glanceBest ? (
         <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3" data-testid="used-glance-best">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{finance ? "Best on monthly, then cash due at signing" : trade ? "Lowest out the door after trade" : "Lowest out the door"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{hasTrade && !best ? "Lowest vehicle out the door. No dealer has given a trade quote yet, so none is ranked best" : finance ? (trade && sort === "post_trade" ? "Best on monthly after trade, then cash due at signing" : "Best on monthly, then cash due at signing") : trade && sort === "post_trade" ? "Lowest out the door after trade" : "Lowest out the door"}</p>
           <p className="text-lg font-extrabold text-white tabular-nums">
-            {finance && best.used!.kind === "finance" ? <>{fmtMoney(best.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(best.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(otdOf(best).after)}
+            {finance && glanceBest.used!.kind === "finance" ? <>{fmtMoney(glanceBest.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(glanceBest.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(comparedOtd(glanceBest))}
           </p>
-          <p className="text-[11px] text-ink-light">{best.invite.dealerName}</p>
+          <p className="text-[11px] text-ink-light">{glanceBest.invite.dealerName}</p>
         </div>
       ) : (
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>
       )}
 
       {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} Sales tax is as each dealer quoted it, on the full price.</p> : null}
+      {trade && quoted > 1 ? <TradeSortToggle mode={sort} onChange={setSort} /> : null}
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
         <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} zip={(finance ? prefs.finance?.zip : prefs.cash?.zip) || ""} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />

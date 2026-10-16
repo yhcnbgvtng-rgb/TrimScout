@@ -8,6 +8,7 @@ import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
 import type { DealStageState } from "./dealStages";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhoto, TradePhotoRequest } from "./trade/types";
+import type { ConfirmAction, TradeConfirmation } from "./trade/confirm";
 import { coerceTradeIn } from "./trade/coerce";
 import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
@@ -19,9 +20,12 @@ const DEFAULT_TIMEOUT_MS = 8000;
 
 export class RfqApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  /** The box's machine-readable reason, when it sent one (e.g. "not_required", "trade_allowance_required"). */
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -74,7 +78,7 @@ async function request(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path
   }
 
   if (!res.ok) {
-    throw new RfqApiError(json?.error || `RFQ request failed (${res.status})`, res.status);
+    throw new RfqApiError(json?.error || `RFQ request failed (${res.status})`, res.status, typeof json?.code === "string" ? json.code : undefined);
   }
   return json;
 }
@@ -327,6 +331,32 @@ export async function putRfqTradePhotos(rfqId: string, photos: TradePhoto[]): Pr
 
 export async function submitTradeAppraisal(rfqId: string, inviteId: string, appraisal: DealerTradeAppraisal): Promise<void> {
   await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-appraisal`, { appraisal });
+}
+
+/** The desk re-affirms its allowance after the buyer changed the trade ("Based on earlier details" clears). */
+export async function reconfirmTradeAppraisal(rfqId: string, inviteId: string): Promise<void> {
+  await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-appraisal`, { reconfirm: true });
+}
+
+export type TradeConfirmActor = "dealer" | "buyer" | "system";
+/** One step of the confirm-or-revise flow (rules: scrapers/lightsail-crawler/src/tradeConfirm.js). Throws RfqApiError with the box's code. */
+export async function actOnTradeConfirmation(
+  rfqId: string, inviteId: string, actor: TradeConfirmActor, action: ConfirmAction | { type: "open" }, config: { thresholdPct: number; deadlineHours: number },
+): Promise<{ rfq: RfqRequest; confirmation: TradeConfirmation }> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/trade-confirmation`, { actor, action, config });
+  return { rfq: asRfq(json.rfq), confirmation: json.confirmation as TradeConfirmation };
+}
+
+/** Writes "expired" for every pending confirmation whose deadline passed; the original number stands. */
+export async function sweepTradeConfirmations(rfqId: string, config: { thresholdPct: number; deadlineHours: number }): Promise<{ rfq: RfqRequest; expiredInviteIds: string[] }> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/trade-confirmations/sweep`, { config });
+  return { rfq: asRfq(json.rfq), expiredInviteIds: (json.expiredInviteIds as string[]) || [] };
+}
+
+export interface TradeAuditRow { id: string; rfqId: string; inviteId: string; actor: string; action: string; from: unknown; to: unknown; detail: unknown; at: string }
+export async function listTradeAudit(rfqId: string): Promise<TradeAuditRow[]> {
+  const json = await request("GET", `/api/rfqs/${rfqId}/trade-audit`);
+  return (json.audit as TradeAuditRow[]) || [];
 }
 
 export async function submitTradePhotoRequest(rfqId: string, inviteId: string, photoRequest: TradePhotoRequest): Promise<void> {

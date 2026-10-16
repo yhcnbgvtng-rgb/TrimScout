@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
 import { coerceLeaseQuote, dueAtSigningTotal, validateLeaseQuote, type LeaseQuote } from "@/lib/leaseQuote";
+import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -27,6 +28,9 @@ export async function POST(req: Request) {
 
   const lease = quote as LeaseQuote;
   const d = lease.dueAtSigning;
+  // A request with a trade-in takes no quote without the desk's trade allowance (or "can't quote this trade").
+  const traded = await recordTradeWithQuote({ rfq, invite: found.invite, body, quoteExpiresAt: lease.expiresAt });
+  if (!traded.ok) return NextResponse.json(traded.body, { status: traded.status });
   await submitRfqQuote(found.rfqId, found.invite.id, {
     // Older readers see a number: the monthly and the itemized due-at-signing.
     price: lease.monthlyPaymentPreTax,

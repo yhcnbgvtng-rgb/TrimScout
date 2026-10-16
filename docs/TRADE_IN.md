@@ -29,11 +29,10 @@ Storage: private S3 (`scripts/aws/trade-photos-bucket.sh`), `trade/{quoteRequest
 request, per buyer and per IP. Buyers can replace/add photos until they pick a quote; invited dealers get one notice per batch.
 
 ## Dealer side (only when a trade was sent)
-Read-only summary + labelled gallery with lightbox and a "6/6 required photos" chip, then: trade allowance (one number **or**
-low/high), valuation basis (**Preliminary** default, or **Firm** if the car matches the description and photos), good-until
-(defaults to the vehicle quote's expiry), lien payoff confirmation with live equity (allowance − payoff, positive or negative),
-optional conditions, and "Request more photos" (optional slots and/or a note; one open in-app request per desk; the core six are
-never requestable). An allowance more than 50% off a value guide needs confirmation, but **only if** `TRADE_GUIDE_API_URL` is set.
+Read-only summary + labelled gallery with lightbox and a "6/6 required photos" chip. The trade allowance is **part of the vehicle quote**
+(required, or "Can't quote this trade"); see [TRADE_QUOTE_CONFIRM.md](TRADE_QUOTE_CONFIRM.md) for the allowance fields, the compare, and the
+winner's confirm-or-revise step. "Request more photos" (optional slots and/or a note; one open in-app request per desk; the core six are
+never requestable) is unchanged. An allowance more than 50% off a value guide needs confirmation, but **only if** `TRADE_GUIDE_API_URL` is set.
 
 ## How equity flows into each deal type
 `net equity = allowance − payoff` (a range uses the midpoint for ranking and shows low/high). Sales tax is whatever each dealer

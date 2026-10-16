@@ -6,6 +6,7 @@ import { publicRfqForBuyer } from "@/lib/rfq";
 import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
 import { recheckPendingStickers } from "@/lib/stickerRecheck";
 import { drainQueuedInvites, queuedInvitesOf } from "@/lib/inviteOutbox";
+import { settleAndCloseOut, sweepIfDue } from "@/lib/trade/confirmFlow";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -14,8 +15,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
   const { id } = await params;
   try {
-    const rfq = await getRfq(id);
+    let rfq = await getRfq(id);
     if (!rfq) return NextResponse.json({ error: "RFQ not found." }, { status: 404 });
+    // A trade-confirm deadline that passed while nobody was looking is written now: the dealer's original number stands, and
+    // the other dealers are told once. Cheap: the box is only called when a pending confirmation is actually past due.
+    const swept = await sweepIfDue(rfq);
+    if (swept.settledInviteIds.length) {
+      rfq = swept.rfq;
+      const winners = swept.settledInviteIds;
+      after(async () => { for (const w of winners) await settleAndCloseOut(id, w); });
+    }
     // The owner, or an admin (the all-requests desk opens any deal read-only;
     // pick / walk / edits stay owner-only).
     const viewer = buyerForRfq(session, req, rfq);

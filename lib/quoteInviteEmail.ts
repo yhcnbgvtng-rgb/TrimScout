@@ -168,7 +168,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
         ${row("Rooftop", rooftopLine(input))}
         ${input.buyerNote ? row("Buyer says", `<span style="font-weight:400;white-space:pre-wrap">${escapeHtml(input.buyerNote)}</span>`) : ""}
-        ${input.tradeInIncluded ? row("Trade-in", `Included <span style="font-weight:400;color:#475569">— details and 6 photos are on your quote page; appraise it there as its own line, separate from your quote on the car</span>`) : input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
+        ${input.tradeInIncluded ? row("Trade-in", `Included <span style="font-weight:400;color:#475569">— details and 6 photos are on your quote page. Give your trade allowance with your quote there (it's part of the price the buyer compares and the quote can't be sent without it, or without a reason you can't quote it)</span>`) : input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>
@@ -272,7 +272,7 @@ export function tradePhotosUpdatedHtml(input: TradePhotosUpdatedEmailInput): str
     ${emailHeader()}
     <p style="font-size:15px">Hi ${escapeHtml(greetingName(input.contactName))},</p>
     <p>The buyer updated the photos of their trade-in (<strong>${escapeHtml(input.tradeTitle)}</strong>) on the request for the ${escapeHtml(car)}${input.dealReference ? `, ref ${escapeHtml(input.dealReference)}` : ""}.</p>
-    <p>Open your quote page to see the current photos and update your trade appraisal if it changes. You'll get this notice once per batch of changes, not one per photo. There is nothing to reply to by email.</p>
+    <p>Open your quote page to see the current photos and update your trade allowance if it changes. You'll get this notice once per batch of changes, not one per photo. There is nothing to reply to by email.</p>
     <p style="margin:18px 0"><a href="${escapeHtml(input.viewUrl)}" style="background:#2A6B53;color:#ffffff;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none">Open the quote page</a></p>
     <p style="font-size:12px;color:#64748b">We pass messages between you and the buyer without sharing their email. Replies come back through TrimScout.</p>
   </div>`;

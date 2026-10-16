@@ -20,6 +20,7 @@ import {
   residualAmountFrom,
 } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
+import type { TradeQuoteForm } from "./trade/useDealerTrade";
 
 /**
  * The dealer's lease calculator — the only way a quote gets in. Laid out
@@ -69,12 +70,15 @@ export function LeaseCalculatorForm({
   prefs,
   initial = null,
   counterSheet = null,
+  trade = null,
   onSubmitted,
 }: {
   token: string;
   vin: string;
   stockNumber: string | null;
   prefs: LeaseRequestPrefs;
+  /** The trade allowance that rides with this quote (set when the buyer included a trade-in): the quote can't be sent without it. */
+  trade?: TradeQuoteForm | null;
   /** A prior quote to prefill from (the dealer revising after a buyer counter). */
   initial?: LeaseQuote | null;
   /** The buyer's counter being answered — a price change makes the dealer update or confirm sales tax first. */
@@ -196,13 +200,20 @@ export function LeaseCalculatorForm({
     if (errors.length) return;
     setBusy(true);
     try {
+      let tradeBody: Record<string, unknown> | null = null;
+      if (trade?.hasTrade) {
+        const c = trade.check(quote.expiresAt || null);
+        if (!c.ok) { setServerError(c.errors.join(" ")); return; }
+        tradeBody = c.trade;
+      }
       const res = await fetch("/api/quote-invite/lease-quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote }),
+        body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote, ...(tradeBody ? { trade: tradeBody } : {}) }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
+        trade?.onReject(json);
         setServerError(Array.isArray(json.errors) && json.errors.length ? json.errors.join(" ") : json.error || "Could not submit the quote.");
         return;
       }
@@ -502,7 +513,9 @@ export function LeaseCalculatorForm({
         </ul>
       ) : null}
 
-      <button type="button" onClick={submit} disabled={busy} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
+      {trade?.slot}
+      {trade?.hasTrade && !trade.ready ? <p className="text-[11px] text-amber-200" data-testid="trade-required-hint">Add your trade allowance (or choose &ldquo;Can&apos;t quote this trade&rdquo;) to send this quote. The trade is part of the price.</p> : null}
+      <button type="button" onClick={submit} disabled={busy || Boolean(trade?.hasTrade && !trade.ready)} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50" data-testid="submit-quote">
         {busy ? "Submitting…" : "Submit lease quote"}
       </button>
     </div>

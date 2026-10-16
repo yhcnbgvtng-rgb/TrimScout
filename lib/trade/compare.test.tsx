@@ -41,9 +41,9 @@ describe("cash compare with a trade", () => {
     assert.match(rowHtml(html, "netequity"), /text-emerald-300[^>]*data-testid="positive-equity"[^>]*>\+\$12,000/);
     assert.match(rowHtml(html, "otdbefore"), /\$43,145/); assert.match(rowHtml(html, "otdafter"), /\$31,145/);
   });
-  it("a pending dealer says so and keeps their total; tax is untouched", () => {
-    assert.match(rowHtml(html, "tradeallow"), /Trade value pending/);
-    assert.match(rowHtml(html, "otdafter"), /\$42,612[\s\S]*trade pending; not applied/);
+  it("a quoted dealer with no trade number says \"No trade quote\" and keeps their total; tax is untouched", () => {
+    assert.match(rowHtml(html, "tradeallow"), /No trade quote/);
+    assert.match(rowHtml(html, "otdafter"), /\$42,612[\s\S]*no trade quote; not applied/);
     assert.match(rowHtml(html, "tax"), /\$2,650/); assert.match(rowHtml(html, "tax"), /\$2,617/);
   });
   it("labels Firm, shows a range, and flags negative equity in red", () => {
@@ -88,7 +88,7 @@ describe("finance and lease: how equity is applied", () => {
     const l = labels(html); const i = l.indexOf("Rebates / credits");
     assert.deepEqual(l.slice(i + 1, i + 5), ["Trade-in allowance", "Payoff to lender", "Net trade equity", "How equity is applied"]);
     assert.match(html, /Equity applied as cap cost reduction: \$12,000[\s\S]*cap cost \$50,000 → \$38,000/);
-    assert.match(html, /Trade value pending/);
+    assert.match(html, /No trade quote/);
   });
 });
 

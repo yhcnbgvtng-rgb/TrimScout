@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getRfq, RfqApiError, submitRfqQuote } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { coerceLeaseQuote, validateLeaseQuote, type LeaseQuote } from "@/lib/leaseQuote";
+import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
   const session = await auth();
@@ -36,6 +37,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       if (v.errors.length) return NextResponse.json({ error: v.errors.join(" "), errors: v.errors, warnings: v.warnings }, { status: 422 });
       const lease = quote as LeaseQuote;
       const d = lease.dueAtSigning;
+      const leaseTrade = await recordTradeWithQuote({ rfq, invite: rfq.invites.find((i) => i.id === inviteId) ?? { id: inviteId, tradeAppraisal: null }, body, quoteExpiresAt: lease.expiresAt });
+      if (!leaseTrade.ok) return NextResponse.json(leaseTrade.body, { status: leaseTrade.status });
       await submitRfqQuote(id, inviteId, {
         price: lease.monthlyPaymentPreTax,
         fees: [
@@ -55,6 +58,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const refreshedLease = await getRfq(id);
       return NextResponse.json({ rfq: refreshedLease ? publicRfqForBuyer(refreshedLease) : null, warnings: v.warnings });
     }
+    const plainTrade = await recordTradeWithQuote({ rfq, invite: rfq.invites.find((i) => i.id === inviteId) ?? { id: inviteId, tradeAppraisal: null }, body, quoteExpiresAt: typeof body.expiresAt === "string" ? body.expiresAt : null });
+    if (!plainTrade.ok) return NextResponse.json(plainTrade.body, { status: plainTrade.status });
     await submitRfqQuote(id, inviteId, {
       price: Number(body.price),
       fees: Array.isArray(body.fees) ? body.fees : [],

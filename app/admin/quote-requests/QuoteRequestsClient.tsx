@@ -7,6 +7,7 @@ import type { AdminRfq } from "../../api/admin/rfqs/route";
 import { DESK_ROLE_LABELS, inviteStage } from "../../../lib/quotePackage";
 import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary } from "../../../lib/rfqTracker";
 import { dueAtSigningTotal } from "../../../lib/leaseQuote";
+import TradeHonestyPanel from "./TradeHonestyPanel";
 
 /**
  * The master desk: every quote request, every buyer, every invited dealer —
@@ -98,6 +99,8 @@ export default function QuoteRequestsClient() {
         <p className="rounded-xl border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-200">
           <strong>Master desk.</strong> Every buyer&apos;s request in every status — pending review, not released, awaiting quotes, quotes in, closed — and every invited dealer. Decisions happen on <Link href="/admin/approvals" className="font-bold underline">Pending approvals</Link>. <em>Quote as dealer</em> opens that desk&apos;s own calculator page — a real dealer view: it marks the invite viewed and locks the buyer&apos;s lease sheet, exactly as if the dealer had opened their email.
         </p>
+
+        <TradeHonestyPanel />
 
         <div className="flex flex-wrap items-center gap-2" data-testid="status-filters">
           {FILTERS.map((f) => (

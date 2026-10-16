@@ -304,6 +304,17 @@ export async function sendDealStageNotice(notice: { subject: string; html: strin
   }
 }
 
+/** Sends a trade-confirmation notice (lib/tradeConfirmNotice.ts) through the SAFE MODE sender. Never throws: the step is already saved. */
+export async function sendTradeConfirmNotice(notice: { subject: string; html: string } | null): Promise<boolean> {
+  if (!notice) return false;
+  try {
+    return await sendViaResend(notice.subject, notice.html);
+  } catch (err) {
+    console.error("dealerEmail: trade-confirm notice send failed —", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
 /** Sends the "dealer adjusted a fee" notice (lib/feeOverrideNotice.ts) through the SAFE MODE sender. Never throws: the quote is already saved. */
 export async function sendFeeOverrideNotice(notice: { subject: string; html: string } | null): Promise<boolean> {
   if (!notice) return false;
