@@ -110,3 +110,8 @@ Box2 numbers: none taken for this change (no box access was used). The measured 
 - No file change: restart with `OPTION_JUNK_RULES=off` (check with the `pm2 jlist` line above). Behaviour is exactly the pre-patch behaviour.
 - Files back: `cp -p` the three `.bak.<timestamp>` files over `inventoryOptionRows.js`, `factoryOptionAllowlist.js`, `deals_api_server.js`, remove `optionJunkRules.json` (or restore its `.bak`), restart.
 - Rows already written stay as written; nothing in the patch deletes data.
+
+### Exemptions, rewrites and the Hyundai policy (follow-up to #544, code only)
+
+- `optionJunkRules.json` gained `exemptions` (labels the list never drops: `Roadside Assistance Kit`, `scheduled maintenance indicators`) and `rewrites` (a SiriusXM trial / introductory / subscription line becomes the plain option **SiriusXM**, before any drop rule looks at it; paid extras such as "Extended Service Subscription" and "Traffic and Travel Link Subscription" are not rewritten). Both are data: edit the file and restart. With the list off, nothing is rewritten and nothing is exempt (the old legacy rules apply as before; note the legacy deny rule `trial subscription` already drops most SiriusXM trial lines today).
+- The box patch (`scripts/box/2026-10-16-option-junk-write-path.mjs`) now also checks, in its dry run, whether `optionPolicies/hyundai-2025-2027.json` is installed and whether it is in the live `OPTION_MODEL_POLICY_PATH` (read-only `pm2 jlist`, or `--policy-env=<value>`). `--apply` installs it (backing up a different one), writes the new full path to `optionPolicies/OPTION_MODEL_POLICY_PATH.next`, and prints the restart line; the path takes effect only at the restart, which the script never runs.

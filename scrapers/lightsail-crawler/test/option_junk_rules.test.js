@@ -154,3 +154,64 @@ describe('the list is data: change the file, change the behaviour, no code', () 
     assert.match(src, /pol \|\| optionRowsFromOptions\(v\.options/);
   });
 });
+
+describe('exemptions: real equipment that looks like a category', () => {
+  const rules = compileJunkRules(JSON.parse(fs.readFileSync(RULES_FILE, 'utf8')));
+  const kept = (names, o = {}) => optionRowsFromOptions(names.map((name) => ({ name })), { junkRules: rules, ...o }).rows.map((r) => r.label);
+  it('"Roadside Assistance Kit" (a physical kit) is kept; the plan lines beside it are still dropped', () => {
+    assert.deepEqual(kept(['Roadside Assistance Kit', '* Roadside Assistance', 'Roadside Assistance for 7 Year / 100', '1yr Roadside Assistance']), ['Roadside Assistance Kit']);
+    assert.equal(globalJunkRuleFor('* Roadside Assistance Kit', {}, rules), null);
+  });
+  it('"scheduled maintenance indicators" (an instrument-cluster feature) is kept; maintenance plans are still dropped', () => {
+    assert.deepEqual(kept(['shift-position and scheduled maintenance indicators', 'Complimentary Scheduled Maintenance', 'Prepaid Service Plan', 'Fresh Oil Change']), ['shift-position and scheduled maintenance indicators']);
+  });
+  it('an exemption is exact: it does not shelter a neighbouring plan line', () => {
+    assert.equal(globalJunkRuleFor('Roadside Assistance for 7 Years', {}, rules), 'roadside');
+    assert.equal(globalJunkRuleFor('Scheduled Maintenance Plan', {}, rules), 'maintenance-service-plan');
+  });
+  it('with no list installed the module is unchanged: the kit is kept and the plan too (nothing drops either)', () => {
+    assert.deepEqual(optionRowsFromOptions([{ name: 'Roadside Assistance Kit' }, { name: 'Roadside Assistance' }], { junkRules: null }).rows.map((r) => r.label), ['Roadside Assistance Kit', 'Roadside Assistance']);
+  });
+  it('exemptions and rewrites are data: a custom file can add one', () => {
+    const c = compileJunkRules({ rules: [{ name: 'roadside', patterns: ['roadside'] }], exemptions: [{ name: 'x', patterns: ['roadside flare'] }], rewrites: [{ name: 'r', pattern: '^foo', to: 'Bar' }, { name: 'bad', pattern: '(', to: 'x' }] });
+    assert.equal(c.errors.length, 1);
+    assert.deepEqual(optionRowsFromOptions([{ name: 'Roadside Flare Set' }, { name: 'Roadside Plan' }, { name: 'Foo Package' }], { junkRules: c }).rows.map((r) => r.label), ['Roadside Flare Set', 'Bar']);
+  });
+});
+
+describe('SiriusXM trial-subscription lines become "SiriusXM"', () => {
+  const rules = compileJunkRules(JSON.parse(fs.readFileSync(RULES_FILE, 'utf8')));
+  const TRIAL = ['SiriusXM with 360L Trial Subscription', 'SiriusXM Trial Subscription', 'SiriusXM® 3-month trial subscription', 'SiriusXM with 360L and 1 Year Trial Subscription',
+    'SiriusXM satellite radio system (3-month trial subscription)', '3 month Sirius trial subscription', 'SiriusXM Trial Subscription With your trial subscription', '* SiriusXM 3 Month Trial Subscription'];
+  for (const label of TRIAL) it(`"${label}" -> SiriusXM`, () => {
+    const r = optionRowsFromOptions([{ name: label }], { junkRules: rules });
+    assert.deepEqual(r.rows.map((x) => [x.key, x.label]), [['siriusxm', 'SiriusXM']]);
+    assert.equal(r.junkDropped, 0);
+    assert.deepEqual(r.repaired.map((x) => x.to), ['SiriusXM']);
+  });
+  it('introductory / "1 Year Subscription" wording is the same option; paid extras are NOT rewritten and stay junk', () => {
+    assert.deepEqual(optionRowsFromOptions([{ name: '3-month SiriusXM introductory subscription**' }, { name: 'SiriusXM Satellite Radio w/1 Year Subscription' }], { junkRules: rules }).rows.map((r) => r.label), ['SiriusXM']);
+    const paidExtras = optionRowsFromOptions([{ name: '33 Month SiriusXM Extended Service Subscription', price: 495 }, { name: 'SiriusXM 3 Year Traffic and Travel Link Subscription' }], { junkRules: rules });
+    assert.deepEqual(paidExtras.rows, []);
+    assert.deepEqual(paidExtras.dropped.map((d) => d.rule), ['junk:warranty', 'junk:subscription-trial']);
+  });
+  it('many spellings on one car are ONE option', () => assert.equal(optionRowsFromOptions(TRIAL.map((name) => ({ name })), { junkRules: rules }).rows.length, 1));
+  it('a car that lists the plain option too still has one row, and keeps the first code', () => {
+    assert.deepEqual(optionRowsFromOptions([{ name: 'SiriusXM Trial Subscription', code: 'X1' }, { name: 'SiriusXM' }], { junkRules: rules }).rows, [{ key: 'siriusxm', label: 'SiriusXM', code: 'X1' }]);
+  });
+  it('other SiriusXM lines and other trials are untouched: the plain option stays as written, a connected-services trial is still dropped', () => {
+    assert.deepEqual(optionRowsFromOptions([{ name: 'SiriusXM Satellite Radio' }, { name: 'SiriusXM w/360L' }, { name: 'vehicle connect services (1-year trial)' }, { name: 'Free trial of Connected Services' }], { junkRules: rules }).rows.map((r) => r.label), ['SiriusXM Satellite Radio', 'SiriusXM w/360L']);
+  });
+  it('with no list installed nothing is rewritten (the legacy deny rule still drops the trial line, as before)', () => {
+    assert.deepEqual(optionRowsFromOptions([{ name: 'SiriusXM Trial Subscription' }], { junkRules: null }).rows, []);
+  });
+  it('on a model-policy car the rewritten "SiriusXM" is judged by the policy like any other line (never by the trial wording)', () => {
+    const RAV4 = buildAllowlist(null, JSON.parse(fs.readFileSync(path.join(here, '../src/optionPolicies/toyota-rav4-2026.json'), 'utf8')));
+    setJunkRules(rules);
+    try {
+      const r = optionRowsForVehicle(RAV4, { make: 'Toyota', model: 'RAV4', year: 2026, trim: 'SE' }, [{ name: 'SiriusXM Trial Subscription' }, { name: 'Weather Package', price: 375 }]);
+      assert.deepEqual(r.rows.map((x) => x.label), ['Weather Package']);
+      assert.ok(r.dropped.some((d) => d.label === 'SiriusXM' && d.rule === 'standard-or-unknown'));
+    } finally { setJunkRules(null); }
+  });
+});

@@ -270,7 +270,12 @@ export function splitOptionLabel(rawName) {
 // loadJunkRulesFromEnv; this file stays free of fs so the website bundle is unaffected.
 let activeJunkRules = null;
 
-/** Raw JSON -> { version, rules: [{ name, res }], zeroPrice: { enabled, exemptCodes }, errors }. A pattern that does not compile is skipped and listed in errors. */
+/**
+ * Raw JSON -> { version, rules: [{ name, res }], exemptions: [{ name, res }], rewrites: [{ name, re, to }], zeroPrice: { enabled, exemptCodes }, errors }.
+ * exemptions: a label matching one is never dropped by the list (the lines look like a category but are real equipment, e.g. "Roadside Assistance Kit").
+ * rewrites: a label matching one is replaced by `to` BEFORE any drop rule runs (a SiriusXM trial-subscription line is the SiriusXM option, not junk).
+ * A pattern that does not compile is skipped and listed in errors.
+ */
 export function compileJunkRules(raw) {
   const errors = [];
   const rules = [];
@@ -281,19 +286,48 @@ export function compileJunkRules(raw) {
     }
     if (r?.name && res.length) rules.push({ name: String(r.name), res });
   }
+  const exemptions = [];
+  for (const x of Array.isArray(raw?.exemptions) ? raw.exemptions : []) {
+    const res = [];
+    for (const p of Array.isArray(x?.patterns) ? x.patterns : []) {
+      try { res.push(new RegExp(String(p), "i")); } catch (e) { errors.push(`exemption ${x?.name || "?"}: ${p}: ${e.message}`); }
+    }
+    if (x?.name && res.length) exemptions.push({ name: String(x.name), res });
+  }
+  const rewrites = [];
+  for (const w of Array.isArray(raw?.rewrites) ? raw.rewrites : []) {
+    try { if (w?.name && w.pattern && typeof w.to === "string" && w.to.trim()) rewrites.push({ name: String(w.name), re: new RegExp(String(w.pattern), "i"), to: w.to.trim() }); } catch (e) { errors.push(`rewrite ${w?.name || "?"}: ${w?.pattern}: ${e.message}`); }
+  }
   const z = raw?.zeroPrice || {};
   const exemptCodes = new Set((Array.isArray(z.exemptCodes) ? z.exemptCodes : []).map((c) => String(c).trim().toUpperCase()));
-  return { version: String(raw?.version || ""), rules, zeroPrice: { enabled: z.enabled === true, exemptCodes }, errors };
+  return { version: String(raw?.version || ""), rules, exemptions, rewrites, zeroPrice: { enabled: z.enabled === true, exemptCodes }, errors };
 }
 
-export function setJunkRules(compiled) { activeJunkRules = compiled && (compiled.rules?.length || compiled.zeroPrice?.enabled) ? compiled : null; }
+export function setJunkRules(compiled) { activeJunkRules = compiled && (compiled.rules?.length || compiled.rewrites?.length || compiled.zeroPrice?.enabled) ? compiled : null; }
 export function getJunkRules() { return activeJunkRules; }
 
 const isExplicitZero = (price) => price === 0 || (typeof price === "string" && /^\$?0+(?:\.0+)?$/.test(price.trim()));
 
+/** The label with the first matching rewrite applied ("SiriusXM with 360L Trial Subscription" -> "SiriusXM"), or the label unchanged. */
+export function rewriteOptionLabel(label, rules = activeJunkRules) {
+  if (!rules?.rewrites?.length) return label;
+  const text = String(label || "").replace(/^[^a-z0-9]+/i, "");
+  for (const w of rules.rewrites) if (w.re.test(text)) return w.to;
+  return label;
+}
+
+/** The exemption a label falls under, or null. */
+export function junkExemptionFor(label, rules = activeJunkRules) {
+  if (!rules?.exemptions?.length) return null;
+  const text = String(label || "").replace(/^[^a-z0-9]+/i, "");
+  for (const x of rules.exemptions) if (x.res.some((re) => re.test(text))) return x.name;
+  return null;
+}
+
 /** The global junk rule one option line trips ("roadside", ..., "zero-price"), or null. `label` is the (already split) text; `option` carries price and code. */
 export function globalJunkRuleFor(label, option, rules = activeJunkRules) {
   if (!rules) return null;
+  if (junkExemptionFor(label, rules)) return null;
   const text = String(label || "").replace(/^[^a-z0-9]+/i, "");
   for (const r of rules.rules) if (r.res.some((re) => re.test(text))) return r.name;
   const z = rules.zeroPrice;
@@ -331,7 +365,9 @@ export function optionRowsFromOptions(options, opts = {}) {
     // joined list, where it can't be attributed to any one of them.
     const code = parts.length === 1 ? str(o.code, 32) : null;
     for (const rawPart of parts) {
-      const part = repairTruncatedLabel(rawPart);
+      const repairedPart = repairTruncatedLabel(rawPart);
+      // A label the list rewrites (SiriusXM trial-subscription -> SiriusXM) is rewritten before ANY drop rule looks at it.
+      const part = junkRules ? rewriteOptionLabel(repairedPart, junkRules) : repairedPart;
       if (part !== rawPart) repaired.push({ from: rawPart, to: part });
       // Checked on the raw, pre-truncation text — see looksLikeOptionSentence's own length note.
       if (looksLikeOptionSentence(part) || looksLikeNonOptionText(part)) {
