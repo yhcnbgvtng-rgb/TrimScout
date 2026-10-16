@@ -115,3 +115,73 @@ Box2 numbers: none taken for this change (no box access was used). The measured 
 
 - `optionJunkRules.json` gained `exemptions` (labels the list never drops: `Roadside Assistance Kit`, `scheduled maintenance indicators`) and `rewrites` (a SiriusXM trial / introductory / subscription line becomes the plain option **SiriusXM**, before any drop rule looks at it; paid extras such as "Extended Service Subscription" and "Traffic and Travel Link Subscription" are not rewritten). Both are data: edit the file and restart. With the list off, nothing is rewritten and nothing is exempt (the old legacy rules apply as before; note the legacy deny rule `trial subscription` already drops most SiriusXM trial lines today).
 - The box patch (`scripts/box/2026-10-16-option-junk-write-path.mjs`) now also checks, in its dry run, whether `optionPolicies/hyundai-2025-2027.json` is installed and whether it is in the live `OPTION_MODEL_POLICY_PATH` (read-only `pm2 jlist`, or `--policy-env=<value>`). `--apply` installs it (backing up a different one), writes the new full path to `optionPolicies/OPTION_MODEL_POLICY_PATH.next`, and prints the restart line; the path takes effect only at the restart, which the script never runs.
+
+### Midday idle-window deploy: the three new rules and the Hyundai policy, one restart (box2; Paul's typed GO first; nothing here was run)
+
+State read-only on box2 at 21:52 EDT on 2026-10-15: the box patch was applied at 21:01 and deals-api restarted once at 21:01:54, so the **7-rule list is already live** (boot log `junk rules 2026-10-16: 7 rules, zero-price off`). Live `OPTION_MODEL_POLICY_PATH` has 15 entries and no Hyundai. `optionPolicies/hyundai-2025-2027.json` is installed (md5 `af196f491415944fa4d67df863a0590b`, same as the repo) and `optionPolicies/OPTION_MODEL_POLICY_PATH.next` holds the 16-entry path (the 15 plus Hyundai last). The box's `optionJunkRules.json` is md5 `6eb573fc079a4b8d7cea57201e99ff2c`. #548 is merged (ac81a35); the new file in `main` is md5 `200fdf0a7ec7d603a6c08eb42a03fff9`, version `2026-10-16.2`, 10 rules. The box patch is NOT re-run: the engine and anchors are already on the box; only the data file and the env change.
+
+This deploy changes two things at one restart: the rules file (7 -> 10 rules) and the policy path (+ Hyundai). Nothing is applied to stored rows; cars pick both up the next time they are written or re-synced.
+
+1. **Idle check** (same as the first section of this doc, twice, two minutes apart; not from 22:00 to the end of the syncs):
+   ```bash
+   sudo mysql -e "SELECT id,time,state,LEFT(info,90) FROM information_schema.processlist WHERE command<>'Sleep'"
+   grep '\[sync-lock\]' ~/.pm2/logs/deals-api-out*.log | tail -2        # last event must be a release
+   ```
+2. **Backup first** (records the live rules file, the pm2 dump and the live policy path as they are now):
+   ```bash
+   BK=~/backups/junk-rules-$(date +%Y%m%d-%H%M) && mkdir -p $BK && echo "BK=$BK"
+   cp -p /opt/trimscout-deals/src/optionJunkRules.json $BK/optionJunkRules.json
+   cp -p ~/.pm2/dump.pm2 $BK/dump.pm2.pre
+   pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).find(x=>x.name==="deals-api").pm2_env.OPTION_MODEL_POLICY_PATH||""))' > $BK/policy-path.pre
+   (cd $BK && md5sum optionJunkRules.json dump.pm2.pre policy-path.pre | tee md5s.txt)
+   tr ',' '\n' < $BK/policy-path.pre | wc -l        # must print 15
+   ```
+   `optionJunkRules.json` must show `6eb573fc079a4b8d7cea57201e99ff2c`. Keep the printed `BK=` line: the restore command needs it.
+3. **Fetch the new file and check it before anything is live** (no restart, live file untouched):
+   ```bash
+   B=https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main
+   curl -fsSL -o $BK/optionJunkRules.new.json "$B/scrapers/lightsail-crawler/src/optionJunkRules.json?cb=$(date +%s)"
+   md5sum $BK/optionJunkRules.new.json              # must be 200fdf0a7ec7d603a6c08eb42a03fff9
+   md5sum /opt/trimscout-deals/src/optionPolicies/hyundai-2025-2027.json    # must be af196f491415944fa4d67df863a0590b
+   N=/opt/trimscout-deals/src/optionPolicies/OPTION_MODEL_POLICY_PATH.next
+   tr ',' '\n' < $N | wc -l                         # must print 16
+   for f in $(tr ',' ' ' < $N); do test -s "$f" || echo "MISSING $f"; done      # must print nothing
+   node --input-type=module -e '
+   import fs from "node:fs";
+   const m = await import("/opt/trimscout-deals/src/inventoryOptionRows.js");
+   const c = m.compileJunkRules(JSON.parse(fs.readFileSync(process.argv[1], "utf8")));
+   const t = (l) => m.globalJunkRuleFor(l, {}, c);
+   const ok = c.errors.length === 0 && c.rules.length === 10 && c.version === "2026-10-16.2"
+     && t("Roadside Assistance") === "roadside" && t("Priced below KBB Fair Purchase Price!") === "dealer-ad-prose"
+     && t("4D Sport Utility") === "vehicle-spec-not-option" && t("Paint Protection Film") === "dealer-protection-appearance"
+     && t("Lariat Black Appearance Package") === null && t("Z71 Off-Road & Protection Package") === null && t("Anti-Theft Package") === null;
+   console.log(ok ? "RULES OK" : "RULES BAD", c.errors, c.rules.length);
+   process.exit(ok ? 0 : 1)' $BK/optionJunkRules.new.json
+   ```
+   Stop here unless it prints `RULES OK`.
+4. **Install the file** (takes effect only at the restart):
+   ```bash
+   S=/opt/trimscout-deals/src
+   cp $BK/optionJunkRules.new.json $S/optionJunkRules.json.tmp && chmod 664 $S/optionJunkRules.json.tmp && mv -f $S/optionJunkRules.json.tmp $S/optionJunkRules.json
+   md5sum $S/optionJunkRules.json                   # 200fdf0a7ec7d603a6c08eb42a03fff9
+   ```
+5. **One restart**, with the `.next` path and `--update-env` (keep `DISABLE_FACET_REBUILD=1`):
+   ```bash
+   DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH="$(cat $N)" pm2 restart deals-api --update-env && pm2 save
+   pm2 jlist | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s).find(x=>x.name==="deals-api").pm2_env;const v=p.OPTION_MODEL_POLICY_PATH.split(",");console.log("DISABLE_FACET_REBUILD",p.DISABLE_FACET_REBUILD,"policy entries",v.length,"last",v[v.length-1].split("/").pop(),"JUNK_OFF",p.OPTION_JUNK_RULES)})'
+   ```
+   Expected: `DISABLE_FACET_REBUILD 1 policy entries 16 last hyundai-2025-2027.json JUNK_OFF undefined`.
+6. **Verify** (after the process is up, about 30 seconds):
+   ```bash
+   pm2 logs deals-api --lines 80 --nostream | grep -E '\[options\]'
+   ```
+   Must show `[options] junk rules 2026-10-16.2: 10 rules, zero-price off`, and must NOT show `junk rules not loaded` or `allowlist not loaded`. Then the same API check as above: `curl -s -H "X-Trimscout-Api-Key: $TRIMSCOUT_API_KEY" "localhost:3004/api/inventory?limit=1"` returns 200 with a car, and the Honda response saved in step 2 of the first section is unchanged (except nightly fields). The restart clears the in-memory sync lock: nothing holds it now; any later apply script takes it fresh.
+7. **Not part of this deploy**: no apply scripts, no facet rebuild, no re-sync. The FEATURE-row drop is not in the code.
+
+**Restore** (the rules file and the policy path back to exactly what the backup holds; use the `BK=` directory printed in step 2):
+```bash
+BK=~/backups/junk-rules-YYYYMMDD-HHMM      # the directory step 2 printed
+cp -p $BK/optionJunkRules.json /opt/trimscout-deals/src/optionJunkRules.json && md5sum /opt/trimscout-deals/src/optionJunkRules.json   # 6eb573fc079a4b8d7cea57201e99ff2c
+DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH="$(cat $BK/policy-path.pre)" pm2 restart deals-api --update-env && pm2 save
+```
+Then re-run the step 5 `pm2 jlist` line (expect 15 entries) and the step 6 log check (expect `junk rules 2026-10-16: 7 rules`). Rules-only rollback keeps Hyundai by restoring just the file and restarting with `OPTION_MODEL_POLICY_PATH="$(cat $N)"`. Rows already written stay as written.
