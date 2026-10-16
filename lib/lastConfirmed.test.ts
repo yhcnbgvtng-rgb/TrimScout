@@ -57,3 +57,25 @@ describe("toBuyerVehicle", () => {
     assert.equal("sourceBox" in b, false);
   });
 });
+
+describe("buyerHideDays — the staleness rule flag", () => {
+  it("is the shipped 7 days unless STALE_RULE is exactly 1", async () => {
+    const { buyerHideDays, STALE_RULE_HIDE_DAYS } = await import("./lastConfirmed");
+    for (const v of [undefined, "", "0", "true"]) assert.equal(buyerHideDays({ STALE_RULE: v }), 7, String(v));
+    assert.equal(buyerHideDays({ STALE_RULE: "1" }), STALE_RULE_HIDE_DAYS);
+    assert.equal(STALE_RULE_HIDE_DAYS, 4);
+  });
+  it("honours STALE_RULE_HIDE_DAYS only inside 2..30, and the label line stays below the hide line", async () => {
+    const { buyerHideDays } = await import("./lastConfirmed");
+    assert.equal(buyerHideDays({ STALE_RULE: "1", STALE_RULE_HIDE_DAYS: "5" }), 5);
+    for (const bad of ["1", "31", "x", "4.5"]) assert.equal(buyerHideDays({ STALE_RULE: "1", STALE_RULE_HIDE_DAYS: bad }), 4, bad);
+    assert.ok(LAST_SEEN_LABEL_AFTER_DAYS < buyerHideDays({ STALE_RULE: "1" }));
+  });
+  it("with the flag on a car 5 days old is hidden, with it off it is shown", () => {
+    assert.equal(isHiddenFromBuyerSearch(daysAgo(5), NOW), false);
+    const prev = process.env.STALE_RULE;
+    process.env.STALE_RULE = "1";
+    try { assert.equal(isHiddenFromBuyerSearch(daysAgo(5), NOW), true); assert.equal(isHiddenFromBuyerSearch(daysAgo(3.5), NOW), false); }
+    finally { if (prev === undefined) delete process.env.STALE_RULE; else process.env.STALE_RULE = prev; }
+  });
+});
