@@ -10,6 +10,13 @@
     { "name": "fee-charge", "patterns": ["\\bfees?\\b", "\\b(?:destination|delivery|freight|handling|processing|preparation|prep|documentation|doc|administration|admin|reconditioning|advertising)\\s+charges?\\b", "\\bmarket\\s+adjustment\\b", "\\badditional\\s+dealer\\s+markup\\b"] },
     { "name": "standard-or-no-charge", "patterns": ["^\\W*(?:standard|std|included|no\\s+charge|n/?c)\\W*$", "\\b(?:no|at\\s+no)\\s+(?:additional\\s+)?(?:charge|cost)\\b", "\\bstandard\\s+on\\s+(?:all|every)\\b", "\\bincluded\\s+with\\s+(?:vehicle|purchase)\\b"] }
   ],
+  "exemptions": [
+    { "name": "roadside-assistance-kit", "note": "A physical emergency kit in the car, not the roadside-assistance plan.", "patterns": ["\\broadside\\s+assistance\\s+kit\\b"] },
+    { "name": "maintenance-indicators", "note": "'Shift-position and scheduled maintenance indicators' is an instrument-cluster feature, not a maintenance plan.", "patterns": ["\\bscheduled\\s+maintenance\\s+indicators?\\b"] }
+  ],
+  "rewrites": [
+    { "name": "siriusxm-trial", "note": "SiriusXM is a real factory option; many feeds list it only as a trial-subscription line. Becomes the plain option, so the car keeps SiriusXM and the trial wording is gone. Paid extras (Extended Service, Traffic and Travel Link, protection plans) are not rewritten: they stay junk-list subscription lines.", "pattern": "^\\W*(?:\\d+[\\s-]*(?:month|year)s?\\s+)?sirius(?:xm)?\\b(?!.*\\b(?:extended|traffic|travel\\s*link|service\\s+plan|protection)\\b)[^;|]*\\b(?:trial|introductory|subscription)\\b", "to": "SiriusXM" }
+  ],
   "zeroPrice": {
     "enabled": false,
     "about": "OFF until measured on live data (2026-10-16 dry run pending). When on, an explicit price of 0 is a $0 / standard / included line. A missing price (null) is unknown and is kept. Lines whose code is listed in exemptCodes carry price 0 as 'unknown, not free' (descriptionFeatures.js) and are kept.",

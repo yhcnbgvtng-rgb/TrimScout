@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 if (process.argv.includes("--emit")) {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const src = path.join(here, "..", "..", "scrapers", "lightsail-crawler", "src");
-  const inline = { rules: JSON.parse(fs.readFileSync(path.join(src, "optionJunkRules.json"), "utf8")), hyundai: JSON.parse(fs.readFileSync(path.join(src, "optionPolicies", "hyundai-2025-2027.json"), "utf8")) };
+  const inline = { skipHyundai: process.argv.includes("--skip-hyundai"), rules: JSON.parse(fs.readFileSync(path.join(src, "optionJunkRules.json"), "utf8")), hyundai: JSON.parse(fs.readFileSync(path.join(src, "optionPolicies", "hyundai-2025-2027.json"), "utf8")) };
   const me = fs.readFileSync(fileURLToPath(import.meta.url), "utf8").replace(/^if \(process\.argv\.includes\("--emit"\)\) \{[\s\S]*?\n\}\n/m, "");
   process.stdout.write(`globalThis.__INLINE__ = ${JSON.stringify(inline)};\n${me}`);
   process.exit(0);
@@ -55,6 +55,10 @@ const ALLOW = ALLOW_MOD.buildAllowlist(null, rawPolicies);
 // ---- the shipped junk list (same regexes the write path compiles) ----
 const RULES = INL.rules.rules.map((r) => ({ name: r.name, res: r.patterns.map((p) => new RegExp(p, "i")) }));
 const junkCategory = (label) => { const t = String(label).replace(/^[^a-z0-9]+/i, ""); for (const r of RULES) if (r.res.some((re) => re.test(t))) return r.name; return null; };
+const EXEMPTIONS = (INL.rules.exemptions || []).map((x) => ({ name: x.name, res: x.patterns.map((p) => new RegExp(p, "i")) }));
+const REWRITES = (INL.rules.rewrites || []).map((w) => ({ name: w.name, re: new RegExp(w.pattern, "i"), to: w.to }));
+const exemptionOf = (label) => { const t = String(label).replace(/^[^a-z0-9]+/i, ""); return EXEMPTIONS.find((x) => x.res.some((re) => re.test(t)))?.name || null; };
+const rewriteOf = (label) => { const t = String(label).replace(/^[^a-z0-9]+/i, ""); return REWRITES.find((w) => w.re.test(t))?.name || null; };
 const isZero = (p) => p === 0 || (typeof p === "string" && /^\$?0+(?:\.0+)?$/.test(p.trim()));
 const decor = (l) => l.replace(/\$\s?[\d,]+(?:\.\d+)?/g, " ").replace(/\([^)]*\)/g, " ").replace(/®|™/g, "");
 const paid = (e) => Boolean(e) && (e.price > 0 || (e.priceByDrivetrain && Object.values(e.priceByDrivetrain).some((v) => v > 0)));
@@ -83,6 +87,7 @@ const BRANDS = ["Toyota", "Ford", "Chevrolet", "GMC", "Honda", "Kia", "Hyundai",
 const TARGET = 2000;
 const A = { cars: 0, lines: 0, zero: 0, zeroFeature: 0, nullPrice: 0, zeroCovered: 0, zeroUncovered: 0, dangerAny: 0, dangerOwn: 0, dangerLabels: new Map(), dangerBrands: new Map(),
   marginalUncovered: 0, marginalCovered: 0, marginalAlreadyDropped: 0, marginalLabels: new Map(), marginalByBrand: new Map(), zeroTotalByBrand: new Map(),
+  exm: new Map(), exmTotals: new Map(),
   cat: new Map(), catCars: new Map(), catProtected: new Map(), catByBrand: new Map(), catLabels: new Map(), catUncovered: new Map(), catCovered: new Map() };
 const perBrand = [];
 
@@ -109,6 +114,12 @@ for (const brand of BRANDS) {
         const feature = String(o.code ?? "").trim().toUpperCase() === "FEATURE";
         if (o.price == null) A.nullPrice++;
         const l = isCovered ? listed(policies, owns, part, o.code) : { anyTrim: false, ownTrim: false };
+        const exName = exemptionOf(part), rwName = rewriteOf(part);
+        if (exName || rwName) {
+          const kind = exName ? `exempt:${exName}` : `rewrite:${rwName}`, k = `${kind}|${part.trim().slice(0, 100)}`;
+          const e = A.exm.get(k) || A.exm.set(k, { n: 0, priced: 0, paidPolicyLabel: 0, wouldTrip: cat, legacyDeny: legacyDrops(part), brands: new Map() }).get(k);
+          e.n++; if (typeof o.price === "number" && o.price > 0) e.priced++; if (l.anyTrim) e.paidPolicyLabel++; bump(e.brands, brand); bump(A.exmTotals, kind);
+        }
         if (cat) {
           bump(A.cat, cat); carCats.add(cat); bump(A.catByBrand, `${brand}|${cat}`); bump(A.catLabels, `${cat}|${part.slice(0, 80)}`);
           bump(isCovered ? A.catCovered : A.catUncovered, cat);
@@ -133,9 +144,9 @@ for (const brand of BRANDS) {
 
 // ---- Hyundai cars first seen after the 2026-10-13 apply: do they still carry junk? ----
 const SINCE = "2026-10-13 00:00:00";
-const [{ n: hyNew }] = await q("SELECT COUNT(*) n FROM dealer_inventory WHERE make = 'Hyundai' AND removed_at IS NULL AND first_seen_at >= ?", [SINCE]);
+const [{ n: hyNew }] = INL.skipHyundai ? [{ n: 0 }] : await q("SELECT COUNT(*) n FROM dealer_inventory WHERE make = 'Hyundai' AND removed_at IS NULL AND first_seen_at >= ?", [SINCE]);
 const HK = Math.max(1, Math.ceil(Number(hyNew) / 12000));
-const hy = await q("SELECT vin, dealer_id, year, model, `trim`, options_json, first_seen_at FROM dealer_inventory WHERE make = 'Hyundai' AND removed_at IS NULL AND first_seen_at >= ? AND MOD(CRC32(vin), ?) = 0", [SINCE, HK]);
+const hy = INL.skipHyundai ? [] : await q("SELECT vin, dealer_id, year, model, `trim`, options_json, first_seen_at FROM dealer_inventory WHERE make = 'Hyundai' AND removed_at IS NULL AND first_seen_at >= ? AND MOD(CRC32(vin), ?) = 0", [SINCE, HK]);
 const H = { sampled: hy.length, withStoredRows: 0, noStoredRows: 0, junkStored: 0, junkStoredTrusted: 0, junkStoredUncovered: 0, storedExceedsPolicy: 0, policyCovered: 0, trimTrusted: 0, firstSeenOct14Plus: 0, junkOct14Plus: 0, cat: new Map(), carsWithCat: new Map() };
 for (let i = 0; i < hy.length; i += 100) {
   const batch = hy.slice(i, i + 100);
@@ -166,6 +177,7 @@ const out = {
   c_hyundai: { sinceApply: SINCE, newHyundaiLive: Number(hyNew), sampleStride: HK, ...H, cat: top(H.cat, 10), carsWithCat: top(H.carsWithCat, 10) },
   d_categories: { lines: top(A.cat, 20), carsWithAtLeastOne: top(A.catCars, 20), onCoveredCars: top(A.catCovered, 20), onUncoveredCars: top(A.catUncovered, 20), linesAlsoPaidPolicyLabel_wouldBeProtected: top(A.catProtected, 20), byBrand: top(A.catByBrand, 120), topLabelsPerCategory: top(A.catLabels, 60) },
   strideByBrand: scale,
+  e_exemptions: { totals: top(A.exmTotals, 10), labels: [...A.exm.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 120).map(([k, v]) => ({ key: k, n: v.n, linesWithPricePositive: v.priced, linesOnPaidPolicyLabel: v.paidPolicyLabel, wouldTripWithoutExemption: v.wouldTrip, alreadyDroppedByLegacyDenyRule: v.legacyDeny, brands: top(v.brands, 6) })) },
 };
 console.log(JSON.stringify(out, null, 1));
 await pool.end();

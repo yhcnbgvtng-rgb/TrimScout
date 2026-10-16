@@ -7,7 +7,11 @@
 //   inventoryOptionRows.js     + the global junk list engine (compileJunkRules / setJunkRules / globalJunkRuleFor) and the call inside optionRowsFromOptions
 //   factoryOptionAllowlist.js  + loadJunkRulesFromEnv / installJunkRulesFromEnv; policyOptionRows passes a "vouched" test so a policy-listed (paid sticker) line is never dropped by the list
 //   deals_api_server.js        + one import and one boot line that install the list
-//   optionJunkRules.json       NEW data file next to them: the pattern list. Edit it (and restart deals-api) to change what is dropped; no code change.
+//   optionPolicies/hyundai-2025-2027.json   the Hyundai model policy, which the live OPTION_MODEL_POLICY_PATH does not list (and the box does not have).
+//                              The dry run reports whether it is installed and listed; --apply installs it (backup if a different one exists) and writes the
+//                              full new OPTION_MODEL_POLICY_PATH (live value + this file, deduped) to optionPolicies/OPTION_MODEL_POLICY_PATH.next. Listing it takes
+//                              effect only at the restart: the script never restarts, so it prints the exact restart line instead.
+//   optionJunkRules.json       NEW data file next to them: the pattern list (with exemptions and rewrites). Edit it (and restart deals-api) to change what is dropped; no code change.
 //
 // Without --apply it is a DRY RUN: it reads the files, checks every anchor, stages the patched modules in a temp dir, runs the behaviour checks and writes
 // nothing to --dir. With --apply it
@@ -39,7 +43,7 @@ const EDITS =
   "file": "inventoryOptionRows.js",
   "id": "junk-engine",
   "find": "/**\n * @param {unknown} options\n * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null) }} [opts]",
-  "replace": "// ---- Global junk list (data-driven; src/optionJunkRules.json) ----------------------------------------\n// Applied at write time to EVERY car's option lines, policy or not: roadside assistance, inspections, warranties, maintenance/service\n// plans, subscriptions and trials, fees, and $0 / standard lines. Off until a compiled list is installed (setJunkRules), so importing this\n// module alone changes nothing. The list is pure data (patterns + one zero-price switch), loaded by factoryOptionAllowlist.js's\n// loadJunkRulesFromEnv; this file stays free of fs so the website bundle is unaffected.\nlet activeJunkRules = null;\n\n/** Raw JSON -> { version, rules: [{ name, res }], zeroPrice: { enabled, exemptCodes }, errors }. A pattern that does not compile is skipped and listed in errors. */\nexport function compileJunkRules(raw) {\n  const errors = [];\n  const rules = [];\n  for (const r of Array.isArray(raw?.rules) ? raw.rules : []) {\n    const res = [];\n    for (const p of Array.isArray(r?.patterns) ? r.patterns : []) {\n      try { res.push(new RegExp(String(p), \"i\")); } catch (e) { errors.push(`${r?.name || \"?\"}: ${p}: ${e.message}`); }\n    }\n    if (r?.name && res.length) rules.push({ name: String(r.name), res });\n  }\n  const z = raw?.zeroPrice || {};\n  const exemptCodes = new Set((Array.isArray(z.exemptCodes) ? z.exemptCodes : []).map((c) => String(c).trim().toUpperCase()));\n  return { version: String(raw?.version || \"\"), rules, zeroPrice: { enabled: z.enabled === true, exemptCodes }, errors };\n}\n\nexport function setJunkRules(compiled) { activeJunkRules = compiled && (compiled.rules?.length || compiled.zeroPrice?.enabled) ? compiled : null; }\nexport function getJunkRules() { return activeJunkRules; }\n\nconst isExplicitZero = (price) => price === 0 || (typeof price === \"string\" && /^\\$?0+(?:\\.0+)?$/.test(price.trim()));\n\n/** The global junk rule one option line trips (\"roadside\", ..., \"zero-price\"), or null. `label` is the (already split) text; `option` carries price and code. */\nexport function globalJunkRuleFor(label, option, rules = activeJunkRules) {\n  if (!rules) return null;\n  const text = String(label || \"\").replace(/^[^a-z0-9]+/i, \"\");\n  for (const r of rules.rules) if (r.res.some((re) => re.test(text))) return r.name;\n  const z = rules.zeroPrice;\n  if (z?.enabled && option && isExplicitZero(option.price) && !z.exemptCodes.has(String(option.code ?? \"\").trim().toUpperCase())) return \"zero-price\";\n  return null;\n}\n\n/**\n * @param {unknown} options\n * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null), protect?: (label: string, option: object) => boolean, junkRules?: object | null }} [opts]\n *   protect: a line it vouches for (a model-policy entry) is never dropped by the global junk list. junkRules: overrides the installed list (null = none).",
+  "replace": "// ---- Global junk list (data-driven; src/optionJunkRules.json) ----------------------------------------\n// Applied at write time to EVERY car's option lines, policy or not: roadside assistance, inspections, warranties, maintenance/service\n// plans, subscriptions and trials, fees, and $0 / standard lines. Off until a compiled list is installed (setJunkRules), so importing this\n// module alone changes nothing. The list is pure data (patterns + one zero-price switch), loaded by factoryOptionAllowlist.js's\n// loadJunkRulesFromEnv; this file stays free of fs so the website bundle is unaffected.\nlet activeJunkRules = null;\n\n/**\n * Raw JSON -> { version, rules: [{ name, res }], exemptions: [{ name, res }], rewrites: [{ name, re, to }], zeroPrice: { enabled, exemptCodes }, errors }.\n * exemptions: a label matching one is never dropped by the list (the lines look like a category but are real equipment, e.g. \"Roadside Assistance Kit\").\n * rewrites: a label matching one is replaced by `to` BEFORE any drop rule runs (a SiriusXM trial-subscription line is the SiriusXM option, not junk).\n * A pattern that does not compile is skipped and listed in errors.\n */\nexport function compileJunkRules(raw) {\n  const errors = [];\n  const rules = [];\n  for (const r of Array.isArray(raw?.rules) ? raw.rules : []) {\n    const res = [];\n    for (const p of Array.isArray(r?.patterns) ? r.patterns : []) {\n      try { res.push(new RegExp(String(p), \"i\")); } catch (e) { errors.push(`${r?.name || \"?\"}: ${p}: ${e.message}`); }\n    }\n    if (r?.name && res.length) rules.push({ name: String(r.name), res });\n  }\n  const exemptions = [];\n  for (const x of Array.isArray(raw?.exemptions) ? raw.exemptions : []) {\n    const res = [];\n    for (const p of Array.isArray(x?.patterns) ? x.patterns : []) {\n      try { res.push(new RegExp(String(p), \"i\")); } catch (e) { errors.push(`exemption ${x?.name || \"?\"}: ${p}: ${e.message}`); }\n    }\n    if (x?.name && res.length) exemptions.push({ name: String(x.name), res });\n  }\n  const rewrites = [];\n  for (const w of Array.isArray(raw?.rewrites) ? raw.rewrites : []) {\n    try { if (w?.name && w.pattern && typeof w.to === \"string\" && w.to.trim()) rewrites.push({ name: String(w.name), re: new RegExp(String(w.pattern), \"i\"), to: w.to.trim() }); } catch (e) { errors.push(`rewrite ${w?.name || \"?\"}: ${w?.pattern}: ${e.message}`); }\n  }\n  const z = raw?.zeroPrice || {};\n  const exemptCodes = new Set((Array.isArray(z.exemptCodes) ? z.exemptCodes : []).map((c) => String(c).trim().toUpperCase()));\n  return { version: String(raw?.version || \"\"), rules, exemptions, rewrites, zeroPrice: { enabled: z.enabled === true, exemptCodes }, errors };\n}\n\nexport function setJunkRules(compiled) { activeJunkRules = compiled && (compiled.rules?.length || compiled.rewrites?.length || compiled.zeroPrice?.enabled) ? compiled : null; }\nexport function getJunkRules() { return activeJunkRules; }\n\nconst isExplicitZero = (price) => price === 0 || (typeof price === \"string\" && /^\\$?0+(?:\\.0+)?$/.test(price.trim()));\n\n/** The label with the first matching rewrite applied (\"SiriusXM with 360L Trial Subscription\" -> \"SiriusXM\"), or the label unchanged. */\nexport function rewriteOptionLabel(label, rules = activeJunkRules) {\n  if (!rules?.rewrites?.length) return label;\n  const text = String(label || \"\").replace(/^[^a-z0-9]+/i, \"\");\n  for (const w of rules.rewrites) if (w.re.test(text)) return w.to;\n  return label;\n}\n\n/** The exemption a label falls under, or null. */\nexport function junkExemptionFor(label, rules = activeJunkRules) {\n  if (!rules?.exemptions?.length) return null;\n  const text = String(label || \"\").replace(/^[^a-z0-9]+/i, \"\");\n  for (const x of rules.exemptions) if (x.res.some((re) => re.test(text))) return x.name;\n  return null;\n}\n\n/** The global junk rule one option line trips (\"roadside\", ..., \"zero-price\"), or null. `label` is the (already split) text; `option` carries price and code. */\nexport function globalJunkRuleFor(label, option, rules = activeJunkRules) {\n  if (!rules) return null;\n  if (junkExemptionFor(label, rules)) return null;\n  const text = String(label || \"\").replace(/^[^a-z0-9]+/i, \"\");\n  for (const r of rules.rules) if (r.res.some((re) => re.test(text))) return r.name;\n  const z = rules.zeroPrice;\n  if (z?.enabled && option && isExplicitZero(option.price) && !z.exemptCodes.has(String(option.code ?? \"\").trim().toUpperCase())) return \"zero-price\";\n  return null;\n}\n\n/**\n * @param {unknown} options\n * @param {{ resolveKey?: (key: string) => ({ key: string, label: string } | null), protect?: (label: string, option: object) => boolean, junkRules?: object | null }} [opts]\n *   protect: a line it vouches for (a model-policy entry) is never dropped by the global junk list. junkRules: overrides the installed list (null = none).",
   "marker": "let activeJunkRules = null;"
  },
  {
@@ -48,6 +52,13 @@ const EDITS =
   "find": "  const resolveKey = typeof opts.resolveKey === \"function\" ? opts.resolveKey : null;\n",
   "replace": "  const resolveKey = typeof opts.resolveKey === \"function\" ? opts.resolveKey : null;\n  const protect = typeof opts.protect === \"function\" ? opts.protect : null;\n  const junkRules = \"junkRules\" in opts ? opts.junkRules : activeJunkRules;\n",
   "marker": "const junkRules = \"junkRules\" in opts"
+ },
+ {
+  "file": "inventoryOptionRows.js",
+  "id": "junk-rewrite",
+  "find": "      const part = repairTruncatedLabel(rawPart);\n      if (part !== rawPart)",
+  "replace": "      const repairedPart = repairTruncatedLabel(rawPart);\n      // A label the list rewrites (SiriusXM trial-subscription -> SiriusXM) is rewritten before ANY drop rule looks at it.\n      const part = junkRules ? rewriteOptionLabel(repairedPart, junkRules) : repairedPart;\n      if (part !== rawPart)",
+  "marker": "const part = junkRules ? rewriteOptionLabel"
  },
  {
   "file": "inventoryOptionRows.js",
@@ -81,7 +92,7 @@ const EDITS =
   "file": "deals_api_server.js",
   "id": "boot-install",
   "find": "const OPTION_CATALOG_MODE = catalogModeFromEnv();\n",
-  "replace": "import { installJunkRulesFromEnv } from \"./factoryOptionAllowlist.js\"; // hoisted; kept next to its use so the box patch needs no knowledge of the import line above\nconst OPTION_CATALOG_MODE = catalogModeFromEnv();\n// Global write-time junk list (src/optionJunkRules.json; OPTION_JUNK_RULES=off or OPTION_JUNK_RULES_PATH=<file> to change it). Applies to every car, policy or not.\nconst OPTION_JUNK_RULES = installJunkRulesFromEnv();\nconsole.log(OPTION_JUNK_RULES ? `[options] junk rules ${OPTION_JUNK_RULES.version}: ${OPTION_JUNK_RULES.rules.length} rules, zero-price ${OPTION_JUNK_RULES.zeroPrice.enabled ? \"on\" : \"off\"}` : \"[options] junk rules off\");\n",
+  "replace": "import { installJunkRulesFromEnv } from \"./factoryOptionAllowlist.js\"; // hoisted; kept next to its use so the box patch needs no knowledge of the import line above\nconst OPTION_CATALOG_MODE = catalogModeFromEnv();\n// Global write-time junk list (src/optionJunkRules.json; OPTION_JUNK_RULES=off or OPTION_JUNK_RULES_PATH=<file> to change it). Applies to every car, policy or not.\nconst OPTION_JUNK_RULES = installJunkRulesFromEnv();\nconsole.log(OPTION_JUNK_RULES ? `[options] junk rules ${OPTION_JUNK_RULES.version}: ${OPTION_JUNK_RULES.rules.length} rules, zero-price ${OPTION_JUNK_RULES.zeroPrice.enabled ? \"on\" : \"off\"}` : \"[options] junk rules off\");\nif (optionAllowlistError) console.warn(`[options] allowlist not loaded (${optionAllowlistError}); using the heuristic catalog`);\n",
   "marker": "installJunkRulesFromEnv()"
  }
 ];
@@ -89,9 +100,28 @@ const EDITS =
 for (const e of EDITS) if (e.find.includes(e.marker) || !e.replace.includes(e.marker)) throw new Error(`edit ${e.id}: marker must be in the replacement and not in the anchor`);
 
 const JSON_NAME = "optionJunkRules.json";
-const readJson = async () => (/^https?:/.test(SRC) ? (await fetch(`${SRC}/${JSON_NAME}`).then((r) => { if (!r.ok) throw new Error(`${JSON_NAME}: HTTP ${r.status}`); return r.text(); })) : fs.readFileSync(path.join(SRC, JSON_NAME), "utf8"));
-const jsonText = await readJson();
+const readSrc = async (rel) => (/^https?:/.test(SRC) ? (await fetch(`${SRC}/${rel}`).then((r) => { if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`); return r.text(); })) : fs.readFileSync(path.join(SRC, rel), "utf8"));
+const jsonText = await readSrc(JSON_NAME);
 JSON.parse(jsonText);
+
+// ---- Hyundai policy: installed in the live policy directory? listed in the live OPTION_MODEL_POLICY_PATH? ----
+const HY_NAME = "hyundai-2025-2027.json";
+const POLDIR = path.join(DIR, "optionPolicies");
+const hyundaiText = await readSrc(`optionPolicies/${HY_NAME}`);
+const hyundaiRaw = JSON.parse(hyundaiText);
+const HY_PATH = path.join(POLDIR, HY_NAME);
+const liveEnv = (() => { // --policy-env=<value> (tests / a value you copied), else read-only `pm2 jlist`
+  if (args["policy-env"] !== undefined) return String(args["policy-env"] === true ? "" : args["policy-env"]);
+  try { const list = JSON.parse(execFileSync("pm2", ["jlist"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })); const p = list.find((x) => x.name === (args.proc || "deals-api")); return p ? String(p.pm2_env?.OPTION_MODEL_POLICY_PATH ?? "") : null; } catch { return null; }
+})();
+const listedPaths = liveEnv === null ? null : liveEnv.split(",").map((x) => x.trim()).filter(Boolean);
+const hyInstalled = fs.existsSync(HY_PATH), hySame = hyInstalled && fs.readFileSync(HY_PATH, "utf8") === hyundaiText;
+const hyListed = listedPaths === null ? null : listedPaths.some((x) => path.basename(x) === HY_NAME);
+const hyListedHere = listedPaths !== null && listedPaths.includes(HY_PATH);
+const nextEnv = listedPaths === null ? null : (hyListed ? listedPaths : [...listedPaths, HY_PATH]).join(",");
+console.log(`hyundai policy file: ${!fs.existsSync(POLDIR) ? `MISSING DIRECTORY ${POLDIR}` : hyInstalled ? (hySame ? `installed, same as the repo's (${HY_PATH})` : `installed but DIFFERENT from the repo's (${HY_PATH}); --apply backs it up and replaces it`) : `NOT installed in ${POLDIR}; --apply installs it`}`);
+console.log(`hyundai in live OPTION_MODEL_POLICY_PATH: ${hyListed === null ? "UNKNOWN (pm2 not readable; pass --policy-env=<value>)" : hyListed ? (hyListedHere ? "listed" : `listed from another directory (${listedPaths.find((x) => path.basename(x) === HY_NAME)})`) : "NOT listed; the restart line below adds it"}`);
+if (!fs.existsSync(POLDIR)) { console.error(`ABORT: ${POLDIR} does not exist (is --dir the box's src directory?). Nothing written.`); process.exit(2); }
 
 const files = [...new Set(EDITS.map((e) => e.file))];
 const plan = [];
@@ -118,7 +148,7 @@ const stage = fs.mkdtempSync(path.join(os.tmpdir(), "junk-stage-"));
 const verify = async () => {
   for (const x of plan) fs.writeFileSync(path.join(stage, x.f.replace(/\.js$/, ".mjs")), x.text);
   fs.writeFileSync(path.join(stage, JSON_NAME), jsonText);
-  for (const x of plan) execFileSync("node", ["--check", path.join(stage, x.f.replace(/\.js$/, ".mjs"))], { stdio: "pipe" });
+  for (const x of plan) execFileSync(process.execPath, ["--check", path.join(stage, x.f.replace(/\.js$/, ".mjs"))], { stdio: "pipe" });
   // The two option modules import each other and optionSentenceFilter by their .js names: stage them under those names.
   for (const f of ["inventoryOptionRows.js", "factoryOptionAllowlist.js"]) fs.writeFileSync(path.join(stage, f), plan.find((x) => x.f === f).text);
   fs.copyFileSync(path.join(DIR, "optionSentenceFilter.js"), path.join(stage, "optionSentenceFilter.js"));
@@ -138,11 +168,16 @@ const verify = async () => {
   if (names([{ name: "Rear Spoiler", price: 0 }], { resolveKey: (k) => (k === "rear spoiler" ? { key: k, label: "Rear Spoiler" } : null) }).join() !== "Rear Spoiler") throw new Error("vouched line was dropped");
   rows.setJunkRules(null);
   if (names(junk.map((name) => ({ name }))).length !== 3) throw new Error("with no list installed the module must behave as before");
+  const hk = Object.keys(hyundaiRaw)[0];
+  const hy = allow.buildAllowlist(null, hyundaiRaw);
+  if (!hy.models.size || !allow.modelPoliciesFor(hy, { make: "Hyundai", model: hyundaiRaw[hk].models[0], year: hk.split("|")[2] }).length) throw new Error("the Hyundai policy does not load on the staged allowlist module");
+  console.log(`Hyundai policy loads on the patched allowlist module (${hy.models.size} model-year policies)`);
   console.log("staged modules load; junk examples dropped, controls and a vouched $0 line kept, off-switch behaves");
 };
 try { await verify(); } catch (err) { console.error(`ABORT (nothing written to ${DIR}): ${err.message}`); fs.rmSync(stage, { recursive: true, force: true }); process.exit(3); }
 fs.rmSync(stage, { recursive: true, force: true });
-if (!APPLY) { console.log("DRY RUN ok - nothing written. Re-run with --apply."); process.exit(0); }
+if (!APPLY) { console.log(hyInstalled && hySame && hyListed ? "Hyundai policy: installed and listed." : "Hyundai policy: would install and/or list it on --apply.");
+  console.log("DRY RUN ok - nothing written. Re-run with --apply."); process.exit(0); }
 
 const staged = [];
 try {
@@ -151,7 +186,7 @@ try {
     const newPath = path.join(DIR, x.f.replace(/\.js$/, ".new.mjs"));
     staged.push({ ...x, newPath });
     fs.writeFileSync(newPath, x.text);
-    execFileSync("node", ["--check", newPath], { stdio: "pipe" });
+    execFileSync(process.execPath, ["--check", newPath], { stdio: "pipe" });
   }
 } catch (err) {
   for (const x of staged) fs.rmSync(x.newPath, { force: true });
@@ -166,7 +201,21 @@ for (const x of staged) {
   console.log(`${x.f}: backup ${bak}; patched file in place. Rollback: cp -p ${bak} ${x.p}`);
 }
 const jp = path.join(DIR, JSON_NAME);
-if (fs.existsSync(jp)) { fs.copyFileSync(jp, `${jp}.bak.${STAMP}`); console.log(`${JSON_NAME}: existing file backed up to ${jp}.bak.${STAMP}`); }
-fs.writeFileSync(jp + ".new", jsonText); fs.renameSync(jp + ".new", jp);
-console.log(`${JSON_NAME}: installed (${jp}). Rollback: rm it, or restore the .bak.`);
+if (fs.existsSync(jp) && fs.readFileSync(jp, "utf8") === jsonText) console.log(`${JSON_NAME}: already installed, unchanged.`);
+else {
+  if (fs.existsSync(jp)) { fs.copyFileSync(jp, `${jp}.bak.${STAMP}`); console.log(`${JSON_NAME}: existing file backed up to ${jp}.bak.${STAMP}`); }
+  fs.writeFileSync(jp + ".new", jsonText); fs.renameSync(jp + ".new", jp);
+  console.log(`${JSON_NAME}: installed (${jp}). Rollback: rm it, or restore the .bak.`);
+}
+if (!hySame) {
+  if (hyInstalled) { fs.copyFileSync(HY_PATH, `${HY_PATH}.bak.${STAMP}`); console.log(`${HY_NAME}: existing file backed up to ${HY_PATH}.bak.${STAMP}`); }
+  fs.writeFileSync(`${HY_PATH}.new`, hyundaiText); fs.chmodSync(`${HY_PATH}.new`, 0o644); fs.renameSync(`${HY_PATH}.new`, HY_PATH);
+  console.log(`${HY_NAME}: installed (${HY_PATH}). Rollback: rm it, or restore the .bak.`);
+} else console.log(`${HY_NAME}: already installed, unchanged.`);
+if (nextEnv !== null) {
+  const nf = path.join(POLDIR, "OPTION_MODEL_POLICY_PATH.next");
+  fs.writeFileSync(nf, nextEnv + "\n");
+  console.log(`new OPTION_MODEL_POLICY_PATH written to ${nf} (${nextEnv.split(",").length} files; Hyundai ${hyListed ? "was already listed" : "added"}). Takes effect only at the restart:`);
+  console.log(`  DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH="$(cat ${nf})" pm2 restart ${args.proc || "deals-api"} --update-env && pm2 save    # NOT run by this script`);
+} else console.log("live OPTION_MODEL_POLICY_PATH unknown: append " + HY_PATH + " to it at the restart (see docs/OPTION_POLICY_WRITE_PATH.md step 5).");
 console.log("DONE. deals-api has NOT been restarted; the new code loads at the next restart (OPTION_JUNK_RULES=off at that restart keeps the list off).");
