@@ -41,8 +41,16 @@ describe('the shipped list', () => {
   });
 });
 
+// The shipped file has zeroPrice OFF until it is measured on live data (2026-10-16); these tests switch it on in a copy.
+const SHIPPED_RAW = JSON.parse(fs.readFileSync(RULES_FILE, 'utf8'));
+const ZERO_ON = compileJunkRules({ ...SHIPPED_RAW, zeroPrice: { ...SHIPPED_RAW.zeroPrice, enabled: true } });
+
 describe('zero price', () => {
-  const rules = compileJunkRules(JSON.parse(fs.readFileSync(RULES_FILE, 'utf8')));
+  it('the shipped file ships it OFF: a $0 line is kept until the switch is turned on', () => {
+    assert.equal(SHIPPED_RAW.zeroPrice.enabled, false);
+    assert.equal(globalJunkRuleFor('Rear Spoiler', { price: 0 }, compileJunkRules(SHIPPED_RAW)), null);
+  });
+  const rules = ZERO_ON;
   const z = (o) => globalJunkRuleFor(o.name, o, rules);
   it('an explicit $0 is dropped (number and string forms)', () => { for (const price of [0, '0', '$0', '0.00']) assert.equal(z({ name: 'Rear Spoiler', price }), 'zero-price', String(price)); });
   it('a missing or null price is unknown, not free: kept', () => { assert.equal(z({ name: 'Rear Spoiler' }), null); assert.equal(z({ name: 'Rear Spoiler', price: null }), null); });
@@ -69,14 +77,14 @@ describe('optionRowsFromOptions with the list installed', () => {
     assert.deepEqual(r.dropped.map((d) => d.rule), ['junk:roadside', 'junk:roadside', 'junk:inspection']);
   });
   it('a $0 line goes, an unpriced line stays, a paid line stays', () => {
-    assert.deepEqual(names([{ name: 'Rear Spoiler', price: 0 }, { name: 'Roof Rails' }, { name: 'Running Boards', price: 600 }]), ['Roof Rails', 'Running Boards']);
+    assert.deepEqual(names([{ name: 'Rear Spoiler', price: 0 }, { name: 'Roof Rails' }, { name: 'Running Boards', price: 600 }], { junkRules: ZERO_ON }), ['Roof Rails', 'Running Boards']);
   });
   it('a make-allowlist option is vouched for and survives even at $0', () => {
     const resolveKey = (k) => (k === 'rear spoiler' ? { key: k, label: 'Rear Spoiler' } : null);
-    assert.deepEqual(names([{ name: 'Rear Spoiler', price: 0 }], { resolveKey }), ['Rear Spoiler']);
+    assert.deepEqual(names([{ name: 'Rear Spoiler', price: 0 }], { resolveKey, junkRules: ZERO_ON }), ['Rear Spoiler']);
   });
   it('is the same per-option on a list split from one joined string, and the price is not copied onto the parts', () => {
-    assert.deepEqual(names([{ name: 'Roof Rails; Roadside Assistance; Rear Spoiler', price: 0 }]), ['Roof Rails', 'Rear Spoiler']);
+    assert.deepEqual(names([{ name: 'Roof Rails; Roadside Assistance; Rear Spoiler', price: 0 }], { junkRules: ZERO_ON }), ['Roof Rails', 'Rear Spoiler']);
   });
   it('nothing installed means nothing changes (junkRules: null)', () => {
     assert.deepEqual(names([{ name: 'Roadside Assistance' }, { name: 'Rear Spoiler', price: 0 }], { junkRules: null }), ['Roadside Assistance', 'Rear Spoiler']);

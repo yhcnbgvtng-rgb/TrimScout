@@ -11,8 +11,8 @@
     { "name": "standard-or-no-charge", "patterns": ["^\\W*(?:standard|std|included|no\\s+charge|n/?c)\\W*$", "\\b(?:no|at\\s+no)\\s+(?:additional\\s+)?(?:charge|cost)\\b", "\\bstandard\\s+on\\s+(?:all|every)\\b", "\\bincluded\\s+with\\s+(?:vehicle|purchase)\\b"] }
   ],
   "zeroPrice": {
-    "enabled": true,
-    "about": "An explicit price of 0 is a $0 / standard / included line. A missing price (null) is unknown and is kept. Lines whose code is listed in exemptCodes carry price 0 as 'unknown, not free' (descriptionFeatures.js) and are kept.",
+    "enabled": false,
+    "about": "OFF until measured on live data (2026-10-16 dry run pending). When on, an explicit price of 0 is a $0 / standard / included line. A missing price (null) is unknown and is kept. Lines whose code is listed in exemptCodes carry price 0 as 'unknown, not free' (descriptionFeatures.js) and are kept.",
     "exemptCodes": ["FEATURE"]
   }
 }

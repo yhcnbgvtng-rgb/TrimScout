@@ -88,7 +88,7 @@ Box2 numbers: none taken for this change (no box access was used). The measured 
 `src/optionJunkRules.json` (pure data; a pattern list plus one zero-price switch). `optionRowsFromOptions` applies it to every option line after the legacy rules, and `policyOptionRows` runs through the same function, so a policy car and a no-policy car get the same list. Categories: roadside, inspection, warranty, maintenance/service plan, subscription/trial, fee/charge, standard/no-charge, and an explicit `price: 0`.
 
 - **Paid sticker lines stay.** A line is never dropped by this list when it is vouched for: for a policy car, an exact entry of that trim's policy (name, or order code); for any car, a make-allowlist hit. A feed line that says `$0` for a policy package does not remove the package.
-- **`$0`**: an explicit zero only. A missing price is "unknown" and is kept. Lines coded `FEATURE` (description-derived, `price: 0` means "unknown, not free", `descriptionFeatures.js`) are exempt (`zeroPrice.exemptCodes`).
+- **`$0`** (ships **OFF**, `zeroPrice.enabled: false`, until measured on live data): an explicit zero only. A missing price is "unknown" and is kept. Lines coded `FEATURE` (description-derived, `price: 0` means "unknown, not free", `descriptionFeatures.js`) are exempt (`zeroPrice.exemptCodes`).
 - Dropped lines are named `junk:<category>` in the `dropped` lists and counted in `optionJunkDropped`.
 - The policy is unchanged. `/api/inventory` for a policy car uses the same function, so list and facets still agree; a no-policy car's list is still its stored array (`options_json` is never rewritten).
 - Change what is dropped by editing the JSON and restarting deals-api; `OPTION_JUNK_RULES_PATH=<file>` points at another file; `OPTION_JUNK_RULES=off` turns it off. A file that is missing or invalid logs `[options] junk rules not loaded` and boots with the list off; a pattern that does not compile is skipped and logged.
@@ -102,7 +102,7 @@ Box2 numbers: none taken for this change (no box access was used). The measured 
    node 2026-10-16-option-junk-write-path.mjs --apply
    ```
    Every anchor must match exactly once or nothing is written. It prints each backup and the rollback line.
-3. One restart (keep `DISABLE_FACET_REBUILD=1` and the current `OPTION_MODEL_POLICY_PATH`); boot log must show `[options] junk rules 2026-10-16: 7 rules, zero-price on` and no `junk rules not loaded`.
+3. One restart (keep `DISABLE_FACET_REBUILD=1` and the current `OPTION_MODEL_POLICY_PATH`); boot log must show `[options] junk rules 2026-10-16: 7 rules, zero-price off` and no `junk rules not loaded`.
 4. Cars converge the next time they are re-synced; the existing per-make apply scripts re-run the same engine for a faster sweep.
 
 ### Rollback
