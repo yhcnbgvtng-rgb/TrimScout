@@ -21,7 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { normalizeOptionKey, optionRowsFromOptions } from "./inventoryOptionRows.js";
+import { normalizeOptionKey, optionRowsFromOptions, compileJunkRules, setJunkRules } from "./inventoryOptionRows.js";
 
 export const EMPTY_ALLOWLIST = Object.freeze({ makes: new Map(), models: new Map() });
 
@@ -299,10 +299,18 @@ function resolveTrimKey(policy, key, model) {
  *    outcomes      [{ label, outcome: "kept"|"rolled_up"|"dealer_addon"|"dropped", key?, rule? }] one per raw line, for reporting
  */
 export function policyOptionRows(policy, vehicle, options) {
-  const base = optionRowsFromOptions(options); // the existing junk/sentence/split rules still run first, unchanged
-  const out = { rows: [], dealerAddons: [], dropped: [...base.dropped], junkDropped: base.junkDropped, repaired: base.repaired, outcomes: base.dropped.map((d) => ({ label: d.label, outcome: "dropped", rule: d.rule })) };
   const resolved = resolvePolicyTrim(policy, vehicle.trim, vehicle.model);
   const trim = resolved ? resolved.trim : null;
+  // The existing junk/sentence/split rules still run first, unchanged. The global junk list (optionJunkRules.json) runs with them, but never
+  // on a line this trim's policy vouches for (an exact entry by name or order code): a paid sticker line is never removed by it.
+  const vouched = (label, o) => {
+    if (!trim) return false;
+    const cleaned = normalizeOptionKey(decoration(label));
+    const colonHead = label.includes(":") ? normalizeOptionKey(decoration(label.split(":")[0])) : null;
+    return Boolean(trim.index.get(cleaned) || (colonHead && trim.index.get(colonHead)) || byOrderCode(policy, trim, o && o.code));
+  };
+  const base = optionRowsFromOptions(options, { protect: vouched });
+  const out = { rows: [], dealerAddons: [], dropped: [...base.dropped], junkDropped: base.junkDropped, repaired: base.repaired, outcomes: base.dropped.map((d) => ({ label: d.label, outcome: "dropped", rule: d.rule })) };
   out.trim = vehicle.trim || null;
   out.scope = policy.scope; // which make|model|year policy decided this vehicle
   out.trimTrusted = Boolean(trim);
@@ -383,6 +391,32 @@ export function policyApiOptions(allowlist, vehicle, options) {
   const res = optionRowsForVehicle(allowlist, vehicle, options);
   if (!res) return options;
   return res.rows.map((r) => ({ code: r.code ?? null, name: r.label, price: r.price ?? 0, kind: r.kind }));
+}
+
+const DEFAULT_JUNK_RULES_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), "optionJunkRules.json");
+
+/**
+ * The global junk list (optionJunkRules.json, or OPTION_JUNK_RULES_PATH), compiled; null when OPTION_JUNK_RULES=off, the file is missing or
+ * unreadable (logged, never thrown: a bad file must not stop deals-api booting). Patterns that do not compile are skipped and logged.
+ */
+export function loadJunkRulesFromEnv(env = process.env, log = console) {
+  if (String(env.OPTION_JUNK_RULES || "").toLowerCase() === "off") return null;
+  const file = env.OPTION_JUNK_RULES_PATH || DEFAULT_JUNK_RULES_PATH;
+  try {
+    const compiled = compileJunkRules(JSON.parse(fs.readFileSync(file, "utf8")));
+    for (const e of compiled.errors) log.warn?.(`[options] junk pattern skipped: ${e}`);
+    return compiled;
+  } catch (e) {
+    log.warn?.(`[options] junk rules not loaded (${file}): ${e.message}`);
+    return null;
+  }
+}
+
+/** Installs the list for this process (the write path, the policy engine and the backfills all read it). Returns what was installed. */
+export function installJunkRulesFromEnv(env = process.env, log = console) {
+  const compiled = loadJunkRulesFromEnv(env, log);
+  setJunkRules(compiled);
+  return compiled;
 }
 
 /** Reads the bundled policy files (RAV4 2026, then the other Toyota models); OPTION_MODEL_POLICY_PATH may point at any one JSON of the same shape. */

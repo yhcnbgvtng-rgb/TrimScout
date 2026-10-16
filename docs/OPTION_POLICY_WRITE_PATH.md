@@ -65,3 +65,48 @@ Idle means: no crawl, no sync, sync lock free, and nothing long-running on the t
 
 - Policy matching uses the stored make / model / year / trim. A model spelling the policy does not list (for example a trim-suffixed model name) is simply not covered and stays on the generic rules.
 - Dealer add-ons (`dealerAddons` in the policy result) are not stored anywhere yet; there is no `dealer_addons` column.
+
+## Global junk list at write time (every car, policy or not)
+
+Code only. Nothing changes until the box patch is applied **and** deals-api is restarted; `OPTION_JUNK_RULES=off` at that restart keeps the list off.
+
+### Why some rows skip the policy (findings, from the code)
+
+`handleInventoryBulk` (`deals_api_server.js`, option section) calls `policyFacetRows(...)` and falls back to `optionRowsFromOptions(...)`. A car's options therefore miss the policy when:
+
+1. **No policy covers its make + model + year** (`modelPoliciesFor` is empty): generic path, which before this change had only the 2026-09/10 legacy rules (fees, warranty, finance words, sentences, deny list). Roadside assistance, inspections, maintenance plans, subscriptions/trials and `$0` lines passed. The repo ships 16 policy files = 254 model-year policies, 965 trims, 15 makes (Audi 32, BMW 26, Mercedes 26, Toyota 24, Hyundai 19, Kia 19, Chevrolet 18, Nissan 18, Honda 14, Subaru 14, GMC 13, Mazda 12, Cadillac 10, Ford 5, Buick 4). Everything else (Jeep, Ram, VW, Lexus, ... and every other model-year) is uncovered.
+2. **Blank trim in the payload** (policy-covered): `{ skip: true }`, stored rows are left as they are. A **new** car with a blank trim therefore gets no option rows at all (not wrong ones, none); a re-seen one keeps whatever it had, junk included.
+3. **Trim the policy does not trust** (the 2026-10-13 ruling): same `{ skip: true }`. These are the "ambiguous trims": they stay unmapped. The dry-run/apply reports already list them (`topUntrustedTrims`, `skippedNoTrustedTrim`); this change does not touch the policy, the aliases or that list.
+4. **Payload with no options** (`payloadHasOptions` false): the crawl extracted nothing that night; stored rows are kept (by design, matches `options_json`'s COALESCE). Re-seen cars in that state keep their old rows.
+5. **Unchanged set**: `diffOptionSets` rewrites only changed sets, so a car whose generic rows already match is not rewritten until its rule output changes (which is what makes a rule change converge on the next sync).
+6. **Policy not loaded**: with `OPTION_MODEL_POLICY_PATH` unset, no car is policy-covered (case 1 for everyone).
+
+Box2 numbers: none taken for this change (no box access was used). The measured figures already on file are in the earlier sections (for example the Ford dry run of 150,584 cars, the Toyota apply of 2026-10-10, the Audi apply of 2026-10-15: 121 cars).
+
+### What the list is
+
+`src/optionJunkRules.json` (pure data; a pattern list plus one zero-price switch). `optionRowsFromOptions` applies it to every option line after the legacy rules, and `policyOptionRows` runs through the same function, so a policy car and a no-policy car get the same list. Categories: roadside, inspection, warranty, maintenance/service plan, subscription/trial, fee/charge, standard/no-charge, and an explicit `price: 0`.
+
+- **Paid sticker lines stay.** A line is never dropped by this list when it is vouched for: for a policy car, an exact entry of that trim's policy (name, or order code); for any car, a make-allowlist hit. A feed line that says `$0` for a policy package does not remove the package.
+- **`$0`**: an explicit zero only. A missing price is "unknown" and is kept. Lines coded `FEATURE` (description-derived, `price: 0` means "unknown, not free", `descriptionFeatures.js`) are exempt (`zeroPrice.exemptCodes`).
+- Dropped lines are named `junk:<category>` in the `dropped` lists and counted in `optionJunkDropped`.
+- The policy is unchanged. `/api/inventory` for a policy car uses the same function, so list and facets still agree; a no-policy car's list is still its stored array (`options_json` is never rewritten).
+- Change what is dropped by editing the JSON and restarting deals-api; `OPTION_JUNK_RULES_PATH=<file>` points at another file; `OPTION_JUNK_RULES=off` turns it off. A file that is missing or invalid logs `[options] junk rules not loaded` and boots with the list off; a pattern that does not compile is skipped and logged.
+
+### Deploy (Paul's GO, idle window; nothing here was run)
+
+1. Same idle checks as the section above (no crawl, no sync, lock free; not 22:00 to the end of the syncs).
+2. Dry run, then apply (no restart):
+   ```bash
+   cd ~ && B=https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main && curl -fsSL -o 2026-10-16-option-junk-write-path.mjs "$B/scripts/box/2026-10-16-option-junk-write-path.mjs?cb=$(date +%s)" && node 2026-10-16-option-junk-write-path.mjs
+   node 2026-10-16-option-junk-write-path.mjs --apply
+   ```
+   Every anchor must match exactly once or nothing is written. It prints each backup and the rollback line.
+3. One restart (keep `DISABLE_FACET_REBUILD=1` and the current `OPTION_MODEL_POLICY_PATH`); boot log must show `[options] junk rules 2026-10-16: 7 rules, zero-price on` and no `junk rules not loaded`.
+4. Cars converge the next time they are re-synced; the existing per-make apply scripts re-run the same engine for a faster sweep.
+
+### Rollback
+
+- No file change: restart with `OPTION_JUNK_RULES=off` (check with the `pm2 jlist` line above). Behaviour is exactly the pre-patch behaviour.
+- Files back: `cp -p` the three `.bak.<timestamp>` files over `inventoryOptionRows.js`, `factoryOptionAllowlist.js`, `deals_api_server.js`, remove `optionJunkRules.json` (or restore its `.bak`), restart.
+- Rows already written stay as written; nothing in the patch deletes data.
