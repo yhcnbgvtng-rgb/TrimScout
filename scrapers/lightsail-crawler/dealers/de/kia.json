@@ -1,0 +1,58 @@
+[
+  {
+    "id": "kia-felton-holly-kia",
+    "name": "Felton Holly Kia",
+    "city": "Felton",
+    "state": "DE",
+    "make": "Kia",
+    "domain": "feltonhollykia.com",
+    "sitemapUrl": "https://www.feltonhollykia.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.feltonhollykia.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://feltonhollykia.com/",
+    "lat": 38.98105,
+    "lng": -75.56604,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "kia-kia-of-wilmington",
+    "name": "Kia of Wilmington",
+    "city": "Wilmington",
+    "state": "DE",
+    "make": "Kia",
+    "domain": "kiaofwilmington.com",
+    "sitemapUrl": "https://www.kiaofwilmington.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kiaofwilmington.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kiaofwilmington.com/",
+    "lat": 39.75471,
+    "lng": -75.56347,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "kia-martin-kia",
+    "name": "Martin Kia",
+    "city": "Newark",
+    "state": "DE",
+    "make": "Kia",
+    "domain": "martinkia.net",
+    "sitemapUrl": "https://www.martinkia.net/sitemap.xml",
+    "inventorySitemapUrl": "https://www.martinkia.net/sitemap-inventory.xml",
+    "fallbackUrl": "https://martinkia.net/",
+    "lat": 39.68681,
+    "lng": -75.74208,
+    "domainSource": "oem-locator"
+  },
+  {
+    "id": "kia-selbyville-holly-kia",
+    "name": "Selbyville Holly Kia",
+    "city": "Selbyville",
+    "state": "DE",
+    "make": "Kia",
+    "domain": "kiaselbyville.com",
+    "sitemapUrl": "https://www.kiaselbyville.com/sitemap.xml",
+    "inventorySitemapUrl": "https://www.kiaselbyville.com/sitemap-inventory.xml",
+    "fallbackUrl": "https://kiaselbyville.com/",
+    "lat": 38.46653,
+    "lng": -75.23328,
+    "domainSource": "oem-locator"
+  }
+]
