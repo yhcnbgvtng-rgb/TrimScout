@@ -4,7 +4,9 @@
     "models": [
       "ioniq 6"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -221,7 +223,9 @@
     "models": [
       "kona electric"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -420,7 +424,9 @@
     "models": [
       "elantra hybrid"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -590,7 +596,9 @@
     "models": [
       "elantra n"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {
       "sedan": "n",
       "dct": "n",
@@ -743,7 +751,9 @@
     "models": [
       "elantra"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -952,7 +962,9 @@
     "models": [
       "ioniq 5 n"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -1100,7 +1112,9 @@
     "models": [
       "ioniq 9"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -1343,7 +1357,9 @@
     "modelImplied": {
       "sonata hybrid": "hybrid"
     },
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -1570,7 +1586,9 @@
     "models": [
       "tucson hybrid"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -1780,7 +1798,9 @@
     "models": [
       "tucson plug in hybrid"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -1933,7 +1953,9 @@
     "models": [
       "tucson"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -2196,7 +2218,9 @@
     "models": [
       "venue"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {
       "sel w two tone roof": "sel w 2 tone roof",
       "sel wtwo tone roof": "sel w 2 tone roof"
@@ -2344,7 +2368,9 @@
     "models": [
       "ioniq 5"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -2578,7 +2604,9 @@
     "models": [
       "kona"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -2838,7 +2866,9 @@
       "palisade hybrid",
       "palisade hev"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -3060,7 +3090,9 @@
     "models": [
       "palisade"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -3299,7 +3331,9 @@
     "models": [
       "santa cruz"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -3481,7 +3515,9 @@
     "models": [
       "santa fe hybrid"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [
@@ -3716,7 +3752,9 @@
     "models": [
       "santa fe"
     ],
-    "keepBare": [],
+    "keepBare": [
+      "siriusxm"
+    ],
     "trimAliases": {},
     "orderCodePattern": "(?!)",
     "trimNoise": [

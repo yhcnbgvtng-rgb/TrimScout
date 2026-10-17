@@ -2,7 +2,7 @@
 // Source: docs/hyundai-2025-2027/hyundai_lineup_options_by_trim.csv -> scripts/build-cadillac-honda-kia-option-policy.mjs -> src/optionPolicies/hyundai-2025-2027.json.
 // Paul's rule: every paid factory line on the window sticker stays (paints, packages, options, drivetrain, paid interior colors / materials);
 // accessories, dealer add-ons, $0 items and subscription-only items are dropped.
-import { describe, it } from 'node:test';
+import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildAllowlist, loadBundledModelPoliciesRaw, modelPoliciesFor, optionRowsForVehicle, policyFacetRows } from '../src/factoryOptionAllowlist.js';
 import { parseCsv } from '../../../scripts/lib/optionPolicyCommon.mjs';
-import { normalizeOptionKey } from '../src/inventoryOptionRows.js';
+import { normalizeOptionKey, compileJunkRules, setJunkRules } from '../src/inventoryOptionRows.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, '../../..');
@@ -95,7 +95,7 @@ describe('the CSV is the contract: every paid factory line is in at its price, n
     }
   });
   it('accessories, dealer add-ons, subscriptions and standard equipment from a feed never become options', () => {
-    const junk = ['Carpeted Floor Mats', 'All-Weather Floor Mats', 'Cargo Net', 'Splash Guards', 'Hyundai Blue Link Subscription', 'SiriusXM Subscription', 'Ceramic Coating', 'Nitrogen Tires', 'Wheel Locks', 'Roof Rack Cross Bars', 'Tow Hitch', 'Panoramic Sunroof', 'Heated Seats', 'Leather Seats'];
+    const junk = ['Carpeted Floor Mats', 'All-Weather Floor Mats', 'Cargo Net', 'Splash Guards', 'Hyundai Blue Link Subscription', 'Ceramic Coating', 'Nitrogen Tires', 'Wheel Locks', 'Roof Rack Cross Bars', 'Tow Hitch', 'Panoramic Sunroof', 'Heated Seats', 'Leather Seats'];
     for (const [v, t] of [[{ model: 'Tucson', year: 2026 }, 'Limited'], [{ model: 'Santa Fe', year: 2027 }, 'Calligraphy'], [{ model: 'Palisade', year: 2027 }, 'Limited'], [{ model: 'Ioniq 5', year: 2027 }, 'Limited']]) {
       assert.deepEqual(run({ ...v, trim: t }, junk).rows, [], `${v.model} ${t}`);
     }
@@ -139,5 +139,25 @@ describe('Hyundai specifics', () => {
   it('a blank trim on the sync payload leaves stored rows alone, a trim the policy does not trust also leaves them alone (skip, never wipe)', () => {
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Hyundai', model: 'Tucson', year: 2026, trim: '' }, [{ name: 'Ultimate Red' }]), { skip: true });
     assert.deepEqual(policyFacetRows(ALLOW, { make: 'Hyundai', model: 'Tucson', year: 2026, trim: 'Nope' }, [{ name: 'Ultimate Red' }]), { skip: true });
+  });
+});
+
+describe('SiriusXM stays as a feature (keepBare)', () => {
+  const H = { make: 'Hyundai', model: 'Tucson', year: 2026 };
+  const trim = () => Object.values(RAW[Object.keys(RAW).find((k) => k.startsWith('hyundai|tucson|2026'))].trims)[0].label;
+  before(() => setJunkRules(compileJunkRules(JSON.parse(fs.readFileSync(path.join(repo, 'scrapers/lightsail-crawler/src/optionJunkRules.json'), 'utf8')))));
+  after(() => setJunkRules(null));
+  it('every Hyundai policy lists siriusxm as a bare feature', () => {
+    for (const p of Object.values(RAW)) assert.deepEqual(p.keepBare, ['siriusxm']);
+  });
+  it('bare SiriusXM and the junk list rewrite of its trial/subscription lines come back as one $0 "SiriusXM" row on a trusted trim', () => {
+    for (const name of ['SiriusXM', 'SiriusXM Subscription', 'SiriusXM with 360L Trial Subscription']) {
+      const r = optionRowsForVehicle(ALLOW, { ...H, trim: trim() }, [{ name }]);
+      assert.deepEqual(r.rows.map((x) => [x.key, x.label, x.kind, x.price]), [['siriusxm', 'SiriusXM', 'bare', 0]], name);
+    }
+  });
+  it('a paid SiriusXM extra is still not an option, and an untrusted trim still gets nothing', () => {
+    assert.deepEqual(optionRowsForVehicle(ALLOW, { ...H, trim: trim() }, [{ name: 'SiriusXM 3 Year Traffic and Travel Link Subscription' }]).rows, []);
+    assert.deepEqual(optionRowsForVehicle(ALLOW, { ...H, trim: 'Nope' }, [{ name: 'SiriusXM' }]).rows, []);
   });
 });
