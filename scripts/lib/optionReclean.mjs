@@ -44,10 +44,14 @@ function recleanCovered(allow, vehicle, car, stored) {
   const afterKeys = new Set(after.map((r) => r[0]));
   const why = new Map(res.dropped.map((d) => [normalizeOptionKey(d.label), d.rule]));
   const paid = [];
-  let paidKept = 0;
+  let paidKept = 0, renamed = 0;
   const removed = [];
   for (const [key, label, code] of stored) {
-    const paidLine = isPaid(ownTrim?.entries?.get(key));
+    // The stored key may be an alias of a policy entry ("... Package (i-FORCE MAX)" for the entry's own key). Resolve through the trim's index; when the
+    // engine re-keys that entry (its canonical key is in `after`), the old row is a rename, not a removal.
+    const entry = ownTrim?.index?.get(key) || null;
+    if (entry && entry.key !== key && afterKeys.has(entry.key)) { renamed++; continue; }
+    const paidLine = isPaid(entry);
     if (paidLine) paid.push(key);
     if (afterKeys.has(key)) continue;
     if (paidLine) { after.push([key, label, code ?? null]); afterKeys.add(key); paidKept++; continue; } // a paid sticker line stays, whatever the feed says today
@@ -58,7 +62,7 @@ function recleanCovered(allow, vehicle, car, stored) {
   for (const [k, l] of bm) if (am.has(k) && am.get(k) !== l) relabeled++;
   for (const k of am.keys()) if (!bm.has(k)) added++;
   const changed = removed.length || relabeled || added;
-  return { status: changed ? "change" : "unchanged", covered: true, scope: res.scope, ownTrimLabel: ownTrim?.label || null, after, removed, relabeled, added, rewritten: 0, paid, paidKept, legacyOnly: 0 };
+  return { status: changed || renamed ? "change" : "unchanged", covered: true, scope: res.scope, ownTrimLabel: ownTrim?.label || null, renamed, after, removed, relabeled, added, rewritten: 0, paid, paidKept, legacyOnly: 0 };
 }
 
 function recleanUncovered(allow, car, stored) {
