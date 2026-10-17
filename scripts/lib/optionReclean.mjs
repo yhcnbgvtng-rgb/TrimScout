@@ -58,7 +58,7 @@ function recleanCovered(allow, vehicle, car, stored) {
   for (const [k, l] of bm) if (am.has(k) && am.get(k) !== l) relabeled++;
   for (const k of am.keys()) if (!bm.has(k)) added++;
   const changed = removed.length || relabeled || added;
-  return { status: changed ? "change" : "unchanged", covered: true, scope: res.scope, after, removed, relabeled, added, rewritten: 0, paid, paidKept, legacyOnly: 0 };
+  return { status: changed ? "change" : "unchanged", covered: true, scope: res.scope, ownTrimLabel: ownTrim?.label || null, after, removed, relabeled, added, rewritten: 0, paid, paidKept, legacyOnly: 0 };
 }
 
 function recleanUncovered(allow, car, stored) {
@@ -88,4 +88,17 @@ function recleanUncovered(allow, car, stored) {
   const after = [...kept.values()];
   const bk = new Set(stored.map((r) => r[0]));
   return { status: "change", covered: false, after, removed, relabeled: 0, added: after.filter((r) => !bk.has(r[0])).length, rewritten, paid: [], paidKept: 0, legacyOnly };
+}
+
+/**
+ * Where a removed row's key sits in the policies of its make: Map(normalized make -> Map(key -> [{ scope, trim, label, paid }])). Every trim of every policy,
+ * aliases included, so a removal can be checked against ALL policy entries (not just the car's own trim).
+ */
+export function buildPolicyMatchIndex(allow) {
+  const out = new Map();
+  for (const p of allow.models.values()) {
+    const byKey = out.get(p.make) || out.set(p.make, new Map()).get(p.make);
+    for (const t of p.trims.values()) for (const [key, e] of t.index) (byKey.get(key) || byKey.set(key, []).get(key)).push({ scope: p.scope, trim: t.label, label: e.label, paid: isPaid(e) });
+  }
+  return out;
 }
