@@ -26,7 +26,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { buildAllowlist, loadBundledModelPoliciesRaw } from "../../scrapers/lightsail-crawler/src/factoryOptionAllowlist.js";
 import { compileJunkRules, setJunkRules } from "../../scrapers/lightsail-crawler/src/inventoryOptionRows.js";
-import { recleanCar, RECLEAN_MAKES } from "../lib/optionReclean.mjs";
+import { recleanCar, buildPolicyMatchIndex, RECLEAN_MAKES } from "../lib/optionReclean.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
@@ -48,6 +48,8 @@ if (compiled.errors.length) throw new Error(`junk rules do not compile: ${compil
 setJunkRules(compiled);
 const allow = buildAllowlist(null, policies);
 const CTX = { allow };
+const MATCH = buildPolicyMatchIndex(allow);
+const normMake = (m) => String(m).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 const PHASE = args.phase;
 const OUT = path.resolve(args.out || ".");
@@ -136,8 +138,9 @@ async function readDealers(conn, make, dealerIds, label, canSplit) {
 // ---- tallies (counts and label text only; no VIN, no row) ----
 const newStat = () => ({ carsScanned: 0, policyCars: 0, uncoveredCars: 0, skippedBlankTrim: 0, skippedUntrustedTrim: 0, carsChanged: 0, rowsRemoved: 0, rowsRewritten: 0, rowsRelabeled: 0, rowsAdded: 0, paidLinesKept: 0, legacyOnlyNotApplied: 0, backupRows: 0 });
 const stats = new Map(MAKES.map((m) => [m, newStat()]));
-const labelCounts = new Map(), ruleCounts = new Map();
-function tally(make, res, storedCount) {
+const labelCounts = new Map(), ruleCounts = new Map(), policyHits = new Map();
+const ownTrimPaidRemoved = { n: 0 };
+function tally(make, car, res, storedCount) {
   const s = stats.get(make); s.carsScanned++;
   s[res.covered ? "policyCars" : "uncoveredCars"]++;
   if (res.status === "skip-blank-trim") { s.skippedBlankTrim++; return; }
@@ -147,14 +150,23 @@ function tally(make, res, storedCount) {
   s.carsChanged++; s.backupRows += storedCount;
   for (const r of res.removed) {
     if (r.rule === "rewrite") continue;
-    s.rowsRemoved++; bump(ruleCounts, r.rule); bump(labelCounts, `${r.label.replace(/\s+/g, " ").trim().slice(0, 80)}\u0001${r.rule}`);
+    s.rowsRemoved++; bump(ruleCounts, r.rule); bump(labelCounts, `${make}\u0001${r.label.replace(/\s+/g, " ").trim().slice(0, 80)}\u0001${r.rule}`);
+    // Does the removed row match an entry of ANY policy of this make? (a paid sticker line must never be on the removal list for the car's own trim)
+    for (const h of MATCH.get(normMake(make))?.get(r.key) || []) {
+      const own = res.covered && h.scope === res.scope && h.trim === res.ownTrimLabel;
+      const where = own ? "own-trim" : res.covered && h.scope === res.scope ? "other-trim-same-model" : "other-policy";
+      if (own && h.paid) ownTrimPaidRemoved.n++;
+      bump(policyHits, `${make}\u0001${h.paid ? "PAID" : "unpaid"}\u0001${where}\u0001${h.label}\u0001${h.scope}|${h.trim}`);
+    }
   }
   s.rowsRewritten += res.rewritten || 0; s.rowsRelabeled += res.relabeled || 0; s.rowsAdded += res.added || 0;
 }
 function report(extra) {
   const total = newStat(); for (const s of stats.values()) for (const k of Object.keys(total)) total[k] += s[k];
-  const top = [...labelCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 30).map(([k, n]) => { const [label, rule] = k.split("\u0001"); return { label, rule, rows: n }; });
-  return { ...extra, makes: MAKES, stride: STRIDE, junkRules: compiled.rules.length, junkRulesVersion: compiled.version, perMake: Object.fromEntries(stats), total, rowsRemovedByRule: [...ruleCounts.entries()].sort((a, b) => b[1] - a[1]), top30LabelsRemoved: top, queries, timeouts, slowestQueryMs: slowest };
+  const perMakeTop = Object.fromEntries(MAKES.map((m) => [m, [...labelCounts.entries()].map(([k, n]) => ({ k: k.split("\u0001"), n })).filter((x) => x.k[0] === m).sort((a, b) => b.n - a.n).slice(0, 30).map((x) => ({ label: x.k[1], rule: x.k[2], rows: x.n }))]));
+  const hits = [...policyHits.entries()].map(([k, n]) => { const [make, paid, where, label, trim] = k.split("\u0001"); return { make, paid, where, label, policyTrim: trim, rows: n }; }).sort((a, b) => b.rows - a.rows);
+  const policyMatches = { removedRowsMatchingAnyPolicyEntry: hits.reduce((n, h) => n + h.rows, 0), ownTrimPaidLinesRemoved: ownTrimPaidRemoved.n, paidOtherTrimOrPolicy: hits.filter((h) => h.paid === "PAID"), unpaid: hits.filter((h) => h.paid !== "PAID").slice(0, 100) };
+  return { ...extra, makes: MAKES, stride: STRIDE, junkRules: compiled.rules.length, junkRulesVersion: compiled.version, perMake: Object.fromEntries(stats), total, rowsRemovedByRule: [...ruleCounts.entries()].sort((a, b) => b[1] - a[1]), top30LabelsRemovedPerMake: perMakeTop, policyMatches, queries, timeouts, slowestQueryMs: slowest };
 }
 async function dealerIdsFor(conn, make) {
   return (await q(conn, `dealer ids ${make}`, "SELECT DISTINCT dealer_id FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_dealer) WHERE removed_at IS NULL AND make = ?", [make])).map((r) => Number(r.dealer_id)).sort((a, b) => a - b);
@@ -171,7 +183,7 @@ async function dryrun() {
     if (pastDeadline()) { stopReason = `deadline ${dlText}`; break; }
     if (lockHeld()) { stopReason = "the sync lock was taken - stopped"; break; }
     const { cars, by } = await readDealers(conn, b.make, b.dealerIds, `#${b.batch}`, true);
-    for (const c of cars) tally(b.make, recleanCar(CTX, c, by.get(`${c.vin}|${c.dealer_id}`) || []), (by.get(`${c.vin}|${c.dealer_id}`) || []).length);
+    for (const c of cars) { const st = by.get(`${c.vin}|${c.dealer_id}`) || []; tally(b.make, c, recleanCar(CTX, c, st), st.length); }
     if (b.batch % 50 === 0) console.error(`  batch ${b.batch}/${batches.length} (${b.make}), ${queries} queries, slowest ${slowest} ms, ${Math.round((Date.now() - started) / 60000)} min`);
     await sleep(250);
   }
@@ -181,6 +193,7 @@ async function dryrun() {
 
 // ================= plan =================
 async function plan() {
+  if (lockHeld()) throw new StopRun("the sync lock is held - not reading now");
   fs.mkdirSync(OUT, { recursive: true });
   const conn = await pool.getConnection(); const started = Date.now();
   const batches = await batchesFor(conn);
@@ -188,14 +201,16 @@ async function plan() {
   const bk = fs.openSync(P("backup.jsonl"), "w"), pl = fs.openSync(P("plan.jsonl"), "w"); let stopReason = "all batches done";
   for (const b of batches) {
     if (pastDeadline()) { stopReason = `deadline ${dlText}`; break; }
+    if (lockHeld()) { stopReason = "the sync lock was taken - stopped"; break; }
     const { cars, by } = await readDealers(conn, b.make, b.dealerIds, `#${b.batch}`, true);
     for (const c of cars) {
       const before = by.get(`${c.vin}|${c.dealer_id}`) || [];
-      const res = recleanCar(CTX, c, before); tally(b.make, res, before.length);
+      const res = recleanCar(CTX, c, before); tally(b.make, c, res, before.length);
       if (res.status !== "change") continue;
       fs.writeSync(bk, JSON.stringify({ batch: b.batch, make: b.make, vin: c.vin, dealer_id: c.dealer_id, scope: res.scope || null, rows: before, paid: res.paid }) + "\n");
       fs.writeSync(pl, JSON.stringify({ batch: b.batch, vin: c.vin, dealer_id: c.dealer_id, after: res.after }) + "\n");
     }
+    await sleep(250);
     if (b.batch % 50 === 0) console.log(`  plan batch ${b.batch}/${batches.length} (${b.make}), ${queries} queries, slowest ${slowest} ms`);
   }
   fs.fsyncSync(bk); fs.fsyncSync(pl); fs.closeSync(bk); fs.closeSync(pl);

@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildAllowlist, loadBundledModelPoliciesRaw } from '../src/factoryOptionAllowlist.js';
 import { compileJunkRules, setJunkRules } from '../src/inventoryOptionRows.js';
-import { recleanCar, RECLEAN_MAKES } from '../../../scripts/lib/optionReclean.mjs';
+import { recleanCar, buildPolicyMatchIndex, RECLEAN_MAKES } from '../../../scripts/lib/optionReclean.mjs';
 
 const repo = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const rules = JSON.parse(fs.readFileSync(path.join(repo, 'scrapers/lightsail-crawler/src/optionJunkRules.json'), 'utf8'));
@@ -85,6 +85,18 @@ describe('cars no policy covers', () => {
   });
   it('Roadside Assistance Kit is exempt and stays', () => {
     assert.equal(recleanCar(CTX, plain, [row('roadside assistance kit', 'Roadside Assistance Kit')]).status, 'unchanged');
+  });
+});
+
+describe('policy match index (plan report)', () => {
+  it('finds a policy entry (paid, with its trim and scope) for a row key, for the right make only', () => {
+    const idx = buildPolicyMatchIndex(CTX.allow);
+    const hit = idx.get('audi').get('trailer hitch');
+    assert.ok(hit.some((h) => h.paid && h.label === 'Trailer hitch' && h.scope.startsWith('audi|q9')));
+    assert.equal(idx.get('toyota').get('trailer hitch'), undefined);
+  });
+  it('the own trim is reported on a covered car result', () => {
+    assert.equal(recleanCar(CTX, car(['Trailer hitch', 'Roadside Assistance']), [row('trailer hitch', 'Trailer hitch'), row('roadside assistance', 'Roadside Assistance')]).ownTrimLabel, 'Prestige TFSI quattro tiptronic');
   });
 });
 
