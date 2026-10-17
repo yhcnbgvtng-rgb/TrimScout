@@ -185,3 +185,17 @@ cp -p $BK/optionJunkRules.json /opt/trimscout-deals/src/optionJunkRules.json && 
 DISABLE_FACET_REBUILD=1 OPTION_MODEL_POLICY_PATH="$(cat $BK/policy-path.pre)" pm2 restart deals-api --update-env && pm2 save
 ```
 Then re-run the step 5 `pm2 jlist` line (expect 15 entries) and the step 6 log check (expect `junk rules 2026-10-16: 7 rules`). Rules-only rollback keeps Hyundai by restoring just the file and restarting with `OPTION_MODEL_POLICY_PATH="$(cat $N)"`. Rows already written stay as written.
+
+## Re-clean of stored rows for all policy makes (code only; nothing here was run against live data except the read-only dry run)
+
+`scripts/box/2026-10-16-option-reclean.mjs` (+ `scripts/lib/optionReclean.mjs`, tests in `scrapers/lightsail-crawler/test/option_reclean.test.js`) applies the current junk list (10 rules + rewrites) and the model policies to the rows `dealer_inventory_options` holds today, for the 15 policy makes (`--makes=` narrows it). Same flow and rails as the Audi apply: dealer-first 20-dealer batches per make, 20 s statement cap (one split retry, a second timeout stops), sync lock with heartbeat, backup before apply, per-batch checkpoint, **hard stop 21:40 ET**, restore phase.
+
+- **Phases**: `dryrun` (reader account, writes nothing, no lock, counts and label text only) -> `plan` (writes backup.jsonl / plan.jsonl / batches.json / plan-summary.json into `--out`) -> `apply` (takes the lock; refuses an incomplete or `--stride` plan) -> `verify` (read-only: no applied car still dirty, no paid line lost) -> `restore` (dry unless `--go`; `--through-batch=N`, `--only=file.json`).
+- **Skipped**: a car with a blank trim, and a policy-covered car whose trim the policy does not trust. A paid sticker line of the car's own trim (price, package price or per-drivetrain price > 0) is never removed; apply also skips any car whose plan would lose one.
+- **Cars a policy covers** get the policy engine's rows for their `options_json` (what the nightly sync writes). **Cars no policy covers** only lose rows a `junk:*` rule drops, or get a rewrite (SiriusXM trial -> SiriusXM); nothing is added; legacy-rule-only drops are counted, not applied.
+- **Running it** (the box has no checkout; the bundle carries the engine, the junk list and all 16 policies, nothing is written on the box by the dry run):
+  ```bash
+  node scripts/box/2026-10-16-option-reclean.mjs --emit > reclean.bundle.mjs
+  ssh box2 'cd /opt/trimscout-deals && node --input-type=module - --phase=dryrun [--stride=4] [--makes=Audi,Kia]' < reclean.bundle.mjs
+  ```
+  `plan`/`apply`/`verify`/`restore` take `--out=DIR` (a directory on the box that survives: it holds the backup). Apply only in an idle window, on Paul's typed GO.
