@@ -242,7 +242,7 @@ for (const brand of BRANDS) {
       source: `docs/${docsDir(brand)}/${brand}_lineup_options_by_trim.csv (${year} ${model})`,
       models: [slug(model), ...(al.models || []).map(slug)],
       ...(al.modelImplied ? { modelImplied: Object.fromEntries(Object.entries(al.modelImplied).map(([m, w]) => [slug(m), slug(w)])) } : {}),
-      keepBare: [],
+      keepBare: brand === "hyundai" ? ["siriusxm"] : [], // Hyundai: bare SiriusXM (and the junk list's rewrite of its trial lines) stays as a $0 feature, on a trusted trim only
       trimAliases: pairs(al.trimAliases, slug),
       ...(al.modelTrim ? { modelTrimAliases: pairs(al.modelTrim, (from) => from.split("|").map(slug).join("|")) } : {}),
       orderCodePattern: "(?!)", // no option here is keyed on an order code: a feed code never matches a policy key
