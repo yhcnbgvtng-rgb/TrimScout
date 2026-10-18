@@ -3022,6 +3022,14 @@
             "kind": "option",
             "price": 455,
             "aliases": []
+          },
+          "xlt black appearance package": {
+            "label": "XLT Black Appearance Package",
+            "kind": "package",
+            "price": 920,
+            "aliases": [
+              "xlt black appearance pkg"
+            ]
           }
         }
       },
@@ -3253,6 +3261,12 @@
             "label": "SecuriCode Keyless-Entry Keypad, Driver's Side",
             "kind": "option",
             "price": 455,
+            "aliases": []
+          },
+          "twin panel moonroof": {
+            "label": "Twin Panel Moonroof",
+            "kind": "option",
+            "price": 1495,
             "aliases": []
           }
         }
