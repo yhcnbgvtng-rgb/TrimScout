@@ -69,6 +69,33 @@ export function candidateSitemapUrls(dealer, { apexFirst = false } = {}) {
   return list;
 }
 
+/**
+ * `Sitemap:` lines of a robots.txt that point at the dealer's own site (same host ignoring a leading www) and were not already tried. Found 2026-10-18:
+ * persistent "answered but listed no vehicle URLs" stores (Jeff Wyler Nissan Louisville, Jeff Wyler Honda of Colerain, West Herr Subaru, Kia of Cape Coral) answer
+ * 200 with 0 <loc> at /sitemap.xml and /sitemap-inventory.xml on both hosts, while their robots.txt names a sitemap on the apex host. Third-party hosts are
+ * ignored (a sitemap on another site is not this store's inventory), http/https only, at most `max` URLs.
+ * @param {string} robotsText
+ * @param {string} dealerHost  host the crawl uses for this dealer (www or apex)
+ * @param {string[]} [alreadyTried]
+ */
+export function robotsSitemapUrls(robotsText, dealerHost, alreadyTried = [], max = 5) {
+  const site = stripWww(String(dealerHost || "").toLowerCase());
+  if (!site) return [];
+  const tried = new Set(alreadyTried);
+  const out = [];
+  for (const m of String(robotsText || "").matchAll(/^\s*sitemap\s*:\s*(\S+)/gim)) {
+    let u;
+    try { u = new URL(m[1]); } catch { continue; }
+    if (u.protocol !== "https:" && u.protocol !== "http:") continue;
+    if (stripWww(u.hostname.toLowerCase()) !== site) continue;
+    const href = u.href;
+    if (tried.has(href) || out.includes(href)) continue;
+    out.push(href);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
 /** Active vehicles per crawl-loop dealer key in a brand snapshot (the same key mergeInventorySnapshot scopes by). */
 export function previousCountsByDealer(snapshot) {
   const counts = new Map();

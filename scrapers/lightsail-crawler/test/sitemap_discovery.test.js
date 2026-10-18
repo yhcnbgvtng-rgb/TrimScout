@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
   classifyAttempt, describeAttempt, summarizeDiscovery, candidateSitemapUrls, previousCountsByDealer,
-  zeroVdpAlerts, formatZeroVdpAlert, ZERO_VDP_ALERT_MIN_PREVIOUS,
+  zeroVdpAlerts, formatZeroVdpAlert, ZERO_VDP_ALERT_MIN_PREVIOUS, robotsSitemapUrls,
 } from '../src/sitemapDiscovery.js';
 
 const att = (o) => ({ url: 'https://x.com/sitemap.xml', status: 200, error: null, locs: 0, vdp: 0, ...o });
@@ -128,5 +128,21 @@ describe('standalone.js wiring (source guards: the script is not importable)', (
   });
   it('the retry pass can be switched off', () => {
     assert.match(src, /CRAWLER_SITEMAP_RETRY_PASS !== 'false'/);
+  });
+});
+
+describe('robotsSitemapUrls', () => {
+  const robots = 'User-agent: *\nDisallow: /x\nSitemap: https://kiaofcapecoral.com/sitemap_index.xml\nsitemap: https://www.kiaofcapecoral.com/vehicles.xml\nSitemap: https://other-site.com/sitemap.xml\nSitemap: ftp://kiaofcapecoral.com/a.xml\nSitemap: not a url\n';
+  it('keeps Sitemap: lines on the dealer\'s own site (www or apex) and drops third-party, non-http and malformed ones', () => {
+    assert.deepEqual(robotsSitemapUrls(robots, 'www.kiaofcapecoral.com'), ['https://kiaofcapecoral.com/sitemap_index.xml', 'https://www.kiaofcapecoral.com/vehicles.xml']);
+  });
+  it('skips URLs that were already tried and de-duplicates', () => {
+    assert.deepEqual(robotsSitemapUrls(robots + 'Sitemap: https://kiaofcapecoral.com/sitemap_index.xml\n', 'kiaofcapecoral.com', ['https://kiaofcapecoral.com/sitemap_index.xml']), ['https://www.kiaofcapecoral.com/vehicles.xml']);
+  });
+  it('caps the list and handles empty input', () => {
+    const many = Array.from({ length: 9 }, (_, i) => `Sitemap: https://a.com/s${i}.xml`).join('\n');
+    assert.equal(robotsSitemapUrls(many, 'a.com').length, 5);
+    assert.deepEqual(robotsSitemapUrls('', 'a.com'), []);
+    assert.deepEqual(robotsSitemapUrls(robots, ''), []);
   });
 });
