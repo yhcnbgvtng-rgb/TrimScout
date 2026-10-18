@@ -42,6 +42,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,F-150,XLT,300A,45695,Factory option,,Trailer Tow – Manual Folding and Telescoping mirrors,395,,,models/f150_options.md:119
 2026,F-150,XLT,300A,45695,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:122
 2026,F-150,XLT,300A,45695,Factory option,,SecuriCode Keyless-Entry – Driver's Side,455,,sidebar price; overlay not read,models/f150_options.md:124
+2026,F-150,XLT,300A,45695,Factory package,,XLT Black Appearance Package,920,,key=name:xlt black appearance package,window-sticker check 2026-10-18 (US sticker; Plus variant not added)
 2026,F-150,Lariat,500A,59560,Base,,Base MSRP,59560,,"Destination Charges $2,795 not included",models/f150_options.md:134
 2026,F-150,Lariat,500A,59560,Powertrain,Engine,5.0L V8 w/ Auto Start-Stop,375,,,models/f150_options.md:136
 2026,F-150,Lariat,500A,59560,Powertrain,Axle,3.55 Electronic Locking,470,,,models/f150_options.md:136
@@ -65,6 +66,7 @@ year,model,trim,model_code,trim_base_msrp,category,subcategory,item,price_usd,co
 2026,F-150,Lariat,500A,59560,Factory option,,"Trailer Tow – Power-Folding, PowerScope Telescoping mirrors",395,,,models/f150_options.md:158
 2026,F-150,Lariat,500A,59560,Factory option,,Bedliner – Tough Bed Spray-In,625,,sidebar price; overlay not read,models/f150_options.md:161
 2026,F-150,Lariat,500A,59560,Factory option,,"SecuriCode Keyless-Entry Keypad, Driver's Side",455,,sidebar price; overlay not read,models/f150_options.md:163
+2026,F-150,Lariat,500A,59560,Factory option,,Twin Panel Moonroof,1495,,price from the King Ranch and Raptor rows (US Lariat price not yet seen; a Lariat sticker confirmed it is a paid line),window-sticker check 2026-10-18
 2026,F-150,King Ranch,600A,65825,Base,,Base MSRP,65825,,"Destination Charges $2,795 not included",models/f150_options.md:171
 2026,F-150,King Ranch,600A,65825,Powertrain,Engine,3.5L PowerBoost Full Hybrid V6,1340,,sidebar price; overlay not read; requires 4x4 and Hybrid 10-speed per overlay,models/f150_options.md:173
 2026,F-150,King Ranch,600A,65825,Powertrain,Axle,3.55 Electronic Locking with Tow Haul – Max Tow,395,,,models/f150_options.md:173

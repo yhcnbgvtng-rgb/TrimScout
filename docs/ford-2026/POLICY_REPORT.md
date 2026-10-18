@@ -31,8 +31,8 @@ Not covered (untouched): Explorer, F-150 Lightning, Escape, Mustang and every ot
 | 2026 | Bronco | Raptor | 5 | 5 | 0 | 11 | 4 |
 | 2026 | F-150 | XL | 1 | 3 | 4 | 1 | 0 |
 | 2026 | F-150 | STX | 2 | 2 | 4 | 4 | 0 |
-| 2026 | F-150 | XLT | 4 | 4 | 6 | 5 | 0 |
-| 2026 | F-150 | Lariat | 8 | 3 | 5 | 6 | 2 |
+| 2026 | F-150 | XLT | 5 | 4 | 6 | 5 | 0 |
+| 2026 | F-150 | Lariat | 8 | 4 | 5 | 6 | 2 |
 | 2026 | F-150 | King Ranch | 2 | 4 | 3 | 3 | 2 |
 | 2026 | F-150 | Platinum | 5 | 4 | 3 | 5 | 4 |
 | 2026 | F-150 | Tremor | 6 | 4 | 1 | 3 | 0 |
@@ -130,5 +130,6 @@ Every other entry is keyed on its full normalized name.
 - `BlueCruise Hands-Free Highway Driving Equipped (One-Time Purchase)` ($2,495, F-150 Lariat and Tremor) is kept: it is a priced factory package bought once, not a subscription plan. Subscription plans are dropped by name.
 - The default-selected paid paint on a trim (the CSV note "default-selected paid paint excluded") is kept at its price: it is a paid paint that the trim's base price leaves out.
 - Paid functional options Ford tags "Interior" are kept; interior colors, seats and trim choices are dropped (above).
+- Window-sticker check 2026-10-18 (F-150 XLT): four paid sticker lines are intentionally NOT options. `BlueCruise equip: 1yr+90d plan` ($495) and `Conn Pkg: 1 time 7yr` ($745) are subscriptions / connectivity plans (dropped by name, like the other plans); `Floor liner - tray style` ($200) is an accessory (dealer add-on). `Bedliner-ToughBed Spray-In` ($625) is already the kept factory option `Bedliner – Tough Bed Spray-In`. Added from the same check: F-150 XLT `XLT Black Appearance Package` ($920, a US sticker) and F-150 Lariat `Twin Panel Moonroof` ($1,495, taken from the King Ranch and Raptor rows; a Lariat sticker confirmed it is paid, the US Lariat price is not yet seen). FX4 on XLT, the trailer brake controller on Lariat and Tremor, Twin Panel Moonroof on Platinum, the block heater on Lariat and the 4K Tow Package on Maverick XLT were NOT changed: no US sticker confirmed them.
 - `Interior Protection Package` ($395, Bronco Sport) and `Matte Film Protection Package - Body` ($4,995, Bronco) are listed in the CSV as factory packages, so they are kept. Dealer protection products (paint protection, fabric protection, floor mats, cargo liners) are add-ons and never reach the website. If Paul counts these two factory packages as protection items, add them to the accessory list in the builder.
 
