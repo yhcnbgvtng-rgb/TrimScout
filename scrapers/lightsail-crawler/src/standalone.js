@@ -44,7 +44,7 @@ process.on('exit', () => {
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
-import { candidateSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
+import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
 import {
@@ -691,7 +691,27 @@ async function resolveSitemapDiscovery(dealer, brand, patchrightPage = null, { a
         const found = await fetchSitemapXmlUrls(url, 0, brand, patchrightPage, attempts);
         if (found.length > 0) { urls = found; break; }
     }
-    return { urls, attempts, ...summarizeDiscovery(attempts, urls.length) };
+    let summary = summarizeDiscovery(attempts, urls.length);
+    // Every candidate answered with no vehicle URLs ("empty"): read the store's own robots.txt once and try the Sitemap: URLs it declares.
+    // One plain GET; a refusal or error is recorded in the log line and ends it (nothing is worked around). CRAWLER_ROBOTS_SITEMAP=false turns it off.
+    if (urls.length === 0 && summary.outcome === 'empty' && !patchrightPage && process.env.CRAWLER_ROBOTS_SITEMAP !== 'false') {
+        const host = dealer.domain || (() => { try { return new URL(dealer.sitemapUrl).hostname; } catch { return ''; } })();
+        if (host) {
+            try {
+                const res = await gotScraping({ url: `https://${host.replace(/^www\./i, '')}/robots.txt`, responseType: 'text', timeout: { request: 8000 }, retry: { limit: 0 } });
+                const declared = robotsSitemapUrls(res.body, host, attempts.map((a) => a.url));
+                if (declared.length) console.log(`   ↳ robots.txt declares ${declared.length} sitemap(s) not tried yet`);
+                for (const url of declared) {
+                    const found = await fetchSitemapXmlUrls(url, 0, brand, null, attempts);
+                    if (found.length > 0) { urls = found; break; }
+                }
+            } catch (err) {
+                console.log(`   ↳ robots.txt ${err && err.response && err.response.statusCode ? `HTTP ${err.response.statusCode}` : `ERROR ${(err && (err.code || err.name)) || 'ERROR'}`} - not retried`);
+            }
+            summary = summarizeDiscovery(attempts, urls.length);
+        }
+    }
+    return { urls, attempts, ...summary };
 }
 
 async function resolveSitemapUrls(dealer, brand, patchrightPage = null) {
