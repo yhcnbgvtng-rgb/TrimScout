@@ -199,3 +199,21 @@ Then re-run the step 5 `pm2 jlist` line (expect 15 entries) and the step 6 log c
   ssh box2 'cd /opt/trimscout-deals && node --input-type=module - --phase=dryrun [--stride=4] [--makes=Audi,Kia]' < reclean.bundle.mjs
   ```
   `plan`/`apply`/`verify`/`restore` take `--out=DIR` (a directory on the box that survives: it holds the backup). Apply only in an idle window, on Paul's typed GO.
+
+## The nightly sync cleans what it writes (2026-10-19, code only)
+
+`handleInventoryBulk` now makes the same decision the re-clean tool makes, once per car (`scrapers/lightsail-crawler/src/syncOptionClean.js`), for the stored rows **and** `options_json`:
+
+| car | stored rows (`dealer_inventory_options`) | `options_json` |
+|---|---|---|
+| policy-covered, trusted trim | the policy result (unchanged); a stored **paid** line of the car's own trim that tonight's payload no longer lists is kept | the policy result (`{code,name,price,kind}`), i.e. what `/api/inventory` already showed |
+| policy-covered, blank or untrusted trim | left alone **except** exact-junk rows, which are deleted (one PK-range read per such car, one DELETE by full primary key) | the payload minus exact-junk lines |
+| no policy covers it | legacy rules + junk list (unchanged) | the payload minus the lines the junk list / exact-junk labels drop |
+
+- **Exact-junk labels**: OPTION PACKAGES, Creators, Artists, Exp, Title, See OnStar, "com or dealer for details" and bare dates (rule `exact-junk-labels` in `optionJunkRules.json`; the same patterns are built into `syncOptionClean.js` so they still apply when the list is off or an older file). A line that carries a price is never dropped by them.
+- **Policies**: `loadSyncAllowlist` loads the env-listed policies **plus every bundled `optionPolicies/*.json`** (the 16 files the re-clean uses), so the sync cannot run with fewer makes than the re-clean (before, only the files named in `OPTION_MODEL_POLICY_PATH` counted). `OPTION_BUNDLED_POLICIES=off` = env list only.
+- **`OPTIONS_JSON_CLEAN`** = `full` (default) | `junk` | `off`. Trade-off: with `full`, `options_json` of a policy-covered car holds only the policy result, so a *later* policy change (new rows) is picked up at that car's next sync, not by re-running the re-clean alone. `junk` keeps the raw list minus junk; `off` stores the payload as sent. The stored rows are cleaned in every mode.
+- The response of `POST /api/inventory/bulk` gains `optionExactJunkPurged`.
+- `OPTIONS_DIFF_WRITE=0` (the env switch for rewrite-everything) skips the paid-line merge, since that is the path that reads the stored rows.
+
+Install on box2 (nothing here has been run): `scripts/box/2026-10-19-sync-option-clean.mjs` (dry run by default; `--apply` backs up each file as `.bak.<timestamp>`, installs `syncOptionClean.js`, never restarts). Then, in an idle window with no sync or crawl running and the sync lock free: `pm2 restart deals-api` (no `--update-env`). Rollback: `cp -p` the `.bak` files back, remove `syncOptionClean.js`, restart. Env-only fallback: `OPTIONS_JSON_CLEAN=off OPTION_BUNDLED_POLICIES=off pm2 restart deals-api --update-env`.

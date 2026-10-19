@@ -115,6 +115,29 @@ export function loadAllowlistFromEnv(env = process.env) {
   return { allowlist: errors.length && !rawMakes && !rawModels ? EMPTY_ALLOWLIST : buildAllowlist(rawMakes, rawModels), error: errors.join("; ") || null };
 }
 
+/**
+ * What the nightly sync loads: everything loadAllowlistFromEnv loads PLUS every bundled model policy (BUNDLED_MODEL_POLICY_PATHS, the same 16 files the
+ * re-clean tool uses), so the sync can never run with fewer makes than the re-clean. A scope listed by OPTION_MODEL_POLICY_PATH wins over the bundled
+ * one with the same scope; a bundled file that is missing on this box is skipped and named in `error` (the rest still load). OPTION_BUNDLED_POLICIES=off
+ * loads exactly what loadAllowlistFromEnv loads.
+ */
+export function loadSyncAllowlist(env = process.env) {
+  if (String(env.OPTION_BUNDLED_POLICIES || "").toLowerCase() === "off") return loadAllowlistFromEnv(env);
+  const makePath = String(env.OPTION_ALLOWLIST_PATH || "").trim();
+  const errors = [];
+  let rawMakes = null, rawModels = {};
+  if (makePath) { try { rawMakes = JSON.parse(fs.readFileSync(makePath, "utf8")); } catch (err) { errors.push(`${makePath}: ${err.message}`); } }
+  const bundled = {};
+  for (const f of BUNDLED_MODEL_POLICY_PATHS) {
+    try { Object.assign(bundled, JSON.parse(fs.readFileSync(f, "utf8"))); } catch (err) { errors.push(`${path.basename(f)}: ${err.code === "ENOENT" ? "not installed on this box" : err.message}`); }
+  }
+  for (const f of String(env.OPTION_MODEL_POLICY_PATH || "").split(",").map((x) => x.trim()).filter(Boolean)) {
+    try { rawModels = { ...rawModels, ...JSON.parse(fs.readFileSync(f, "utf8")) }; } catch (err) { errors.push(`${f}: ${err.message}`); }
+  }
+  const models = { ...bundled, ...rawModels };
+  return { allowlist: Object.keys(models).length || rawMakes ? buildAllowlist(rawMakes, Object.keys(models).length ? models : null) : EMPTY_ALLOWLIST, error: errors.join("; ") || null };
+}
+
 // ---- Model-scoped factory-option policy (first user: 2026 Toyota RAV4) ---------------------------------------------------
 // A make-level allowlist can't say "this option is paid on the SE and standard on the Limited", and for a model where we hold the
 // manufacturer's per-trim build data that distinction is the whole point. A policy is keyed "make|model|year" and, for a vehicle it

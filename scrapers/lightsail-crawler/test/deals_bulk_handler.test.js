@@ -7,7 +7,7 @@
 // The property that matters most: with INVENTORY_OPTIONS_DIFF_WRITE on, the facet table ends up EXACTLY as it
 // would with the old rewrite-everything behavior, for any sequence of nights, including when the derivation
 // rules change in between.
-import { describe, it } from 'node:test';
+import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -15,6 +15,9 @@ import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOption
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
 import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, policyFacetRows, policyApiOptions } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
+import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from '../src/syncOptionClean.js';
+import { installJunkRulesFromEnv } from '../src/factoryOptionAllowlist.js';
+import { setJunkRules } from '../src/inventoryOptionRows.js';
 import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
 import { resolveVehicleIds } from '../src/vehicleId.js';
 import { guardPrice } from '../src/ingestGuards.js';
@@ -42,6 +45,7 @@ function makeDb() {
     ids: new Map(), // vehicle_ids registry: vin -> id (AUTO_INCREMENT, never reused)
     nextId: 1,
     rows: [], // every row sent to the dealer_inventory upsert, as the positional values array
+    json: new Map(), // `${vin}|${dealer}` -> the options_json text the upsert carried
     opts: new Map(), // `${vin}|${dealer}|${key}` -> { vin, dealer_id, canonical_key, label, code }
     days: new Map(),
     clock: 1_000,
@@ -66,6 +70,7 @@ function makeDb() {
           const prev = db.inv.get(`${v[0]}|${v[1]}`);
           db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1], state: v[v.length - 2] });
         }
+        for (const v of params[0]) db.json.set(`${v[0]}|${v[1]}`, v[cols.indexOf('options_json')]);
         db.n.upserts += params[0].length;
         db.rows.push(...params[0]);
         return [{ affectedRows: params[0].length }];
@@ -78,6 +83,12 @@ function makeDb() {
         assert.doesNotMatch(sql, /\(\s*vin\s*,\s*dealer_id\s*\)\s+IN/i, 'never a row-value IN-list');
         const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
         return [[...db.opts.values()].filter((r) => want.has(`${r.vin}|${r.dealer_id}`)).map((r) => ({ ...r }))];
+      }
+      if (/^DELETE FROM dealer_inventory_options WHERE \(vin = \? AND dealer_id = \? AND canonical_key = \?\)/.test(sql)) { // exact-junk purge: full primary key
+        let n = 0;
+        for (let i = 0; i < params.length; i += 3) if (db.opts.delete(`${params[i]}|${params[i + 1]}|${params[i + 2]}`)) n++;
+        db.n.optionDeletes += n; db.n.keyDeletes = (db.n.keyDeletes || 0) + n;
+        return [{ affectedRows: n }];
       }
       if (/^DELETE FROM dealer_inventory_options WHERE/.test(sql)) {
         const want = new Set(pairsOf(params).map(([v, d]) => `${v}|${d}`));
@@ -121,6 +132,7 @@ function loadHandlers(db) {
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
+    cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'full',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
     pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
@@ -131,6 +143,7 @@ function loadHandlers(db) {
     ...['INV_STR', 'INV_INT', 'INV_DEALER', 'INV_JSON_STR', 'INV_DATE'].map(extractConst),
     extractFunction('handleInventoryBulk'),
     extractFunction('selectExistingOptionRows'),
+    extractFunction('purgeExactJunkRows'),
     extractFunction('handleInventorySweep'),
   ].join('\n');
   vm.runInContext(code, ctx);
@@ -529,5 +542,96 @@ describe('model option policies — the per-vehicle options list in /api/invento
   it('inventoryRowFromDb routes options_json through policyApiOptions (source check: the function is not extractable, the server starts on import)', () => {
     const m = SRC.match(/function inventoryRowFromDb\(r\) \{[\s\S]*?\n\}\n/);
     assert.ok(m && /options: policyApiOptions\(OPTION_ALLOWLIST, \{ make: r\.make, model: r\.model, year: r\.year, trim: r\.trim \}, INV_JSON\(r\.options_json\)\)/.test(m[0]));
+  });
+});
+
+// ---- the sync cleans what it writes: policies + junk list for options_json too, exact-junk rows purged on cars the policy cannot read ----
+describe('nightly sync — option clean at write (the real handler, in-memory pool)', () => {
+  const FORD = { make: 'Ford', model: 'F-150', year: 2026, trim: 'XLT' };
+  const fordVin = (n) => `1FTFW1E50NFA${String(n).padStart(5, '0')}`;
+  const fordCar = (n, extra = {}) => ({ vin: fordVin(n), dealerId: 40 + n, dealerName: `Dealer ${40 + n}`, ...FORD, source: 'nightly', price: 55000, ...extra });
+  const BLACK = { code: 'X1', name: 'XLT Black Appearance Package', price: 920, kind: 'package' };
+  const JUNK = ['OPTION PACKAGES', 'Exp', 'Title', 'Creators', 'Artists', '09/30/2026'].map((name) => ({ name }));
+  const stored = (db, vinText) => [...db.opts.values()].filter((r) => r.vin === vinText).map((r) => r.label).sort();
+  const seed = (db, v, dealerId, labels) => { for (const l of labels) db.opts.set(`${v}|${dealerId}|${l.toLowerCase()}`, { vin: v, dealer_id: dealerId, canonical_key: l.toLowerCase(), label: l, code: null }); };
+  const jsonOf = (db, car) => JSON.parse(db.json.get(`${car.vin}|${car.dealerId}`));
+  const setup = () => { const db = makeDb(); const h = loadHandlers(db); h.ctx.OPTION_ALLOWLIST = POLICY; return { db, h }; };
+  before(() => installJunkRulesFromEnv({}, { warn() {} }));
+  after(() => setJunkRules(null));
+
+  it('a trusted covered car: options_json carries the policy result and the stored rows match it', async () => {
+    const { db, h } = setup();
+    const car = fordCar(1, { options: [BLACK, ...JUNK, { name: 'Cruise Control' }] });
+    await h.bulk([car]);
+    assert.deepEqual(jsonOf(db, car), [BLACK]);
+    assert.deepEqual(stored(db, car.vin), ['XLT Black Appearance Package']);
+  });
+
+  it('a covered car with a BLANK trim: exact-junk rows are purged, every other stored row stays, options_json loses only the exact-junk lines', async () => {
+    const { db, h } = setup();
+    const car = fordCar(2, { trim: '', options: [BLACK, ...JUNK, { name: 'Cruise Control' }] });
+    seed(db, car.vin, car.dealerId, ['OPTION PACKAGES', 'Exp', 'Creators', '09/30/2026', 'Cruise Control', 'XLT Black Appearance Package']);
+    const r = await h.bulk([car]);
+    assert.deepEqual(stored(db, car.vin), ['Cruise Control', 'XLT Black Appearance Package']);
+    assert.equal(r.json.optionExactJunkPurged, 4);
+    assert.deepEqual(jsonOf(db, car).map((o) => o.name), ['XLT Black Appearance Package', 'Cruise Control']);
+  });
+
+  it('a covered car with an UNTRUSTED trim: same — only exact junk goes', async () => {
+    const { db, h } = setup();
+    const car = fordCar(3, { trim: 'Mystery Trim', options: [...JUNK, { name: 'Cruise Control' }] });
+    seed(db, car.vin, car.dealerId, ['Title', 'Artists', 'Heated Seats']);
+    const r = await h.bulk([car]);
+    assert.deepEqual(stored(db, car.vin), ['Heated Seats']);
+    assert.equal(r.json.optionExactJunkPurged, 2);
+    assert.deepEqual(jsonOf(db, car).map((o) => o.name), ['Cruise Control']);
+  });
+
+  it('a skipped car with no exact-junk rows is not written to at all (no delete, no insert)', async () => {
+    const { db, h } = setup();
+    const car = fordCar(4, { trim: '', options: [{ name: 'Cruise Control' }] });
+    seed(db, car.vin, car.dealerId, ['Heated Seats']);
+    db.n.optionDeletes = db.n.optionInserts = 0;
+    const r = await h.bulk([car]);
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts, purged: r.json.optionExactJunkPurged }, { d: 0, i: 0, purged: 0 });
+    assert.deepEqual(stored(db, car.vin), ['Heated Seats']);
+  });
+
+  it('a car no policy covers: junk-list and exact-junk lines are not stored in the rows or in options_json', async () => {
+    const { db, h } = setup();
+    const car = { vin: '3VV2B7AX5NM000001', dealerId: 9, dealerName: 'Dealer 9', make: 'Volkswagen', model: 'Tiguan', year: 2026, trim: 'SE', source: 'nightly', price: 30000, options: [{ name: 'Panoramic Sunroof' }, { name: 'Roadside Assistance' }, ...JUNK] };
+    await h.bulk([car]);
+    assert.deepEqual(stored(db, car.vin), ['Panoramic Sunroof']);
+    assert.deepEqual(jsonOf(db, car).map((o) => o.name), ['Panoramic Sunroof']);
+  });
+
+  it('a paid sticker line stored for the car\'s own trim survives a night whose payload no longer lists it; the next night writes nothing', async () => {
+    const { db, h } = setup();
+    const car = fordCar(5, { options: [BLACK] });
+    await h.bulk([car]);
+    const later = { ...car, options: [{ name: 'Cruise Control' }] }; // the feed dropped the paid line (and has nothing the policy keeps)
+    const r = await h.bulk([later]);
+    assert.deepEqual(stored(db, car.vin), ['XLT Black Appearance Package']);
+    db.n.optionDeletes = db.n.optionInserts = 0;
+    await h.bulk([later]);
+    assert.deepEqual({ d: db.n.optionDeletes, i: db.n.optionInserts }, { d: 0, i: 0 });
+    assert.ok(r.json.optionSetsUnchanged + r.json.optionSetsReplaced >= 1);
+  });
+
+  it('OPTIONS_JSON_CLEAN=off stores options_json as sent (the rows are still cleaned)', async () => {
+    const { db, h } = setup(); h.ctx.OPTIONS_JSON_CLEAN = 'off';
+    const car = fordCar(6, { options: [BLACK, ...JUNK] });
+    await h.bulk([car]);
+    assert.deepEqual(jsonOf(db, car).map((o) => o.name), [BLACK.name, ...JUNK.map((o) => o.name)]);
+    assert.deepEqual(stored(db, car.vin), ['XLT Black Appearance Package']);
+  });
+
+  it('a payload with no options leaves options_json null (the upsert keeps the stored value) and touches no rows', async () => {
+    const { db, h } = setup();
+    const car = fordCar(7, { options: null });
+    seed(db, car.vin, car.dealerId, ['OPTION PACKAGES']);
+    await h.bulk([car]);
+    assert.equal(db.json.get(`${car.vin}|${car.dealerId}`), null);
+    assert.deepEqual(stored(db, car.vin), ['OPTION PACKAGES']);
   });
 });
