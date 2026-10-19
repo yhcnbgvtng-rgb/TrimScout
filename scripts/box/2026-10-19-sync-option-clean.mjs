@@ -4,6 +4,8 @@
 //   node 2026-10-19-sync-option-clean.mjs [--dir=/opt/trimscout-deals/src] [--src=<dir or URL base holding syncOptionClean.js>] [--apply]
 //
 // What it changes, and nothing else:
+//   optionPolicies/{chevrolet,gmc,toyota}-2026-2027.json   main's newer policy files (backup + md5 verify; --policies=none skips, --policies=a.json,b.json overrides)
+//   factoryOptionAllowlist.js  + mazda-2026-2027.json in BUNDLED_MODEL_POLICY_PATHS (the box's list predates Mazda; the file itself is already installed)
 //   syncOptionClean.js         NEW module next to the others: the one decision (policy + junk list + exact-junk labels + paid lines) for options_json and the stored rows
 //   factoryOptionAllowlist.js  + loadSyncAllowlist (env-listed policies PLUS every bundled optionPolicies/*.json; OPTION_BUNDLED_POLICIES=off for the env list only)
 //   deals_api_server.js        handleInventoryBulk: options_json carries the cleaned list; exact-junk rows are purged on cars the policy cannot read (blank / untrusted
@@ -23,6 +25,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 
@@ -132,14 +135,27 @@ const EDITS =
   "find": "// ---- Model-scoped factory-option policy",
   "replace": "/**\n * What the nightly sync loads: everything loadAllowlistFromEnv loads PLUS every bundled model policy (BUNDLED_MODEL_POLICY_PATHS, the same 16 files the\n * re-clean tool uses), so the sync can never run with fewer makes than the re-clean. A scope listed by OPTION_MODEL_POLICY_PATH wins over the bundled\n * one with the same scope; a bundled file that is missing on this box is skipped and named in `error` (the rest still load). OPTION_BUNDLED_POLICIES=off\n * loads exactly what loadAllowlistFromEnv loads.\n */\nexport function loadSyncAllowlist(env = process.env) {\n  if (String(env.OPTION_BUNDLED_POLICIES || \"\").toLowerCase() === \"off\") return loadAllowlistFromEnv(env);\n  const makePath = String(env.OPTION_ALLOWLIST_PATH || \"\").trim();\n  const errors = [];\n  let rawMakes = null, rawModels = {};\n  if (makePath) { try { rawMakes = JSON.parse(fs.readFileSync(makePath, \"utf8\")); } catch (err) { errors.push(`${makePath}: ${err.message}`); } }\n  const bundled = {};\n  for (const f of BUNDLED_MODEL_POLICY_PATHS) {\n    try { Object.assign(bundled, JSON.parse(fs.readFileSync(f, \"utf8\"))); } catch (err) { errors.push(`${path.basename(f)}: ${err.code === \"ENOENT\" ? \"not installed on this box\" : err.message}`); }\n  }\n  for (const f of String(env.OPTION_MODEL_POLICY_PATH || \"\").split(\",\").map((x) => x.trim()).filter(Boolean)) {\n    try { rawModels = { ...rawModels, ...JSON.parse(fs.readFileSync(f, \"utf8\")) }; } catch (err) { errors.push(`${f}: ${err.message}`); }\n  }\n  const models = { ...bundled, ...rawModels };\n  return { allowlist: Object.keys(models).length || rawMakes ? buildAllowlist(rawMakes, Object.keys(models).length ? models : null) : EMPTY_ALLOWLIST, error: errors.join(\"; \") || null };\n}\n\n// ---- Model-scoped factory-option policy",
   "marker": "export function loadSyncAllowlist"
+ },
+ {
+  "file": "factoryOptionAllowlist.js",
+  "id": "bundled-mazda",
+  "find": "  optionPolicyPath(\"nissan-2026-2027.json\"),\n]);",
+  "replace": "  optionPolicyPath(\"nissan-2026-2027.json\"),\n  optionPolicyPath(\"mazda-2026-2027.json\"),\n]);",
+  "marker": "optionPolicyPath(\"mazda-2026-2027.json\")"
  }
 ]
 ;
 for (const e of EDITS) if (e.find.includes(e.marker) || !e.replace.includes(e.marker)) throw new Error(`edit ${e.id}: marker must be in the replacement and not in the anchor`);
 
 const NEW_MODULE = "syncOptionClean.js";
+// Policy files the box holds in an older version than main's: installed too (backup first, md5 verified), so the sync writes what the re-clean wrote.
+// --policies=none skips this part; --policies=a.json,b.json overrides the list.
+const POLICY_FILES = args.policies === "none" ? [] : (typeof args.policies === "string" ? args.policies.split(",") : ["chevrolet-2026-2027.json", "gmc-2026-2027.json", "toyota-2026-2027.json"]);
+const md5 = (t) => crypto.createHash("md5").update(t).digest("hex");
 const readSrc = async (rel) => (/^https?:/.test(SRC) ? (await fetch(`${SRC}/${rel}`).then((r) => { if (!r.ok) throw new Error(`${rel}: HTTP ${r.status}`); return r.text(); })) : fs.readFileSync(path.join(SRC, rel), "utf8"));
 const moduleText = await readSrc(NEW_MODULE);
+const policyTexts = new Map();
+for (const f of POLICY_FILES) { const t = await readSrc(`optionPolicies/${f}`); JSON.parse(t); policyTexts.set(f, t); }
 
 // ---- prerequisites on the box ----
 const need = [["optionJunkRules.json", "the junk list"], ["inventoryOptionRows.js", "the option rows module"], ["factoryOptionAllowlist.js", "the allowlist module"], ["optionPolicies/ford-2026.json", "the Ford policy"], ["optionSentenceFilter.js", "the sentence filter"]];
@@ -150,6 +166,12 @@ const alSrc = fs.readFileSync(path.join(DIR, "factoryOptionAllowlist.js"), "utf8
 if (!/export const BUNDLED_MODEL_POLICY_PATHS/.test(alSrc)) { console.error("ABORT: factoryOptionAllowlist.js has no BUNDLED_MODEL_POLICY_PATHS. Nothing written."); process.exit(2); }
 console.log(`policy files on the box: ${fs.readdirSync(path.join(DIR, "optionPolicies")).filter((f) => f.endsWith(".json")).length} (.json) in ${path.join(DIR, "optionPolicies")}`);
 
+const polDir = path.join(DIR, "optionPolicies");
+for (const [f, t] of policyTexts) {
+  const p = path.join(polDir, f);
+  const cur = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : null;
+  console.log(`optionPolicies/${f} :: box md5 ${cur === null ? "(missing)" : md5(cur)} -> main md5 ${md5(t)} :: ${cur === t ? "already the same" : "will install"}`);
+}
 const files = [...new Set(EDITS.map((e) => e.file))];
 const plan = [];
 let abort = false;
@@ -178,7 +200,10 @@ const verify = async () => {
   for (const f of ["inventoryOptionRows.js", "optionSentenceFilter.js", "optionJunkRules.json"]) fs.copyFileSync(path.join(DIR, f), path.join(stage, f));
   fs.writeFileSync(path.join(stage, "factoryOptionAllowlist.js"), plan.find((x) => x.f === "factoryOptionAllowlist.js").text);
   fs.writeFileSync(path.join(stage, NEW_MODULE), moduleText);
-  fs.symlinkSync(path.join(DIR, "optionPolicies"), path.join(stage, "optionPolicies"));
+  // The staged optionPolicies is a copy of the box's with the new policy files laid over it (the box itself is untouched until --apply).
+  fs.mkdirSync(path.join(stage, "optionPolicies"));
+  for (const f of fs.readdirSync(path.join(DIR, "optionPolicies"))) if (f.endsWith(".json")) fs.copyFileSync(path.join(DIR, "optionPolicies", f), path.join(stage, "optionPolicies", f));
+  for (const [f, t] of policyTexts) fs.writeFileSync(path.join(stage, "optionPolicies", f), t);
   const al = await import(pathToFileURL(path.join(stage, "factoryOptionAllowlist.js")).href);
   const sc = await import(pathToFileURL(path.join(stage, NEW_MODULE)).href);
   const log = { warn(m) { throw new Error("junk rules did not load cleanly: " + m); } };
@@ -231,5 +256,15 @@ else {
   if (fs.existsSync(mp)) { fs.copyFileSync(mp, `${mp}.bak.${STAMP}`); console.log(`${NEW_MODULE}: existing file backed up to ${mp}.bak.${STAMP}`); }
   fs.writeFileSync(mp + ".new", moduleText); fs.chmodSync(mp + ".new", 0o664); fs.renameSync(mp + ".new", mp);
   console.log(`${NEW_MODULE}: installed (${mp}). Rollback: rm it, or restore the .bak.`);
+}
+for (const [f, t] of policyTexts) {
+  const p = path.join(polDir, f);
+  if (fs.existsSync(p) && fs.readFileSync(p, "utf8") === t) { console.log(`optionPolicies/${f}: already the same, unchanged.`); continue; }
+  if (fs.existsSync(p)) { const bak = `${p}.bak.${STAMP}`; fs.copyFileSync(p, bak); fs.chmodSync(bak, fs.statSync(p).mode); console.log(`optionPolicies/${f}: backup ${bak} (md5 ${md5(fs.readFileSync(bak, "utf8"))}). Rollback: cp -p ${bak} ${p}`); }
+  const mode = fs.existsSync(p) ? fs.statSync(p).mode : 0o664;
+  fs.writeFileSync(`${p}.new`, t); fs.chmodSync(`${p}.new`, mode); fs.renameSync(`${p}.new`, p);
+  const got = md5(fs.readFileSync(p, "utf8"));
+  if (got !== md5(t)) { console.error(`optionPolicies/${f}: md5 AFTER install ${got} != expected ${md5(t)}`); process.exit(4); }
+  console.log(`optionPolicies/${f}: installed, md5 ${got} verified.`);
 }
 console.log("DONE. deals-api has NOT been restarted; the new code loads at the next restart (pm2 restart deals-api, no --update-env).");
