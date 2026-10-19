@@ -21,8 +21,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { positivePrice } from "./optionsPaidOnlyServer.js";
 import { normalizeOptionKey, optionRowsFromOptions, compileJunkRules, setJunkRules } from "./inventoryOptionRows.js";
+import { positivePrice } from "./inventoryOptionRows.js";
 
 export const EMPTY_ALLOWLIST = Object.freeze({ makes: new Map(), models: new Map() });
 

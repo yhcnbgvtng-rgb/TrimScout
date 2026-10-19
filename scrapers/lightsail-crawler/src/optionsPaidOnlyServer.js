@@ -8,27 +8,15 @@
 //
 // Pure: no database, no env reads except through the argument, so it is unit-testable (deals_api_server.js starts a server at import time).
 
+import { positivePrice, maxPrice } from "./inventoryOptionRows.js";
+export { positivePrice, maxPrice };
+
 const ON = /^(1|true|yes|on)$/i;
 
 export function paidOnlyEnabled(env = process.env) {
   const raw = env.OPTIONS_PAID_ONLY;
   return raw != null && ON.test(String(raw).trim());
 }
-
-/** A line's price as a positive whole-dollar integer, or null when it is 0, missing or not a number ("$1,225" strings are read). */
-export function positivePrice(v) {
-  let n = v;
-  if (typeof n === "string") {
-    const s = n.replace(/[$,\s]/g, "");
-    n = /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
-  }
-  if (typeof n !== "number" || !Number.isFinite(n) || n <= 0) return null;
-  const r = Math.round(n);
-  return r > 0 && r <= 2_000_000_000 ? r : null;
-}
-
-/** Larger of two prices where either may be null. Two lines of one key on one car collapse to one row; the paid one wins. */
-export const maxPrice = (a, b) => (a == null ? b ?? null : b == null ? a : Math.max(a, b));
 
 /** SQL fragments for the facet rebuild / live catalog query. All empty when the flag is off. */
 export function paidSql(enabled, alias = "o") {

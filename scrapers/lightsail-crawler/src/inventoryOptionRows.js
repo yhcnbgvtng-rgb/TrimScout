@@ -12,7 +12,6 @@
 // free-text features, and every row stored before #333 still reached the facet unfiltered.
 
 import { looksLikeOptionSentence } from "./optionSentenceFilter.js";
-import { positivePrice, maxPrice } from "./optionsPaidOnlyServer.js";
 
 // Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
 // normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
@@ -27,6 +26,21 @@ export function normalizeOptionKey(label) {
   for (const [pattern, replacement] of OPTION_SYNONYM_EXPANSIONS) s = s.replace(pattern, replacement);
   return s.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80);
 }
+
+/** A line's price as a positive whole-dollar integer, or null when it is 0, missing or not a number ("$1,225" strings are read). */
+export function positivePrice(v) {
+  let n = v;
+  if (typeof n === "string") {
+    const s = n.replace(/[$,\s]/g, "");
+    n = /^\d+(\.\d+)?$/.test(s) ? Number(s) : NaN;
+  }
+  if (typeof n !== "number" || !Number.isFinite(n) || n <= 0) return null;
+  const r = Math.round(n);
+  return r > 0 && r <= 2_000_000_000 ? r : null;
+}
+
+/** Larger of two prices where either may be null. Two lines of one key on one car collapse to one row; the paid one wins. */
+export const maxPrice = (a, b) => (a == null ? b ?? null : b == null ? a : Math.max(a, b));
 
 const str = (v, n) => (typeof v === "string" && v.trim() ? v.trim().slice(0, n) : null);
 
