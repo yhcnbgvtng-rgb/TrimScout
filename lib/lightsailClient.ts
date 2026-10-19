@@ -17,15 +17,24 @@
 // isn't set, every function here short-circuits to null immediately so the
 // existing fallback chains keep working exactly as before.
 
-// Same host resolution pattern as the existing app/api/lightsail/route.ts:
-// a Lightsail Static IP that survives instance resize/migration.
-import boxes from "../config/boxes.json";
+// The box host comes from the environment ONLY — there is deliberately no
+// hardcoded fallback in source (a committed IP is an advertised target).
+// LIGHTSAIL_IP is the Lightsail Static IP of the deals/inventory box;
+// LIGHTSAIL_HOST is accepted as an alias. Read at call time, never at
+// import, so `next build` and unrelated routes don't need it; an unset host
+// fails the single request that needed it with a clear message.
+export class LightsailConfigError extends Error {
+  constructor() {
+    super("Box host is not configured: set LIGHTSAIL_IP (or LIGHTSAIL_HOST) in the environment.");
+    this.name = "LightsailConfigError";
+  }
+}
 
-const DEFAULT_LIGHTSAIL_HOST =
-  boxes.boxes[boxes.dealsBox as keyof typeof boxes.boxes].host; // = docs/BOXES.md deals box (box2)
-
-export const LIGHTSAIL_HOST =
-  process.env.LIGHTSAIL_IP || process.env.LIGHTSAIL_HOST || DEFAULT_LIGHTSAIL_HOST;
+export function getLightsailHost(): string {
+  const host = (process.env.LIGHTSAIL_IP || process.env.LIGHTSAIL_HOST || "").trim();
+  if (!host) throw new LightsailConfigError();
+  return host;
+}
 
 // Distinct from the existing port-3000 CSV export server — this is the new
 // Step 4 MariaDB-backed HTTP API (inventory_api_server.js).
@@ -162,7 +171,7 @@ async function fetchBoxJson<T>(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(
-      `http://${LIGHTSAIL_HOST}:${INVENTORY_API_PORT}${pathAndQuery}`,
+      `http://${getLightsailHost()}:${INVENTORY_API_PORT}${pathAndQuery}`,
       {
         signal: controller.signal,
         cache: "no-store",

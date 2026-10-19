@@ -2,7 +2,7 @@
 // existing deals API (port 3004, same process as deal_requests/deal_bids
 // — see scrapers/lightsail-crawler/src/deals_api_server.js). Same
 // request/error pattern as lib/dealsApi.ts.
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { BuyerCounter } from "./rfq";
@@ -51,7 +51,7 @@ async function request(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", path
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}${path}`, {
       method,
       headers: {
         "Content-Type": "application/json",

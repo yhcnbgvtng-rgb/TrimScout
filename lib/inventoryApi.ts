@@ -3,7 +3,7 @@
  * synced by scripts/box/inventory-sync.mjs, keyed by (VIN, store). Server-only (API key).
  */
 import { buyerHideDays } from "./lastConfirmed";
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { DealerAnalytics } from "./dealerAnalytics";
 
@@ -201,7 +201,7 @@ async function request(method: "GET" | "POST", path: string, body?: unknown): Pr
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}${path}`, {
       method,
       headers: { "Content-Type": "application/json", "X-Trimscout-Api-Key": apiKey },
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -370,7 +370,7 @@ export async function* exportInventory(q: InventoryQuery = {}): AsyncGenerator<I
   try {
     let res: Response;
     try {
-      res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}/api/inventory/export${inventoryQueryString(q)}`, {
+      res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}/api/inventory/export${inventoryQueryString(q)}`, {
         headers: { "X-Trimscout-Api-Key": apiKey }, signal: controller.signal, cache: "no-store",
       });
     } catch (err) {

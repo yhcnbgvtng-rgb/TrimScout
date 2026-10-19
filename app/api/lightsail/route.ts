@@ -4,17 +4,17 @@ import path from "node:path";
 import {
   fetchVehiclesFromBox,
   fetchFacetsFromBox,
+  getLightsailHost,
   type BoxVehicle,
 } from "@/lib/lightsailClient";
+import { requireAdminSession } from "@/lib/adminAuth";
+import { clientIpFromHeaders } from "@/lib/clientIp";
+import { checkRateLimit } from "@/lib/rateLimit";
+import { fullPageSize, hasDumpSecret, publicVehicleWindow, type LightsailAccess } from "@/lib/lightsailAccess";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// This is a Lightsail Static IP (allocated 2026-08-25), not the instance's
-// original ephemeral public IP — it stays valid across instance
-// resize/migration since the static IP can be reattached to whichever box
-// is currently the production crawler.
-const LIGHTSAIL_HOST = process.env.LIGHTSAIL_IP || "44.205.48.153";
 
 // Flat, camelCase vehicle shape used by the existing default/"summary"
 // action and by the legacy fallback chain (live CSV -> committed JSON ->
@@ -55,7 +55,7 @@ async function loadLegacyLiveData(): Promise<LegacyVehicle[]> {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch(`http://${LIGHTSAIL_HOST}:3000/export.csv`, {
+    const res = await fetch(`http://${getLightsailHost()}:3000/export.csv`, {
       signal: controller.signal,
       cache: "no-store",
     });
@@ -374,8 +374,16 @@ function legacyStats(filtered: LegacyVehicle[]) {
   };
 }
 
-async function handleVehiclesAction(searchParams: URLSearchParams) {
+async function handleVehiclesAction(searchParams: URLSearchParams, access: LightsailAccess) {
   const params = paramsFromSearchParams(searchParams);
+  if (access === "public") {
+    const w = publicVehicleWindow(params);
+    if (!w.ok) return NextResponse.json({ error: w.error }, { status: 400 });
+    params.page = String(w.page);
+    params.pageSize = String(w.pageSize);
+  } else {
+    params.pageSize = String(fullPageSize(params.pageSize));
+  }
 
   // Tier 1: new box API (MariaDB-backed, paginated/filtered natively).
   const boxResult = await fetchVehiclesFromBox(params);
@@ -390,7 +398,7 @@ async function handleVehiclesAction(searchParams: URLSearchParams) {
   const sorted = sortLegacy(filtered, params.sortBy);
 
   const page = Math.max(1, parseInt(params.page || "1", 10) || 1);
-  const pageSize = Math.min(200, Math.max(1, parseInt(params.pageSize || "50", 10) || 50));
+  const pageSize = Math.min(200, Math.max(1, parseInt(params.pageSize || "50", 10) || 50)); // already clamped above per access tier
   const totalCount = sorted.length;
   const start = (page - 1) * pageSize;
   const vehicles = sorted.slice(start, start + pageSize);
@@ -452,9 +460,36 @@ async function handleFacetsAction(searchParams: URLSearchParams) {
   return NextResponse.json({ success: true, source: "legacy_fallback", facets });
 }
 
+// "full" = admin session or the server-side secret header; everyone else is "public".
+async function resolveAccess(request: Request): Promise<LightsailAccess> {
+  if (hasDumpSecret(request.headers)) return "full";
+  try {
+    if (await requireAdminSession()) return "full";
+  } catch {
+    // An auth outage must not turn into extra access.
+  }
+  return "public";
+}
+
+const PUBLIC_RATE_LIMIT = 60;
+const PUBLIC_RATE_WINDOW_MS = 60_000;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get("action") || "summary";
+  const access = await resolveAccess(request);
+
+  if (access === "public") {
+    // In-memory and per-instance (see lib/rateLimit.ts) — a floor, not a global ceiling.
+    const verdict = checkRateLimit(`lightsail:${clientIpFromHeaders(request.headers)}`, PUBLIC_RATE_LIMIT, PUBLIC_RATE_WINDOW_MS);
+    if (!verdict.ok) {
+      return NextResponse.json({ error: "Too many requests." }, { status: 429, headers: { "Retry-After": String(verdict.retryAfterSec) } });
+    }
+    // The bare/summary dump (and any unknown action, which falls through to it) is not public.
+    if (action !== "vehicles" && action !== "facets") {
+      return NextResponse.json({ error: "Not authorized." }, { status: 401 });
+    }
+  }
 
   // NEW: paginated/filtered vehicle list and cross-filtered facet counts,
   // backed primarily by the box API added in Step 4/5 of the migration.
@@ -462,7 +497,7 @@ export async function GET(request: Request) {
   // behavior below is completely unchanged.
   if (action === "vehicles") {
     try {
-      return await handleVehiclesAction(searchParams);
+      return await handleVehiclesAction(searchParams, access);
     } catch (error: any) {
       return NextResponse.json(
         { error: error.message || "Failed to query vehicles" },
@@ -487,7 +522,7 @@ export async function GET(request: Request) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3500);
-      const res = await fetch(`http://${LIGHTSAIL_HOST}:3000/export.csv`, {
+      const res = await fetch(`http://${getLightsailHost()}:3000/export.csv`, {
         signal: controller.signal,
         cache: "no-store",
       });
@@ -708,7 +743,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      serverHost: LIGHTSAIL_HOST,
       lastSync: new Date().toISOString(),
       stats: {
         totalTrackedVehicles: totalVehicles,

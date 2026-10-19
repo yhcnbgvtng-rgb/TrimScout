@@ -8,7 +8,7 @@
 // (creating a deal, marking one paid) needs to surface as a real error,
 // not silently degrade the way a stale-inventory read can.
 
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import type { ContractVerificationResult } from "./contractVerification";
 import type { TradeInSubmission, TradeInAppraisalRecord } from "./types";
@@ -61,7 +61,7 @@ async function request(method: "GET" | "POST", path: string, body?: unknown): Pr
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}${path}`, {
       method,
       headers: {
         "Content-Type": "application/json",

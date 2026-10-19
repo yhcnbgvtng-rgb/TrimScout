@@ -6,7 +6,7 @@
 // one more route on an already-open port beats a new pm2 process, port,
 // and firewall rule for this little surface area.
 
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 
 const AUTH_API_PORT = 3003;
@@ -54,7 +54,7 @@ async function request(path: string, init?: RequestInit): Promise<any> {
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${AUTH_API_PORT}${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",
