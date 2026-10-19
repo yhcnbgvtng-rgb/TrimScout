@@ -58,9 +58,23 @@ describe('cleanOptionsForWrite', () => {
   before(() => installJunkRulesFromEnv({}, { warn() {} }));
   after(() => setJunkRules(null));
 
-  it('policy-covered car with a trusted trim: options_json is the policy result (paid package kept with its price, the rest gone)', () => {
+  it('default (junk): a trusted covered car keeps the payload minus junk-list and exact-junk lines, so a later policy change can still be derived from it', () => {
     const r = cleanOptionsForWrite(ALLOW, F150, LINES());
     assert.equal(r.covered, true); assert.equal(r.trusted, true);
+    assert.deepEqual(r.optionsJson, [{ name: 'XLT Black Appearance Package', code: 'X1', price: 920 }, { name: 'Cruise Control' }]);
+    assert.equal(r.exactJunkDropped, 7, 'six exact-junk labels and the roadside line');
+  });
+
+  it('a line the model policy keeps is never touched by the junk strip, even if a junk pattern matches its text', () => {
+    const lines = [{ name: 'XLT Black Appearance Package', code: 'X1', price: 920 }, { name: 'Roadside Assistance' }];
+    assert.deepEqual(names(cleanOptionsForWrite(ALLOW, F150, lines).optionsJson), ['XLT Black Appearance Package']);
+    const r = cleanOptionsForWrite(ALLOW, F150, [{ name: 'Title', price: 250, code: 'T1' }, ...lines]);
+    assert.deepEqual(names(r.optionsJson), ['Title', 'XLT Black Appearance Package'], 'a priced line is never exact junk');
+  });
+
+  it('jsonMode full: a trusted covered car stores the policy result (paid package kept with its price, the rest gone)', () => {
+    const r = cleanOptionsForWrite(ALLOW, F150, LINES(), { jsonMode: 'full' });
+    assert.equal(r.trusted, true);
     assert.deepEqual(r.optionsJson, [{ code: 'X1', name: 'XLT Black Appearance Package', price: 920, kind: 'package' }]);
   });
 
@@ -93,9 +107,10 @@ describe('cleanOptionsForWrite', () => {
     assert.equal(cleanOptionsForWrite(ALLOW, F150, undefined).optionsJson, undefined);
   });
 
-  it('jsonMode junk: a trusted covered car keeps every line the junk list leaves; off: the payload as sent', () => {
+  it('jsonMode junk is the default; an unknown value falls back to it; off stores the payload as sent', () => {
     const junk = cleanOptionsForWrite(ALLOW, F150, LINES(), { jsonMode: 'junk' });
     assert.deepEqual(names(junk.optionsJson), ['XLT Black Appearance Package', 'Cruise Control']);
+    assert.deepEqual(cleanOptionsForWrite(ALLOW, F150, LINES(), { jsonMode: 'bogus' }).optionsJson, junk.optionsJson);
     const lines = LINES();
     assert.equal(cleanOptionsForWrite(ALLOW, F150, lines, { jsonMode: 'off' }).optionsJson, lines);
   });

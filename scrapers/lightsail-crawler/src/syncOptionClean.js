@@ -3,7 +3,8 @@
 // (through the existing policy/junk paths) the stored rows in dealer_inventory_options.
 //
 // Per car:
-//   policy-covered, trusted trim  -> the model policy's result (junk list + policy, exactly what the re-clean tool computes) for BOTH the rows and options_json.
+//   policy-covered, trusted trim  -> the model policy's result (junk list + policy, exactly what the re-clean tool computes) for the rows; options_json keeps the raw
+//                                    list minus junk lines (OPTIONS_JSON_CLEAN=full stores the policy result instead).
 //   policy-covered, blank or untrusted trim -> the policy cannot read the car: its stored rows are left alone (2026-10-13 ruling) EXCEPT lines that are exact
 //                                    junk labels (OPTION PACKAGES, Creators, Artists, Exp, Title, bare dates ...), which are dropped from options_json here and
 //                                    purged from the stored rows by the caller (staleExactJunkKeys). Nothing else is touched.
@@ -44,10 +45,11 @@ export function stripExactJunk(options) {
 }
 
 /** For an uncovered car: options_json without the lines the junk list drops (the same decision the stored rows get; legacy-rule drops stay, as in the re-clean). */
-function stripJunkLines(options, resolveKey) {
+function stripJunkLines(options, resolveKey, vouched = null) {
   const kept = [];
   for (const o of options) {
     if (!o || typeof o.name !== "string") { kept.push(o); continue; }
+    if (vouched && vouched.has(o.name.trim())) { kept.push(o); continue; } // a line the model policy keeps (a paid sticker line) is never touched
     if (isExactJunkLabel(o.name) && !isPaidOption(o)) continue;
     const r = optionRowsFromOptions([o], { resolveKey });
     if (!r.rows.length && r.dropped.some((d) => String(d.rule).startsWith("junk:"))) continue;
@@ -60,13 +62,14 @@ function stripJunkLines(options, resolveKey) {
  * @param {object} allow     the allowlist the server loaded (buildAllowlist)
  * @param {{make, model, year, trim}} vehicle  make as normalizeMakeForWrite gives it
  * @param {unknown} options  the payload's option list
- * @param {{ jsonMode?: "full"|"junk"|"off" }} [opts]  full (default): options_json carries the policy result for a trusted covered car; junk: only junk lines are removed;
- *                           off: options_json is the payload as sent (rows are cleaned either way).
+ * @param {{ jsonMode?: "junk"|"full"|"off" }} [opts]  junk (default): options_json is the payload minus the lines the junk list / exact-junk labels drop (a line the model
+ *                           policy keeps is never touched); full: a trusted covered car's options_json carries the policy result instead; off: the payload as sent.
+ *                           The stored rows are cleaned the same way in every mode.
  * @returns {{ covered: boolean, trusted: boolean, optionsJson: unknown, exactJunkDropped: number }}
  *   optionsJson is what goes into dealer_inventory_options.options_json (the payload's own value when it is not an array).
  */
 export function cleanOptionsForWrite(allow, vehicle, options, opts = {}) {
-  const mode = opts.jsonMode === "junk" || opts.jsonMode === "off" ? opts.jsonMode : "full";
+  const mode = opts.jsonMode === "full" || opts.jsonMode === "off" ? opts.jsonMode : "junk";
   if (!Array.isArray(options)) return { covered: false, trusted: false, optionsJson: options, exactJunkDropped: 0 };
   const covered = modelPoliciesFor(allow, vehicle).length > 0;
   const blankTrim = !String(vehicle.trim ?? "").trim();
@@ -75,7 +78,9 @@ export function cleanOptionsForWrite(allow, vehicle, options, opts = {}) {
     if (res && res.trimTrusted) {
       if (mode === "off") return { covered: true, trusted: true, optionsJson: options, exactJunkDropped: 0 };
       if (mode === "full") return { covered: true, trusted: true, optionsJson: res.rows.map((r) => ({ code: r.code ?? null, name: r.label, price: r.price ?? 0, kind: r.kind })), exactJunkDropped: 0 };
-      return { covered: true, trusted: true, optionsJson: stripJunkLines(options, null), exactJunkDropped: 0 };
+      const vouched = new Set(res.outcomes.filter((x) => x.outcome !== "dropped").map((x) => String(x.label).trim()));
+      const out = stripJunkLines(options, null, vouched);
+      return { covered: true, trusted: true, optionsJson: out, exactJunkDropped: options.length - out.length };
     }
   }
   if (covered) { // blank or untrusted trim: the policy cannot decide, so only the exact-junk lines go

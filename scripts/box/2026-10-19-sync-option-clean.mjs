@@ -8,7 +8,7 @@
 //   factoryOptionAllowlist.js  + loadSyncAllowlist (env-listed policies PLUS every bundled optionPolicies/*.json; OPTION_BUNDLED_POLICIES=off for the env list only)
 //   deals_api_server.js        handleInventoryBulk: options_json carries the cleaned list; exact-junk rows are purged on cars the policy cannot read (blank / untrusted
 //                              trim); a stored paid line of the car's own trim survives a night that no longer lists it; the response gains optionExactJunkPurged;
-//                              OPTIONS_JSON_CLEAN=junk|off relaxes options_json (rows stay cleaned).
+//                              OPTIONS_JSON_CLEAN=full|off changes options_json (default junk: the payload minus junk lines; rows stay cleaned in every mode).
 // Prerequisite: the junk-list patch (2026-10-16-option-junk-write-path.mjs) and the Ford policy file are already installed; this refuses to run otherwise.
 //
 // Without --apply it is a DRY RUN: it reads the files, checks every anchor (each "find" must occur EXACTLY once, or the edit's marker must already be there),
@@ -53,7 +53,7 @@ const EDITS =
   "file": "deals_api_server.js",
   "id": "srv-3",
   "find": "const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== \"0\";",
-  "replace": "const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== \"0\";\n// options_json (what /api/inventory returns and the re-clean re-reads): \"full\" (default) stores the policy / junk-cleaned list, \"junk\" only drops junk lines,\n// \"off\" stores the payload as sent. The stored option rows are cleaned either way.\nconst OPTIONS_JSON_CLEAN = [\"junk\", \"off\"].includes(String(process.env.OPTIONS_JSON_CLEAN || \"\").toLowerCase()) ? String(process.env.OPTIONS_JSON_CLEAN).toLowerCase() : \"full\";",
+  "replace": "const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== \"0\";\n// options_json (what /api/inventory returns and the re-clean re-reads): \"junk\" (default) = the payload minus junk-list / exact-junk lines, so a later policy change can still be\n// re-derived from it; \"full\" = a trusted policy-covered car stores the policy result instead; \"off\" = the payload as sent. The stored option rows are cleaned the same way in every mode.\nconst OPTIONS_JSON_CLEAN = [\"full\", \"off\"].includes(String(process.env.OPTIONS_JSON_CLEAN || \"\").toLowerCase()) ? String(process.env.OPTIONS_JSON_CLEAN).toLowerCase() : \"junk\";",
   "marker": "const OPTIONS_JSON_CLEAN = ["
  },
  {
@@ -67,7 +67,7 @@ const EDITS =
   "file": "deals_api_server.js",
   "id": "srv-5",
   "find": "    const values = chunk.map((v) => [v.vin.trim().toUpperCase(),",
-  "replace": "    // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=junk|off to relax it).\n    const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));\n    const values = chunk.map((v) => [v.vin.trim().toUpperCase(),",
+  "replace": "    // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).\n    const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));\n    const values = chunk.map((v) => [v.vin.trim().toUpperCase(),",
   "marker": "const cleaned = new Map(chunk.map"
  },
  {
@@ -191,12 +191,14 @@ const verify = async () => {
   const lines = [{ name: "XLT Black Appearance Package", code: "X1", price: 920 }, { name: "OPTION PACKAGES" }, { name: "Exp" }, { name: "Title" }, { name: "Creators" }, { name: "Cruise Control" }];
   const names = (r) => r.optionsJson.map((o) => o.name).join("|");
   const trusted = sc.cleanOptionsForWrite(allowlist, ford, lines);
-  if (names(trusted) !== "XLT Black Appearance Package") throw new Error(`trusted Ford car: options_json would be [${names(trusted)}]`);
+  if (names(trusted) !== "XLT Black Appearance Package|Cruise Control") throw new Error(`trusted Ford car: options_json would be [${names(trusted)}]`);
+  const full = sc.cleanOptionsForWrite(allowlist, ford, lines, { jsonMode: "full" });
+  if (names(full) !== "XLT Black Appearance Package") throw new Error(`trusted Ford car, full mode: options_json would be [${names(full)}]`);
   const blank = sc.cleanOptionsForWrite(allowlist, { ...ford, trim: "" }, lines);
   if (names(blank) !== "XLT Black Appearance Package|Cruise Control") throw new Error(`blank-trim Ford car: options_json would be [${names(blank)}]`);
   const paid = sc.keepPaidStoredRows(allowlist, ford, [], [{ key: "xlt black appearance package", label: "XLT Black Appearance Package", code: null }, { key: "cruise control", label: "Cruise Control", code: null }]);
   if (paid.length !== 1) throw new Error("the stored paid line was not kept");
-  console.log("staged modules load; trusted Ford car -> policy result, blank-trim car -> only exact junk dropped, a stored paid line is kept");
+  console.log("staged modules load; trusted Ford car -> raw minus junk lines (full mode: policy result), blank-trim car -> only exact junk dropped, a stored paid line is kept");
 };
 try { await verify(); } catch (err) { console.error(`ABORT (nothing written to ${DIR}): ${err.message}`); fs.rmSync(stage, { recursive: true, force: true }); process.exit(3); }
 fs.rmSync(stage, { recursive: true, force: true });

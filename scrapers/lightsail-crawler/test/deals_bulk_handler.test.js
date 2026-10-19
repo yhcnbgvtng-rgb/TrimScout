@@ -132,7 +132,7 @@ function loadHandlers(db) {
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
-    cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'full',
+    cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true,
     pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
@@ -559,9 +559,17 @@ describe('nightly sync — option clean at write (the real handler, in-memory po
   before(() => installJunkRulesFromEnv({}, { warn() {} }));
   after(() => setJunkRules(null));
 
-  it('a trusted covered car: options_json carries the policy result and the stored rows match it', async () => {
+  it('a trusted covered car (default junk mode): the stored rows are the policy result; options_json keeps the payload minus junk lines (so a later policy change can be re-derived)', async () => {
     const { db, h } = setup();
-    const car = fordCar(1, { options: [BLACK, ...JUNK, { name: 'Cruise Control' }] });
+    const car = fordCar(1, { options: [BLACK, ...JUNK, { name: 'Roadside Assistance' }, { name: 'Cruise Control' }] });
+    await h.bulk([car]);
+    assert.deepEqual(jsonOf(db, car).map((o) => o.name), ['XLT Black Appearance Package', 'Cruise Control']);
+    assert.deepEqual(stored(db, car.vin), ['XLT Black Appearance Package']);
+  });
+
+  it('OPTIONS_JSON_CLEAN=full: a trusted covered car\'s options_json is the policy result', async () => {
+    const { db, h } = setup(); h.ctx.OPTIONS_JSON_CLEAN = 'full';
+    const car = fordCar(8, { options: [BLACK, ...JUNK, { name: 'Cruise Control' }] });
     await h.bulk([car]);
     assert.deepEqual(jsonOf(db, car), [BLACK]);
     assert.deepEqual(stored(db, car.vin), ['XLT Black Appearance Package']);

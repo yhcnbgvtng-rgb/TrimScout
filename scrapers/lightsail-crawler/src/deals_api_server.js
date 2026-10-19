@@ -79,9 +79,9 @@ if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${option
 // already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
 // upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
 const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
-// options_json (what /api/inventory returns and the re-clean re-reads): "full" (default) stores the policy / junk-cleaned list, "junk" only drops junk lines,
-// "off" stores the payload as sent. The stored option rows are cleaned either way.
-const OPTIONS_JSON_CLEAN = ["junk", "off"].includes(String(process.env.OPTIONS_JSON_CLEAN || "").toLowerCase()) ? String(process.env.OPTIONS_JSON_CLEAN).toLowerCase() : "full";
+// options_json (what /api/inventory returns and the re-clean re-reads): "junk" (default) = the payload minus junk-list / exact-junk lines, so a later policy change can still be
+// re-derived from it; "full" = a trusted policy-covered car stores the policy result instead; "off" = the payload as sent. The stored option rows are cleaned the same way in every mode.
+const OPTIONS_JSON_CLEAN = ["full", "off"].includes(String(process.env.OPTIONS_JSON_CLEAN || "").toLowerCase()) ? String(process.env.OPTIONS_JSON_CLEAN).toLowerCase() : "junk";
 // The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
 // promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
 const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
@@ -2429,7 +2429,7 @@ async function handleInventoryBulk(req, res) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
-    // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=junk|off to relax it).
+    // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).
     const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(cleaned.get(v).optionsJson, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),

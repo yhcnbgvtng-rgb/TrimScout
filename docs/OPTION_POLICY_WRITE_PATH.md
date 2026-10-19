@@ -206,13 +206,13 @@ Then re-run the step 5 `pm2 jlist` line (expect 15 entries) and the step 6 log c
 
 | car | stored rows (`dealer_inventory_options`) | `options_json` |
 |---|---|---|
-| policy-covered, trusted trim | the policy result (unchanged); a stored **paid** line of the car's own trim that tonight's payload no longer lists is kept | the policy result (`{code,name,price,kind}`), i.e. what `/api/inventory` already showed |
+| policy-covered, trusted trim | the policy result (unchanged); a stored **paid** line of the car's own trim that tonight's payload no longer lists is kept | the payload minus junk-list / exact-junk lines (default `junk`; a line the policy keeps is never touched) |
 | policy-covered, blank or untrusted trim | left alone **except** exact-junk rows, which are deleted (one PK-range read per such car, one DELETE by full primary key) | the payload minus exact-junk lines |
 | no policy covers it | legacy rules + junk list (unchanged) | the payload minus the lines the junk list / exact-junk labels drop |
 
 - **Exact-junk labels**: OPTION PACKAGES, Creators, Artists, Exp, Title, See OnStar, "com or dealer for details" and bare dates (rule `exact-junk-labels` in `optionJunkRules.json`; the same patterns are built into `syncOptionClean.js` so they still apply when the list is off or an older file). A line that carries a price is never dropped by them.
 - **Policies**: `loadSyncAllowlist` loads the env-listed policies **plus every bundled `optionPolicies/*.json`** (the 16 files the re-clean uses), so the sync cannot run with fewer makes than the re-clean (before, only the files named in `OPTION_MODEL_POLICY_PATH` counted). `OPTION_BUNDLED_POLICIES=off` = env list only.
-- **`OPTIONS_JSON_CLEAN`** = `full` (default) | `junk` | `off`. Trade-off: with `full`, `options_json` of a policy-covered car holds only the policy result, so a *later* policy change (new rows) is picked up at that car's next sync, not by re-running the re-clean alone. `junk` keeps the raw list minus junk; `off` stores the payload as sent. The stored rows are cleaned in every mode.
+- **`OPTIONS_JSON_CLEAN`** = `junk` (default) | `full` | `off`. `junk` keeps the raw list minus junk lines, so a later policy change can still be re-derived from `options_json` (the re-clean re-reads it). `full` stores the policy result instead for a trusted covered car (a later policy change then reaches that car at its next sync). `off` stores the payload as sent. The stored rows are cleaned in every mode.
 - The response of `POST /api/inventory/bulk` gains `optionExactJunkPurged`.
 - `OPTIONS_DIFF_WRITE=0` (the env switch for rewrite-everything) skips the paid-line merge, since that is the path that reads the stored rows.
 
