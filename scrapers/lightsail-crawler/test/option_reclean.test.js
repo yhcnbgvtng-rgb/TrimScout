@@ -20,12 +20,12 @@ const car = (o, extra = {}) => ({ ...Q9, options_json: o.map((name) => ({ name }
 const row = (key, label, code = null) => [key, label, code];
 
 describe('which makes', () => {
-  it('RECLEAN_MAKES is exactly the makes of the 16 bundled policy files, and the junk list still has its 10 rules', () => {
+  it('RECLEAN_MAKES is exactly the makes of the 16 bundled policy files, and the junk list still has its 11 rules', () => {
     const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
     const fromPolicy = new Set(Object.keys(policies).map((k) => k.split('|')[0]));
     assert.equal(fromPolicy.size, 15);
     assert.deepEqual([...RECLEAN_MAKES].map(slug).sort(), [...fromPolicy].map(slug).sort());
-    assert.equal(compileJunkRules(rules).rules.length, 10);
+    assert.equal(compileJunkRules(rules).rules.length, 11);
   });
 });
 
@@ -122,7 +122,7 @@ describe('the re-clean script', () => {
   it('the plan skips blank and untrusted trims before anything is backed up (status !== "change")', () => {
     assert.ok(fn('plan').includes('if (res.status !== "change") continue;'));
   });
-  it('the emitted single-file bundle runs on stdin with the engine, the 10 junk rules and the policies inlined', async () => {
+  it('the emitted single-file bundle runs on stdin with the engine, the 11 junk rules and the policies inlined', async () => {
     let esbuild = null; try { esbuild = await import('esbuild'); } catch {}
     if (!esbuild) return; // bundling tool not installed here
     const env = { ...process.env }; delete env.NODE_OPTIONS; // the test runner's loader flags must not leak into the plain-node children
@@ -131,7 +131,7 @@ describe('the re-clean script', () => {
     try { out = execFileSync('node', ['--input-type=module', '-', '--phase=selftest'], { input: bundle, env, stdio: ['pipe', 'pipe', 'pipe'], cwd: fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'rc-')) }).toString(); }
     catch (e) { assert.fail(`bundle failed: ${String(e.stderr).slice(-500)}`); }
     const j = JSON.parse(out);
-    assert.equal(j.junkRules, 10); assert.equal(j.policyScopes, 254); assert.equal(j.status, 'change');
+    assert.equal(j.junkRules, 11); assert.equal(j.policyScopes, 254); assert.equal(j.status, 'change');
     assert.ok(j.removed.includes('Roadside Assistance'));
   });
 });

@@ -58,6 +58,7 @@ import {
 import type { ShopperListingSheet } from "../lib/listingSheet";
 import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
+import { NO_PAID_FACTORY_OPTIONS, STANDARD_FEATURES_HEADING, optionsPaidOnlyEnabled, paidOptionView } from "@/lib/optionsPaidOnly";
 
 function unavailableSheet(vin: string, note: string): ShopperListingSheet {
   return {
@@ -987,6 +988,7 @@ function VehicleOfferColumn({
   const cityStateZip = [ [loc?.city, loc?.state].filter(Boolean).join(", "), loc?.zip ].filter(Boolean).join(" ");
   const distance = milesLabel(loc?.distanceMiles, buyerZip);
   const options = factoryLines(vehicle);
+  const paidOnly = optionsPaidOnlyEnabled();
   const listingNote = sheet && !sheet.available
     ? sanitizeShopperListingsCopy(sheet.note || LISTING_DETAILS_UNAVAILABLE)
     : null;
@@ -1220,6 +1222,8 @@ function VehicleOfferColumn({
           </div>
           {options.length === 0 ? (
             <p className="text-[11px] text-ink-muted mt-1">{FORD_COMPETITION_FACTORY_OPTIONS_UNAVAILABLE}</p>
+          ) : paidOnly ? (
+            <PaidOnlyOptions options={options} sharedOptions={sharedOptions} />
           ) : (
             <ul className="mt-1 max-h-36 overflow-y-auto space-y-0.5">
               {options.map((opt, i) => {
@@ -1261,6 +1265,46 @@ function VehicleOfferColumn({
         </div>
       </div>
     </section>
+  );
+}
+
+/** OPTIONS_PAID_ONLY on: paid factory rows with "+$" prices, then "Standard features"; a car with no paid row says so. */
+export function PaidOnlyOptions({ options, sharedOptions }: { options: FactoryOptionDisplay[]; sharedOptions: Set<string> }) {
+  const view = paidOptionView(options.map((o) => ({ ...o, name: o.description })));
+  return (
+    <div className="mt-1 space-y-2" data-testid="paid-only-options">
+      {view.noPaid ? (
+        <p className="text-[11px] text-ink-muted" data-testid="no-paid-options">{NO_PAID_FACTORY_OPTIONS}</p>
+      ) : (
+        <ul className="max-h-36 overflow-y-auto space-y-0.5" data-testid="paid-options">
+          {view.paid.map((opt, i) => {
+            const shared = isSharedFactoryOption(opt.description, sharedOptions);
+            return (
+              <li
+                key={`${opt.code || ""}-${opt.name}-${i}`}
+                className={`text-[11px] leading-snug rounded px-1 -mx-1 flex items-start gap-1 ${opt.isPackageChild ? "pl-3 text-ink-muted" : "text-ink-light"} ${shared ? "bg-brand-500/10 text-brand-200" : ""}`}
+              >
+                {shared ? <Check className="h-3 w-3 mt-0.5 shrink-0 text-brand-400" /> : null}
+                <span>
+                  {formatFactoryOptionLine(opt)}
+                  <span className="text-ink-faint"> · {opt.priceLabel}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {view.standard.length > 0 ? (
+        <div data-testid="standard-features">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">{STANDARD_FEATURES_HEADING}</div>
+          <ul className="mt-0.5 max-h-24 overflow-y-auto space-y-0.5">
+            {view.standard.map((opt, i) => (
+              <li key={`${opt.code || ""}-${opt.name}-${i}`} className="text-[11px] leading-snug text-ink-muted">{formatFactoryOptionLine(opt)}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

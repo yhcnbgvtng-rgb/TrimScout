@@ -41,6 +41,21 @@ describe('the shipped list', () => {
   });
 });
 
+// Exact labels measured on box2 (2026-10-18) as $0 junk on tens of thousands of cars, plus date-only strings. Whole-label matches only.
+describe('exact junk labels and dates', () => {
+  let rules;
+  before(() => { rules = compileJunkRules(JSON.parse(fs.readFileSync(RULES_FILE, 'utf8'))); });
+  for (const label of ['Exp', 'See onstar', 'See OnStar', 'com or dealer for details', 'title', 'creators', 'artists', 'OPTION PACKAGES', '11/02/2026', '1/2/26', '11-02-2026', '11.02.2026'])
+    it(`drops "${label}"`, () => assert.ok(globalJunkRuleFor(label, { name: label }, rules), label));
+  it('the exact-label rule is what catches the ones no earlier rule covers', () => {
+    for (const label of ['Exp', 'See onstar', 'title', 'creators', 'artists', 'OPTION PACKAGES', '11/02/2026']) assert.equal(globalJunkRuleFor(label, {}, rules), 'exact-junk-labels', label);
+  });
+  // Real options that merely contain those words or digits must survive.
+  for (const label of ['Expedition Package', 'Title Sponsor Edition', 'Artist Series Audio', 'Option Packages Plus', 'Creator Studio Display', '09/30/2026 Apple CarPlay', 'Exp Tow Package', '10-Speed Automatic', 'OnStar Guidance Plan Ready'])
+    it(`keeps "${label}"`, () => assert.notEqual(globalJunkRuleFor(label, { name: label, price: 495 }, rules), 'exact-junk-labels', label));
+  it('a paid line with a junk label is still junk: the label is the problem, not the price', () => assert.equal(globalJunkRuleFor('Exp', { name: 'Exp', price: 300 }, rules), 'exact-junk-labels'));
+});
+
 // The shipped file has zeroPrice OFF until it is measured on live data (2026-10-16); these tests switch it on in a copy.
 const SHIPPED_RAW = JSON.parse(fs.readFileSync(RULES_FILE, 'utf8'));
 const ZERO_ON = compileJunkRules({ ...SHIPPED_RAW, zeroPrice: { ...SHIPPED_RAW.zeroPrice, enabled: true } });
@@ -242,7 +257,7 @@ const vehicleOf = (e) => { const [make, , year] = e.scope.split('|'); return { m
 const firstEntry = (file, name) => { for (const e of policyNames()) if (e.file === file && e.name.toLowerCase() === name.toLowerCase()) return e; return null; };
 
 describe('the three new rules are in the shipped file and sit after the original seven', () => {
-  it('names and order', () => assert.deepEqual(SHIPPED.rules.map((r) => r.name), ['roadside', 'inspection', 'warranty', 'maintenance-service-plan', 'subscription-trial', 'fee-charge', 'standard-or-no-charge', ...NEW_RULES]));
+  it('names and order', () => assert.deepEqual(SHIPPED.rules.map((r) => r.name), ['roadside', 'inspection', 'warranty', 'maintenance-service-plan', 'subscription-trial', 'fee-charge', 'standard-or-no-charge', ...NEW_RULES, 'exact-junk-labels']));
   it('compiles with no bad pattern', () => assert.deepEqual(SHIPPED.errors, []));
   it('the 16 policy files are all present (a new policy file must be added to this check)', () => assert.equal(POLICY_FILES.length, 16));
 });
