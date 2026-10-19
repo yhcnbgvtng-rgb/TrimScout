@@ -99,6 +99,7 @@ import {
   ExternalLink,
   Car,
 } from "lucide-react";
+import { filterMustHaveOptions, formatOptionPrice, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 
 type FilterableFactoryOption = FactoryFilterableOption;
 
@@ -225,6 +226,7 @@ function FactoryMustHavePicker({
   onToggle: (name: string) => void;
 }) {
   const [showAll, setShowAll] = useState(false);
+  const paidOnly = optionsPaidOnlyEnabled();
   const ordered = orderFactoryOptions(options);
   const shown = showAll ? ordered : ordered.slice(0, MUST_HAVE_PREVIEW_COUNT);
   return (
@@ -265,7 +267,7 @@ function FactoryMustHavePicker({
               <span className={`leading-snug ${isChecked ? "text-white" : "text-ink-light"}`}>
                 {line}
                 {opt.price != null && opt.price > 0 ? (
-                  <span className="text-ink-faint"> · {formatCurrency(opt.price)}</span>
+                  <span className="text-ink-faint"> · {paidOnly ? formatOptionPrice(opt.price) : formatCurrency(opt.price)}</span>
                 ) : null}
               </span>
             </label>
@@ -3097,7 +3099,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         <div id="must-have-panel" role="region" aria-label={FORD_MUST_HAVE_HEADING} data-testid="must-have-panel" className="border-t border-border/60 px-3.5 py-3 space-y-2">
                           <p className="text-[11px] text-ink-muted">{FORD_MUST_HAVE_HELP}</p>
                           <FactoryMustHavePicker
-                            options={fordFilterableOptions}
+                            options={filterMustHaveOptions(fordFilterableOptions, optionsPaidOnlyEnabled())}
                             checked={mustHavePackages}
                             onToggle={toggleFordMustHave}
                           />

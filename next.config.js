@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Paid-only factory options flag (lib/optionsPaidOnly.ts). Inlined for the client components; unset means off.
+  env: { OPTIONS_PAID_ONLY: process.env.OPTIONS_PAID_ONLY || "" },
   typescript: {
     // Was `true` — that let real, broken code ship silently (confirmed
     // during an audit: an undefined import that would have thrown at
