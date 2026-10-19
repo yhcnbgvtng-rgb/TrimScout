@@ -57,6 +57,7 @@ import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, ag
 import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
+import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -85,6 +86,10 @@ const OPTIONS_JSON_CLEAN = ["full", "off"].includes(String(process.env.OPTIONS_J
 // The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
 // promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
 const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
+// OPTIONS_PAID_ONLY (default off): dealer_inventory_options stores each car's own price per option row, and the catalog facets count a row only
+// where that row's price is above 0 (per row, never per label), with the min/max paid price per option. Off = no column, no writes, same queries.
+// Needs the price backfill (scripts/box/2026-10-19-backfill-option-prices.mjs) before the counts are complete; docs/OPTIONS_PAID_ONLY_CATALOG_NOTE.md.
+const PAID_ONLY = paidOnlyEnabled();
 // Cars last seen more than this many days ago are hidden from buyers: the list/facets/makes calls carry it as seenWithinDays (the web app's
 // STALE_HIDE_DAYS), and the nightly option/colour catalog rebuild + its live fallback, which have no request to carry it, use this default.
 // lib/lastConfirmed.test.ts pins this number to the web constant. STALE_HIDE_DAYS=0 turns the catalog filter off.
@@ -2259,6 +2264,12 @@ async function ensureInventoryTableOnce(pool) {
   // All-makes summary for the no-make /api/inventory/catalog call (catalogSummary.js); written by rebuildCatalogFacets.
   await pool.query("CREATE TABLE IF NOT EXISTS inv_option_summary (canonical_key VARCHAR(80) NOT NULL PRIMARY KEY, label VARCHAR(160) NOT NULL, vehicle_count INT NOT NULL)");
   await pool.query("CREATE TABLE IF NOT EXISTS inv_color_summary (kind VARCHAR(3) NOT NULL, color VARCHAR(96) NOT NULL, PRIMARY KEY (kind, color))");
+  if (PAID_ONLY) {
+    // Nullable columns: an instant ADD COLUMN on MariaDB 10.3+, no table rewrite. NULL = "not backfilled yet", which the paid-only count treats as not paid.
+    await pool.query("ALTER TABLE dealer_inventory_options ADD COLUMN IF NOT EXISTS price INT NULL");
+    await pool.query("ALTER TABLE inv_option_facets ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL");
+    await pool.query("ALTER TABLE inv_option_summary ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL");
+  }
   inventoryReady = true;
 }
 
@@ -2495,9 +2506,9 @@ async function handleInventoryBulk(req, res) {
         // Model policy (OPTION_MODEL_POLICY_PATH, Toyota + Ford 2026-27): for a covered vehicle ONLY the policy's options are written, so a re-synced
         // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
         // (the upsert COALESCEs trim), so the stored rows are left alone.
-        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options);
+        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { withPrice: PAID_ONLY });
         if (pol && pol.skip) { optionSetsKept++; unreadable.push({ vin, dealerId, pair: pairKey(vin, dealerId) }); continue; }
-        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
+        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key), withPrice: PAID_ONLY });
         optionJunkDropped += junkDropped;
         desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
       }
@@ -2512,7 +2523,7 @@ async function handleInventoryBulk(req, res) {
         timings.optionsReadMs += performance.now() - tRead;
         // A paid sticker line of the car's own trim that tonight's payload no longer lists stays (same rule as the re-clean).
         for (const d of desired) if (d.paidVehicle) d.rows = keepPaidStoredRows(OPTION_ALLOWLIST, d.paidVehicle, d.rows, existing.get(d.pair));
-        const { changed, unchanged } = diffOptionSets(desired, existing);
+        const { changed, unchanged } = diffOptionSets(desired, existing, { comparePrice: PAID_ONLY });
         const changedPairs = new Set(changed);
         toReplace = desired.filter((d) => changedPairs.has(d.pair));
         optionSetsUnchanged += unchanged;
@@ -2532,10 +2543,13 @@ async function handleInventoryBulk(req, res) {
         const pairConds = optionPairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
         await pool.query(`DELETE FROM dealer_inventory_options WHERE ${pairConds}`, optionPairs.flat());
         const optionRows = [];
-        for (const d of toReplace) for (const { key, label, code } of d.rows) optionRows.push([d.vin, d.dealerId, key, label, code]);
+        for (const d of toReplace) for (const { key, label, code, price } of d.rows) optionRows.push(PAID_ONLY ? [d.vin, d.dealerId, key, label, code, price ?? null] : [d.vin, d.dealerId, key, label, code]);
         // Sorted by this table's own primary key (vin, dealer_id, canonical_key).
         optionRows.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
-        if (optionRows.length) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
+        if (optionRows.length) {
+          if (PAID_ONLY) await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code, price) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code), price = VALUES(price)", [optionRows]);
+          else await pool.query("INSERT INTO dealer_inventory_options (vin, dealer_id, canonical_key, label, code) VALUES ? ON DUPLICATE KEY UPDATE label = VALUES(label), code = VALUES(code)", [optionRows]);
+        }
         optionSetsReplaced += toReplace.length;
         optionRowsWritten += optionRows.length;
       }
@@ -2582,7 +2596,7 @@ async function handleInventoryBulk(req, res) {
 async function selectExistingOptionRows(pool, desired) {
   const pairs = [...new Map(desired.map((d) => [d.pair, d])).values()];
   const conds = pairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
-  const [rows] = await pool.query(`SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE ${conds}`, pairs.flatMap((d) => [d.vin, d.dealerId]));
+  const [rows] = await pool.query(`SELECT vin, dealer_id, canonical_key, label, code${PAID_ONLY ? ", price" : ""} FROM dealer_inventory_options WHERE ${conds}`, pairs.flatMap((d) => [d.vin, d.dealerId]));
   return groupExistingOptionRows(rows);
 }
 
@@ -3369,12 +3383,14 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
     const makes = makeRows.map((r) => r.make);
     const summary = createSummaryAccumulator();
+    // Paid-only: count a row only where ITS OWN price is above 0 (so a label paid on some cars and $0 on others counts the paid cars only) and keep the price range.
+    const paid = paidSql(PAID_ONLY);
     for (const make of makes) {
       const [optionAgg] = await pool.query(
-        `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n
+        `SELECT STRAIGHT_JOIN COALESCE(i.model, '') AS model, COALESCE(i.trim, '') AS trim, o.canonical_key, MIN(o.label) AS label, COUNT(*) AS n${paid.select}
          FROM dealer_inventory i FORCE INDEX (idx_inv_stock_make_model_trim)
          JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id
-         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}${STALE_HIDE_DAYS ? ` AND i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ${STALE_HIDE_DAYS} DAY)` : ""}
+         WHERE i.removed_at IS NULL AND i.make = ?${RETAIL_ONLY_FACETS ? " AND (i.cond IS NULL OR i.cond <> 'wholesale')" : ""}${STALE_HIDE_DAYS ? ` AND i.last_seen_at >= DATE_SUB(NOW(), INTERVAL ${STALE_HIDE_DAYS} DAY)` : ""}${paid.where}
          GROUP BY COALESCE(i.model, ''), COALESCE(i.trim, ''), o.canonical_key`,
         [make]
       );
@@ -3393,7 +3409,8 @@ async function rebuildCatalogFacets(pool, opts = {}) {
         await conn.query("DELETE FROM inv_option_facets WHERE make = ?", [make]);
         await conn.query("DELETE FROM inv_color_facets WHERE make = ?", [make]);
         for (let i = 0; i < optionAgg.length; i += 2000) {
-          await conn.query("INSERT INTO inv_option_facets (make, model, trim, canonical_key, label, vehicle_count) VALUES ?", [optionAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.canonical_key, r.label, Number(r.n)])]);
+          if (PAID_ONLY) await conn.query("INSERT INTO inv_option_facets (make, model, trim, canonical_key, label, vehicle_count, min_price, max_price) VALUES ?", [optionAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.canonical_key, r.label, Number(r.n), r.min_price, r.max_price])]);
+          else await conn.query("INSERT INTO inv_option_facets (make, model, trim, canonical_key, label, vehicle_count) VALUES ?", [optionAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.canonical_key, r.label, Number(r.n)])]);
         }
         for (let i = 0; i < colorAgg.length; i += 2000) {
           await conn.query("INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);
@@ -3413,13 +3430,13 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     }
     // All-makes summary for the no-make catalog call: replaced in one transaction so a reader never sees it half-written.
     {
-      const { optionRows, colorRows } = summary.result({ minVehicles: CATALOG_MIN_VEHICLES });
+      const { optionRows, colorRows } = summary.result({ minVehicles: CATALOG_MIN_VEHICLES, paidPrices: PAID_ONLY });
       const sconn = await pool.getConnection();
       try {
         await sconn.beginTransaction();
         await sconn.query("DELETE FROM inv_option_summary");
         await sconn.query("DELETE FROM inv_color_summary");
-        if (optionRows.length) await sconn.query("INSERT INTO inv_option_summary (canonical_key, label, vehicle_count) VALUES ?", [optionRows]);
+        if (optionRows.length) await sconn.query(PAID_ONLY ? "INSERT INTO inv_option_summary (canonical_key, label, vehicle_count, min_price, max_price) VALUES ?" : "INSERT INTO inv_option_summary (canonical_key, label, vehicle_count) VALUES ?", [optionRows]);
         if (colorRows.length) await sconn.query("INSERT INTO inv_color_summary (kind, color) VALUES ?", [colorRows]);
         await sconn.commit();
       } catch (err) {
@@ -3464,7 +3481,7 @@ async function handleCatalogFacetStatus(req, res) {
 // The rebuild's all-makes summary as the two row sets handleInventoryCatalogOptions already consumes, or null when it is missing/empty.
 async function readAllMakesSummary(pool) {
   try {
-    const [options] = await pool.query("SELECT canonical_key, label, vehicle_count FROM inv_option_summary ORDER BY vehicle_count DESC");
+    const [options] = await pool.query(`SELECT canonical_key, label, vehicle_count${PAID_ONLY ? ", min_price, max_price" : ""} FROM inv_option_summary ORDER BY vehicle_count DESC`);
     if (!options.length) return null;
     const [colors] = await pool.query("SELECT kind, color FROM inv_color_summary");
     return summaryToQueryRows({ options, colors });
@@ -3492,7 +3509,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
       // inv_option_facets; an empty/missing summary (not rebuilt yet) falls through to the old queries.
       const fromSummary = !make && !model && !trim ? await readAllMakesSummary(pool) : null;
       const [optionRows] = fromSummary ? [fromSummary.optionRows] : await withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
+        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT canonical_key, MIN(label) AS label, SUM(vehicle_count) AS vehicleCount${PAID_ONLY ? ", MIN(min_price) AS min_price, MAX(max_price) AS max_price" : ""} FROM inv_option_facets ${fWhereSql} GROUP BY canonical_key HAVING SUM(vehicle_count) >= ${CATALOG_MIN_VEHICLES} ORDER BY SUM(vehicle_count) DESC LIMIT 400`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
@@ -3552,9 +3569,10 @@ async function handleInventoryCatalogOptions(req, res, params) {
     // exact same "never even started executing, so the statement-level cap had nothing to catch"
     // failure handleListInventory already had fixed. This is a separate handler with its own
     // pool.query() calls, so it needed the same fix applied to it directly, not inherited.
+    const livePaid = paidSql(PAID_ONLY);
     const [optionRows] = await withPoolTimeout(
       pool.query(
-        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
+        `SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT STRAIGHT_JOIN o.canonical_key, MIN(o.label) AS label, COUNT(*) AS vehicleCount${livePaid.select} FROM dealer_inventory i ${makeIndexHint} JOIN dealer_inventory_options o ON o.vin = i.vin AND o.dealer_id = i.dealer_id ${whereSql}${livePaid.where} GROUP BY o.canonical_key ORDER BY o.canonical_key`,
         args
       ),
       waitMs(),
@@ -3571,7 +3589,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
     const exteriorColors = [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort();
     const interiorColors = [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort();
     return {
-      options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount) })),
+      options: optionRows.map((r) => ({ key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicleCount), ...(PAID_ONLY && r.min_price != null && r.max_price != null ? { minPrice: Number(r.min_price), maxPrice: Number(r.max_price) } : {}) })),
       exteriorColors,
       interiorColors,
     };

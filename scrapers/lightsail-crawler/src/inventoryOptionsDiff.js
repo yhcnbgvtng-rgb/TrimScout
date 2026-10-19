@@ -28,13 +28,13 @@ export function groupExistingOptionRows(dbRows) {
     const k = pairKey(r.vin, r.dealer_id);
     let list = byPair.get(k);
     if (!list) byPair.set(k, (list = []));
-    list.push({ key: r.canonical_key, label: r.label, code: r.code ?? null });
+    list.push("price" in r ? { key: r.canonical_key, label: r.label, code: r.code ?? null, price: r.price ?? null } : { key: r.canonical_key, label: r.label, code: r.code ?? null });
   }
   return byPair;
 }
 
 /** True when the two sets hold the same keys with the same label and code (order-insensitive). */
-export function optionSetsEqual(existing, desired) {
+export function optionSetsEqual(existing, desired, { comparePrice = false } = {}) {
   if (existing.length !== desired.length) return false;
   const byKey = new Map();
   for (const e of existing) byKey.set(e.key, e);
@@ -42,6 +42,8 @@ export function optionSetsEqual(existing, desired) {
   for (const d of desired) {
     const e = byKey.get(d.key);
     if (!e || !sameText(e.label, d.label) || !sameText(e.code, d.code)) return false;
+    // OPTIONS_PAID_ONLY on: a changed or newly-known price is a change, so the rewrite stores it. Off: prices are never compared.
+    if (comparePrice && !sameText(e.price, d.price)) return false;
   }
   return true;
 }
@@ -51,11 +53,11 @@ export function optionSetsEqual(existing, desired) {
  * @param {Map<string, {key: string, label: string, code: string|null}[]>} existing from groupExistingOptionRows (a vehicle with no rows is simply absent)
  * @returns {{ changed: string[], unchanged: number }} pairKeys that need the DELETE + INSERT, and how many were left alone
  */
-export function diffOptionSets(desired, existing) {
+export function diffOptionSets(desired, existing, opts = {}) {
   const changed = [];
   let unchanged = 0;
   for (const d of desired) {
-    if (optionSetsEqual(existing.get(d.pair) || [], d.rows)) unchanged++;
+    if (optionSetsEqual(existing.get(d.pair) || [], d.rows, opts)) unchanged++;
     else changed.push(d.pair);
   }
   return { changed, unchanged };

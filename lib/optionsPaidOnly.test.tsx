@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
+import { optionPriceText, catalogOptionLabel } from "./optionsPaidOnly";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
@@ -110,4 +111,32 @@ describe("flag off leaves both screens alone", () => {
     assert.match(wizard, /options=\{filterMustHaveOptions\(fordFilterableOptions, optionsPaidOnlyEnabled\(\)\)\}/);
     assert.match(wizard, /paidOnly \? formatOptionPrice\(opt\.price\) : formatCurrency\(opt\.price\)/);
   });
+});
+
+
+// ---- /search factory-options filter: price next to each option (catalog endpoint, OPTIONS_PAID_ONLY) ----
+describe("paid-only catalog filter (/search)", () => {
+
+  it("optionPriceText: one price, a range, and nothing", () => {
+  assert.equal(optionPriceText(450, 450), "+$450");
+  assert.equal(optionPriceText(800, 1400), "+$800–$1,400");
+  assert.equal(optionPriceText(1400, 800), "+$800–$1,400");
+  assert.equal(optionPriceText(undefined, undefined), "");
+  assert.equal(optionPriceText(0, 0), "");
+  assert.equal(optionPriceText(null, 600), "+$600");
+});
+
+  it("catalogOptionLabel: flag off is the label untouched, flag on adds the price or range", () => {
+  const o = { label: "Panoramic Roof", minPrice: 900, maxPrice: 1500 };
+  assert.equal(catalogOptionLabel(o, false), "Panoramic Roof");
+  assert.equal(catalogOptionLabel(o, true), "Panoramic Roof (+$900–$1,500)");
+  assert.equal(catalogOptionLabel({ label: "Tow Package" }, true), "Tow Package");
+});
+
+  it("BuyerSearchView: price in the label and the empty state are behind the flag; the old empty text stays for flag off", () => {
+  const src = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
+  assert.ok(src.includes("catalogOptionLabel(o, paidOnly)"));
+  assert.ok(src.includes('paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."'));
+});
+
 });

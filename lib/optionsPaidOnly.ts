@@ -26,6 +26,23 @@ export function formatOptionPrice(price: number): string {
   return `+$${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${cents ? `.${cents}` : ""}`;
 }
 
+/** Price (or range) shown next to a catalog option: "+$450" or "+$800–$1,400". Empty when the endpoint sent no paid price (flag off, or not backfilled). */
+export function optionPriceText(minPrice?: number | null, maxPrice?: number | null): string {
+  const lo = typeof minPrice === "number" && Number.isFinite(minPrice) && minPrice > 0 ? minPrice : null;
+  const hi = typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0 ? maxPrice : null;
+  if (lo == null && hi == null) return "";
+  const a = lo ?? hi!, b = hi ?? lo!;
+  const [low, high] = a <= b ? [a, b] : [b, a];
+  return low === high ? formatOptionPrice(low) : `${formatOptionPrice(low)}–${formatOptionPrice(high).slice(1)}`;
+}
+
+/** The label the /search factory-options filter shows for one catalog option. With the flag off it is the label, unchanged. */
+export function catalogOptionLabel(o: { label: string; minPrice?: number | null; maxPrice?: number | null }, paidOnly: boolean): string {
+  if (!paidOnly) return o.label;
+  const price = optionPriceText(o.minPrice, o.maxPrice);
+  return price ? `${o.label} (${price})` : o.label;
+}
+
 interface PricedOption {
   name: string;
   price?: number | null;

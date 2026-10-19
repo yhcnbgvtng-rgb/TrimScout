@@ -23,9 +23,12 @@ export function createSummaryAccumulator() {
       for (const r of rows) {
         const key = ciKey(r.canonical_key), n = Number(r.n);
         const cur = options.get(key);
-        if (!cur) options.set(key, { key: r.canonical_key, label: r.label, count: n });
+        const lo = r.min_price == null ? null : Number(r.min_price), hi = r.max_price == null ? null : Number(r.max_price);
+        if (!cur) options.set(key, { key: r.canonical_key, label: r.label, count: n, lo, hi });
         else {
           cur.count += n;
+          if (lo != null) cur.lo = cur.lo == null ? lo : Math.min(cur.lo, lo);
+          if (hi != null) cur.hi = cur.hi == null ? hi : Math.max(cur.hi, hi);
           if (String(r.label).toLowerCase() < String(cur.label).toLowerCase()) cur.label = r.label;
         }
       }
@@ -36,12 +39,12 @@ export function createSummaryAccumulator() {
         if (r.intr && !interior.has(ciKey(r.intr))) interior.set(ciKey(r.intr), r.intr);
       }
     },
-    result({ minVehicles, limit = SUMMARY_OPTION_LIMIT }) {
+    result({ minVehicles, limit = SUMMARY_OPTION_LIMIT, paidPrices = false }) {
       const optionRows = [...options.entries()]
         .filter(([, v]) => v.count >= minVehicles)
         .sort((a, b) => b[1].count - a[1].count || (a[0] < b[0] ? -1 : 1))
         .slice(0, limit)
-        .map(([, v]) => [v.key, v.label, v.count]);
+        .map(([, v]) => (paidPrices ? [v.key, v.label, v.count, v.lo, v.hi] : [v.key, v.label, v.count]));
       const colorRows = [...[...exterior.values()].sort().map((c) => ["ext", c]), ...[...interior.values()].sort().map((c) => ["int", c])];
       return { optionRows, colorRows };
     },
@@ -51,7 +54,7 @@ export function createSummaryAccumulator() {
 // Shape the handler's existing code expects from its two queries.
 export function summaryToQueryRows({ options, colors }) {
   return {
-    optionRows: options.map((r) => ({ canonical_key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicle_count) })),
+    optionRows: options.map((r) => ({ canonical_key: r.canonical_key, label: r.label, vehicleCount: Number(r.vehicle_count), ...("min_price" in r ? { min_price: r.min_price, max_price: r.max_price } : {}) })),
     colorRows: colors.map((r) => (r.kind === "ext" ? { exterior_color: r.color, interior_color: null } : { exterior_color: null, interior_color: r.color })),
   };
 }

@@ -37,8 +37,8 @@ function makePool({ failOn = null } = {}) {
   return pool;
 }
 
-function load() {
-  const ctx = { BLOCKED_TABLE_DDL: 'CREATE TABLE IF NOT EXISTS blocked_stores (id INT)', VEHICLE_IDS_DDL: 'CREATE TABLE IF NOT EXISTS vehicle_ids (vin CHAR(17))', VEHICLE_ID_COLUMN_DDL: 'ALTER TABLE dealer_inventory ADD COLUMN IF NOT EXISTS vehicle_id INT UNSIGNED NULL', console };
+function load(paidOnly = false) {
+  const ctx = { PAID_ONLY: paidOnly, BLOCKED_TABLE_DDL: 'CREATE TABLE IF NOT EXISTS blocked_stores (id INT)', VEHICLE_IDS_DDL: 'CREATE TABLE IF NOT EXISTS vehicle_ids (vin CHAR(17))', VEHICLE_ID_COLUMN_DDL: 'ALTER TABLE dealer_inventory ADD COLUMN IF NOT EXISTS vehicle_id INT UNSIGNED NULL', console };
   vm.createContext(ctx);
   vm.runInContext(['let inventoryReady = false;', 'let inventoryReadyPromise = null;', extractFunction('ensureInventoryTable'), extractFunction('ensureInventoryTableOnce', { optional: true }),
     'globalThis.ensureInventoryTable = ensureInventoryTable;', 'globalThis.isReady = () => inventoryReady;'].join('\n'), ctx);
@@ -47,6 +47,21 @@ function load() {
 const count = (pool, re) => pool.statements.filter((s) => re.test(s)).length;
 
 describe('ensureInventoryTable', () => {
+  it('OPTIONS_PAID_ONLY off: no price column is added anywhere', async () => {
+    const ctx = load(false), pool = makePool();
+    await ctx.ensureInventoryTable(pool);
+    assert.equal(count(pool, /min_price|max_price|dealer_inventory_options ADD COLUMN/), 0);
+  });
+
+  it('OPTIONS_PAID_ONLY on: the nullable price columns are added once (IF NOT EXISTS)', async () => {
+    const ctx = load(true), pool = makePool();
+    await ctx.ensureInventoryTable(pool);
+    await ctx.ensureInventoryTable(pool);
+    assert.equal(count(pool, /ALTER TABLE dealer_inventory_options ADD COLUMN IF NOT EXISTS price INT NULL/), 1);
+    assert.equal(count(pool, /ALTER TABLE inv_option_facets ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL/), 1);
+    assert.equal(count(pool, /ALTER TABLE inv_option_summary ADD COLUMN IF NOT EXISTS min_price INT NULL/), 1);
+  });
+
   it('concurrent first requests do not collide: all resolve, the DDL runs once, each trigger is created once', async () => {
     const ctx = load(), pool = makePool();
     const results = await Promise.allSettled(Array.from({ length: 6 }, () => ctx.ensureInventoryTable(pool)));
