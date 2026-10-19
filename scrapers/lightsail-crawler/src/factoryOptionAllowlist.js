@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { positivePrice } from "./optionsPaidOnlyServer.js";
 import { normalizeOptionKey, optionRowsFromOptions, compileJunkRules, setJunkRules } from "./inventoryOptionRows.js";
 
 export const EMPTY_ALLOWLIST = Object.freeze({ makes: new Map(), models: new Map() });
@@ -393,7 +394,7 @@ export function optionRowsForVehicle(allowlist, vehicle, options) {
  * trust (2026-10-13 ruling; the policy's rule 6 "no trusted trim -> no options" still decides what the LIST shows, it just no longer deletes stored rows).
  * -> null | { skip: true } | { rows: [{ key, label, code }], junkDropped }
  */
-export function policyFacetRows(allowlist, vehicle, options) {
+export function policyFacetRows(allowlist, vehicle, options, { withPrice = false } = {}) {
   if (!modelPoliciesFor(allowlist, vehicle).length) return null;
   if (!String(vehicle.trim ?? "").trim()) return { skip: true };
   const res = optionRowsForVehicle(allowlist, vehicle, Array.isArray(options) ? options : []);
@@ -401,7 +402,7 @@ export function policyFacetRows(allowlist, vehicle, options) {
   // A trim the policy does not trust is "we cannot read this car", not "this car has no options": leave its stored rows alone (same as a blank trim).
   // Ruling 2026-10-13: the nightly sync never empties a car because of a trim string we don't recognise.
   if (!res.trimTrusted) return { skip: true };
-  return { rows: res.rows.map((r) => ({ key: r.key, label: r.label, code: r.code ?? null })), junkDropped: res.junkDropped };
+  return { rows: res.rows.map((r) => (withPrice ? { key: r.key, label: r.label, code: r.code ?? null, price: positivePrice(r.price) } : { key: r.key, label: r.label, code: r.code ?? null })), junkDropped: res.junkDropped };
 }
 
 /**

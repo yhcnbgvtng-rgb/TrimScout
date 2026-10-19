@@ -120,7 +120,7 @@ export function keepPaidStoredRows(allow, vehicle, desiredRows, storedRows) {
     if (!entry || !(priced(entry.price) || priced(entry.packagePrice) || (entry.priceByDrivetrain && Object.values(entry.priceByDrivetrain).some(priced)))) continue;
     if (have.has(s.key) || (entry.key !== s.key && have.has(entry.key))) continue; // already there, or the engine re-keyed it
     have.add(s.key);
-    extra.push({ key: s.key, label: s.label, code: s.code ?? null });
+    extra.push(s.price != null ? { key: s.key, label: s.label, code: s.code ?? null, price: s.price } : { key: s.key, label: s.label, code: s.code ?? null });
   }
   return extra.length ? [...desiredRows, ...extra] : desiredRows;
 }

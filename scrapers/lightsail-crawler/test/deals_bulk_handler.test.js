@@ -134,7 +134,7 @@ function loadHandlers(db) {
     normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
     cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
-    OPTIONS_DIFF_WRITE: true,
+    OPTIONS_DIFF_WRITE: true, PAID_ONLY: false,
     pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
     performance,
   };

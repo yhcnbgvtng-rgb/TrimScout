@@ -12,6 +12,7 @@
 // free-text features, and every row stored before #333 still reached the facet unfiltered.
 
 import { looksLikeOptionSentence } from "./optionSentenceFilter.js";
+import { positivePrice, maxPrice } from "./optionsPaidOnlyServer.js";
 
 // Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
 // normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
@@ -352,6 +353,7 @@ export function optionRowsFromOptions(options, opts = {}) {
   const resolveKey = typeof opts.resolveKey === "function" ? opts.resolveKey : null;
   const protect = typeof opts.protect === "function" ? opts.protect : null;
   const junkRules = "junkRules" in opts ? opts.junkRules : activeJunkRules;
+  const withPrice = Boolean(opts.withPrice);
   const byKey = new Map();
   let junkDropped = 0;
   const dropped = []; // { label, rule } for every dropped label — the backfill's per-make report reads this
@@ -389,7 +391,10 @@ export function optionRowsFromOptions(options, opts = {}) {
         continue;
       }
       if (canonical) ({ key, label } = canonical);
-      if (!byKey.has(key)) byKey.set(key, { key, label, code });
+      // opts.withPrice (OPTIONS_PAID_ONLY on): each row also carries this car's own price for it. A price belongs only to a label that was
+      // listed alone (a joined list can't be attributed), and two lines of one key keep the paid one.
+      if (!byKey.has(key)) byKey.set(key, withPrice ? { key, label, code, price: null } : { key, label, code });
+      if (withPrice && parts.length === 1) { const row = byKey.get(key); row.price = maxPrice(row.price, positivePrice(o.price)); }
     }
   }
   return { rows: [...byKey.values()], junkDropped, dropped, repaired };
@@ -510,6 +515,7 @@ export function buyerOptionCatalog(rows, opts = {}) {
   const byLabel = new Map();
   for (const r of rows) {
     const vehicleCount = Number(r.vehicleCount);
+    const minPrice = positivePrice(r.min_price), maxP = positivePrice(r.max_price);
     if (!(vehicleCount >= CATALOG_MIN_VEHICLES) || !isBuyerFacingOption(r.canonical_key, r.label)) continue;
     let label = buyerOptionLabel(r.label);
     if (gate) {
@@ -521,7 +527,8 @@ export function buyerOptionCatalog(rows, opts = {}) {
     // Two keys can differ only in punctuation we already display identically ("Sync 4" / "SYNC 4"
     // normalize to one key, but near-variants exist) — keep the bigger one, never sum: they
     // describe overlapping vehicles, so a sum would overstate the count.
-    if (!prev || vehicleCount > prev.vehicleCount) byLabel.set(label.toLowerCase(), { key: r.canonical_key, label, vehicleCount });
+    // minPrice/maxPrice exist only when the paid-only rebuild stored them; without them the entry is exactly what it always was.
+    if (!prev || vehicleCount > prev.vehicleCount) byLabel.set(label.toLowerCase(), { key: r.canonical_key, label, vehicleCount, ...(minPrice != null && maxP != null ? { minPrice, maxPrice: maxP } : {}) });
   }
   return [...byLabel.values()].sort((a, b) => b.vehicleCount - a.vehicleCount || a.label.localeCompare(b.label)).slice(0, CATALOG_MAX_OPTIONS);
 }

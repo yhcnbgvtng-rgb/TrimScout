@@ -1,6 +1,6 @@
 # Design note: paid-only factory options in the /search catalog filter
 
-Status: proposal only. Nothing here is built, and nothing was run against a box except read-only counts (2026-10-18, box2, reader account).
+Status: BUILT as code only (2026-10-19, branch feat/options-paid-only-catalog): the price column, write path, rebuild filter, endpoint fields and `scripts/box/2026-10-19-backfill-option-prices.mjs`, all behind `OPTIONS_PAID_ONLY` on deals-api. Nothing is installed or run on any box. The text below is the original proposal; where it said "do not parse JSON in the rebuild" that is what was built. Package lines missing from the table: `docs/OPTIONS_PACKAGE_LINES_PLAN.md`. Original status: proposal only. Nothing here is built, and nothing was run against a box except read-only counts (2026-10-18, box2, reader account).
 Related: `OPTIONS_PAID_ONLY` flag (compare view and wizard picker) in this PR.
 
 ## What has to change

@@ -274,7 +274,7 @@ async function contactRequest(path: string, body: Record<string, unknown>, deale
 
 export interface CatalogOptions {
   /** `key` is the stable canonical_key to pass into `optionKeys=` — never a raw per-listing code. `label` is what to actually show the buyer. */
-  options: Array<{ key: string; label: string; vehicleCount: number }>;
+  options: Array<{ key: string; label: string; vehicleCount: number; /** Only with OPTIONS_PAID_ONLY on at the endpoint: lowest / highest paid price among the counted cars. */ minPrice?: number; maxPrice?: number }>;
   exteriorColors: string[];
   interiorColors: string[];
 }

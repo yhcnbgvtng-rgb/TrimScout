@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, MapPin, X } from "lucide-react";
+import { NO_PAID_FACTORY_OPTIONS, catalogOptionLabel, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { DropdownOption } from "./search/SearchableDropdown";
 import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
@@ -54,6 +55,8 @@ interface CatalogOption {
   key: string;
   label: string;
   vehicleCount: number;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 interface Filters {
@@ -388,7 +391,8 @@ export function BuyerSearchView() {
   const modelDisabledHint = !filters.make ? "Pick a make first" : undefined;
   const trimDisabledHint = !filters.model ? "Pick a model first" : undefined;
   const optionsDisabledHint = !filters.make || !filters.model ? "Pick a make and model first" : undefined;
-  const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => o.label), [catalogOptions]);
+  const paidOnly = optionsPaidOnlyEnabled();
+  const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => catalogOptionLabel(o, paidOnly)), [catalogOptions, paidOnly]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
@@ -402,7 +406,7 @@ export function BuyerSearchView() {
           <SinglePill accent="brand" label="Make" options={shownCounts(makeOptions)} value={filters.make} loading={facetsLoading} onChange={setMake} />
           <SinglePill accent="brand" label="Model" options={shownCounts(modelOptions)} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
           <SinglePill accent="brand" label="Trim" options={shownCounts(trimOptions)} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
-          <MultiPill accent="brand" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : "No factory options in inventory for this make/model yet."} />
+          <MultiPill accent="brand" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."} />
           <PillShell accent="brand" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
             {() => (
               <div
