@@ -43,7 +43,8 @@ import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createStatsCache } from "./statsCache.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
-import { loadAllowlistFromEnv, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
+import { loadSyncAllowlist, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
+import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from "./syncOptionClean.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
 import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
@@ -66,7 +67,7 @@ const PORT = process.env.DEALS_API_PORT || 3004;
 // Factory-option allowlist (factoryOptionAllowlist.js). Empty unless OPTION_ALLOWLIST_PATH points at
 // a JSON file, so until Phase B ships real sticker/brochure data this changes nothing. Loaded once
 // at boot; a bad path is logged and falls back to the heuristic catalog rather than failing boot.
-const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadAllowlistFromEnv();
+const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadSyncAllowlist(); // env-listed policies plus every bundled one (OPTION_BUNDLED_POLICIES=off for the env list only)
 import { installJunkRulesFromEnv } from "./factoryOptionAllowlist.js"; // hoisted; kept next to its use so the box patch needs no knowledge of the import line above
 const OPTION_CATALOG_MODE = catalogModeFromEnv();
 // Global write-time junk list (src/optionJunkRules.json; OPTION_JUNK_RULES=off or OPTION_JUNK_RULES_PATH=<file> to change it). Applies to every car, policy or not.
@@ -78,6 +79,9 @@ if (optionAllowlistError) console.warn(`[options] allowlist not loaded (${option
 // already stored (inventoryOptionsDiff.js) instead of deleting and re-inserting every set on every nightly
 // upsert. INVENTORY_OPTIONS_DIFF_WRITE=0 restores the old rewrite-everything behavior without a code change.
 const OPTIONS_DIFF_WRITE = process.env.INVENTORY_OPTIONS_DIFF_WRITE !== "0";
+// options_json (what /api/inventory returns and the re-clean re-reads): "junk" (default) = the payload minus junk-list / exact-junk lines, so a later policy change can still be
+// re-derived from it; "full" = a trusted policy-covered car stores the policy result instead; "off" = the payload as sent. The stored option rows are cleaned the same way in every mode.
+const OPTIONS_JSON_CLEAN = ["full", "off"].includes(String(process.env.OPTIONS_JSON_CLEAN || "").toLowerCase()) ? String(process.env.OPTIONS_JSON_CLEAN).toLowerCase() : "junk";
 // The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
 // promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
 const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
@@ -2415,6 +2419,7 @@ async function handleInventoryBulk(req, res) {
   const body = await readBody(req, 30_000_000);
   const vehicles = Array.isArray(body.vehicles) ? body.vehicles : null;
   if (!vehicles) return badRequest(res, "vehicles[] is required");
+  let optionExactJunkPurged = 0;
   let upserted = 0, skipped = 0, optionSetsReplaced = 0, optionSetsKept = 0, optionSetsUnchanged = 0, optionRowsWritten = 0, optionJunkDropped = 0, priceGuarded = 0;
   // Where the time inside this request goes, reported back so the sync's own log shows it every night
   // (milliseconds, summed over the request's chunks).
@@ -2424,8 +2429,10 @@ async function handleInventoryBulk(req, res) {
     const chunk = vehicles.slice(i, i + 500).filter((v) => typeof v.vin === "string" && /^[A-HJ-NPR-Z0-9]{17}$/.test(v.vin.trim().toUpperCase()) && INV_STR(v.dealerName, 255));
     skipped += Math.min(500, vehicles.length - i) - chunk.length;
     if (!chunk.length) continue;
+    // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).
+    const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));
     const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
-      INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(v.options, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),
+      INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(cleaned.get(v).optionsJson, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),
       // The crawl's own state: only used when the directory has no store for the row (trg_inv_rev_*), so store-0 cars still have a state.
       normalizeState(v.state)]);
     // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k and unsupported by its own MSRP, or ~10x the
@@ -2481,6 +2488,7 @@ async function handleInventoryBulk(req, res) {
       const tOptions = performance.now();
       // The facet rows each vehicle SHOULD have, derived from this payload by the rules above...
       const desired = [];
+      const unreadable = []; // policy-covered cars with a blank / untrusted trim: stored rows stay, except exact-junk lines (below)
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
         const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
@@ -2488,10 +2496,10 @@ async function handleInventoryBulk(req, res) {
         // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
         // (the upsert COALESCEs trim), so the stored rows are left alone.
         const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options);
-        if (pol && pol.skip) { optionSetsKept++; continue; }
+        if (pol && pol.skip) { optionSetsKept++; unreadable.push({ vin, dealerId, pair: pairKey(vin, dealerId) }); continue; }
         const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key) });
         optionJunkDropped += junkDropped;
-        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows });
+        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
       }
       // ...compared with the rows each one already HAS, so only vehicles whose set actually changed are
       // rewritten. Measured 2026-09-30: ~284k vehicles / 3.7M facet rows per box per night were being deleted and
@@ -2502,6 +2510,8 @@ async function handleInventoryBulk(req, res) {
         const tRead = performance.now();
         const existing = await selectExistingOptionRows(pool, desired);
         timings.optionsReadMs += performance.now() - tRead;
+        // A paid sticker line of the car's own trim that tonight's payload no longer lists stays (same rule as the re-clean).
+        for (const d of desired) if (d.paidVehicle) d.rows = keepPaidStoredRows(OPTION_ALLOWLIST, d.paidVehicle, d.rows, existing.get(d.pair));
         const { changed, unchanged } = diffOptionSets(desired, existing);
         const changedPairs = new Set(changed);
         toReplace = desired.filter((d) => changedPairs.has(d.pair));
@@ -2529,6 +2539,8 @@ async function handleInventoryBulk(req, res) {
         optionSetsReplaced += toReplace.length;
         optionRowsWritten += optionRows.length;
       }
+      // Exact-junk lines (OPTION PACKAGES, Creators, Exp, Title, dates ...) are removed even from cars the policy cannot read; their other rows are not touched.
+      if (unreadable.length) optionExactJunkPurged += await purgeExactJunkRows(pool, unreadable);
       timings.optionsMs += performance.now() - tOptions;
     }
     // Today's observation for every vehicle in the chunk, plus the crawl's dated price points
@@ -2561,7 +2573,7 @@ async function handleInventoryBulk(req, res) {
   for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, priceGuarded, timings });
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, optionExactJunkPurged, priceGuarded, timings });
 }
 
 // The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One
@@ -2572,6 +2584,20 @@ async function selectExistingOptionRows(pool, desired) {
   const conds = pairs.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ");
   const [rows] = await pool.query(`SELECT vin, dealer_id, canonical_key, label, code FROM dealer_inventory_options WHERE ${conds}`, pairs.flatMap((d) => [d.vin, d.dealerId]));
   return groupExistingOptionRows(rows);
+}
+
+// Deletes the exact-junk rows (syncOptionClean.staleExactJunkKeys) of cars whose policy could not read their trim. One PK-range read per car, then one
+// DELETE by full primary key per batch, sorted like every other writer here. Returns the rows deleted.
+async function purgeExactJunkRows(pool, cars) {
+  const existing = await selectExistingOptionRows(pool, cars);
+  const doomed = [];
+  for (const c of cars) for (const r of staleExactJunkKeys(existing.get(c.pair))) doomed.push([c.vin, c.dealerId, r.key]);
+  doomed.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] !== b[1] ? a[1] - b[1] : a[2] < b[2] ? -1 : a[2] > b[2] ? 1 : 0));
+  for (let i = 0; i < doomed.length; i += 200) {
+    const part = doomed.slice(i, i + 200);
+    await pool.query(`DELETE FROM dealer_inventory_options WHERE ${part.map(() => "(vin = ? AND dealer_id = ? AND canonical_key = ?)").join(" OR ")}`, part.flat());
+  }
+  return doomed.length;
 }
 
 // GET /api/inventory/vin/:vin — every store that has listed the VIN, with its day-by-day observations.
