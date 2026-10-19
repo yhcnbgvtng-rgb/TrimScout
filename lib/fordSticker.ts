@@ -13,8 +13,7 @@
 
 import fs from "fs";
 import path from "path";
-import dns from "dns/promises";
-import net from "net";
+import { safeFetch } from "./safeUrl";
 import { isFordOrLincolnVin } from "./oemWmi";
 import {
   extractDealerIdentity,
@@ -341,54 +340,6 @@ export function extractVin(input: string): string | null {
 
 export function looksLikeUrl(input: string): boolean {
   return /^https?:\/\//i.test(input.trim());
-}
-
-// SSRF guard for extractVinFromDealerPage below: this fetches whatever URL
-// a buyer pastes in, server-side, with no login required. Block anything
-// that resolves to a private/loopback/link-local/reserved address (this
-// covers cloud metadata endpoints like 169.254.169.254 too) before ever
-// fetching it.
-function isPrivateOrReservedIp(ip: string): boolean {
-  const kind = net.isIP(ip);
-  if (kind === 4) {
-    const [a, b] = ip.split(".").map(Number);
-    if (a === 127) return true; // loopback
-    if (a === 10) return true; // private
-    if (a === 172 && b >= 16 && b <= 31) return true; // private
-    if (a === 192 && b === 168) return true; // private
-    if (a === 169 && b === 254) return true; // link-local / cloud metadata
-    if (a === 0) return true; // "this" network
-    if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
-    if (a >= 224) return true; // multicast + reserved
-    return false;
-  }
-  if (kind === 6) {
-    const lower = ip.toLowerCase();
-    if (lower === "::1") return true; // loopback
-    if (lower.startsWith("fc") || lower.startsWith("fd")) return true; // unique local
-    if (lower.startsWith("fe80")) return true; // link-local
-    if (lower.startsWith("::ffff:")) return isPrivateOrReservedIp(lower.slice(7)); // v4-mapped
-    return false;
-  }
-  return false; // not an IP literal
-}
-
-async function assertSafeExternalUrl(rawUrl: string): Promise<void> {
-  const url = new URL(rawUrl);
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("Only http/https URLs are allowed.");
-  }
-  const hostname = url.hostname;
-  if (hostname === "localhost") throw new Error("That URL isn't allowed.");
-  if (net.isIP(hostname) && isPrivateOrReservedIp(hostname)) {
-    throw new Error("That URL isn't allowed.");
-  }
-  if (!net.isIP(hostname)) {
-    const addresses = await dns.lookup(hostname, { all: true });
-    if (addresses.some((a) => isPrivateOrReservedIp(a.address))) {
-      throw new Error("That URL isn't allowed.");
-    }
-  }
 }
 
 export function looksLikeFordOrLincolnPaste(paste: string): boolean {
@@ -939,7 +890,8 @@ async function extractPdfText(bytes: Uint8Array): Promise<string> {
 }
 
 async function fetchStickerBytesFromUrl(url: string): Promise<Uint8Array> {
-  const res = await fetch(url, {
+  // The URL is one our crawl scraped off a dealer page, so it is not trusted: public http(s) only, every redirect hop re-checked.
+  const res = await safeFetch(url, {
     headers: {
       Accept: "application/pdf,text/html;q=0.8,*/*;q=0.5",
       "User-Agent":
@@ -1225,11 +1177,9 @@ export function extractAdvertisedListingPrice(html: string): number | null {
  */
 export async function extractVinFromDealerPage(url: string): Promise<DealerPageVinResult> {
   try {
-    await assertSafeExternalUrl(url);
-    const res = await fetch(url, {
+    const res = await safeFetch(url, {
       headers: BROWSER_NAVIGATION_HEADERS,
       cache: "no-store",
-      redirect: "follow",
       signal: AbortSignal.timeout(8000),
     });
     const html = await res.text().catch(() => "");

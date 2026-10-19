@@ -21,7 +21,7 @@ import {
   type InvitedDealerSeed,
   type StoredDealEngagement,
 } from "./dealEngagement";
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import { expireDealRequest } from "./dealsApi";
 import { serverSecret } from "./serverSecret";
 
@@ -75,7 +75,7 @@ async function fetchRemote(): Promise<EngagementStoreData | null> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
-    const res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}/api/deal-engagement`, {
+    const res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}/api/deal-engagement`, {
       headers: { "X-Trimscout-Api-Key": apiKey },
       signal: controller.signal,
       cache: "no-store",
@@ -100,7 +100,7 @@ async function pushRemote(data: EngagementStoreData): Promise<void> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
-    await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}/api/deal-engagement`, {
+    await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}/api/deal-engagement`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

@@ -5,6 +5,10 @@
  */
 import { before } from "node:test";
 
+// The app no longer carries a hardcoded box address (lib/lightsailClient.ts reads the env only), so tests that
+// mock fetch need *a* host to build their URL from. TEST-NET-3: guaranteed never routable, never a real box.
+process.env.LIGHTSAIL_IP ??= "203.0.113.10";
+
 export const LIVE_HTTP_BLOCKLIST =
   /windowsticker\.forddirect\.com|cws\.gm\.com|api\.marketcheck\.com|api\.auto\.dev|trim-scout\.vercel\.app|generativelanguage\.googleapis\.com/i;
 

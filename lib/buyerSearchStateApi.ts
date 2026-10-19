@@ -3,7 +3,7 @@
  * Server-only (API key). The box endpoint is added by scripts/box/2026-10-04-buyer-search-state.sh; until that runs the
  * box answers 404 and callers (app/api/buyer/search-state) report 503 so the page falls back to browser storage.
  */
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
 import { sanitizeState, type BuyerSearchState } from "./buyerPicks";
 
@@ -21,7 +21,7 @@ async function call(method: "GET" | "PUT", path: string, body?: unknown): Promis
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`http://${LIGHTSAIL_HOST}:${DEALS_API_PORT}${path}`, {
+    const res = await fetch(`http://${getLightsailHost()}:${DEALS_API_PORT}${path}`, {
       method, headers: { "Content-Type": "application/json", "X-Trimscout-Api-Key": apiKey }, body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal, cache: "no-store",
     });
     const json = await res.json().catch(() => null);

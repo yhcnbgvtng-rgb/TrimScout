@@ -11,7 +11,7 @@
 // a failed signup or sign-in needs to surface as a real error to the user,
 // not silently degrade.
 
-import { LIGHTSAIL_HOST } from "./lightsailClient";
+import { getLightsailHost } from "./lightsailClient";
 
 const AUTH_API_PORT = 3003;
 const API_KEY = process.env.LIGHTSAIL_API_KEY;
@@ -47,7 +47,7 @@ async function getJson<T>(path: string): Promise<T> {
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${AUTH_API_PORT}${path}`, {
       headers: { "X-Trimscout-Api-Key": API_KEY },
       signal: controller.signal,
       cache: "no-store",
@@ -79,7 +79,7 @@ async function postJson(path: string, body: unknown): Promise<AuthUser> {
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${AUTH_API_PORT}${path}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -152,7 +152,7 @@ async function rawPost(path: string, body: unknown): Promise<any> {
   const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
   let res: Response;
   try {
-    res = await fetch(`http://${LIGHTSAIL_HOST}:${AUTH_API_PORT}${path}`, {
+    res = await fetch(`http://${getLightsailHost()}:${AUTH_API_PORT}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Trimscout-Api-Key": API_KEY },
       body: JSON.stringify(body),

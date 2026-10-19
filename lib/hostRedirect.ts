@@ -7,27 +7,11 @@
  * Server-only (DNS lookup for the guard).
  */
 
-import dns from "node:dns/promises";
-import net from "node:net";
+import { assertPublicHttpUrl } from "./safeUrl";
 import { normalizeDealerHost, registrableDomain } from "./deskResolve";
 
 const MAX_HOPS = 5;
 const TIMEOUT_MS = 4000;
-
-function isPrivateIp(ip: string): boolean {
-  if (net.isIPv4(ip)) {
-    const [a, b] = ip.split(".").map(Number);
-    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
-  }
-  const v6 = ip.toLowerCase();
-  return v6 === "::1" || v6.startsWith("fc") || v6.startsWith("fd") || v6.startsWith("fe80") || v6.startsWith("::ffff:127.") || v6.startsWith("::ffff:10.");
-}
-
-async function assertPublicHost(host: string): Promise<void> {
-  if (!host || host === "localhost" || host.endsWith(".local") || net.isIP(host)) throw new Error("not a public hostname");
-  const addrs = await dns.lookup(host, { all: true });
-  if (addrs.length === 0 || addrs.some((a) => isPrivateIp(a.address))) throw new Error("resolves to a private address");
-}
 
 export interface HostRedirectResult {
   /** Registrable domain the origin finally lands on, or null if it never redirected / couldn't be followed. */
@@ -66,8 +50,8 @@ async function followFrom(first: string, start: string, fetchImpl: typeof fetch)
   for (let hop = 0; hop < MAX_HOPS; hop++) {
     let location: string | null = null;
     try {
-      const target = new URL(url);
-      await assertPublicHost(target.hostname);
+      // http/https only, default ports, no IP literals, every resolved address public — on EVERY hop.
+      const target = await assertPublicHttpUrl(url);
       const res = await fetchImpl(target.toString(), {
         method: "HEAD",
         redirect: "manual",

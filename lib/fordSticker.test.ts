@@ -1,4 +1,5 @@
 import "./testdata/blockLiveHttp";
+import { setDefaultLookupForTests } from "./safeUrl";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -46,6 +47,9 @@ const BRONCO = "3FMCR9BN8TRE94740";
 const AWS_INSTANCE_ID = "0CF3D43CA21F9C687";
 const ROUTE23_BRONCO_URL =
   "https://www.23ford.com/new/Ford/2026-Ford-Bronco-Sport-63303543ac181bfc6c479fade5d937fb.htm";
+
+// The SSRF guard resolves hostnames; tests must never touch real DNS.
+setDefaultLookupForTests(async () => [{ address: "93.184.216.34" }]);
 
 describe("VIN extract / Ford identity", () => {
   it("extracts a raw 17-char VIN", () => {
