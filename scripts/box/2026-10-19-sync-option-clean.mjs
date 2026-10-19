@@ -5,6 +5,7 @@
 //
 // What it changes, and nothing else:
 //   optionPolicies/{chevrolet,gmc,toyota}-2026-2027.json   main's newer policy files (backup + md5 verify; --policies=none skips, --policies=a.json,b.json overrides)
+//   factoryOptionAllowlist.js  + mazda-2026-2027.json in BUNDLED_MODEL_POLICY_PATHS (the box's list predates Mazda; the file itself is already installed)
 //   syncOptionClean.js         NEW module next to the others: the one decision (policy + junk list + exact-junk labels + paid lines) for options_json and the stored rows
 //   factoryOptionAllowlist.js  + loadSyncAllowlist (env-listed policies PLUS every bundled optionPolicies/*.json; OPTION_BUNDLED_POLICIES=off for the env list only)
 //   deals_api_server.js        handleInventoryBulk: options_json carries the cleaned list; exact-junk rows are purged on cars the policy cannot read (blank / untrusted
@@ -134,6 +135,13 @@ const EDITS =
   "find": "// ---- Model-scoped factory-option policy",
   "replace": "/**\n * What the nightly sync loads: everything loadAllowlistFromEnv loads PLUS every bundled model policy (BUNDLED_MODEL_POLICY_PATHS, the same 16 files the\n * re-clean tool uses), so the sync can never run with fewer makes than the re-clean. A scope listed by OPTION_MODEL_POLICY_PATH wins over the bundled\n * one with the same scope; a bundled file that is missing on this box is skipped and named in `error` (the rest still load). OPTION_BUNDLED_POLICIES=off\n * loads exactly what loadAllowlistFromEnv loads.\n */\nexport function loadSyncAllowlist(env = process.env) {\n  if (String(env.OPTION_BUNDLED_POLICIES || \"\").toLowerCase() === \"off\") return loadAllowlistFromEnv(env);\n  const makePath = String(env.OPTION_ALLOWLIST_PATH || \"\").trim();\n  const errors = [];\n  let rawMakes = null, rawModels = {};\n  if (makePath) { try { rawMakes = JSON.parse(fs.readFileSync(makePath, \"utf8\")); } catch (err) { errors.push(`${makePath}: ${err.message}`); } }\n  const bundled = {};\n  for (const f of BUNDLED_MODEL_POLICY_PATHS) {\n    try { Object.assign(bundled, JSON.parse(fs.readFileSync(f, \"utf8\"))); } catch (err) { errors.push(`${path.basename(f)}: ${err.code === \"ENOENT\" ? \"not installed on this box\" : err.message}`); }\n  }\n  for (const f of String(env.OPTION_MODEL_POLICY_PATH || \"\").split(\",\").map((x) => x.trim()).filter(Boolean)) {\n    try { rawModels = { ...rawModels, ...JSON.parse(fs.readFileSync(f, \"utf8\")) }; } catch (err) { errors.push(`${f}: ${err.message}`); }\n  }\n  const models = { ...bundled, ...rawModels };\n  return { allowlist: Object.keys(models).length || rawMakes ? buildAllowlist(rawMakes, Object.keys(models).length ? models : null) : EMPTY_ALLOWLIST, error: errors.join(\"; \") || null };\n}\n\n// ---- Model-scoped factory-option policy",
   "marker": "export function loadSyncAllowlist"
+ },
+ {
+  "file": "factoryOptionAllowlist.js",
+  "id": "bundled-mazda",
+  "find": "  optionPolicyPath(\"nissan-2026-2027.json\"),\n]);",
+  "replace": "  optionPolicyPath(\"nissan-2026-2027.json\"),\n  optionPolicyPath(\"mazda-2026-2027.json\"),\n]);",
+  "marker": "optionPolicyPath(\"mazda-2026-2027.json\")"
  }
 ]
 ;
