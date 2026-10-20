@@ -47,6 +47,7 @@ import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
+import { fillColorsFromJsonLd } from './jsonLdColors.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -1195,6 +1196,8 @@ for (let i = 0; i < work.length; i++) {
                 // real value any stronger strategy already found is never
                 // overwritten.
                 vehicle = fillFromFacebookPixelViewContent(vehicle, html);
+                // Colour from any JSON-LD block for this VIN (a DealerOn Product block carries `color` when its Vehicle block does not) — blanks only.
+                vehicle = fillColorsFromJsonLd(vehicle, html);
                 // The page's own labelled Exterior / Interior Color fields (listingColors.js) — blanks only.
                 vehicle = fillColorsFromLabels(vehicle, html);
 
