@@ -11,10 +11,10 @@ import { optionPriceText } from "@/lib/optionsPaidOnly";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
 import type { CatalogOption, Filters } from "../BuyerSearchView";
 
-const ACCENT = "#15803d"; // the one green: white-on-green is 5:1
+const ACCENT = "#3D9474"; // brand-500: the one green (checkbox accent); buttons use bg-brand-500 with black text like the rest of the site
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-const RING = "focus-visible:!outline-2 focus-visible:!outline-offset-2 focus-visible:!outline-[#15803d]";
-const SELECT_ARROW = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23737373' stroke-width='1.5'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E\")";
+const RING = "focus-visible:!outline-2 focus-visible:!outline-offset-2 focus-visible:!outline-brand-400";
+const SELECT_ARROW = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%239CA3AF' stroke-width='1.5'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E\")";
 
 export interface SearchFilterBarProps {
   filters: Filters;
@@ -121,15 +121,15 @@ function Panel({ open, onClose, anchorRef, title, width = 320, onShowResults, ch
   if (mobile) {
     return createPortal(
       <div className="fixed inset-0 z-50 flex items-end" style={{ fontFamily: FONT }}>
-        <div className="absolute inset-0 bg-black/40" aria-hidden onClick={onClose} />
-        <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className="relative flex max-h-[85dvh] w-full flex-col rounded-t-2xl bg-white text-neutral-900 shadow-2xl outline-none">
-          <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3">
+        <div className="absolute inset-0 bg-black/60" aria-hidden onClick={onClose} />
+        <div ref={ref} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1} className="relative flex max-h-[85dvh] w-full flex-col rounded-t-2xl border-t border-border bg-surface-elevated text-white shadow-2xl outline-none [color-scheme:dark]">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <span className="text-sm font-semibold">{title}</span>
-            <button type="button" onClick={onClose} className={`rounded px-2 py-1 text-sm text-neutral-600 ${RING}`}>Close</button>
+            <button type="button" onClick={onClose} className={`rounded px-2 py-1 text-sm text-ink-muted ${RING}`}>Close</button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
-          <div className="border-t border-neutral-200 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <button type="button" onClick={onShowResults} className={`h-11 w-full rounded-md text-sm font-semibold text-white ${RING}`} style={{ background: ACCENT }}>Show results</button>
+          <div className="border-t border-border px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <button type="button" onClick={onShowResults} className={`h-11 w-full rounded-md bg-brand-500 text-sm font-semibold text-black hover:bg-brand-400 ${RING}`}>Show results</button>
           </div>
         </div>
       </div>,
@@ -137,7 +137,7 @@ function Panel({ open, onClose, anchorRef, title, width = 320, onShowResults, ch
     );
   }
   return createPortal(
-    <div ref={ref} role="dialog" aria-label={title} tabIndex={-1} className="absolute z-50 max-h-[70vh] overflow-y-auto rounded-lg border border-neutral-200 bg-white p-4 text-neutral-900 shadow-lg outline-none" style={{ top: pos?.top ?? -9999, left: pos?.left ?? -9999, width, fontFamily: FONT }}>
+    <div ref={ref} role="dialog" aria-label={title} tabIndex={-1} className="absolute z-50 max-h-[70vh] overflow-y-auto rounded-lg border border-border bg-surface-elevated p-4 text-white shadow-2xl outline-none [color-scheme:dark]" style={{ top: pos?.top ?? -9999, left: pos?.left ?? -9999, width, fontFamily: FONT }}>
       {children}
     </div>,
     document.body,
@@ -150,10 +150,10 @@ function TriggerButton({ innerRef, label, summary, open, disabledHint, onClick, 
   const disabled = Boolean(disabledHint);
   return (
     <button ref={innerRef} type="button" disabled={disabled} title={disabledHint} aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? panelId : undefined} onClick={onClick}
-      className={`flex h-9 shrink-0 items-center gap-1.5 border-b bg-transparent pb-0.5 pr-1 text-sm ${open ? "border-neutral-900" : "border-neutral-300"} ${summary ? "font-medium text-neutral-900" : "text-neutral-600"} ${disabled ? "cursor-not-allowed opacity-40" : "hover:border-neutral-500"} ${RING}`}>
+      className={`flex h-9 shrink-0 items-center gap-1.5 border-b bg-transparent pb-0.5 pr-1 text-sm ${open ? "border-white" : "border-border-strong"} ${summary ? "font-medium text-white" : "text-ink-muted"} ${disabled ? "cursor-not-allowed opacity-40" : "hover:border-ink-faint"} ${RING}`}>
       <span>{label}</span>
-      {summary && <span style={{ color: ACCENT }}>{summary}</span>}
-      <svg aria-hidden width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="#737373" strokeWidth="1.5"><path d="m1 1 4 4 4-4" /></svg>
+      {summary && <span className="text-brand-400">{summary}</span>}
+      <svg aria-hidden width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="#9CA3AF" strokeWidth="1.5"><path d="m1 1 4 4 4-4" /></svg>
     </button>
   );
 }
@@ -167,7 +167,7 @@ function FilterSelect({ label, value, options, onChange, disabledHint }: { label
     <div className="shrink-0">
       <label htmlFor={id} className="sr-only">{label}</label>
       <select id={id} value={value} disabled={disabled} title={disabledHint} onChange={(e) => onChange(e.target.value)}
-        className={`h-9 max-w-[11rem] cursor-pointer appearance-none truncate border-0 border-b bg-transparent bg-no-repeat pb-0.5 pr-5 text-sm ${value ? "border-neutral-900 font-medium text-neutral-900" : "border-neutral-300 text-neutral-600"} ${disabled ? "cursor-not-allowed opacity-40" : "hover:border-neutral-500"} rounded-none ${RING}`}
+        className={`h-9 max-w-[11rem] cursor-pointer appearance-none truncate border-0 border-b bg-transparent bg-no-repeat [color-scheme:dark] pb-0.5 pr-5 text-sm ${value ? "border-ink-muted font-medium text-white" : "border-border-strong text-ink-muted"} ${disabled ? "cursor-not-allowed opacity-40" : "hover:border-ink-faint"} rounded-none ${RING}`}
         style={{ backgroundImage: SELECT_ARROW, backgroundPosition: "right 2px center" }}>
         <option value="">{label}</option>
         {!hasValue && <option value={value}>{value}</option>}
@@ -177,8 +177,8 @@ function FilterSelect({ label, value, options, onChange, disabledHint }: { label
   );
 }
 
-const fieldLabel = "mb-1 block text-xs text-neutral-500";
-const fieldBox = "h-9 w-full rounded-md border border-neutral-300 bg-white px-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 disabled:opacity-40";
+const fieldLabel = "mb-1 block text-xs text-ink-muted";
+const fieldBox = "h-9 w-full rounded-md border border-border-strong bg-background [color-scheme:dark] px-2.5 text-sm text-white placeholder:text-ink-faint disabled:opacity-40";
 
 export function SearchFilterBar(p: SearchFilterBarProps) {
   const { filters, setFilters } = p;
@@ -240,7 +240,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   const toggleKey = (key: string) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
 
   return (
-    <section aria-label="Search filters" className="mx-auto mb-8 w-full max-w-[960px] rounded-2xl bg-white px-5 py-8 text-neutral-900 shadow-sm sm:px-10 sm:py-10" style={{ fontFamily: FONT }}>
+    <section aria-label="Search filters" className="mx-auto mb-8 w-full max-w-[960px] px-1 py-6 text-white sm:py-10" style={{ fontFamily: FONT }}>
       <h1 className="mb-6 text-center text-2xl font-semibold tracking-tight sm:text-3xl">Search real dealer inventory</h1>
 
       <form role="search" onSubmit={(e) => { e.preventDefault(); p.submitSearch(); }} className="mx-auto flex max-w-[720px] items-center gap-2">
@@ -258,21 +258,21 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
               else if (e.key === "Enter" && findOpen && active >= 0 && suggestions[active]) { e.preventDefault(); choose(suggestions[active]); }
               else if (e.key === "Escape") { setFindOpen(false); setActive(-1); }
             }}
-            className={`h-11 w-full rounded-md border border-neutral-300 bg-white px-3.5 text-[15px] text-neutral-900 placeholder:text-neutral-400 ${RING}`} />
+            className={`h-11 w-full rounded-md border border-border-strong bg-surface px-3.5 text-[15px] text-white placeholder:text-ink-faint ${RING}`} />
           {findOpen && suggestions.length > 0 && (
-            <ul id={listId} role="listbox" aria-label="Suggestions" className="absolute left-0 right-0 top-full z-30 mt-1 max-h-72 overflow-auto rounded-md border border-neutral-200 bg-white py-1 shadow-lg">
+            <ul id={listId} role="listbox" aria-label="Suggestions" className="absolute left-0 right-0 top-full z-30 mt-1 max-h-72 overflow-auto rounded-md border border-border bg-surface-elevated py-1 shadow-2xl">
               {suggestions.map((s, i) => (
                 <li key={`${s.kind}-${s.opt.value}`} id={`${listId}-${i}`} role="option" aria-selected={i === active}
                   onMouseDown={(e) => { e.preventDefault(); choose(s); }}
-                  className={`flex cursor-pointer items-center justify-between px-3.5 py-2 text-sm ${i === active ? "bg-neutral-100" : ""}`}>
-                  <span>{s.opt.label}</span><span className="text-xs text-neutral-500">{s.kind}</span>
+                  className={`flex cursor-pointer items-center justify-between px-3.5 py-2 text-sm ${i === active ? "bg-border" : ""}`}>
+                  <span>{s.opt.label}</span><span className="text-xs text-ink-muted">{s.kind}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
         <button type="submit" disabled={Boolean(p.blockedReason) || p.searchLoading} title={p.blockedReason ?? undefined}
-          className={`h-11 shrink-0 rounded-md px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40 ${RING}`} style={{ background: ACCENT }}>
+          className={`h-11 shrink-0 rounded-md bg-brand-500 px-5 text-sm font-semibold text-black hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-40 ${RING}`}>
           {p.searchLoading ? "Searching…" : "Search"}
         </button>
       </form>
@@ -295,9 +295,9 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             </div>
           )}
           {p.catalogOptionsLoading && p.catalogOptions.length === 0 ? (
-            <p role="status" className="py-2 text-sm text-neutral-500">Loading…</p>
+            <p role="status" className="py-2 text-sm text-ink-muted">Loading…</p>
           ) : p.catalogOptions.length === 0 ? (
-            <p className="py-2 text-sm text-neutral-500">{p.optionsEmptyMessage}</p>
+            <p className="py-2 text-sm text-ink-muted">{p.optionsEmptyMessage}</p>
           ) : (
             <ul className="-mx-1">
               {shownOptions.map((o) => {
@@ -305,10 +305,10 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
                 const id = `${optionsPanelId}-${o.key}`;
                 return (
                   <li key={o.key}>
-                    <label htmlFor={id} className="flex cursor-pointer items-center gap-3 rounded px-1 py-2 text-sm hover:bg-neutral-50">
+                    <label htmlFor={id} className="flex cursor-pointer items-center gap-3 rounded px-1 py-2 text-sm hover:bg-surface">
                       <input id={id} type="checkbox" checked={filters.optionKeys.includes(o.key)} onChange={() => toggleKey(o.key)} className={`h-4 w-4 shrink-0 ${RING}`} style={{ accentColor: ACCENT }} />
                       <span className="min-w-0 flex-1">{o.label}</span>
-                      {price && <span className="shrink-0 tabular-nums text-neutral-600">{price}</span>}
+                      {price && <span className="shrink-0 tabular-nums text-ink-muted">{price}</span>}
                     </label>
                   </li>
                 );
@@ -316,7 +316,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             </ul>
           )}
           {filters.optionKeys.length > 0 && (
-            <button type="button" onClick={() => setFilters((f) => ({ ...f, optionKeys: [] }))} className={`mt-2 text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 ${RING}`}>Clear factory options</button>
+            <button type="button" onClick={() => setFilters((f) => ({ ...f, optionKeys: [] }))} className={`mt-2 text-sm text-ink-muted underline underline-offset-2 hover:text-white ${RING}`}>Clear factory options</button>
           )}
         </div>
       </Panel>
@@ -359,16 +359,16 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             </div>
           </div>
           {p.contactFilterOn && (
-            <label className="flex items-center gap-2 text-sm text-neutral-700" title="Only cars whose dealer has a named sales contact on file with us">
+            <label className="flex items-center gap-2 text-sm text-ink-light" title="Only cars whose dealer has a named sales contact on file with us">
               <input type="checkbox" checked={filters.contactOnFile} onChange={(e) => setFilters((f) => ({ ...f, contactOnFile: e.target.checked }))} className={`h-4 w-4 ${RING}`} style={{ accentColor: ACCENT }} />
               Dealer contact on file
             </label>
           )}
-          <label className="flex items-center gap-2 text-sm text-neutral-700">
+          <label className="flex items-center gap-2 text-sm text-ink-light">
             <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className={`h-4 w-4 ${RING}`} style={{ accentColor: ACCENT }} />
             Include likely demo/loaner vehicles
           </label>
-          <div className="border-t border-neutral-200 pt-4">
+          <div className="border-t border-border pt-4">
             <span className={fieldLabel}>Near</span>
             <div className="grid grid-cols-2 gap-3">
               <div><label htmlFor={`${morePanelId}-zip`} className="sr-only">ZIP code</label><input id={`${morePanelId}-zip`} type="text" inputMode="numeric" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className={`${fieldBox} ${RING}`} /></div>
@@ -379,7 +379,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
               </div>
             </div>
             {filters.radiusMiles && (!filters.make || !filters.zip) && (
-              <p className="mt-1 text-xs text-neutral-500">{!filters.zip ? "Enter a ZIP code" : "Pick a make"} to search within a distance.</p>
+              <p className="mt-1 text-xs text-ink-muted">{!filters.zip ? "Enter a ZIP code" : "Pick a make"} to search within a distance.</p>
             )}
           </div>
           <div>
@@ -391,7 +391,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             </select>
           </div>
           {p.moreCount > 0 && (
-            <button type="button" onClick={p.clearMore} className={`text-sm text-neutral-600 underline underline-offset-2 hover:text-neutral-900 ${RING}`}>Clear {p.moreCount} more filter{p.moreCount === 1 ? "" : "s"}</button>
+            <button type="button" onClick={p.clearMore} className={`text-sm text-ink-muted underline underline-offset-2 hover:text-white ${RING}`}>Clear {p.moreCount} more filter{p.moreCount === 1 ? "" : "s"}</button>
           )}
         </div>
       </Panel>
@@ -400,20 +400,20 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           <ul aria-label="Active filters" className="flex flex-wrap items-center justify-center gap-2">
             {chips.map((c) => (
-              <li key={c.id} className="flex items-center gap-1 rounded-full bg-neutral-100 py-1 pl-3 pr-1 text-xs text-neutral-800">
+              <li key={c.id} className="flex items-center gap-1 rounded-full border border-border bg-surface-elevated py-1 pl-3 pr-1 text-xs text-ink-light">
                 <span>{c.text}</span>
-                <button type="button" onClick={c.remove} aria-label={`Remove ${c.text}`} className={`flex h-5 w-5 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 ${RING}`}>
+                <button type="button" onClick={c.remove} aria-label={`Remove ${c.text}`} className={`flex h-5 w-5 items-center justify-center rounded-full text-ink-muted hover:bg-border-strong hover:text-white ${RING}`}>
                   <svg aria-hidden width="8" height="8" viewBox="0 0 8 8" stroke="currentColor" strokeWidth="1.5"><path d="m1 1 6 6M7 1 1 7" /></svg>
                 </button>
               </li>
             ))}
           </ul>
-          <button type="button" onClick={p.clearAll} className={`ml-1 text-xs text-neutral-600 underline underline-offset-2 hover:text-neutral-900 ${RING}`}>Clear all</button>
+          <button type="button" onClick={p.clearAll} className={`ml-1 text-xs text-ink-muted underline underline-offset-2 hover:text-white ${RING}`}>Clear all</button>
         </div>
       )}
 
-      <div className="mt-4 min-h-[1rem] text-center text-xs text-neutral-500">
-        {p.facetsFailed && !p.facetsLoading && <p role="status" className="text-amber-700">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>}
+      <div className="mt-4 min-h-[1rem] text-center text-xs text-ink-muted">
+        {p.facetsFailed && !p.facetsLoading && <p role="status" className="text-amber-300">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>}
         {(p.blockedReason || p.dirty) && <p>{p.blockedReason ?? "Filters changed — press Search to update the results."}</p>}
       </div>
     </section>
