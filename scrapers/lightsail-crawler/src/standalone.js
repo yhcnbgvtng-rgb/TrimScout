@@ -48,6 +48,7 @@ import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAt
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
 import { fillColorsFromJsonLd } from './jsonLdColors.js';
+import { fillStockFromJsonLd } from './jsonLdStock.js';
 import {
     collectSalesEmail,
     applyContactToDealer,
@@ -295,7 +296,8 @@ function extractSchemaOrgVehicle(html, url, dealer) {
             // "Vehicle" this only used to match — so this strategy silently
             // returned null for every Porsche-network dealer's own real
             // markup, not just non-standard third-party ones.
-            const found = findVehicleLd(parsed);
+            // CRAWLER_SCHEMA_GRAPH=false ignores the @graph wrapper again (top-level object only).
+            const found = findVehicleLd(parsed, { graph: process.env.CRAWLER_SCHEMA_GRAPH !== 'false' });
             if (found) {
                 vehicleLd = found;
                 break;
@@ -1198,6 +1200,8 @@ for (let i = 0; i < work.length; i++) {
                 vehicle = fillFromFacebookPixelViewContent(vehicle, html);
                 // Colour from any JSON-LD block for this VIN (a DealerOn Product block carries `color` when its Vehicle block does not) — blanks only.
                 vehicle = fillColorsFromJsonLd(vehicle, html);
+                // Stock number from the JSON-LD sku / stock fields of the same car (Team Velocity @graph Vehicle, DealerOn Product, Dealer.com) — blank only.
+                vehicle = fillStockFromJsonLd(vehicle, html);
                 // The page's own labelled Exterior / Interior Color fields (listingColors.js) — blanks only.
                 vehicle = fillColorsFromLabels(vehicle, html);
 

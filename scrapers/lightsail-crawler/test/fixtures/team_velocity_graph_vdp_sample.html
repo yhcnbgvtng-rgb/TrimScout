@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- Trimmed sample of a Team Velocity ("/viewdetails/<cond>/<vin>/<slug>") new-vehicle page, structure as observed 2026-10-19 on a Vancouver, WA Toyota store:
+     ONE JSON-LD block whose top-level object has only "@context" and "@graph" (no "@type"), the AutoDealer and the Vehicle side by side inside it.
+     VIN, stock number, URLs and dealer details are synthetic. "productID" is the VIN on this platform; "sku" is the stock number. -->
+<html><head><title>New 2026 Toyota RAV4 LE</title>
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@graph": [
+  { "@type": "AutoDealer", "@id": "https://www.example-toyota.test/#autodealer", "name": "Example Toyota", "url": "https://www.example-toyota.test", "telephone": "(555) 010-0000" },
+  { "@type": "Vehicle", "@id": "https://www.example-toyota.test/viewdetails/new/2t3examplevin00001/2026-toyota-rav4-sport-utility#vehicle",
+    "name": "New 2026 Toyota RAV4 LE", "vehicleIdentificationNumber": "2T3EXAMPLEVIN0001", "productID": "2T3EXAMPLEVIN0001", "sku": "TC45J091",
+    "vehicleModelDate": "2026", "bodyType": "Sport Utility", "itemCondition": "https://schema.org/NewCondition", "brand": { "@type": "Brand", "name": "Toyota" }, "model": "RAV4",
+    "vehicleConfiguration": "LE", "color": "Meteor Shower", "vehicleInteriorColor": "Black fabric", "mileageFromOdometer": { "@type": "QuantitativeValue", "value": 0, "unitCode": "SMI" },
+    "offers": { "@type": "Offer", "price": "35599", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition" } }
+] }
+</script>
+</head><body><h1>New 2026 Toyota RAV4 LE</h1></body></html>

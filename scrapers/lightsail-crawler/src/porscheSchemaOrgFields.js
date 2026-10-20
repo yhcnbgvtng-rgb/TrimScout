@@ -42,9 +42,10 @@ export function isVehicleLikeSchemaOrgType(type) {
 // discoverable (its VDP URL was already correctly found by
 // vdpUrlFilter.js's bare-VIN-segment fix) — the bug was here, one stage
 // further downstream than URL discovery.
-export function findVehicleLd(parsed) {
+// `graph: false` (CRAWLER_SCHEMA_GRAPH=false in standalone.js) restores the pre-@graph behaviour: only the block's top-level object is checked.
+export function findVehicleLd(parsed, { graph = true } = {}) {
   if (!parsed || typeof parsed !== 'object') return null;
-  const candidates = Array.isArray(parsed['@graph']) ? parsed['@graph'] : [parsed];
+  const candidates = graph && Array.isArray(parsed['@graph']) ? parsed['@graph'] : [parsed];
   return candidates.find((node) => node && isVehicleLikeSchemaOrgType(node['@type']) && node.vehicleIdentificationNumber) || null;
 }
 
