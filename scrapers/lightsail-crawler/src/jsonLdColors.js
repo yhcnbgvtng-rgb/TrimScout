@@ -1,0 +1,117 @@
+// Exterior / interior colour from ANY JSON-LD block on the page, for the vehicle the page is about.
+//
+// Confirmed live 2026-10-19 on a DealerOn-platform VDP (Parkway Ford, Winston-Salem, "/new-<City>-<year>-<make>-<model>-<VIN>"):
+// the page carries two JSON-LD blocks. The `Vehicle` block (VIN, price offer, model) has NO colour at all, and a second
+// `Product` block (same name, `sku` = stock number, `color` = "Glacier Gray Metallic Tri-Coat") has it. findVehicleLd() only returns
+// the Vehicle block, so extractSchemaOrgVehicle() left the exterior blank on every such car. The 2026-10-19 box2 audit counted
+// 82,205 of 92,044 active new cars on these URLs (10 truck/SUV models, MY2025-27) with a blank exterior colour.
+//
+// Rules, so a colour on some other car is never attached to this one:
+//   - nodes come from every JSON-LD <script> (flat object, array, "@graph", ItemList entries); only Vehicle / Car / Product nodes count;
+//   - a node counts for this vehicle only if it names the same VIN, or the same stock number (sku / productID / mpn), or - when it gives no VIN and the vehicle's stock number is not
+//     known to compare against it - its `name` equals the Vehicle node's `name` (the DealerOn case: the Product's sku is the only stock number on the page);
+//   - if two matching nodes disagree on a colour, that colour is left blank (no guess);
+//   - only plain colour text is accepted (placeholders like "N/A" or "Unknown" are ignored);
+//   - fillColorsFromJsonLd() fills blanks only and never replaces a value another strategy already found.
+// CRAWLER_JSONLD_COLORS=false turns the fill off.
+
+const EXTERIOR_KEYS = ['color', 'exteriorColor'];
+const INTERIOR_KEYS = ['vehicleInteriorColor', 'interiorColor'];
+
+function typesOf(node) {
+  return [].concat(node?.['@type'] || []);
+}
+
+function isVehicleOrProduct(node) {
+  const t = typesOf(node);
+  return t.includes('Vehicle') || t.includes('Car') || t.includes('Product');
+}
+
+/** Plain colour text, or null. A schema.org Thing ({ name }) is read by its name. */
+function colorText(raw) {
+  const v = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw.name : raw;
+  if (typeof v !== 'string') return null;
+  const s = v.replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/\s+/g, ' ').trim();
+  if (!s || s.length > 80) return null;
+  if (/^(n\/?a|none|null|undefined|unknown|-+|tbd|call)$/i.test(s)) return null;
+  return /^[A-Za-z0-9][A-Za-z0-9 \-/&.,'()]*$/.test(s) ? s : null;
+}
+
+function firstColor(node, keys) {
+  for (const k of keys) {
+    const c = colorText(node?.[k]);
+    if (c) return c;
+  }
+  return null;
+}
+
+function pushNodes(value, out, depth = 0) {
+  if (!value || typeof value !== 'object' || depth > 4) return;
+  if (Array.isArray(value)) {
+    for (const v of value) pushNodes(v, out, depth + 1);
+    return;
+  }
+  out.push(value);
+  if (Array.isArray(value['@graph'])) pushNodes(value['@graph'], out, depth + 1);
+  if (Array.isArray(value.itemListElement)) {
+    for (const el of value.itemListElement) pushNodes(el?.item && typeof el.item === 'object' ? el.item : el, out, depth + 1);
+  }
+}
+
+/** Every parsed JSON-LD node on the page (script attributes in any order, single or double quotes). Unparseable blocks are skipped. */
+export function jsonLdNodes(html) {
+  const nodes = [];
+  const re = /<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  for (const m of String(html || '').matchAll(re)) {
+    try {
+      pushNodes(JSON.parse(m[1].trim()), nodes);
+    } catch {
+      // not valid JSON, skip
+    }
+  }
+  return nodes;
+}
+
+const norm = (s) => String(s ?? '').trim().toUpperCase();
+
+/**
+ * { exteriorColor, interiorColor } stated by the page's JSON-LD for this vehicle; null for a field no matching node states (or where
+ * matching nodes disagree). `vin` is required; `stock` (the stock number) helps match nodes that carry only a sku.
+ */
+export function readJsonLdColors(html, { vin, stock = null } = {}) {
+  const none = { exteriorColor: null, interiorColor: null };
+  const v = norm(vin);
+  if (!v) return none;
+  const s = norm(stock);
+  const nodes = jsonLdNodes(html).filter(isVehicleOrProduct);
+
+  const vinOf = (n) => norm(n.vehicleIdentificationNumber || n.vin);
+  const stockOf = (n) => [n.sku, n.productID, n.mpn].map(norm).filter(Boolean);
+  const mine = nodes.filter((n) => vinOf(n) === v);
+  const vehicleNode = mine.find((n) => typesOf(n).includes('Vehicle') || typesOf(n).includes('Car'));
+  const stocks = new Set([s, ...mine.flatMap(stockOf)].filter(Boolean));
+  const name = norm(vehicleNode?.name);
+
+  const matched = nodes.filter((n) => {
+    if (vinOf(n)) return vinOf(n) === v;
+    if (stocks.size && stockOf(n).length) return stockOf(n).some((x) => stocks.has(x));
+    return Boolean(name) && norm(n.name) === name;
+  });
+
+  const pick = (keys) => {
+    const found = new Set(matched.map((n) => firstColor(n, keys)).filter(Boolean));
+    return found.size === 1 ? [...found][0] : null;
+  };
+  return { exteriorColor: pick(EXTERIOR_KEYS), interiorColor: pick(INTERIOR_KEYS) };
+}
+
+/** Fills only blank colour fields on `vehicle` from the page's JSON-LD. Returns the same object (or null/undefined as given). */
+export function fillColorsFromJsonLd(vehicle, html) {
+  if (!vehicle || !vehicle.vin) return vehicle;
+  if (String(process.env.CRAWLER_JSONLD_COLORS).toLowerCase() === 'false') return vehicle;
+  if (vehicle.exteriorColor && vehicle.interiorColor) return vehicle;
+  const found = readJsonLdColors(html, { vin: vehicle.vin, stock: vehicle.stockNumber });
+  if (!vehicle.exteriorColor && found.exteriorColor) vehicle.exteriorColor = found.exteriorColor;
+  if (!vehicle.interiorColor && found.interiorColor) vehicle.interiorColor = found.interiorColor;
+  return vehicle;
+}
