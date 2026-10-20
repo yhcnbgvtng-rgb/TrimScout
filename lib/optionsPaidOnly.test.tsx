@@ -135,8 +135,11 @@ describe("paid-only catalog filter (/search)", () => {
 
   it("BuyerSearchView: price in the label and the empty state are behind the flag; the old empty text stays for flag off", () => {
   const src = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
-  assert.ok(src.includes("catalogOptionLabel(o, paidOnly)"));
   assert.ok(src.includes('paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."'));
+  // The price next to each option now comes from the new filter bar, straight from the catalog data (min/max price): no price in the data, no price slot.
+  const bar = fs.readFileSync(new URL("../components/search/SearchFilterBar.tsx", import.meta.url), "utf8");
+  assert.ok(bar.includes("optionPriceText(o.minPrice, o.maxPrice)"));
+  assert.ok(bar.includes("{price && <span"));
 });
 
 });

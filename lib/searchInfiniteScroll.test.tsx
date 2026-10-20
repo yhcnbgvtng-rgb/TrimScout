@@ -80,9 +80,13 @@ describe("/search infinite scroll", () => {
     await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
-    // Pick the Toyota make, then Search.
-    await click(btn("Make"));
-    await click([...document.querySelectorAll("button, [role=option], li")].find((e) => /^Toyota/.test(e.textContent?.trim() ?? "") && e.tagName !== "BUTTON" || (e.tagName === "BUTTON" && /^Toyota/.test(e.textContent?.trim() ?? ""))) as Element);
+    // Pick the Toyota make (the Make dropdown is a labelled <select>), then Search.
+    const make = [...document.querySelectorAll("select")].find((e) => e.id && document.querySelector(`label[for="${e.id}"]`)?.textContent === "Make") as HTMLSelectElement;
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!.call(make, "Toyota");
+      make.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+      await tick();
+    });
     await click(btn("Search"));
     const hitSentinel = async () => {
       const live = observers.filter((o) => o.live && o.el);
