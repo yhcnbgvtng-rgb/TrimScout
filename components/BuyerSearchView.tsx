@@ -2,10 +2,10 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, MapPin, X } from "lucide-react";
-import { NO_PAID_FACTORY_OPTIONS, catalogOptionLabel, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
+import { ArrowDown, ArrowUp, X } from "lucide-react";
+import { NO_PAID_FACTORY_OPTIONS, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { DropdownOption } from "./search/SearchableDropdown";
-import { MultiPill, PillShell, SinglePill } from "./admin/FilterPill";
+import { SearchFilterBar } from "./search/SearchFilterBar";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
@@ -51,7 +51,7 @@ interface SearchResults {
   vehicles: BuyerVehicle[];
 }
 
-interface CatalogOption {
+export interface CatalogOption {
   key: string;
   label: string;
   vehicleCount: number;
@@ -59,7 +59,7 @@ interface CatalogOption {
   maxPrice?: number;
 }
 
-interface Filters {
+export interface Filters {
   state: string;
   make: string;
   model: string;
@@ -384,148 +384,27 @@ export function BuyerSearchView() {
       exteriorColor: "", interiorColor: "", possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
 
+  // "Clear all": every filter back to empty. The header sort is kept (it is not a filter), except a Distance sort, which goes with the ZIP.
+  const clearAll = () => setFilters((f) => ({ ...EMPTY_FILTERS, sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort }));
+
   // Counts are hidden while the facet request is in flight or has failed, so a stale number is never shown (#389).
   const countsHidden = facetsLoading || facetsFailed;
   const shownCounts = (opts: DropdownOption[]) => (countsHidden ? opts.map((o) => ({ ...o, count: undefined })) : opts);
 
-  const modelDisabledHint = !filters.make ? "Pick a make first" : undefined;
-  const trimDisabledHint = !filters.model ? "Pick a model first" : undefined;
-  const optionsDisabledHint = !filters.make || !filters.model ? "Pick a make and model first" : undefined;
   const paidOnly = optionsPaidOnlyEnabled();
-  const optionDropdownOptions = useMemo(() => toOptions(catalogOptions, "key", "vehicleCount", (o) => catalogOptionLabel(o, paidOnly)), [catalogOptions, paidOnly]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Search real dealer inventory</h1>
-      </div>
-
-      <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <SinglePill accent="brand" label="State" options={shownCounts(stateOptions)} value={filters.state} loading={facetsLoading} onChange={(state) => setFilters((f) => ({ ...f, state }))} />
-          <SinglePill accent="brand" label="Make" options={shownCounts(makeOptions)} value={filters.make} loading={facetsLoading} onChange={setMake} />
-          <SinglePill accent="brand" label="Model" options={shownCounts(modelOptions)} value={filters.model} loading={facetsLoading} onChange={setModel} disabledHint={modelDisabledHint} />
-          <SinglePill accent="brand" label="Trim" options={shownCounts(trimOptions)} value={filters.trim} loading={facetsLoading} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} disabledHint={trimDisabledHint} />
-          <MultiPill accent="brand" summary="count" label="Factory options" options={optionDropdownOptions} value={filters.optionKeys} onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} disabledHint={optionsDisabledHint} loading={catalogOptionsLoading} emptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."} />
-          <PillShell accent="brand" label="More" summary={moreCount > 0 ? String(moreCount) : undefined} active={moreCount > 0} width="w-80" open={moreOpen} onOpenChange={setMoreOpen}>
-            {() => (
-              <div
-                onKeyDown={(e) => {
-                  const t = e.target as HTMLElement;
-                  if (e.key === "Enter" && t.tagName === "INPUT" && (t as HTMLInputElement).type !== "checkbox") { e.preventDefault(); submitSearch(); }
-                }}
-                className="space-y-3 p-3">
-                <div>
-                  <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Condition</label>
-                  <select value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
-                    <option value="">New + used</option>
-                    <option value="new">New</option>
-                    <option value="used">Used</option>
-                    <option value="cpo">Certified</option>
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price min</label>
-                    <input type="number" value={filters.priceMin} onChange={(e) => setFilters((f) => ({ ...f, priceMin: e.target.value }))} placeholder="$0" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Price max</label>
-                    <input type="number" value={filters.priceMax} onChange={(e) => setFilters((f) => ({ ...f, priceMax: e.target.value }))} placeholder="No max" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year min</label>
-                    <input type="number" value={filters.yearMin} onChange={(e) => setFilters((f) => ({ ...f, yearMin: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Year max</label>
-                    <input type="number" value={filters.yearMax} onChange={(e) => setFilters((f) => ({ ...f, yearMax: e.target.value }))} placeholder="Any" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Max odometer</label>
-                  <input type="number" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} placeholder="Any mileage" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Exterior</label>
-                    <select value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
-                      <option value="">Any</option>
-                      {exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Interior</label>
-                    <select value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
-                      <option value="">Any</option>
-                      {interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                </div>
-                {contactFilterEnabled() && (
-                  <label className="flex items-center gap-2 text-xs text-ink-light" title="Only cars whose dealer has a named sales contact on file with us">
-                    <input type="checkbox" checked={filters.contactOnFile} onChange={(e) => setFilters((f) => ({ ...f, contactOnFile: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-brand-500" />
-                    Dealer contact on file
-                  </label>
-                )}
-                <label className="flex items-center gap-2 text-xs text-ink-light">
-                  <input type="checkbox" checked={filters.possibleDemo} onChange={(e) => setFilters((f) => ({ ...f, possibleDemo: e.target.checked }))} className="h-3.5 w-3.5 rounded border-border accent-brand-500" />
-                  Include likely demo/loaner vehicles
-                </label>
-                <div className="border-t border-border pt-3">
-                  <label className="mb-1 flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">
-                    <MapPin className="h-3 w-3" /> Near
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="text" value={filters.zip} onChange={(e) => setFilters((f) => ({ ...f, zip: e.target.value }))} placeholder="ZIP code" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none" />
-                    <input
-                      type="number" value={filters.radiusMiles} onChange={(e) => setFilters((f) => ({ ...f, radiusMiles: e.target.value }))} placeholder="Radius (mi)"
-                      disabled={!filters.make || !filters.zip} title={!filters.zip ? "Enter a ZIP code to search within a radius" : !filters.make ? "Pick a make to search within a radius" : undefined}
-                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white placeholder:text-ink-faint focus:border-brand-500/50 focus:outline-none disabled:opacity-40"
-                    />
-                  </div>
-                  {filters.radiusMiles && (!filters.make || !filters.zip) && (
-                    <p className="mt-1 text-[11px] text-ink-faint">{!filters.zip ? "Enter a ZIP code" : "Pick a make"} to search within a distance.</p>
-                  )}
-                </div>
-                <div>
-                  <label className="mb-1 block text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">Sort</label>
-                  <select value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-white focus:border-brand-500/50 focus:outline-none">
-                    <option value="">Best match</option>
-                    <option value="price:asc">Price: low to high</option>
-                    <option value="price:desc">Price: high to low</option>
-                    <option value="mileage:asc">Mileage: low to high</option>
-                    <option value="days:asc">Newest to lot</option>
-                    {filters.zip && <option value="distance">Distance</option>}
-                  </select>
-                </div>
-                {moreCount > 0 && (
-                  <button type="button" onClick={clearMore} className="flex w-full items-center justify-center gap-1 rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-1.5 text-[11px] font-bold text-rose-300 hover:text-white">
-                    <X className="h-3 w-3" /> Clear {moreCount} more filter{moreCount === 1 ? "" : "s"}
-                  </button>
-                )}
-              </div>
-            )}
-          </PillShell>
-          <button
-            type="button"
-            onClick={submitSearch}
-            disabled={Boolean(blockedReason) || searchLoading}
-            title={blockedReason ?? undefined}
-            className="ml-2 text-sm font-extrabold text-brand-400 transition-colors hover:text-brand-300 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {searchLoading ? "Searching…" : "Search"}
-          </button>
-        </div>
-        {facetsFailed && !facetsLoading && (
-          <p className="mt-2 text-[11px] text-amber-300" role="status">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>
-        )}
-        {(blockedReason || dirty) && (
-          <p className="mt-2 text-[11px] text-ink-faint">{blockedReason ?? "Filters changed — press Search to update the results."}</p>
-        )}
-      </div>
+      <SearchFilterBar
+        filters={filters} setFilters={setFilters} setMake={setMake} setModel={setModel}
+        stateOptions={shownCounts(stateOptions)} makeOptions={shownCounts(makeOptions)} modelOptions={shownCounts(modelOptions)} trimOptions={shownCounts(trimOptions)}
+        facetsFailed={facetsFailed} facetsLoading={facetsLoading}
+        catalogOptions={catalogOptions} catalogOptionsLoading={catalogOptionsLoading}
+        optionsEmptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."}
+        exteriorColors={exteriorColors} interiorColors={interiorColors}
+        moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
+        contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
+      />
 
       <div>
         <p className="mb-3 text-xs font-semibold text-ink-muted">
