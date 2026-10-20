@@ -75,13 +75,12 @@ export function jsonLdNodes(html) {
 const norm = (s) => String(s ?? '').trim().toUpperCase();
 
 /**
- * { exteriorColor, interiorColor } stated by the page's JSON-LD for this vehicle; null for a field no matching node states (or where
- * matching nodes disagree). `vin` is required; `stock` (the stock number) helps match nodes that carry only a sku.
+ * The Vehicle / Car / Product JSON-LD nodes on the page that are about this vehicle (rules in the header). Shared by the colour and
+ * stock-number readers (jsonLdStock.js). `vin` is required; returns [] without it.
  */
-export function readJsonLdColors(html, { vin, stock = null } = {}) {
-  const none = { exteriorColor: null, interiorColor: null };
+export function matchingJsonLdNodes(html, { vin, stock = null } = {}) {
   const v = norm(vin);
-  if (!v) return none;
+  if (!v) return [];
   const s = norm(stock);
   const nodes = jsonLdNodes(html).filter(isVehicleOrProduct);
 
@@ -92,12 +91,19 @@ export function readJsonLdColors(html, { vin, stock = null } = {}) {
   const stocks = new Set([s, ...mine.flatMap(stockOf)].filter(Boolean));
   const name = norm(vehicleNode?.name);
 
-  const matched = nodes.filter((n) => {
+  return nodes.filter((n) => {
     if (vinOf(n)) return vinOf(n) === v;
     if (stocks.size && stockOf(n).length) return stockOf(n).some((x) => stocks.has(x));
     return Boolean(name) && norm(n.name) === name;
   });
+}
 
+/**
+ * { exteriorColor, interiorColor } stated by the page's JSON-LD for this vehicle; null for a field no matching node states (or where
+ * matching nodes disagree). `vin` is required; `stock` (the stock number) helps match nodes that carry only a sku.
+ */
+export function readJsonLdColors(html, { vin, stock = null } = {}) {
+  const matched = matchingJsonLdNodes(html, { vin, stock });
   const pick = (keys) => {
     const found = new Set(matched.map((n) => firstColor(n, keys)).filter(Boolean));
     return found.size === 1 ? [...found][0] : null;

@@ -120,3 +120,15 @@ describe('findVehicleLd', () => {
     assert.equal(findVehicleLd('a string'), null);
   });
 });
+
+describe('findVehicleLd graph option', () => {
+  const wrapped = { '@context': 'https://schema.org', '@graph': [{ '@type': 'AutoDealer', name: 'D' }, { '@type': 'Vehicle', vehicleIdentificationNumber: '2T3EXAMPLEVIN0001' }] };
+  it('finds the node inside @graph by default and ignores @graph with { graph: false }', () => {
+    assert.equal(findVehicleLd(wrapped).vehicleIdentificationNumber, '2T3EXAMPLEVIN0001');
+    assert.equal(findVehicleLd(wrapped, { graph: false }), null);
+  });
+  it('a flat Vehicle node is found either way', () => {
+    const flat = { '@type': 'Vehicle', vehicleIdentificationNumber: '2T3EXAMPLEVIN0001' };
+    assert.equal(findVehicleLd(flat, { graph: false }), flat);
+  });
+});

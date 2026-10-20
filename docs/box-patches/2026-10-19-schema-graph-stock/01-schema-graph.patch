@@ -1,0 +1,66 @@
+--- a/src/standalone.js	2026-10-19 20:55:19
++++ b/src/standalone.js	2026-10-19 20:55:19
+@@ -10,7 +10,7 @@
+ import { normalizeVehicleFields, splitPorscheTrimFromModelName } from './modelNormalizer.js';
+ import { recoverModelTrim, recoverTrim } from './listingModel.js';
+ import { enrichYearAndModelFromUrl } from './porscheUrlFields.js';
+-import { isVehicleLikeSchemaOrgType, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
++import { findVehicleLd, readSchemaOrgVehicleFields } from './porscheSchemaOrgFields.js';
+ import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
+ import { vdpSkipReason } from './vdpResponseGate.js';
+ import { vehicleUrlLimits, planVehicleUrlPages, describeVehicleUrlPlan } from './vehicleUrlPaging.js';
+@@ -284,14 +284,21 @@
+     for (const block of ldBlocks) {
+         try {
+             const parsed = JSON.parse(block[1]);
++            // findVehicleLd handles both a flat Vehicle/Car object (the
++            // 2026-09-22 fix below) and a schema.org "@graph" wrapper
++            // bundling multiple entities into one block (2026-09-28 fix —
++            // see its own comment in porscheSchemaOrgFields.js).
++            //
+             // Confirmed live 2026-09-22 on Porsche's own official retailer
+             // platform (jackdaniels.porsche.com): its Vehicle JSON-LD uses
+             // "@type":["Car","Product"] — an array, never the bare string
+             // "Vehicle" this only used to match — so this strategy silently
+             // returned null for every Porsche-network dealer's own real
+             // markup, not just non-standard third-party ones.
+-            if (parsed && isVehicleLikeSchemaOrgType(parsed['@type']) && parsed.vehicleIdentificationNumber) {
+-                vehicleLd = parsed;
++            // CRAWLER_SCHEMA_GRAPH=false ignores the @graph wrapper again (top-level object only).
++            const found = findVehicleLd(parsed, { graph: process.env.CRAWLER_SCHEMA_GRAPH !== 'false' });
++            if (found) {
++                vehicleLd = found;
+                 break;
+             }
+         } catch {
+--- a/src/porscheSchemaOrgFields.js	2026-10-19 20:55:19
++++ b/src/porscheSchemaOrgFields.js	2026-10-19 20:55:19
+@@ -25,6 +25,28 @@
+   return types.includes('Vehicle') || types.includes('Car');
+ }
+ 
++// Finds the Vehicle/Car node in a parsed JSON-LD block — which may BE that
++// node directly, or may be a schema.org "@graph" wrapper (the standard way
++// a page bundles multiple entities — the dealer's own AutoDealer listing,
++// breadcrumbs, and the vehicle — into one <script> tag) with the vehicle
++// node buried inside it. Confirmed live 2026-09-28: extractSchemaOrgVehicle
++// used to check `parsed['@type']` directly and nothing else, so any page
++// using @graph (a "Team Velocity/Apollo"-platform VDP, in this case) never
++// matched — its top-level object has no @type of its own at all, only
++// "@context" and "@graph" — even though a real Vehicle node with a real
++// VIN was sitting right there in the array. Silently extraction-failed for
++// 163 of 215 candidate URLs at one real dealer (Volkswagen of Hartford),
++// hiding a used Porsche Taycan trade-in that was otherwise fully
++// discoverable (its VDP URL was already correctly found by
++// vdpUrlFilter.js's bare-VIN-segment fix) — the bug was here, one stage
++// further downstream than URL discovery.
++// `graph: false` (CRAWLER_SCHEMA_GRAPH=false in standalone.js) restores the pre-@graph behaviour: only the block's top-level object is checked.
++export function findVehicleLd(parsed, { graph = true } = {}) {
++  if (!parsed || typeof parsed !== 'object') return null;
++  const candidates = graph && Array.isArray(parsed['@graph']) ? parsed['@graph'] : [parsed];
++  return candidates.find((node) => node && isVehicleLikeSchemaOrgType(node['@type']) && node.vehicleIdentificationNumber) || null;
++}
++
+ // { exteriorColor, interiorColor, mileage, engine, transmission } from a
+ // parsed Vehicle/Car JSON-LD object. Never guesses — every value here is a
+ // direct, confirmed-real property read (or a stated absence: mileage 0,
