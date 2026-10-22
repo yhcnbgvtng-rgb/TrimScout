@@ -22,8 +22,8 @@
 //
 // Price: the same call carries `price: 31995` (unquoted key, bare number), which neither the schema.org strategy (an @graph Vehicle
 // whose Offer has no price) nor the freeform "price" scan (it needs a QUOTED "price" key) can see - Team Velocity /viewdetails/ pages
-// were 97-99% blank on price/MSRP. Filled into a blank price and/or MSRP only, never over a real value, and skipped for a payment
-// figure; CRAWLER_PIXEL_PRICE=false switches just this off.
+// were 97-99% blank on price. Filled into a blank price only (MSRP is left alone: the pixel price is the dealer's listed price, not the sticker), never over a real
+// value, and skipped for a payment figure; CRAWLER_PIXEL_PRICE=false switches just this off.
 //
 // Deliberately does NOT read drivetrain/fuel_type — the vehicle record
 // this file assembles (and the dealer_inventory DB schema it lands in)
@@ -80,12 +80,9 @@ export function fillFromFacebookPixelViewContent(vehicle, html) {
   if (!vehicle.exteriorColor) vehicle.exteriorColor = cleanString(fb.exterior_color);
   if (!vehicle.transmission) vehicle.transmission = cleanString(fb.transmission);
   if (!vehicle.bodyStyle) vehicle.bodyStyle = cleanString(fb.body_style);
-  if (process.env.CRAWLER_PIXEL_PRICE !== 'false' && (!vehicle.price || !vehicle.msrp)) {
+  if (process.env.CRAWLER_PIXEL_PRICE !== 'false' && !vehicle.price) {
     const price = cleanPixelPrice(fb.price);
-    if (price) {
-      if (!vehicle.price) vehicle.price = price;
-      if (!vehicle.msrp) vehicle.msrp = price;
-    }
+    if (price) vehicle.price = price;
   }
   return vehicle;
 }

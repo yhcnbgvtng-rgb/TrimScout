@@ -1,24 +1,24 @@
-# Box patch: fill blank price / MSRP from the Facebook Pixel ViewContent call (Team Velocity `/viewdetails/`)
+# Box patch: fill blank price from the Facebook Pixel ViewContent call (Team Velocity `/viewdetails/`)
 
 Code only on the PR branch `feat/team-velocity-pixel-price`. Nothing here has been run on a box, and no box was read or touched while writing it. Boxes 1, 3, 4 (not box2). Do it in a no-crawl window, one box at a time, on Paul's own typed GO. No restart: every crawl is a fresh Node process, so the next 22:00 start loads the patched file.
 
-## Why price/MSRP stay blank (from the repo, no live fetch)
+## Why price stays blank (from the repo, no live fetch)
 Team Velocity pages (`/viewdetails/<cond>/<vin>/<slug>`) reach the vehicle record two ways, and neither reads a price from what these pages actually carry:
 1. **Schema.org strategy** (`extractSchemaOrgVehicle`, `standalone.js`): since #565 it finds the `@graph` Vehicle, but price comes only from `vehicle.offers` (`priceFromSchemaOrgOffers`). After #565 stock fills (box4 blank 29% -> 20%) while price stays ~100% blank, so the Vehicle node's Offer carries no usable price (missing, empty or a payment). That is inferred from the box4 result; no live page was read for this change.
 2. **Last-resort scan (Strategy 3)**: only `itemprop="price" content=...` or a QUOTED `"price": 123` key within 2,000 characters of the VIN. It sets `msrp: null` by design.
 3. **Strategy 3b** (`facebookPixelFields.js`, #286) runs for every car and reads the page's `fbq('track','ViewContent',{... price: 31995 ...})` call - captured live 2026-09-23 on paulmillertoyota.com and righttoyota.com, the same `/viewdetails/` platform (`test/facebookPixelFields.test.js`) - but it only ever filled model, make, colour, transmission and body style. **It never read the `price` that is in that same call**, and the unquoted `price:` key is invisible to the Strategy 3 scan.
 
 ## What it does
-`fillFromFacebookPixelViewContent` now also fills a blank `price` and/or blank `msrp` (null or 0) from the call's `price`, never over an existing value. It rejects 0, the 2147483647 sentinel, anything >= $5M, and strings carrying payment copy ("$299/mo", "down"). MSRP gets the same figure, matching what the schema.org strategy already does (`msrp: price`): the pixel price is the dealer's listed price, so for cars with a discount it can sit below the true sticker MSRP.
-Only `src/facebookPixelFields.js` changes (+22 lines, no new file, no import, `standalone.js` untouched). Off switch: `CRAWLER_PIXEL_PRICE=false` on the crawl cron line (price/MSRP fill becomes a no-op; the other pixel fields still fill).
+`fillFromFacebookPixelViewContent` now also fills a blank `price` (null or 0) from the call's `price`, never over an existing value. **MSRP is deliberately left alone** (not copied from price): the pixel price is the dealer's listed price, which can sit below the sticker MSRP. It rejects 0, the 2147483647 sentinel, anything >= $5M, and strings carrying payment copy ("$299/mo", "down").
+Only `src/facebookPixelFields.js` changes (+19 lines, no new file, no import, `standalone.js` untouched). Off switch: `CRAWLER_PIXEL_PRICE=false` on the crawl cron line (price fill becomes a no-op; the other pixel fields still fill).
 
 ## Patch
 | # | File | md5 |
 |---|---|---|
-| 1 | `01-pixel-price.patch` (paths relative to `scrapers/lightsail-crawler`, `patch -p1`) | `f733db5b3013ec9b149ba21f2c148846` |
-| - | `drift-check.sh` | `1c4c75a655eff0b41e1e57b5938cd4f4` |
+| 1 | `01-pixel-price.patch` (paths relative to `scrapers/lightsail-crawler`, `patch -p1`) | `bf676c1ca6ac2a601d67390022cf60c6` |
+| - | `drift-check.sh` | `fc31bb9bd0f01cad5af01f7a1fd69b9e` |
 
-`src/facebookPixelFields.js` md5 before (git main, unchanged since #286): `38ca8bfb10d2a91d1ea7722c16d6dd0b`. After: `e2c4562894915ccb6e55876d65e0da42`. Repo-side proof: the patch applied to a copy of main's pre-change file produced exactly the post-change md5, and `drift-check.sh` passed against that copy. The boxes' copies were NOT read; if one differs the drift check stops.
+`src/facebookPixelFields.js` md5 before (git main, unchanged since #286): `38ca8bfb10d2a91d1ea7722c16d6dd0b`. After: `3a08479b1342588d1fa30d43e0901d17`. Repo-side proof: the patch applied to a copy of main's pre-change file produced exactly the post-change md5, and `drift-check.sh` passed against that copy. The boxes' copies were NOT read; if one differs the drift check stops.
 The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Box IPs: box1 34.203.148.79, box3 184.73.158.210, box4 100.50.85.234.
 
 ## Steps (repeat per box; set `BOX`)
@@ -30,9 +30,9 @@ scp -i ~/.ssh/trimscout_box_2026 $P/{01-pixel-price.patch,drift-check.sh} ubuntu
 1. On the box, preconditions (stop if anything prints a process, or if it is past 21:30 ET) and file integrity:
 ```bash
 TZ=America/New_York date +%H:%M; pgrep -fa "run-daily-crawl|run_nightly_chain|run_sync|standalone" | grep -v pgrep
-cd /tmp/tvp && md5sum *   # patch f733db5b3013..., drift-check.sh 1c4c75a655ef...
+cd /tmp/tvp && md5sum *   # patch bf676c1ca6ac..., drift-check.sh fc31bb9bd0f0...
 ```
-2. Drift check + dry run (read-only, works on a copy); it must end `DRIFT CHECK PASS` and print the patched-copy md5 (expect `e2c4562894915ccb6e55876d65e0da42`):
+2. Drift check + dry run (read-only, works on a copy); it must end `DRIFT CHECK PASS` and print the patched-copy md5 (expect `3a08479b1342588d1fa30d43e0901d17`):
 ```bash
 bash /tmp/tvp/drift-check.sh
 ```
@@ -55,7 +55,7 @@ cd ~/nj-scraper/scrapers/lightsail-crawler; B=~/backups/pixel-price-20261021; cp
 ## What to watch (first crawl after applying; values change only when a car's page is fetched again)
 From box2's reader account, counts only, Team Velocity URLs, baseline new Toyota MY2025-27 price blank ~97.5%:
 ```sql
-SELECT source_box, COUNT(*) cars, ROUND(100*AVG(price IS NULL OR price=0),1) price_blank_pct, ROUND(100*AVG(msrp IS NULL OR msrp=0),1) msrp_blank_pct
+SELECT source_box, COUNT(*) cars, ROUND(100*AVG(price IS NULL OR price=0),1) price_blank_pct
 FROM dealer_inventory WHERE removed_at IS NULL AND cond='new' AND year BETWEEN 2025 AND 2027 AND make='Toyota'
   AND REGEXP_REPLACE(vdp_url,'^https?://[^/]+','') LIKE '/viewdetails/%' GROUP BY source_box;
 ```

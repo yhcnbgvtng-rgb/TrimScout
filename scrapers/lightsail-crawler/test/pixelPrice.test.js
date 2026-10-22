@@ -21,23 +21,23 @@ describe('pixel price fill (Team Velocity /viewdetails/)', () => {
     assert.equal(priceFromSchemaOrgOffers(veh.offers, (v) => v), null);
   });
 
-  it('fills blank price and MSRP from the page\'s own ViewContent call', () => {
+  it('fills a blank price from the page\'s own ViewContent call and leaves MSRP blank', () => {
     const v = fillFromFacebookPixelViewContent({ ...blank(), vin: '2T3G1RFV1SW519088' }, tvNoOfferPrice);
     assert.equal(v.price, 31995);
-    assert.equal(v.msrp, 31995);
+    assert.equal(v.msrp, null);
   });
 
   it('a page whose Offer does have a price is unchanged (the pixel never overwrites)', () => {
     assert.ok(/"price": "35599"/.test(tvWithOfferPrice));
-    const v = fillFromFacebookPixelViewContent({ ...blank(), price: 35599, msrp: 35599 }, tvNoOfferPrice);
+    const v = fillFromFacebookPixelViewContent({ ...blank(), price: 35599, msrp: null }, tvNoOfferPrice);
     assert.equal(v.price, 35599);
-    assert.equal(v.msrp, 35599);
+    assert.equal(v.msrp, null);
   });
 
-  it('fills only the blank one of price / MSRP', () => {
+  it('never touches MSRP: a real MSRP stays, a blank one stays blank', () => {
     const a = fillFromFacebookPixelViewContent({ ...blank(), price: 30000 }, tvNoOfferPrice);
     assert.equal(a.price, 30000);
-    assert.equal(a.msrp, 31995);
+    assert.equal(a.msrp, null);
     const b = fillFromFacebookPixelViewContent({ ...blank(), msrp: 33000 }, tvNoOfferPrice);
     assert.equal(b.price, 31995);
     assert.equal(b.msrp, 33000);
@@ -46,7 +46,7 @@ describe('pixel price fill (Team Velocity /viewdetails/)', () => {
   it('treats a price of 0 as blank and fills it', () => {
     const v = fillFromFacebookPixelViewContent({ ...blank(), price: 0, msrp: 0 }, tvNoOfferPrice);
     assert.equal(v.price, 31995);
-    assert.equal(v.msrp, 31995);
+    assert.equal(v.msrp, 0);
   });
 
   it('ignores a call with no price, a zero price, a sentinel, an absurd price, a payment string, or junk', () => {
@@ -62,7 +62,7 @@ describe('pixel price fill (Team Velocity /viewdetails/)', () => {
     assert.equal(v.price, 31995);
   });
 
-  it('CRAWLER_PIXEL_PRICE=false leaves price and MSRP blank (other fields still fill)', () => {
+  it('CRAWLER_PIXEL_PRICE=false leaves price blank (other fields still fill)', () => {
     process.env.CRAWLER_PIXEL_PRICE = 'false';
     const v = fillFromFacebookPixelViewContent(blank(), tvNoOfferPrice);
     assert.equal(v.price, null);

@@ -20,7 +20,7 @@ import('$T/fpf.mjs').then(m=>{
   const v=m.fillFromFacebookPixelViewContent({vin:'X',price:null,msrp:null},h);
   const off=(process.env.CRAWLER_PIXEL_PRICE='false',m.fillFromFacebookPixelViewContent({vin:'X',price:null,msrp:null},h));
   console.log('smoke: price='+v.price+' msrp='+v.msrp+' | switch off: price='+off.price+' msrp='+off.msrp);
-  if(v.price!==31995||v.msrp!==31995||off.price!==null) process.exit(1);
+  if(v.price!==31995||v.msrp!==null||off.price!==null) process.exit(1);
 }).catch(e=>{console.log(e.message);process.exit(1)})" || { echo "SMOKE FAIL"; exit 1; }
 echo "== md5 of the patched COPY (what the box would have after applying)"; md5sum src/facebookPixelFields.js
 echo "DRIFT CHECK PASS (nothing in $C was changed)"
