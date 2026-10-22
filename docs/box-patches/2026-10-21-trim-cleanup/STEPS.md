@@ -9,21 +9,30 @@ Code only on the PR branch `feat/trim-cleanup-box-patch`. Nothing here has been 
 | crawl boxes 1, 3, 4 | `src/standalone.js` (+1 import name, +2 lines calling `cleanTrim` before the window-sticker step) | yes | **yes** |
 | crawl boxes | `src/db.js` | yes (1 call) | **no**: only `mclaren_crawler.js` imports it; the nightly path (`standalone.js` -> shards -> sync) never loads it |
 | box2 deals-api (`/opt/trimscout-deals/src/deals_api_server.js`) | - | **no** | n/a. Trims reach deals-api already cleaned by the patched crawl boxes through the nightly sync; deals-api itself has no trim rule and is not restarted. (Follow-up if wanted: apply the same `cleanTrim` in the sync upsert's `INV_STR(v.trim)` so an unpatched box can never write a dirty trim.) |
-| box2's own crawl (box2 crawls 19 states) | same two files | yes, **if** box2 runs `standalone.js` from a checkout | **not determined**: this session did not read box2. Tell me the directory (it is not `/opt/trimscout-deals/src`, which is the deals-api tree) and the same `drift-check.sh` runs there with the directory as its argument |
+| box2's own crawl (`0 22 * * *` `node scripts/run-daily-crawl.mjs` in `/home/ubuntu/nj-scraper/scrapers/lightsail-crawler`, 19 states; there is no `run_nightly_chain.sh` on box2, that is box3/box4) | `src/standalone.js` | yes | **yes, as a different patch** (`02-box2-trim-clean.patch`): box2's checkout is the 2026-09-22 tree (git `b8ea6e3`, dirty, `standalone.js` hand-edited 2026-10-11) and has **no `src/ingestSanitize.js`**, no `resolveMileage` call, and none of #564/#565 (no `jsonLdStock.js`/`jsonLdColors.js`/`listingColors.js`). Patch 01 cannot apply there. Patch 02 adds a new file `src/trimClean.js` (the same `decodeHtmlEntities` + `cleanTrim`) and 2 lines in `standalone.js` (an import after the `date_utils.js` import, and the call right before `applyWindowSticker`) |
+
+Read-only facts about box2 (21:25 ET, 2026-10-21; nothing changed): `src/standalone.js` `a9cc633204d7b69eb6491507c0f59a6b`; `src/ingestSanitize.js` absent; `src/trimClean.js` absent; `src/facebookPixelFields.js` `38ca8bfb10d2a91d1ea7722c16d6dd0b` (so the pixel-price patch #569 would apply there, but is NOT installed; this PR does not touch that); `src/porscheSchemaOrgFields.js` `91c97852ce6e62845aae7889e34afcda`. No crawl or sync process was running. The crawl cron starts at 22:00 and the sync waiter at 22:10, so install box2 in the same kind of window as the others.
 
 There is **no env-var off switch** for this change (#570 did not add one). The way back is the file restore in step 6.
 
 ## Patch and md5s
 | # | File | md5 |
 |---|---|---|
-| 1 | `01-clean-trim.patch` (paths relative to `scrapers/lightsail-crawler`, `patch -p1`; git diff of #570 for the two files) | `a9192b3c500e7cf1cdeea4fda87f47a3` |
-| - | `drift-check.sh` | `29fca34d8483207391c6ccbe0d4d43fe` |
+| 1 | `01-clean-trim.patch` (boxes 1, 3, 4; paths relative to `scrapers/lightsail-crawler`, `patch -p1`; git diff of #570 for the two files) | `a9192b3c500e7cf1cdeea4fda87f47a3` |
+| 2 | `02-box2-trim-clean.patch` (box2 only; edits `src/standalone.js`, creates `src/trimClean.js`) | `9219eded4cd85d2654ae677a10d7bca3` |
+| - | `drift-check.sh` (picks patch 01 or 02 from whether `src/ingestSanitize.js` exists) | `e45dc4a35885e8f98d49d45dd32c78ff` |
 
 md5s of the two files, repo side (main, which is what the patch was cut from; a box's `standalone.js` is hand-patched and will normally differ, so on a box the **drift check output is the authority**):
 | File | before (b7a1e1d) | after (f49fa59) |
 |---|---|---|
 | `src/ingestSanitize.js` | `5104868c6d9639f377c3bf948b603b06` | `58e0bd3167a0f19a20e6521bd360a62f` |
 | `src/standalone.js` | `6f45cc081243bbc7ab0ce41d66d3f27d` | `ee0df6ee1b69e1c622ff8451123727b8` |
+
+**Box2 md5s (measured on the box; patch 02 applied to a copy of exactly that file):**
+| File | before | after |
+|---|---|---|
+| `src/standalone.js` | `a9cc633204d7b69eb6491507c0f59a6b` | `1795abe4a793818777a8e5f3d157d083` |
+| `src/trimClean.js` | (absent) | `c7288942656fb4df16b2c8552e558eb4` |
 
 Boxes' known `standalone.js` md5s from earlier work (before #570 is applied): box3/box4 `718da826…` (after #564/#565), box1 `0eb20a19…`. Their after-md5s are NOT known here and are not guessed: `drift-check.sh` prints the patched-copy md5s and step 5 must match them.
 Repo-side proof: the patch applied to main's pre-#570 files produces exactly the after md5s above, and `drift-check.sh` passes against that copy, reports ALREADY PATCHED on the post-#570 files, and FAILS (as it should) on 2026-09-27 files. The patch applies cleanly to the repo's versions of both files from 2026-10-07 onward; the boxes' own versions were not read.
@@ -33,32 +42,36 @@ The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` 
 0. From the Mac, in the repo checkout:
 ```bash
 P=docs/box-patches/2026-10-21-trim-cleanup; ssh -i ~/.ssh/trimscout_box_2026 ubuntu@BOX 'mkdir -p /tmp/tc'
-scp -i ~/.ssh/trimscout_box_2026 $P/{01-clean-trim.patch,drift-check.sh} ubuntu@BOX:/tmp/tc/
+scp -i ~/.ssh/trimscout_box_2026 $P/{01-clean-trim.patch,02-box2-trim-clean.patch,drift-check.sh} ubuntu@BOX:/tmp/tc/   # both patches go to every box; the drift check picks the right one
 ```
 1. On the box, preconditions (stop if anything prints a process, or if it is past 21:30 ET) and file integrity:
 ```bash
 TZ=America/New_York date +%H:%M; pgrep -fa "run-daily-crawl|run_nightly_chain|run_sync|standalone" | grep -v pgrep
-cd /tmp/tc && md5sum *   # patch a9192b3c500e..., drift-check.sh 29fca34d8483...
+cd /tmp/tc && md5sum *   # 01 a9192b3c500e..., 02 9219eded4cd8..., drift-check.sh e45dc4a35885...
 ```
 2. Drift check + dry run (read-only, works on copies). It must end `DRIFT CHECK PASS`, or `ALREADY PATCHED`; save its "md5 of the patched COPIES" block:
 ```bash
-bash /tmp/tc/drift-check.sh        # default dir: ~/nj-scraper/scrapers/lightsail-crawler
+bash /tmp/tc/drift-check.sh        # default dir: ~/nj-scraper/scrapers/lightsail-crawler (that is also box2's crawl dir, /home/ubuntu/nj-scraper/...)
 ```
    If it says FAIL, stop for that box and send back its md5 lines and output (an old `ingestSanitize.js` or a `standalone.js` without the `resolveMileage` line needs a different patch).
 3. Backup (record the md5s):
 ```bash
-cd ~/nj-scraper/scrapers/lightsail-crawler; B=~/backups/trim-cleanup-20261021; mkdir -p $B; cp -p src/standalone.js src/ingestSanitize.js $B/; (cd $B && md5sum *.js | tee md5s.txt)
+cd ~/nj-scraper/scrapers/lightsail-crawler; B=~/backups/trim-cleanup-20261021; mkdir -p $B; for f in standalone.js ingestSanitize.js trimClean.js; do [ -f src/$f ] && cp -p src/$f $B/ || echo "absent before: $f" >> $B/absent.txt; done; (cd $B && md5sum *.js | tee md5s.txt; cat absent.txt 2>/dev/null)
 ```
 4. Apply and verify:
 ```bash
-cd ~/nj-scraper/scrapers/lightsail-crawler && patch -p1 < /tmp/tc/01-clean-trim.patch
-md5sum src/standalone.js src/ingestSanitize.js   # must equal the step 2 patched-copies block
-for f in standalone ingestSanitize; do cp src/$f.js /tmp/chk.mjs && node --check /tmp/chk.mjs || echo "SYNTAX FAIL $f"; done; rm -f /tmp/chk.mjs; echo SYNTAX_DONE
-grep -c "cleanTrim" src/standalone.js src/ingestSanitize.js   # expect 3 and 1
+cd ~/nj-scraper/scrapers/lightsail-crawler
+patch -p1 < /tmp/tc/01-clean-trim.patch        # boxes 1, 3, 4 (the drift check said "shape 01")
+# patch -p1 < /tmp/tc/02-box2-trim-clean.patch   # box2 INSTEAD (the drift check said "shape 02")
+md5sum src/standalone.js src/ingestSanitize.js src/trimClean.js 2>&1   # must equal the step 2 patched-copies block
+for f in standalone ingestSanitize trimClean; do [ -f src/$f.js ] && { cp src/$f.js /tmp/chk.mjs && node --check /tmp/chk.mjs || echo "SYNTAX FAIL $f"; }; done; rm -f /tmp/chk.mjs; echo SYNTAX_DONE
+grep -c "cleanTrim" src/standalone.js src/ingestSanitize.js src/trimClean.js 2>&1   # boxes 1/3/4: 3 and 1;  box2: 3 (standalone.js) and 2 (trimClean.js)
 ```
 5. Restore (puts the backed-up files back and re-checks against `md5s.txt`):
 ```bash
-cd ~/nj-scraper/scrapers/lightsail-crawler; B=~/backups/trim-cleanup-20261021; cp -p $B/standalone.js $B/ingestSanitize.js src/; cat $B/md5s.txt; md5sum src/standalone.js src/ingestSanitize.js
+cd ~/nj-scraper/scrapers/lightsail-crawler; B=~/backups/trim-cleanup-20261021
+for f in standalone.js ingestSanitize.js trimClean.js; do if [ -f $B/$f ]; then cp -p $B/$f src/; else rm -f src/$f; fi; done   # rm only for a file the box did not have before (absent.txt): box2's trimClean.js
+cat $B/md5s.txt; md5sum src/standalone.js src/ingestSanitize.js src/trimClean.js 2>&1
 ```
 (Step numbering: the restore is step 5; the "6" some earlier patch docs used for restore does not apply here.)
 
@@ -67,7 +80,7 @@ Values change only when a car's page is fetched again. After the first crawl on 
 ```sql
 SELECT trim, COUNT(*) FROM dealer_inventory FORCE INDEX (idx_inv_make_model_trim) WHERE make='Ford' AND model='Bronco' GROUP BY BINARY trim;
 ```
-Rows from that box's dealers should no longer show `&reg;`, `®` or a trailing 4WD/AWD/4x4/RWD/FWD/2WD (Kia keeps its drivetrain word by design). Known side effect: nothing stores drivetrain separately, and the admin "by drivetrain" analytics (`INV_DRIVETRAIN`) infer it from `trim`/`engine`/`body_style`, so a car that carried its drivetrain only in the trim leaves that bucket.
+Rows from that box's dealers (box2: the 19 states on its cron line) should no longer show `&reg;`, `®` or a trailing 4WD/AWD/4x4/RWD/FWD/2WD (Kia keeps its drivetrain word by design). Known side effect: nothing stores drivetrain separately, and the admin "by drivetrain" analytics (`INV_DRIVETRAIN`) infer it from `trim`/`engine`/`body_style`, so a car that carried its drivetrain only in the trim leaves that bucket.
 
 # Re-clean of rows already in the database (`scripts/box/2026-10-21-trim-reclean.mjs`)
 **Order matters: patch the crawl boxes first.** A dirty trim from an unpatched box is written straight back by its next sync. Run this only after all crawling boxes carry the patch above, in a no-crawl, no-sync window, on Paul's GO per phase. The script runs only on box2 (it needs the DB and the sync-lock endpoints) and the box has no checkout, so it ships as one stdin-piped bundle built on the Mac. (The pattern is the same as `scripts/box/2026-10-16-option-reclean.mjs`; there is no file literally named `reclean.bundle.mjs` in the repo.)
