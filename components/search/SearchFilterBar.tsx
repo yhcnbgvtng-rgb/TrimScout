@@ -7,7 +7,7 @@
 
 import React, { useEffect, useId, useMemo, useRef, useState, type Dispatch, type ReactNode, type RefObject, type SetStateAction } from "react";
 import { createPortal } from "react-dom";
-import { optionPriceText } from "@/lib/optionsPaidOnly";
+import { optionPriceText, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
 import type { CatalogOption, Filters } from "../BuyerSearchView";
 
@@ -236,6 +236,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
 
   // ---- factory options list ----
   const [optionFilter, setOptionFilter] = useState("");
+  const paidOnly = optionsPaidOnlyEnabled();
   const shownOptions = p.catalogOptions.filter((o) => !optionFilter.trim() || o.label.toLowerCase().includes(optionFilter.trim().toLowerCase()));
   const toggleKey = (key: string) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
 
@@ -301,14 +302,14 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
           ) : (
             <ul className="-mx-1">
               {shownOptions.map((o) => {
-                const price = optionPriceText(o.minPrice, o.maxPrice); // empty when the data has no price: the slot is not rendered
+                const price = paidOnly ? optionPriceText(o.minPrice, o.maxPrice, false) : ""; // flag off, or no price in the data (missing / $0): the slot is not rendered
                 const id = `${optionsPanelId}-${o.key}`;
                 return (
                   <li key={o.key}>
                     <label htmlFor={id} className="flex cursor-pointer items-center gap-3 rounded px-1 py-2 text-sm hover:bg-surface">
                       <input id={id} type="checkbox" checked={filters.optionKeys.includes(o.key)} onChange={() => toggleKey(o.key)} className={`h-4 w-4 shrink-0 ${RING}`} style={{ accentColor: ACCENT }} />
                       <span className="min-w-0 flex-1">{o.label}</span>
-                      {price && <span className="shrink-0 tabular-nums text-ink-muted">{price}</span>}
+                      {price && <span className="shrink-0 whitespace-nowrap text-xs tabular-nums text-ink-muted">{price}</span>}
                     </label>
                   </li>
                 );
