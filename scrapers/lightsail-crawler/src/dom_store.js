@@ -46,15 +46,18 @@ export function extractVehicleDom(html, vin = null) {
   for (const m of ldBlocks) {
     if (/Vehicle|Car|Product/i.test(m[1]) && (!vin || m[1].includes(vin))) return m[1].trim();
   }
-  for (const m of ldBlocks) {
-    if (/Vehicle|Car|Product/i.test(m[1])) return m[1].trim();
-  }
-
+  // No JSON-LD block carries this car's VIN. A block that merely matches /Vehicle|Car|Product/ is then the dealer's own (Team Velocity's only
+  // JSON-LD is the AutoDealer graph, which matches on the word "vehicles"): storing it keeps nothing about the car, so every such page was cached
+  // as the same dealer text. Keep the page around the VIN instead (where the stock number, price and details sit).
   if (vin) {
     const idx = text.indexOf(vin);
     if (idx !== -1) {
       return text.slice(Math.max(0, idx - 4000), Math.min(text.length, idx + 8000));
     }
+  }
+  // VIN not on the page at all (or none given): the first Vehicle-like JSON-LD block, as before.
+  for (const m of ldBlocks) {
+    if (/Vehicle|Car|Product/i.test(m[1])) return m[1].trim();
   }
   return text;
 }
