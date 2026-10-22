@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Trimmed, CONSTRUCTED sample of a Team Velocity ("/viewdetails/<cond>/<vin>/<slug>") new-vehicle page. Two parts, from two different places:
+     - the JSON-LD block is the shape of team_velocity_graph_vdp_sample.html (one "@graph" holding the AutoDealer and the Vehicle) but with the Vehicle's Offer
+       carrying NO price - that is the only way the schema.org strategy can come back price-blank on a page whose Vehicle it does parse. Whether the live pages
+       look like this was NOT observed (no live page was fetched for this fixture); it is the case the fallback must cover.
+     - the fbq ViewContent line is the real call captured 2026-09-23 on paulmillertoyota.com (same /viewdetails/ platform), see facebookPixelFields.test.js.
+     VIN, stock number, URLs and dealer details are synthetic except the VIN in the pixel call. -->
+<html><head><title>New 2026 Toyota RAV4 LE</title>
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@graph": [
+  { "@type": "AutoDealer", "@id": "https://www.example-toyota.test/#autodealer", "name": "Example Toyota", "url": "https://www.example-toyota.test" },
+  { "@type": "Vehicle", "@id": "https://www.example-toyota.test/viewdetails/new/2t3g1rfv1sw519088/2026-toyota-rav4#vehicle",
+    "name": "New 2026 Toyota RAV4 LE", "vehicleIdentificationNumber": "2T3G1RFV1SW519088", "productID": "2T3G1RFV1SW519088", "sku": "TC45J091",
+    "vehicleModelDate": "2026", "brand": { "@type": "Brand", "name": "Toyota" }, "model": "RAV4",
+    "offers": { "@type": "Offer", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition" } }
+] }
+</script>
+<script>fbq('track', 'ViewContent', {content_type: 'vehicle',content_ids: ['2T3G1RFV1SW519088'],postal_code: '07058',country: 'United States',make: 'Toyota',model: 'RAV4',year: '2025',state_of_vehicle: 'CPO',exterior_color: 'Ice Cap',transmission: 'Automatic',body_style: '4D Sport Utility',fuel_type: 'Gasoline Fuel',drivetrain: 'AWD',price: 31995,currency: 'USD'});</script>
+</head><body><h1>New 2026 Toyota RAV4 LE</h1></body></html>
