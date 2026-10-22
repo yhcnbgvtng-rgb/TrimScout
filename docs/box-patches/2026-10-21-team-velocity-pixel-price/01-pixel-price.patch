@@ -1,0 +1,43 @@
+diff --git a/src/facebookPixelFields.js b/src/facebookPixelFields.js
+index 3a18a9d..773cb60 100644
+--- a/src/facebookPixelFields.js
++++ b/src/facebookPixelFields.js
+@@ -20,6 +20,11 @@
+ // inferred). This is a genuine third-party analytics call already
+ // present on the page — not a bot-protection workaround.
+ //
++// Price: the same call carries `price: 31995` (unquoted key, bare number), which neither the schema.org strategy (an @graph Vehicle
++// whose Offer has no price) nor the freeform "price" scan (it needs a QUOTED "price" key) can see - Team Velocity /viewdetails/ pages
++// were 97-99% blank on price. Filled into a blank price only (MSRP is left alone: the pixel price is the dealer's listed price, not the sticker), never over a real
++// value, and skipped for a payment figure; CRAWLER_PIXEL_PRICE=false switches just this off.
++//
+ // Deliberately does NOT read drivetrain/fuel_type — the vehicle record
+ // this file assembles (and the dealer_inventory DB schema it lands in)
+ // has no columns for either, and this module's job is filling real gaps
+@@ -30,6 +35,16 @@ function cleanString(val) {
+   return str === '' || str.toLowerCase() === 'null' || str.toLowerCase() === 'undefined' ? null : str;
+ }
+ 
++// Same bounds as standalone.js's cleanPrice: a positive whole-dollar figure, under $5M, and not the INT32_MAX "no price" sentinel.
++function cleanPixelPrice(val) {
++  if (val === null || val === undefined || typeof val === 'boolean') return null;
++  // A string carrying payment copy ("$299/mo") is a lease figure, not the price. (No import: the box's copy of this file stands alone.)
++  if (typeof val === 'string' && /\/\s*mo\b|per\s*month|monthly|\bdown\b/i.test(val)) return null;
++  const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^\d.]/g, ''));
++  if (!Number.isFinite(num) || num <= 0 || num >= 5000000 || num === 2147483647) return null;
++  return Math.round(num);
++}
++
+ // Real JS object-literal syntax (unquoted keys, single-quoted strings),
+ // not JSON — reconstructed into parseable JSON rather than eval'd, so a
+ // malformed or unexpected call on some other platform just fails to
+@@ -65,5 +80,9 @@ export function fillFromFacebookPixelViewContent(vehicle, html) {
+   if (!vehicle.exteriorColor) vehicle.exteriorColor = cleanString(fb.exterior_color);
+   if (!vehicle.transmission) vehicle.transmission = cleanString(fb.transmission);
+   if (!vehicle.bodyStyle) vehicle.bodyStyle = cleanString(fb.body_style);
++  if (process.env.CRAWLER_PIXEL_PRICE !== 'false' && !vehicle.price) {
++    const price = cleanPixelPrice(fb.price);
++    if (price) vehicle.price = price;
++  }
+   return vehicle;
+ }
