@@ -16,7 +16,7 @@ import mysql from 'mysql2/promise';
 import fs from 'node:fs';
 import path from 'node:path';
 import { easternDateStamp } from './date_utils.js';
-import { resolveMileage } from './ingestSanitize.js';
+import { resolveMileage, cleanTrim } from './ingestSanitize.js';
 import { normalizeTransmission } from './transmission.js';
 
 function loadDbEnv() {
@@ -462,7 +462,7 @@ export async function syncInventoryToDatabase(brandId, records, { runId = null }
           truncate(r.dealerName, 255), truncate(r.state, 2), truncate(r.stockNumber, 64),
           normalizeInventoryType(r.inventoryType),
           Number.isFinite(r.year) ? r.year : null,
-          truncate(r.make, 64) || 'Unknown', truncate(r.model, 128), truncate(r.trim, 128), truncate(r.bodyStyle, 64),
+          truncate(r.make, 64) || 'Unknown', truncate(r.model, 128), truncate(cleanTrim(r.trim, { make: r.make }), 128), truncate(r.bodyStyle, 64),
           truncate(normalizeTransmission(r.transmission), 64), truncate(r.engine, 128), truncate(r.exteriorColor, 128), truncate(r.interiorColor, 128),
           // null (not 0) for a used/CPO row with no odometer — same rule as dealer_inventory; see ingestSanitize.js.
           resolveMileage(r.mileage, normalizeInventoryType(r.inventoryType)),

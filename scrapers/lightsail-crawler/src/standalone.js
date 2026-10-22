@@ -65,6 +65,7 @@ import {
     priceFromSource,
     priceFromSchemaOrgOffers,
     numberIsPaymentCopy,
+    cleanTrim,
 } from './ingestSanitize.js';
 
 // One shared V8 context, reused for every vehicle's DDC dataLayer eval
@@ -1289,6 +1290,8 @@ for (let i = 0; i < work.length; i++) {
                         // Condition is final here, so this is the one place a used/CPO
                         // listing with no odometer becomes null instead of a 0 default.
                         vehicle.mileage = resolveMileage(vehicle.mileage, vehicle.inventoryType);
+                        // Trim text: HTML entities decoded, ®/™ dropped, trailing drivetrain word removed (ingestSanitize.js cleanTrim) - every make, last step before the sticker.
+                        if (vehicle.trim) vehicle.trim = cleanTrim(vehicle.trim, { make: vehicle.make });
                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
                         // Parsed price sanity (priceGuard.js): over 5x the previous price or the MSRP, or over the make's ceiling -> blank.
                         {

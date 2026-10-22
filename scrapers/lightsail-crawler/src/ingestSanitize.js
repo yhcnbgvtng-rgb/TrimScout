@@ -132,3 +132,41 @@ export function isRealWindowStickerUrl(url) {
   if (ICON_ASSET_RE.test(path)) return false;
   return true;
 }
+
+// ---- Trim text cleanup -------------------------------------------------------------------------------------------------------------
+// Dealer pages hand the trim over HTML-escaped ("Platinum&reg;", "F-250&#174; XLT") and often with the drivetrain tacked onto the end
+// ("XLT 4WD", "Base 2 Door 4x4"). Both stored as-is: the trim facet showed "Platinum®" and "Platinum" as two trims, and the option-policy
+// trim match had to guess around the noise. Applies to every make.
+
+const NAMED_ENTITIES = { reg: '®', trade: '™', amp: '&', quot: '"', apos: "'", nbsp: ' ', lt: '<', gt: '>', copy: '©', ndash: '–', mdash: '—' };
+
+/** `&reg;` / `&#174;` / `&#xAE;` -> the character; unknown entities are left exactly as written. Two passes, for a double-escaped "&amp;reg;". */
+export function decodeHtmlEntities(text) {
+  if (typeof text !== 'string' || !text.includes('&')) return text;
+  const once = (s) => s.replace(/&(?:#(\d{1,6})|#[xX]([0-9a-fA-F]{1,5})|([a-zA-Z]{2,8}));/g, (m, dec, hex, name) => {
+    if (name) return Object.prototype.hasOwnProperty.call(NAMED_ENTITIES, name.toLowerCase()) ? NAMED_ENTITIES[name.toLowerCase()] : m;
+    const code = dec ? parseInt(dec, 10) : parseInt(hex, 16);
+    return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : m;
+  });
+  return once(once(text));
+}
+
+const DRIVETRAIN_WORD_RE = /^(?:4wd|awd|4x4|rwd|fwd|2wd)$/i;
+// Makes whose option policy prices a package per drivetrain READ the drivetrain out of the trim (factoryOptionAllowlist.js dtGroup), and the
+// dealer_inventory table has no drivetrain column; for these the drivetrain word is kept so that price keeps resolving.
+const DRIVETRAIN_IN_TRIM_MAKES = new Set(['kia']);
+
+/**
+ * A trim string cleaned for storage: HTML entities decoded, the trademark marks (® ™) dropped, whitespace collapsed, and drivetrain words
+ * (4WD, AWD, 4x4, RWD, FWD, 2WD) removed from the END only. A trim that would be left empty (a bare "AWD") keeps its text; null/blank in -> as given.
+ */
+export function cleanTrim(trim, { make = null } = {}) {
+  if (typeof trim !== 'string') return trim;
+  let text = decodeHtmlEntities(trim).replace(/[®™℠]/g, '').replace(/\s+/g, ' ').trim();
+  if (!DRIVETRAIN_IN_TRIM_MAKES.has(String(make || '').trim().toLowerCase())) {
+    const words = text.split(' ');
+    while (words.length > 1 && DRIVETRAIN_WORD_RE.test(words[words.length - 1])) words.pop();
+    text = words.join(' ');
+  }
+  return text || trim.trim();
+}
