@@ -14,7 +14,9 @@ export const STANDARD_FEATURES_HEADING = "Standard features";
 const ON = /^(1|true|yes|on)$/i;
 
 /** Off unless explicitly turned on. `source` is for tests; the app reads process.env. */
-export function optionsPaidOnlyEnabled(source: Record<string, string | undefined> = process.env): boolean {
+// The default names process.env.OPTIONS_PAID_ONLY literally: Next only inlines that exact member expression into client bundles
+// (a bare `process.env` object is empty there, which kept the flag off in the browser even when it was set).
+export function optionsPaidOnlyEnabled(source: Record<string, string | undefined> = { OPTIONS_PAID_ONLY: process.env.OPTIONS_PAID_ONLY }): boolean {
   const raw = source[OPTIONS_PAID_ONLY_ENV];
   return raw != null && ON.test(raw.trim());
 }
@@ -26,14 +28,15 @@ export function formatOptionPrice(price: number): string {
   return `+$${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${cents ? `.${cents}` : ""}`;
 }
 
-/** Price (or range) shown next to a catalog option: "+$450" or "+$800–$1,400". Empty when the endpoint sent no paid price (flag off, or not backfilled). */
-export function optionPriceText(minPrice?: number | null, maxPrice?: number | null): string {
+/** Price (or range) shown next to a catalog option: "+$450" or "+$800–$1,400" ("$450" / "$800–$1,400" with signed=false). Empty when the endpoint sent no paid price (flag off, or not backfilled). */
+export function optionPriceText(minPrice?: number | null, maxPrice?: number | null, signed = true): string {
   const lo = typeof minPrice === "number" && Number.isFinite(minPrice) && minPrice > 0 ? minPrice : null;
   const hi = typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0 ? maxPrice : null;
   if (lo == null && hi == null) return "";
   const a = lo ?? hi!, b = hi ?? lo!;
   const [low, high] = a <= b ? [a, b] : [b, a];
-  return low === high ? formatOptionPrice(low) : `${formatOptionPrice(low)}–${formatOptionPrice(high).slice(1)}`;
+  const fmt = (n: number) => (signed ? formatOptionPrice(n) : formatOptionPrice(n).slice(1));
+  return low === high ? fmt(low) : `${fmt(low)}–${formatOptionPrice(high).slice(1)}`;
 }
 
 /** The label the /search factory-options filter shows for one catalog option. With the flag off it is the label, unchanged. */

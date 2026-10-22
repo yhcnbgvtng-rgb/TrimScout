@@ -124,6 +124,8 @@ describe("paid-only catalog filter (/search)", () => {
   assert.equal(optionPriceText(undefined, undefined), "");
   assert.equal(optionPriceText(0, 0), "");
   assert.equal(optionPriceText(null, 600), "+$600");
+  assert.equal(optionPriceText(2350, 2350, false), "$2,350");
+  assert.equal(optionPriceText(800, 1400, false), "$800–$1,400");
 });
 
   it("catalogOptionLabel: flag off is the label untouched, flag on adds the price or range", () => {
@@ -138,7 +140,7 @@ describe("paid-only catalog filter (/search)", () => {
   assert.ok(src.includes('paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."'));
   // The price next to each option now comes from the new filter bar, straight from the catalog data (min/max price): no price in the data, no price slot.
   const bar = fs.readFileSync(new URL("../components/search/SearchFilterBar.tsx", import.meta.url), "utf8");
-  assert.ok(bar.includes("optionPriceText(o.minPrice, o.maxPrice)"));
+  assert.ok(bar.includes('paidOnly ? optionPriceText(o.minPrice, o.maxPrice, false) : ""'));
   assert.ok(bar.includes("{price && <span"));
 });
 
