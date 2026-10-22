@@ -1,0 +1,15 @@
+# box2 crawler catch-up manifest. Columns: box2-md5-read-2026-10-21-21:28ET | box4-md5-target (box4 read 2026-10-21 21:28-21:31 ET) | path under scrapers/lightsail-crawler | kind
+7df982dbb1edbcbbd5accba8b080bf44  fd92799b12bf4d903d9cf0aaafc9fc34  src/brands.js  changed
+f0439a14ec18ff1fb4eb7e5e90d457cb  16aff0e3c2e0c5116942e40a12cd2c11  src/enricher.js  changed
+38ca8bfb10d2a91d1ea7722c16d6dd0b  3a08479b1342588d1fa30d43e0901d17  src/facebookPixelFields.js  changed
+f4ee7e9eb577fa83e06ffafc2ebf3289  5930f6d2e458c12797151b59b4a6ced4  src/http_probe.js  changed
+70fd9a7ffdd5ea1d69647455c329bbcc  46b5b4a5c7d1b1b90abf032bdca6a1bb  src/inventory_shards.js  changed
+526af3d3d686054b3c827740f0a61f32  a136a25a59f415a1c17b86a23f5b93af  src/nj_policy.js  changed
+91c97852ce6e62845aae7889e34afcda  2a5b0e03e834bdf99f7ab7b9182d8f9d  src/porscheSchemaOrgFields.js  changed
+a9cc633204d7b69eb6491507c0f59a6b  718da826025e51dab544fed5ab8c5901  src/standalone.js  changed
+4a30d410ed458abe722e3f29841a0b04  2e6872f03b6ff80fb74dc8eb900b0cbe  src/window_sticker.js  changed
+-  9b9471479aa3dacd2604540c2a123724  src/jsonLdColors.js  new
+-  284350b41333e926c101c01f1d8302e8  src/jsonLdStock.js  new
+-  09e4f0abf29b286f0bd4d2135bd22acb  src/legacyShardSplit.js  new
+-  c63822c08180890a66403d516fc0c561  src/listingColors.js  new
+-  8d10f68fb5cda9134a7b81315677f696  src/sitemapDiscovery.js  new
