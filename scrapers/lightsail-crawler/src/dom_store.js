@@ -34,6 +34,39 @@ export function hashDom(text) {
   return crypto.createHash('sha256').update(String(text || ''), 'utf8').digest('hex');
 }
 
+// Which occurrence of the VIN to build the window around. A Team Velocity page names the VIN first in its <head> (canonical / og:url / twitter:url
+// meta and link tags carry the page URL, which ends in the VIN), so the first occurrence is markup, not the car: the window around it was the page head
+// (box4, 2026-10-23: VIN at offset 327-742 of 8.3-8.7 KB blobs, no stock or price text). Rules, in order:
+//   1. drop occurrences inside <head>, inside any tag's attributes (meta/link content=, href=, data-*), and inside a URL;
+//   2. of what is left (the page body), take the one closest to stock / price / MSRP text (searched within the window, after the head);
+//   3. no body occurrence has such text near it: the last body occurrence; no body occurrence at all: the last occurrence anywhere.
+// Returns -1 when the VIN is not on the page. Same window as before (4,000 before, 8,000 after).
+const NEAR_FIELD = /stock\s*(?:#|no\b|number)|\bstock\b|\bprice\b|\bmsrp\b/gi;
+export function pickVinOccurrence(text, vin) {
+  const all = [];
+  for (let i = text.indexOf(vin); i !== -1; i = text.indexOf(vin, i + 1)) all.push(i);
+  if (!all.length) return -1;
+  const headEnd = (() => { const m = /<\/head\s*>/i.exec(text); return m ? m.index + m[0].length : 0; })();
+  const inTag = (i) => text.lastIndexOf('<', i) > text.lastIndexOf('>', i);
+  const inUrl = (i) => {
+    const tok = text.slice(Math.max(0, i - 80), i).split(/[\s"'`(,;]/).pop();
+    return /^(?:https?:)?\/\//i.test(tok) || tok.startsWith('/') || tok.includes('://');
+  };
+  const body = all.filter((i) => i >= headEnd && !inTag(i) && !inUrl(i));
+  if (!body.length) return all[all.length - 1];
+  let best = -1, bestDist = Infinity;
+  for (const i of body) {
+    const lo = Math.max(headEnd, i - 4000), hi = Math.min(text.length, i + 8000);
+    const win = text.slice(lo, hi);
+    NEAR_FIELD.lastIndex = 0;
+    for (let m = NEAR_FIELD.exec(win); m; m = NEAR_FIELD.exec(win)) {
+      const d = Math.abs(lo + m.index - i);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+  }
+  return best !== -1 ? best : body[body.length - 1];
+}
+
 // Prefer a compact vehicle node over the full page so we are not storing
 // chrome, nav, and tracker scripts for every VIN every day.
 export function extractVehicleDom(html, vin = null) {
@@ -50,7 +83,7 @@ export function extractVehicleDom(html, vin = null) {
   // JSON-LD is the AutoDealer graph, which matches on the word "vehicles"): storing it keeps nothing about the car, so every such page was cached
   // as the same dealer text. Keep the page around the VIN instead (where the stock number, price and details sit).
   if (vin) {
-    const idx = text.indexOf(vin);
+    const idx = pickVinOccurrence(text, vin);
     if (idx !== -1) {
       return text.slice(Math.max(0, idx - 4000), Math.min(text.length, idx + 8000));
     }
