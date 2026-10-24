@@ -105,8 +105,10 @@ describe('zero-VDP alert', () => {
 describe('standalone.js wiring (source guards: the script is not importable)', () => {
   const src = fs.readFileSync(new URL('../src/standalone.js', import.meta.url), 'utf8');
   it('the catch no longer swallows the reason: it records status or error on the attempt', () => {
-    assert.match(src, /attempt\.error = \(err && \(err\.code \|\| err\.name\)\) \|\| 'ERROR'/);
-    assert.match(src, /attempt\.status = err\.response\.statusCode/);
+    const walker = fs.readFileSync(new URL('../src/sitemapDiscovery.js', import.meta.url), 'utf8');
+    assert.match(walker, /attempt\.error = \(err && \(err\.code \|\| err\.name\)\) \|\| 'ERROR'/);
+    assert.match(walker, /attempt\.status = err\.response\.statusCode/);
+    assert.match(src, /walkSitemap\(sitemapUrl, \{ brand, fetchXml, attempts, depth \}\)/);
   });
   it('the empty-inventory line keeps its prefix (box_report counts it) and now carries the reason', () => {
     assert.match(src, /⚠️ No inventory URLs detected for \$\{dealer\.name\}\. \[\$\{discovery\.note\}\]/);
@@ -144,5 +146,100 @@ describe('robotsSitemapUrls', () => {
     assert.equal(robotsSitemapUrls(many, 'a.com').length, 5);
     assert.deepEqual(robotsSitemapUrls('', 'a.com'), []);
     assert.deepEqual(robotsSitemapUrls(robots, ''), []);
+  });
+});
+
+// ---- robots.txt -> declared sitemap index -> vehicle sitemap, end to end on fixtures (no network) ----
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { selectChildSitemaps, walkSitemap, discoverViaRobots, locMatches } from '../src/sitemapDiscovery.js';
+
+const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', 'robots-sitemap');
+const fixture = (name) => fs.readFileSync(path.join(FIX, name), 'utf8');
+const kia = { name: 'Kia', vinPrefixes: ['5XY', 'KND', 'KNA'] };
+
+// Serves fixture files by URL basename; other *-sitemap.xml children are empty, anything else is a 404. Records every request.
+function fakeSite(requests = []) {
+  return async (url) => {
+    requests.push(url);
+    const name = new URL(url).pathname.split('/').pop();
+    const known = ['sitemap_index.xml', 'vehicle-sitemap.xml', 'page-sitemap.xml'];
+    if (known.includes(name)) return { status: 200, xml: fixture(name) };
+    if (/-sitemap\.xml$/.test(name)) return { status: 200, xml: '<urlset></urlset>' };
+    const err = new Error('Not Found'); err.response = { statusCode: 404 }; throw err;
+  };
+}
+
+describe('selectChildSitemaps', () => {
+  const kids = ['post', 'page', 'category', 'post_tag', 'author', 'attachment', 'service', 'staff', 'coupon', 'vehicle'].map((k) => `https://x.test/${k}-sitemap.xml`);
+  it('puts the inventory child first even when it is listed after the cap', () => {
+    assert.equal(kids.indexOf('https://x.test/vehicle-sitemap.xml'), 9);
+    assert.deepEqual(selectChildSitemaps(kids, 'Kia'), ['https://x.test/vehicle-sitemap.xml']);
+  });
+  it('with no inventory-looking child keeps the first `max` in file order', () => {
+    const plain = Array.from({ length: 12 }, (_, i) => `https://x.test/sitemap-${i + 1}.xml`);
+    assert.deepEqual(selectChildSitemaps(plain, 'Kia'), plain.slice(0, 8));
+  });
+  it('does not let a brand-named host make every child look like inventory', () => {
+    const k = ['post', 'page', 'category', 'post_tag', 'author', 'attachment', 'service', 'staff', 'coupon', 'vehicle'].map((n) => `https://www.examplekia.test/${n}-sitemap.xml`);
+    assert.deepEqual(selectChildSitemaps(k, 'Kia'), ['https://www.examplekia.test/vehicle-sitemap.xml']);
+  });
+  it('recognises vdp/new/used/brand named children', () => {
+    for (const u of ['https://x.test/sitemap-vdp-sitemap_1.xml', 'https://x.test/new-sitemap.xml', 'https://x.test/used.xml', 'https://x.test/kia-sitemap.xml']) {
+      assert.deepEqual(selectChildSitemaps(['https://x.test/page-sitemap.xml', u], 'Kia'), [u], u);
+    }
+  });
+});
+
+describe('locMatches', () => {
+  it('reads plain, CDATA and entity-escaped <loc> values', () => {
+    assert.deepEqual(locMatches('<loc>https://a.test/x&#x2B;y</loc><loc><![CDATA[https://a.test/z]]></loc>'), ['https://a.test/x+y', 'https://a.test/z']);
+  });
+});
+
+describe('robots.txt declared sitemap index (fixture)', () => {
+  it('the fixture robots.txt (CRLF) declares the index on the www host, reached from the apex dealer host', () => {
+    assert.deepEqual(robotsSitemapUrls(fixture('robots.txt'), 'examplekia.test', ['https://examplekia.test/sitemap.xml']), ['https://www.examplekia.test/sitemap_index.xml']);
+  });
+
+  it('walks the declared index and finds the vehicle sitemap listed tenth', async () => {
+    const attempts = [];
+    const urls = await walkSitemap('https://www.examplekia.test/sitemap_index.xml', { brand: kia, fetchXml: fakeSite(), attempts });
+    assert.equal(urls.length, 3);
+    assert.ok(urls.every((u) => /Kia-Sportage-/.test(u)));
+    assert.equal(attempts[0].locs, 10);
+    assert.equal(attempts[0].vdp, 3);
+    assert.ok(attempts.some((a) => a.url.endsWith('/vehicle-sitemap.xml') && a.vdp === 3));
+  });
+
+  it('discoverViaRobots: robots.txt -> declared index -> vehicles, logging the declaration and the yield', async () => {
+    const requests = [];
+    const logs = [];
+    const attempts = [{ url: 'https://examplekia.test/sitemap.xml', status: 200, error: null, locs: 0, vdp: 0 }];
+    const out = await discoverViaRobots({
+      dealerHost: 'examplekia.test', brand: kia, attempts,
+      fetchRobots: async () => fixture('robots.txt'), fetchXml: fakeSite(requests), log: (l) => logs.push(l),
+    });
+    assert.equal(out.urls.length, 3);
+    assert.deepEqual(out.declared, ['https://www.examplekia.test/sitemap_index.xml']);
+    assert.match(logs[0], /robots\.txt declares 1 sitemap\(s\) not tried yet/);
+    assert.match(logs[1], /yielded 3 vehicle URL\(s\)/);
+    assert.ok(requests.includes('https://www.examplekia.test/vehicle-sitemap.xml'));
+    assert.equal(summarizeDiscovery(attempts, out.urls.length).outcome, 'ok');
+  });
+
+  it('a declared sitemap with no vehicles ends empty without throwing, and robots.txt errors are logged not retried', async () => {
+    const attempts = [];
+    const none = await discoverViaRobots({
+      dealerHost: 'examplekia.test', brand: kia, attempts,
+      fetchRobots: async () => 'Sitemap: https://www.examplekia.test/page-sitemap.xml\n', fetchXml: fakeSite(),
+    });
+    assert.deepEqual(none.urls, []);
+    assert.equal(attempts.length, 1);
+    const logs = [];
+    const err = Object.assign(new Error('x'), { response: { statusCode: 403 } });
+    const refused = await discoverViaRobots({ dealerHost: 'examplekia.test', brand: kia, attempts: [], fetchRobots: async () => { throw err; }, fetchXml: fakeSite(), log: (l) => logs.push(l) });
+    assert.deepEqual(refused.urls, []);
+    assert.match(logs[0], /robots\.txt HTTP 403 - not retried/);
   });
 });
