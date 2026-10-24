@@ -1,5 +1,5 @@
-// Trim RE-CLEAN of stored rows (dealer_inventory.trim): the same rule the crawl applies since #570 (cleanTrim in ingestSanitize.js - HTML entities
-// decoded, ® / ™ dropped, trailing 4WD/AWD/4x4/RWD/FWD/2WD removed, Kia keeps its drivetrain word) applied to what the table holds today. Same shape and
+// Trim RE-CLEAN of stored rows (dealer_inventory.trim): the same rule the crawl applies (cleanTrim in ingestSanitize.js - HTML entities
+// decoded, ® / ™ dropped, whitespace collapsed; drivetrain words 4WD/AWD/4x4/RWD/FWD/2WD are KEPT for every make, #579) applied to what the table holds today. Same shape and
 // rails as scripts/box/2026-10-16-option-reclean.mjs. Phases, one script:
 //
 //   dryrun   READ-ONLY, reader account, no lock, WRITES NOTHING (no files, no DB): counts per make (rows that would change, by reason, distinct trims,
@@ -56,7 +56,7 @@ const chunks = (a, n) => { const o = []; for (let i = 0; i < a.length; i += n) o
 const readLines = (f) => fs.readFileSync(f, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 
 if (PHASE === "selftest") { // no DB: proves the bundle (or the checkout) loads and the rule behaves
-  const cases = [["Platinum&reg;", "Ford"], ["XLT 4WD", "Ford"], ["Wind AWD", "Kia"], ["Lariat", "Ford"]];
+  const cases = [["Platinum&reg;", "Ford"], ["XLT 4WD", "Ford"], ["Wind AWD", "Kia"], ["SEL&reg; FWD", "Hyundai"], ["Long Range AWD", "Tesla"], ["Lariat", "Ford"]];
   console.log(JSON.stringify(cases.map(([t, m]) => [t, m, classifyTrimChange(t, m)?.next ?? null])));
   process.exit(0);
 }

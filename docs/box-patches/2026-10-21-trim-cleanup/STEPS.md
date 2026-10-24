@@ -1,5 +1,7 @@
 # Box patch: trim cleanup at ingest (#570, f49fa59) + one-time re-clean of stored trims
 
+> **SUPERSEDED in part (2026-10-24, #579 + this rebase).** The crawl patch in this folder (`01-clean-trim.patch`, `02-box2-trim-clean.patch`) installs a `cleanTrim` that STRIPS a trailing 4WD/AWD/4x4/RWD/FWD/2WD. It was installed on all four boxes on 2026-10-22/23 and replaced the same day by `docs/box-patches/2026-10-23-trim-keep-drivetrain/` (#579): every box now holds `src/trimClean.js` md5 `0b396545f0fdf1449c90ea1256c23f73`. **Do not install the two patch files here again** (a fresh install would bring the stripping back); they are kept as the install history and the restore targets. The rule is now: decode entities, drop ®/™/℠, collapse whitespace, **keep every drivetrain word, for every make**. The one-time re-clean below (`scripts/box/2026-10-21-trim-reclean.mjs`) follows that rule, has no "drivetrain" reason any more, and refuses to plan a change that would drop or alter a drivetrain word. Its earlier dry-run numbers (310,135 rows, 83% of them drivetrain) no longer apply and the dry run must be redone before any plan or apply.
+
 Code only on the PR branch `feat/trim-cleanup-box-patch`. Nothing here has been run, and no box was read or touched while writing it. Do each box in a no-crawl window, one box at a time, on Paul's own typed GO. No restart: every crawl is a fresh Node process, so the next 22:00 start loads the patched files.
 
 ## What #570 changes, and which box files that touches
@@ -79,7 +81,7 @@ Values change only when a car's page is fetched again. After the first crawl on 
 ```sql
 SELECT trim, COUNT(*) FROM dealer_inventory FORCE INDEX (idx_inv_make_model_trim) WHERE make='Ford' AND model='Bronco' GROUP BY BINARY trim;
 ```
-Rows from that box's dealers (box2: the 19 states on its cron line) should no longer show `&reg;`, `®` or a trailing 4WD/AWD/4x4/RWD/FWD/2WD (Kia keeps its drivetrain word by design). Known side effect: nothing stores drivetrain separately, and the admin "by drivetrain" analytics (`INV_DRIVETRAIN`) infer it from `trim`/`engine`/`body_style`, so a car that carried its drivetrain only in the trim leaves that bucket.
+Rows from that box's dealers (box2: the 19 states on its cron line) should no longer show `&reg;`, `®` (a trailing 4WD/AWD/4x4/RWD/FWD/2WD is now kept for every make, #579). Former side effect, now gone: nothing stores drivetrain separately, and the admin "by drivetrain" analytics (`INV_DRIVETRAIN`) infer it from `trim`/`engine`/`body_style`, so a car that carried its drivetrain only in the trim leaves that bucket.
 
 # Re-clean of rows already in the database (`scripts/box/2026-10-21-trim-reclean.mjs`)
 **Order matters: patch the crawl boxes first.** A dirty trim from an unpatched box is written straight back by its next sync. Run this only after all crawling boxes carry the patch above, in a no-crawl, no-sync window, on Paul's GO per phase. The script runs only on box2 (it needs the DB and the sync-lock endpoints) and the box has no checkout, so it ships as one stdin-piped bundle built on the Mac. (The pattern is the same as `scripts/box/2026-10-16-option-reclean.mjs`; there is no file literally named `reclean.bundle.mjs` in the repo.)
@@ -90,7 +92,7 @@ Phases (all take `--makes=Ford,Kia`, `--model=F-150` with one make, `--deadline-
 | Phase | DB account | Writes | What it does |
 |---|---|---|---|
 | `selftest` | none | nothing | proves the bundle loads and the rule behaves |
-| `dryrun` | **reader** | **nothing** (no files, no DB) | counts only: rows to change per make, by reason (entity / mark / drivetrain / whitespace), distinct trims, how many cleaned trims already exist on the model (facet merges), top-30 `from -> to` pairs. Refuses while the sync lock is held |
+| `dryrun` | **reader** | **nothing** (no files, no DB) | counts only: rows to change per make, by reason (entity / mark / whitespace), distinct trims, how many cleaned trims already exist on the model (facet merges), top-30 `from -> to` pairs. Refuses while the sync lock is held |
 | `plan` | reader | `--out`: `plan.jsonl` (0600; one line per row: batch, make, model, **vin, dealer_id**, old trim, new trim), `batches.json`, `plan-summary.json` (counts + md5 of `plan.jsonl`) | the exact rows to change. VINs live only in this file on box2, because restore cannot find a row without its key; nothing prints or ships them |
 | `apply` | **writer** | `dealer_inventory.trim` only (BEFORE UPDATE trigger keeps `trim_rev` in step) | takes the sync lock (heartbeated), one transaction per batch of **<= `--batch` rows (default 2,000, hard cap 5,000)**, every UPDATE guarded by the OLD trim so a row changed since the plan is skipped; checkpoint after each batch (resumes); hard stop at the deadline; refuses if `plan.jsonl` no longer matches its summary md5 |
 | `verify` | reader | nothing | re-reads the applied rows by primary key: stillDirty must be 0; reports rows already at the planned value / changed since / gone |

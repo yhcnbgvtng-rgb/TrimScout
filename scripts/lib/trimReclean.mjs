@@ -4,10 +4,13 @@
 import { cleanTrim, decodeHtmlEntities } from "../../scrapers/lightsail-crawler/src/ingestSanitize.js";
 
 const MARKS_RE = /[®™℠]/;
+// The stored trim is the only copy of a car's drivetrain (no column, no shard field), so a re-clean must never drop one: 4WD, AWD, 4x4, RWD, FWD, 2WD.
+const DRIVETRAIN_WORDS = /(?<![A-Za-z0-9])(?:4wd|awd|4x4|rwd|fwd|2wd)(?![A-Za-z0-9])/gi;
+const drivetrainWords = (t) => (t.match(DRIVETRAIN_WORDS) || []).map((w) => w.toLowerCase());
 
 /**
  * @param {string|null} trim  the stored trim
- * @param {string|null} make  the stored make (Kia keeps its drivetrain word)
+ * @param {string|null} make  the stored make (cleanTrim ignores it; every make keeps its drivetrain word)
  * @returns {null | { next: string, reasons: string[] }}  null = leave the row alone
  */
 export function classifyTrimChange(trim, make) {
@@ -15,11 +18,10 @@ export function classifyTrimChange(trim, make) {
   const next = cleanTrim(trim, { make });
   if (next === trim || !next || next.length > trim.length) return null; // never blank a trim, never lengthen one
   const decoded = decodeHtmlEntities(trim);
+  if (drivetrainWords(next).join() !== drivetrainWords(decoded).join()) return null; // never lose or change a drivetrain word, whatever cleanTrim does
   const reasons = [];
   if (decoded !== trim) reasons.push("entity");
   if (MARKS_RE.test(decoded)) reasons.push("mark");
-  const tidy = decoded.replace(/[®™℠]/g, "").replace(/\s+/g, " ").trim(); // what is left once only entities, marks and spacing are cleaned
-  if (tidy !== next) reasons.push("drivetrain");
   if (!reasons.length) reasons.push("whitespace");
   return { next, reasons };
 }

@@ -15,13 +15,38 @@ const repo = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../..')
 describe('classifyTrimChange', () => {
   it('reports the reasons and the new trim', () => {
     assert.deepEqual(classifyTrimChange('Platinum&reg;', 'Ford'), { next: 'Platinum', reasons: ['entity', 'mark'] });
-    assert.deepEqual(classifyTrimChange('XLT 4WD', 'Ford'), { next: 'XLT', reasons: ['drivetrain'] });
-    assert.deepEqual(classifyTrimChange('Raptor&reg; 4x4', 'Ford').reasons, ['entity', 'mark', 'drivetrain']);
+    assert.deepEqual(classifyTrimChange('Raptor&reg; 4x4', 'Ford'), { next: 'Raptor 4x4', reasons: ['entity', 'mark'] });
     assert.deepEqual(classifyTrimChange('  Big   Bend ', 'Ford'), { next: 'Big Bend', reasons: ['whitespace'] });
     assert.deepEqual(classifyTrimChange('Denali®', 'GMC'), { next: 'Denali', reasons: ['mark'] });
   });
-  it('leaves clean, blank, null, drivetrain-only and Kia-drivetrain trims alone', () => {
-    for (const [t, m] of [['Lariat', 'Ford'], ['', 'Ford'], ['   ', 'Ford'], [null, 'Ford'], ['AWD', 'Ford'], ['Wind AWD', 'Kia'], ['Sport & Tech', 'Honda']]) assert.equal(classifyTrimChange(t, m), null, String(t));
+  it('leaves clean, blank, null, drivetrain-only and drivetrain-suffixed trims alone, for every make', () => {
+    for (const [t, m] of [['Lariat', 'Ford'], ['', 'Ford'], ['   ', 'Ford'], [null, 'Ford'], ['AWD', 'Ford'], ['XLT 4WD', 'Ford'], ['Base 2 Door 4x4', 'Ford'], ['Wind AWD', 'Kia'], ['Sport & Tech', 'Honda']]) assert.equal(classifyTrimChange(t, m), null, String(t));
+  });
+  it('SEL AWD and SEL FWD stay distinct, with or without an entity or mark', () => {
+    assert.equal(classifyTrimChange('SEL AWD', 'Hyundai'), null);
+    assert.equal(classifyTrimChange('SEL FWD', 'Hyundai'), null);
+    assert.equal(classifyTrimChange('SEL&reg; AWD', 'Hyundai').next, 'SEL AWD');
+    assert.equal(classifyTrimChange('SEL&reg; FWD', 'Hyundai').next, 'SEL FWD');
+    assert.equal(classifyTrimChange('SEL® FWD', 'Hyundai').next, 'SEL FWD');
+    assert.notEqual(classifyTrimChange('SEL&reg; AWD', 'Hyundai').next, classifyTrimChange('SEL&reg; FWD', 'Hyundai').next);
+  });
+  it('Long Range AWD and Long Range RWD stay distinct, with or without an entity or mark', () => {
+    assert.equal(classifyTrimChange('Long Range AWD', 'Tesla'), null);
+    assert.equal(classifyTrimChange('Long Range RWD', 'Tesla'), null);
+    assert.equal(classifyTrimChange('Long Range™ AWD', 'Tesla').next, 'Long Range AWD');
+    assert.equal(classifyTrimChange('Long Range&trade; RWD', 'Tesla').next, 'Long Range RWD');
+    assert.notEqual(classifyTrimChange('Long Range™ AWD', 'Tesla').next, classifyTrimChange('Long Range™ RWD', 'Tesla').next);
+  });
+  it('never drops or changes a drivetrain word: every word, every make, dirty or clean', () => {
+    for (const make of ['Ford', 'Kia', 'Tesla', 'Toyota', 'Porsche']) for (const w of ['4WD', 'AWD', '4x4', 'RWD', 'FWD', '2WD', 'awd', '4X4']) {
+      for (const t of [`XLT ${w}`, `XLT&reg; ${w}`, `  XLT   ${w} `, `${w} Lariat`, `Lariat ${w} Crew&reg;`]) {
+        const c = classifyTrimChange(t, make);
+        if (c) assert.ok(c.next.toLowerCase().includes(w.toLowerCase()), `${make}: ${t} -> ${c.next}`);
+      }
+    }
+  });
+  it('has no "drivetrain" reason any more', () => {
+    for (const t of ['XLT 4WD', 'Raptor&reg; 4x4', 'SEL&reg; FWD', 'Long Range™ AWD']) assert.ok(!(classifyTrimChange(t, 'Ford')?.reasons || []).includes('drivetrain'), t);
   });
 });
 
@@ -31,8 +56,8 @@ describe('summarizeGroups', () => {
       { model: 'F-150', trim: 'Platinum&reg;', n: 3 }, { model: 'F-150', trim: 'Platinum', n: 5 }, { model: 'F-150', trim: 'XLT 4WD', n: 2 },
       { model: 'Bronco', trim: 'Big Bend&reg;', n: 4 }, { model: 'F-150', trim: null, n: 9 }, { model: 'F-150', trim: 'Lariat', n: 1 },
     ]);
-    assert.equal(s.distinctTrims, 6); assert.equal(s.changedTrims, 3); assert.equal(s.rowsToChange, 9);
-    assert.deepEqual(s.byReason, { entity: 7, mark: 7, drivetrain: 2 });
+    assert.equal(s.distinctTrims, 6); assert.equal(s.changedTrims, 2); assert.equal(s.rowsToChange, 7); // XLT 4WD is not a change
+    assert.deepEqual(s.byReason, { entity: 7, mark: 7 });
     assert.equal(s.mergesIntoExistingTrim, 1); // Platinum& reg; -> Platinum, which already exists on F-150
     assert.deepEqual(s.pairs[0], { model: 'Bronco', from: 'Big Bend&reg;', to: 'Big Bend', rows: 4, reasons: ['entity', 'mark'] });
     assert.ok(!JSON.stringify(s).match(/vin/i));
@@ -82,6 +107,8 @@ function rowsFixture() {
     ...R(3, 'Ford', 'F-150', 'Platinum&reg;'), ...R(5, 'Ford', 'F-150', 'Platinum'), ...R(2, 'Ford', 'F-150', 'XLT 4WD'), ...R(1, 'Ford', 'F-150', 'Lariat'),
     ...R(4, 'Ford', 'Bronco', 'Big Bend&reg;'), ...R(1, 'Ford', 'Bronco', null), ...R(2, 'Ford', 'Ranger', 'AWD'),
     ...R(2, 'Kia', 'EV3', 'Wind AWD'), ...R(2, 'Kia', 'EV3', 'GT-Line&reg; AWD'), ...R(1, 'GMC', 'Sierra 1500', 'Denali&reg;'),
+    ...R(2, 'Hyundai', 'Tucson', 'SEL AWD'), ...R(2, 'Hyundai', 'Tucson', 'SEL FWD'), ...R(2, 'Hyundai', 'Tucson', 'SEL&reg; FWD'),
+    ...R(2, 'Tesla', 'Model 3', 'Long Range AWD'), ...R(1, 'Tesla', 'Model 3', 'Long Range RWD'),
   ];
 }
 
@@ -118,9 +145,9 @@ describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
     assert.equal(r.code, 0, r.stderr);
     const out = JSON.parse(r.stdout);
     assert.equal(out.wrote, 'nothing'); assert.equal(out.complete, true);
-    assert.equal(out.total.rowsToChange, 3 + 2 + 4 + 2 + 1); // Platinum&reg;, XLT 4WD, Big Bend&reg;, GT-Line&reg; AWD (Kia keeps AWD), Denali&reg;
-    assert.equal(out.total.mergesIntoExistingTrim, 1);
-    assert.deepEqual(out.makesWithNothingToDo, []);
+    assert.equal(out.total.rowsToChange, 3 + 4 + 2 + 1 + 2); // Platinum&reg;, Big Bend&reg;, GT-Line&reg; AWD, Denali&reg;, SEL&reg; FWD (no drivetrain-only change)
+    assert.equal(out.total.mergesIntoExistingTrim, 2); // Platinum&reg; -> Platinum and SEL&reg; FWD -> SEL FWD both already exist on their model
+    assert.deepEqual(out.makesWithNothingToDo, ['Tesla']); // Long Range AWD / RWD: nothing to clean, and nothing to strip
     assert.equal(JSON.stringify(t.table()), before);
     assert.ok(!/ [A-Z0-9]{17} /.test(r.stdout) && !/"vin"/.test(r.stdout));
     assert.ok(t.sql().includes('POOL user=reader') && !t.sql().includes('user=writer'));
@@ -136,6 +163,7 @@ describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
     let r = await t.run('--phase=plan', '--batch=2', '--pause-ms=0'); assert.equal(r.code, 0, r.stderr);
     const summary = JSON.parse(fs.readFileSync(path.join(t.dir, 'out/plan-summary.json'), 'utf8'));
     assert.equal(summary.complete, true); assert.equal(summary.rowsPlanned, 12); assert.equal(summary.batches, 6);
+    assert.ok(!fs.readFileSync(path.join(t.dir, 'out/plan.jsonl'), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).some((l) => /(?:4wd|awd|4x4|rwd|fwd|2wd)/i.test(l.old || '') !== /(?:4wd|awd|4x4|rwd|fwd|2wd)/i.test(l.next || '')), 'no plan line adds or drops a drivetrain word');
     assert.ok(t.sql().includes('POOL user=reader') && !t.sql().includes('user=writer'));
     assert.equal((fs.statSync(path.join(t.dir, 'out/plan.jsonl')).mode & 0o777), 0o600);
     assert.ok(!/"vin"|[A-Z0-9]{17}/.test(JSON.stringify(summary)), 'plan-summary holds counts only');
@@ -146,7 +174,11 @@ describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
     assert.deepEqual(t.stub.calls.filter((c) => /acquire|release/.test(c)), ['/api/ops/sync-lock/acquire', '/api/ops/sync-lock/release']);
     const after = t.table().map((x) => x.trim);
     assert.equal(after.filter((x) => x && /&|®/.test(x)).length, 0);
-    assert.ok(after.includes('GT-Line AWD') && after.includes('Wind AWD') && after.includes('AWD') && after.includes('Denali') && after.includes('XLT'));
+    for (const keep of ['GT-Line AWD', 'Wind AWD', 'AWD', 'Denali', 'XLT 4WD', 'SEL AWD', 'SEL FWD', 'Long Range AWD', 'Long Range RWD']) assert.ok(after.includes(keep), keep);
+    const dt = (x) => /(?:4wd|awd|4x4|rwd|fwd|2wd)/i.test(x || '');
+    assert.equal(after.filter(dt).length, JSON.parse(original).map((x) => x.trim).filter(dt).length, 'the same rows carry a drivetrain word after the apply as before');
+    assert.equal(after.filter((x) => x === 'SEL FWD').length, 4, 'SEL&reg; FWD merged into SEL FWD'); assert.equal(after.filter((x) => x === 'SEL AWD').length, 2);
+    assert.equal(after.filter((x) => x === 'Long Range AWD').length, 2); assert.equal(after.filter((x) => x === 'Long Range RWD').length, 1);
     assert.ok(fs.readFileSync(path.join(t.dir, 'writes.log'), 'utf8').split('\n').filter(Boolean).every((l) => Number(l.split(' ')[0]) <= 2 + 0), 'no UPDATE touched more rows than the batch size');
 
     r = await t.run('--phase=verify', '--pause-ms=0'); assert.equal(r.code, 0, r.stderr);
@@ -162,7 +194,7 @@ describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
   it('apply leaves a row whose trim changed since the plan, and a second apply resumes after the checkpoint', { skip }, async () => {
     const t = await setup();
     await t.run('--phase=plan', '--batch=3', '--pause-ms=0');
-    const rows = t.table(); const hit = rows.find((x) => x.trim === 'XLT 4WD'); hit.trim = 'XLT Premium'; fs.writeFileSync(t.db, JSON.stringify({ rows }));
+    const rows = t.table(); const hit = rows.find((x) => x.trim === 'Platinum&reg;'); hit.trim = 'XLT Premium'; fs.writeFileSync(t.db, JSON.stringify({ rows }));
     let r = await t.run('--phase=apply', '--batch=3', '--pause-ms=0'); assert.equal(r.code, 0, r.stderr);
     assert.match(r.stdout, /rows 11\/12 \(changed-since skipped 1\)/);
     assert.equal(t.table().find((x) => x.vin === hit.vin && x.dealer_id === hit.dealer_id).trim, 'XLT Premium');
