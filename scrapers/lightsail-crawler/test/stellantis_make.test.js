@@ -31,7 +31,8 @@ describe('normalizeMakeForWrite — never stores the Stellantis umbrella', () =>
   it('leaves every other make (and blank) exactly as it was', () => {
     assert.equal(normalizeMakeForWrite({ make: 'Ford', vin: '1FTFW1E50NFA00001' }), 'Ford');
     assert.equal(normalizeMakeForWrite({ make: 'Mercedes-Benz' }), 'Mercedes-Benz');
-    assert.equal(normalizeMakeForWrite({ make: null, vin: '1C4SJVFJ2NS102432' }), null);
+    assert.equal(normalizeMakeForWrite({ make: null, vin: 'XZZSJVFJ2NS102432' }), null); // blank + a VIN no table places stays blank
+    assert.equal(normalizeMakeForWrite({ make: null, vin: '1C4SJVFJ2NS102432' }), 'Jeep'); // blank + a placeable VIN is filled from it (vinWmi.js)
     assert.equal(normalizeMakeForWrite({ make: '  ' }), null);
   });
   it('is idempotent', () => {
