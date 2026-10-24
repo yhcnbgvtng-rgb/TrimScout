@@ -2,11 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { optionRowsFromOptions, normalizeOptionKey } from "../src/inventoryOptionRows.js";
-import { normalizeModelForWrite, isMazdaAccessoryName, mazdaPaint, dropMazdaRow } from "../src/mazdaPaidOptions.js";
+import { normalizeModelForWrite, isMazdaAccessoryName, mazdaPaint, dropMazdaRow, prepareMazdaOptions, prepareMazdaVehicle } from "../src/mazdaPaidOptions.js";
 
 const fixture = JSON.parse(fs.readFileSync(new URL("./fixtures/mazda_paid_options.json", import.meta.url), "utf8"));
 const car = (n) => fixture.cars[n - 1];
-const rowsFor = (c, extra = {}) => optionRowsFromOptions(c.options, { withPrice: true, junkRules: null, make: c.make, ...extra }).rows;
+const rowsFor = (c) => optionRowsFromOptions(prepareMazdaOptions(c.options), { withPrice: true, junkRules: null }).rows;
 const labels = (rs) => rs.map((r) => r.label).sort();
 
 test("fixture VINs are masked", () => {
@@ -63,12 +63,23 @@ test("non-paint names are not mistaken for paint", () => {
   for (const n of ["Premium Paint Charge", "Paint Charge", "Metallic", "Premium Package", "Preferred Package", "Rhodium White Premium"]) assert.equal(mazdaPaint(n), null, n);
 });
 
-test("other makes and flag-off rows are untouched", () => {
+test("other makes and flag-off vehicles are untouched; policy-covered cars keep their options", () => {
   const opts = [{ name: "Cargo Tray", price: 150, kind: "dealer" }, { name: "Machine Gray Metallic Paint Charge", price: 595 }];
-  assert.equal(optionRowsFromOptions(opts, { withPrice: true, junkRules: null, make: "Toyota" }).rows.length, 2);
-  const off = optionRowsFromOptions(opts, { junkRules: null, make: "Mazda" }).rows;
-  assert.equal(off.length, 2);
-  assert.equal(off.some((r) => "price" in r), false);
+  const none = { models: new Map() };
+  const toyota = { make: "Toyota", model: "Mazda CX-5", options: opts };
+  assert.equal(prepareMazdaVehicle(toyota, { make: "Toyota", allowlist: none, paidOnly: true }).options, opts);
+  assert.equal(toyota.model, "Mazda CX-5");
+  const off = prepareMazdaVehicle({ model: "Mazda CX-5", options: opts }, { make: "Mazda", allowlist: none, paidOnly: false });
+  assert.equal(off.options, opts); // flag off: options as given
+  assert.equal(off.model, "CX-5"); // model name is fixed either way
+  const on = prepareMazdaVehicle({ model: "Mazda CX-5", options: opts }, { make: "Mazda", allowlist: none, paidOnly: true });
+  assert.deepEqual(on.options.map((o) => o.name), ["Machine Gray Paint"]);
+  assert.equal(opts[1].name, "Machine Gray Metallic Paint Charge"); // input not mutated
+});
+
+test("a joined list is left alone", () => {
+  const joined = { name: "Cargo Tray; Cargo Net", price: 0 };
+  assert.deepEqual(prepareMazdaOptions([joined]), [joined]);
 });
 
 test("model names: Mazda prefix removed, other makes and bare 'Mazda' unchanged", () => {

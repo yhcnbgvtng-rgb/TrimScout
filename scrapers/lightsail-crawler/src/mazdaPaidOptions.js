@@ -6,6 +6,8 @@
 // 2. One paint colour, one row: "X Paint", "X Paint Charge", "X Metallic" and "X Premium Paint Charge" are one option, "X Paint", with one price.
 // 3. Model names come without the make: "Mazda CX-5" -> "CX-5".
 
+import { modelPoliciesFor } from "./factoryOptionAllowlist.js";
+
 const MAKE = /^mazda$/i;
 export const isMazdaMake = (make) => MAKE.test(String(make ?? "").trim());
 
@@ -73,4 +75,33 @@ export function dropMazdaRow(label, kind) {
   if (ACCESSORY.test(name)) return true;
   if (k === "dealer") return mazdaPaint(label) == null;
   return false;
+}
+
+/**
+ * A Mazda car's option lines ready for the generic row builder (optionRowsFromOptions): accessories removed, every colour spelling renamed to
+ * "X Paint" so the builder's one-row-per-key rule merges them and keeps the highest price. Lines it cannot judge (a joined list, no name) are kept.
+ * Pure; returns a new array and leaves the entries it keeps untouched.
+ */
+export function prepareMazdaOptions(options) {
+  if (!Array.isArray(options)) return options;
+  const out = [];
+  for (const o of options) {
+    const name = o && typeof o.name === "string" ? o.name.trim() : "";
+    if (!name || /[;|\n]/.test(name)) { out.push(o); continue; }
+    if (dropMazdaRow(name, o.kind)) continue;
+    const paint = mazdaPaint(name);
+    out.push(paint ? { ...o, name: paint.label } : o);
+  }
+  return out;
+}
+
+/**
+ * The sync's per-vehicle step: a Mazda vehicle's model loses the make prefix; with OPTIONS_PAID_ONLY on, a Mazda car no model policy covers also gets
+ * prepareMazdaOptions (a policy-covered car already has its accessories and paint handled by the policy). Mutates and returns `v`; other makes untouched.
+ */
+export function prepareMazdaVehicle(v, { make, allowlist, paidOnly }) {
+  if (!isMazdaMake(make)) return v;
+  v.model = normalizeModelForWrite({ make, model: v.model });
+  if (paidOnly && Array.isArray(v.options) && !modelPoliciesFor(allowlist, { make, model: v.model, year: v.year }).length) v.options = prepareMazdaOptions(v.options);
+  return v;
 }

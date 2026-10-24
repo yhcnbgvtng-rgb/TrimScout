@@ -58,7 +58,6 @@ import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
-import { normalizeModelForWrite } from "./mazdaPaidOptions.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -70,6 +69,7 @@ const PORT = process.env.DEALS_API_PORT || 3004;
 // a JSON file, so until Phase B ships real sticker/brochure data this changes nothing. Loaded once
 // at boot; a bad path is logged and falls back to the heuristic catalog rather than failing boot.
 const { allowlist: OPTION_ALLOWLIST, error: optionAllowlistError } = loadSyncAllowlist(); // env-listed policies plus every bundled one (OPTION_BUNDLED_POLICIES=off for the env list only)
+import { normalizeModelForWrite, prepareMazdaVehicle } from "./mazdaPaidOptions.js";
 import { installJunkRulesFromEnv } from "./factoryOptionAllowlist.js"; // hoisted; kept next to its use so the box patch needs no knowledge of the import line above
 const OPTION_CATALOG_MODE = catalogModeFromEnv();
 // Global write-time junk list (src/optionJunkRules.json; OPTION_JUNK_RULES=off or OPTION_JUNK_RULES_PATH=<file> to change it). Applies to every car, policy or not.
@@ -2504,14 +2504,15 @@ async function handleInventoryBulk(req, res) {
       for (const v of withOptions) {
         const vin = v.vin.trim().toUpperCase(), dealerId = INV_DEALER(v.dealerId);
         const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
+        prepareMazdaVehicle(v, { make, allowlist: OPTION_ALLOWLIST, paidOnly: PAID_ONLY });
         // Model policy (OPTION_MODEL_POLICY_PATH, Toyota + Ford 2026-27): for a covered vehicle ONLY the policy's options are written, so a re-synced
         // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
         // (the upsert COALESCEs trim), so the stored rows are left alone.
-        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: normalizeModelForWrite({ make, model: v.model }), year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { withPrice: PAID_ONLY });
+        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { withPrice: PAID_ONLY });
         if (pol && pol.skip) { optionSetsKept++; unreadable.push({ vin, dealerId, pair: pairKey(vin, dealerId) }); continue; }
-        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key), withPrice: PAID_ONLY, make });
+        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key), withPrice: PAID_ONLY });
         optionJunkDropped += junkDropped;
-        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: normalizeModelForWrite({ make, model: v.model }), year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
+        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
       }
       // ...compared with the rows each one already HAS, so only vehicles whose set actually changed are
       // rewritten. Measured 2026-09-30: ~284k vehicles / 3.7M facet rows per box per night were being deleted and

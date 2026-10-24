@@ -12,7 +12,6 @@
 // free-text features, and every row stored before #333 still reached the facet unfiltered.
 
 import { looksLikeOptionSentence } from "./optionSentenceFilter.js";
-import { isMazdaMake, dropMazdaRow, mazdaPaint } from "./mazdaPaidOptions.js";
 
 // Lowercase, strip punctuation, collapse whitespace — mirrors lib/factoryOptionCatalog.ts's
 // normalizeOptionKey() (a separate pipeline/table, but the same identity principle: two
@@ -369,8 +368,6 @@ export function optionRowsFromOptions(options, opts = {}) {
   const protect = typeof opts.protect === "function" ? opts.protect : null;
   const junkRules = "junkRules" in opts ? opts.junkRules : activeJunkRules;
   const withPrice = Boolean(opts.withPrice);
-  // Mazda paid-only rules (mazdaPaidOptions.js): accessories out, one row per paint colour. Only with the paid-only flag on, so flag-off rows are unchanged.
-  const mazda = withPrice && isMazdaMake(opts.make);
   const byKey = new Map();
   let junkDropped = 0;
   const dropped = []; // { label, rule } for every dropped label — the backfill's per-make report reads this
@@ -396,11 +393,6 @@ export function optionRowsFromOptions(options, opts = {}) {
         dropped.push({ label: part, rule: legacy ? "legacy" : denyRuleFor(part.replace(/^[^a-z0-9]+/i, "")) });
         continue;
       }
-      if (mazda && dropMazdaRow(part, o.kind)) {
-        junkDropped++;
-        dropped.push({ label: part, rule: "mazda-accessory" });
-        continue;
-      }
       let label = part.slice(0, 160);
       let key = normalizeOptionKey(label);
       if (!key) continue;
@@ -413,7 +405,6 @@ export function optionRowsFromOptions(options, opts = {}) {
         continue;
       }
       if (canonical) ({ key, label } = canonical);
-      else if (mazda) { const paint = mazdaPaint(part); if (paint) ({ key, label } = { key: normalizeOptionKey(paint.label), label: paint.label }); }
       // opts.withPrice (OPTIONS_PAID_ONLY on): each row also carries this car's own price for it. A price belongs only to a label that was
       // listed alone (a joined list can't be attributed), and two lines of one key keep the paid one.
       if (!byKey.has(key)) byKey.set(key, withPrice ? { key, label, code, price: null } : { key, label, code });
