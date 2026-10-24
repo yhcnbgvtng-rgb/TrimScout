@@ -10,6 +10,8 @@
 // A `failed` store is retried once at the end of the run, apex host first. Nothing here bypasses a block: a refusal is recorded and the
 // retry is the same plain request.
 
+import { isLikelyVdpUrl } from './vdpUrlFilter.js';
+
 export const ZERO_VDP_ALERT_MIN_PREVIOUS = 100;
 
 const MISSING_STATUSES = new Set([404, 410]);
@@ -94,6 +96,98 @@ export function robotsSitemapUrls(robotsText, dealerHost, alreadyTried = [], max
     if (out.length >= max) break;
   }
   return out;
+}
+
+// Sitemap XML escapes reserved characters inside <loc> (a literal "+" becomes "&#x2B;"); undo that so the URL is fetchable.
+export function decodeXmlEntities(str) {
+  return str
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+}
+
+// Some platforms (Audi's retailer sitemap template) wrap every <loc> value in CDATA; match either shape (group 1 or 2 holds the URL).
+const LOC_RE = /<loc>\s*(?:<!\[CDATA\[([^\]]+)\]\]>|([^<]+))\s*<\/loc>/gi;
+export const locMatches = (xml) => [...xml.matchAll(LOC_RE)].map((m) => decodeXmlEntities((m[1] ?? m[2] ?? '').trim())).filter(Boolean);
+
+export const MAX_CHILD_SITEMAPS = 8;
+
+/**
+ * Which child sitemaps of a sitemap index to open, in order. Found 2026-10-23 while chasing "robots.txt declares N sitemap(s)" lines that never led to an
+ * "Extracted" line: the old preference regex ended in `|sitemap`, which every child of a `sitemap_index.xml` matches (post-sitemap.xml, page-sitemap.xml ...),
+ * (and the brand word matched the dealer's own host name, e.g. kiaofcapecoral.com, which is in every child URL) so nothing was ever preferred and `slice(0, 8)` kept the FIRST eight children in file order. A declared index listing the vehicle sitemap ninth or later
+ * (WordPress-style indexes list posts/pages/categories first, alphabetical by type) never had that child fetched at all. Inventory-looking children now go
+ * first; when none look like inventory the first `max` children are tried in file order, as before.
+ */
+export function selectChildSitemaps(children, brandWord, max = MAX_CHILD_SITEMAPS) {
+  const word = String(brandWord || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const re = new RegExp(`vehicle|inventory|cars|vdp|listing|${word ? `${word}|` : ''}(?:^|[/_-])(?:new|used|cpo|certified)(?:[/_.-]|$)`, 'i');
+  // Match the path only: dealer hosts are usually named for the brand (kiaofcapecoral.com, jeffwylernissan.com), so testing the whole URL made the brand word match every child.
+  const pathOf = (u) => { try { const x = new URL(u); return `${x.pathname}${x.search}`; } catch { return u; } };
+  const inventoryish = children.filter((u) => re.test(pathOf(u)));
+  return (inventoryish.length > 0 ? inventoryish : children).slice(0, max);
+}
+
+/**
+ * Walks one sitemap (following indexes up to depth 2) and returns the likely-VDP URLs, pushing one attempt record per sitemap requested.
+ * `fetchXml(url)` is the transport and returns `{ status, xml }`; it throws on network errors (`err.code`) or HTTP errors (`err.response.statusCode`).
+ */
+export async function walkSitemap(sitemapUrl, { brand, fetchXml, attempts = [], depth = 0 }) {
+  if (depth > 2) return [];
+  const attempt = { url: sitemapUrl, status: null, error: null, locs: 0, vdp: 0 };
+  attempts.push(attempt);
+  try {
+    const { status, xml } = await fetchXml(sitemapUrl, attempt);
+    attempt.status = status ?? null;
+    const childSitemaps = [...String(xml).matchAll(/<sitemap>([\s\S]*?)<\/sitemap>/gi)].flatMap((m) => locMatches(m[1]));
+    if (childSitemaps.length > 0) {
+      const nested = [];
+      for (const child of selectChildSitemaps(childSitemaps, brand.name)) {
+        nested.push(...await walkSitemap(child, { brand, fetchXml, attempts, depth: depth + 1 }));
+      }
+      attempt.locs = childSitemaps.length;
+      attempt.vdp = nested.length;
+      return nested;
+    }
+    const allUrls = locMatches(String(xml));
+    const vdpUrls = allUrls.filter((u) => isLikelyVdpUrl(u, brand));
+    attempt.locs = allUrls.length;
+    attempt.vdp = vdpUrls.length;
+    return vdpUrls;
+  } catch (err) {
+    // got throws on 4xx/5xx (the HTTPError carries the response); anything else is a network/timeout error.
+    if (err && err.response && err.response.statusCode) attempt.status = err.response.statusCode;
+    else attempt.error = (err && (err.code || err.name)) || 'ERROR';
+    return [];
+  }
+}
+
+/**
+ * The robots.txt step of discovery: parse the declared `Sitemap:` URLs, log them, and walk each until one yields vehicle URLs.
+ * `fetchRobots()` returns the robots.txt text (throws on failure). `log` is console.log-compatible. Returns `{ urls, declared }`; attempts are appended to `attempts`.
+ */
+export async function discoverViaRobots({ dealerHost, brand, attempts, fetchRobots, fetchXml, log = () => {} }) {
+  let text;
+  try {
+    text = await fetchRobots();
+  } catch (err) {
+    log(`   ↳ robots.txt ${err && err.response && err.response.statusCode ? `HTTP ${err.response.statusCode}` : `ERROR ${(err && (err.code || err.name)) || 'ERROR'}`} - not retried`);
+    return { urls: [], declared: [] };
+  }
+  const declared = robotsSitemapUrls(text, dealerHost, attempts.map((a) => a.url));
+  if (declared.length) log(`   ↳ robots.txt declares ${declared.length} sitemap(s) not tried yet`);
+  for (const url of declared) {
+    const found = await walkSitemap(url, { brand, fetchXml, attempts });
+    if (found.length > 0) {
+      log(`   ↳ robots.txt sitemap ${url} yielded ${found.length} vehicle URL(s)`);
+      return { urls: found, declared };
+    }
+  }
+  return { urls: [], declared };
 }
 
 /** Active vehicles per crawl-loop dealer key in a brand snapshot (the same key mergeInventorySnapshot scopes by). */
