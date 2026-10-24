@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemap>
+<loc>https://www.examplekia.test/post-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/page-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/category-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/post_tag-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/author-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/attachment-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/service-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/staff-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/coupon-sitemap.xml</loc>
+</sitemap>
+<sitemap>
+<loc>https://www.examplekia.test/vehicle-sitemap.xml</loc>
+</sitemap>
+</sitemapindex>

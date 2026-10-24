@@ -43,8 +43,7 @@ process.on('exit', () => {
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
-import { isLikelyVdpUrl } from './vdpUrlFilter.js';
-import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
+import { candidateSitemapUrls, discoverViaRobots, walkSitemap, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
 import { fillColorsFromLabels } from './listingColors.js';
 import { fillColorsFromJsonLd } from './jsonLdColors.js';
@@ -597,93 +596,27 @@ async function flushRunProgress(extra = {}) {
     }
 }
 
-// Sitemap XML escapes reserved characters inside <loc> (e.g. a literal "+"
-// in a URL slug becomes "&#x2B;"), but that was never being decoded back —
-// every <loc> value was stored and used verbatim, so any URL containing an
-// escaped character 404'd both when the crawler itself re-fetched it and
-// when a trimscout.com visitor clicked through to the dealer's listing.
-function decodeXmlEntities(str) {
-    return str
-        .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-        .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'");
-}
-
-// Some platforms (confirmed live 2026-09-25: Audi's own OEM-endorsed retailer
-// sitemap template, e.g. audiforsythcounty.com's sitemap-vdp-sitemap_*.xml)
-// wrap every <loc> value in a CDATA section — <loc><![CDATA[https://...]]></loc>
-// — which the plain `<loc>([^<]+)</loc>` pattern below can never match: the
-// capture group requires a non-'<' character immediately after <loc>, but the
-// very next character is the '<' that starts <![CDATA[, so the match fails
-// silently on every single URL in the file. A real dealer's real inventory
-// (confirmed live: 237 valid VIN-tagged VDP URLs) was being read as zero and
-// logged as "No inventory URLs detected" — not a bot block, not a missing
-// sitemap, just this one regex never seeing the URLs that were right there.
-// Matches either shape; group 1 or group 2 holds the URL, whichever branch fired.
-const LOC_RE = /<loc>\s*(?:<!\[CDATA\[([^\]]+)\]\]>|([^<]+))\s*<\/loc>/gi;
-const locMatches = (xml) => [...xml.matchAll(LOC_RE)].map((m) => decodeXmlEntities((m[1] ?? m[2] ?? '').trim())).filter(Boolean);
-
-// `attempts` (optional) receives one record per sitemap actually requested: { url, status, error, locs, vdp }. A failure still returns [] so
-// callers behave as before, but the record says WHY (see sitemapDiscovery.js: ok / empty / failed).
+// Sitemap walking (index following, <loc> parsing incl. CDATA, VDP filtering) lives in sitemapDiscovery.js so it is unit-testable; this is only the
+// transport. `attempts` receives one record per sitemap actually requested: { url, status, error, locs, vdp } (ok / empty / failed, see sitemapDiscovery.js).
 async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage = null, attempts = []) {
-    if (depth > 2) return [];
-    const attempt = { url: sitemapUrl, status: null, error: null, locs: 0, vdp: 0 };
-    attempts.push(attempt);
-    const brandWord = brand.name.toLowerCase();
-    try {
-        let xml = '';
+    const fetchXml = async (url, attempt) => {
         if (patchrightPage) {
-            // Same patchright-navigation fallback as safeFetch — see its
-            // header comment. gzip sitemaps aren't handled on this path (the
-            // browser already transparently decompresses gzip transfer
-            // encoding), which covers every case actually seen live so far.
-            const res = await patchrightPage.goto(sitemapUrl, { waitUntil: 'domcontentloaded', timeout: 8000 });
-            attempt.status = res ? res.status() : null;
-            if (!res) attempt.error = 'NO_RESPONSE';
-            xml = res ? await res.text() : '';
+            // Same patchright-navigation fallback as safeFetch — see its header comment. gzip sitemaps aren't handled on this path
+            // (the browser already transparently decompresses gzip transfer encoding).
+            const res = await patchrightPage.goto(url, { waitUntil: 'domcontentloaded', timeout: 8000 });
+            if (!res) { attempt.error = 'NO_RESPONSE'; return { status: null, xml: '' }; }
+            return { status: res.status(), xml: await res.text() };
+        }
+        const res = await gotScraping({ url, responseType: 'buffer', timeout: { request: 8000 }, retry: { limit: 1 } });
+        let xml;
+        if (url.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
+            try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
         } else {
-            const res = await gotScraping({
-                url: sitemapUrl,
-                responseType: 'buffer',
-                timeout: { request: 8000 },
-                retry: { limit: 1 },
-            });
-            attempt.status = res.statusCode;
-            if (sitemapUrl.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
-                try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
-            } else {
-                xml = res.rawBody.toString('utf-8');
-            }
+            xml = res.rawBody.toString('utf-8');
         }
-
-        const childSitemaps = [...xml.matchAll(/<sitemap>([\s\S]*?)<\/sitemap>/gi)].flatMap((m) => locMatches(m[1]));
-        if (childSitemaps.length > 0) {
-            const inventoryChild = childSitemaps.filter((u) => new RegExp(`vehicle|inventory|cars|${brandWord}|sitemap`, 'i').test(u));
-            const targets = inventoryChild.length > 0 ? inventoryChild : childSitemaps;
-            let nested = [];
-            for (const child of targets.slice(0, 8)) {
-                nested.push(...await fetchSitemapXmlUrls(child, depth + 1, brand, patchrightPage, attempts));
-            }
-            attempt.locs = childSitemaps.length;
-            attempt.vdp = nested.length;
-            return nested;
-        }
-
-        const allUrls = locMatches(xml);
-        const vdpUrls = allUrls.filter((u) => isLikelyVdpUrl(u, brand));
-        attempt.locs = allUrls.length;
-        attempt.vdp = vdpUrls.length;
-        return vdpUrls;
-    } catch (err) {
-        // got throws on 4xx/5xx (HTTPError carries the response); anything else is a network/timeout error.
-        if (err && err.response && err.response.statusCode) attempt.status = err.response.statusCode;
-        else attempt.error = (err && (err.code || err.name)) || 'ERROR';
-        return [];
-    }
+        return { status: res.statusCode, xml };
+    };
+    return walkSitemap(sitemapUrl, { brand, fetchXml, attempts, depth });
 }
 
 // Walks the candidate sitemaps in order and stops at the first that yields vehicle URLs. Returns the URLs plus one attempt record per sitemap
@@ -701,17 +634,16 @@ async function resolveSitemapDiscovery(dealer, brand, patchrightPage = null, { a
     if (urls.length === 0 && summary.outcome === 'empty' && !patchrightPage && process.env.CRAWLER_ROBOTS_SITEMAP !== 'false') {
         const host = dealer.domain || (() => { try { return new URL(dealer.sitemapUrl).hostname; } catch { return ''; } })();
         if (host) {
-            try {
-                const res = await gotScraping({ url: `https://${host.replace(/^www\./i, '')}/robots.txt`, responseType: 'text', timeout: { request: 8000 }, retry: { limit: 0 } });
-                const declared = robotsSitemapUrls(res.body, host, attempts.map((a) => a.url));
-                if (declared.length) console.log(`   ↳ robots.txt declares ${declared.length} sitemap(s) not tried yet`);
-                for (const url of declared) {
-                    const found = await fetchSitemapXmlUrls(url, 0, brand, null, attempts);
-                    if (found.length > 0) { urls = found; break; }
-                }
-            } catch (err) {
-                console.log(`   ↳ robots.txt ${err && err.response && err.response.statusCode ? `HTTP ${err.response.statusCode}` : `ERROR ${(err && (err.code || err.name)) || 'ERROR'}`} - not retried`);
-            }
+            const fetchRobots = async () => (await gotScraping({ url: `https://${host.replace(/^www\./i, '')}/robots.txt`, responseType: 'text', timeout: { request: 8000 }, retry: { limit: 0 } })).body;
+            const fetchXml = async (u) => {
+                const res = await gotScraping({ url: u, responseType: 'buffer', timeout: { request: 8000 }, retry: { limit: 1 } });
+                const gz = u.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b);
+                let xml;
+                try { xml = gz ? zlib.gunzipSync(res.rawBody).toString('utf-8') : res.rawBody.toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
+                return { status: res.statusCode, xml };
+            };
+            const viaRobots = await discoverViaRobots({ dealerHost: host, brand, attempts, fetchRobots, fetchXml, log: console.log });
+            urls = viaRobots.urls;
             summary = summarizeDiscovery(attempts, urls.length);
         }
     }
