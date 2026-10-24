@@ -58,6 +58,7 @@ import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
+import { normalizeModelForWrite } from "./mazdaPaidOptions.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -2442,7 +2443,7 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).
     const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));
-    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(v.model, 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
+    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(normalizeModelForWrite({ make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model }), 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(cleaned.get(v).optionsJson, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),
       // The crawl's own state: only used when the directory has no store for the row (trg_inv_rev_*), so store-0 cars still have a state.
       normalizeState(v.state)]);
@@ -2506,11 +2507,11 @@ async function handleInventoryBulk(req, res) {
         // Model policy (OPTION_MODEL_POLICY_PATH, Toyota + Ford 2026-27): for a covered vehicle ONLY the policy's options are written, so a re-synced
         // car can't bring the generic rows back. Any other vehicle takes the generic path below, unchanged. Blank trim in the payload = no information
         // (the upsert COALESCEs trim), so the stored rows are left alone.
-        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { withPrice: PAID_ONLY });
+        const pol = policyFacetRows(OPTION_ALLOWLIST, { make, model: normalizeModelForWrite({ make, model: v.model }), year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { withPrice: PAID_ONLY });
         if (pol && pol.skip) { optionSetsKept++; unreadable.push({ vin, dealerId, pair: pairKey(vin, dealerId) }); continue; }
-        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key), withPrice: PAID_ONLY });
+        const { rows: facetRows, junkDropped } = pol || optionRowsFromOptions(v.options, { resolveKey: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key), withPrice: PAID_ONLY, make });
         optionJunkDropped += junkDropped;
-        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
+        desired.push({ vin, dealerId, pair: pairKey(vin, dealerId), rows: facetRows, paidVehicle: pol && pol.rows ? { make, model: normalizeModelForWrite({ make, model: v.model }), year: INV_INT(v.year), trim: INV_STR(v.trim, 160) } : null });
       }
       // ...compared with the rows each one already HAS, so only vehicles whose set actually changed are
       // rewritten. Measured 2026-09-30: ~284k vehicles / 3.7M facet rows per box per night were being deleted and

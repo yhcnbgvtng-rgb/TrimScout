@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOptionRows.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
+import { normalizeModelForWrite } from '../src/mazdaPaidOptions.js';
 import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, policyFacetRows, policyApiOptions } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
 import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from '../src/syncOptionClean.js';
@@ -131,7 +132,7 @@ function loadHandlers(db) {
     badRequest: (res, message) => { res.status = 400; res.json = { error: message }; },
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
-    normalizeMakeForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
+    normalizeMakeForWrite, normalizeModelForWrite, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
     cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true, PAID_ONLY: false,

@@ -47,3 +47,10 @@ turning it on.
 4. **Apply on one small make** with the sync lock held and the fleet idle, then rebuild that make only. Compare `vehicle_count` per key against
    step 1, and check `GET /api/inventory/catalog?make=Volvo` with the flag on vs off.
 5. Only then widen to the rest of the makes, largest last, one rebuild at a time, watching the sync lock and swap.
+
+## Mazda rules (2026-10-23, from the 2026-10-22 box2 dry run)
+`scrapers/lightsail-crawler/src/mazdaPaidOptions.js`, applied by `optionRowsFromOptions` only with `withPrice` (flag on) and `make: "Mazda"`:
+- Dealer accessories are dropped: the feed's `kind:"dealer"` (paint exempt) plus a name list (cargo tray/net/mat/cover/package, lug nuts and wheel locks, splash guards, sill plates, floor mats, hitches, racks...).
+- "Weather Package" is treated as a port-installed accessory bundle and dropped unless the feed says `kind:"factory"`. Basis: it is absent from Mazda's own 2026-27 build data in this repo (`mazda-2026-2027.json` and `mazda_lineup_options_by_trim.csv` list no such package), and its dry-run price spread ($150-$390) is regional, not a fixed MSRP. Not checked against Mazda's site (no live requests); if a factory Weather Package turns out to exist for older years, the `kind:"factory"` escape already keeps it.
+- Paint: "X Paint", "X Paint Charge", "X Metallic", "X Premium Paint Charge" become one row "X Paint" (the word Metallic/Premium is dropped from the label, Pearl/Mica kept) with the car's highest price for that colour. "&" and "and" are the same.
+- Model names are written without the make ("Mazda CX-5" -> "CX-5") by the sync, and the price backfill looks policies up with the same name. Rows already stored with the old spelling are NOT rewritten by this change.
