@@ -39,37 +39,30 @@ describe('cleanTrim: entities and trademark marks', () => {
   });
 });
 
-describe('cleanTrim: trailing drivetrain words', () => {
-  it('strips 4WD / AWD / 4x4 / RWD / FWD / 2WD from the end, any case', () => {
-    for (const w of ['4WD', 'AWD', '4x4', 'RWD', 'FWD', '2WD', '4wd', 'Awd', '4X4']) assert.equal(ford(`XLT ${w}`), 'XLT', w);
+describe('cleanTrim: drivetrain words are kept', () => {
+  // The trim is the only stored place for the drivetrain (no column, no shard field), so it must survive the cleanup.
+  it('keeps 4WD / AWD / 4x4 / RWD / FWD / 2WD at the end, any case, for any make', () => {
+    for (const make of ['Ford', 'Kia', 'Porsche', 'Tesla']) {
+      for (const w of ['4WD', 'AWD', '4x4', 'RWD', 'FWD', '2WD', '4wd', 'Awd', '4X4']) assert.equal(cleanTrim(`XLT ${w}`, { make }), `XLT ${w}`, `${make} ${w}`);
+    }
   });
-  it('real trims', () => {
-    assert.equal(ford('XLT 4WD'), 'XLT');
-    assert.equal(ford('Base 2 Door 4x4'), 'Base 2 Door');
-    assert.equal(ford('HR Cargo RWD'), 'HR Cargo');
-    assert.equal(ford('T-250 148 Med Rf 9150 Gvwr RWD'), 'T-250 148 Med Rf 9150 Gvwr');
-    assert.equal(ford('Lariat Hennessey VelociRaptor 1200 4x4'), 'Lariat Hennessey VelociRaptor 1200');
-    assert.equal(cleanTrim('Coupe AWD', { make: 'Porsche' }), 'Coupe');
-    assert.equal(cleanTrim('4 Black Edition AWD', { make: 'Porsche' }), '4 Black Edition');
-  });
-  it('strips a run of trailing drivetrain words, entity and drivetrain together', () => {
-    assert.equal(ford('XLT 4x4 AWD'), 'XLT');
-    assert.equal(ford('Raptor&reg; 4x4'), 'Raptor');
-  });
-  it('only from the end: a drivetrain word inside a trim, or part of a longer token, stays', () => {
-    assert.equal(ford('4WD Lariat'), '4WD Lariat');
-    assert.equal(ford('Lariat 4WD Crew'), 'Lariat 4WD Crew');
-    assert.equal(ford('XLT 4WDS'), 'XLT 4WDS');
-    assert.equal(ford('Carrera 4'), 'Carrera 4');
-    assert.equal(ford('XL-AWD'), 'XL-AWD');
-  });
-  it('a trim that is only a drivetrain word is kept, never emptied', () => {
-    assert.equal(ford('AWD'), 'AWD');
-    assert.equal(ford('4x4'), '4x4');
-  });
-  it('Kia keeps its drivetrain word (the per-drivetrain package price reads it from the trim) but still decodes', () => {
+  it('real trims keep their drivetrain', () => {
+    assert.equal(ford('XLT 4WD'), 'XLT 4WD');
+    assert.equal(ford('Base 2 Door 4x4'), 'Base 2 Door 4x4');
+    assert.equal(ford('HR Cargo RWD'), 'HR Cargo RWD');
+    assert.equal(cleanTrim('Coupe AWD', { make: 'Porsche' }), 'Coupe AWD');
+    assert.equal(cleanTrim('Long Range AWD', { make: 'Tesla' }), 'Long Range AWD');
     assert.equal(cleanTrim('Wind AWD', { make: 'Kia' }), 'Wind AWD');
-    assert.equal(cleanTrim('GT-Line&reg; AWD', { make: 'kia' }), 'GT-Line AWD');
+    assert.equal(cleanTrim('Sport 4x4', { make: 'Ford' }), 'Sport 4x4');
+  });
+  it('still decodes entities and marks next to a drivetrain word', () => {
+    assert.equal(ford('Raptor&reg; 4x4'), 'Raptor 4x4');
+    assert.equal(cleanTrim('GT-Line&reg;  AWD', { make: 'kia' }), 'GT-Line AWD');
+    assert.equal(ford('F-250&reg; XLT 4WD'), 'F-250 XLT 4WD');
+  });
+  it('the same trim with and without a drivetrain stays two trims (no silent merge)', () => {
+    assert.notEqual(ford('XLT'), ford('XLT 4WD'));
+    assert.notEqual(ford('Long Range RWD'), ford('Long Range AWD'));
   });
 });
 

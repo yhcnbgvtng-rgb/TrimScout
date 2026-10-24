@@ -134,9 +134,13 @@ export function isRealWindowStickerUrl(url) {
 }
 
 // ---- Trim text cleanup -------------------------------------------------------------------------------------------------------------
-// Dealer pages hand the trim over HTML-escaped ("Platinum&reg;", "F-250&#174; XLT") and often with the drivetrain tacked onto the end
-// ("XLT 4WD", "Base 2 Door 4x4"). Both stored as-is: the trim facet showed "Platinum®" and "Platinum" as two trims, and the option-policy
-// trim match had to guess around the noise. Applies to every make.
+// Dealer pages hand the trim over HTML-escaped ("Platinum&reg;", "F-250&#174; XLT"). Stored as-is, the trim facet showed "Platinum®" and
+// "Platinum" as two trims. Applies to every make.
+//
+// A trailing drivetrain word ("XLT 4WD", "Base 2 Door 4x4") is KEPT. dealer_inventory has no drivetrain column and the shard record has no
+// drivetrain field, so the trim is the only place that fact is stored: the admin drivetrain analytics (INV_DRIVETRAIN) and the per-drivetrain
+// package price (factoryOptionAllowlist.js dtGroup) both read it from there, and 4WD vs 2WD is a real price difference for a buyer. (The first
+// version of this cleanup, #570, stripped it; that is reverted here. The option-policy trim match already ignores a trailing drivetrain word.)
 
 const NAMED_ENTITIES = { reg: '®', trade: '™', amp: '&', quot: '"', apos: "'", nbsp: ' ', lt: '<', gt: '>', copy: '©', ndash: '–', mdash: '—' };
 
@@ -151,22 +155,11 @@ export function decodeHtmlEntities(text) {
   return once(once(text));
 }
 
-const DRIVETRAIN_WORD_RE = /^(?:4wd|awd|4x4|rwd|fwd|2wd)$/i;
-// Makes whose option policy prices a package per drivetrain READ the drivetrain out of the trim (factoryOptionAllowlist.js dtGroup), and the
-// dealer_inventory table has no drivetrain column; for these the drivetrain word is kept so that price keeps resolving.
-const DRIVETRAIN_IN_TRIM_MAKES = new Set(['kia']);
-
 /**
- * A trim string cleaned for storage: HTML entities decoded, the trademark marks (® ™) dropped, whitespace collapsed, and drivetrain words
- * (4WD, AWD, 4x4, RWD, FWD, 2WD) removed from the END only. A trim that would be left empty (a bare "AWD") keeps its text; null/blank in -> as given.
+ * A trim string cleaned for storage: HTML entities decoded, the trademark marks (® ™) dropped, whitespace collapsed. Drivetrain words stay.
+ * null/blank in -> as given. (Callers still pass `{ make }`; it is ignored.)
  */
-export function cleanTrim(trim, { make = null } = {}) {
+export function cleanTrim(trim) {
   if (typeof trim !== 'string') return trim;
-  let text = decodeHtmlEntities(trim).replace(/[®™℠]/g, '').replace(/\s+/g, ' ').trim();
-  if (!DRIVETRAIN_IN_TRIM_MAKES.has(String(make || '').trim().toLowerCase())) {
-    const words = text.split(' ');
-    while (words.length > 1 && DRIVETRAIN_WORD_RE.test(words[words.length - 1])) words.pop();
-    text = words.join(' ');
-  }
-  return text || trim.trim();
+  return decodeHtmlEntities(trim).replace(/[®™℠]/g, '').replace(/\s+/g, ' ').trim() || trim.trim();
 }
