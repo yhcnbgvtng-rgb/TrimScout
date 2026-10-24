@@ -1,0 +1,44 @@
+{
+  "note": "Masked Mazda cars shaped like the 2026-10-22 box2 dry run: VINs are masked (JM1 + X's), options mirror the dry run's top-20 labels and prices.",
+  "cars": [
+    {
+      "vin": "JM1XXXXXXXXX00001", "make": "Mazda", "model": "Mazda CX-5", "year": 2024, "trim": "2.5 S Select",
+      "options": [
+        { "name": "Machine Gray Metallic Paint Charge", "price": 595 },
+        { "name": "Machine Gray Metallic Paint", "price": 595, "kind": "factory" },
+        { "name": "Cargo Tray", "price": 150, "kind": "dealer" },
+        { "name": "Cargo Net", "price": 60 },
+        { "name": "Cargo Mat", "price": 100 },
+        { "name": "Carpet Cargo Mat", "price": 100 },
+        { "name": "Black Lug Nuts and Black Wheel Locks", "price": 225 },
+        { "name": "Weather Package", "price": 375 },
+        { "name": "Preferred Package", "price": 1400, "kind": "factory" }
+      ]
+    },
+    {
+      "vin": "JM1XXXXXXXXX00002", "make": "Mazda", "model": "CX-5", "year": 2024, "trim": "2.5 S Preferred",
+      "options": [
+        { "name": "Soul Red Crystal Metallic Paint", "price": 595, "kind": "dealer" },
+        { "name": "Soul Red Crystal Metallic Paint Charge", "price": 595 },
+        { "name": "Soul Red Crystal Metallic", "price": 595 },
+        { "name": "Black Lug Nuts & Black Wheel Locks", "price": 225 },
+        { "name": "Cargo Package", "price": 110 },
+        { "name": "Splash Guards", "price": 130 },
+        { "name": "Door Sill Plates", "price": 125 },
+        { "name": "Weather Package", "price": 375, "kind": "factory" }
+      ]
+    },
+    {
+      "vin": "JM1XXXXXXXXX00003", "make": "Mazda", "model": "Mazda3 Sedan", "year": 2023, "trim": "2.5 S",
+      "options": [
+        { "name": "Rhodium White Premium Paint Charge", "price": 595 },
+        { "name": "Rhodium White Metallic Paint", "price": 595 },
+        { "name": "Snowflake White Pearl Mica Paint", "price": 395 },
+        { "name": "Snowflake White Pearl Mica Paint Charge", "price": 395 },
+        { "name": "Polymetal Gray Metallic Paint Charge", "price": 450 },
+        { "name": "Carpet Floor Mats", "price": 0 },
+        { "name": "Cargo Cover", "price": 160 }
+      ]
+    }
+  ]
+}

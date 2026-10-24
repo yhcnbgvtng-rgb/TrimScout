@@ -29,10 +29,11 @@ async function waitForMemory() {
 }
 
 const src = (f) => path.resolve(process.cwd(), "src", f);
-for (const f of ["inventoryOptionRows.js", "optionsPaidOnlyServer.js", "factoryOptionAllowlist.js"]) {
+for (const f of ["inventoryOptionRows.js", "optionsPaidOnlyServer.js", "factoryOptionAllowlist.js", "mazdaPaidOptions.js"]) {
   if (!fs.existsSync(src(f))) { console.error(`Missing ${src(f)} — deploy the OPTIONS_PAID_ONLY src files first.`); process.exit(1); }
 }
 const { optionRowsFromOptions } = await import(src("inventoryOptionRows.js"));
+const { prepareMazdaVehicle } = await import(src("mazdaPaidOptions.js"));
 const { positivePrice } = await import(src("optionsPaidOnlyServer.js"));
 const { loadAllowlistFromEnv, resolveAllowlisted, policyFacetRows, installJunkRulesFromEnv } = await import(src("factoryOptionAllowlist.js"));
 
@@ -67,7 +68,9 @@ const byMake = new Map();
 // Desired rows with prices for one car, exactly as the sync derives them.
 function desiredRows(r, options) {
   const make = r.make;
-  const vehicle = { make, model: r.model, year: r.year, trim: r.trim };
+  const v = prepareMazdaVehicle({ model: r.model, year: r.year, options }, { make, allowlist, paidOnly: true });
+  options = v.options;
+  const vehicle = { make, model: v.model, year: r.year, trim: r.trim };
   const pol = policyFacetRows(allowlist, vehicle, options, { withPrice: true });
   if (pol && pol.skip) return null; // untrusted / blank trim: the sync leaves this car's rows alone, so do we
   return (pol || optionRowsFromOptions(options, { resolveKey: (key) => resolveAllowlisted(allowlist, make, key), withPrice: true })).rows;
