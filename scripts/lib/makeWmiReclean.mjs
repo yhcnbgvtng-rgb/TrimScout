@@ -19,7 +19,7 @@ export const isConflict = (via) => CONFLICT.has(via);
  *   (conflict the VIN cannot name: shared WMI, needs a vPIC decode), byTarget (make -> rows), byWmiTarget ("WMI>make" -> rows, top 80), conflictGroups (largest first, capped).
  */
 export function summarizeGroups(make, groups, { top = 30 } = {}) {
-  const s = { make, rowsChecked: 0, rowsAgree: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0, byTarget: {}, byVia: {}, byWmiTarget: {}, conflictGroups: [] };
+  const s = { make, rowsChecked: 0, rowsAgree: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0, byTarget: {}, byVia: {}, byWmiTarget: {}, conflictGroups: [], unresolvedGroups: [] };
   for (const g of groups) {
     const n = Number(g.n);
     s.rowsChecked += n;
@@ -29,10 +29,29 @@ export function summarizeGroups(make, groups, { top = 30 } = {}) {
     if (c.next) { s.rowsToMake += n; s.byTarget[c.next] = (s.byTarget[c.next] || 0) + n; } else { s.rowsToNull += n; s.byTarget["(null: shared WMI)"] = (s.byTarget["(null: shared WMI)"] || 0) + n; }
     const wk = `${String(g.key).slice(0, 3)}>${c.next ?? 'null'}`; s.byWmiTarget[wk] = (s.byWmiTarget[wk] || 0) + n; // complete (not capped): the odd-pair review reads this
     s.conflictGroups.push({ model: g.model, key: g.key, to: c.next, via: c.via, rows: n });
+    if (!c.next) s.unresolvedGroups.push({ model: g.model, key: g.key, n }); // shared WMI: the vPIC step decodes these
   }
   s.conflictGroups.sort((a, b) => b.rows - a.rows || (a.key < b.key ? -1 : 1));
   s.conflictGroups = s.conflictGroups.slice(0, top);
   s.byWmiTarget = Object.fromEntries(Object.entries(s.byWmiTarget).sort((a, b) => b[1] - a[1]).slice(0, 80));
+  return s;
+}
+
+/**
+ * The shared-WMI conflict rows (the ones summarizeGroups sends to null) with a vPIC make for their 8-character prefix.
+ * subgroups: [{ model, key8, n }] (the unresolved groups split by VIN characters 1-8); decoded: { key8: vPIC make | "" }.
+ * A make vPIC names that is inside the WMI's family is used; anything else (no answer, "", a make outside the family) leaves null.
+ */
+export function summarizeVpic(make, subgroups, decoded) {
+  const s = { make, rowsChecked: 0, rowsResolved: 0, rowsStillNull: 0, rowsNotDecoded: 0, byTarget: {}, stillNullByWmi: {} };
+  for (const g of subgroups) {
+    const n = Number(g.n); s.rowsChecked += n;
+    const has = Object.hasOwn(decoded, g.key8);
+    const r = reconcileMake({ make, vin: padVin(g.key8), model: g.model, vpicMake: has ? decoded[g.key8] : null });
+    if (r.make) { s.rowsResolved += n; s.byTarget[r.make] = (s.byTarget[r.make] || 0) + n; continue; }
+    s.rowsStillNull += n; if (!has) s.rowsNotDecoded += n;
+    const w = String(g.key8).slice(0, 3); s.stillNullByWmi[w] = (s.stillNullByWmi[w] || 0) + n;
+  }
   return s;
 }
 

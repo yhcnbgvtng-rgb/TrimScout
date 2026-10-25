@@ -20,7 +20,8 @@
 // Flags: --makes=GMC,Buick (default: every make found)  --model=Sierra (with exactly one make)  --dealer-groups=N  --pause-ms=N  --deadline-et=HH:MM  --env=FILE  --lock-log=FILE
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { classifyGroup, summarizeGroups, summarizeBlank } from "../lib/makeWmiReclean.mjs";
+import { classifyGroup, summarizeGroups, summarizeBlank, summarizeVpic } from "../lib/makeWmiReclean.mjs";
+import { loadCache, decodePrefixes } from "../lib/vpicDecode.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, ...v] = a.replace(/^--/, "").split("="); return [k, v.length ? v.join("=") : true]; }));
 
@@ -38,7 +39,10 @@ const [DL_H, DL_M] = String(args["deadline-et"] || "21:40").split(":").map(Numbe
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const etMin = () => { const p = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "numeric", hour12: false }).formatToParts(new Date()); return Number(p.find((x) => x.type === "hour").value) % 24 * 60 + Number(p.find((x) => x.type === "minute").value); };
 const pastDeadline = () => etMin() >= DL_H * 60 + DL_M;
-const dlText = `${DL_H}:${String(DL_M).padStart(2, "0")} ET`;
+// --vpic: decode the shared-WMI rows with NHTSA vPIC (batch API, <= 50 VINs a request), cached in --vpic-cache (default ./make-wmi-vpic-cache.json, keyed by VIN chars 1-8).
+const VPIC = Boolean(args.vpic), VPIC_CACHE = String(args["vpic-cache"] || "make-wmi-vpic-cache.json"), VPIC_PAUSE = Number(args["vpic-pause-ms"] ?? 1500), VPIC_MAX = Number(args["vpic-max-requests"] ?? 200);
+const vpicCache = VPIC ? loadCache(VPIC_CACHE) : { makes: {} }, vpicRuns = []; let vpicStopped = null;
+const dlText =`${DL_H}:${String(DL_M).padStart(2, "0")} ET`;
 
 if (PHASE === "selftest") { // no DB
   const cases = [["2B3LJ", "GMC", "Challenger"], ["4S3GT", "GMC", "Impreza"], ["5LMCJ", "GMC", "Corsair"], ["JHMGK", "GMC", "Fit"], ["KL4CJ", "GMC", "Encore"], ["1GKB0", "GMC", "Yukon"]];
@@ -84,7 +88,11 @@ async function modelsFor(conn, make) {
 }
 const prefixesFor = (conn, make, model) => q(conn, `vin prefixes ${make}/${model}`, `SELECT LEFT(vin, 5) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? GROUP BY LEFT(vin, 5)`, [make, model]);
 const dealersFor = (conn, make, model, key) => q(conn, `dealers ${make}/${model}/${key}`, `SELECT dealer_name, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? GROUP BY dealer_name`, [make, model, `${key}%`]);
-const blankPrefixes = (conn, where) => q(conn, `blank makes ${where}`, `SELECT LEFT(vin, 5) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make ${where} GROUP BY LEFT(vin, 5)`, []);
+const prefixes8For = (conn, make, model, key) => q(conn, `vin prefixes8 ${make}/${model}/${key}`, `SELECT LEFT(vin, 8) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? GROUP BY LEFT(vin, 8)`, [make, model, `${key}%`]);
+const sampleVin = (conn, make, model, key8) => q(conn, `sample vin ${make}/${model}/${key8}`, `SELECT vin FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? LIMIT 1`, [make, model, `${key8}%`]); // one VIN per prefix, sent to vPIC, never stored or printed
+const blankPrefixes =(conn, where) => q(conn, `blank makes ${where}`, `SELECT LEFT(vin, 5) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make ${where} GROUP BY LEFT(vin, 5)`, []);
+
+const vpicTotal = () => { const t = { prefixesRequested: 0, fromCache: 0, decodedNow: 0, failed: 0, requests: 0 }; for (const r of vpicRuns) { t.prefixesRequested += r.requested; t.fromCache += r.cached; t.decodedNow += r.decoded; t.failed += r.failed; t.requests += r.requests; } return t; };
 
 // ================= dryrun =================
 async function dryrun() {
@@ -107,6 +115,15 @@ async function dryrun() {
     }
     s.dealersOfLargestConflictGroups = [...dealers].map(([dealer, rows]) => ({ dealer, rows })).sort((a, b) => b.rows - a.rows).slice(0, 30);
     s.conflictGroups = s.conflictGroups.slice(0, 30);
+    if (VPIC && s.unresolvedGroups.length && stopReason === "all makes done") { // shared-WMI rows: split by VIN chars 1-8, decode one VIN per prefix, count again
+      const subs = [], sample = new Map();
+      for (const g of s.unresolvedGroups) { for (const p of await prefixes8For(conn, make, g.model, g.key)) subs.push({ model: g.model, key8: p.k, n: Number(p.n) }); await sleep(PAUSE); }
+      for (const g of subs) if (!Object.hasOwn(vpicCache.makes, g.key8) && !sample.has(g.key8)) { const r = await sampleVin(conn, make, g.model, g.key8); if (r.length) sample.set(g.key8, r[0].vin); await sleep(PAUSE); }
+      const run = await decodePrefixes([...sample].map(([key8, vin]) => ({ key8, vin })), vpicCache, { cachePath: VPIC_CACHE, pauseMs: VPIC_PAUSE, maxRequests: VPIC_MAX, shouldStop: pastDeadline });
+      vpicRuns.push(run); if (run.stopped) vpicStopped = run.stopped;
+      s.vpic = { ...summarizeVpic(make, subs, vpicCache.makes), decode: run };
+    }
+    delete s.unresolvedGroups;
     perMake.push(s);
     console.error(`  ${make}: ${s.rowsConflict} of ${s.rowsChecked} rows contradicted by the VIN (${queries} queries, slowest ${slowest} ms)`);
   }
@@ -117,7 +134,7 @@ async function dryrun() {
   }
   conn.release();
   const total = perMake.reduce((t, m) => { t.rowsChecked += m.rowsChecked; t.rowsConflict += m.rowsConflict; t.rowsToMake += m.rowsToMake; t.rowsToNull += m.rowsToNull; return t; }, { rowsChecked: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0 });
-  console.log(JSON.stringify({ phase: "dryrun", complete: stopReason === "all makes done", stopReason, elapsedS: Math.round((Date.now() - started) / 1000), queries, wrote: "nothing", readerAccount: true, total, perMake: perMake.filter((m) => m.rowsConflict), makesWithNothingToDo: perMake.filter((m) => !m.rowsConflict).map((m) => m.make), blankMake: blank }, null, 1));
+  console.log(JSON.stringify({ phase: "dryrun", complete: stopReason === "all makes done", stopReason, elapsedS: Math.round((Date.now() - started) / 1000), queries, wrote: VPIC ? `nothing in the database; vPIC cache file ${VPIC_CACHE} only` : "nothing", readerAccount: true, vpic: VPIC ? { stopped: vpicStopped, ...vpicTotal() } : "off (pass --vpic)", total, perMake: perMake.filter((m) => m.rowsConflict), makesWithNothingToDo: perMake.filter((m) => !m.rowsConflict).map((m) => m.make), blankMake: blank }, null, 1));
 }
 
 // ================= lookup =================

@@ -85,7 +85,7 @@ describe('make-vs-VIN dry run (emitted bundle, fake DB)', () => {
 
   it('dryrun: counts the contradicted GMC rows by target make and names the dealers; reader only, SELECT only, no VIN printed', { skip }, async () => {
     const t = setup();
-    const r = await t.run('--phase=dryrun', '--pause-ms=0');
+    const r = await t.run('--phase=dryrun', '--pause-ms=0', '--deadline-et=23:59');
     assert.equal(r.code, 0, r.stderr);
     const out = JSON.parse(r.stdout);
     assert.equal(out.wrote, 'nothing'); assert.equal(out.complete, true);
@@ -104,7 +104,7 @@ describe('make-vs-VIN dry run (emitted bundle, fake DB)', () => {
 
   it('dryrun refuses while the sync lock is held, and reads nothing', { skip }, async () => {
     const t = setup(); fs.writeFileSync(t.lockLog, '[sync-lock] 2026-10-24T00:00:00Z acquire by x\n');
-    const r = await t.run('--phase=dryrun', '--pause-ms=0');
+    const r = await t.run('--phase=dryrun', '--pause-ms=0', '--deadline-et=23:59');
     assert.equal(r.code, 3); assert.match(r.stderr, /sync lock is held/);
     assert.ok(!t.sql().split('\n').some((l) => l.startsWith('SELECT')));
   });
