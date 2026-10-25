@@ -48,7 +48,8 @@ const FAMILIES = [
   [['Kia'], 'KND KNA 3KP'],
   [['Kia', 'Hyundai'], '5XY 3KP KND'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
   [['Nissan'], 'KNM'], // Renault Samsung Busan, builds the Nissan Rogue (NOT a Kia range)
-  [['Nissan', 'Infiniti'], '1N4 1N6 3N1 3N6 5N1 5N3 JN1 JN8'],
+  [['Nissan'], '1N4 1N6 3N1 3N6'], // Nissan-only sedans/trucks/Mexico builds
+  [['Nissan', 'Infiniti'], '5N1 5N3 JN1 JN8'], // shared Nissan/Infiniti ranges
   [['Infiniti'], 'JNK JNR 3PC'],
   [['Mazda'], 'JM1 JM3 JM7 3MD 3MZ'],
   [['Mitsubishi'], 'JA3 JA4 JA7 4A3 4A4 ML3'],

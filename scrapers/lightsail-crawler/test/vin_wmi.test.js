@@ -116,6 +116,7 @@ describe('reconcileMake rules', () => {
   it('a shared WMI cannot name a make: conflict -> null, unless the caller decoded one that fits the range', () => {
     const vin = 'JN8AZ2NE0K9230000';
     assert.deepEqual(makesForWmi(vin), ['Nissan', 'Infiniti']);
+    assert.deepEqual(makesForWmi('1N4AL3AP8JC123456'), ['Nissan']); // a Nissan-only range names its make
     assert.equal(makeFromVin(vin), null);
     assert.deepEqual(reconcileMake({ make: 'Ford', vin }), { make: null, via: 'conflict-unresolved', from: 'Ford' });
     assert.deepEqual(reconcileMake({ make: 'Ford', vin, vpicMake: 'INFINITI' }), { make: 'Infiniti', via: 'vpic-conflict', from: 'Ford' });
