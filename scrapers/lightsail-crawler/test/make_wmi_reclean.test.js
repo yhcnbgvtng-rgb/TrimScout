@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFile, execFileSync } from 'node:child_process';
-import { classifyGroup, summarizeGroups, summarizeBlank } from '../../../scripts/lib/makeWmiReclean.mjs';
+import { classifyGroup, summarizeGroups, summarizeBlank, summarizeVpic } from '../../../scripts/lib/makeWmiReclean.mjs';
 
 const repo = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 
@@ -30,7 +30,13 @@ describe('classifyGroup / summarizeGroups', () => {
   });
   it('blank makes are reported as fills, not disagreements', () => {
     const b = summarizeBlank([{ key: 'JHMGK', n: 4 }, { key: 'XZZCJ', n: 2 }]);
-    assert.deepEqual(b, { rowsChecked: 6, rowsFilledFromVin: 4, rowsStayBlank: 2, byTarget: { Honda: 4 } });
+    assert.deepEqual(b, { rowsChecked: 6, rowsFilledFromVin: 4, rowsStayBlank: 2, byTarget: { Honda: 4 }, unresolvedGroups: [] }); // unknown WMI: stays blank, nothing to decode
+    const shared = summarizeBlank([{ key: '5TDAA', n: 3 }, { key: 'JHMGK', n: 1 }]);
+    assert.deepEqual(shared.unresolvedGroups, [{ key: '5TDAA', n: 3 }]); // known but shared WMI: handed to the vPIC step
+  });
+  it('a blank make on a shared WMI takes the vPIC make when it is in the range', () => {
+    const s = summarizeVpic(null, [{ key8: '5TDAA000', n: 3 }, { key8: '5TDZZ000', n: 2 }], { '5TDAA000': 'LEXUS', '5TDZZ000': 'Tesla' });
+    assert.equal(s.rowsResolved, 3); assert.deepEqual(s.byTarget, { Lexus: 3 }); assert.equal(s.rowsStillNull, 2);
   });
 });
 
@@ -47,6 +53,10 @@ function run(sqlIn, params) {
   if (/^SELECT LEFT\(vin, 5\) AS k, COUNT\(\*\) AS n FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make = \? AND model = \? GROUP BY LEFT\(vin, 5\)$/.test(sql)) { const g = new Map(); for (const r of rows.filter((r) => ci(r.make, params[0]) && ci(r.model, params[1]))) g.set(r.vin.slice(0, 5), (g.get(r.vin.slice(0, 5)) || 0) + 1); return [...g].map(([k, n]) => ({ k, n })); }
   if (/^SELECT LEFT\(vin, 5\) AS k, COUNT\(\*\) AS n FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make (IS NULL|= '') GROUP BY LEFT\(vin, 5\)$/.test(sql)) { const isNull = /IS NULL/.test(sql); const g = new Map(); for (const r of rows.filter((r) => (isNull ? r.make === null : r.make === ''))) g.set(r.vin.slice(0, 5), (g.get(r.vin.slice(0, 5)) || 0) + 1); return [...g].map(([k, n]) => ({ k, n })); }
   if (/^SELECT dealer_name, COUNT\(\*\) AS n FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make = \? AND model = \? AND vin LIKE \? GROUP BY dealer_name$/.test(sql)) { const g = new Map(); for (const r of rows.filter((r) => ci(r.make, params[0]) && ci(r.model, params[1]) && r.vin.startsWith(params[2].replace('%', '')))) g.set(r.dealer_name, (g.get(r.dealer_name) || 0) + 1); return [...g].map(([dealer_name, n]) => ({ dealer_name, n })); }
+  if (/^SELECT LEFT\(vin, 8\) AS k, COUNT\(\*\) AS n FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make = \? AND model = \? AND vin LIKE \? GROUP BY LEFT\(vin, 8\)$/.test(sql)) { const g = new Map(); for (const r of rows.filter((r) => ci(r.make, params[0]) && ci(r.model, params[1]) && r.vin.startsWith(params[2].replace('%', '')))) g.set(r.vin.slice(0, 8), (g.get(r.vin.slice(0, 8)) || 0) + 1); return [...g].map(([k, n]) => ({ k, n })); }
+  if (/^SELECT vin FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make = \? AND model = \? AND vin LIKE \? LIMIT 1$/.test(sql)) return rows.filter((r) => ci(r.make, params[0]) && ci(r.model, params[1]) && r.vin.startsWith(params[2].replace('%', ''))).slice(0, 1).map((r) => ({ vin: r.vin }));
+  if (/^SELECT LEFT\(vin, 8\) AS k, COUNT\(\*\) AS n FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make (IS NULL|= '') AND vin LIKE \? GROUP BY LEFT\(vin, 8\)$/.test(sql)) { const isNull = /IS NULL/.test(sql); const g = new Map(); for (const r of rows.filter((r) => (isNull ? r.make === null : r.make === '') && r.vin.startsWith(params[0].replace('%', '')))) g.set(r.vin.slice(0, 8), (g.get(r.vin.slice(0, 8)) || 0) + 1); return [...g].map(([k, n]) => ({ k, n })); }
+  if (/^SELECT vin FROM dealer_inventory FORCE INDEX \(idx_inv_make_model_trim\) WHERE make (IS NULL|= '') AND vin LIKE \? LIMIT 1$/.test(sql)) { const isNull = /IS NULL/.test(sql); return rows.filter((r) => (isNull ? r.make === null : r.make === '') && r.vin.startsWith(params[0].replace('%', ''))).slice(0, 1).map((r) => ({ vin: r.vin })); }
   if (/^SELECT vin, dealer_id, dealer_name, make, model, year, source, vdp_url, removed_at FROM dealer_inventory WHERE vin IN \(/.test(sql)) return rows.filter((r) => params.includes(r.vin));
   throw new Error('fake mysql: unexpected SQL: ' + sql);
 }
@@ -70,12 +80,12 @@ try { await import('esbuild'); bundle = execFileSync('node', [path.join(repo, 's
 const skip = !bundle && 'esbuild is not installed here';
 
 describe('make-vs-VIN dry run (emitted bundle, fake DB)', () => {
-  function setup() {
+  function setup(rows = ROWS) {
     const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), 'mwr-'));
     fs.mkdirSync(path.join(dir, 'node_modules/mysql2'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'node_modules/mysql2/package.json'), JSON.stringify({ name: 'mysql2', version: '0.0.0', exports: { './promise': './promise.js' } }));
     fs.writeFileSync(path.join(dir, 'node_modules/mysql2/promise.js'), FAKE_MYSQL);
-    const db = path.join(dir, 'db.json'); fs.writeFileSync(db, JSON.stringify({ rows: ROWS }));
+    const db = path.join(dir, 'db.json'); fs.writeFileSync(db, JSON.stringify({ rows }));
     fs.writeFileSync(path.join(dir, 'env'), 'DB_READER_USER=reader\nDB_READER_PASSWORD=r\nDB_WRITER_USER=writer\nDB_WRITER_PASSWORD=w\n');
     fs.writeFileSync(path.join(dir, 'lock.log'), '[sync-lock] 2026-10-24T00:00:00Z release by x\n');
     const env = { ...process.env, FAKE_DB_FILE: db, FAKE_LOG: path.join(dir, 'sql.log') };
@@ -130,5 +140,46 @@ describe('make-vs-VIN dry run (emitted bundle, fake DB)', () => {
     const t = setup(); const r = await t.run('--phase=selftest');
     assert.equal(r.code, 0, r.stderr);
     assert.deepEqual(JSON.parse(r.stdout).map((x) => x[2]), ['Dodge', 'Subaru', 'Lincoln', 'Honda', 'Buick', 'GMC']);
+  });
+
+  it('--vpic: shared-WMI rows (contradicted and blank) are decoded once per prefix, via the injected endpoint, with index-bounded reads and a cache file', { skip }, async () => {
+    const http = await import('node:http');
+    const rows = [
+      row('5TDAA0000P0000001', 'Ford', 'TX 350', 'Wrong Roster Ford', 1), row('5TDAA0000P0000002', 'Ford', 'TX 350', 'Wrong Roster Ford', 1), // contradicted, shared 5TD range
+      row('5TDKK0000P0000003', 'Ford', 'Highlander', 'Wrong Roster Ford', 1),
+      row('5TDAA0000P0000004', null, 'TX 350', 'Blank Make Motors', 4), row('5TDZZ0000P0000005', '', 'Mystery', 'Blank Make Motors', 4), // blank, shared range
+      row('XZZGK5H76HS000099', '', 'Fit', 'Blank Make Motors', 4), // unknown WMI: stays blank, never sent to vPIC
+    ];
+    const posted = [];
+    const server = http.createServer((req, res) => { let b = ''; req.on('data', (c) => { b += c; }); req.on('end', () => {
+      const vins = new URLSearchParams(b).get('data').split(';'); posted.push(vins);
+      res.setHeader('content-type', 'application/json');
+      res.end(JSON.stringify({ Results: vins.map((v) => ({ VIN: v, Make: v.startsWith('5TDAA') ? 'LEXUS' : v.startsWith('5TDKK') ? 'TOYOTA' : '' })) }));
+    }); });
+    await new Promise((r) => server.listen(0, '127.0.0.1', r));
+    try {
+      const t = setup(rows); const cache = path.join(t.dir, 'cache.json');
+      const r = await t.run('--phase=dryrun', '--pause-ms=0', '--deadline-et=23:59', '--vpic', `--vpic-cache=${cache}`, '--vpic-pause-ms=0', `--vpic-url=http://127.0.0.1:${server.address().port}/`);
+      assert.equal(r.code, 0, r.stderr);
+      const out = JSON.parse(r.stdout);
+      const ford = out.perMake.find((m) => m.make === 'Ford');
+      assert.equal(ford.rowsConflict, 3); assert.equal(ford.rowsToNull, 3);
+      assert.equal(ford.vpic.rowsResolved, 3); assert.deepEqual(ford.vpic.byTarget, { Lexus: 2, Toyota: 1 }); assert.equal(ford.vpic.rowsStillNull, 0);
+      assert.equal(out.blankMake.rowsChecked, 3);
+      assert.equal(out.blankMake.vpic.rowsResolved, 1); assert.deepEqual(out.blankMake.vpic.byTarget, { Lexus: 1 });
+      assert.equal(out.blankMake.vpic.rowsStillNull, 1); // 5TDZZ: vPIC named nothing
+      assert.equal(out.blankMake.rowsStayBlank, 3); // counted before decoding: the two shared-prefix rows and the unknown-WMI row
+      assert.match(out.wrote, /vPIC cache file/); assert.equal(out.complete, true);
+      assert.equal(posted.flat().length, 3); // 5TDAA000, 5TDKK000, 5TDZZ000: one VIN per prefix, the unknown-WMI row never sent
+      assert.ok(!posted.flat().includes('XZZGK5H76HS000099'));
+      const c = JSON.parse(fs.readFileSync(cache, 'utf8')); assert.deepEqual(Object.keys(c.makes).sort(), ['5TDAA000', '5TDKK000', '5TDZZ000']);
+      assert.ok(!/[A-HJ-NPR-Z0-9]{17}/.test(r.stdout) && !/[A-HJ-NPR-Z0-9]{17}/.test(JSON.stringify(c)), 'no whole VIN in the output or the cache');
+      const selects = t.sql().split('\n').filter((l) => l.startsWith('SELECT'));
+      assert.ok(selects.every((l) => /FORCE INDEX \(idx_inv_make_model(_trim)?\)/.test(l)) && t.sql().includes('POOL user=reader') && !t.sql().includes('user=writer'));
+      // a second run answers from the cache: no new vPIC requests
+      const before = posted.length;
+      const r2 = await t.run('--phase=dryrun', '--pause-ms=0', '--deadline-et=23:59', '--vpic', `--vpic-cache=${cache}`, '--vpic-pause-ms=0', `--vpic-url=http://127.0.0.1:${server.address().port}/`);
+      assert.equal(r2.code, 0, r2.stderr); assert.equal(posted.length, before);
+    } finally { server.close(); }
   });
 });

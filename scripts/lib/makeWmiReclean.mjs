@@ -57,11 +57,11 @@ export function summarizeVpic(make, subgroups, decoded) {
 
 /** Blank-make rows (make NULL or ''): not a disagreement, reported separately: how many the VIN would fill. */
 export function summarizeBlank(groups) {
-  const s = { rowsChecked: 0, rowsFilledFromVin: 0, rowsStayBlank: 0, byTarget: {} };
+  const s = { rowsChecked: 0, rowsFilledFromVin: 0, rowsStayBlank: 0, byTarget: {}, unresolvedGroups: [] };
   for (const g of groups) {
     const n = Number(g.n); s.rowsChecked += n;
     const c = classifyGroup({ make: null, key: g.key, model: g.model });
-    if (c.next) { s.rowsFilledFromVin += n; s.byTarget[c.next] = (s.byTarget[c.next] || 0) + n; } else s.rowsStayBlank += n;
+    if (c.next) { s.rowsFilledFromVin += n; s.byTarget[c.next] = (s.byTarget[c.next] || 0) + n; } else { s.rowsStayBlank += n; if (c.via === "unresolved") s.unresolvedGroups.push({ key: g.key, n }); } // "unresolved" = the WMI is known but shared: the vPIC step decodes these (an unknown WMI stays blank)
   }
   return s;
 }

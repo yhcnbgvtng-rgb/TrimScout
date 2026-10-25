@@ -20,7 +20,7 @@ export function saveCache(file, cache) { // write then rename: an interrupted ru
  * maxRequests, maxFailures (consecutive, default 3), sleep, shouldStop (e.g. past the deadline).
  */
 export async function decodePrefixes(items, cache, opts = {}) {
-  const { cachePath, fetchImpl = fetch, pauseMs = 1500, batchSize = 50, maxRequests = 200, maxFailures = 3, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), shouldStop = () => false } = opts;
+  const { cachePath, url = VPIC_URL, fetchImpl = fetch, pauseMs = 1500, batchSize = 50, maxRequests = 200, maxFailures = 3, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), shouldStop = () => false } = opts;
   const todo = []; const seen = new Set(); let cached = 0;
   for (const it of items) {
     if (seen.has(it.key8)) continue; seen.add(it.key8);
@@ -35,7 +35,7 @@ export async function decodePrefixes(items, cache, opts = {}) {
     out.requests++;
     let results = null;
     try {
-      const res = await fetchImpl(VPIC_URL, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ format: "json", data: batch.map((b) => b.vin).join(";") }).toString(), signal: AbortSignal.timeout(30000) });
+      const res = await fetchImpl(url, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ format: "json", data: batch.map((b) => b.vin).join(";") }).toString(), signal: AbortSignal.timeout(30000) });
       if (!res.ok) throw new Error(`vPIC HTTP ${res.status}`);
       results = (await res.json()).Results;
       if (!Array.isArray(results)) throw new Error("vPIC: no Results array");

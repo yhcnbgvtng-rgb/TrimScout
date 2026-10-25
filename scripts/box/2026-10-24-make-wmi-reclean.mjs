@@ -40,7 +40,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const etMin = () => { const p = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "numeric", hour12: false }).formatToParts(new Date()); return Number(p.find((x) => x.type === "hour").value) % 24 * 60 + Number(p.find((x) => x.type === "minute").value); };
 const pastDeadline = () => etMin() >= DL_H * 60 + DL_M;
 // --vpic: decode the shared-WMI rows with NHTSA vPIC (batch API, <= 50 VINs a request), cached in --vpic-cache (default ./make-wmi-vpic-cache.json, keyed by VIN chars 1-8).
-const VPIC = Boolean(args.vpic), VPIC_CACHE = String(args["vpic-cache"] || "make-wmi-vpic-cache.json"), VPIC_PAUSE = Number(args["vpic-pause-ms"] ?? 1500), VPIC_MAX = Number(args["vpic-max-requests"] ?? 200);
+const VPIC = Boolean(args.vpic), VPIC_CACHE = String(args["vpic-cache"] || "make-wmi-vpic-cache.json"), VPIC_PAUSE = Number(args["vpic-pause-ms"] ?? 1500), VPIC_MAX = Number(args["vpic-max-requests"] ?? 200); // --vpic-url=URL replaces the NHTSA endpoint (tests only)
 const vpicCache = VPIC ? loadCache(VPIC_CACHE) : { makes: {} }, vpicRuns = []; let vpicStopped = null;
 const dlText =`${DL_H}:${String(DL_M).padStart(2, "0")} ET`;
 
@@ -90,6 +90,8 @@ const prefixesFor = (conn, make, model) => q(conn, `vin prefixes ${make}/${model
 const dealersFor = (conn, make, model, key) => q(conn, `dealers ${make}/${model}/${key}`, `SELECT dealer_name, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? GROUP BY dealer_name`, [make, model, `${key}%`]);
 const prefixes8For = (conn, make, model, key) => q(conn, `vin prefixes8 ${make}/${model}/${key}`, `SELECT LEFT(vin, 8) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? GROUP BY LEFT(vin, 8)`, [make, model, `${key}%`]);
 const sampleVin = (conn, make, model, key8) => q(conn, `sample vin ${make}/${model}/${key8}`, `SELECT vin FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make = ? AND model = ? AND vin LIKE ? LIMIT 1`, [make, model, `${key8}%`]); // one VIN per prefix, sent to vPIC, never stored or printed
+const blankPrefixes8 = (conn, where, key) => q(conn, `blank prefixes8 ${where}/${key}`, `SELECT LEFT(vin, 8) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make ${where} AND vin LIKE ? GROUP BY LEFT(vin, 8)`, [`${key}%`]);
+const blankSample = (conn, where, key8) => q(conn, `blank sample ${where}/${key8}`, `SELECT vin FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make ${where} AND vin LIKE ? LIMIT 1`, [`${key8}%`]);
 const blankPrefixes =(conn, where) => q(conn, `blank makes ${where}`, `SELECT LEFT(vin, 5) AS k, COUNT(*) AS n FROM dealer_inventory FORCE INDEX (${IDX}) WHERE make ${where} GROUP BY LEFT(vin, 5)`, []);
 
 const vpicTotal = () => { const t = { prefixesRequested: 0, fromCache: 0, decodedNow: 0, failed: 0, requests: 0 }; for (const r of vpicRuns) { t.prefixesRequested += r.requested; t.fromCache += r.cached; t.decodedNow += r.decoded; t.failed += r.failed; t.requests += r.requests; } return t; };
@@ -119,7 +121,7 @@ async function dryrun() {
       const subs = [], sample = new Map();
       for (const g of s.unresolvedGroups) { for (const p of await prefixes8For(conn, make, g.model, g.key)) subs.push({ model: g.model, key8: p.k, n: Number(p.n) }); await sleep(PAUSE); }
       for (const g of subs) if (!Object.hasOwn(vpicCache.makes, g.key8) && !sample.has(g.key8)) { const r = await sampleVin(conn, make, g.model, g.key8); if (r.length) sample.set(g.key8, r[0].vin); await sleep(PAUSE); }
-      const run = await decodePrefixes([...sample].map(([key8, vin]) => ({ key8, vin })), vpicCache, { cachePath: VPIC_CACHE, pauseMs: VPIC_PAUSE, maxRequests: VPIC_MAX, shouldStop: pastDeadline });
+      const run = await decodePrefixes([...sample].map(([key8, vin]) => ({ key8, vin })), vpicCache, { cachePath: VPIC_CACHE, pauseMs: VPIC_PAUSE, maxRequests: VPIC_MAX, shouldStop: pastDeadline, ...(args["vpic-url"] ? { url: String(args["vpic-url"]) } : {}) });
       vpicRuns.push(run); if (run.stopped) vpicStopped = run.stopped;
       s.vpic = { ...summarizeVpic(make, subs, vpicCache.makes), decode: run };
     }
@@ -131,6 +133,15 @@ async function dryrun() {
   if (!args.makes && stopReason === "all makes done" && !pastDeadline()) {
     const gs = [...await blankPrefixes(conn, "IS NULL"), ...await blankPrefixes(conn, "= ''")].map((g) => ({ key: g.k, n: Number(g.n) }));
     blank = summarizeBlank(gs);
+    if (VPIC && blank.unresolvedGroups.length) { // blank make on a shared prefix: decode one VIN per 8-character prefix, as for the contradicted rows
+      const subs = [], sample = new Map(), wheres = ["IS NULL", "= ''"];
+      for (const w of wheres) for (const key of new Set(blank.unresolvedGroups.map((u) => u.key))) { for (const p of await blankPrefixes8(conn, w, key)) subs.push({ key8: p.k, n: Number(p.n), w }); await sleep(PAUSE); }
+      for (const g of subs) if (!Object.hasOwn(vpicCache.makes, g.key8) && !sample.has(g.key8)) { const r = await blankSample(conn, g.w, g.key8); if (r.length) sample.set(g.key8, r[0].vin); await sleep(PAUSE); }
+      const run = await decodePrefixes([...sample].map(([key8, vin]) => ({ key8, vin })), vpicCache, { cachePath: VPIC_CACHE, pauseMs: VPIC_PAUSE, maxRequests: VPIC_MAX, shouldStop: pastDeadline, ...(args["vpic-url"] ? { url: String(args["vpic-url"]) } : {}) });
+      vpicRuns.push(run); if (run.stopped) vpicStopped = run.stopped;
+      blank.vpic = { ...summarizeVpic(null, subs, vpicCache.makes), decode: run };
+    }
+    delete blank.unresolvedGroups;
   }
   conn.release();
   const total = perMake.reduce((t, m) => { t.rowsChecked += m.rowsChecked; t.rowsConflict += m.rowsConflict; t.rowsToMake += m.rowsToMake; t.rowsToNull += m.rowsToNull; return t; }, { rowsChecked: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0 });
