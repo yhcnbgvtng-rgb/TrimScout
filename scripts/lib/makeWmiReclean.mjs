@@ -16,10 +16,10 @@ export const isConflict = (via) => CONFLICT.has(via);
 /**
  * groups: [{ model, key, n }] for one stored make. Returns counts only:
  *   rowsChecked, rowsAgree (kept), rowsConflict (VIN contradicts the stored make), rowsToMake (conflict with a make the VIN names), rowsToNull
- *   (conflict the VIN cannot name: shared WMI, needs a vPIC decode), byTarget (make -> rows), conflictGroups (largest first, capped).
+ *   (conflict the VIN cannot name: shared WMI, needs a vPIC decode), byTarget (make -> rows), byWmiTarget ("WMI>make" -> rows, top 80), conflictGroups (largest first, capped).
  */
 export function summarizeGroups(make, groups, { top = 30 } = {}) {
-  const s = { make, rowsChecked: 0, rowsAgree: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0, byTarget: {}, byVia: {}, conflictGroups: [] };
+  const s = { make, rowsChecked: 0, rowsAgree: 0, rowsConflict: 0, rowsToMake: 0, rowsToNull: 0, byTarget: {}, byVia: {}, byWmiTarget: {}, conflictGroups: [] };
   for (const g of groups) {
     const n = Number(g.n);
     s.rowsChecked += n;
@@ -27,10 +27,12 @@ export function summarizeGroups(make, groups, { top = 30 } = {}) {
     if (!isConflict(c.via)) { s.rowsAgree += n; continue; }
     s.rowsConflict += n; s.byVia[c.via] = (s.byVia[c.via] || 0) + n;
     if (c.next) { s.rowsToMake += n; s.byTarget[c.next] = (s.byTarget[c.next] || 0) + n; } else { s.rowsToNull += n; s.byTarget["(null: shared WMI)"] = (s.byTarget["(null: shared WMI)"] || 0) + n; }
+    const wk = `${String(g.key).slice(0, 3)}>${c.next ?? 'null'}`; s.byWmiTarget[wk] = (s.byWmiTarget[wk] || 0) + n; // complete (not capped): the odd-pair review reads this
     s.conflictGroups.push({ model: g.model, key: g.key, to: c.next, via: c.via, rows: n });
   }
   s.conflictGroups.sort((a, b) => b.rows - a.rows || (a.key < b.key ? -1 : 1));
   s.conflictGroups = s.conflictGroups.slice(0, top);
+  s.byWmiTarget = Object.fromEntries(Object.entries(s.byWmiTarget).sort((a, b) => b[1] - a[1]).slice(0, 80));
   return s;
 }
 

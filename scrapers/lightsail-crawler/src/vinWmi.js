@@ -36,19 +36,23 @@ const FAMILIES = [
   [['Buick'], '1G4 5GA KL4 LRB W04'],
   [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3'],
   [['Lexus'], 'JTH JTJ JT8 2T2 58A'],
+  [['Toyota', 'Lexus'], '5TD'], // Indiana builds the Highlander and the Lexus TX
+  [['Toyota', 'Subaru'], 'JTM'], // Toyota-built Subaru EVs: Solterra, Trailseeker, Uncharted
   [['Subaru', 'Toyota', 'Scion'], 'JF1 JF2'], // the Subaru-built BRZ / Toyota GR86 / Scion FR-S share this range
   [['Subaru'], '4S3 4S4'],
   [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X JHM SHH'],
   [['Acura'], '19U 19V JH4 5J8 2HN'],
   [['Hyundai'], 'KM8 KMH 5NP'],
-  [['Hyundai', 'Genesis'], '5NM'], // Alabama builds both
+  [['Hyundai', 'Genesis'], '5NM KMH'], // Alabama builds both; KMH also covers the Genesis G80 / G90 sedans
   [['Genesis'], 'KMT KMU KMG'],
-  [['Kia'], 'KND KNA KNM 3KP'],
-  [['Kia', 'Hyundai'], '5XY'],
+  [['Kia'], 'KND KNA 3KP'],
+  [['Kia', 'Hyundai'], '5XY 3KP KND'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
+  [['Nissan'], 'KNM'], // Renault Samsung Busan, builds the Nissan Rogue (NOT a Kia range)
   [['Nissan', 'Infiniti'], '1N4 1N6 3N1 3N6 5N1 5N3 JN1 JN8'],
   [['Infiniti'], 'JNK JNR 3PC'],
   [['Mazda'], 'JM1 JM3 JM7 3MD 3MZ'],
   [['Mitsubishi'], 'JA3 JA4 JA7 4A3 4A4 ML3'],
+  [['Mitsubishi', 'Nissan'], 'JA4'], // the Mitsubishi-built Nissan Rogue Plug-In Hybrid
   [['Volkswagen'], '1VW 3VW 3VV WVW WVG WV1 WV2 1V2'],
   [['Audi'], 'WAU WA1 WUA TRU'],
   [['Porsche'], 'WP0 WP1'],

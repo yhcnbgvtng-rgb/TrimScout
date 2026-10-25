@@ -139,6 +139,32 @@ describe('reconcileMake rules', () => {
   });
 });
 
+// Pairs the 2026-10-24 box2 dry run showed were gaps in the table, not mislabelling: each is a real make the first table version would have rewritten.
+// Keys are the live VIN characters 1-5 (padded with zeros: only characters 1-5 are read).
+describe('real cross-badge ranges the live dry run found', () => {
+  const pad = (k) => k + '0'.repeat(12);
+  const cases = [
+    ['5TDAA', 'Lexus', 'TX 350'], ['5TDAB', 'Lexus', 'TX 500h'], ['JTMAB', 'Subaru', 'Solterra'], ['JTMBG', 'Subaru', 'Trailseeker'],
+    ['KMHGN', 'Genesis', 'G80'], ['KMHG3', 'Genesis', 'G90'], ['3KPC2', 'Hyundai', 'Accent'], ['KNDMC', 'Hyundai', 'Entourage'],
+    ['KNMAT', 'Nissan', 'Rogue'], ['JA4T0', 'Nissan', 'Rogue Plug-In Hybrid'],
+  ];
+  for (const [key, make, model] of cases) {
+    it(`${key} ${model} stays ${make}`, () => {
+      assert.deepEqual(reconcileMake({ make, vin: pad(key), model }), { make, via: 'kept', from: make });
+    });
+  }
+  it('the primary make is unchanged for the same ranges (a Toyota Highlander, a Kia Rio, a Mitsubishi Outlander)', () => {
+    assert.equal(reconcileMake({ make: 'Toyota', vin: pad('5TDKK') }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Kia', vin: pad('3KPA2') }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Mitsubishi', vin: pad('JA4J3') }).via, 'kept');
+  });
+  it('a real mislabel on a shared range gives null (only a vPIC decode can pick), on a single-make range the make', () => {
+    assert.deepEqual(reconcileMake({ make: 'GMC', vin: pad('5TDAA') }), { make: null, via: 'conflict-unresolved', from: 'GMC' });
+    assert.equal(reconcileMake({ make: 'GMC', vin: pad('5TDAA'), vpicMake: 'LEXUS' }).make, 'Lexus');
+    assert.equal(reconcileMake({ make: 'Nissan', vin: pad('KNAPN') }).make, 'Kia');
+  });
+});
+
 describe('the crawler no longer asserts the roster brand as a make', () => {
   const src = fs.readFileSync(fileURLToPath(new URL('../src/standalone.js', import.meta.url)), 'utf8');
   it('neither extraction strategy falls back to dealer.make / brand.name for the vehicle make', () => {
