@@ -58,6 +58,7 @@ import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
+import { paidCatalogRows } from "./paidCatalogFilter.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -3523,7 +3524,7 @@ async function handleInventoryCatalogOptions(req, res, params) {
       return {
         // Cleaned and capped for the buyer's checklist — see buyerOptionCatalog. In allowlist mode,
         // a make with an allowlist shows only options it vouches for; one without falls back.
-        options: buyerOptionCatalog(optionRows, {
+        options: buyerOptionCatalog(PAID_ONLY ? paidCatalogRows(optionRows) : optionRows, {
           gate: OPTION_CATALOG_MODE === "allowlist" && hasAllowlistFor(OPTION_ALLOWLIST, make),
           resolve: (key) => resolveAllowlisted(OPTION_ALLOWLIST, make, key),
         }),
