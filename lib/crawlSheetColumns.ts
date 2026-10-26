@@ -166,10 +166,20 @@ export const VEHICLE_SHEET_COLUMNS: Array<{ key: keyof VehicleRow; label: string
   { key: "sourceBox", label: "Box" },
 ];
 
+const ET_STAMP = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+/** "2026-10-22 06:28 ET": a crawl sighting (first or last seen) as an Eastern date and time. An unparseable value is shown as it came. */
+export function lastSeenET(iso: string): string {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return iso;
+  const p = Object.fromEntries(ET_STAMP.formatToParts(t).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute} ET`;
+}
+
 export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {
   const v = row[key];
   if (v == null) return "";
-  if ((key === "firstSeenAt" || key === "lastSeenAt" || key === "removedAt" || key === "crawlFirstSeen") && typeof v === "string") return v.slice(0, 10);
+  if ((key === "firstSeenAt" || key === "lastSeenAt") && typeof v === "string") return lastSeenET(v);
+  if ((key === "removedAt" || key === "crawlFirstSeen") && typeof v === "string") return v.slice(0, 10);
   if (key === "options" && Array.isArray(v)) return v.map((o) => (o as { name: string | null }).name || (o as { code: string | null }).code || "").filter(Boolean).join("; ");
   if (key === "priceHistory" && Array.isArray(v)) return v.map((h) => `${(h as { date: string }).date}:${(h as { price: number }).price}`).join("; ");
   if (key === "changeType" && typeof v === "string") return ({ NEW_ARRIVAL: "New arrival", SOLD: "Sold", PRICE_CHANGE: "Price change", UNCHANGED: "" } as Record<string, string>)[v] ?? v;

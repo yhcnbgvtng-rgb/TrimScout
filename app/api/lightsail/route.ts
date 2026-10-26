@@ -10,6 +10,7 @@ import {
 import { requireAdminSession } from "@/lib/adminAuth";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { withoutSeenDates } from "@/lib/seenDates";
 import { fullPageSize, hasDumpSecret, publicVehicleWindow, type LightsailAccess } from "@/lib/lightsailAccess";
 
 export const dynamic = "force-dynamic";
@@ -376,6 +377,7 @@ function legacyStats(filtered: LegacyVehicle[]) {
 
 async function handleVehiclesAction(searchParams: URLSearchParams, access: LightsailAccess) {
   const params = paramsFromSearchParams(searchParams);
+  const strip = <T,>(body: T): T => (access === "public" ? withoutSeenDates(body) : body); // crawl dates are admin-only
   if (access === "public") {
     const w = publicVehicleWindow(params);
     if (!w.ok) return NextResponse.json({ error: w.error }, { status: 400 });
@@ -388,7 +390,7 @@ async function handleVehiclesAction(searchParams: URLSearchParams, access: Light
   // Tier 1: new box API (MariaDB-backed, paginated/filtered natively).
   const boxResult = await fetchVehiclesFromBox(params);
   if (boxResult) {
-    return NextResponse.json({ success: true, source: "box_api", ...boxResult });
+    return NextResponse.json(strip({ success: true, source: "box_api", ...boxResult }));
   }
 
   // Tier 2: existing fallback chain, with best-effort filtering/pagination
@@ -403,7 +405,7 @@ async function handleVehiclesAction(searchParams: URLSearchParams, access: Light
   const start = (page - 1) * pageSize;
   const vehicles = sorted.slice(start, start + pageSize);
 
-  return NextResponse.json({
+  return NextResponse.json(strip({
     success: true,
     source: "legacy_fallback",
     vehicles,
@@ -414,7 +416,7 @@ async function handleVehiclesAction(searchParams: URLSearchParams, access: Light
       totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
     },
     stats: legacyStats(filtered),
-  });
+  }));
 }
 
 const LEGACY_FACET_DIMENSIONS: Record<string, keyof LegacyVehicle> = {

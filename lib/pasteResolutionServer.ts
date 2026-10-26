@@ -101,7 +101,7 @@ export async function resolveVehicleDealer(
 ): Promise<Vehicle> {
   const [rows, seen] = await Promise.all([dealerDirectoryOrEmpty(), lookupSighting(vehicle.vin)]);
   // Lot age from our own crawl — the only "how long has it sat" we have when the factory build is missing.
-  if (seen?.daysOnLot != null && !(vehicle.daysOnLot > 0)) vehicle = { ...vehicle, daysOnLot: seen.daysOnLot, lotFirstSeen: seen.firstSeen || undefined };
+  if (seen?.daysOnLot != null && !(vehicle.daysOnLot > 0)) vehicle = { ...vehicle, daysOnLot: seen.daysOnLot };
   // The dealer listing's own trim beats a blank (NHTSA leaves it empty on most Toyotas).
   if (!trustedTrim(vehicle.trim) && seen?.trim) vehicle = { ...vehicle, trim: seen.trim };
   const sightingRow = (): (typeof rows)[number] | null => {

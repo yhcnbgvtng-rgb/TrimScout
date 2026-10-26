@@ -54,3 +54,13 @@ turning it on.
 - "Weather Package" is treated as a port-installed accessory bundle and dropped unless the feed says `kind:"factory"`. Basis: it is absent from Mazda's own 2026-27 build data in this repo (`mazda-2026-2027.json` and `mazda_lineup_options_by_trim.csv` list no such package), and its dry-run price spread ($150-$390) is regional, not a fixed MSRP. Not checked against Mazda's site (no live requests); if a factory Weather Package turns out to exist for older years, the `kind:"factory"` escape already keeps it.
 - Paint: "X Paint", "X Paint Charge", "X Metallic", "X Premium Paint Charge" become one row "X Paint" (the word Metallic/Premium is dropped from the label, Pearl/Mica kept) with the car's highest price for that colour. "&" and "and" are the same.
 - Model names are written without the make ("Mazda CX-5" -> "CX-5") by the sync, and the price backfill looks policies up with the same name. Rows already stored with the old spelling are NOT rewritten by this change.
+
+## Accessories and subscriptions (2026-10-26, code only)
+Live check of `/api/catalog/options?make=Hyundai&model=Tucson&trim=SEL` returned `{key,label,vehicleCount}` only: no price, and Carpeted Floor Mats, Cargo Net/Tray/Cover,
+First Aid Kit, Front and Rear Mudguards, Wheel Locks, SiriusXM and the AM/FM/HD radio in the top rows. The price lives in `dealer_inventory.options_json` (and, once
+`OPTIONS_PAID_ONLY` is installed and backfilled, in `dealer_inventory_options.price`); the live box has neither yet, so it still serves the heuristic list.
+The `price > 0` rule alone is not enough: an accessory or SiriusXM row can carry a price. `paidCatalogFilter.js` (flag on only) also drops accessory and subscription
+labels, on the raw facet rows before the 400-row/`CATALOG_MAX_OPTIONS` cap. Patcher: `scripts/box/2026-10-26-paid-catalog-filter.mjs` (needs the 2026-10-19 patcher first;
+dry run by default, `.bak` per file, no restart, flag stays off). Read-only probe: `scripts/box/2026-10-26-paid-options-probe.mjs --make=Hyundai --model=Tucson --trim=SEL`.
+The live-query fallback (only used before the first facet rebuild) is not filtered.
+Web: with the flag on, an option with no paid price never lists; each row reads "Label · $1,200" (or a range) with the live car count on the right. Order is most cars first.

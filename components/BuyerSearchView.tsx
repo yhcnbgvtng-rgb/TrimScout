@@ -11,7 +11,6 @@ import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPi
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
 import { contactFilterEnabled } from "@/lib/contactFilterFlag";
-import { lastSeenLabel } from "@/lib/lastConfirmed";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
@@ -39,8 +38,8 @@ interface BuyerVehicle {
   priceDiff: number | null;
   distanceMiles: number | null;
   dealerHasContact?: boolean | null;
-  /** Last night the crawl saw this car; shown as "Last confirmed <date>" once 48+ hours old. */
-  lastConfirmedAt?: string | null;
+  /** False when the car is too long unconfirmed to quote; the checkbox is disabled. */
+  rfqEligible?: boolean;
 }
 
 interface SearchResults {
@@ -631,6 +630,8 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                         <input
                           type="checkbox"
                           checked={picked.has(key)}
+                          disabled={v.rfqEligible === false && !picked.has(key)}
+                          title={v.rfqEligible === false && !picked.has(key) ? "Not available for a quote request right now" : undefined}
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
                           aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
@@ -644,11 +645,6 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                             <span className="truncate text-ink-faint">No link</span>
                           )}
                           {isViewed && <span className="shrink-0 text-[10.5px] text-ink-faint">Viewed</span>}
-                        </span>
-                      ) : c.key === "dealer" ? (
-                        <span className="flex min-w-0 items-baseline gap-1.5">
-                          <span className="truncate">{text}</span>
-                          {(() => { const seen = lastSeenLabel(v.lastConfirmedAt); return seen ? <span className="shrink-0 text-[10px] font-normal text-ink-faint">{seen}</span> : null; })()}
                         </span>
                       ) : (
                         <span className="truncate">{text}</span>

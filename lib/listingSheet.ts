@@ -41,8 +41,6 @@ export interface ShopperListingSheet {
   priceHistory: ShopperPriceHistoryEntry[];
   daysOnMarket: number | null;
   daysOnMarketActive: number | null;
-  firstSeen: string | null;
-  lastSeen: string | null;
   stockNumber: string | null;
   inventoryType: string | null;
   exteriorColor: string | null;
@@ -87,8 +85,6 @@ function emptySheet(vin: string, note: string): ShopperListingSheet {
     priceHistory: [],
     daysOnMarket: null,
     daysOnMarketActive: null,
-    firstSeen: null,
-    lastSeen: null,
     stockNumber: null,
     inventoryType: null,
     exteriorColor: null,
@@ -348,12 +344,6 @@ export function shopperSheetFromMarketCheckPayloads(opts: {
       : typeof extra?.in_transit === "boolean"
         ? (extra.in_transit as boolean)
         : null;
-  const firstSeen =
-    formatSeenAt(row.first_seen_at_date) ||
-    formatSeenAt(row.first_seen_at) ||
-    formatSeenAt(row.scraped_at_date);
-  const lastSeen =
-    formatSeenAt(row.last_seen_at_date) || formatSeenAt(row.last_seen_at) || formatSeenAt(row.scraped_at);
 
   const sheet: ShopperListingSheet = {
     vin,
@@ -365,8 +355,6 @@ export function shopperSheetFromMarketCheckPayloads(opts: {
     priceHistory: mapShopperPriceHistory(opts.history, opts.listingDetail),
     daysOnMarket: asNonNegativeInt(row.dom),
     daysOnMarketActive: asNonNegativeInt(row.dom_active),
-    firstSeen,
-    lastSeen,
     stockNumber: asTrimmed(row.stock_no) || asTrimmed(row.stock),
     inventoryType,
     // A Porsche feed says "0q0q" where a shopper needs "White".
@@ -550,8 +538,6 @@ export function publicListingSheets(sheets: ShopperListingSheet[]): ShopperListi
     priceHistory: publicPriceHistory(sheet.priceHistory),
     daysOnMarket: sheet.daysOnMarket,
     daysOnMarketActive: sheet.daysOnMarketActive,
-    firstSeen: sheet.firstSeen,
-    lastSeen: sheet.lastSeen,
     stockNumber: sheet.stockNumber,
     inventoryType: sheet.inventoryType,
     exteriorColor: sheet.exteriorColor,

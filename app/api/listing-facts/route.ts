@@ -53,8 +53,6 @@ export async function POST(request: Request) {
           priceHistory: [],
           daysOnMarket: null,
           daysOnMarketActive: null,
-          firstSeen: null,
-          lastSeen: null,
           stockNumber: null,
           inventoryType: null,
           exteriorColor: null,

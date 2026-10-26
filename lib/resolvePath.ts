@@ -65,7 +65,7 @@ export function logResolve(entry: ResolveLogEntry): void {
  * sticker was read (nothing to explain) or the car is pre-owned (no
  * factory build is expected).
  */
-export function factoryBuildStateLine(vehicle: Pick<Vehicle, "buildConfidence" | "condition" | "daysOnLot" | "lotFirstSeen" | "stickerPendingNote" | "stickerUnavailableReason"> | null | undefined): string | null {
+export function factoryBuildStateLine(vehicle: Pick<Vehicle, "buildConfidence" | "condition" | "daysOnLot" | "stickerPendingNote" | "stickerUnavailableReason"> | null | undefined): string | null {
   if (!vehicle) return null;
   if (vehicle.condition === "used" || vehicle.condition === "cpo") return null;
   if (vehicle.buildConfidence !== "dealer_listing_only") return null;
@@ -75,9 +75,8 @@ export function factoryBuildStateLine(vehicle: Pick<Vehicle, "buildConfidence" |
   return age ? `${head} · ${age}` : head;
 }
 
-export function lotAgeHint(vehicle: Pick<Vehicle, "daysOnLot" | "lotFirstSeen">): string | null {
+export function lotAgeHint(vehicle: Pick<Vehicle, "daysOnLot">): string | null {
   const days = vehicle.daysOnLot;
   if (typeof days === "number" && days > 0) return `on the lot ${days} day${days === 1 ? "" : "s"}`;
-  if (vehicle.lotFirstSeen) return `on the lot since ${vehicle.lotFirstSeen}`;
   return null;
 }

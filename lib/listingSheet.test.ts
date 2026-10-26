@@ -117,8 +117,7 @@ describe("listing sheet mapping", () => {
     ]);
     assert.equal(sheet.daysOnMarket, 40);
     assert.equal(sheet.daysOnMarketActive, 18);
-    assert.equal(sheet.firstSeen, "2026-03-01");
-    assert.equal(sheet.lastSeen, "2026-08-20");
+    assert.equal("firstSeen" in sheet || "lastSeen" in sheet, false, "crawl dates are not part of the sheet");
     assert.equal(sheet.stockNumber, "T26012");
     assert.equal(sheet.inventoryType, "new");
     assert.equal(sheet.exteriorColor, "Star White");

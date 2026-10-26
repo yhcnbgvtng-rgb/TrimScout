@@ -210,7 +210,9 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   // ---- chip groups (counts come from the catalog-facets data the page already loads; zero-count chips are dropped by FacetChips) ----
   const toChips = (opts: DropdownOption[]): Chip[] => opts.map((o) => ({ value: o.value, label: o.label, count: o.count }));
   const toggleOne = (key: "state" | "cond" | "exteriorColor", value: string) => setFilters((f) => ({ ...f, [key]: f[key] === value ? "" : value }));
-  const optionChips: Chip[] = p.catalogOptions.map((o) => ({
+  // Paid-only: a row with no paid price never lists (the endpoint already drops them; this keeps an older endpoint from showing a bare, unpriced chip).
+  const listedOptions = paidOnly ? p.catalogOptions.filter((o) => optionPriceText(o.minPrice, o.maxPrice)) : p.catalogOptions;
+  const optionChips: Chip[] = listedOptions.map((o) => ({
     value: o.key, label: o.label, count: o.vehicleCount,
     detail: paidOnly ? optionPriceText(o.minPrice, o.maxPrice, true) || undefined : undefined, // flag off, or no paid price in the data: no price slot
   }));
