@@ -1,0 +1,1711 @@
+Toyota RAV4 XLE: 3000 cars read (limit 3000), 7093 distinct labels
+
+cars  paid  min-max            kinds            verdict                    label
+ 538   334  $1265-$2370        factory,dealer   KEEP                       Convenience Package
+ 465     0  -                  dealer,factory   drop: never priced         Fabric Seat Trim
+ 312     0  -                  dealer,factory   drop: never priced         Front Seat Heating
+ 304     0  -                  factory,dealer   drop: never priced         Clean CARFAX
+ 299     0  -                  dealer,factory   drop: never priced         3 Spoke Leather Heated Steering Wheel
+ 294     0  -                  factory,dealer   drop: never priced         Tilt & Slide Moon Roof
+ 276     0  -                  dealer,factory   drop: never priced         Radio: AM/FM/XM Audio System
+ 251     0  -                  factory,dealer   drop: never priced         Wheels: 17 5-Spoke Silver Alloy
+ 233   168  $925               dealer,factory   KEEP                       Weather Package
+ 232     0  -                  dealer,factory   drop: never priced         Front Door Smart Key System w/Push Button Start
+ 226     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i
+ 224     0  -                  factory,dealer   drop: never priced         CARFAX One-Owner
+ 204     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor
+ 203     0  -                  dealer,factory   drop: never priced         and Wheels: 17 5-Spoke Silver Alloy
+ 184     0  -                  dealer,factory   drop: never priced         Axle Ratio: 3
+ 184     0  -                  dealer,factory   drop: never priced         177
+ 166     0  -                  dealer,factory   drop: never priced         Electronic Stability Control and traction control
+ 152     0  -                  dealer,factory   drop: never priced         BACKUP CAMERA
+ 135     0  -                  dealer,factory   drop: never priced         Onboard Communications System
+ 131     0  -                  dealer,factory   drop: never priced         Power moonroof
+ 122     0  -                  dealer,factory   drop: never priced         Horsepower calculations based on trim engine configuration
+ 120   106  $129-$155          dealer,factory   drop: accessory/subscr.    Mudguards
+ 115     0  -                  dealer,factory   drop: never priced         Automatic temperature control with front dual zone A/C
+ 113     0  -                  dealer,factory   drop: never priced         Warranty honored at over 1
+ 110     0  -                  dealer,factory   drop: never priced         27/33 City/Highway MPG
+ 110     0  -                  dealer,factory   drop: never priced         Lane Keeping Assist
+ 105     0  -                  dealer,factory   drop: never priced         17 Silver Alloy Wheels
+ 105     0  -                  dealer,factory   drop: never priced         Aluminum Wheels
+ 104     0  -                  dealer,factory   drop: never priced         Certified
+ 103     0  -                  dealer,factory   drop: never priced         Front fog lights
+ 102    92  $239-$269          factory,dealer   drop: accessory/subscr.    All Weather Liner Package
+ 102     0  -                  factory,dealer   drop: never priced         All Weather Floor Liners
+ 102     0  -                  dealer,factory   drop: never priced         CARFAX 1-Owner
+ 102     0  -                  factory,dealer   drop: never priced         com
+  97     0  -                  dealer,factory   drop: never priced         Variable Intermittent Wipers
+  96     0  -                  dealer,factory   drop: never priced         * Transferable Warranty
+  96     0  -                  dealer,factory   drop: never priced         * Vehicle History
+  96     0  -                  dealer,factory   drop: never priced         Bluetooth® connectivity
+  95     0  -                  dealer,factory   drop: never priced         Standard New-Car Financing Rates Available
+  94     0  -                  dealer,factory   drop: never priced         000 Mile Limited Comprehensive Warranty: 12 Month/12
+  94     0  -                  dealer,factory   drop: never priced         Towing Equipment -inc: Trailer Sway Control
+  93     0  -                  factory,dealer   drop: never priced         Ash Cloth
+  93     0  -                  dealer,factory   drop: never priced         000 Mile
+  93     0  -                  dealer,factory   drop: never priced         * Warranty Deductible: $0
+  93     0  -                  dealer,factory   drop: never priced         Hands-on cruise control
+  93     0  -                  dealer,factory   drop: never priced         Cruise control only managed speed
+  93     0  -                  dealer,factory   drop: never priced         but not distance or safety
+  93     0  -                  dealer,factory   drop: never priced         Now
+  93     0  -                  dealer,factory   drop: never priced         with hands-on cruise control
+  93     0  -                  dealer,factory   drop: never priced         Meet your ultimate co-pilot with hands-on cruise control
+  92     0  -                  factory,dealer   drop: never priced         Awards:
+  92     0  -                  dealer,factory   drop: never priced         17-inch alloy wheels
+  91     0  -                  dealer,factory   drop: never priced         000 Mile (whichever comes first) from TCUV purchase date
+  90     0  -                  dealer,factory   drop: never priced         * Powertrain Limited Warranty: 84 Month/100
+  90     0  -                  dealer,factory   drop: never priced         * Limited Warranty: 12 Month/12
+  89     0  -                  dealer,factory   drop: never priced         Strut Front Suspension w/Coil Springs
+  89     0  -                  dealer,factory   drop: never priced         Pedestrians don't always stop
+  89     0  -                  dealer,factory   drop: never priced         look
+  89     0  -                  dealer,factory   drop: never priced         and listen
+  89     0  -                  dealer,factory   drop: never priced         but with Pedestrian Impact Prevention
+  89     0  -                  dealer,factory   drop: never priced         your vehicle is equipped to better see them and avoid them
+  89     0  -                  dealer,factory   drop: never priced         It projects that image to an interior display screen
+  89     0  -                  dealer,factory   drop: never priced         AND should an impact become likely
+  88     0  -                  dealer,factory   drop: never priced         Rain Sensing Front Wipers
+  88     0  -                  dealer,factory   drop: never priced         Apple CarPlay/Android Auto
+  87     0  -                  dealer,factory   drop: never priced         Trade-ins accepted
+  86     0  -                  dealer,factory   drop: never priced         Cross-Traffic Alert
+  86     0  -                  dealer,factory   drop: never priced         Dual-Zone Automatic Climate Control
+  85    29  $229-$315          factory,dealer   drop: accessory/subscr.    Roof Rack Cross Bars
+  85     0  -                  factory,dealer   drop: never priced         XLE
+  84     0  -                  dealer,factory   drop: never priced         Smart Device Integration
+  84     0  -                  dealer,factory   drop: never priced         17 alloy wheels
+  82     0  -                  dealer,factory   drop: never priced         400 Toyota dealers in the continental U
+  82     0  -                  dealer,factory   drop: never priced         Black w/Fabric Seat Trim
+  82     0  -                  dealer,factory   drop: never priced         XLE trim
+  81     0  -                  dealer,factory   drop: never priced         & Canada
+  80     0  -                  dealer,factory   drop: never priced         Trouble-free handling of your transaction
+  80     0  -                  factory,dealer   drop: never priced         27/35 City/Highway MPG
+  80     0  -                  dealer,factory   drop: never priced         One Owner
+  80     0  -                  dealer,factory   drop: never priced         Roof rack: rails only
+  79     0  -                  factory,dealer   drop: never priced         Front Door Smart Key System with Push Button Start
+  79     0  -                  dealer,factory   drop: never priced         Dual Zone A/C
+  79     0  -                  dealer,factory   drop: never priced         Transmission: 8-Speed Automatic
+  79     0  -                  dealer,factory   drop: never priced         Transmission w/Driver Selectable Mode
+  79     0  -                  dealer,factory   drop: never priced         Sequential Shift Control and Oil Cooler
+  79     0  -                  factory,dealer   drop: never priced         Steering Wheel Controls
+  78     0  -                  dealer,factory   drop: never priced         Tires: 225/65R17 AS
+  77     0  -                  dealer,factory   drop: never priced         Toyota Gold Certified Details:
+  75     0  -                  dealer,factory   drop: never priced         including DMV paperwork
+  74     0  -                  dealer,factory   drop: never priced         17-inch silver alloy wheels
+  73    59  $925               dealer,factory   KEEP                       XLE Grade Weather Package
+  72     0  -                  dealer,factory   drop: never priced         5 L/152 engine powering this Automatic transmission
+  72     0  -                  dealer,factory   drop: never priced         Clock
+  72     0  -                  dealer,factory   drop: never priced         Speed Compensated Volume Control
+  72     1  $449               factory,dealer   drop: accessory/subscr.    SiriusXM satellite radio
+  72     0  -                  factory,dealer   drop: never priced         please call to check on the availability of this vehicle
+  72     0  -                  factory,dealer   drop: never priced         tag and fees
+  72     0  -                  factory,dealer   drop: never priced         Shop 24/7 @ www
+  72     0  -                  factory,dealer   drop: never priced         LakelandToyota
+  69     0  -                  factory,dealer   drop: never priced         Tracker System
+  68     0  -                  factory,dealer   drop: never priced         com 10 Best SUVs Under $25
+  68     0  -                  dealer,factory   drop: never priced         Tailgate/Rear Door Lock Included w/Power Door Locks
+  68     0  -                  dealer,factory   drop: never priced         Power Driver Seat with Telescoping Steering Wheel
+  67     0  -                  factory,dealer   drop: never priced         8-Speed Automatic Transmission
+  67     0  -                  dealer,factory   drop: never priced         Keyless Start
+  67     0  -                  dealer,factory   drop: never priced         Urethane Gear Shifter Material
+  67    58  $90                dealer,factory   drop: accessory/subscr.    Tonneau Cover
+  65     8  $190               factory,dealer   drop: accessory/subscr.    Roof Rails
+  62     0  -                  dealer,factory   drop: never priced         WiFi Hotspot
+  60     0  -                  dealer,factory   drop: never priced         Privacy Glass
+  60     0  -                  factory,dealer   drop: never priced         **FULLY SERVICED BY A FACTORY TRAINED TECHNICIAN
+  60     0  -                  factory,dealer   drop: never priced         **SERVICE RECORDS AVAILLABLE
+  59     0  -                  factory,dealer   drop: never priced         Rear Backup Camera
+  59     0  -                  dealer,factory   drop: never priced         Pedestrian impact prevention - An extra step toward safety
+  59     0  -                  factory,dealer   drop: never priced         000 mile warranty
+  58     0  -                  dealer,factory   drop: never priced         No Accidents!
+  57     0  -                  dealer,factory   drop: never priced         Front Vented Discs
+  57     0  -                  dealer,factory   drop: never priced         tag
+  56     0  -                  dealer,factory   drop: never priced         AM/FM Stereo
+  56     0  -                  dealer,factory   drop: never priced         license
+  55     0  -                  factory,dealer   drop: never priced         Cargo Tray
+  55     0  -                  dealer,factory   drop: never priced         5 Gal
+  55     0  -                  dealer,factory   drop: never priced         Inside
+  55     0  -                  factory,dealer   drop: never priced         Magnetic Gray Metallic
+  55     0  -                  dealer,factory   drop: never priced         colors
+  54     0  -                  factory,dealer   drop: never priced         Toyota Safety Connect emergency communication system
+  54     0  -                  factory,dealer   drop: never priced         Voice Activation
+  54     0  -                  dealer,factory   drop: never priced         One Owner!
+  54     0  -                  factory,dealer   drop: never priced         **CLEAN HISTORY REPORT
+  54     0  -                  factory,dealer   drop: never priced         **ONE OWNER
+  54     0  -                  factory,dealer   drop: never priced         **REMAINDER OF THE FACTORY WARRANTY
+  54     0  -                  factory,dealer   drop: never priced         Powertrain coverage
+  54     0  -                  factory,dealer   drop: never priced         Must have fewer than 100
+  54     0  -                  factory,dealer   drop: never priced         000 miles or be less than nine years old
+  54     0  -                  factory,dealer   drop: never priced         One-year membership for the Road America Auto Assist Program
+  53     0  -                  factory,dealer   drop: never priced         Aux Audio Input Jack
+  51    43  $125-$140          dealer,factory   drop: accessory/subscr.    Door Edge Guards
+  51     0  -                  dealer,factory   drop: never priced         Child Safety Locks
+  50     0  -                  dealer,factory   drop: never priced         12-month/12
+  50     0  -                  factory,dealer   drop: never priced         Streaming Audio
+  49     0  -                  dealer,factory   drop: never priced         remote keyless entry and power liftgate w/jam protection
+  49    46  $500               dealer,factory   KEEP                       Front & Back Clearance Sonar
+  47     0  -                  factory,dealer   drop: never priced         Tilt and Slide Moon Roof
+  47     0  -                  dealer,factory   drop: never priced         Steel Spare Wheel
+  46     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i AWD
+  46     0  -                  factory,dealer   drop: never priced         Incentives
+  45     0  -                  dealer,factory   drop: never priced         Brake Actuated Limited Slip Differential
+  45     0  -                  dealer,factory   drop: never priced         Rear Spoiler
+  45    40  $65                dealer,factory   drop: accessory/subscr.    Alloy Wheel Locks
+  45     0  -                  dealer,factory   drop: never priced         4-Wheel ABS
+  44     0  -                  factory,dealer   drop: never priced         000
+  44     0  -                  dealer,factory   drop: never priced         When it senses an impending impact
+  44     0  -                  dealer,factory   drop: never priced         Forward collision mitigation is always looking ahead
+  44     0  -                  dealer,factory   drop: never priced         EXCELLENT SAFETY FOR YOUR FAMILY
+  43     0  -                  dealer           drop: never priced         You can connect with us by calling 585-533-7985
+  42     0  -                  dealer,factory   drop: never priced         Door Edge Guard (TMS)
+  42     0  -                  dealer,factory   drop: never priced         Roof Rack Cross Bars (TMS)
+  42     0  -                  factory,dealer   drop: never priced         Smart Key System
+  42     0  -                  dealer,factory   drop: never priced         without eating up your data allowance
+  42     0  -                  dealer,factory   drop: never priced         Find the hotspot with mobile hotspot
+  42     0  -                  factory,dealer   drop: never priced         Automatic temperature control with dual front zone A/C
+  42     0  -                  dealer,factory   drop: never priced         Tire Pressure Monitoring System
+  41     0  -                  dealer,factory   drop: never priced         Power Driver Seat and Power Steering
+  41     0  -                  dealer,factory   drop: never priced         lane departure alert with steering assist
+  41     0  -                  dealer,factory   drop: never priced         Front Dual Zone Automatic Climate Control
+  41     0  -                  dealer           drop: never priced         specifications
+  40     0  -                  dealer,factory   drop: never priced         8-Way Power-Adjustable Driver's Seat w/Lumbar Support
+  40     0  -                  dealer,factory   drop: never priced         000 miles
+  38     0  -                  factory,dealer   drop: never priced         If the system determines a likely impact
+  38     0  -                  factory,dealer   drop: never priced         lane tracing assist
+  37     3  $100               dealer,factory   drop: accessory/subscr.    Cargo Liner
+  37     0  -                  dealer,factory   drop: never priced         All Weather Floor Liners & Cargo Liner (TMS)
+  37     0  -                  dealer,factory   drop: never priced         Adaptive Cruise Control
+  36     0  -                  factory,dealer   drop: never priced         Heated Power Door Mirrors
+  36     0  -                  factory,dealer   drop: never priced         Toyota Safety Sense 2
+  36     0  -                  dealer,factory   drop: never priced         Height Adjusters and PretensionersBack-Up Camera
+  36     0  -                  dealer,factory   drop: never priced         Rear Parking Camera
+  36     0  -                  dealer,factory   drop: never priced         This 2025 Toyota RAV4 XLE
+  36     0  -                  dealer,factory   drop: never priced         registration
+  35     0  -                  dealer,factory   drop: never priced         Recent Arrival!
+  35     0  -                  factory,dealer   drop: never priced         Plus
+  35     0  -                  factory,dealer   drop: never priced         Back Up Camera
+  35     0  -                  dealer,factory   drop: never priced         995
+  35     0  -                  factory,dealer   drop: never priced         We offer Market Based Pricing
+  34     0  -                  dealer,factory   drop: never priced         Source: Edmunds
+  34     0  -                  factory,dealer   drop: never priced         17 5-Spoke Silver Alloy Wheels
+  34     0  -                  dealer,factory   drop: never priced         Side Impact Beams
+  34     0  -                  dealer,factory   drop: never priced         Rear Child Safety Locks
+  34     0  -                  dealer,factory   drop: never priced         com 10 Best SUVs Under $30
+  34     0  -                  factory,dealer   drop: never priced         Power driver seat and telescoping steering wheel
+  34     0  -                  dealer,factory   drop: never priced         options
+  34     8  $675               dealer,factory   KEEP                       Radio: Entune Display Audio
+  33     0  -                  dealer,factory   drop: never priced         Radio w/Seek-Scan
+  33     0  -                  dealer,factory   drop: never priced         Mudguards (TMS)
+  33     0  -                  dealer,factory   drop: never priced         SHOP WITH CONFIDENCE
+  33     0  -                  factory,dealer   drop: never priced         Pre-Collision System with Pedestrian Detection
+  32     0  -                  dealer,factory   drop: never priced         Heated power door mirrors with turn signal indicators
+  32     0  -                  dealer,factory   drop: never priced         SiriusXM AM/FM Audio System with Steering Wheel Controls
+  32     0  -                  dealer,factory   drop: never priced         Reviews:
+  32     0  -                  dealer,factory   drop: never priced         Seats w/Cloth Back Material
+  32     0  -                  dealer,factory   drop: never priced         Rear Cupholder
+  32     0  -                  dealer,factory   drop: never priced         Automatic High Beams
+  32     0  -                  factory,dealer   drop: never priced         Automatic temperature control with dual front zones
+  31     0  -                  dealer,factory   drop: never priced         Roll-Up Cargo Cover
+  31     0  -                  dealer,factory   drop: never priced         Rear Cross-Traffic Alert (RCTA)
+  31     0  -                  factory,dealer   drop: never priced         50 STATE EMISSIONS
+  31     0  -                  factory,dealer   drop: never priced         Rear Backup Camera w/Monitor
+  31     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto integration
+  31     0  -                  dealer,factory   drop: never priced         BUY WITH CONFIDENCE
+  30     0  -                  dealer,factory   drop: never priced         Front dual zone automatic temperature control
+  30     0  -                  dealer,factory   drop: never priced         com Best Resale Value Awards
+  30     0  -                  factory,dealer   drop: never priced         MIDNIGHT BLACK METALLIC
+  30    15  $610-$800          factory,dealer   KEEP                       Plus Extra Value Package
+  30     0  -                  dealer,factory   drop: never priced         Lane departure prevention - Keep it between the lines
+  30     0  -                  dealer,factory   drop: never priced         With lane departure prevention
+  30     0  -                  dealer,factory   drop: never priced         Technology and Telematics Mobile hotspot - WiFi on the fly
+  30     0  -                  factory,dealer   drop: never priced         **LOW MILES
+  30     0  -                  dealer,factory   drop: never priced         Hubler Q Certified
+  30     0  -                  dealer,factory   drop: never priced         Big city deals with a hometown feel
+  30     0  -                  dealer,factory   drop: never priced         Experience the difference
+  30     0  -                  dealer,factory   drop: never priced         Drive Hubler Certified Pre-owned
+  30     0  -                  dealer,factory   drop: never priced         Call 317-743-1700 for more information
+  30     0  -                  dealer,factory   drop: never priced         Pricing analysis performed on 10/13/2026
+  29     0  -                  factory,dealer   drop: never priced         Powertrain Limited Warranty: 84 Month/100
+  29     0  -                  dealer,factory   drop: never priced         EXCELLENT CONDITION
+  29     0  -                  factory,dealer   drop: never priced         vehicle history
+  28     0  -                  dealer,factory   drop: never priced         $0 warranty deductible
+  28     0  -                  factory,dealer   drop: never priced         Active Cruise Control
+  28     0  -                  dealer,factory   drop: never priced         comfort
+  28     0  -                  dealer,factory   drop: never priced         blind spot monitoring
+  28     0  -                  dealer,factory   drop: never priced         Power Driver's Seat
+  28     0  -                  dealer,factory   drop: never priced         Recent Arrival! 27/33 City/Highway MPG
+  28     0  -                  factory,dealer   drop: never priced         Recent Arrival! AWD
+  28     0  -                  factory,dealer   drop: never priced         Limited Warranty: 12 Month/12
+  28    28  $225               dealer           drop: accessory/subscr.    Carpet Floor Mats & Carpet Cargo Mat
+  28     0  -                  factory,dealer   drop: never priced         www
+  28     0  -                  dealer,factory   drop: never priced         Power Liftgate
+  28     0  -                  factory,dealer   drop: never priced         Dynamic Radar Cruise Control
+  28     0  -                  dealer           drop: never priced         INCLUDES PREPAID MAINTENANCE
+  28     0  -                  dealer           drop: never priced         May not represent actual vehicle (Options
+  28     0  -                  dealer           drop: never priced         trim and body style may vary)
+  28     0  -                  dealer           drop: never priced         Vehicles may have different accessories than seen in photos
+  28     0  -                  dealer           drop: never priced         Excludes tax
+  28     0  -                  dealer           drop: never priced         title and registration
+  28     0  -                  dealer           drop: never priced         Dealer is not responsible for typographic errors
+  28     0  -                  dealer           drop: never priced         Prior sales excluded
+  28     0  -                  dealer,factory   drop: never priced         We'll buy your vehicle
+  27     0  -                  factory,dealer   drop: never priced         All-Weather Floor Liners & Cargo Liner
+  27     0  -                  dealer,factory   drop: never priced         84-month/100
+  27     0  -                  dealer,factory   drop: never priced         Emergency communication system: Entune Safety Connect
+  27     3  $400               dealer,factory   KEEP                       Height-Adjustable Power Liftgate
+  27     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Black Cloth
+  27     0  -                  factory,dealer   drop: never priced         Radio Data System and External Memory Control
+  27     0  -                  factory,dealer   drop: never priced         SILVER SKY METALLIC
+  27     0  -                  dealer,factory   drop: never priced         Pricing
+  27     0  -                  dealer,factory   drop: never priced         Serviced here
+  26     0  -                  dealer,factory   drop: never priced         7 Year/100
+  26     0  -                  dealer,factory   drop: never priced         Front Sport Seats
+  26     0  -                  dealer,factory   drop: never priced         Wireless Phone Connectivity
+  26     0  -                  dealer,factory   drop: never priced         Toyota Safety Sense (TSS) 2
+  26     0  -                  dealer,factory   drop: never priced         * 2018 KBB
+  26     0  -                  dealer,factory   drop: never priced         Tax
+  26     0  -                  factory,dealer   drop: never priced         ICE CAP
+  26     0  -                  factory,dealer   drop: never priced         Our clientele depend on us for Transparent Pricing
+  26     0  -                  factory,dealer   drop: never priced         Convenience and
+  26     0  -                  factory,dealer   drop: never priced         most importantly
+  26     0  -                  dealer,factory   drop: never priced         com Best Resale Value Awards * 2019 KBB
+  26    21  $1215              dealer,factory   KEEP                       Power Plus Extra Value Package
+  26     0  -                  dealer,factory   drop: never priced         NO ACCIDENTS
+  25     0  -                  factory,dealer   drop: never priced         Fully automatic headlights with delay-off function
+  25     0  -                  dealer,factory   drop: never priced         This Toyota RAV4 Features the Following Options
+  25     0  -                  dealer,factory   drop: never priced         Lane Departure Warning
+  25     0  -                  dealer,factory   drop: never priced         Rear Exterior Parking Camera
+  25     0  -                  dealer,factory   drop: never priced         trucks
+  25     0  -                  dealer,factory   drop: never priced         Toyota Safety Sense
+  24     0  -                  dealer,factory   drop: never priced         Standard EquipmentMECHANICALAxle Ratio: 3
+  24     0  -                  dealer,factory   drop: never priced         hands-free phone capability
+  24     0  -                  dealer,factory   drop: never priced         All Weather Floor Liners & Cargo Liner
+  24     0  -                  dealer,factory   drop: never priced         Equipment
+  24     0  -                  dealer,factory   drop: never priced         WEATHER PACKAGE Front Seat Heating
+  24     0  -                  dealer,factory   drop: never priced         5L 4-cylinder engine
+  24     0  -                  factory,dealer   drop: never priced         Sunroof
+  24     0  -                  dealer,factory   drop: never priced         mileage
+  24     0  -                  factory,dealer   drop: never priced         we offer the right cars at the right price
+  24     0  -                  factory,dealer   drop: never priced         and the transparency to back it up!
+  24     0  -                  dealer,factory   drop: never priced         Oakland
+  24     0  -                  factory,dealer   drop: never priced         27/35 City/Highway MPGWe offer Market Based Pricing
+  24     0  -                  dealer,factory   drop: never priced         PURCHASE WITH CONFIDENCE
+  23     0  -                  dealer,factory   drop: never priced         Steering Wheel Audio Controls
+  23     0  -                  factory,dealer   drop: never priced         Blind Spot Monitor (BSM) Blind Spot
+  23     0  -                  factory,dealer   drop: never priced         Pre-Collision System (PCS) w/Intersection Support
+  23     0  -                  factory,dealer   drop: never priced         Full-Speed Range Dynamic Radar Cruise Control (DRCC)
+  23     0  -                  factory,dealer   drop: never priced         steering wheel-mounted audio controls
+  23     0  -                  dealer,factory   drop: never priced         Blueprint
+  23     0  -                  dealer,factory   drop: never priced         availability
+  23     0  -                  dealer,factory   drop: never priced         * 2019 KBB
+  23     0  -                  dealer,factory   drop: never priced         Toyota Gold Certified
+  22     0  -                  dealer,factory   drop: never priced         0J 5-Spoke Superchrome Alloy
+  22     0  -                  dealer,factory   drop: never priced         Ash w/Fabric Seat Trim
+  22     0  -                  factory,dealer   drop: never priced         Rear Carpet Floor Trim
+  22     0  -                  factory,dealer   drop: never priced         000-Mile Limited Comprehensive Warranty
+  22     0  -                  factory,dealer   drop: never priced         Automatic temperature control with front dual-zone A/C
+  22     0  -                  factory,dealer   drop: never priced         Customer FIRST Service!
+  22     0  -                  factory,dealer   drop: never priced         Stability Control
+  22     0  -                  dealer,factory   drop: never priced         Heated Seats
+  22     0  -                  dealer,factory   drop: never priced         BUY FROM AN AWARD WINNING DEALER
+  22     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio with AM/FM audio system
+  22     0  -                  dealer           drop: never priced         Not all customers will qualify for all incentives
+  22     0  -                  dealer,factory   drop: never priced         500 below J
+  22     0  -                  factory,dealer   drop: never priced         Fees
+  21     0  -                  factory,dealer   drop: never priced         Exterior Parking Camera with Rear View
+  21     0  -                  factory,dealer   drop: never priced         17-inch alloy wheels with all-season tires
+  21     0  -                  dealer,factory   drop: never priced         7-year/100
+  21     0  -                  dealer,factory   drop: never priced         177GVWR: 4
+  21     0  -                  dealer,factory   drop: never priced         Led Headlights
+  21     0  -                  dealer,factory   drop: never priced         000 * 2019 KBB
+  21     0  -                  dealer,factory   drop: never priced         Remote Keyless Entry with Illuminated Entry
+  21     0  -                  dealer,factory   drop: never priced         All-weather floor liners and cargo liner
+  21     0  -                  factory,dealer   drop: never priced         Cruise control w/steering wheel controls
+  21     0  -                  factory,dealer   drop: never priced         SLOANE CERTIFIED: This vehicle comes with a 3
+  21     0  -                  factory,dealer   drop: never priced         000 mile/90 day limited comprehensive warranty
+  21     0  -                  factory,dealer   drop: never priced         and passes all State Safety and Emissions requirements
+  21     0  -                  factory,dealer   drop: never priced         000 * 2018 KBB
+  21    14  $209               dealer,factory   drop: accessory/subscr.    Body Side Moldings
+  21     0  -                  dealer           drop: never priced         and registration fees
+  21     0  -                  dealer           drop: never priced         While we strive for accuracy
+  21     0  -                  dealer,factory   drop: never priced         spacious interior
+  21     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Ash Cloth
+  21     0  -                  dealer,factory   drop: never priced         Bluetooth® Hands-Free Connectivity
+  21     0  -                  dealer           drop: never priced         Advertised prices do not include government fees and taxes
+  21     0  -                  dealer           drop: never priced         including tax
+  21     0  -                  dealer           drop: never priced         or any optional products
+  21     0  -                  dealer           drop: never priced         services
+  21     0  -                  dealer           drop: never priced         protection plans
+  21     0  -                  dealer           drop: never priced         accessories
+  21     0  -                  dealer           drop: never priced         or aftermarket items selected by the customer
+  21     0  -                  dealer           drop: never priced         For new vehicles
+  21     0  -                  dealer           drop: never priced         including factory-installed options
+  21     0  -                  dealer           drop: never priced         distributor-installed accessories
+  21     0  -                  dealer           drop: never priced         and applicable handling or delivery charges
+  21     0  -                  dealer           drop: never priced         Vehicle equipment
+  21     0  -                  dealer           drop: never priced         and condition may vary
+  21     0  -                  dealer           drop: never priced         vehicle specifications
+  21     0  -                  dealer           drop: never priced         condition
+  21     0  -                  dealer           drop: never priced         and incentive eligibility before purchase
+  21     0  -                  dealer           drop: never priced         Actual mileage will vary based on driving habits
+  21     0  -                  dealer           drop: never priced         road conditions
+  21     0  -                  dealer           drop: never priced         vehicle condition
+  21     0  -                  dealer           drop: never priced         and other factors
+  21     0  -                  dealer           drop: never priced         or other information displayed on this website
+  21     0  -                  dealer,factory   drop: never priced         EXCELLENT VALUE
+  21     0  -                  factory,dealer   drop: never priced         even if you don't buy ours -Randy Jr All prices plus tax
+  21     0  -                  factory,dealer   drop: never priced         doc & lic
+  20     0  -                  dealer,factory   drop: never priced         Split folding rear seat for flexible cargo space
+  20     0  -                  dealer,factory   drop: never priced         815 Axle Ratio
+  20     0  -                  dealer,factory   drop: never priced         CD player
+  20     0  -                  dealer,factory   drop: never priced         Radio: Entune AM/FM/CD/MP3/WMA Playback w/6 Speakers
+  20     0  -                  dealer,factory   drop: never priced         Just minutes away!
+  20     0  -                  dealer,factory   drop: never priced         com 10 Most Awarded Brands * 2018 KBB
+  20     0  -                  factory,dealer   drop: never priced         Outside temp gauge
+  20     0  -                  factory,dealer   drop: never priced         Body-colored door handles
+  20     0  -                  factory,dealer   drop: never priced         Front And Rear Anti-Roll Bars
+  20     0  -                  factory,dealer   drop: never priced         Lip Spoiler
+  20     0  -                  factory,dealer   drop: never priced         2 LCD Monitors In The Front
+  20     0  -                  factory,dealer   drop: never priced         Height Adjusters and Pretensioners
+  20     0  -                  factory,dealer   drop: never priced         Engine: 2
+  20     0  -                  factory,dealer   drop: never priced         Passenger Seat
+  20     0  -                  factory,dealer   drop: never priced         Evasion Assist
+  20     0  -                  factory,dealer   drop: never priced         Immobilizer
+  20     0  -                  dealer,factory   drop: never priced         Weather Package ($925 value) Convenience Package ($1
+  20     0  -                  dealer,factory   drop: never priced         Backup Camera with Blind Spot Monitor
+  20     0  -                  factory,dealer   drop: never priced         Push Button Start
+  20     0  -                  dealer           drop: never priced         OVER 250 USED TRUCKS
+  20     0  -                  dealer           drop: never priced         Including Honda
+  20     0  -                  dealer           drop: never priced         Advertised prices include all mandatory dealer charges
+  20     0  -                  dealer           drop: never priced         including Dealer Fee
+  20     0  -                  dealer           drop: never priced         Electronic Registration Filing Fee
+  20     0  -                  dealer           drop: never priced         and Private Tag Agency Fee
+  20     0  -                  dealer           drop: never priced         unless otherwise stated
+  20     0  -                  dealer           drop: never priced         Prices exclude government fees and taxes
+  20     0  -                  dealer           drop: never priced         including sales tax
+  20     0  -                  dealer           drop: never priced         Actual fees will reflect exact amounts at time of purchase
+  20     0  -                  dealer           drop: never priced         Optional accessories
+  20     0  -                  dealer           drop: never priced         protection products
+  20     0  -                  dealer           drop: never priced         Vehicle pricing
+  20     0  -                  dealer           drop: never priced         errors may occur and are not binding
+  20     0  -                  dealer           drop: never priced         Dealer reserves the right to correct pricing
+  20     0  -                  dealer           drop: never priced         vehicle description
+  20     0  -                  dealer           drop: never priced         photo
+  20     0  -                  dealer           drop: never priced         or data errors at any time
+  20     0  -                  dealer,factory   drop: never priced         com Brand Image Awards
+  20     0  -                  factory,dealer   drop: never priced         Traction Control w/Brake Actuated Torque Vectoring
+  20     0  -                  factory,dealer   drop: never priced         Clean
+  20     0  -                  factory,dealer   drop: never priced         What this vehicle includes:
+  19     0  -                  factory,dealer   drop: never priced         Financing Options
+  19     0  -                  dealer,factory   drop: never priced         USB media port
+  19     0  -                  dealer,factory   drop: never priced         Automatic temperature control with dual-zone front A/C
+  19     0  -                  dealer,factory   drop: never priced         Rear Cross-Traffic Alert
+  19     0  -                  factory,dealer   drop: never priced         RUBY FLARE PEARL
+  19     0  -                  factory,dealer   drop: never priced         Glove box
+  19     0  -                  factory,dealer   drop: never priced         Front map lights
+  19     0  -                  factory,dealer   drop: never priced         Gas-pressurized shock absorbers
+  19     0  -                  factory,dealer   drop: never priced         Driver information center
+  19     0  -                  factory,dealer   drop: never priced         Full cloth headliner
+  19     0  -                  factory,dealer   drop: never priced         Deep tinted glass
+  19     0  -                  factory,dealer   drop: never priced         Day-night rearview mirror
+  19     0  -                  factory,dealer   drop: never priced         Air filtration
+  19     0  -                  factory,dealer   drop: never priced         Black grille w/body-color surround
+  19     0  -                  factory,dealer   drop: never priced         LED brakelights
+  19     0  -                  factory,dealer   drop: never priced         Manual tilt/telescoping steering column
+  19     0  -                  factory,dealer   drop: never priced         Black Bodyside Cladding And Black Wheel Well Trim
+  19     0  -                  factory,dealer   drop: never priced         Liftgate Rear Cargo Access
+  19     0  -                  factory,dealer   drop: never priced         Front Cupholder
+  19     0  -                  factory,dealer   drop: never priced         Full Carpet Floor Covering
+  19     0  -                  factory,dealer   drop: never priced         Cargo Space Lights
+  19     0  -                  factory,dealer   drop: never priced         Front Center Armrest And Rear Center Armrest
+  19     0  -                  factory,dealer   drop: never priced         Curtain 1st And 2nd Row Airbags
+  19     0  -                  factory,dealer   drop: never priced         Airbag Occupancy Sensor
+  19     0  -                  factory,dealer   drop: never priced         Permanent Locking Hubs
+  19     0  -                  factory,dealer   drop: never priced         Compact Spare Tire Mounted Inside Under Cargo
+  19     0  -                  factory,dealer   drop: never priced         Cloth Door Trim Insert
+  19     0  -                  factory,dealer   drop: never priced         Chrome Side Windows Trim And Black Front Windshield Trim
+  19     0  -                  factory,dealer   drop: never priced         Galvanized Steel/Aluminum Panels
+  19     0  -                  factory,dealer   drop: never priced         Laminated Glass
+  19     0  -                  factory,dealer   drop: never priced         Dual Zone Front Automatic Air Conditioning
+  19     0  -                  factory,dealer   drop: never priced         HVAC -inc: Underseat Ducts And Console Ducts
+  19     0  -                  factory,dealer   drop: never priced         Full Floor Console w/Covered Storage
+  19     0  -                  factory,dealer   drop: never priced         Mini Overhead Console w/Storage And 2 12V DC Power Outlets
+  19     0  -                  factory,dealer   drop: never priced         Body-Colored Front Bumper w/Black Rub Strip/Fascia Accent
+  19     0  -                  factory,dealer   drop: never priced         2 12V DC Power Outlets
+  19     0  -                  factory,dealer   drop: never priced         1 Seatback Storage Pocket
+  19     0  -                  factory,dealer   drop: never priced         Electric Power-Assist Speed-Sensing Steering
+  19     0  -                  factory,dealer   drop: never priced         Cargo Area Concealed Storage
+  19     0  -                  factory,dealer   drop: never priced         Delayed Accessory Power
+  19     0  -                  factory,dealer   drop: never priced         Dual Stage Driver And Passenger Seat-Mounted Side Airbags
+  19     0  -                  factory,dealer   drop: never priced         Dual Stage Driver And Passenger Front Airbags
+  19     0  -                  factory,dealer   drop: never priced         Fuel Tank
+  19     0  -                  factory,dealer   drop: never priced         550CCA Maintenance-Free Battery w/Run Down Protection
+  19     0  -                  factory,dealer   drop: never priced         Bluetooth® Wireless Phone Connectivity
+  19     0  -                  factory,dealer   drop: never priced         5L DOHC 4-Cylinder w/Dual VVT-i
+  19     0  -                  factory,dealer   drop: never priced         Instrument Panel Bin
+  19     0  -                  factory,dealer   drop: never priced         Driver And Passenger Door Bins
+  19     0  -                  factory,dealer   drop: never priced         4-Wheel Disc Brakes w/4-Wheel ABS
+  19     0  -                  factory,dealer   drop: never priced         Hill Hold Control and Electric Parking Brake
+  19     0  -                  factory,dealer   drop: never priced         Black Rear Bumper w/Black Rub Strip/Fascia Accent
+  19     0  -                  factory,dealer   drop: never priced         Automatic Full-Time All-Wheel
+  19     0  -                  factory,dealer   drop: never priced         Digital/Analog Appearance
+  19     0  -                  factory,dealer   drop: never priced         Headlights-Automatic Highbeams
+  19     0  -                  factory,dealer   drop: never priced         Collision Mitigation-Front
+  19     0  -                  factory,dealer   drop: never priced         Fixed Rear Window w/Wiper and Defroster
+  19     0  -                  factory,dealer   drop: never priced         000 Mile Limited Powertrain Warranty
+  19    11  $209-$250          dealer,factory   drop: accessory/subscr.    Body Side Molding
+  19     0  -                  dealer,factory   drop: never priced         Nutmeg Cloth
+  19     0  -                  factory,dealer   drop: never priced         OTHER NOTABLE FEATURES AND OPTIONS YOU SHOULD KNOW ABOUT:
+  19     0  -                  dealer,factory   drop: never priced         Tilt and slide moonroof
+  19     0  -                  dealer,factory   drop: never priced         Transferable warranty honored at over 1
+  19     0  -                  dealer,factory   drop: never priced         Pricing analysis performed on 10/21/2026
+  18     0  -                  factory,dealer   drop: never priced         Carpet Floor Mats
+  18     0  -                  dealer,factory   drop: never priced         27 city / 35 highway MPG
+  18     0  -                  dealer,factory   drop: never priced         Wiper/Windshield Deicer
+  18     0  -                  dealer,factory   drop: never priced         com 10 Favorite New-for-2019 Cars * 2019 KBB
+  18     0  -                  dealer,factory   drop: never priced         Apple CarPlay/Android Auto integration
+  18     0  -                  factory,dealer   drop: never priced         Aluminum/Alloy Wheels
+  18     0  -                  factory,dealer   drop: never priced         Multi-link rear suspension w/coil springs
+  18     0  -                  factory,dealer   drop: never priced         Driver foot rest
+  18     0  -                  factory,dealer   drop: never priced         Integrated Roof Antenna
+  18     0  -                  factory,dealer   drop: never priced         Interior Trim -inc: Metal-Look Interior Accents
+  18     0  -                  factory,dealer   drop: never priced         Driver Knee Airbag and Passenger Cushion Front Airbag
+  18     0  -                  factory,dealer   drop: never priced         Engine Auto Stop-Start Feature
+  18     0  -                  factory,dealer   drop: never priced         Driver Seat
+  18     0  -                  factory,dealer   drop: never priced         Four-wheel independent suspension
+  18     0  -                  factory,dealer   drop: never priced         lockouts
+  18     0  -                  factory,dealer   drop: never priced         fuel delivery
+  18     0  -                  factory,dealer   drop: never priced         flat tire service and more
+  18     0  -                  dealer,factory   drop: never priced         automatic high-beam headlights
+  18     0  -                  factory,dealer   drop: never priced         You can connect
+  18     0  -                  factory,dealer   drop: never priced         with us by calling (877) 782-6614
+  18     0  -                  factory,dealer   drop: never priced         At Don Moore Toyota
+  18     0  -                  dealer           drop: never priced         You can visit our online showroom at www
+  18     0  -                  factory,dealer   drop: never priced         Venice
+  18     0  -                  factory,dealer   drop: never priced         Heated leather steering wheel with audio controls
+  18     0  -                  factory,dealer   drop: never priced         absolute accuracy cannot be guaranteed
+  18     0  -                  dealer,factory   drop: never priced         Smart key system with push button start
+  18     0  -                  dealer,factory   drop: never priced         EPA estimate 35 MPG Hwy/27 MPG City!
+  18     0  -                  dealer           drop: never priced         1-Owner
+  18     0  -                  dealer           drop: never priced         $58
+  18     0  -                  dealer           drop: never priced         25 emissions testing charge
+  18     0  -                  dealer           drop: never priced         and $37 electronic filing charge (not governmental fees)
+  18     0  -                  dealer           drop: never priced         government fees and taxes
+  18     0  -                  dealer           drop: never priced         and any finance charges
+  17    10  $225-$269          factory,dealer   drop: accessory/subscr.    Carpet Mat Package
+  17     0  -                  dealer,factory   drop: never priced         Backup camera with rear parking assistance
+  17    17  $880               factory,dealer   KEEP                       Driver & Front Passenger Heated Seats
+  17     0  -                  dealer,factory   drop: never priced         Exterior rear parking camera
+  17     0  -                  dealer,factory   drop: never priced         Wheels: 17 x 7
+  17     0  -                  factory,dealer   drop: never priced         0J Alloy Wheels
+  17     0  -                  dealer,factory   drop: never priced         Moonroof
+  17     0  -                  dealer,factory   drop: never priced         Full-Speed Range Dynamic Radar Cruise Control
+  17     0  -                  dealer,factory   drop: never priced         title & license extra
+  17     0  -                  dealer,factory   drop: never priced         00 Doc Fee
+  17     0  -                  dealer,factory   drop: never priced         Dealer doc fee is included in the advertised price
+  17     0  -                  dealer,factory   drop: never priced         Residency restrictions apply
+  17     0  -                  factory,dealer   drop: never priced         18 axle ratio
+  17     0  -                  factory,dealer   drop: never priced         Cruise Control-Steering Assist
+  17     0  -                  factory,dealer   drop: never priced         4610# Gvwr 1095# Maximum Payload
+  17     0  -                  dealer           drop: never priced         Smart device mirroring - Smartphone
+  17     0  -                  dealer,factory   drop: never priced         1 Owner
+  17     0  -                  factory,dealer   drop: never priced         San Antonio
+  17     0  -                  dealer,factory   drop: never priced         Split-Folding Rear Seat for Flexible Cargo Space
+  17     0  -                  dealer,factory   drop: never priced         (2020 model year forward Hybrid-Related) 8 years/100
+  17     0  -                  dealer,factory   drop: never priced         whichever comes first
+  17     0  -                  dealer,factory   drop: never priced         from original date of first use when sold as new
+  17     0  -                  dealer,factory   drop: never priced         Fuel Cell Vehicle Warranty 8 years/100
+  17     0  -                  dealer,factory   drop: never priced         000 mile (whichever comes first) on key fuel cell components
+  17     0  -                  dealer,factory   drop: never priced         All prices exclude tax
+  17     0  -                  dealer,factory   drop: never priced         Midnight Black Metallic exterior and BLACK interior
+  16     0  -                  dealer,factory   drop: never priced         Clean CARFAX History
+  16     0  -                  dealer,factory   drop: never priced         Power driver seat and steering wheel mounted audio controls
+  16    13  $309-$329          dealer,factory   drop: accessory/subscr.    All Weather Floor Liners and Cargo Liner
+  16     0  -                  factory,dealer   drop: never priced         Radio: Entune 3
+  16     0  -                  factory,dealer   drop: never priced         0 Audio
+  16     0  -                  dealer,factory   drop: never priced         efficiency
+  16    15  $485               dealer,factory   KEEP                       Cold Weather Package
+  16     0  -                  dealer,factory   drop: never priced         Body Side Molding (TMS)
+  16     0  -                  factory,dealer   drop: never priced         5L high output engine
+  16     0  -                  dealer,factory   drop: never priced         com Brand Image Awards * 2019 KBB
+  16     0  -                  dealer,factory   drop: never priced         SiriusXM satellite radio with AM/FM
+  16     0  -                  dealer,factory   drop: never priced         Push-Button Start
+  16     0  -                  factory,dealer   drop: never priced         ALL WEATHER FLOOR LINERS & CARGO TRAY (TMS)
+  16     0  -                  factory,dealer   drop: never priced         ASH
+  16     6  $425               factory,dealer   KEEP                       SPECIAL COLOR
+  16     0  -                  factory,dealer   drop: never priced         Dual Stainless Steel Exhaust w/Chrome Tailpipe Finisher
+  16     0  -                  factory,dealer   drop: never priced         Transferable Warranty
+  16     0  -                  factory,dealer   drop: never priced         25/33 City/Highway MPG
+  16     0  -                  dealer,factory   drop: never priced         Tilt & Slide Moonroof
+  16     0  -                  factory,dealer   drop: never priced         Fully Automatic Headlights with Delay-off Feature
+  16     4  $100-$175          dealer,factory   drop: accessory/subscr.    FOG LIGHT ACCENT
+  16     0  -                  dealer,factory   drop: never priced         All-Wheel Drive for enhanced traction and control
+  16     0  -                  dealer,factory   drop: never priced         tags
+  16     0  -                  dealer,factory   drop: never priced         Non-Smoker vehicle
+  16     0  -                  dealer,factory   drop: never priced         Free CarFax Vehicle History Report included
+  16     0  -                  dealer,factory   drop: never priced         * HV Battery Warranty coverage for 10 years/150
+  16     0  -                  factory,dealer   drop: never priced         com 10 Favorite New-for-2019 Cars
+  16     0  -                  factory,dealer   drop: never priced         One Owner with Clean Carfax History
+  16     0  -                  factory,dealer   drop: never priced         Transparency and trust are at the core of the FitzWay
+  16     0  -                  factory,dealer   drop: never priced         We post the genuine FitzWay price for all car buyers
+  16     0  -                  factory,dealer   drop: never priced         Employee-Owned
+  16     0  -                  factory,dealer   drop: never priced         Customer-Focused
+  16     0  -                  factory,dealer   drop: never priced         As a 100% employee-owned company
+  16     0  -                  factory,dealer   drop: never priced         transparent deals
+  16     0  -                  factory,dealer   drop: never priced         and attentive service from people who genuinely care
+  16     0  -                  factory,dealer   drop: never priced         When employees are owners
+  16     0  -                  dealer,factory   drop: never priced         HGreg
+  16     0  -                  dealer,factory   drop: never priced         Orlando
+  16     0  -                  dealer,factory   drop: never priced         Kendall
+  16     0  -                  dealer,factory   drop: never priced         West Palm Beach
+  16     0  -                  dealer,factory   drop: never priced         Tampa and Houston
+  16     0  -                  dealer,factory   drop: never priced         com is the FASTEST GROWING automotive group in North America
+  16     0  -                  dealer,factory   drop: never priced         Dealer is not responsible for errors and omissions
+  16     0  -                  dealer,factory   drop: never priced         Ice Cap exterior and Black interior
+  16     0  -                  factory,dealer   drop: never priced         Spacious Cargo Area
+  15     0  -                  factory,dealer   drop: never priced         Carpet Cargo Mat
+  15     0  -                  factory,dealer   drop: never priced         * 2017 IIHS Top Safety Pick+ * 2017 KBB
+  15     0  -                  dealer,factory   drop: never priced         Radio: Entune Audio Plus AM/FM/MP3/WMA Playback
+  15     0  -                  factory,dealer   drop: never priced         17 x 7
+  15     0  -                  dealer,factory   drop: never priced         0 touchscreen
+  15     0  -                  dealer,factory   drop: never priced         See toyota
+  15     0  -                  dealer,factory   drop: never priced         All-Wheel Drive (AWD)
+  15     0  -                  dealer,factory   drop: never priced         Heated Power Mirrors
+  15     0  -                  dealer,factory   drop: never priced         Recent Arrival! 27/35 City/Highway MPG
+  15     0  -                  factory,dealer   drop: never priced         Certified Pre-Owned
+  15    12  $129-$175          dealer,factory   drop: accessory/subscr.    Blackout Emblem Overlays
+  15     0  -                  factory,dealer   drop: never priced         and Wheels: 17 x 7
+  15     0  -                  dealer,factory   drop: never priced         Recent Arrival! Clean CARFAX
+  15     0  -                  factory,dealer   drop: never priced         Power driver seat with adjustable positioning
+  15     0  -                  dealer,factory   drop: never priced         Wheel Lock (TMS)
+  15     0  -                  dealer,factory   drop: never priced         MORE ABOUT US
+  15     0  -                  factory,dealer   drop: never priced         900 below J
+  15     0  -                  dealer,factory   drop: never priced         heated side mirrors
+  15     0  -                  factory,dealer   drop: never priced         Bluetooth® Hands Free
+  15     0  -                  factory,dealer   drop: never priced         Schedule Your Test Drive Today!
+  15     0  -                  dealer           drop: never priced         Mount Airy Toyota Scion has a large inventory of Used Cars
+  15     0  -                  dealer           drop: never priced         Trucks and SUVs
+  15     0  -                  dealer           drop: never priced         If you are looking for a stress free buying experience
+  15     0  -                  dealer,factory   drop: never priced         ***ONLY AT SARASOTA TOYOTA 941-924-7700*** Bluetooth®
+  15     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-iXLE
+  15     0  -                  dealer           drop: never priced         Certified Toyota
+  15     0  -                  dealer,factory   drop: never priced         At Peruzzi
+  15     0  -                  dealer,factory   drop: never priced         our business is you!!
+  14     0  -                  factory,dealer   drop: never priced         Electronic Stability Control & Traction Control
+  14     0  -                  dealer,factory   drop: never priced         luggage
+  14     0  -                  dealer,factory   drop: never priced         Dealer charges $180
+  14     0  -                  factory,dealer   drop: never priced         000 Mile Limited Comprehensive Warranty and 7-Year/100
+  14     0  -                  factory,dealer   drop: never priced         To learn more call
+  14     0  -                  factory,dealer   drop: never priced         email or stop in today
+  14     0  -                  dealer,factory   drop: never priced         22/29 City/Highway MPG
+  14     0  -                  dealer,factory   drop: never priced         * JD Power Automotive Performance
+  14     0  -                  factory,dealer   drop: never priced         8-Speed Automatic transmission with 2
+  14     0  -                  dealer,factory   drop: never priced         rear privacy glass
+  14     0  -                  dealer           drop: never priced         and SUVs
+  14     0  -                  factory,dealer   drop: never priced         Automatic headlights with delay-off feature
+  14     0  -                  dealer,factory   drop: never priced         powered by a 2
+  14     0  -                  dealer           drop: never priced         Excellent Selection of New
+  14     0  -                  dealer           drop: never priced         Certified Pre-Owned and Used Vehicles
+  14     0  -                  dealer           drop: never priced         Serving Selma
+  14     0  -                  dealer           drop: never priced         Hanford
+  14     0  -                  dealer           drop: never priced         Visalia
+  14     0  -                  dealer           drop: never priced         Fresno
+  14     0  -                  dealer           drop: never priced         Sanger
+  14     0  -                  dealer           drop: never priced         Fowler
+  14     0  -                  dealer           drop: never priced         Lemoore
+  14     0  -                  dealer           drop: never priced         Kingsburg
+  14     0  -                  dealer           drop: never priced         Tulare
+  14     0  -                  dealer           drop: never priced         Clovis
+  14     0  -                  dealer           drop: never priced         Madera
+  14     0  -                  dealer           drop: never priced         Porterville
+  14     0  -                  dealer           drop: never priced         Dinuba
+  14     0  -                  dealer           drop: never priced         Caruthers
+  14     0  -                  dealer           drop: never priced         Fresno County
+  14     0  -                  dealer           drop: never priced         Kings County
+  14     0  -                  dealer           drop: never priced         Tulare County
+  14     0  -                  dealer           drop: never priced         Madera County
+  14     0  -                  dealer,factory   drop: never priced         floor mats
+  14     0  -                  factory,dealer   drop: never priced         **LOCAL TRADE GREAT SERVICE HISTORY ALL-WHEEL DRIVE**
+  14     0  -                  factory,dealer   drop: never priced         landrovergreensboro
+  14     0  -                  factory,dealer   drop: never priced         flowsubaruwinstonsalem
+  14     0  -                  factory,dealer   drop: never priced         Along with 3 free services
+  14     0  -                  factory,dealer   drop: never priced         Thank you for considering Flow Honda of Winston-Salem
+  14     0  -                  factory,dealer   drop: never priced         We appreciate the opportunity to earn your business
+  14     0  -                  factory,dealer   drop: never priced         flowhondaburlington
+  14     0  -                  factory,dealer   drop: never priced         com or by calling (336)-584-4870
+  14     0  -                  dealer,factory   drop: never priced         so Please Call to check on the availability of this vehicle
+  14     0  -                  dealer,factory   drop: never priced         EXPERTS ARE SAYING
+  14     0  -                  dealer           drop: never priced         Toyota Certified Pre-Owned with 100
+  14     0  -                  dealer,factory   drop: never priced         OUR OFFERINGS
+  14     0  -                  factory,dealer   drop: never priced         exploring the Bay Area
+  14     0  -                  factory,dealer   drop: never priced         Key Features & Highlights
+  14     0  -                  factory,dealer   drop: never priced         Exceptional Value & Condition
+  14     0  -                  factory,dealer   drop: never priced         San Francisco Toyota
+  14     0  -                  factory,dealer   drop: never priced         1701 Van Ness Ave
+  14     0  -                  factory,dealer   drop: never priced         San Francisco
+  14     0  -                  factory,dealer   drop: never priced         CA 94109
+  14     0  -                  factory,dealer   drop: never priced         📞 415-750-8300
+  14     0  -                  factory,dealer   drop: never priced         Daly City
+  14     0  -                  factory,dealer   drop: never priced         South San Francisco
+  14     0  -                  factory,dealer   drop: never priced         Berkeley
+  14     0  -                  factory,dealer   drop: never priced         Marin County
+  14     0  -                  factory,dealer   drop: never priced         San Mateo
+  14     0  -                  dealer,factory   drop: never priced         SERVICE COMPLETED
+  14     0  -                  dealer,factory   drop: never priced         Battery Voltage Test
+  14     0  -                  dealer,factory   drop: never priced         Tires Inspected
+  14     0  -                  dealer,factory   drop: never priced         Emissions System Check
+  14     0  -                  dealer,factory   drop: never priced         Professional Detailed Inside and Out
+  14     0  -                  dealer,factory   drop: never priced         Function Test all Lights
+  14     0  -                  dealer,factory   drop: never priced         Check the Complete Exhaust System
+  14     0  -                  dealer,factory   drop: never priced         Function Test all Options & Accessories
+  14     0  -                  factory,dealer   drop: never priced         LED Daytime Running Lights
+  14     0  -                  factory,dealer   drop: never priced         LED Taillights
+  14     0  -                  factory,dealer   drop: never priced         This Vehicle Includes the Following Options: Black Cloth
+  13     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i 8-Speed Automatic
+  13     0  -                  dealer,factory   drop: never priced         Vehicle History Report
+  13     0  -                  dealer,factory   drop: never priced         TRUCK
+  13     0  -                  dealer,factory   drop: never priced         CARFAX 1 Owner
+  13     0  -                  factory,dealer   drop: never priced         lane departure alert
+  13     0  -                  factory,dealer   drop: never priced         CARFAX One Owner
+  13     0  -                  dealer           drop: never priced         Remote Keyless Entry w/Integrated Key Transmitter
+  13     0  -                  dealer           drop: never priced         Illuminated Ignition Switch and Panic Button
+  13    14  $1040              factory,dealer   KEEP                       Radio: Entune 3.0 Audio Plus
+  13     0  -                  dealer,factory   drop: never priced         Mudguard (TMS)
+  13     0  -                  dealer,factory   drop: never priced         Cruise Control
+  13     0  -                  dealer,factory   drop: never priced         2025 Toyota RAV4 XLE
+  13     0  -                  dealer,factory   drop: never priced         Gray Cloth
+  13     0  -                  dealer,factory   drop: never priced         Local Trade
+  13     0  -                  dealer,factory   drop: never priced         Dual-Zone Automatic Temperature Control
+  13     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i XLE
+  13     0  -                  dealer           drop: never priced         fahrneygroup
+  13     0  -                  factory,dealer   drop: never priced         groceries
+  13     0  -                  factory,dealer   drop: never priced         SiriusXM radio with steering wheel controls
+  13     0  -                  dealer,factory   drop: never priced         000 below J
+  13     0  -                  dealer,factory   drop: never priced         WiFi Hotspot Rear Spoiler
+  13     0  -                  dealer,factory   drop: never priced         WHO WE ARE
+  13     0  -                  factory,dealer   drop: never priced         Wireless Apple CarPlay and Android Auto
+  13     0  -                  factory,dealer   drop: never priced         Automatic Climate Control Front Air Conditioning
+  13     0  -                  factory,dealer   drop: never priced         Front Automatic Emergency Braking
+  13     0  -                  factory,dealer   drop: never priced         Proximity Entry System Multi-function Remote
+  13     0  -                  factory,dealer   drop: never priced         Rear Cross Traffic Alert
+  13     0  -                  factory,dealer   drop: never priced         Rearview Camera System
+  13     0  -                  factory,dealer   drop: never priced         Safety Brake Pedal System
+  13     0  -                  factory,dealer   drop: never priced         Toyota Audio Multimedia Infotainment
+  13     0  -                  factory,dealer   drop: never priced         Toyota Connected Services Smart Device App Compatibility
+  13     0  -                  factory,dealer   drop: never priced         Traffic Sign Recognition
+  13     0  -                  factory,dealer   drop: never priced         Wireless Android Auto Smartphone Integration
+  13     0  -                  factory,dealer   drop: never priced         Wireless Apple CarPlay Smartphone Integration
+  12     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto smartphone integration
+  12     0  -                  dealer,factory   drop: never priced         Vehicle history report included
+  12     0  -                  dealer,factory   drop: never priced         12 Month/12
+  12     0  -                  dealer,factory   drop: never priced         Entune 3
+  12     0  -                  factory,dealer   drop: never priced         All-wheel drive with four-wheel independent suspension
+  12     0  -                  dealer           drop: never priced         Remote Releases -Inc: Power Cargo Access and Mechanical Fuel
+  12     0  -                  dealer           drop: never priced         Proximity Key For Doors And Push Button Start
+  12     0  -                  dealer,factory   drop: never priced         Siri Eyes Free
+  12     0  -                  dealer,factory   drop: never priced         Exterior Parking Camera
+  12     0  -                  dealer,factory   drop: never priced         Radio: Entune Premium Audio with Navigation
+  12     0  -                  factory,dealer   drop: never priced         FRAMELESS HOMELINK MIRROR (TMS)
+  12     0  -                  factory,dealer   drop: never priced         Univ Garage Door Opener
+  12     0  -                  dealer,factory   drop: never priced         and more
+  12     0  -                  dealer           drop: never priced         This 2022 Toyota RAV4 XLE
+  12     0  -                  dealer           drop: never priced         Mobile hotspot - WiFi on the fly
+  12     0  -                  dealer,factory   drop: never priced         Low Miles
+  12     5  $175               dealer,factory   KEEP                       FRAMELESS HOMELINK MIRROR
+  12     0  -                  dealer,factory   drop: never priced         Electronic Stability Control with Traction Control
+  12     0  -                  dealer,factory   drop: never priced         AWD 8-Speed Automatic 2
+  12     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor with Rear Cross-Traffic Alert
+  12    10  $140-$155          dealer,factory   drop: accessory/subscr.    Door Edge Guard
+  12     0  -                  dealer,factory   drop: never priced         Ice
+  12     0  -                  factory,dealer   drop: never priced         We are proud to serve Memphis
+  12     0  -                  factory,dealer   drop: never priced         Southaven
+  12     0  -                  factory,dealer   drop: never priced         Olive Branch and Hernando
+  12     0  -                  dealer,factory   drop: never priced         All-wheel drive with electronic stability control
+  12     0  -                  dealer           drop: never priced         Interior Color: Black
+  12     0  -                  dealer,factory   drop: never priced         000-mile
+  12     0  -                  dealer,factory   drop: never priced         Dual front zone automatic climate control
+  12     0  -                  dealer           drop: never priced         Located at Burleson
+  12     0  -                  dealer           drop: never priced         12mo/12K mile Comprehensive warranty
+  12     0  -                  dealer           drop: never priced         trip-interruption services
+  12     0  -                  dealer           drop: never priced         rental car benefits
+  12     0  -                  dealer           drop: never priced         complete FREE CARFAX vehicle history report
+  12     0  -                  dealer           drop: never priced         At Family Toyota of Burleson
+  12     0  -                  dealer           drop: never priced         a large inventory of used cars
+  12     0  -                  dealer           drop: never priced         familytoyotaofburleson
+  12     0  -                  dealer           drop: never priced         Burleson
+  12     0  -                  dealer           drop: never priced         TX 76028***FREE APPRAISALS***We will buy your car
+  12     0  -                  dealer           drop: never priced         even if you don't buy ours
+  12     0  -                  dealer           drop: never priced         ASK for KBB INSTANT CASH OFFER
+  12     0  -                  dealer           drop: never priced         We ACCEPT ALL TRADE ins
+  12     0  -                  dealer           drop: never priced         ANY year
+  12     0  -                  dealer           drop: never priced         make
+  12     0  -                  dealer           drop: never priced         model
+  12     0  -                  dealer           drop: never priced         miles
+  12     0  -                  dealer,factory   drop: never priced         Recent Arrival! CARFAX One-Owner
+  12     0  -                  dealer,factory   drop: never priced         Great Gas Mileage: EPA estimate 33 MPG Hwy
+  12     0  -                  factory,dealer   drop: never priced         For a must-own Toyota RAV4 come see us at Venice Honda
+  12     0  -                  factory,dealer   drop: never priced         985 US Highway 41 Bypass South
+  12     0  -                  factory,dealer   drop: never priced         FL 34285
+  12     0  -                  dealer,factory   drop: never priced         3-spoke leather heated steering wheel
+  12     0  -                  dealer           drop: never priced         Hands-Free connection
+  12     0  -                  factory,dealer   drop: never priced         Pricing analysis performed on 10/17/2026
+  12     0  -                  dealer,factory   drop: never priced         JUST REPRICED FROM $34
+  12     0  -                  dealer,factory   drop: never priced         Franklin Indiana Ford!
+  12     0  -                  dealer,factory   drop: never priced         Vehicle is located at Hubler Ford in Franklin
+  12     0  -                  dealer,factory   drop: never priced         Indiana
+  12     0  -                  dealer,factory   drop: never priced         EPA estimate 35 MPG Hwy/27 MPG City! WiFi Hotspot
+  12     0  -                  factory,dealer   drop: never priced         Rear View Camera
+  12     0  -                  factory,dealer   drop: never priced         Fuel-Efficient 2
+  12     0  -                  factory,dealer   drop: never priced         5L Dynamic Force 4-Cylinder Engine
+  12     0  -                  factory,dealer   drop: never priced         Toyota Safety Sense™ 2
+  12     0  -                  factory,dealer   drop: never priced         LED Headlights & Daytime Running Lights
+  12     0  -                  factory,dealer   drop: never priced         Fold-Flat Rear Seats
+  12     0  -                  factory,dealer   drop: never priced         Buyers searching for a used Toyota RAV4
+  12     0  -                  factory,dealer   drop: never priced         and the entire Bay Area
+  12     0  -                  factory,dealer   drop: never priced         and ready for its next adventure! 🚙✨🌉
+  12     0  -                  factory,dealer   drop: never priced         and Toyota's legendary reliability
+  12     0  -                  dealer,factory   drop: never priced         This RAV4 is priced $2
+  12     0  -                  dealer           drop: never priced         Pricing analysis performed on 10/24/2026
+  12     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto compatible
+  12     0  -                  dealer,factory   drop: never priced         Bluetooth® and USB Ports
+  12     0  -                  factory,dealer   drop: never priced         Local Trade!!!
+  12     0  -                  factory,dealer   drop: never priced         8 In
+  12     0  -                  factory,dealer   drop: never priced         Infotainment Screen Size
+  12     0  -                  factory,dealer   drop: never priced         Automatic Hazard Warning Lights
+  12     0  -                  factory,dealer   drop: never priced         Intersection/junction Turn Automatic Emergency Braking
+  12     0  -                  factory,dealer   drop: never priced         Lumbar Driver Seat Power Adjustments
+  12     0  -                  factory,dealer   drop: never priced         USB Front Power Outlet(s)
+  12     0  -                  factory,dealer   drop: never priced         USB-C Front Power Outlet(s)
+  12     0  -                  dealer           drop: never priced         Hands-Free
+  12     0  -                  dealer           drop: never priced         USB / AUX Inputs to play music
+  12     0  -                  dealer,factory   drop: never priced         Toyota Details:
+  12     0  -                  dealer           drop: never priced         Here at the Riverhead Motors Automotive Group
+  12     0  -                  dealer           drop: never priced         but also many surrounding areas like Shirley NY
+  12     0  -                  dealer           drop: never priced         Hampton Bays
+  12     0  -                  dealer           drop: never priced         East Hampton
+  12     0  -                  dealer           drop: never priced         Smithtown
+  12     0  -                  dealer           drop: never priced         and both the entire North and South Forks customers as well
+  12     0  -                  dealer           drop: never priced         Beyond simply selling new cars
+  12     0  -                  dealer           drop: never priced         and the general Suffolk County and Long Island areas
+  11     0  -                  dealer,factory   drop: never priced         Ice 2025 Toyota RAV4 XLE FWD 8-Speed Automatic 2
+  11     0  -                  dealer,factory   drop: never priced         84 Month/100
+  11     0  -                  factory,dealer   drop: never priced         com 10 Most Awarded Brands * 2017 KBB
+  11     0  -                  dealer,factory   drop: never priced         000 * 2017 KBB
+  11     0  -                  dealer,factory   drop: never priced         com 10 Most Awarded Brands
+  11     0  -                  factory,dealer   drop: never priced         Wiper Deicer
+  11     0  -                  dealer,factory   drop: never priced         AM/FM/XM Audio System with Steering Wheel Controls
+  11     0  -                  dealer,factory   drop: never priced         Remote Keyless Entry and Telescoping Steering Wheel
+  11     0  -                  dealer,factory   drop: never priced         Remote keyless entry with push button start
+  11     0  -                  factory,dealer   drop: never priced         Remote keyless entry and steering wheel audio controls
+  11     0  -                  factory,dealer   drop: never priced         Remote keyless entry and fully automatic headlights
+  11     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio with 6 speakers
+  11     0  -                  dealer,factory   drop: never priced         Ice 2024 Toyota RAV4 XLE FWD 8-Speed Automatic 2
+  11     0  -                  dealer,factory   drop: never priced         SiriusXM satellite radio capability
+  11     0  -                  dealer,factory   drop: never priced         Packages
+  11     0  -                  dealer,factory   drop: never priced         Dual front impact and side impact airbags
+  11     0  -                  dealer,factory   drop: never priced         A GREAT VALUE
+  11     0  -                  factory,dealer   drop: never priced         Auto high-beam headlights with fully automatic operation
+  11     0  -                  dealer,factory   drop: never priced         Split Folding Rear Seat for Versatile Cargo Space
+  11     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i 8-Speed Automatic AWD
+  11     0  -                  dealer,factory   drop: never priced         With a 2
+  11     0  -                  dealer           drop: never priced         A PREVIOUS DAILY RENTAL
+  11     0  -                  dealer,factory   drop: never priced         advanced voice recognition
+  11     0  -                  factory,dealer   drop: never priced         Recent Arrival! 28/35 City/Highway MPG
+  11     0  -                  dealer,factory   drop: never priced         To determine the recall status of a vehicle
+  11     0  -                  dealer,factory   drop: never priced         visit https://www
+  11     0  -                  dealer,factory   drop: never priced         nhtsa
+  11     0  -                  factory,dealer   drop: never priced         This RAV4 is priced $1
+  11     0  -                  dealer,factory   drop: never priced         EPA estimate 33 MPG Hwy/27 MPG City!
+  11     0  -                  dealer,factory   drop: never priced         This RAV4 is priced $4
+  11     0  -                  dealer,factory   drop: never priced         700 below J
+  11     0  -                  dealer,factory   drop: never priced         Silver Sky Metallic exterior and BLACK interior
+  11     0  -                  factory,dealer   drop: never priced         Union
+  11     0  -                  dealer           drop: never priced         Mike Calvert Toyota has been here in Houston for 35 years
+  11     0  -                  dealer           drop: never priced         Sales and Service
+  11     0  -                  dealer           drop: never priced         From the moment you contact us
+  11     0  -                  dealer           drop: never priced         Whether you need to Purchase
+  11     0  -                  dealer           drop: never priced         Finance
+  11     0  -                  dealer           drop: never priced         or Service a New or Pre-Owned car
+  11     0  -                  dealer           drop: never priced         you've come to the right place
+  11     0  -                  dealer           drop: never priced         It will be a pleasure to serve you
+  11     0  -                  factory,dealer   drop: never priced         60-40 Split Bench Rear Seat Type
+  11     0  -                  factory,dealer   drop: never priced         8 Driver Seat Power Adjustments
+  11     0  -                  factory,dealer   drop: never priced         *ONE OWNER*
+  10     0  -                  dealer,factory   drop: never priced         Trouble-free DMV paperwork handling
+  10     0  -                  dealer           drop: never priced         2024 Toyota RAV4 XLE
+  10     0  -                  dealer,factory   drop: never priced         Automatic Headlights
+  10     0  -                  dealer,factory   drop: never priced         This vehicle is a certified CARFAX 1-owner
+  10     0  -                  dealer,factory   drop: never priced         Front Collision Mitigation
+  10     0  -                  dealer,factory   drop: never priced         Road Sign Assist
+  10     8  $129               dealer,factory   drop: accessory/subscr.    Mudguard
+  10     0  -                  dealer,factory   drop: never priced         This 2024 Toyota RAV4 XLE
+  10     0  -                  dealer,factory   drop: never priced         This 2023 Toyota RAV4 XLE
+  10     0  -                  dealer           drop: never priced         Convenience Package ($1
+  10     0  -                  dealer           drop: never priced         until cruise control set the pace
+  10     0  -                  dealer           drop: never priced         Brake assist - Stop right there
+  10     0  -                  dealer           drop: never priced         you will
+  10     0  -                  dealer           drop: never priced         Brake assist can stop the accident before it is one
+  10     0  -                  factory,dealer   drop: never priced         000 * 2015 KBB
+  10     0  -                  factory,dealer   drop: never priced         com 10 Best All-Wheel Drive Vehicles Under $25
+  10     5  $69                dealer,factory   drop: accessory/subscr.    Rear Bumper Applique
+  10     0  -                  dealer,factory   drop: never priced         000 Mile Comprehensive Coverage
+  10     0  -                  dealer,factory   drop: never priced         auxiliary audio jack
+  10     0  -                  dealer,factory   drop: never priced         Super White
+  10     0  -                  dealer           drop: never priced         Free CARFAX Vehicle History Report
+  10     0  -                  factory,dealer   drop: never priced         Visit www
+  10     0  -                  dealer,factory   drop: never priced         All-Wheel Drive for confident traction
+  10     0  -                  dealer           drop: never priced         Well equipped with
+  10     0  -                  dealer           drop: never priced         dublintoyota
+  10     0  -                  dealer           drop: never priced         Pleasanton
+  10     0  -                  dealer           drop: never priced         San Ramon
+  10     0  -                  dealer           drop: never priced         Danville
+  10     0  -                  dealer           drop: never priced         Alamo
+  10     0  -                  dealer           drop: never priced         Walnut Creek
+  10     0  -                  dealer           drop: never priced         Hayward
+  10     0  -                  dealer           drop: never priced         Livermore
+  10     0  -                  dealer           drop: never priced         Tracy
+  10     0  -                  dealer           drop: never priced         San Jose and Contra Costa County
+  10     0  -                  dealer           drop: never priced         Alameda County
+  10     0  -                  dealer           drop: never priced         We can Finance almost anybody Please Call 925-829-7700
+  10     0  -                  factory,dealer   drop: never priced         Heated Leather Steering Wheel
+  10     0  -                  dealer,factory   drop: never priced         28/35 City/Highway MPG
+  10     0  -                  dealer,factory   drop: never priced         XLE GRADE WEATHER PACKAGE Front Seat Heating
+  10     0  -                  dealer,factory   drop: never priced         FUEL EFFICIENT EPA estimate 33 MPG Hwy/27 MPG City!
+  10     0  -                  factory,dealer   drop: never priced         2025 Toyota RAV4 XLE XLE 2
+  10     0  -                  factory,dealer   drop: never priced         Lane Departure Warning System
+  10     0  -                  factory,dealer   drop: never priced         Dual climate control with automatic temperature management
+  10     0  -                  factory,dealer   drop: never priced         Black 2018 Toyota RAV4 XLE AWD 6-Speed Automatic 2
+  10     0  -                  factory,dealer   drop: never priced         Recent Arrival! 22/28 City/Highway MPG
+  10     0  -                  dealer,factory   drop: never priced         com Best Resale Value Awards * 2018 KBB
+  10     0  -                  dealer,factory   drop: never priced         Automatic Headlights with Delay-Off Function
+  10     0  -                  dealer           drop: never priced         Dealer Serviced
+  10     0  -                  factory,dealer   drop: never priced         Rearview Camera
+  10     0  -                  factory,dealer   drop: never priced         Whether you're commuting through San Francisco
+  10     0  -                  factory,dealer   drop: never priced         Proudly serving drivers throughout San Francisco
+  10     0  -                  factory,dealer   drop: never priced         Blind Spot Monitor with Rear Cross Traffic Alert
+  10     0  -                  factory,dealer   drop: never priced         Multi-function Steering Wheel Mounted Controls
+  10     0  -                  dealer           drop: never priced         Clean Carfax Vehicle History
+  10     0  -                  dealer           drop: never priced         GPS Navigation w/ Backup Camera
+  10     0  -                  factory,dealer   drop: never priced         2024 Toyota RAV4 XLE CARFAX One-Owner
+  10     0  -                  factory,dealer   drop: never priced         *CLEAN CAR FAX*
+  10     0  -                  factory,dealer   drop: never priced         *FRESH DETAIL*
+  10     0  -                  factory,dealer   drop: never priced         *CELEBRATING OVER 60 YEARS IN BUSINESS*
+  10     0  -                  factory,dealer   drop: never priced         Encompassing 60 acres
+  10     0  -                  factory,dealer   drop: never priced         Visit Sansone Auto today
+  10     0  -                  factory,dealer   drop: never priced         proudly serving the Staten Island
+  10     0  -                  factory,dealer   drop: never priced         NY; and Woodbridge
+  10     0  -                  factory,dealer   drop: never priced         and Elizabeth
+  10     0  -                  factory,dealer   drop: never priced         NJ areas! NO ONE BEATS A SANSONE DEAL
+   9     0  -                  factory,dealer   drop: never priced         Power Driver Seat with Automatic Temperature Control
+   9     0  -                  dealer,factory   drop: never priced         APPLE CARPLAY / ANDROID AUTO
+   9     0  -                  dealer           drop: never priced         Toyota Factory Certified
+   9     0  -                  dealer,factory   drop: never priced         23/30 City/Highway MPG
+   9     0  -                  dealer,factory   drop: never priced         aux port
+   9     0  -                  dealer,factory   drop: never priced         4 USB charging ports
+   9     0  -                  dealer,factory   drop: never priced         safercar
+   9     0  -                  dealer,factory   drop: never priced         Clean Autocheck
+   9     0  -                  dealer,factory   drop: never priced         5L gasoline engine
+   9     6  $1740              dealer,factory   KEEP                       Power Premium Extra Value Package
+   9     0  -                  dealer,factory   drop: never priced         HD Radio
+   9     0  -                  dealer,factory   drop: never priced         Dual-Zone Climate Control
+   9     0  -                  dealer,factory   drop: never priced         capability
+   9     0  -                  dealer,factory   drop: never priced         Automatic climate control
+   9     0  -                  factory,dealer   drop: never priced         Bluetooth®!
+   9     0  -                  factory,dealer   drop: never priced         EXTRA CLEAN!
+   9     0  -                  factory,dealer   drop: never priced         LOW MILES!
+   9     0  -                  factory,dealer   drop: never priced         REARVIEW CAMERA!
+   9     0  -                  factory,dealer   drop: never priced         USB PORT!
+   9     0  -                  factory,dealer   drop: never priced         there's no place like Sloane
+   9     0  -                  factory,dealer   drop: never priced         Warranty Deductible: $0
+   9     0  -                  factory,dealer   drop: never priced         The 2
+   9     0  -                  factory,dealer   drop: never priced         SiriusXM AM/FM audio system with 6 speakers
+   9     0  -                  factory,dealer   drop: never priced         Backup camera with parking assistance
+   9     0  -                  dealer,factory   drop: never priced         Backup Camera with Exterior Parking Camera Rear
+   9     0  -                  dealer,factory   drop: never priced         17-Inch 5-Spoke Silver Alloy Wheels
+   9     0  -                  dealer,factory   drop: never priced         Sirius Satellite Radio
+   9     0  -                  factory,dealer   drop: never priced         Automatic dual-zone climate control
+   9     0  -                  factory,dealer   drop: never priced         Sunroof/Moonroof
+   9     6  $525-$1030         dealer           KEEP                       Radio: Entune Display Audio w/Navigation
+   9     0  -                  dealer,factory   drop: never priced         and everyday practicality
+   9     0  -                  dealer,factory   drop: never priced         AM/FM/XM SiriusXM Audio System with Steering Wheel Controls
+   9     0  -                  factory,dealer   drop: never priced         AM/FM/SiriusXM Audio System with Steering Wheel Controls
+   9     0  -                  dealer           drop: never priced         Previous Rental
+   9     0  -                  dealer           drop: never priced         versatile SUV built to make every drive more enjoyable
+   9     0  -                  dealer           drop: never priced         With its confident performance
+   9     0  -                  dealer           drop: never priced         and eye-catching design
+   9     0  -                  dealer,factory   drop: never priced         Power moonroof with roof rack cross bars
+   9     0  -                  factory,dealer   drop: never priced         Heated Steering Wheel with Audio Controls
+   9     0  -                  factory,dealer   drop: never priced         Heated front seats with power adjustment
+   9     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Magnetic Gray Metallic
+   9     0  -                  factory,dealer   drop: never priced         Convenience and weather packages included
+   9     0  -                  factory,dealer   drop: never priced         $0 Warranty Deductible and Transferable Warranty
+   9     0  -                  factory,dealer   drop: never priced         black cloth interior
+   9     0  -                  factory,dealer   drop: never priced         Android Auto and Apple CarPlay
+   9     0  -                  dealer,factory   drop: never priced         Automatic Temperature Control with Dual Zone Front A/C
+   9     0  -                  dealer,factory   drop: never priced         Remote keyless entry and speed control
+   9     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor Rear Spoiler
+   9     0  -                  dealer,factory   drop: never priced         EPA estimate 33 MPG Hwy/27 MPG City! XLE trim
+   9     0  -                  dealer,factory   drop: never priced         EXPERTS REPORT
+   9     0  -                  dealer,factory   drop: never priced         AFFORDABLE
+   9     0  -                  dealer,factory   drop: never priced         This RAV4 is priced $5
+   9     0  -                  dealer,factory   drop: never priced         Ruby Flare Pearl exterior and Black interior
+   9     0  -                  dealer,factory   drop: never priced         REDUCED FROM $37
+   9     0  -                  dealer,factory   drop: never priced         FUEL EFFICIENT EPA estimate 33 MPG Hwy/27 MPG City! XLE trim
+   9     0  -                  dealer,factory   drop: never priced         A GREAT TIME TO BUY
+   9     0  -                  dealer           drop: never priced         Sunroof / Moonroof
+   9     0  -                  factory,dealer   drop: never priced         trim
+   9     0  -                  dealer,factory   drop: never priced         EXPERIENCE THE WAY CAR BUYING SHOULD BE
+   9     0  -                  dealer,factory   drop: never priced         Prices include all costs to be paid by a consumer
+   9     0  -                  dealer,factory   drop: never priced         except for licensing costs
+   9     0  -                  dealer,factory   drop: never priced         registration fees and taxes
+   9     0  -                  dealer,factory   drop: never priced         Pricing listed on this vehicle is subject to change
+   9     0  -                  dealer,factory   drop: never priced         Vehicle subject to availability
+   9     0  -                  dealer,factory   drop: never priced         400 below J
+   9     0  -                  dealer,factory   drop: never priced         DUAL CLIMATE CONTROL
+   9     0  -                  dealer,factory   drop: never priced         2025 Toyota RAV4 XLE 2
+   9     0  -                  dealer           drop: never priced         TWO KEYS
+   9     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Power Moonroof/Sunroof
+   9     0  -                  factory,dealer   drop: never priced         Vehicle is Fully Serviced and Ready for Immediate Delivery!
+   9     0  -                  factory,dealer   drop: never priced         Free Lifetime Powertrain on this vehicle!
+   9     0  -                  factory,dealer   drop: never priced         Front Pedestrian Automatic Emergency Braking
+   8     0  -                  factory,dealer   drop: never priced         com Best Resale Value Awards * 2017 KBB
+   8     0  -                  factory,dealer   drop: never priced         and automatic high beams
+   8     0  -                  dealer           drop: never priced         Power Rear Windows and Fixed 3rd Row Windows
+   8     0  -                  dealer,factory   drop: never priced         Apple CarPlay compatible
+   8     0  -                  dealer,factory   drop: never priced         dual zone automatic climate control
+   8     0  -                  dealer,factory   drop: never priced         All Weather Liner Package (TMS)
+   8     0  -                  dealer           drop: never priced         Blue Tooth Connectivity
+   8     0  -                  dealer           drop: never priced         tire rotation
+   8     0  -                  dealer           drop: never priced         and worry-free maintenance
+   8     0  -                  dealer           drop: never priced         If we fail to meet your expectations in any way
+   8     0  -                  dealer           drop: never priced         please let me know
+   8     0  -                  dealer           drop: never priced         Thank you
+   8     0  -                  dealer           drop: never priced         Mike O'Connell
+   8     0  -                  dealer           drop: never priced         General Manager
+   8     0  -                  dealer,factory   drop: never priced         and everything in between
+   8     0  -                  factory,dealer   drop: never priced         DOOR SILL PROTECTOR (TMS)
+   8     0  -                  factory,dealer   drop: never priced         Lane Change Assist (LCA)/Lane Tracing Assist (LTA)
+   8     0  -                  dealer,factory   drop: never priced         a multifunction steering wheel
+   8     0  -                  dealer,factory   drop: never priced         lane-keeping assistance
+   8     0  -                  dealer,factory   drop: never priced         pedestrian detection
+   8     0  -                  factory,dealer   drop: never priced         Front dual-zone automatic climate control
+   8     0  -                  factory,dealer   drop: never priced         Inc
+   8     0  -                  dealer           drop: never priced         0 miles
+   8     0  -                  dealer           drop: never priced         and have a more open cabin during your drive
+   8     0  -                  dealer           drop: never priced         Your first-row sunroof is a breath of fresh air
+   8     0  -                  dealer           drop: never priced         First-row sunshade - Open and shut case
+   8     0  -                  dealer           drop: never priced         First-row sunshade is light where you want it
+   8     0  -                  factory,dealer   drop: never priced         Power driver seat with telescoping and tilt steering wheel
+   8     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto
+   8     0  -                  factory,dealer   drop: never priced         Telescoping and Tilt Steering Wheel
+   8     0  -                  dealer,factory   drop: never priced         FIRST AID KIT
+   8     0  -                  dealer,factory   drop: never priced         and a comprehensive airbag system
+   8     0  -                  dealer,factory   drop: never priced         GREAT VEHICLE HISTORY!
+   8     0  -                  factory,dealer   drop: never priced         Dual Front Zone Climate Control
+   8     0  -                  dealer,factory   drop: never priced         Power driver seat for personalized comfort
+   8     0  -                  dealer,factory   drop: never priced         Electronic Stability Control and brake assist
+   8     0  -                  factory,dealer   drop: never priced         Auto Climate Control
+   8     0  -                  dealer,factory   drop: never priced         and a rearview camera
+   8     0  -                  dealer,factory   drop: never priced         SiriusXM Radio
+   8     0  -                  dealer,factory   drop: never priced         transparent
+   8     0  -                  dealer,factory   drop: never priced         6-Speaker SiriusXM Audio System with Steering Wheel Controls
+   8     0  -                  dealer,factory   drop: never priced         Magnetic Gray Metallic exterior and BLACK interior
+   8     0  -                  dealer,factory   drop: never priced         LUNAR ROCK
+   8     0  -                  dealer           drop: never priced         Gold Certified 7 Year 100
+   8     0  -                  dealer           drop: never priced         Limited Factory Warranty
+   8     0  -                  dealer           drop: never priced         Dublin Toyota is pleased to offer this 2025 Toyota RAV4
+   8     0  -                  dealer           drop: never priced         Not all customers will qualify
+   8     0  -                  dealer,factory   drop: never priced         Blind-Spot Monitors
+   8     0  -                  dealer,factory   drop: never priced         DMV
+   8     0  -                  dealer,factory   drop: never priced         $175 NYS Doc Fee
+   8     0  -                  dealer,factory   drop: never priced         finance charges (if applicable)
+   8     0  -                  dealer,factory   drop: never priced         documentation charges
+   8     0  -                  dealer,factory   drop: never priced         emissions testing charges
+   8     0  -                  dealer,factory   drop: never priced         or other fees required by law
+   8     0  -                  dealer,factory   drop: never priced         vehicle sellers or lending organizations
+   8     0  -                  dealer,factory   drop: never priced         Must take same day delivery
+   8     0  -                  dealer,factory   drop: never priced         financing
+   8     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Cloth
+   8     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio with AM/FM tuner
+   8     0  -                  factory,dealer   drop: never priced         Back Up Camera with Rear View
+   8     0  -                  factory,dealer   drop: never priced         Blind Zone Monitoring
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth® and Satellite Radio
+   8     0  -                  factory,dealer   drop: never priced         Power Sunroof with Power Liftgate
+   8     0  -                  factory,dealer   drop: never priced         Premium Heated Cloth Seats with Dual Climate Control
+   8     0  -                  factory,dealer   drop: never priced         Push Button Start with Proximity Keyless Entry
+   8     0  -                  factory,dealer   drop: never priced         AWD for all-weather traction
+   8     0  -                  factory,dealer   drop: never priced         Backup Camera with Rear View Display
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth® connectivity with steering wheel audio controls
+   8     0  -                  factory,dealer   drop: never priced         $0 deductible warranty with transferable coverage
+   8     0  -                  factory,dealer   drop: never priced         Backup camera for easy reversing
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth-integrated steering wheel audio controls
+   8     0  -                  factory,dealer   drop: never priced         Split-folding rear seats for cargo flexibility
+   8     0  -                  factory,dealer   drop: never priced         NO HASSLE PRICING here at Fitzgerald Auto Mall
+   8     0  -                  factory,dealer   drop: never priced         Ask us about our BUYER PROTECTION PLAN
+   8     0  -                  factory,dealer   drop: never priced         LOANER CAR PROGRAMS
+   8     0  -                  factory,dealer   drop: never priced         AND FREE Vehicle History Report
+   8     0  -                  factory,dealer   drop: never priced         Can not find what you want?? NO PROBLEM! We have over 1
+   8     0  -                  factory,dealer   drop: never priced         000 Pre-Owned vehicles available at WWW
+   8     0  -                  factory,dealer   drop: never priced         FITZMALL
+   8     0  -                  factory,dealer   drop: never priced         All-Wheel Drive with Dynamic Radar Cruise Control
+   8     0  -                  factory,dealer   drop: never priced         Back-Up Camera with Blind Zone Monitoring
+   8     0  -                  factory,dealer   drop: never priced         Backup camera with emergency communication system
+   8     0  -                  factory,dealer   drop: never priced         Sunroof/moonroof with tilt and slide functionality
+   8     0  -                  factory,dealer   drop: never priced         Front and rear heating for comfort
+   8     0  -                  factory,dealer   drop: never priced         Trouble-free transaction handling including DMV paperwork
+   8     0  -                  factory,dealer   drop: never priced         AWD with all-weather capability
+   8     0  -                  factory,dealer   drop: never priced         Automatic high beams for enhanced visibility
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth® connectivity and push button start
+   8     0  -                  factory,dealer   drop: never priced         Trade-ins accepted and trouble-free DMV paperwork handling
+   8     0  -                  factory,dealer   drop: never priced         Odometer is 3710 miles below market average!
+   8     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Silver Sky Metallic
+   8     0  -                  factory,dealer   drop: never priced         This vehicle is at our Chambersburg PA location
+   8     0  -                  factory,dealer   drop: never priced         You’ll get honest advice
+   8     0  -                  factory,dealer   drop: never priced         your satisfaction isn’t just a goal
+   8     0  -                  factory,dealer   drop: never priced         it’s part of our success
+   8     0  -                  factory,dealer   drop: never priced         5L four-cylinder engine and six-speed automatic transmission
+   8     0  -                  factory,dealer   drop: never priced         With black exterior paint
+   8     0  -                  factory,dealer   drop: never priced         and practical all-weather protection
+   8     0  -                  factory,dealer   drop: never priced         - Rear Backup Camera with Monitor
+   8     0  -                  factory,dealer   drop: never priced         - Blind Spot Monitor
+   8     0  -                  factory,dealer   drop: never priced         You'll get honest advice
+   8     0  -                  factory,dealer   drop: never priced         your satisfaction isn't just a goal
+   8     0  -                  factory,dealer   drop: never priced         it's part of our success
+   8     0  -                  factory,dealer   drop: never priced         Blind Spot Monitor with Lane Change Assist
+   8     0  -                  factory,dealer   drop: never priced         Back Up Camera with Rear Parking Sensors
+   8     0  -                  factory,dealer   drop: never priced         Adaptive Cruise Control and Pre-Collision System
+   8     0  -                  factory,dealer   drop: never priced         Entune Display Audio with Navigation and Satellite Radio
+   8     0  -                  factory,dealer   drop: never priced         Dual Climate Control with Heated Power Mirrors
+   8     0  -                  factory,dealer   drop: never priced         All-Weather Floor Liners and Roof Rack Cross Bars
+   8     0  -                  factory,dealer   drop: never priced         17 Alloy Wheels with Front Fog Lights
+   8     0  -                  factory,dealer   drop: never priced         Clean Carfax with clean history report
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth® connectivity with Entune audio system
+   8     0  -                  factory,dealer   drop: never priced         Height-adjustable power liftgate and smart key system
+   8     0  -                  dealer,factory   drop: never priced         Power Driver Seat and Power Steering Wheel
+   8     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto connectivity
+   8     0  -                  dealer           drop: never priced         Google Android Auto
+   8     0  -                  dealer,factory   drop: never priced         Great Gas Mileage: EPA estimate 35 MPG Hwy
+   8     0  -                  dealer,factory   drop: never priced         WAS $34
+   8     0  -                  dealer           drop: never priced         Free XM Radio for 3 Months at Purchase
+   8     0  -                  dealer           drop: never priced         1 Owner with Clean Carfax
+   8     0  -                  factory,dealer   drop: never priced         Vehicle Exchange Promise*; 3
+   8     0  -                  factory,dealer   drop: never priced         All vehicles are priced thousands below book value; 7
+   8     0  -                  factory,dealer   drop: never priced         Irwin Rewards saving you hundreds!
+   8     0  -                  factory,dealer   drop: never priced         a 2
+   8     0  -                  dealer,factory   drop: never priced         *Bluetooth®
+   8     0  -                  dealer           drop: never priced         Was $37
+   8     0  -                  dealer           drop: never priced         As you do your comparison shopping
+   8     0  -                  factory,dealer   drop: never priced         Toyota Audio Multimedia Touchscreen
+   8     0  -                  factory,dealer   drop: never priced         strong resale value
+   8     0  -                  factory,dealer   drop: never priced         family SUV for sale
+   8     0  -                  dealer           drop: never priced         1 Owner!
+   8     0  -                  dealer           drop: never priced         Bluetooth® and hands-free connectivity
+   8     0  -                  dealer           drop: never priced         2025 Toyota RAV4 XLE Fully Serviced
+   8     0  -                  dealer           drop: never priced         Vehicle is equipped with: Toyota Gold Certified
+   8     0  -                  dealer,factory   drop: never priced         Toyota Safety Sense technology
+   8     0  -                  dealer           drop: never priced         Prices do not include tax and registration fees
+   8     0  -                  dealer           drop: never priced         and $695 Paintless Dent Removal 3-Year
+   8     0  -                  factory,dealer   drop: never priced         Lane Centering Autonomous Lane Guidance
+   8     0  -                  factory,dealer   drop: never priced         Maintenance Status Smart Device App Function
+   8     0  -                  dealer           drop: never priced         Baton Rouge
+   7     0  -                  dealer,factory   drop: never priced         Remote keyless entry and automatic headlights
+   7     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i FWD
+   7     0  -                  dealer,factory   drop: never priced         Stop By Today
+   7     0  -                  dealer,factory   drop: never priced         Under the hood
+   7     0  -                  dealer           drop: never priced         Overall
+   7     0  -                  dealer           drop: never priced         Recent Arrival! Local Trade
+   7     0  -                  dealer,factory   drop: never priced         Powered by a 4-cylinder
+   7     0  -                  dealer,factory   drop: never priced         alerting drivers to potential dangers in adjacent lanes
+   7     0  -                  dealer,factory   drop: never priced         Automatic Climate Control with Front Dual Zone A/C
+   7     0  -                  factory,dealer   drop: never priced         Achieving 27 city and 33 highway MPG
+   7     0  -                  dealer,factory   drop: never priced         Remote keyless entry with panic alarm
+   7     0  -                  dealer           drop: never priced         https://www
+   7     0  -                  factory,dealer   drop: never priced         BLACKOUT EMBLEM OVERLAYS (TMS)
+   7     0  -                  factory,dealer   drop: never priced         ONE OWNER LOCAL TRADE!
+   7     0  -                  factory,dealer   drop: never priced         ALL WEATHER LINER PACKAGE All Weather Floor Liners
+   7     0  -                  dealer,factory   drop: never priced         8-Speed Automatic Transmission with AWD
+   7     0  -                  factory,dealer   drop: never priced         Rear backup camera with parking assist
+   7     0  -                  factory,dealer   drop: never priced         SiriusXM Radio with Steering Wheel Audio Controls
+   7     0  -                  factory,dealer   drop: never priced         * 2015 IIHS Top Safety Pick
+   7     0  -                  dealer,factory   drop: never priced         and everyday versatility
+   7     0  -                  dealer,factory   drop: never priced         and then prepares
+   7     0  -                  dealer,factory   drop: never priced         the vehicle and/or occupants
+   7     0  -                  dealer,factory   drop: never priced         for an impending forward collision
+   7     0  -                  dealer,factory   drop: never priced         6 Speakers with SiriusXM Satellite Radio
+   7     0  -                  dealer,factory   drop: never priced         Leather
+   7     0  -                  dealer,factory   drop: never priced         **ONE OWNER**
+   7     0  -                  dealer,factory   drop: never priced         Rear backup camera for added safety
+   7     0  -                  dealer           drop: never priced         Warranty Included
+   7     0  -                  dealer           drop: never priced         CHEROKEE COUNTY TOYOTA CERTIFIED
+   7     0  -                  dealer           drop: never priced         Certification Program Details: 7 YR OR 100
+   7     0  -                  dealer           drop: never priced         000 POWERTRAIN COVERAGE
+   7     0  -                  dealer           drop: never priced         12 MONTH OR 12
+   7     0  -                  factory,dealer   drop: never priced         SiriusXM AM/FM radio with 6 speakers
+   7     0  -                  factory,dealer   drop: never priced         Split folding rear seat with center armrest
+   7     0  -                  dealer,factory   drop: never priced         Safety Connect emergency communication system
+   7     0  -                  factory,dealer   drop: never priced         Remote keyless entry and illuminated entry
+   7     0  -                  dealer,factory   drop: never priced         Android Auto and Apple CarPlay integration
+   7     0  -                  dealer           drop: never priced         Enjoy a refined cabin with modern technology
+   7     0  -                  dealer           drop: never priced         intuitive connectivity
+   7     0  -                  dealer,factory   drop: never priced         Second key
+   7     0  -                  dealer,factory   drop: never priced         Approx
+   7     0  -                  dealer,factory   drop: never priced         000*
+   7     0  -                  factory,dealer   drop: never priced         Speed-sensing steering and four-wheel independent suspension
+   7     0  -                  factory,dealer   drop: never priced         Wi-Fi Connect Mobile Hotspot Internet Access
+   7     0  -                  factory,dealer   drop: never priced         0J Alloy
+   7     0  -                  factory,dealer   drop: never priced         family errands
+   7     0  -                  factory,dealer   drop: never priced         Rear seat center armrest with split-folding configuration
+   7     0  -                  factory,dealer   drop: never priced         All-Weather Floor Liners
+   7     0  -                  factory,dealer   drop: never priced         Entune Display Audio System
+   7     0  -                  dealer,factory   drop: never priced         Johnstown
+   7     0  -                  factory,dealer   drop: never priced         Automatic climate control with dual front zones
+   7     0  -                  factory,dealer   drop: never priced         Power Seats
+   7     0  -                  dealer,factory   drop: never priced         300 below J
+   7     0  -                  dealer,factory   drop: never priced         Automatic Temperature Control with Dual Zone A/C
+   7     0  -                  factory,dealer   drop: never priced         com!
+   7     0  -                  dealer,factory   drop: never priced         Jeep
+   7     0  -                  dealer,factory   drop: never priced         We make every effort to provide accurate information
+   7     0  -                  dealer,factory   drop: never priced         but please verify options and price before purchasing
+   7     0  -                  dealer,factory   drop: never priced         All financing is subject to approved credit
+   7     0  -                  dealer,factory   drop: never priced         Due to availability
+   7     0  -                  dealer,factory   drop: never priced         or other specifications
+   7     0  -                  dealer,factory   drop: never priced         Consult dealer for more information and details
+   7     0  -                  factory,dealer   drop: never priced         Aiken
+   7     0  -                  factory,dealer   drop: never priced         Also
+   7     0  -                  dealer           drop: never priced         SEE MORE!
+   7     0  -                  dealer,factory   drop: never priced         POWER DOOR LOCKS
+   7     0  -                  dealer,factory   drop: never priced         features
+   7     0  -                  dealer,factory   drop: never priced         * 2013 IIHS Top Safety Pick * 2013 KBB
+   7     0  -                  dealer,factory   drop: never priced         com 10 Best Used Compact SUVs Under $15
+   7     0  -                  dealer,factory   drop: never priced         000 * 2013 KBB
+   7     0  -                  dealer,factory   drop: never priced         com 10 Best Used SUVs Under $15
+   7     0  -                  factory,dealer   drop: never priced         Plus sales tax
+   7     0  -                  factory,dealer   drop: never priced         title and license
+   7     0  -                  factory,dealer   drop: never priced         Prices include $200 dealer doc fee
+   7     0  -                  factory,dealer   drop: never priced         All-Wheel Drive for confident handling
+   7     0  -                  factory,dealer   drop: never priced         Exterior Parking Camera Rear for easy maneuvering
+   7     0  -                  factory,dealer   drop: never priced         Auto High-beam Headlights for enhanced visibility
+   7     0  -                  factory,dealer   drop: never priced         Alloy wheels with 17 5-spoke silver design
+   7     0  -                  factory,dealer   drop: never priced         Statesville
+   7     0  -                  factory,dealer   drop: never priced         NC 28625!!
+   7     0  -                  factory,dealer   drop: never priced         The KING OF PRICE is at 1011 Folger Dr
+   7     0  -                  factory,dealer   drop: never priced         NC 28625
+   7     0  -                  factory,dealer   drop: never priced         *CLEAN CARFAX
+   7     0  -                  factory,dealer   drop: never priced         *2025 TOYOTA RAV4 XLE
+   7     0  -                  factory,dealer   drop: never priced         *BACK UP CAMERA
+   7     0  -                  factory,dealer   drop: never priced         *MOONROOF
+   7     0  -                  factory,dealer   drop: never priced         *APPLE CARPLAY/ANDROID AUTO
+   7     0  -                  factory,dealer   drop: never priced         *BALANCE OF FACTORY WARRANTY
+   7     0  -                  factory,dealer   drop: never priced         *BUY WITH CONFIDENCE FROM A FRANCHISE DEALER
+   7     0  -                  factory,dealer   drop: never priced         Plaza Dr
+   7     0  -                  factory,dealer   drop: never priced         Mooresville
+   7     0  -                  factory,dealer   drop: never priced         NC 28117 *I77 Exit 36* Shop online 24/7 at www
+   7     0  -                  factory,dealer   drop: never priced         randymarionsubaru
+   7     0  -                  factory,dealer   drop: never priced         com ** Recent Arrival!
+   7     0  -                  factory,dealer   drop: never priced         8-Speed Automatic transmission for smooth
+   7     0  -                  factory,dealer   drop: never priced         WE WILL BUY YOUR VEHICLE EVEN IF YOU DO NOT BUY OURS
+   7     0  -                  factory,dealer   drop: never priced         Hours: 9AM to 9PM Monday - Friday
+   7     0  -                  factory,dealer   drop: never priced         Saturday until 8PM
+   7     0  -                  factory,dealer   drop: never priced         0 DOWN FINANCING AVAILABLE ON ALL VEHICLES
+   7     0  -                  factory,dealer   drop: never priced         Over 2000 Vehicles in stock
+   7     0  -                  dealer           drop: never priced         Informative
+   7     0  -                  dealer           drop: never priced         Safety Connect Emergency Sos Capability
+   7     0  -                  dealer           drop: never priced         5L 4-Cylinder DOHC Dual VVT-i ONE OWNER!!
+   6     0  -                  factory,dealer   drop: never priced         SiriusXM AM/FM Radio with Steering Wheel Controls
+   6     0  -                  dealer,factory   drop: never priced         Power moonroof for open-air driving
+   6     0  -                  factory,dealer   drop: never priced         Automatic Headlights with Delay-Off
+   6     0  -                  factory,dealer   drop: never priced         Front Dual Zone Climate Control
+   6     0  -                  dealer,factory   drop: never priced         Recent Arrival! Convenience Package
+   6     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i 8-Speed Automatic FWD
+   6     0  -                  dealer,factory   drop: never priced         Addis
+   6     0  -                  dealer,factory   drop: never priced         Plaquemine
+   6     0  -                  dealer,factory   drop: never priced         White Castle and Lafayette
+   6     0  -                  dealer,factory   drop: never priced         If you are in the market for a Toyota
+   6     0  -                  dealer,factory   drop: never priced         Parts and Service that is really All Star!
+   6     0  -                  dealer,factory   drop: never priced         Auto high-beam headlights with front fog lights
+   6     0  -                  factory,dealer   drop: never priced         Whether you're commuting
+   6     0  -                  factory,dealer   drop: never priced         running errands
+   6     0  -                  dealer           drop: never priced         Safety Connect Tracker System
+   6     0  -                  dealer           drop: never priced         Power Door Locks w/Autolock Feature
+   6     0  -                  dealer,factory   drop: never priced         SiriusXM w/3-month all access trial
+   6     0  -                  dealer           drop: never priced         Plus tax
+   6     0  -                  dealer           drop: never priced         title & license
+   6     0  -                  dealer           drop: never priced         Prices include $490 dealer doc fee and $64
+   6     0  -                  dealer           drop: never priced         79 electronic filing fee
+   6     0  -                  dealer           drop: never priced         On Approved Credit
+   6     0  -                  dealer           drop: never priced         gov/vin/
+   6     0  -                  dealer,factory   drop: never priced         and weekend adventures
+   6     0  -                  dealer           drop: never priced         Power driver seat and steering
+   6     2  $200               dealer,factory   drop: accessory/subscr.    All Weather Floor Mats & Cargo Tray
+   6     0  -                  dealer,factory   drop: never priced         27 City / 33 Highway MPG
+   6     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder engine and 8-Speed Automatic transmission
+   6     0  -                  dealer,factory   drop: never priced         One Owner vehicle
+   6     0  -                  dealer,factory   drop: never priced         Apple CarPlay integration
+   6     0  -                  factory,dealer   drop: never priced         WHEEL LOCKS (TMS)
+   6     0  -                  dealer           drop: never priced         Rugged and raring to go
+   6     0  -                  dealer           drop: never priced         our RAV4 showcases LED lighting
+   6     0  -                  dealer           drop: never priced         low-profile roof rails
+   6     0  -                  dealer           drop: never priced         dual chrome exhaust tips
+   6     0  -                  dealer           drop: never priced         and stylish alloy wheels beneath black fender moldings
+   6     0  -                  dealer           drop: never priced         an 8-way power driver's seat
+   6     0  -                  dealer           drop: never priced         and push-button start for convenience
+   6     0  -                  dealer           drop: never priced         WiFi compatibility
+   6     0  -                  dealer           drop: never priced         For more peace of mind
+   6     0  -                  dealer           drop: never priced         Toyota offers smart technologies like a rearview camera
+   6     0  -                  dealer           drop: never priced         blind-spot monitoring
+   6     0  -                  dealer           drop: never priced         forward collision warning
+   6     0  -                  dealer           drop: never priced         Drive our RAV4 XLE
+   6     0  -                  dealer           drop: never priced         We Know You Will Enjoy Your Test Drive Toward Ownership!
+   6     0  -                  factory,dealer   drop: never priced         BLIND SPOT MONITOR!
+   6     0  -                  factory,dealer   drop: never priced         All-wheel drive for enhanced traction and stability
+   6     0  -                  dealer           drop: never priced         offering a balanced blend of style and practicality
+   6     0  -                  dealer           drop: never priced         Powered by a Dynamic Force 2
+   6     0  -                  dealer           drop: never priced         5L inline-4 engine with Dual VVT-i
+   6     0  -                  dealer           drop: never priced         this RAV4 provides confident handling and a comfortable ride
+   6     0  -                  dealer           drop: never priced         The Entune 3
+   6     0  -                  dealer           drop: never priced         integrating easily with your mobile devices
+   6     0  -                  dealer           drop: never priced         Designed with a 3
+   6     0  -                  dealer           drop: never priced         177 axle ratio and a gross vehicle weight rating of 4
+   6     0  -                  dealer           drop: never priced         610 pounds
+   6     0  -                  dealer           drop: never priced         Power Driver Seat with Front Seat Heating
+   6     0  -                  dealer,factory   drop: never priced         241 miles
+   6     0  -                  dealer           drop: never priced         Must finance with Bommarito Toyota to qualify for sale price
+   6     0  -                  dealer           drop: never priced         Add $1
+   6     0  -                  dealer           drop: never priced         000 if cash or outside lender
+   6     0  -                  dealer,factory   drop: never priced         errands
+   6     0  -                  dealer,factory   drop: never priced         Blue Certified
+   6     0  -                  dealer           drop: never priced         a power moonroof
+   6     0  -                  factory,dealer   drop: never priced         Split-folding rear seats
+   6     0  -                  dealer,factory   drop: never priced         $100 Warranty Deductible
+   6     0  -                  dealer,factory   drop: never priced         Buying an used car doesn't have to be a cause for worry
+   6     0  -                  dealer,factory   drop: never priced         Casa fully inspects all the vehicles that make it to our lot
+   6     0  -                  dealer,factory   drop: never priced         so we stand behind them
+   6     0  -                  dealer,factory   drop: never priced         7-Day Cash Back Promise A vehicle is a big purchase
+   6     0  -                  dealer,factory   drop: never priced         and we want to make sure you make the right choice
+   6     0  -                  dealer,factory   drop: never priced         If you don't love your pre-owned Casa vehicle
+   6     0  -                  dealer,factory   drop: never priced         bring it back within 7 days and find the one you do love
+   6     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i Features: NonSmoker
+   6     0  -                  dealer           drop: never priced         5L 4-Cylinder DOHC Dual VVT-i No Dealer Fees
+   6     0  -                  dealer           drop: never priced         Bluetooth® MP3
+   6     0  -                  dealer,factory   drop: never priced         Pearl
+   6     0  -                  factory,dealer   drop: never priced         Multi-Zone Air Conditioning
+   6     0  -                  factory,dealer   drop: never priced         Preowned
+   6     0  -                  factory,dealer   drop: never priced         or Certified vehicle
+   6     0  -                  dealer,factory   drop: never priced         HD Radio w/iTunes tagging
+   6     0  -                  dealer,factory   drop: never priced         Front-wheel drive with four-wheel independent suspension
+   6     0  -                  dealer,factory   drop: never priced         Heated door mirrors with power adjustment
+   6     0  -                  factory,dealer   drop: never priced         easy and financially advantageous
+   6     0  -                  dealer,factory   drop: never priced         commuters
+   6     0  -                  factory,dealer   drop: never priced         families
+   6     0  -                  factory,dealer   drop: never priced         Power sunroof
+   6     0  -                  factory,dealer   drop: never priced         Electronic stability control and 4-wheel disc brakes
+   6     0  -                  factory,dealer   drop: never priced         AM/FM/XM Audio System with SiriusXM
+   6     0  -                  factory,dealer   drop: never priced         179 miles
+   6     0  -                  factory,dealer   drop: never priced         Stock Number HG0202
+   6     0  -                  factory,dealer   drop: never priced         158 miles
+   6     0  -                  factory,dealer   drop: never priced         Stock Number HG0203
+   6     0  -                  factory,dealer   drop: never priced         535 miles
+   6     0  -                  factory,dealer   drop: never priced         Stock Number HG0169
+   6     0  -                  dealer,factory   drop: never priced         27 city / 35 highway MPG fuel efficiency
+   6     0  -                  dealer,factory   drop: never priced         Rear-view parking camera for safe backing up
+   6     1  $865               dealer           KEEP                       Advanced Technology Package
+   6     0  -                  dealer           drop: never priced         Auto-Dimming Rearview Mirror w/HomeLink
+   6     0  -                  dealer           drop: never priced         Front & Rear Parking Assist w/Automated Braking
+   6     0  -                  dealer           drop: never priced         Intelligence Clearance & Back Sonar
+   6     0  -                  dealer           drop: never priced         Equipped with 4-Wheel Disc Brakes
+   6     0  -                  dealer           drop: never priced         Ed Morse Chevrolet GMC in North Moberly
+   6     0  -                  dealer           drop: never priced         offers a great selection of new and used vehicles
+   6     0  -                  dealer           drop: never priced         along with excellent after-sales services
+   6     0  -                  dealer           drop: never priced         Check our hours and directions page
+   6     0  -                  dealer           drop: never priced         and visit our showroom in Moberly today
+   6     0  -                  dealer           drop: never priced         And remember
+   6     0  -                  dealer           drop: never priced         you're always Backed by Morse! www
+   6     0  -                  dealer           drop: never priced         edmorsechevroletgmcmoberly
+   6     3  $990               dealer,factory   KEEP                       Radio: Audio Plus
+   6     0  -                  dealer,factory   drop: never priced         Keyless Access w/Push Button Start
+   6     0  -                  dealer           drop: never priced         5L 4-Cylinder DOHC Dual VVT-i XLE 27/35 City/Highway MPG
+   6     0  -                  dealer,factory   drop: never priced         AM/FM/HD Radio
+   6     0  -                  dealer           drop: never priced         AFFORDABLE TO OWN
+   6     0  -                  dealer           drop: never priced         Ice Cap 2024 Toyota RAV4 XLE AWD 8-Speed Automatic 2
+   6     0  -                  dealer           drop: never priced         Apple Car Play / Android Auto
+   6     0  -                  dealer           drop: never priced         Located in Arlington
+   6     0  -                  dealer           drop: never priced         familytoyotaofarlington
+   6     0  -                  dealer           drop: never priced         It comes with a FREE 60-day
+   6     0  -                  dealer           drop: never priced         2000-mile warranty
+   6     0  -                  dealer           drop: never priced         We provide AIRPORT TRANSPORTATION
+   6     0  -                  dealer           drop: never priced         We ship anywhere in the US! Rates as low as $149! Second key
+   6     0  -                  dealer,factory   drop: never priced         Ice 2023 Toyota RAV4 XLE FWD 8-Speed Automatic 2
+   6     0  -                  dealer,factory   drop: never priced         Blueprint exterior and BLACK interior
+   6     0  -                  factory,dealer   drop: never priced         Only 69
+   6     0  -                  factory,dealer   drop: never priced         Tires: P225/65R17 AS
+   6     0  -                  factory,dealer   drop: never priced         The Votes are Counted
+   6     0  -                  factory,dealer   drop: never priced         28/35 City/Highway MPGWe offer Market Based Pricing
+   6     0  -                  factory,dealer   drop: never priced         2021 Toyota RAV4 XLE FWD 8-Speed Automatic 2
+   6     0  -                  factory,dealer   drop: never priced         This vehicle comes equipped with: Cloth
+   6     0  -                  factory,dealer   drop: never priced         With a comfortable five-passenger cabin
+   6     0  -                  factory,dealer   drop: never priced         flexible cargo space
+   6     0  -                  factory,dealer   drop: never priced         and convenient technology
+   6     0  -                  factory,dealer   drop: never priced         and weekend trips across North Carolina
+   6     0  -                  factory,dealer   drop: never priced         The **2
+   6     0  -                  factory,dealer   drop: never priced         5L four-cylinder engine delivers 203 horsepower**
+   6     0  -                  factory,dealer   drop: never priced         or larger gear
+   6     0  -                  factory,dealer   drop: never priced         Access your compatible smartphone’s music
+   6     0  -                  factory,dealer   drop: never priced         calls
+   6     0  -                  factory,dealer   drop: never priced         and navigation apps while enjoying a clean
+   6     0  -                  factory,dealer   drop: never priced         easy-to-use cabin layout
+   6     0  -                  factory,dealer   drop: never priced         Standard **Toyota Safety Sense 2
+   6     0  -                  factory,dealer   drop: never priced         5** provides helpful driver assistance
+   6     0  -                  factory,dealer   drop: never priced         including **Pre-Collision System with Pedestrian Detection
+   6     0  -                  factory,dealer   drop: never priced         and Lane Departure Alert with Steering Assist**
+   6     0  -                  factory,dealer   drop: never priced         explore financing options
+   6     0  -                  factory,dealer   drop: never priced         and schedule your test drive
+   6     0  -                  factory,dealer   drop: never priced         Discover how this 2024 RAV4 XLE fits your commute
+   6     0  -                  factory,dealer   drop: never priced         your weekends
+   6     0  -                  factory,dealer   drop: never priced         Buy with confidence from Fayetteville Automall!!!
+   6     0  -                  factory,dealer   drop: never priced         Pearl 2024 Toyota RAV4 XLE FWD 8-Speed Automatic 2
+   6     0  -                  factory,dealer   drop: never priced         FL 34285 can get you a reliable RAV4 today!
+   6     0  -                  factory,dealer   drop: never priced         Dealership owned vehicle in perfect condition
+   6     0  -                  factory,dealer   drop: never priced         17 silver alloy wheels with all-terrain capability
+   6     0  -                  factory,dealer   drop: never priced         27/34 City/Highway MPGWe offer Market Based Pricing
+   6     0  -                  factory,dealer   drop: never priced         This vehicle comes equipped with: Ash Cloth
+   6     0  -                  factory,dealer   drop: never priced         **TOWING PACKAGE
+   6     0  -                  factory,dealer   drop: never priced         Power driver seat and power door mirrors
+   6     7  $65                dealer,factory   drop: accessory/subscr.    Wheel Lock
+   6     0  -                  factory,dealer   drop: never priced         Android Auto & Apple CarPlay
+   6     0  -                  dealer,factory   drop: never priced         AWD with 2
+   6     0  -                  dealer,factory   drop: never priced         Remote keyless entry with push-button start
+   6     0  -                  dealer,factory   drop: never priced         AWD Capability
+   6     0  -                  dealer,factory   drop: never priced         XLE Package
+   6     0  -                  dealer,factory   drop: never priced         Hanover
+   6     6  $239               dealer           drop: accessory/subscr.    All Weather Floor Liners & Cargo Tray
+   6     0  -                  dealer,factory   drop: never priced         Nutmeg w/Fabric Seat Trim
+   6     0  -                  dealer,factory   drop: never priced         Finding the right pre-owned vehicle should be simple
+   6     0  -                  dealer,factory   drop: never priced         and comfortable
+   6     0  -                  dealer,factory   drop: never priced         With Express Buying
+   6     0  -                  dealer,factory   drop: never priced         you stay in control: shop online
+   6     0  -                  dealer,factory   drop: never priced         visit our dealership
+   6     0  -                  dealer,factory   drop: never priced         helping you shop and compare with confidence
+   6     0  -                  dealer,factory   drop: never priced         All-Wheel Drive with 8-Speed Automatic Transmission
+   6     0  -                  dealer,factory   drop: never priced         PRICE DROP FROM $33
+   6     0  -                  dealer,factory   drop: never priced         Back-Up Camera READ MORE!
+   6     0  -                  dealer,factory   drop: never priced         Blueprint exterior
+   6     0  -                  dealer,factory   drop: never priced         Aluminum Wheels CLICK ME!
+   6     0  -                  dealer,factory   drop: never priced         Brake Actuated Limited Slip Differential Rear Spoiler
+   6     0  -                  dealer,factory   drop: never priced         Reduced from $34
+   6     0  -                  dealer,factory   drop: never priced         Original Base Sticker Price: $38
+   6     0  -                  dealer,factory   drop: never priced         FUEL EFFICIENT 33 MPG Hwy/27 MPG City! XLE trim
+   6     0  -                  dealer,factory   drop: never priced         Very Nice
+   6     0  -                  dealer,factory   drop: never priced         995!
+   6     0  -                  dealer,factory   drop: never priced         WEATHER PACKAGE CLICK ME!
+   6     0  -                  dealer,factory   drop: never priced         Satellite Radio CLICK ME!
+   6     0  -                  dealer,factory   drop: never priced         LOW MILES - 24
+   6     0  -                  dealer,factory   drop: never priced         752! PRICE DROP FROM $34
+   6     0  -                  dealer,factory   drop: never priced         Serviced here READ MORE!
+   6     0  -                  dealer,factory   drop: never priced         FUEL EFFICIENT EPA estimate 35 MPG Hwy/27 MPG City! XLE trim
+   6     0  -                  dealer,factory   drop: never priced         After more than 50 years in business
+   6     0  -                  dealer,factory   drop: never priced         The Hubler Auto Group
+   6     0  -                  dealer,factory   drop: never priced         through the power of ten central Indiana locations
+   6     0  -                  dealer,factory   drop: never priced         Back-Up Camera CLICK NOW!
+   6     0  -                  factory,dealer   drop: never priced         Carfax Dealer of the Year
+   6     0  -                  factory,dealer   drop: never priced         Check them out-even our bad ones!
+   6     0  -                  factory,dealer   drop: never priced         excellent fuel economy
+   6     0  -                  dealer,factory   drop: never priced         071 Axle Ratio
+   6     0  -                  dealer,factory   drop: never priced         Buick
+   6     0  -                  dealer           drop: never priced         We will provide you a Carfax
+   6     0  -                  dealer           drop: never priced         and how we arrived at the price
+   6     0  -                  dealer           drop: never priced         We can help arrange delivery right to your front door too!
+   6     0  -                  factory,dealer   drop: never priced         Wireless Apple CarPlay® & Android Auto™
+   6     0  -                  factory,dealer   drop: never priced         fuel efficiency
+   6     0  -                  factory,dealer   drop: never priced         Toyota Safety Connect Emergency Communication
+   6     0  -                  dealer,factory   drop: never priced         Ice 2023 Toyota RAV4 XLE AWD 8-Speed Automatic 2
+   6     0  -                  dealer,factory   drop: never priced         a rearview camera
+   6     0  -                  dealer,factory   drop: never priced         Ram
+   6     0  -                  dealer,factory   drop: never priced         ONLY 13
+   6     0  -                  dealer           drop: never priced         368
+   6     0  -                  dealer           drop: never priced         TOUCH SCREEN
+   6     0  -                  dealer           drop: never priced         POWER SEAT ADJUSTABLE LUMBAR
+   6     0  -                  dealer           drop: never priced         POWER MIRRORS
+   6     0  -                  dealer           drop: never priced         AND MANY MORE OPTIONS!Recent Arrival!Clean CARFAX
+   6     0  -                  dealer,factory   drop: never priced         27/34 City/Highway MPG2023 Toyota RAV4 XLE
+   6     0  -                  dealer,factory   drop: never priced         Award calculated among non-luxury shoppers
+   6     0  -                  dealer,factory   drop: never priced         For more information
+   6     0  -                  dealer,factory   drop: never priced         and Variably intermittent wipers
+   6     0  -                  dealer,factory   drop: never priced         com Best Resale Value Awards * 2013 KBB
+   6     0  -                  factory,dealer   drop: never priced         mikekellytoyota
+   6     0  -                  factory,dealer   drop: never priced         Lifetime Car Washes with a Service Visit
+   6     0  -                  factory,dealer   drop: never priced         Lifetime Pit-Stop Program
+   6     0  -                  factory,dealer   drop: never priced         Convenient Financing Options
+   6     0  -                  factory,dealer   drop: never priced         Sales 724-973-4295
+   6     0  -                  factory,dealer   drop: never priced         We serve customers in and around the Uniontown PA
+   6     0  -                  factory,dealer   drop: never priced         Greensburg PA
+   6     0  -                  factory,dealer   drop: never priced         and Morgantown WV areas
+   6     0  -                  factory,dealer   drop: never priced         and a top-notch service department
+   6     0  -                  factory,dealer   drop: never priced         Thomson
+   6     0  -                  factory,dealer   drop: never priced         Waynesboro
+   6     0  -                  factory,dealer   drop: never priced         Columbia SC and more
+   6     0  -                  factory,dealer   drop: never priced         At Milton Ruben we are your one stop shop for all your needs
+   6     0  -                  factory,dealer   drop: never priced         At Milton Ruben Auto Group
+   6     0  -                  factory,dealer   drop: never priced         customer service is our number one priority
+   6     0  -                  factory,dealer   drop: never priced         If you plan to buy a new or used vehicle
+   6     0  -                  factory,dealer   drop: never priced         drivebaby
+   6     0  -                  dealer,factory   drop: never priced         2022 Toyota RAV4 XLE Lunar 2
+   6     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i AWD Automatic
+   6     0  -                  dealer,factory   drop: never priced         a 3-Day/300-mile money back guarantee
+   6     0  -                  dealer,factory   drop: never priced         See dealer for additional details
+   6     0  -                  dealer,factory   drop: never priced         passportnissanva
+   6     0  -                  dealer,factory   drop: never priced         and car washes for life! See dealer for additional details
+   6     0  -                  dealer,factory   drop: never priced         Some vehicle images may have been digitally enhanced
+   6     0  -                  dealer,factory   drop: never priced         retouched
+   6     0  -                  dealer,factory   drop: never priced         and overall appearance may vary from the actual vehicle
+   6     0  -                  dealer,factory   drop: never priced         Please contact the dealership for specific vehicle details
+   6     0  -                  dealer,factory   drop: never priced         Bluetooth® connectivity with USB ports
+   6     0  -                  dealer,factory   drop: never priced         AUX input for audio flexibility
+   6     0  -                  dealer,factory   drop: never priced         Android Auto and Apple CarPlay compatible
+   6     0  -                  dealer,factory   drop: never priced         Apple CarPlay compatible and Android Auto compatible
+   6     0  -                  dealer,factory   drop: never priced         USB Ports and AUX Input
+   6     0  -                  dealer,factory   drop: never priced         Alloy wheels and fully automatic headlights
+   6     0  -                  dealer,factory   drop: never priced         Backup Camera with Monitor
+   6     0  -                  dealer,factory   drop: never priced         AUX and USB Ports
+   6     0  -                  factory,dealer   drop: never priced         - - - - - - - - -
+   6     0  -                  factory,dealer   drop: never priced         titling
+   6     0  -                  factory,dealer   drop: never priced         and a $799 document processing fee
+   6     0  -                  factory,dealer   drop: never priced         remember that all financing is subject to approved credit
+   6     0  -                  factory,dealer   drop: never priced         Published prices are subject to change without notice
+   6     0  -                  factory,dealer   drop: never priced         and all inventory is subject to prior sale
+   6     0  -                  dealer           drop: never priced         Does not include optional accessories of $799 Lifetime Oil
+   6     0  -                  dealer           drop: never priced         $895 PermaPlate
+   6     0  -                  dealer           drop: never priced         Welcome to Priority Toyota Chesapeake
+   6     0  -                  dealer           drop: never priced         the largest volume dealer in Hampton Roads
+   6     0  -                  dealer,factory   drop: never priced         Stop by Red McCombs Toyota located at 13526 W INTERSTATE 10
+   6     0  -                  dealer,factory   drop: never priced         TX 78249 for a quick visit and a great vehicle!
+   6     0  -                  dealer,factory   drop: never priced         5 L/152 engine
+   6     0  -                  dealer           drop: never priced         DUAL ZONE CLIMATE CONTROLS
+   6     0  -                  factory,dealer   drop: never priced         Optional $250
+   6     0  -                  factory,dealer   drop: never priced         00 Documentation Fee
+   6     0  -                  factory,dealer   drop: never priced         Remainder of factory warranty
+   6     0  -                  dealer           drop: never priced         ***Clean AutoCheck***
+   5     0  -                  dealer,factory   drop: never priced         Power driver seat with adjustable controls
+   5     0  -                  dealer,factory   drop: never priced         OR SUV
+   5     0  -                  factory,dealer   drop: never priced         SiriusXM Radio with 6 Speakers
+   5     0  -                  factory,dealer   drop: never priced         Advanced safety features including dual front airbags
+   5     0  -                  factory,dealer   drop: never priced         Rear backup camera for convenient parking
+   5     0  -                  dealer,factory   drop: never priced         Dual Front Zone Automatic Temperature Control
+   5     0  -                  dealer,factory   drop: never priced         Backup Camera and Auto High-Beam Headlights
+   5     0  -                  factory,dealer   drop: never priced         SiriusXM Radio with AM/FM
+   5     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Amazon Alexa compatible
+   5     0  -                  dealer,factory   drop: never priced         Sirius XM w/3-month All Access trial
+   5     0  -                  dealer,factory   drop: never priced         and Wi-Fi Connect w/up to 2GB within 3-month trial
+   5     0  -                  dealer,factory   drop: never priced         com/connected-services for detailsRadio w/Seek-Scan
+   5     0  -                  dealer           drop: never priced         Power 1st Row Windows w/Front And Rear 1-Touch Up/Down
+   5     0  -                  dealer           drop: never priced         No Accidents On Carfax
+   5     0  -                  dealer           drop: never priced         Includes an Oil and Filter Change
+   5     0  -                  dealer,factory   drop: never priced         and everyday adventures
+   5     0  -                  dealer,factory   drop: never priced         automatic emergency braking
+   5     0  -                  dealer,factory   drop: never priced         Entune Display Audio with Navigation
+   5     0  -                  dealer,factory   drop: never priced         Panoramic Moonroof
+   5     0  -                  dealer           drop: never priced         Cargo Liner (TMS)
+   5     0  -                  dealer,factory   drop: never priced         family trips
+   5     0  -                  dealer,factory   drop: never priced         Fully automatic headlights with delay-off
+   5     0  -                  dealer,factory   drop: never priced         Ice 2025 Toyota RAV4 XLE AWD 8-Speed Automatic 2
+   5     0  -                  dealer,factory   drop: never priced         reliability
+   5     0  -                  dealer,factory   drop: never priced         Power Driver Seat with Lumbar Support
+   5     0  -                  dealer,factory   drop: never priced         8-Way power-adjustable driver's seat with lumbar support
+   5     0  -                  dealer,factory   drop: never priced         Radio: Entune Audio Plus AM/FM/CD/MP3/WMA Playback
+   5     0  -                  factory,dealer   drop: never priced         Blind Spot
+   5     0  -                  dealer           drop: never priced         Enjoy supportive fabric seats with embossed inserts
+   5     0  -                  dealer           drop: never priced         wireless Apple CarPlay® and Android Auto®
+   5     0  -                  dealer,factory   drop: never priced         fog lights
+   5     0  -                  factory,dealer   drop: never priced         Power-adjustable driver seat with lumbar support
+   5     0  -                  factory,dealer   drop: never priced         22/28 City/Highway MPG
+   5     3  $500               dealer           KEEP                       Front and Back Clearance Sonar
+   5     0  -                  factory,dealer   drop: never priced         Exterior Color: Ice Cap
+   5     0  -                  dealer,factory   drop: never priced         Leather Heated Steering Wheel
+   5     0  -                  dealer           drop: never priced         701 miles
+   5     0  -                  dealer           drop: never priced         Stock Number TI18701
+   5     0  -                  dealer           drop: never priced         972 miles
+   5     0  -                  dealer           drop: never priced         Stock Number TI18699
+   5     0  -                  dealer           drop: never priced         358 miles
+   5     0  -                  dealer           drop: never priced         Stock Number TI18698
+   5     0  -                  dealer,factory   drop: never priced         140 miles
+   5     0  -                  dealer           drop: never priced         This 2021 Toyota RAV4 XLE
+   5     0  -                  factory,dealer   drop: never priced         Power driver seat with power steering
+   5     0  -                  factory,dealer   drop: never priced         Steering wheel mounted audio controls and speed control
+   5     0  -                  dealer,factory   drop: never priced         all-wheel-drive capability
+   5     0  -                  dealer,factory   drop: never priced         4-Wheel Disc ABS Brakes with Brake Assist
+   5     0  -                  dealer,factory   drop: never priced         Transferable Limited Warranty (3 Month/4
+   5     0  -                  dealer,factory   drop: never priced         a backup camera
+   5     0  -                  dealer,factory   drop: never priced         Virginia
+   5     0  -                  dealer,factory   drop: never priced         Roof rack with rails
+   5     0  -                  dealer,factory   drop: never priced         4-wheel disc brakes with ABS and Brake Assist
+   5     0  -                  dealer,factory   drop: never priced         SiriusXM AM/FM/XM audio system with steering wheel controls
+   5     0  -                  factory,dealer   drop: never priced         Automatic Headlights Keyless Start AM/FM Radio Rear Spoiler
+   5     0  -                  factory,dealer   drop: never priced         New Cabin Air Filter
+   5     0  -                  dealer           drop: never priced         1 touch-screen w/integrated back-up camera display
+   5     0  -                  dealer           drop: never priced         USB port w/iPod connectivity and control
+   5     0  -                  dealer           drop: never priced         vehicle information w/customizable settings
+   5     0  -                  dealer,factory   drop: never priced         * If a smaller
+   5     0  -                  dealer,factory   drop: never priced         it’s hard to ignore the RAV4
+   5     0  -                  dealer,factory   drop: never priced         Sharp looks
+   5     0  -                  dealer           drop: never priced         Black Cloth
+   5     0  -                  dealer,factory   drop: never priced         Rear Backup Camera and Auto High-Beam Headlights
+   5     0  -                  dealer,factory   drop: never priced         and Canada
+   5     0  -                  dealer           drop: never priced         Backup Camera & Safety Technology
+   5     0  -                  dealer           drop: never priced         CARFAX Accident Free & Fully Inspected
+   5     0  -                  dealer,factory   drop: never priced         weekend travel
+   5     0  -                  dealer,factory   drop: never priced         convenience
+   5     0  -                  dealer,factory   drop: never priced         Safety Connect
+   5     0  -                  factory,dealer   drop: never priced         Power tilt/slide moonroof
+   5     0  -                  factory,dealer   drop: never priced         Auto High-beam Headlights and fully automatic headlights
+   5     0  -                  factory,dealer   drop: never priced         Apple CarPlay/Android Auto compatibility
+   5     3  $70                dealer,factory   KEEP                       Quick charge cable
+   5     0  -                  dealer           drop: never priced         2020 Toyota RAV4 XLE
+   5     0  -                  factory,dealer   drop: never priced         Rear parking camera for added safety
+   5     0  -                  dealer,factory   drop: never priced         com/entune for detailsRadio w/Seek-Scan
+   5     0  -                  dealer           drop: never priced         BACK UP CAMARA
+   5     0  -                  dealer           drop: never priced         CERTIFIED !!!
+   5     0  -                  dealer,factory   drop: never priced         Finished in elegant black
+   5     0  -                  dealer,factory   drop: never priced         Key Features:- All-Wheel Drive with responsive handling- 2
+   5     0  -                  dealer,factory   drop: never priced         Safety is paramount with dual front impact airbags
+   5     0  -                  dealer,factory   drop: never priced         side impact airbags
+   5     0  -                  dealer,factory   drop: never priced         and knee airbags throughout
+   5     0  -                  dealer,factory   drop: never priced         The cabin is equipped with automatic temperature control
+   5     0  -                  dealer,factory   drop: never priced         power windows and mirrors
+   5     0  -                  dealer,factory   drop: never priced         Don't miss the opportunity to own this dependable crossover
+   5     0  -                  dealer,factory   drop: never priced         Vehicles are sold cosmetically as is
+   5     0  -                  dealer,factory   drop: never priced         800 miles
+   5     0  -                  dealer           drop: never priced         5L 4-Cylinder DOHC Dual VVT-i XLE 27/33 City/Highway MPG
+   5     0  -                  dealer,factory   drop: never priced         modern technology
+   5     0  -                  dealer,factory   drop: never priced         and smart key access
+   5     0  -                  dealer,factory   drop: never priced         VEHICLE REVIEWS
+   5     0  -                  dealer,factory   drop: never priced         Convenience and weather packages
+   5     0  -                  factory,dealer   drop: never priced         **30+ MPG
+   5     0  -                  factory,dealer   drop: never priced         **PREMIUM WHEELS
+   5     0  -                  factory,dealer   drop: never priced         5L 4-cylinder engine delivering 27 city and 35 highway MPG
+   5     0  -                  factory,dealer   drop: never priced         side-impact airbags
+   5     0  -                  factory,dealer   drop: never priced         and Toyota Safety Connect emergency communication
+   5     0  -                  factory,dealer   drop: never priced         The spacious interior offers comfortable front bucket seats
+   5     0  -                  factory,dealer   drop: never priced         an adjustable steering wheel
+   5     0  -                  factory,dealer   drop: never priced         and practical storage solutions for your daily needs
+   5     0  -                  factory,dealer   drop: never priced         2024 Toyota RAV4 XLE XLE 2
+   5     0  -                  factory,dealer   drop: never priced         ### Standout Features:**203-Horsepower 2
+   5     0  -                  factory,dealer   drop: never priced         Active Parking Assist
+   5     0  -                  factory,dealer   drop: never priced         and exceptional service
+   5     0  -                  factory,dealer   drop: never priced         Touchscreen Controls
+   5     0  -                  dealer           drop: never priced         Star Safety System with Active Braking Technologies
+   5     0  -                  dealer,factory   drop: never priced         Dual front airbags
+   5     0  -                  dealer,factory   drop: never priced         Split-Folding Rear Seat with Center Armrest
+   5     0  -                  dealer,factory   drop: never priced         Emergency communication system with Safety Connect
+   5     0  -                  dealer           drop: never priced         RAV4 XLE
+   5     0  -                  dealer,factory   drop: never priced         Premium alloy wheels
+   5     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor for added awareness
+   5     0  -                  dealer,factory   drop: never priced         Back Up Camera for convenient parking and reversing
+   5     0  -                  dealer,factory   drop: never priced         Lane Assist to help keep you centered on the road
+   5     0  -                  dealer,factory   drop: never priced         Bluetooth® connectivity for seamless device pairing
+   5     0  -                  dealer,factory   drop: never priced         Power steering and windows
+   5     0  -                  dealer,factory   drop: never priced         Android Auto and Apple CarPlay connectivity
+   5     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor for increased awareness
+   5     0  -                  dealer,factory   drop: never priced         Lane Assist to help maintain lane positioning
+   5     0  -                  dealer,factory   drop: never priced         Backup Camera for easy reversing and parking
+   5     0  -                  dealer,factory   drop: never priced         Bluetooth® for seamless device pairing
+   5     0  -                  dealer,factory   drop: never priced         17 alloy wheels with modern 5-spoke design
+   5     0  -                  dealer,factory   drop: never priced         Rear Window Defroster for clear visibility
+   5     0  -                  dealer,factory   drop: never priced         Android Auto and Apple CarPlay for smartphone integration
+   5     0  -                  dealer,factory   drop: never priced         AWD system for traction in varying road conditions
+   5     0  -                  dealer,factory   drop: never priced         Backup Camera for convenient parking and reversing
+   5     0  -                  dealer,factory   drop: never priced         Power seat for driver comfort customization
+   5     0  -                  dealer,factory   drop: never priced         Clean CarFax with no accidents and one-owner history
+   5     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor with Lane Assist
+   5     0  -                  dealer,factory   drop: never priced         Power Seat with Electronic Controls
+   5     0  -                  dealer,factory   drop: never priced         Backup Camera System
+   5     0  -                  dealer,factory   drop: never priced         Safety Connect Emergency Communication
+   5     0  -                  dealer,factory   drop: never priced         4WD capability for varied road conditions
+   5     0  -                  dealer,factory   drop: never priced         Blind spot monitor and lane assist for added safety
+   5     0  -                  dealer,factory   drop: never priced         Backup camera for confident reversing
+   5     0  -                  dealer,factory   drop: never priced         Local trade with clean Carfax and no accidents
+   5     0  -                  dealer,factory   drop: never priced         Lane assist technology
+   5     0  -                  dealer,factory   drop: never priced         Lane Assist Safety Technology
+   5     0  -                  dealer           drop: never priced         Dual Zone Auto Climate Control
+   5     0  -                  dealer,factory   drop: never priced         gov/recalls
+   5     3  $139               dealer,factory   drop: accessory/subscr.    Rear Bumper Protector
+   5     0  -                  dealer,factory   drop: never priced         Rogue
+   5     0  -                  factory,dealer   drop: never priced         000-mile limited powertrain warranty
+   5     0  -                  factory,dealer   drop: never priced         impressive fuel efficiency
+   5     0  -                  factory,dealer   drop: never priced         or planning your next road trip
+   5     0  -                  factory,dealer   drop: never priced         Discover the perfect blend of style
+   5     0  -                  factory,dealer   drop: never priced         LED projector headlights
+   5     0  -                  factory,dealer   drop: never priced         value
+   5     0  -                  dealer,factory   drop: never priced         Auto high-beam headlights with delay-off feature
+   5     0  -                  dealer           drop: never priced         Pricing analysis performed on 10/16/2026
+   5     0  -                  dealer,factory   drop: never priced         Dodge
+   5     0  -                  dealer           drop: never priced         Bluetooth® Hands-Free
+   5     0  -                  dealer           drop: never priced         We are located at 1395 E Market street in Akron
+   5     0  -                  dealer           drop: never priced         OH 44305
+   5     0  -                  dealer           drop: never priced         Out of town buyers free pick-up at the airport
+   5     0  -                  dealer,factory   drop: never priced         Collision Avoidance System
+   5     0  -                  factory,dealer   drop: never priced         Apple CarPlay® Compatibility
+   5     0  -                  factory,dealer   drop: never priced         comfortable ride
+   5     0  -                  factory,dealer   drop: never priced         advanced technology
+   5     0  -                  factory,dealer   drop: never priced         and adventure seekers alike
+   5     0  -                  factory,dealer   drop: never priced         advanced safety technology
+   5     0  -                  dealer           drop: never priced         NEW TIRES
+   5     0  -                  dealer,factory   drop: never priced         This RAV4 is priced $3
+   5     0  -                  dealer,factory   drop: never priced         EPA estimate 33 MPG Hwy/27 MPG City! CARFAX 1-Owner
+   5     0  -                  factory,dealer   drop: never priced         Bluetooth® wireless data link
+   5     0  -                  dealer,factory   drop: never priced         com Brand Image Awards * 2013 KBB
+   5     0  -                  dealer           drop: never priced         All vehicles are subject to an $85 doc fee plus tax
+   5     0  -                  dealer           drop: never priced         and license
+   5     0  -                  dealer           drop: never priced         About Maverick Toyota — Driven by Family
+   5     0  -                  dealer           drop: never priced         Fueled by Community and Innovation At Maverick Toyota
+   5     0  -                  dealer           drop: never priced         We’re a bold new chapter in automotive retail
+   5     0  -                  dealer           drop: never priced         rooted in family values
+   5     0  -                  dealer           drop: never priced         customer satisfaction
+   5     0  -                  dealer           drop: never priced         and a commitment to doing things the right way
+   5     0  -                  factory,dealer   drop: never priced         Oil & Filter Change by a Factory Trained Technician
+   5     0  -                  factory,dealer   drop: never priced         used car sales
+   5     0  -                  factory,dealer   drop: never priced         and professional auto maintenance services
+   5     0  -                  factory,dealer   drop: never priced         Our dealership serves Nicholasville
+   5     0  -                  factory,dealer   drop: never priced         Georgetown and Lexington
+   5     0  -                  factory,dealer   drop: never priced         KY area drivers with our extensive vehicle selection
+   5     0  -                  factory,dealer   drop: never priced         genuine Toyota parts and dedicated auto service center
+   5     0  -                  factory,dealer   drop: never priced         Looking for a new Toyota Corolla
+   5     0  -                  factory,dealer   drop: never priced         a used car
+   5     0  -                  factory,dealer   drop: never priced         or bringing your current car by for an oil change
+   5     0  -                  factory,dealer   drop: never priced         5L 4-Cylinder DOHC Dual VVT-i CARFAX One-Owner
+   5     0  -                  factory,dealer   drop: never priced         CERTIFIED 7 YEAR/ 100
+   5     0  -                  factory,dealer   drop: never priced         Certification Program Details: 7 Year/ 100
+   5     0  -                  dealer,factory   drop: never priced         Magnetic Gray Metallic 2025 Toyota RAV4 XLE 2
+   5     0  -                  dealer,factory   drop: never priced         Ice 2023 Toyota RAV4 XLE 2
+   5     0  -                  dealer,factory   drop: never priced         Midnight Black Metallic 2024 Toyota RAV4 XLE 2
+   5     0  -                  dealer,factory   drop: never priced         With panic alarm
+   5     0  -                  dealer,factory   drop: never priced         rear cross traffic alert and lane change assist
+   5     0  -                  dealer,factory   drop: never priced         1 touch-screen display w/integrated backup camera display
+   5     0  -                  dealer,factory   drop: never priced         AM/FM CD player
+   5     0  -                  dealer,factory   drop: never priced         MP3/WMA playback
+   5     0  -                  dealer,factory   drop: never priced         USB 2
+   5     0  -                  dealer,factory   drop: never priced         0 port w/iPod connectivity
+   5     0  -                  dealer,factory   drop: never priced         phone book access and music streaming w/Bluetooth®
+   5     0  -                  dealer,factory   drop: never priced         Connected Navigation
+   5     0  -                  dealer,factory   drop: never priced         Entune multimedia bundle w/SiriusXM All Satellite Radio
+   5     0  -                  dealer,factory   drop: never priced         HD traffic and weather in major metro areas
+   5     0  -                  dealer,factory   drop: never priced         Scout GPS link and Siri Eyes Free
+   5     0  -                  factory,dealer   drop: never priced         Lunar Rock 2019 Toyota RAV4 XLE AWD 8-Speed Automatic 2
+   5     0  -                  factory,dealer   drop: never priced         Silver 2018 Toyota RAV4 2
+   5     0  -                  factory,dealer   drop: never priced         GO TO PREFERRED CHEVY 1701 S BEACON IN GRAND HAVEN
+   5     0  -                  factory,dealer   drop: never priced         CALL 1-888-683-9819
+   5     0  -                  factory,dealer   drop: never priced         Dual Front Air Conditioning Zones
+   5     0  -                  factory,dealer   drop: never priced         LATCH System Child Seat Anchors
+   5     0  -                  factory,dealer   drop: never priced         Power Side Mirror Adjustments
+   5     0  -                  factory,dealer   drop: never priced         Semi-automatic Adaptive Stop And Go Cruise Control
+   5     0  -                  factory,dealer   drop: never priced         an 8-inch touchscreen
+   5     0  -                  dealer,factory   drop: never priced         This Toyota RAV4 Comes Equipped with These Options
+   5     0  -                  factory,dealer   drop: never priced         Bluetooth® Wireless
+   5     0  -                  factory,dealer   drop: never priced         Silver Sky Metallic AWD *TOYOTA CERTIFIED*
+   5     0  -                  factory,dealer   drop: never priced         Power driver seat with 3-spoke leather heated steering wheel
+   5     0  -                  factory,dealer   drop: never priced         Exterior Parking Camera for easier maneuvering and parking
+   5     0  -                  factory,dealer   drop: never priced         Tilt and slide moonroof for added style and light
+   5     0  -                  factory,dealer   drop: never priced         All-wheel drive for confident traction in varied conditions
+   5     0  -                  factory,dealer   drop: never priced         Leather Heated Steering Wheel (3-spoke)
+   5     0  -                  factory,dealer   drop: never priced         Power Driver Seat with Memory
+   5     0  -                  factory,dealer   drop: never priced         Magnetic Gray Metallic AWD *TOYOTA CERTIFIED*
+   5     0  -                  factory,dealer   drop: never priced         Rear Access Step
+   5     0  -                  factory,dealer   drop: never priced         17 Silver Alloy Wheels with Wheel Locks
+   5     0  -                  dealer,factory   drop: never priced         must-drive
