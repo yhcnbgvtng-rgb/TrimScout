@@ -18,13 +18,14 @@ const DROPPED = [
   // Chevrolet
   "All-Weather Floor Liner", "Spray-On Pickup Box Bed Liner", "Bed Liner", "Liner Protection Package", "Chrome Assist Steps", "Front License Plate Bracket", "Spare Tire Lock", "Front Black Bowtie Emblem",
   "All Weather Floor Mats & Cargo Tray", "All Weather Floor Liners & Cargo Tray", "Front & Rear All-Weather Floor Mats", "Rear Bumper Protector", "Wheel Lock",
+  "Quick charge cable",
   "Color-Keyed Carpeting w/Rubberized Vinyl Floormats",
 ];
 const KEPT = [
   // Hyundai
   "Convenience Package", "Convenience + Premium Package", "Tow and Go Package",
   // Toyota
-  "Weather Package", "XLE Grade Weather Package", "Plus Extra Value Package", "Power Plus Extra Value Package", "Power Premium Extra Value Package", "Front & Back Clearance Sonar",
+  "Weather Package", "XLE Grade Weather Package", "Plus Extra Value Package", "Power Plus Extra Value Package", "Power Premium Extra Value Package", "Front & Back Clearance Sonar", "Front and Back Clearance Sonar",
   "Radio: Entune Display Audio", "Driver & Front Passenger Heated Seats", "Cold Weather Package", "SPECIAL COLOR", "Height-Adjustable Power Liftgate", "FRAMELESS HOMELINK MIRROR",
   // Chevrolet
   "Trailering Package", "Trailering Equipment", "Heavy-Duty Trailering Package", "Advanced Trailering Package", "CONVENIENCE PACKAGE II", "All-Star Edition", "All Star Edition Plus", "Z71 Off-Road Package",

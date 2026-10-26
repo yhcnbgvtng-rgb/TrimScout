@@ -26,6 +26,7 @@ const ACCESSORY_NOUN = [
   "(?:roof (?:rack )?)?(?:cross (?:rails?|bars?)|rails?)",
   "(?:chrome |running board )?(?:side|assist) steps?",
   "tonneau cover",
+  "(?:quick |fast )?charge cable",
   "(?:severe weather|winter) (?:kit|package)",
   "body side moldings?",
   "blackout emblem overlays?",
