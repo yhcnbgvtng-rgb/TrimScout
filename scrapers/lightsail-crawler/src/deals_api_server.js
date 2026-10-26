@@ -59,6 +59,7 @@ import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
 import { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from "./facetExtras.js";
+import { buildFacetCountsResponse, createTtlCache, facetRowsSql, facetedFiltersOf, paramsWithoutFaceted, rowCapOf } from "./facetCounts.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -2789,7 +2790,7 @@ const invSearchGate = createGate({
 async function handleListInventory(req, res, params, extra = {}) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
+  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms, filtersApplied } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2838,6 +2839,38 @@ async function handleListInventory(req, res, params, extra = {}) {
   if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
   // Echoed the same way: the keyword-exclude words this box actually applied, so the web app can tell an older box that ignored them.
   if (excludeTerms.length) body.excludeApplied = excludeTerms;
+  // Echoed always (possibly empty): the newer filters (odometerMin, bodyStyle, fuel, drivetrain, transmission, dealerId, vinPattern) this box applied. A box without this
+  // line says nothing, which is how the web app knows a shared link's filters were not applied.
+  body.filtersApplied = filtersApplied;
+  sendJson(res, 200, body);
+}
+
+// GET /api/inventory/facet-counts?<the buyer /search filters> — the live counts behind the "More filters" chips (year, mileage, body style, fuel, drivetrain,
+// transmission, days on market, dealer). A make is required (the same gate as the search). ONE bounded SELECT over the make's index range for everything the list
+// query already filters by, then the eight faceted filters are applied in memory, each list leaving out its own filter (facetCounts.js). A set over
+// FACET_COUNTS_ROW_CAP rows (default 40,000) answers { tooBroad: true } instead of being scanned. At most FACET_COUNTS_MAX_CONCURRENT (default 2) run at once, the rest
+// get the usual 503 "busy"; answers are cached 60 s per query string.
+const facetCountsGate = createGate({ max: Number(process.env.FACET_COUNTS_MAX_CONCURRENT) || 2, waitMs: Number(process.env.FACET_COUNTS_QUEUE_WAIT_MS) || 1500 });
+const facetCountsCache = createTtlCache({ ttlMs: 60000, max: 300 });
+async function handleFacetCounts(req, res, params) {
+  if (!(params.get("make") || "").trim()) return badRequest(res, "make is required");
+  const key = [...params.entries()].map(([k, v]) => `${k}=${v}`).sort().join("&");
+  const hit = facetCountsCache.get(key);
+  if (hit) return sendJson(res, 200, hit);
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const cap = rowCapOf();
+  const { countSql, args } = inventoryListQuery(paramsWithoutFaceted(params));
+  const rows = await facetCountsGate.run(async () => {
+    const [found] = await withPoolTimeout(
+      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${facetRowsSql(countSql, cap)}`, args),
+      waitMs(),
+      "Timed out waiting for an available database connection or a slow query"
+    );
+    return found;
+  });
+  const body = buildFacetCountsResponse(rows, cap, facetedFiltersOf(params));
+  facetCountsCache.set(key, body);
   sendJson(res, 200, body);
 }
 
@@ -4081,6 +4114,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/catalog-facets/status") return run(handleCatalogFacetStatus);
   if (req.method === "POST" && pathname === "/api/inventory/contact-search") return run(handleContactSearch);
   if (req.method === "POST" && pathname === "/api/inventory/contact-facets") return run(handleContactFacets);
+  if (req.method === "GET" && pathname === "/api/inventory/facet-counts") return run(handleFacetCounts, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/stats") return run(handleInventoryStats);
   if (req.method === "GET" && pathname === "/api/inventory/makes") return run(handleInventoryMakes, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/facets") return run(handleInventoryFacets, url.searchParams);

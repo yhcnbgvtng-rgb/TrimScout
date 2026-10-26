@@ -1,0 +1,79 @@
+[
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-1",
+  "find": "/** `seenWithinDays` from a request",
+  "replace": "import { DRIVETRAIN_SQL, FUEL_SQL, TRANSMISSION_SQL, bodyStylesOf, cleanDrivetrain, cleanFuel, cleanTransmission, dealerIdsOf, vinPatternPlan } from \"./inventoryDerived.js\";\n\n/** `seenWithinDays` from a request",
+  "marker": "import { DRIVETRAIN_SQL, FUEL_SQL, TRANSMISSION_SQL, bodyStylesOf, cleanDrivetrain, cleanFuel, cleanTransmission, dealerIdsOf, vinPatternPlan } from \"./inventoryDerived.js\";"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-2",
+  "find": "  const where = [], args = [];\n  const p = (k) => (params.get(k) || \"\").trim();",
+  "replace": "  const where = [], args = [];\n  // The newer buyer filters (2026-10-27 filter panel) this call actually applied; echoed as `filtersApplied` so an older box's silence is visible to the web app.\n  const filtersApplied = [];\n  const p = (k) => (params.get(k) || \"\").trim();",
+  "marker": "const filtersApplied = [];"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-3",
+  "find": "  if (p(\"dealerId\")) { where.push(\"i.dealer_id = ?\"); args.push(Number(p(\"dealerId\"))); }",
+  "replace": "  // dealerId= is one store (admin) or several (buyer \"Dealer\" chips, repeated, OR). One value keeps the exact `i.dealer_id = ?` the index choices below were tuned against.\n  const dealerIds = dealerIdsOf(params);\n  if (dealerIds.length === 1) { where.push(\"i.dealer_id = ?\"); args.push(dealerIds[0]); filtersApplied.push(\"dealerId\"); }\n  else if (dealerIds.length) { where.push(`i.dealer_id IN (${dealerIds.map(() => \"?\").join(\",\")})`); args.push(...dealerIds); filtersApplied.push(\"dealerId\"); }\n  else if (p(\"dealerId\")) { where.push(\"i.dealer_id = ?\"); args.push(Number(p(\"dealerId\"))); }",
+  "marker": "const dealerIds = dealerIdsOf(params);"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-4",
+  "find": "  if (p(\"odometerMax\")) { where.push(\"i.mileage <= ?\"); args.push(Number(p(\"odometerMax\"))); }",
+  "replace": "  if (p(\"odometerMax\")) { where.push(\"i.mileage <= ?\"); args.push(Number(p(\"odometerMax\"))); }\n  // odometerMin / bodyStyle: plain post-filters on rows the make's index range already selected (idx_inv_stock_mileage covers the no-make shape).\n  if (Number.isFinite(Number(p(\"odometerMin\"))) && p(\"odometerMin\") !== \"\") { where.push(\"i.mileage >= ?\"); args.push(Number(p(\"odometerMin\"))); filtersApplied.push(\"odometerMin\"); }\n  const bodyStyles = bodyStylesOf(params);\n  if (bodyStyles.length) { addIn(\"i.body_style\", bodyStyles); filtersApplied.push(\"bodyStyle\"); }",
+  "marker": "const bodyStyles = bodyStylesOf(params);"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-5",
+  "find": "  if (p(\"q\")) {\n    // A leading-wildcard LIKE across 5 columns",
+  "replace": "  // fuel / drivetrain / transmission: inferred from the trim, engine, model and transmission text (inventoryDerived.js), so each is a CASE over a regular\n  // expression: only honoured with a make, like exclude (without one it would be a whole-table regex scan). The statement timeout still bounds it.\n  if (makes.length) {\n    const derived = [[\"fuel\", FUEL_SQL, cleanFuel(params.getAll(\"fuel\"))], [\"drivetrain\", DRIVETRAIN_SQL, cleanDrivetrain(params.getAll(\"drivetrain\"))], [\"transmission\", TRANSMISSION_SQL, cleanTransmission(params.getAll(\"transmission\"))]];\n    for (const [key, expr, vals] of derived) if (vals.length) { addIn(expr, vals); filtersApplied.push(key); }\n  }\n  // VIN pattern: ? = one character, * = a run. A literal start uses the primary key's vin prefix, a literal end the reversed vin_rev index; with a make any pattern is a cheap check.\n  const vinPlan = vinPatternPlan(params.get(\"vinPattern\") || \"\", makes.length > 0);\n  if (vinPlan) { where.push(`${vinPlan.col} LIKE ?`); args.push(vinPlan.like); filtersApplied.push(\"vinPattern\"); }\n  if (p(\"q\")) {\n    // A leading-wildcard LIKE across 5 columns",
+  "marker": "const vinPlan = vinPatternPlan("
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "filter-panel-6",
+  "find": "return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms };",
+  "replace": "return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms, filtersApplied };",
+  "marker": "orderBy, excludeTerms, filtersApplied };"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "filter-panel-7",
+  "find": "import { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from \"./facetExtras.js\";\n",
+  "replace": "import { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from \"./facetExtras.js\";\nimport { buildFacetCountsResponse, createTtlCache, facetRowsSql, facetedFiltersOf, paramsWithoutFaceted, rowCapOf } from \"./facetCounts.js\";\n",
+  "marker": "import { buildFacetCountsResponse, createTtlCache, facetRowsSql, facetedFiltersOf, paramsWithoutFaceted, rowCapOf } from \"./facetCounts.js\";"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "filter-panel-8",
+  "find": "  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });",
+  "replace": "  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms, filtersApplied } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });",
+  "marker": "orderBy, excludeTerms, filtersApplied } = inventoryListQuery(params, { contactDealerIds"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "filter-panel-9",
+  "find": "  if (excludeTerms.length) body.excludeApplied = excludeTerms;\n",
+  "replace": "  if (excludeTerms.length) body.excludeApplied = excludeTerms;\n  // Echoed always (possibly empty): the newer filters (odometerMin, bodyStyle, fuel, drivetrain, transmission, dealerId, vinPattern) this box applied. A box without this\n  // line says nothing, which is how the web app knows a shared link's filters were not applied.\n  body.filtersApplied = filtersApplied;\n",
+  "marker": "body.filtersApplied = filtersApplied;"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "filter-panel-10",
+  "find": "// POST /api/inventory/contact-search { query:",
+  "replace": "// GET /api/inventory/facet-counts?<the buyer /search filters> \u2014 the live counts behind the \"More filters\" chips (year, mileage, body style, fuel, drivetrain,\n// transmission, days on market, dealer). A make is required (the same gate as the search). ONE bounded SELECT over the make's index range for everything the list\n// query already filters by, then the eight faceted filters are applied in memory, each list leaving out its own filter (facetCounts.js). A set over\n// FACET_COUNTS_ROW_CAP rows (default 40,000) answers { tooBroad: true } instead of being scanned. At most FACET_COUNTS_MAX_CONCURRENT (default 2) run at once, the rest\n// get the usual 503 \"busy\"; answers are cached 60 s per query string.\nconst facetCountsGate = createGate({ max: Number(process.env.FACET_COUNTS_MAX_CONCURRENT) || 2, waitMs: Number(process.env.FACET_COUNTS_QUEUE_WAIT_MS) || 1500 });\nconst facetCountsCache = createTtlCache({ ttlMs: 60000, max: 300 });\nasync function handleFacetCounts(req, res, params) {\n  if (!(params.get(\"make\") || \"\").trim()) return badRequest(res, \"make is required\");\n  const key = [...params.entries()].map(([k, v]) => `${k}=${v}`).sort().join(\"&\");\n  const hit = facetCountsCache.get(key);\n  if (hit) return sendJson(res, 200, hit);\n  const pool = getPool();\n  await ensureInventoryTable(pool);\n  const cap = rowCapOf();\n  const { countSql, args } = inventoryListQuery(paramsWithoutFaceted(params));\n  const rows = await facetCountsGate.run(async () => {\n    const [found] = await withPoolTimeout(\n      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${facetRowsSql(countSql, cap)}`, args),\n      waitMs(),\n      \"Timed out waiting for an available database connection or a slow query\"\n    );\n    return found;\n  });\n  const body = buildFacetCountsResponse(rows, cap, facetedFiltersOf(params));\n  facetCountsCache.set(key, body);\n  sendJson(res, 200, body);\n}\n\n// POST /api/inventory/contact-search { query:",
+  "marker": "async function handleFacetCounts(req, res, params) {"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "filter-panel-11",
+  "find": "  if (req.method === \"GET\" && pathname === \"/api/inventory/stats\") return run(handleInventoryStats);\n",
+  "replace": "  if (req.method === \"GET\" && pathname === \"/api/inventory/facet-counts\") return run(handleFacetCounts, url.searchParams);\n  if (req.method === \"GET\" && pathname === \"/api/inventory/stats\") return run(handleInventoryStats);\n",
+  "marker": "pathname === \"/api/inventory/facet-counts\") return run(handleFacetCounts"
+ }
+]

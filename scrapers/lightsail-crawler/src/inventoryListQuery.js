@@ -10,6 +10,8 @@
 // production six times across two days (five combinations on 2026-09-22, one more on 2026-09-25),
 // always the same shape — a filter combination the hand-tuned index hints didn't cover, found live
 // during an outage.
+import { DRIVETRAIN_SQL, FUEL_SQL, TRANSMISSION_SQL, bodyStylesOf, cleanDrivetrain, cleanFuel, cleanTransmission, dealerIdsOf, vinPatternPlan } from "./inventoryDerived.js";
+
 /** `seenWithinDays` from a request: a whole number of days 1-365, else null (absent or junk -> no age filter). Lives here so the list query stays a single-file box patch. */
 export function seenWithinDaysOf(raw) {
   const s = String(raw ?? "").trim();
@@ -118,6 +120,8 @@ export function excludeTermsOf(params) {
  */
 export function inventoryListQuery(params, opts = {}) {
   const where = [], args = [];
+  // The newer buyer filters (2026-10-27 filter panel) this call actually applied; echoed as `filtersApplied` so an older box's silence is visible to the web app.
+  const filtersApplied = [];
   const p = (k) => (params.get(k) || "").trim();
   // state/make/model/trim/cond accept REPEATED params (state=FL&state=GA): OR within a field, AND across
   // fields. Repeated params, not a comma list — trims legitimately contain commas. One value keeps the exact
@@ -131,7 +135,11 @@ export function inventoryListQuery(params, opts = {}) {
     if (vals.length === 1) { where.push(`${col} = ?`); args.push(vals[0]); }
     else if (vals.length) { where.push(`${col} IN (${vals.map(() => "?").join(",")})`); args.push(...vals); }
   };
-  if (p("dealerId")) { where.push("i.dealer_id = ?"); args.push(Number(p("dealerId"))); }
+  // dealerId= is one store (admin) or several (buyer "Dealer" chips, repeated, OR). One value keeps the exact `i.dealer_id = ?` the index choices below were tuned against.
+  const dealerIds = dealerIdsOf(params);
+  if (dealerIds.length === 1) { where.push("i.dealer_id = ?"); args.push(dealerIds[0]); filtersApplied.push("dealerId"); }
+  else if (dealerIds.length) { where.push(`i.dealer_id IN (${dealerIds.map(() => "?").join(",")})`); args.push(...dealerIds); filtersApplied.push("dealerId"); }
+  else if (p("dealerId")) { where.push("i.dealer_id = ?"); args.push(Number(p("dealerId"))); }
   addIn("i.state", states);
   addIn("i.make", makes);
   addIn("i.model", models);
@@ -179,6 +187,10 @@ export function inventoryListQuery(params, opts = {}) {
   if (p("exteriorColor")) { where.push("i.exterior_color = ?"); args.push(p("exteriorColor")); }
   if (p("interiorColor")) { where.push("i.interior_color = ?"); args.push(p("interiorColor")); }
   if (p("odometerMax")) { where.push("i.mileage <= ?"); args.push(Number(p("odometerMax"))); }
+  // odometerMin / bodyStyle: plain post-filters on rows the make's index range already selected (idx_inv_stock_mileage covers the no-make shape).
+  if (Number.isFinite(Number(p("odometerMin"))) && p("odometerMin") !== "") { where.push("i.mileage >= ?"); args.push(Number(p("odometerMin"))); filtersApplied.push("odometerMin"); }
+  const bodyStyles = bodyStylesOf(params);
+  if (bodyStyles.length) { addIn("i.body_style", bodyStyles); filtersApplied.push("bodyStyle"); }
   // price_change_count is denormalized onto dealer_inventory, incremented in
   // handleInventoryBulk's upsert only when the incoming price genuinely differs from what
   // was stored — no live aggregation needed here, unlike the admin analytics page's
@@ -233,6 +245,15 @@ export function inventoryListQuery(params, opts = {}) {
     where.push(`NOT (${excludeTerms.map(() => `${hay} LIKE ?`).join(" OR ")})`);
     args.push(...excludeTerms.map((t) => `%${t}%`));
   }
+  // fuel / drivetrain / transmission: inferred from the trim, engine, model and transmission text (inventoryDerived.js), so each is a CASE over a regular
+  // expression: only honoured with a make, like exclude (without one it would be a whole-table regex scan). The statement timeout still bounds it.
+  if (makes.length) {
+    const derived = [["fuel", FUEL_SQL, cleanFuel(params.getAll("fuel"))], ["drivetrain", DRIVETRAIN_SQL, cleanDrivetrain(params.getAll("drivetrain"))], ["transmission", TRANSMISSION_SQL, cleanTransmission(params.getAll("transmission"))]];
+    for (const [key, expr, vals] of derived) if (vals.length) { addIn(expr, vals); filtersApplied.push(key); }
+  }
+  // VIN pattern: ? = one character, * = a run. A literal start uses the primary key's vin prefix, a literal end the reversed vin_rev index; with a make any pattern is a cheap check.
+  const vinPlan = vinPatternPlan(params.get("vinPattern") || "", makes.length > 0);
+  if (vinPlan) { where.push(`${vinPlan.col} LIKE ?`); args.push(vinPlan.like); filtersApplied.push("vinPattern"); }
   if (p("q")) {
     // A leading-wildcard LIKE across 5 columns can't use any index — confirmed via EXPLAIN
     // against the live box (2026-09-22): type "ALL", a full scan of 555k+ rows, ~16s per
@@ -393,7 +414,7 @@ export function inventoryListQuery(params, opts = {}) {
   const capN = Math.floor(Number(params.get("countCap")));
   const countCap = Number.isFinite(capN) && capN >= 1 ? Math.min(capN, 100000) : null;
   const cappedCountSql = countCap ? `SELECT COUNT(*) AS total FROM (SELECT 1 ${countSql} LIMIT ${countCap + 1}) capped` : null;
-  return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms };
+  return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms, filtersApplied };
 }
 
 /**
