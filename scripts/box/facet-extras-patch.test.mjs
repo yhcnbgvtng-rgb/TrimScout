@@ -12,6 +12,9 @@ import { buildPatcher, PATCHER_PATH } from "./gen-facet-extras-patch.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(here, "../../scrapers/lightsail-crawler/src");
 const EDITS = JSON.parse(fs.readFileSync(path.join(here, "facet-extras-edits.json"), "utf8"));
+// Patches applied AFTER this one (the "More filters" panel): their edits come off the repo files first, so "before" is really this patch's own before.
+const LATER = JSON.parse(fs.readFileSync(path.join(here, "filter-panel-edits.json"), "utf8"));
+const LATER_MODULES = ["inventoryDerived.js", "facetCounts.js"];
 const sha = (p) => crypto.createHash("sha1").update(fs.readFileSync(p)).digest("hex");
 const run = (dir, ...flags) => spawnSync(process.execPath, [PATCHER_PATH, `--dir=${dir}`, ...flags], { encoding: "utf8" });
 const snapshot = (dir) => Object.fromEntries(fs.readdirSync(dir).sort().map((f) => [f, fs.statSync(path.join(dir, f)).isFile() ? sha(path.join(dir, f)) : "dir"]));
@@ -19,16 +22,24 @@ const snapshot = (dir) => Object.fromEntries(fs.readdirSync(dir).sort().map((f) 
 // The box's files BEFORE the patch = the repo files with every edit reversed.
 function reverse(file) {
   let t = fs.readFileSync(path.join(SRC, file), "utf8");
+  for (const e of [...LATER].reverse().filter((x) => x.file === file)) { assert.equal(t.split(e.replace).length - 1, 1, `${e.id}: later edit not found exactly once`); t = t.replace(e.replace, () => e.find); }
   for (const e of [...EDITS].reverse().filter((x) => x.file === file)) {
     assert.equal(t.split(e.replace).length - 1, 1, `${e.id}: replacement not found exactly once in the repo file`);
     t = t.replace(e.replace, () => e.find);
   }
   return t;
 }
+// What this patch leaves on the box: the repo file with the LATER patch's edits taken back off.
+function expectedAfter(file) {
+  let t = fs.readFileSync(path.join(SRC, file), "utf8");
+  for (const e of [...LATER].reverse().filter((x) => x.file === file)) t = t.replace(e.replace, () => e.find);
+  return t;
+}
 function freshBoxDir() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "boxdir-"));
   for (const f of fs.readdirSync(SRC)) if (/\.(js|json)$/.test(f)) fs.copyFileSync(path.join(SRC, f), path.join(dir, f));
   fs.rmSync(path.join(dir, "facetExtras.js"));
+  for (const m of LATER_MODULES) fs.rmSync(path.join(dir, m), { force: true });
   for (const f of ["deals_api_server.js", "inventoryListQuery.js"]) fs.writeFileSync(path.join(dir, f), reverse(f));
   fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({ type: "module" }));
   return dir;
@@ -63,7 +74,8 @@ describe("facet extras box patcher", () => {
     const dir = mk(); const origSha = { a: sha(path.join(dir, "deals_api_server.js")), b: sha(path.join(dir, "inventoryListQuery.js")) };
     const r = run(dir, "--apply");
     assert.equal(r.status, 0, r.stderr + r.stdout);
-    for (const f of ["deals_api_server.js", "inventoryListQuery.js", "facetExtras.js"]) assert.equal(sha(path.join(dir, f)), sha(path.join(SRC, f)), `${f} differs from the repo`);
+    for (const f of ["deals_api_server.js", "inventoryListQuery.js"]) assert.equal(fs.readFileSync(path.join(dir, f), "utf8"), expectedAfter(f), `${f} differs from the repo`);
+    assert.equal(sha(path.join(dir, "facetExtras.js")), sha(path.join(SRC, "facetExtras.js")));
     const baks = fs.readdirSync(dir).filter((f) => /\.bak\.\d{14}$/.test(f));
     assert.deepEqual(baks.map((f) => f.replace(/\.bak\..*/, "")).sort(), ["deals_api_server.js", "inventoryListQuery.js"]);
     assert.equal(sha(path.join(dir, baks.find((f) => f.startsWith("deals_api")))), origSha.a);
@@ -76,6 +88,7 @@ describe("facet extras box patcher", () => {
     const stamp = baks[0].match(/\.bak\.(\d{14})$/)[1];
     for (const f of ["deals_api_server", "inventoryListQuery"]) fs.copyFileSync(path.join(dir, `${f}.js.bak.${stamp}`), path.join(dir, `${f}.js`));
     fs.rmSync(path.join(dir, "facetExtras.js"));
+  for (const m of LATER_MODULES) fs.rmSync(path.join(dir, m), { force: true });
     assert.equal(sha(path.join(dir, "deals_api_server.js")), origSha.a);
     assert.equal(sha(path.join(dir, "inventoryListQuery.js")), origSha.b);
   });

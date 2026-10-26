@@ -12,7 +12,7 @@ const PATCHER = fileURLToPath(new URL("./2026-10-19-options-paid-only.mjs", impo
 const SRC = fileURLToPath(new URL("../../scrapers/lightsail-crawler/src/", import.meta.url));
 const text = fs.readFileSync(PATCHER, "utf8");
 // Later patches (facet extras, 2026-10-26) edit the same repo files on top of this one's result. Take them off first, so the repo file stands in for "the box after THIS patch".
-const LATER = [fileURLToPath(new URL("./facet-extras-edits.json", import.meta.url))].filter((f) => fs.existsSync(f)).flatMap((f) => JSON.parse(fs.readFileSync(f, "utf8")));
+const LATER = ["./facet-extras-edits.json", "./filter-panel-edits.json"].map((f) => fileURLToPath(new URL(f, import.meta.url))).filter((f) => fs.existsSync(f)).flatMap((f) => JSON.parse(fs.readFileSync(f, "utf8")));
 const repoFile = (f) => {
   let t = fs.readFileSync(path.join(SRC, f), "utf8");
   for (const e of [...LATER.filter((x) => x.file === f)].reverse()) { assert.equal(t.split(e.replace).length - 1, 1, `${e.id}: later edit not found exactly once`); t = t.replace(e.replace, () => e.find); }
