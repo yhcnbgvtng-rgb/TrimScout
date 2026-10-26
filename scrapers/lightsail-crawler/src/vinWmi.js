@@ -28,6 +28,7 @@ export const STELLANTIS_WMI = new Set([
 // [makes this WMI can carry (first = primary), WMIs]. A WMI listed under two entries carries the union.
 const FAMILIES = [
   [['Ford'], '1FA 1FB 1FC 1FD 1F6 1F9 1FM 1FT 2FM 2FT 3FA 3FM 3FT 1ZV 2FA 3FD MAJ'],
+  [['Plymouth'], '1P3 1P4 2P3'], // Plymouth shared these Chrysler-group WMIs until 2001 (the Stellantis set adds its nameplates below)
   [['Lincoln'], '5LM 2LM 3LN 5L1 1LN 1L1'],
   [['Mercury'], '1ME 2ME 3ME'],
   [['Chevrolet'], '1G1 1GA 1GB 1GC 1GN 2G1 2GC 2GN 3G1 3GB 3GC 3GN KL1 KL7 KL8'],

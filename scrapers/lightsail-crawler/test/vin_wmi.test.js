@@ -173,3 +173,12 @@ describe('the crawler no longer asserts the roster brand as a make', () => {
     assert.ok(!/make:\s*cleanString\([^)]*\)\s*\|\|\s*brand\.name/.test(src));
   });
 });
+
+describe('legacy Plymouth', () => {
+  it('a Plymouth on a Chrysler-group WMI is kept (live dry run: 22 rows were wrongly flagged), and a mislabelled one is still corrected by line code or model', () => {
+    const vin = '1P3EJ46X0YN000000';
+    assert.equal(reconcileMake({ make: 'Plymouth', vin }).via, 'kept');
+    assert.deepEqual(makesForWmi(vin).slice(0, 1), ['Plymouth']);
+    assert.equal(reconcileMake({ make: 'GMC', vin, model: 'Voyager' }).make, 'Chrysler');
+  });
+});
