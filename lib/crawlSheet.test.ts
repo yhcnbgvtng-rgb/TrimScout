@@ -207,3 +207,14 @@ describe("vehicle id column", () => {
     assert.match(vehicleCsvHeader(), /Vehicle ID,VIN,/);
   });
 });
+
+describe("Last seen column — Eastern date and time", () => {
+  it("shows the crawl's last sighting in ET, across daylight-saving time", async () => {
+    const { vehicleRowCell, lastSeenET } = await import("./crawlSheetColumns");
+    assert.equal(lastSeenET("2026-10-22T10:28:19.000Z"), "2026-10-22 06:28 ET");
+    assert.equal(lastSeenET("2026-12-01T03:30:00.000Z"), "2026-11-30 22:30 ET");
+    assert.equal(vehicleRowCell({ vin: "X", lastSeenAt: "2026-10-22T10:28:19.000Z" } as never, "lastSeenAt"), "2026-10-22 06:28 ET");
+    assert.equal(vehicleRowCell({ vin: "X", firstSeenAt: "2026-10-22T10:28:19.000Z" } as never, "firstSeenAt"), "2026-10-22");
+    assert.equal(lastSeenET("junk"), "junk");
+  });
+});

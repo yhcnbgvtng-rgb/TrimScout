@@ -145,3 +145,15 @@ describe("the short note on the bar", () => {
     assert.equal(pickNotice({ gone: 0, expired: 0 }), null);
   });
 });
+
+describe("listingFor — a car the crawl has not seen for over 3 days is no longer quotable", () => {
+  const here = { vin: "V", dealerId: "11", dealerName: "A Motors" };
+  const now = Date.parse("2026-10-26T12:00:00Z");
+  it("stays listed when seen within 3 days or when the date is unknown", () => {
+    assert.equal(listingFor(here, [{ dealerId: "11", dealerName: "A Motors", removedAt: null, lastSeenAt: "2026-10-24T12:00:00Z" }], now), "listed");
+    assert.equal(listingFor(here, [{ dealerId: "11", dealerName: "A Motors", removedAt: null }], now), "listed");
+  });
+  it("is gone once last seen more than 3 days ago", () => {
+    assert.equal(listingFor(here, [{ dealerId: "11", dealerName: "A Motors", removedAt: null, lastSeenAt: "2026-10-22T06:28:19Z" }], now), "gone");
+  });
+});

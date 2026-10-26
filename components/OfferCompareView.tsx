@@ -1317,7 +1317,6 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
     facts.push({ label: "Days on market (active)", value: String(sheet.daysOnMarketActive) });
   }
   if (sheet.firstSeen) facts.push({ label: "First seen", value: sheet.firstSeen });
-  if (sheet.lastSeen) facts.push({ label: "Last seen", value: sheet.lastSeen });
   if (sheet.stockNumber) facts.push({ label: "Stock #", value: sheet.stockNumber });
   if (sheet.inventoryType) facts.push({ label: "Inventory", value: sheet.inventoryType });
   if (sheet.exteriorColor) facts.push({ label: "Exterior", value: sheet.exteriorColor });
