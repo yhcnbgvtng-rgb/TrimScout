@@ -22,6 +22,7 @@
 // brands never set `nameplates`, so they fall back to `[brand.name]` and
 // behave exactly as before this existed.
 import { canonicalNameplate, isUmbrellaMake, resolveUmbrellaMake, normalizeMakeForWrite } from './stellantisMake.js';
+import { reconcileMake } from './vinWmi.js';
 
 export function resolveVehicleBrandMatch(brand, vehicle) {
   const nameplates = brand.nameplates && brand.nameplates.length ? brand.nameplates : [brand.name];
@@ -63,7 +64,9 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
 // what it is.
 export function resolveKeptMake(brand, vehicle) {
   const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
-  if (isTargetBrand) return resolvedMake;
+  // Either way the make is then checked against the VIN (vinWmi.js): a page label the VIN contradicts, or a make that only came from
+  // the roster brand, is replaced by the VIN's make. A Challenger on a GMC-roster dealer's page used to be stored as "GMC".
+  if (isTargetBrand) return reconcileMake({ make: resolvedMake, vin: vehicle.vin, model: vehicle.model }).make;
   // An off-brand vehicle's raw make may itself be the umbrella (roster `dealer.make`); resolve it too.
   return normalizeMakeForWrite({ make: vehicle.make, vin: vehicle.vin, model: vehicle.model });
 }
