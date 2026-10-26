@@ -8,6 +8,8 @@ export interface LiveFilterShape {
   possibleDemo: boolean; contactOnFile: boolean; zip: string; radiusMiles: string;
   /** "Leave out" words, comma separated. Optional so older callers still type-check. */
   exclude?: string;
+  /** The "More filters" set; optional so callers that predate them still type-check. */
+  odometerMin?: string; bodyStyle?: string[]; fuel?: string[]; drivetrain?: string[]; transmission?: string[]; dealerIds?: string[]; days?: string; vinPattern?: string;
 }
 
 export interface FacetLists {
@@ -21,7 +23,8 @@ export interface FacetLists {
 export function hasNonFacetFilter(f: LiveFilterShape): boolean {
   return Boolean(
     f.cond || f.priceMin || f.priceMax || f.yearMin || f.yearMax || f.odometerMax || f.exteriorColor || f.interiorColor ||
-    f.optionKeys.length || f.possibleDemo || (f.zip && f.radiusMiles) || parseExclude(f.exclude ?? "").length > 0,
+    f.optionKeys.length || f.possibleDemo || (f.zip && f.radiusMiles) || parseExclude(f.exclude ?? "").length > 0 ||
+    f.odometerMin || f.days || f.vinPattern || f.bodyStyle?.length || f.fuel?.length || f.drivetrain?.length || f.transmission?.length || f.dealerIds?.length,
   );
 }
 

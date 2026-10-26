@@ -9,11 +9,14 @@ import React, { useEffect, useId, useMemo, useRef, useState, type Dispatch, type
 import { createPortal } from "react-dom";
 import { optionPriceText, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { parseExclude } from "@/lib/searchLive";
+import { DAYS_BANDS, DRIVETRAIN_CHOICES, FUEL_CHOICES, labelOf as choiceLabel, TRANSMISSION_CHOICES, type FilterChoice } from "@/lib/searchFilters";
+import type { FacetCountDims, FacetCountsResult } from "@/lib/inventoryApi";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
 import type { CatalogExtras, CatalogOption, Filters } from "../BuyerSearchView";
 import { FacetChips, type Chip } from "./FacetChips";
 import { LiveCount, type LiveCountProps } from "./LiveCount";
 import { PriceRange } from "./PriceRange";
+import { RangeFilter } from "./RangeFilter";
 
 const ACCENT = "#3D9474"; // brand-500: the one green (checkbox accent); buttons use bg-brand-500 with black text like the rest of the site
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
@@ -52,7 +55,16 @@ export interface SearchFilterBarProps {
   excludedHidden: number;
   /** Colour / condition counts and the price histogram from the catalog call; empty when the box does not send them. */
   extras: CatalogExtras;
+  /** Counts for the "More filters" chips; null until they arrive (or with no make). `supported: false` = this box cannot count them, so those groups stay hidden. */
+  facetCounts: FacetCountsResult | null;
+  facetCountsPending: boolean;
+  facetCountsFailed: boolean;
 }
+
+const THIS_YEAR = new Date().getFullYear();
+const DEFAULT_YEARS = { min: 2015, max: THIS_YEAR + 1 };
+const MILEAGE = { min: 0, max: 150000, step: 5000, bucket: 10000 } as const;
+const miles = (n: number, open: boolean) => `${n >= 1000 ? `${Math.round(n / 1000)}k` : n}${open ? "+" : ""} mi`;
 
 const money = (n: string) => `$${Number(n).toLocaleString()}`;
 const COND_LABEL: Record<string, string> = { new: "New", used: "Used", cpo: "Certified" };
@@ -73,8 +85,8 @@ function useIsMobile(): boolean {
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /** A popover under its trigger on desktop, a bottom sheet on a phone. Escape closes, Tab stays inside, focus returns to the trigger. */
-function Panel({ open, onClose, anchorRef, title, width = 320, onShowResults, children }: {
-  open: boolean; onClose: () => void; anchorRef: RefObject<HTMLElement | null>; title: string; width?: number; onShowResults: () => void; children: ReactNode;
+function Panel({ open, onClose, anchorRef, title, width = 320, showLabel = "Show results", onShowResults, children }: {
+  open: boolean; onClose: () => void; anchorRef: RefObject<HTMLElement | null>; title: string; width?: number; showLabel?: string; onShowResults: () => void; children: ReactNode;
 }) {
   const mobile = useIsMobile();
   const ref = useRef<HTMLDivElement>(null);
@@ -137,7 +149,7 @@ function Panel({ open, onClose, anchorRef, title, width = 320, onShowResults, ch
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
           <div className="border-t border-border px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <button type="button" onClick={onShowResults} className={`h-11 w-full rounded-md bg-brand-500 text-sm font-semibold text-black hover:bg-brand-400 ${RING}`}>Show results</button>
+            <button type="button" onClick={onShowResults} className={`h-11 w-full rounded-md bg-brand-500 text-sm font-semibold text-black hover:bg-brand-400 ${RING}`}>{showLabel}</button>
           </div>
         </div>
       </div>,
@@ -171,6 +183,16 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   const closeMore = React.useCallback(() => p.setMoreOpen(false), [p]);
   const paidOnly = optionsPaidOnlyEnabled();
 
+  // ---- the "More filters" counts (see BuyerSearchView): per-chip numbers when the box sent them, plain choices when the set was too broad to count ----
+  const fcOk = p.facetCounts && p.facetCounts.supported ? p.facetCounts : null;
+  const fcDims: FacetCountDims | null = fcOk && !fcOk.tooBroad ? fcOk.dims : null;
+  const tooBroad = Boolean(fcOk && fcOk.tooBroad);
+  // While a newer count is on its way the previous lists stay (no flicker) but their numbers are hidden: a stale number is never shown.
+  const stale = p.facetCountsPending;
+  const dealerNames = useRef(new Map<string, string>());
+  for (const d of fcDims?.dealer ?? []) dealerNames.current.set(d.id, d.name);
+  const dealerName = (id: string) => dealerNames.current.get(id) ?? `Dealer #${id}`;
+
   // ---- quick find: type a make (then a model, then a trim) and pick it; fills the same Make / Model / Trim filters ----
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(-1);
@@ -200,7 +222,16 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   if (filters.cond) chips.push({ id: "cond", text: COND_LABEL[filters.cond] ?? filters.cond, remove: () => setFilters((f) => ({ ...f, cond: "" })) });
   if (filters.priceMin || filters.priceMax) chips.push({ id: "price", text: `Price ${filters.priceMin ? money(filters.priceMin) : "any"} – ${filters.priceMax ? money(filters.priceMax) : "any"}`, remove: () => setFilters((f) => ({ ...f, priceMin: "", priceMax: "" })) });
   if (filters.yearMin || filters.yearMax) chips.push({ id: "year", text: `Year ${filters.yearMin || "any"} – ${filters.yearMax || "any"}`, remove: () => setFilters((f) => ({ ...f, yearMin: "", yearMax: "" })) });
-  if (filters.odometerMax) chips.push({ id: "odo", text: `Up to ${Number(filters.odometerMax).toLocaleString()} mi`, remove: () => setFilters((f) => ({ ...f, odometerMax: "" })) });
+  if (filters.odometerMin || filters.odometerMax) chips.push({ id: "odo", text: `Mileage ${filters.odometerMin ? Number(filters.odometerMin).toLocaleString() : "0"} – ${filters.odometerMax ? `${Number(filters.odometerMax).toLocaleString()} mi` : "any"}`, remove: () => setFilters((f) => ({ ...f, odometerMin: "", odometerMax: "" })) });
+  const listPill = (key: "bodyStyle" | "fuel" | "drivetrain" | "transmission" | "dealerIds", value: string, text: string) =>
+    chips.push({ id: `${key}-${value}`, text, remove: () => setFilters((f) => ({ ...f, [key]: f[key].filter((x) => x !== value) })) });
+  for (const v of filters.bodyStyle) listPill("bodyStyle", v, v);
+  for (const v of filters.fuel) listPill("fuel", v, choiceLabel(FUEL_CHOICES, v));
+  for (const v of filters.drivetrain) listPill("drivetrain", v, choiceLabel(DRIVETRAIN_CHOICES, v));
+  for (const v of filters.transmission) listPill("transmission", v, choiceLabel(TRANSMISSION_CHOICES, v));
+  for (const v of filters.dealerIds) listPill("dealerIds", v, dealerName(v));
+  if (filters.days) chips.push({ id: "days", text: `On lot: ${choiceLabel(DAYS_BANDS, filters.days)}`, remove: () => setFilters((f) => ({ ...f, days: "" })) });
+  if (filters.vinPattern) chips.push({ id: "vin", text: `VIN ${filters.vinPattern}`, remove: () => setFilters((f) => ({ ...f, vinPattern: "" })) });
   if (filters.exteriorColor) chips.push({ id: "ext", text: `Exterior: ${filters.exteriorColor}`, remove: () => setFilters((f) => ({ ...f, exteriorColor: "" })) });
   if (filters.interiorColor) chips.push({ id: "int", text: `Interior: ${filters.interiorColor}`, remove: () => setFilters((f) => ({ ...f, interiorColor: "" })) });
   if (filters.possibleDemo) chips.push({ id: "demo", text: "Includes demo/loaner", remove: () => setFilters((f) => ({ ...f, possibleDemo: false })) });
@@ -223,6 +254,27 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   // The sparkline follows the condition picked (all cars when none).
   const hist = p.extras.priceHistogram;
   const histogram = hist ? (filters.cond === "new" || filters.cond === "used" || filters.cond === "cpo" ? hist[filters.cond] : hist.all) : undefined;
+  const countMap = (list?: Array<{ v: string | number; n: number }>) => new Map((list ?? []).map((x) => [String(x.v), x.n]));
+  const fixedChips = (choices: FilterChoice[], list?: Array<{ v: string | number; n: number }>): Chip[] => {
+    const m = countMap(list);
+    return choices.map((c) => ({ value: c.value, label: c.label, count: fcDims && !stale ? m.get(c.value) ?? 0 : undefined })).filter((c) => !fcDims || (m.get(c.value) ?? 0) > 0 || filters.fuel.includes(c.value) || filters.drivetrain.includes(c.value) || filters.transmission.includes(c.value) || filters.days === c.value);
+  };
+  const toggleList = (key: "bodyStyle" | "fuel" | "drivetrain" | "transmission" | "dealerIds") => (v: string) =>
+    setFilters((f) => ({ ...f, [key]: f[key].includes(v) ? f[key].filter((x) => x !== v) : [...f[key], v] }));
+  const bodyChips: Chip[] = (fcDims?.bodyStyle ?? []).map((b) => ({ value: b.v, label: b.v, count: stale ? undefined : b.n }));
+  const dealerChips: Chip[] = (fcDims?.dealer ?? []).map((d) => ({ value: d.id, label: d.name, count: stale ? undefined : d.n }));
+  for (const id of filters.dealerIds) if (!dealerChips.some((c) => c.value === id)) dealerChips.push({ value: id, label: dealerName(id) });
+  const interiorChips: Chip[] = p.extras.interiorColorCounts?.length
+    ? p.extras.interiorColorCounts.map((c) => ({ value: c.color, label: c.color, count: c.n }))
+    : p.interiorColors.map((c) => ({ value: c, label: c }));
+  // Year: the slider spans the model years the cars in this set actually have (the plain recent range until the counts arrive); counts follow every other filter.
+  const yearRows = fcDims?.year ?? [];
+  const yearNums = yearRows.map((r) => Number(r.v)).filter((n) => n >= 1990 && n <= THIS_YEAR + 2);
+  const picked = [filters.yearMin, filters.yearMax].map(Number).filter((n) => n > 0);
+  let yMin = Math.min(...(yearNums.length ? yearNums : [DEFAULT_YEARS.min]), ...picked), yMax = Math.max(...(yearNums.length ? yearNums : [DEFAULT_YEARS.max]), ...picked);
+  if (yMax - yMin < 2) { yMin -= 1; yMax += 1; }
+  const yearHist = yearNums.length ? Array.from({ length: yMax - yMin + 1 }, (_, i) => Number(yearRows.find((r) => Number(r.v) === yMin + i)?.n ?? 0)) : undefined;
+  const mileHist = fcDims?.mileage?.hist;
   const showResults = (close: () => void) => () => { close(); p.submitSearch(); };
   const countLabel = p.live.value == null ? "Search" : `Show ${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicle${p.live.value === 1 && !p.live.capped ? "" : "s"}`;
 
@@ -301,6 +353,9 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             chips={optionChips} limit={12} loading={p.catalogOptionsLoading} emptyText={p.optionsEmptyMessage} />
         )}
         <PriceRange min={filters.priceMin} max={filters.priceMax} histogram={histogram} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
+        <RangeFilter label="Year" testId="year" min={filters.yearMin} max={filters.yearMax} domainMin={yMin} domainMax={yMax} step={1}
+          format={(n, open) => (open ? "Newest" : n <= yMin ? "Oldest" : String(n))} onChange={(yearMin, yearMax) => setFilters((f) => ({ ...f, yearMin, yearMax }))}
+          histogram={yearHist} bucketWidth={1} discrete />
         <div className="py-2">
           <label htmlFor={`${listId}-exclude`} className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-muted">Leave out</label>
           <input id={`${listId}-exclude`} type="text" value={filters.exclude} onChange={(e) => setFilters((f) => ({ ...f, exclude: e.target.value }))}
@@ -315,7 +370,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
         </div>
       </div>
 
-      <Panel open={p.moreOpen} onClose={closeMore} anchorRef={moreAnchor} title="More filters" width={360} onShowResults={showResults(closeMore)}>
+      <Panel open={p.moreOpen} onClose={closeMore} anchorRef={moreAnchor} title="More filters" width={440} showLabel={countLabel} onShowResults={showResults(closeMore)}>
         <div
           id={morePanelId}
           onKeyDown={(e) => {
@@ -323,16 +378,23 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             if (e.key === "Enter" && t.tagName === "INPUT" && (t as HTMLInputElement).type !== "checkbox") { e.preventDefault(); p.submitSearch(); }
           }}
           className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <NumField id={`${morePanelId}-ymin`} label="Year min" value={filters.yearMin} onChange={(yearMin) => setFilters((f) => ({ ...f, yearMin }))} />
-            <NumField id={`${morePanelId}-ymax`} label="Year max" value={filters.yearMax} onChange={(yearMax) => setFilters((f) => ({ ...f, yearMax }))} />
-          </div>
-          <NumField id={`${morePanelId}-odo`} label="Max odometer" value={filters.odometerMax} onChange={(odometerMax) => setFilters((f) => ({ ...f, odometerMax }))} />
-          <div>
-            <label htmlFor={`${morePanelId}-int`} className={fieldLabel}>Interior color</label>
-            <select id={`${morePanelId}-int`} value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className={`${fieldBox} ${RING}`}>
-              <option value="">Any</option>{p.interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+          {(() => {
+            const msg = !filters.make ? "Pick a make to count these filters." : p.facetCountsFailed ? "Couldn't load the counts just now, so the numbers are hidden." : p.facetCountsPending ? "Updating counts…" : tooBroad ? "Pick a model for a number on each choice." : "";
+            return msg ? <p role="status" className="text-xs text-ink-muted">{msg}</p> : null;
+          })()}
+          <div className="divide-y divide-border/40">
+            <RangeFilter label="Mileage" testId="mileage" min={filters.odometerMin} max={filters.odometerMax} domainMin={MILEAGE.min} domainMax={MILEAGE.max} step={MILEAGE.step}
+              format={miles} onChange={(odometerMin, odometerMax) => setFilters((f) => ({ ...f, odometerMin, odometerMax }))}
+              histogram={mileHist} bucketWidth={fcDims?.mileage?.width ?? MILEAGE.bucket} lastOpen />
+            <FacetChips label="Days on market" selected={filters.days ? [filters.days] : []} onToggle={(v) => setFilters((f) => ({ ...f, days: f.days === v ? "" : v }))} chips={fixedChips(DAYS_BANDS, fcDims?.days)} />
+            {fcDims && bodyChips.length > 0 && <FacetChips label="Body style" selected={filters.bodyStyle} onToggle={toggleList("bodyStyle")} chips={bodyChips} limit={10} />}
+            {fcOk && <FacetChips label="Fuel type" selected={filters.fuel} onToggle={toggleList("fuel")} chips={fixedChips(FUEL_CHOICES, fcDims?.fuel)} />}
+            {fcOk && <FacetChips label="Drivetrain" selected={filters.drivetrain} onToggle={toggleList("drivetrain")} chips={fixedChips(DRIVETRAIN_CHOICES, fcDims?.drivetrain)} />}
+            {fcOk && <FacetChips label="Transmission" selected={filters.transmission} onToggle={toggleList("transmission")} chips={fixedChips(TRANSMISSION_CHOICES, fcDims?.transmission)} />}
+            {interiorChips.length > 0 && (
+              <FacetChips label="Interior colour" selected={filters.interiorColor ? [filters.interiorColor] : []} onToggle={(v) => setFilters((f) => ({ ...f, interiorColor: f.interiorColor === v ? "" : v }))} chips={interiorChips} limit={10} />
+            )}
+            {fcDims && dealerChips.length > 0 && <FacetChips label="Dealer" selected={filters.dealerIds} onToggle={toggleList("dealerIds")} chips={dealerChips} limit={8} />}
           </div>
           {p.contactFilterOn && (
             <label className="flex items-center gap-2 text-sm text-ink-light" title="Only cars whose dealer has a named sales contact on file with us">
@@ -361,6 +423,15 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
               <p className="mt-1 text-xs text-ink-muted">{!filters.zip ? "Enter a ZIP code" : "Pick a make"} to search within a distance.</p>
             )}
           </div>
+          {fcOk && (
+            <div className="border-t border-border pt-4">
+              <label htmlFor={`${morePanelId}-vin`} className={fieldLabel}>VIN pattern</label>
+              <input id={`${morePanelId}-vin`} type="text" autoComplete="off" autoCapitalize="characters" spellCheck={false} value={filters.vinPattern} maxLength={17}
+                onChange={(e) => setFilters((f) => ({ ...f, vinPattern: e.target.value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9*?]/g, "") }))}
+                placeholder="1HGCM* or *123456 or ????????5*" className={`${fieldBox} font-mono ${RING}`} />
+              <p className="mt-1 text-xs text-ink-faint">Use ? for one unknown character and * for any run. At least three real characters.</p>
+            </div>
+          )}
           <div>
             <label htmlFor={`${morePanelId}-sort`} className={fieldLabel}>Sort</label>
             <select id={`${morePanelId}-sort`} value={filters.sort} onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))} className={`${fieldBox} ${RING}`}>

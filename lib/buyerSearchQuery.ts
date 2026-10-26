@@ -2,6 +2,7 @@ import type { BuyerSearchQuery } from "./inventoryApi";
 import { contactFilterEnabled } from "./contactFilterFlag";
 import { formatSort, parseSort, type SortDir } from "./buyerSort";
 import { cleanExcludeWord, MAX_EXCLUDE_WORDS } from "./searchLive";
+import { cleanBodyStyle, cleanDealerId, cleanDrivetrain, cleanFuel, cleanTransmission, cleanVinPattern, MAX_BODY_STYLES, MAX_DEALERS, vinPatternUsable } from "./searchFilters";
 
 export class BuyerSearchParamsError extends Error {}
 
@@ -26,6 +27,18 @@ function excludeWords(sp: URLSearchParams): string[] | undefined {
   }
   return out.length ? out : undefined;
 }
+
+/** Repeated params of one filter, cleaned by `clean`, de-duplicated and capped. Undefined when nothing usable is left. */
+function repeated(sp: URLSearchParams, key: string, clean: (v: string) => string, max: number): string[] | undefined {
+  const out: string[] = [];
+  for (const raw of sp.getAll(key)) {
+    const v = clean(raw);
+    if (v && !out.includes(v)) out.push(v);
+    if (out.length >= max) break;
+  }
+  return out.length ? out : undefined;
+}
+const nonEmpty = (a: string[]) => (a.length ? a : undefined);
 
 const MAX_LIMIT = 100;
 const MAX_OPTION_KEYS = 8;
@@ -83,6 +96,13 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     minDays: sp.get("minDays") ? Number(sp.get("minDays")) : undefined,
     maxDays: sp.get("maxDays") ? Number(sp.get("maxDays")) : undefined,
     odometerMax: sp.get("odometerMax") ? Number(sp.get("odometerMax")) : undefined,
+    odometerMin: sp.get("odometerMin") ? Number(sp.get("odometerMin")) : undefined,
+    bodyStyle: repeated(sp, "bodyStyle", cleanBodyStyle, MAX_BODY_STYLES),
+    fuel: nonEmpty(cleanFuel(sp.getAll("fuel"))),
+    drivetrain: nonEmpty(cleanDrivetrain(sp.getAll("drivetrain"))),
+    transmission: nonEmpty(cleanTransmission(sp.getAll("transmission"))),
+    dealerId: repeated(sp, "dealerId", cleanDealerId, MAX_DEALERS),
+    vinPattern: vinPatternUsable(sp.get("vinPattern") || "", true) ? cleanVinPattern(sp.get("vinPattern") || "") : undefined,
     minPriceChanges: sp.get("minPriceChanges") ? Number(sp.get("minPriceChanges")) : undefined,
     exteriorColor: sp.get("exteriorColor") || undefined,
     interiorColor: sp.get("interiorColor") || undefined,
