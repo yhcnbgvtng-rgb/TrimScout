@@ -63,3 +63,33 @@ describe('deals_api_server.js wiring', () => {
     assert.doesNotMatch(body, /stats/i);
   });
 });
+
+describe('GET /api/inventory/stats', () => {
+  const src = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
+  it('is served from statsCached under the "stats" key, not the write-invalidated invCached', () => {
+    assert.match(src, /statsCached\("stats", \(\) => computeInventoryStats\(pool\)\)/);
+    assert.doesNotMatch(src, /invCached\("stats"/);
+  });
+  it('runs all five aggregate queries under SET STATEMENT + withPoolTimeout', () => {
+    const body = src.match(/async function computeInventoryStats\(pool\) \{[\s\S]*?\n\}\n/)[0];
+    assert.equal((body.match(/await q\(/g) || []).length, 5);
+    assert.doesNotMatch(body, /pool\.query\("/);
+    assert.match(body, /SET STATEMENT max_statement_time=\$\{statementSeconds\(\)\} FOR/);
+    assert.match(body, /withPoolTimeout\(/);
+  });
+  it('a write (invInvalidate) does not clear the stats entry', async () => {
+    // invInvalidate only bumps a generation and clears invCache; statsCached is a separate cache object it never touches.
+    const inv = src.match(/const invInvalidate = \(\) => \{[\s\S]*?\n\};/)[0];
+    assert.match(inv, /invCache\.clear\(\)/);
+    assert.doesNotMatch(inv, /statsCached|stats-cache|STATS/i);
+    // Behaviourally: model the same wiring (separate stats cache + a write-invalidated map).
+    let runs = 0;
+    const stats = createStatsCache({ log: quiet });
+    const invCache = new Map();
+    const invInvalidate = () => invCache.clear();
+    assert.equal(await stats('stats', async () => ++runs), 1);
+    invInvalidate();
+    assert.equal(await stats('stats', async () => ++runs), 1, 'cached entry survives the write');
+    assert.equal(runs, 1);
+  });
+});

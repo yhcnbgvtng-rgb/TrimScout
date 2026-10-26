@@ -3133,18 +3133,25 @@ async function computeMarketPulse(pool, state) {
 async function handleInventoryStats(req, res) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  sendJson(res, 200, await invCached("stats", () => computeInventoryStats(pool)));
+  // statsCached, not invCached: every bulk upsert/sweep clears invCached, so after the nightly sync this full-table scan re-ran cold and timed out.
+  sendJson(res, 200, await statsCached("stats", () => computeInventoryStats(pool)));
 }
 async function computeInventoryStats(pool) {
-  const [[tot]] = await pool.query("SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory");
-  const [byMake] = await pool.query("SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100");
+  // Same guard as handleInventoryMakes: SET STATEMENT max_statement_time plus withPoolTimeout.
+  const q = (sql) => withPoolTimeout(
+    pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`),
+    waitMs(),
+    "Timed out waiting for an available database connection or a slow query"
+  );
+  const [[tot]] = await q("SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins, MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory");
+  const [byMake] = await q("SELECT make, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100");
   // Reads i.state directly (denormalized onto dealer_inventory in PR #296 specifically to kill
   // this exact JOIN-into-dealership_contacts-then-GROUP-BY shape — confirmed live 2026-09-25,
   // 27.4s -> 0.29s for the equivalent list-query case) rather than the STRAIGHT_JOIN this
   // function never got updated to drop.
-  const [byState] = await pool.query("SELECT state, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC");
-  const [byCond] = await pool.query("SELECT cond, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL GROUP BY cond");
-  const [[mv]] = await pool.query("SELECT SUM(change_type = 'NEW_ARRIVAL') AS arrivals, SUM(price_diff < 0) AS priceDrops, SUM(price_diff > 0) AS priceIncreases, SUM(window_sticker_url IS NOT NULL) AS withSticker, SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)) AS removedToday FROM dealer_inventory WHERE removed_at IS NULL OR removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
+  const [byState] = await q("SELECT state, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC");
+  const [byCond] = await q("SELECT cond, COUNT(*) AS n FROM dealer_inventory WHERE removed_at IS NULL GROUP BY cond");
+  const [[mv]] = await q("SELECT SUM(change_type = 'NEW_ARRIVAL') AS arrivals, SUM(price_diff < 0) AS priceDrops, SUM(price_diff > 0) AS priceIncreases, SUM(window_sticker_url IS NOT NULL) AS withSticker, SUM(removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)) AS removedToday FROM dealer_inventory WHERE removed_at IS NULL OR removed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
   return { total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), vins: Number(tot.vins), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond,
     movement: { arrivals: Number(mv.arrivals || 0), priceDrops: Number(mv.priceDrops || 0), priceIncreases: Number(mv.priceIncreases || 0), withSticker: Number(mv.withSticker || 0), removedToday: Number(mv.removedToday || 0) } };
 }
