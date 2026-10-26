@@ -1,0 +1,37 @@
+diff --git a/src/standalone.js b/src/standalone.js
+index d39dc6e..a70bf88 100644
+--- a/src/standalone.js
++++ b/src/standalone.js
+@@ -334,8 +334,10 @@ function extractSchemaOrgVehicle(html, url, dealer) {
+         // guarantee every vehicle there is that brand. Multi-franchise
+         // dealer groups (confirmed live: an NJ Ford dealer's sitemap also
+         // surfaced Ram, VW, Honda, Mazda, and Maserati vehicles) would get
+-        // every vehicle mislabeled if dealer.make won here.
+-        make: cleanString(vehicleLd.manufacturer?.name) || dealer.make || null,
++        // every vehicle mislabeled if dealer.make won here. A page with no manufacturer
++        // is left blank, never filled from dealer.make: the make then comes from the
++        // VIN (vinWmi.js, via resolveKeptMake).
++        make: cleanString(vehicleLd.manufacturer?.name) || null,
+         model,
+         trim: null,
+         bodyStyle: cleanString(vehicleLd.bodyType),
+@@ -1068,7 +1070,9 @@ for (let i = 0; i < work.length; i++) {
+                                 stockNumber: cleanString(raw.stockNumber),
+                                 inventoryType,
+                                 year: raw.year ? parseInt(raw.year, 10) : null,
+-                                make: cleanString(raw.make) || dealer.make || brand.name,
++                                // No fallback to dealer.make / brand.name: a multi-franchise lot's other brands
++                                // were stored as the roster brand (a Challenger as "GMC"). Blank -> from the VIN.
++                                make: cleanString(raw.make) || null,
+                                 model: cleanString(raw.model),
+                                 trim: cleanString(raw.trim),
+                                 bodyStyle: cleanString(raw.bodyStyle),
+@@ -1220,6 +1224,8 @@ for (let i = 0; i < work.length; i++) {
+                     // tagged with its own real make, rather than discarded —
+                     // see resolveKeptMake's own header for why.
+                     const keptMake = resolveKeptMake(brand, vehicle);
++                    // No make label and a VIN no table can place: still dropped (as before), but logged so the count is visible.
++                    if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table), car skipped: ${vehicle.vin} ${url}`);
+ 
+                     if (keptMake) {
+                         // Collapse to the canonical nameplate. keptMake is
