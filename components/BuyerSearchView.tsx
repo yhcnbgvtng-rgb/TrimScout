@@ -12,6 +12,9 @@ import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort,
 import { writeQuoteSeed } from "@/lib/quoteSeed";
 import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { useRouter } from "next/navigation";
+import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
+import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
+import type { LiveCountProps } from "./search/LiveCount";
 
 interface BuyerVehicle {
   vehicleId?: number | null;
@@ -78,12 +81,14 @@ export interface Filters {
   zip: string;
   radiusMiles: string;
   sort: string;
+  /** Keyword-exclude words (comma separated). Client-side only: never sent to the box, applied to the cars on screen. */
+  exclude: string;
 }
 
 const EMPTY_FILTERS: Filters = {
   state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
   exteriorColor: "", interiorColor: "", optionKeys: [],
-  possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "",
+  possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "",
 };
 
 // A "More" filter is anything not always visible in the primary row — its own count so the
@@ -96,7 +101,7 @@ function countMoreFilters(f: Filters): number {
   );
 }
 
-function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: number } = {}): string {
+export function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: number } = {}): string {
   const sp = new URLSearchParams();
   if (f.state) sp.set("state", f.state);
   if (f.make) sp.set("make", f.make);
@@ -148,21 +153,27 @@ function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T, labelFor?
 
 export function BuyerSearchView() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  // contactOnFile=1 in the page URL turns the filter on (a shared link); toggling it rewrites the URL without a navigation.
+  // The page URL carries every filter (make=Toyota&model=RAV4&priceMax=40000 ...), so a search can be shared and survives a reload.
+  // A link with a make runs its search on arrival. `urlReady` keeps the write-back from wiping the URL before it has been read.
+  const urlReady = useRef(false);
   useEffect(() => {
-    if (!contactFilterEnabled()) return;
     try {
-      if (new URLSearchParams(window.location.search).get("contactOnFile") === "1") setFilters((f) => ({ ...f, contactOnFile: true }));
-    } catch { /* no URL access: the filter just starts off */ }
+      const parsed = filtersFromSearchParams(new URLSearchParams(window.location.search), EMPTY_FILTERS);
+      if (!contactFilterEnabled()) parsed.contactOnFile = false;
+      if (JSON.stringify(parsed) !== JSON.stringify(EMPTY_FILTERS)) {
+        setFilters(parsed);
+        if (parsed.make) setApplied({ ...parsed });
+      }
+    } catch { /* no URL access: the page just starts empty */ }
   }, []);
   useEffect(() => {
-    if (!contactFilterEnabled()) return;
+    // Not before the first real change (or the parsed URL landing): the first run sees the empty defaults and must not erase the link.
+    if (!urlReady.current) { if (filters === EMPTY_FILTERS) return; urlReady.current = true; }
     try {
-      const url = new URL(window.location.href);
-      if (filters.contactOnFile) url.searchParams.set("contactOnFile", "1"); else url.searchParams.delete("contactOnFile");
-      window.history.replaceState(window.history.state, "", url);
+      const next = urlWithFilters(window.location.href, filters);
+      if (next !== window.location.href) window.history.replaceState(window.history.state, "", next);
     } catch { /* ignore */ }
-  }, [filters.contactOnFile]);
+  }, [filters]);
   const picksState = useBuyerSearchState();
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -392,6 +403,71 @@ export function BuyerSearchView() {
 
   const paidOnly = optionsPaidOnlyEnabled();
 
+  // ---- headline count ----
+  // From the facet lists when they can answer (state/make/model/trim are exact and free). Only when a filter the lists cannot see is set
+  // (condition, price, year, mileage, colour, options, demo, radius) and a make is picked does it ask the box: one limit=1 search, 250 ms
+  // after the last change, the previous one aborted, and each answer remembered so toggling back is instant.
+  const COUNT_DEBOUNCE_MS = 250;
+  const serverMode = needsServerCount(filters);
+  const countQs = useMemo(() => (serverMode ? filtersToQueryString({ ...filters, sort: "" }, { limit: 1 }) : ""), [serverMode, filters]);
+  const countCache = useRef(new Map<string, { total: number; capped: boolean }>());
+  const [serverCount, setServerCount] = useState<{ qs: string; total: number; capped: boolean } | null>(null);
+  const [serverCountFailed, setServerCountFailed] = useState(false);
+  useEffect(() => {
+    if (!countQs) return;
+    const hit = countCache.current.get(countQs);
+    if (hit) { setServerCount({ qs: countQs, ...hit }); setServerCountFailed(false); return; }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      const late = countCache.current.get(countQs); // the search itself may have answered while this waited
+      if (late) { setServerCount({ qs: countQs, ...late }); setServerCountFailed(false); return; }
+      fetch(`/api/vehicles/search?${countQs}`, { signal: controller.signal })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`count ${r.status}`))))
+        .then((json) => {
+          if (typeof json?.total !== "number") throw new Error("count shape");
+          const entry = { total: json.total, capped: Boolean(json.totalCapped) };
+          countCache.current.set(countQs, entry);
+          setServerCount({ qs: countQs, ...entry });
+          setServerCountFailed(false);
+        })
+        .catch((e) => { if (e?.name !== "AbortError") setServerCountFailed(true); });
+    }, COUNT_DEBOUNCE_MS);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [countQs]);
+  // The search that just ran already knows its own total: remember it so the matching count request never goes to the box.
+  useEffect(() => {
+    if (!results || !applied || results.offset !== 0) return;
+    const key = filtersToQueryString({ ...applied, sort: "" }, { limit: 1 });
+    countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped) });
+  }, [results, applied]);
+  const facetLists = useMemo(() => {
+    const rows = (o: DropdownOption[]) => o.map((x) => ({ value: x.value, count: x.count ?? 0 }));
+    return { states: rows(stateOptions), makes: rows(makeOptions), models: rows(modelOptions), trims: rows(trimOptions) };
+  }, [stateOptions, makeOptions, modelOptions, trimOptions]);
+  const lastShown = useRef<{ value: number; capped: boolean } | null>(null);
+  const live: LiveCountProps = (() => {
+    let value: number | null = null, capped = false, pending = false, note: string | null = null;
+    if (serverMode) {
+      const fresh = serverCount && serverCount.qs === countQs ? serverCount : null;
+      value = fresh ? fresh.total : lastShown.current?.value ?? null;
+      capped = fresh ? fresh.capped : lastShown.current?.capped ?? false;
+      pending = !fresh && !serverCountFailed;
+      if (serverCountFailed && !fresh) note = "Couldn't refresh the count just now.";
+    } else {
+      const fc = countsHidden ? null : facetCount(filters, facetLists);
+      value = fc ?? lastShown.current?.value ?? null;
+      pending = fc == null && (facetsLoading || value != null);
+      if (facetsFailed && fc == null) note = "Couldn't refresh the count just now.";
+      else if (hasNonFacetFilter(filters) && !filters.make) note = "Counts for these filters start once you pick a make.";
+      else if (filters.optionKeys.length && !filters.model) note = "Pick a model to count factory options.";
+    }
+    if (value != null && !pending) lastShown.current = { value, capped };
+    return { value, capped, pending, note };
+  })();
+  const excludeTerms = useMemo(() => parseExclude(filters.exclude), [filters.exclude]);
+  const shownVehicles = useMemo(() => (results && excludeTerms.length ? results.vehicles.filter((v) => !isExcluded(v, excludeTerms)) : results?.vehicles ?? []), [results, excludeTerms]);
+  const excludedHidden = results ? results.vehicles.length - shownVehicles.length : 0;
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
       <SearchFilterBar
@@ -403,6 +479,7 @@ export function BuyerSearchView() {
         exteriorColors={exteriorColors} interiorColors={interiorColors}
         moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
         contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
+        live={live} excludedHidden={excludedHidden}
       />
 
       <div>
@@ -422,14 +499,14 @@ export function BuyerSearchView() {
 
         {!searchError && !results && !searchLoading && (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
-            Pick a make (add a model to narrow it further), then press Search.
+            Pick a make (add a model to narrow it further), then press the green button.
           </div>
         )}
 
         {!searchError && results && (
           <>
             {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
-            {results.vehicles.length > 0 && <VehicleTable resetKey={applied} hasMore={hasMore} loadingMore={searchLoading} moreError={moreError} onLoadMore={loadMore} sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={results.vehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
+            {results.vehicles.length > 0 && <VehicleTable resetKey={applied} hasMore={hasMore} loadingMore={searchLoading} moreError={moreError} onLoadMore={loadMore} sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={shownVehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
                 No vehicles match these filters — try widening them.
