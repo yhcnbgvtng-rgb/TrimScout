@@ -85,10 +85,11 @@ export interface InventoryUpsert {
 }
 
 /** Fields the box accepts as REPEATED params (state=FL&state=GA): OR within a field, AND across fields. */
-export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond", "exclude"] as const;
+export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond", "exclude", "bodyStyle", "fuel", "drivetrain", "transmission", "dealerId"] as const;
 
 export interface InventoryQuery {
-  dealerId?: string;
+  /** One store (admin), or several (buyer "Dealer" filter, repeated dealerId= params, OR). */
+  dealerId?: string | string[];
   /** state / make / model / trim / cond take one value or several (OR). One value is sent exactly as before. */
   state?: string | string[];
   make?: string | string[];
@@ -114,6 +115,18 @@ export interface InventoryQuery {
   interiorColor?: string;
   /** Max odometer reading. */
   odometerMax?: number;
+  /** Min odometer reading (box patch 2026-10-27-filter-panel; an older box ignores it and does not echo it in `filtersApplied`). */
+  odometerMin?: number;
+  /** Dealer's own body-style words ("SUV", "Pickup"); OR within the field. */
+  bodyStyle?: string[];
+  /** Inferred from engine/model/trim text: gas | hybrid | phev | electric | diesel (see lib/searchFilters.ts). */
+  fuel?: string[];
+  /** Inferred from trim/engine/body text: awd | rwd | fwd. */
+  drivetrain?: string[];
+  /** Grouped from the dealer's transmission text: automatic | manual | cvt | dct | single. */
+  transmission?: string[];
+  /** VIN pattern: letters/digits with ? (one character) and * (any run). */
+  vinPattern?: string;
   /** Only vehicles whose price has changed at least this many times since it was first crawled. */
   minPriceChanges?: number;
   /**
@@ -158,6 +171,13 @@ export type BuyerSearchQuery = Pick<
   | "minDays"
   | "maxDays"
   | "odometerMax"
+  | "odometerMin"
+  | "bodyStyle"
+  | "fuel"
+  | "drivetrain"
+  | "transmission"
+  | "dealerId"
+  | "vinPattern"
   | "minPriceChanges"
   | "exteriorColor"
   | "interiorColor"
@@ -237,7 +257,7 @@ export function inventoryQueryString(q: InventoryQuery): string {
 }
 
 /** `total` is exact unless `totalCapped` — then it is a floor ("at least this many"), counted only up to the request's countCap. */
-export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[]; /** The exclude words the box actually applied; absent from a box that does not know the parameter. */ excludeApplied?: string[] }
+export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[]; /** The exclude words the box actually applied; absent from a box that does not know the parameter. */ excludeApplied?: string[]; /** The filter params this box actually honoured (odometerMin, bodyStyle, fuel, ...). Absent from a box that has not had the filter-panel patch. */ filtersApplied?: string[] }
 
 export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPage> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
@@ -515,4 +535,33 @@ export async function inventoryVinByListingUrl(url: string): Promise<InventoryVe
 /** `sources` limits the sweep to rows a given crawler wrote, so two crawlers covering one store don't erase each other. */
 export async function sweepInventory(dealerId: string | number, seenAfter: string, sources?: string[]): Promise<{ removed: number }> {
   return request("POST", "/api/inventory/sweep", { dealerId, seenAfter, ...(sources?.length ? { sources } : {}) });
+}
+
+/** What GET /api/inventory/facet-counts returns (deals-api, 2026-10-27-filter-panel). Each list counts the cars that match every OTHER picked filter, so a chip's number is what picking it would give. */
+export interface FacetCountDims {
+  year?: Array<{ v: number; n: number }>;
+  /** Odometer histogram: `hist[i]` cars between i*width and (i+1)*width, the last bucket open-ended. */
+  mileage?: { width: number; top: number; hist: number[]; noMileage?: number };
+  bodyStyle?: Array<{ v: string; n: number }>;
+  fuel?: Array<{ v: string; n: number }>;
+  drivetrain?: Array<{ v: string; n: number }>;
+  transmission?: Array<{ v: string; n: number }>;
+  /** Days-on-market bands keyed like DAYS_BANDS ("0-7" ... "91+"). */
+  days?: Array<{ v: string; n: number }>;
+  dealer?: Array<{ id: string; name: string; n: number }>;
+}
+export type FacetCountsResult =
+  | { supported: false }
+  | { supported: true; tooBroad: true; cap: number }
+  | { supported: true; tooBroad?: false; rows: number; dims: FacetCountDims };
+
+/** The facet counts for the filters in `q`. A box without the endpoint answers 404, reported as { supported: false } so the page just hides those groups. */
+export async function facetCounts(q: BuyerSearchQuery): Promise<FacetCountsResult> {
+  const { zip: _zip, radiusMiles: _radius, limit: _limit, offset: _offset, sort: _sort, nullsLast: _nullsLast, countCap: _cap, ...rest } = q;
+  try {
+    return await request("GET", `/api/inventory/facet-counts${inventoryQueryString({ ...rest, inStock: true, retailOnly: true, seenWithinDays: buyerHideDays() })}`);
+  } catch (err) {
+    if (err instanceof InventoryApiError && err.status === 404) return { supported: false };
+    throw err;
+  }
 }

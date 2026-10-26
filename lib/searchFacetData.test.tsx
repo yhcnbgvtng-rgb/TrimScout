@@ -11,7 +11,7 @@ import { inventoryQueryString } from "./inventoryApi";
 import { hasNonFacetFilter, needsServerCount } from "./searchLive";
 
 const none = () => {};
-const base = { state: "", make: "Toyota", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "" };
+const base = { state: "", make: "Toyota", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "" };
 
 describe("chips carry the box's counts", () => {
   it("shows a number on each chip that has one, hides a zero-count chip, and shows none for a chip without a count", () => {

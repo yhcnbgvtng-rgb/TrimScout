@@ -14,7 +14,8 @@ import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { lastSeenLabel } from "@/lib/lastConfirmed";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
-import type { PriceHistogram } from "@/lib/inventoryApi";
+import type { FacetCountsResult, PriceHistogram } from "@/lib/inventoryApi";
+import { daysBandRange, vinPatternUsable, cleanVinPattern } from "@/lib/searchFilters";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
 import type { LiveCountProps } from "./search/LiveCount";
 
@@ -50,6 +51,8 @@ interface SearchResults {
   totalCapped?: boolean;
   /** The Leave-out words the box applied. Absent: the box ignored them (an older box), so the page hides matching cars itself. */
   excludeApplied?: string[];
+  /** The newer filter params the box honoured (odometerMin, bodyStyle, fuel, ...). Absent: an older box that ignores them. */
+  filtersApplied?: string[];
   /** How many vehicles the most recent page returned — a full page is how "Load more" knows there may be another. */
   lastPageCount?: number;
   limit: number;
@@ -85,21 +88,34 @@ export interface Filters {
   zip: string;
   radiusMiles: string;
   sort: string;
-  /** Keyword-exclude words (comma separated). Client-side only: never sent to the box, applied to the cars on screen. */
+  /** "Leave out" words (comma separated). Sent to the box as exclude= (it only counts them with a make); an older box ignores them and the page hides matching cars itself. */
   exclude: string;
+  odometerMin: string;
+  /** The "More filters" lists: dealer body-style words, inferred fuel / drivetrain, grouped transmission, the box's store ids. */
+  bodyStyle: string[];
+  fuel: string[];
+  drivetrain: string[];
+  transmission: string[];
+  dealerIds: string[];
+  /** One days-on-market band ("0-7" ... "91+", lib/searchFilters.ts). */
+  days: string;
+  /** A VIN pattern with ? and * (lib/searchFilters.ts). */
+  vinPattern: string;
 }
 
 const EMPTY_FILTERS: Filters = {
   state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
   exteriorColor: "", interiorColor: "", optionKeys: [],
   possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "",
+  odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "",
 };
 
 // A "More" filter is anything not always visible in the primary row — its own count so the
 // trigger can say "3 more filters" instead of a generic icon with no idea how many are hiding.
 function countMoreFilters(f: Filters): number {
   return (
-    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles].filter(Boolean).length +
+    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.odometerMin, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles, f.days, f.vinPattern].filter(Boolean).length +
+    f.bodyStyle.length + f.fuel.length + f.drivetrain.length + f.transmission.length + f.dealerIds.length +
     (f.possibleDemo ? 1 : 0) +
     (f.contactOnFile ? 1 : 0)
   );
@@ -117,6 +133,16 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
   if (f.yearMin) sp.set("yearMin", f.yearMin);
   if (f.yearMax) sp.set("yearMax", f.yearMax);
   if (f.odometerMax) sp.set("odometerMax", f.odometerMax);
+  if (f.odometerMin) sp.set("odometerMin", f.odometerMin);
+  for (const v of f.bodyStyle) sp.append("bodyStyle", v);
+  for (const v of f.fuel) sp.append("fuel", v);
+  for (const v of f.drivetrain) sp.append("drivetrain", v);
+  for (const v of f.transmission) sp.append("transmission", v);
+  for (const v of f.dealerIds) sp.append("dealerId", v);
+  const band = daysBandRange(f.days);
+  if (band?.min != null) sp.set("minDays", String(band.min));
+  if (band?.max != null) sp.set("maxDays", String(band.max));
+  if (f.make && vinPatternUsable(f.vinPattern, true)) sp.set("vinPattern", cleanVinPattern(f.vinPattern));
   if (f.exteriorColor) sp.set("exteriorColor", f.exteriorColor);
   if (f.interiorColor) sp.set("interiorColor", f.interiorColor);
   if (f.optionKeys.length) sp.set("optionKeys", f.optionKeys.join(","));
@@ -138,11 +164,22 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
 
 export interface CatalogExtras {
   exteriorColorCounts?: Array<{ color: string; n: number }>;
+  interiorColorCounts?: Array<{ color: string; n: number }>;
   conditionCounts?: { new: number; used: number; cpo: number };
   priceHistogram?: PriceHistogram;
 }
 
+/** The filter params only a patched box honours; it lists the ones it applied in `filtersApplied`, so a missing one means "this filter did nothing". */
+const NEWER_FILTER_KEYS = ["odometerMin", "bodyStyle", "fuel", "drivetrain", "transmission", "dealerId", "vinPattern"] as const;
+const FILTER_LABEL: Record<string, string> = { odometerMin: "Minimum mileage", bodyStyle: "Body style", fuel: "Fuel type", drivetrain: "Drivetrain", transmission: "Transmission", dealerId: "Dealer", vinPattern: "VIN pattern" };
+/** Which of the newer filters a query string asks for that the box did not apply. */
+export function unappliedFilters(qs: string, applied: string[] | undefined): string[] {
+  const asked = new URLSearchParams(qs);
+  return NEWER_FILTER_KEYS.filter((k) => asked.has(k) && !applied?.includes(k));
+}
+
 const RESULTS_PAGE_SIZE = 24;
+const COUNT_DEBOUNCE_MS = 250;
 
 /**
  * Why Search is disabled, or null when it can run. Mirrors the server's gates
@@ -278,6 +315,7 @@ export function BuyerSearchView() {
         setInteriorColors(Array.isArray(json?.interiorColors) ? json.interiorColors : []);
         setCatalogExtras({
           exteriorColorCounts: Array.isArray(json?.exteriorColorCounts) ? json.exteriorColorCounts : undefined,
+          interiorColorCounts: Array.isArray(json?.interiorColorCounts) ? json.interiorColorCounts : undefined,
           conditionCounts: json?.conditionCounts && typeof json.conditionCounts === "object" ? json.conditionCounts : undefined,
           priceHistogram: Array.isArray(json?.priceHistogram?.all) && json.priceHistogram.all.length === 31 ? json.priceHistogram : undefined,
         });
@@ -293,6 +331,36 @@ export function BuyerSearchView() {
       .finally(() => setCatalogOptionsLoading(false));
     return () => controller.abort();
   }, [filters.make, filters.model, filters.trim]);
+
+  // Counts for the "More filters" chips (year, mileage, body style, fuel, drivetrain, transmission, days on market, dealer). One request, 250 ms after the
+  // last change, the previous one aborted, each answer remembered per query. Needs a make (the same gate as the search) and never runs with the
+  // contact filter on (the box cannot count that set). A box without the endpoint answers supported:false and the groups stay hidden.
+  const fcQs = useMemo(() => {
+    if (!filters.make || filters.contactOnFile) return "";
+    const qs = new URLSearchParams(filtersToQueryString({ ...filters, sort: "" }));
+    return qs.toString();
+  }, [filters]);
+  const fcCache = useRef(new Map<string, FacetCountsResult>());
+  const [facetCountsState, setFacetCountsState] = useState<{ qs: string; make: string; result: FacetCountsResult } | null>(null);
+  const [facetCountsFailed, setFacetCountsFailed] = useState(false);
+  useEffect(() => {
+    if (!fcQs) { setFacetCountsState(null); setFacetCountsFailed(false); return; }
+    const hit = fcCache.current.get(fcQs);
+    if (hit) { setFacetCountsState({ qs: fcQs, make: filters.make, result: hit }); setFacetCountsFailed(false); return; }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      fetch(`/api/vehicles/facet-counts?${fcQs}`, { signal: controller.signal })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`facet-counts ${r.status}`))))
+        .then((json: FacetCountsResult) => {
+          if (!json || typeof json !== "object" || typeof (json as { supported?: unknown }).supported !== "boolean") throw new Error("facet-counts shape");
+          fcCache.current.set(fcQs, json);
+          setFacetCountsState({ qs: fcQs, make: filters.make, result: json });
+          setFacetCountsFailed(false);
+        })
+        .catch((e) => { if (e?.name !== "AbortError") setFacetCountsFailed(true); });
+    }, COUNT_DEBOUNCE_MS);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [fcQs, filters.make]);
 
   // Clearing make clears model/trim/options; clearing model clears trim/options — the box has
   // nothing to scope them by otherwise, and stale selections from a different make/model would
@@ -409,7 +477,7 @@ export function BuyerSearchView() {
   const moreCount = countMoreFilters(filters);
   const clearMore = () =>
     setFilters((f) => ({
-      ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
+      ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "",
       // The header sort is kept (it is not a filter); only a Distance sort goes, because clearing the ZIP removes that column.
       exteriorColor: "", interiorColor: "", possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
     }));
@@ -427,11 +495,10 @@ export function BuyerSearchView() {
   // From the facet lists when they can answer (state/make/model/trim are exact and free). Only when a filter the lists cannot see is set
   // (condition, price, year, mileage, colour, options, demo, radius) and a make is picked does it ask the box: one limit=1 search, 250 ms
   // after the last change, the previous one aborted, and each answer remembered so toggling back is instant.
-  const COUNT_DEBOUNCE_MS = 250;
   const serverMode = needsServerCount(filters);
   const countQs = useMemo(() => (serverMode ? filtersToQueryString({ ...filters, sort: "" }, { limit: 1 }) : ""), [serverMode, filters]);
-  const countCache = useRef(new Map<string, { total: number; capped: boolean; excl: boolean }>());
-  const [serverCount, setServerCount] = useState<{ qs: string; total: number; capped: boolean; excl: boolean } | null>(null);
+  const countCache = useRef(new Map<string, { total: number; capped: boolean; excl: boolean; fa?: string[] }>());
+  const [serverCount, setServerCount] = useState<{ qs: string; total: number; capped: boolean; excl: boolean; fa?: string[] } | null>(null);
   const [serverCountFailed, setServerCountFailed] = useState(false);
   useEffect(() => {
     if (!countQs) return;
@@ -445,7 +512,7 @@ export function BuyerSearchView() {
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`count ${r.status}`))))
         .then((json) => {
           if (typeof json?.total !== "number") throw new Error("count shape");
-          const entry = { total: json.total, capped: Boolean(json.totalCapped), excl: Array.isArray(json.excludeApplied) && json.excludeApplied.length > 0 };
+          const entry = { total: json.total, capped: Boolean(json.totalCapped), excl: Array.isArray(json.excludeApplied) && json.excludeApplied.length > 0, fa: Array.isArray(json.filtersApplied) ? json.filtersApplied : undefined };
           countCache.current.set(countQs, entry);
           setServerCount({ qs: countQs, ...entry });
           setServerCountFailed(false);
@@ -458,7 +525,7 @@ export function BuyerSearchView() {
   useEffect(() => {
     if (!results || !applied || results.offset !== 0) return;
     const key = filtersToQueryString({ ...applied, sort: "" }, { limit: 1 });
-    countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped), excl: Boolean(results.excludeApplied?.length) });
+    countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped), excl: Boolean(results.excludeApplied?.length), fa: results.filtersApplied });
   }, [results, applied]);
   const facetLists = useMemo(() => {
     const rows = (o: DropdownOption[]) => o.map((x) => ({ value: x.value, count: x.count ?? 0 }));
@@ -473,7 +540,9 @@ export function BuyerSearchView() {
       capped = fresh ? fresh.capped : lastShown.current?.capped ?? false;
       pending = !fresh && !serverCountFailed;
       if (serverCountFailed && !fresh) note = "Couldn't refresh the count just now.";
+      else if (fresh && unappliedFilters(countQs, fresh.fa).length) note = `${unappliedFilters(countQs, fresh.fa).map((k) => FILTER_LABEL[k]).join(", ")} can't be applied by the search service yet, so ${unappliedFilters(countQs, fresh.fa).length === 1 ? "it isn't" : "they aren't"} counted.`;
       else if (fresh && parseExclude(filters.exclude).length && !fresh.excl) note = "Leave-out words are not counted yet; they hide cars once results are shown.";
+      else if (filters.zip && filters.radiusMiles) note = "Distance isn't counted: dealer locations are only known by state, so it trims the cars on screen, not this number.";
     } else {
       const fc = countsHidden ? null : facetCount(filters, facetLists);
       value = fc ?? lastShown.current?.value ?? null;
@@ -488,6 +557,8 @@ export function BuyerSearchView() {
   const excludeTerms = useMemo(() => parseExclude(filters.exclude), [filters.exclude]);
   const shownVehicles = useMemo(() => (results && excludeTerms.length && !results.excludeApplied?.length ? results.vehicles.filter((v) => !isExcluded(v, excludeTerms)) : results?.vehicles ?? []), [results, excludeTerms]);
   const excludedHidden = results ? results.vehicles.length - shownVehicles.length : 0;
+  // A shared link (or an older box) can carry filters this box does not apply: say so instead of showing unfiltered cars under a filter pill.
+  const resultsUnapplied = results && applied ? unappliedFilters(filtersToQueryString(applied), results.filtersApplied) : [];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
@@ -501,6 +572,7 @@ export function BuyerSearchView() {
         moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
         contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
         live={live} excludedHidden={excludedHidden} extras={catalogExtras}
+        facetCounts={facetCountsState && facetCountsState.make === filters.make ? facetCountsState.result : null} facetCountsPending={Boolean(fcQs) && !(facetCountsState && facetCountsState.qs === fcQs) && !facetCountsFailed} facetCountsFailed={facetCountsFailed}
       />
 
       <div>
@@ -526,6 +598,7 @@ export function BuyerSearchView() {
 
         {!searchError && results && (
           <>
+            {resultsUnapplied.length > 0 && <p role="status" data-testid="unapplied-note" className="mb-2 text-[11px] font-semibold text-amber-300">{resultsUnapplied.map((k) => FILTER_LABEL[k]).join(", ")} can&apos;t be applied by the search service yet, so {resultsUnapplied.length === 1 ? "it was" : "they were"} left out of these results.</p>}
             {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
             {results.vehicles.length > 0 && <VehicleTable resetKey={applied} hasMore={hasMore} loadingMore={searchLoading} moreError={moreError} onLoadMore={loadMore} sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={shownVehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
             {results.vehicles.length === 0 && (
