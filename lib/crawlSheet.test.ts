@@ -65,12 +65,12 @@ describe("crawl sheet — notes become columns", () => {
 });
 
 describe("vehicles sheet", () => {
-  it("vehicle CSV carries the sheet's columns, formats dates as days, and stays client-safe", async () => {
+  it("vehicle CSV carries the sheet's columns, formats the seen times in ET and other dates as days, and stays client-safe", async () => {
     const { VEHICLE_SHEET_COLUMNS, vehicleRowsToCsv } = await import("./crawlSheetColumns");
     const row = { vin: "3GNAXPEG2VL114131", dealerId: "11556", dealerName: "McGuire Chevrolet", dealerCity: "Clare", dealerState: "NJ", condition: "new", year: 2027, make: "Chevrolet", model: "Equinox", trim: "LT", bodyStyle: "SUV", exteriorColor: "Radiant Red Tintcoat", interiorColor: null, mileage: null, price: 35945, msrp: 35945, stockNumber: "227014", vdpUrl: "https://www.mcguirechevrolet.com/new-Clare-2027-Chevrolet-Equinox-LT-3GNAXPEG2VL114131", imageUrl: null, source: "jsonld", firstSeenAt: "2026-09-16T11:02:03.000Z", lastSeenAt: "2026-09-16T11:02:03.000Z", removedAt: null };
     const csv = vehicleRowsToCsv([row], ["dealerName", "vin", "price", "firstSeenAt"]);
     assert.equal(csv.split("\r\n")[0], "Dealer,VIN,Price,First seen");
-    assert.equal(csv.split("\r\n")[1], "McGuire Chevrolet,3GNAXPEG2VL114131,35945,2026-09-16");
+    assert.equal(csv.split("\r\n")[1], "McGuire Chevrolet,3GNAXPEG2VL114131,35945,2026-09-16 07:02 ET");
     assert.ok(VEHICLE_SHEET_COLUMNS.some((c) => c.key === "vdpUrl"));
     const client = fs.readFileSync("app/admin/crawl/VehiclesSheet.tsx", "utf8");
     assert.match(client, /from "@\/lib\/crawlSheetColumns"/);
@@ -205,5 +205,16 @@ describe("vehicle id column", () => {
     assert.equal(vehicleRowCell({ vin: "1HGCM82633A004352", vehicleId: null } as never, "vehicleId"), "");
     assert.equal(vehicleRowCell({ vin: "1HGCM82633A004352" } as never, "vehicleId"), "");
     assert.match(vehicleCsvHeader(), /Vehicle ID,VIN,/);
+  });
+});
+
+describe("Last seen column — Eastern date and time", () => {
+  it("shows the crawl's last sighting in ET, across daylight-saving time", async () => {
+    const { vehicleRowCell, lastSeenET } = await import("./crawlSheetColumns");
+    assert.equal(lastSeenET("2026-10-22T10:28:19.000Z"), "2026-10-22 06:28 ET");
+    assert.equal(lastSeenET("2026-12-01T03:30:00.000Z"), "2026-11-30 22:30 ET");
+    assert.equal(vehicleRowCell({ vin: "X", lastSeenAt: "2026-10-22T10:28:19.000Z" } as never, "lastSeenAt"), "2026-10-22 06:28 ET");
+    assert.equal(vehicleRowCell({ vin: "X", firstSeenAt: "2026-10-22T10:28:19.000Z" } as never, "firstSeenAt"), "2026-10-22 06:28 ET");
+    assert.equal(lastSeenET("junk"), "junk");
   });
 });

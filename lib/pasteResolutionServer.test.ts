@@ -98,7 +98,7 @@ describe("resolveVehicleDealer — dealer-attach priority locked 2026-09-20: VDP
     assert.equal(v.location.dealerName, "Lexus of Route 10");
     assert.equal(v.location.dealerConfirmed, true);
     assert.equal(v.daysOnLot, 6, "lot age rides along from the crawl");
-    assert.equal(v.lotFirstSeen, "2026-09-10");
+    assert.equal("lotFirstSeen" in v, false, "the crawl date is never put on the vehicle");
   });
 
   it("2d. lot age from the crawl is counted from first-seen when the feed had no figure, and never overrides a sticker's own", async () => {

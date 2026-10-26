@@ -29,7 +29,7 @@ import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number } };
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
-const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vehicleId: 90, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 100, lastSeenAt: 100, removedAt: 100, source: 90, sourceBox: 70 };
+const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vehicleId: 90, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 140, lastSeenAt: 140, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
 const ROW_H = 32;
 // "Load all" asks for confirmation above this many rows (an estimate from the stats call). Not a CSV limit.
@@ -62,6 +62,8 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
   const [applied, setApplied] = useState<Applied | null>(null);
   // null = no explicit choice yet: the sort follows the applied filters (see effectiveSort).
   const [sortChoice, setSort] = useState<VehicleSort | null>(null);
+  // First seen has no box-side sort: it orders the rows already loaded, in this browser. null = the box's order.
+  const [firstSeenDir, setFirstSeenDir] = useState<"asc" | "desc" | null>(null);
   const [exporting, setExporting] = useState(false);
   const [vinOpen, setVinOpen] = useState<string | null>(initialVin);
   const typedVin = /^[A-HJ-NPR-Z0-9]{17}$/i.test(draft.q.trim()) ? draft.q.trim().toUpperCase() : null;
@@ -229,7 +231,8 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
     }
   };
 
-  const onHeader = (key: keyof VehicleRow) => { const sk = SORT_FOR[key]; if (!sk) return; setSort(() => (sort.key === sk ? { key: sk, dir: sort.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
+  const shownRows = useMemo(() => (firstSeenDir ? [...rows].sort((a, b) => (firstSeenDir === "asc" ? 1 : -1) * (a.firstSeenAt || "").localeCompare(b.firstSeenAt || "")) : rows), [rows, firstSeenDir]);
+  const onHeader = (key: keyof VehicleRow) => { if (key === "firstSeenAt") { setFirstSeenDir(firstSeenDir === "desc" ? "asc" : "desc"); return; } const sk = SORT_FOR[key]; if (!sk) return; setFirstSeenDir(null); setSort(() => (sort.key === sk ? { key: sk, dir: sort.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
   const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
   const canLoadMore = rows.length > 0 && (totalCapped ? lastPageFull : rows.length < total);
   const totalLabel = `${total.toLocaleString()}${totalCapped ? "+" : ""}`;
@@ -333,12 +336,14 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
           <div style={{ width: totalW, minWidth: "100%" }}>
             <div className="sticky top-0 z-20 flex border-b border-border bg-surface-elevated" style={{ height: ROW_H }}>
               {VEHICLE_SHEET_COLUMNS.map((c) => {
-                const sk = SORT_FOR[c.key];
-                const active = sk && sort.key === sk;
+                const isFirst = c.key === "firstSeenAt";
+                const sk = isFirst ? "firstseen" : SORT_FOR[c.key];
+                const dir = isFirst ? firstSeenDir : sort.dir;
+                const active = isFirst ? firstSeenDir !== null : sk && !firstSeenDir && sort.key === sk;
                 return (
-                  <button key={c.key} type="button" onClick={() => onHeader(c.key)} disabled={!sk} title={sk ? `Sort by ${c.label}` : undefined} className="flex items-center gap-1 border-r border-border/60 px-2.5 text-left text-[10.5px] font-black uppercase tracking-wider text-ink-faint enabled:hover:text-white shrink-0" style={{ width: COL_W[c.key] || 120 }}>
+                  <button key={c.key} type="button" onClick={() => onHeader(c.key)} disabled={!sk} title={isFirst ? "Sort the loaded rows by First seen" : sk ? `Sort by ${c.label}` : undefined} className="flex items-center gap-1 border-r border-border/60 px-2.5 text-left text-[10.5px] font-black uppercase tracking-wider text-ink-faint enabled:hover:text-white shrink-0" style={{ width: COL_W[c.key] || 120 }}>
                     <span className="truncate">{c.label}</span>
-                    {sk ? (active ? (sort.dir === "asc" ? <ArrowUp className="h-3 w-3 text-brand-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-brand-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />) : null}
+                    {sk ? (active ? (dir === "asc" ? <ArrowUp className="h-3 w-3 text-brand-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-brand-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />) : null}
                   </button>
                 );
               })}
@@ -355,7 +360,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                   : "No vehicles match these filters."}
               </div>
             ) : (
-              rows.map((r, idx) => (
+              shownRows.map((r, idx) => (
                 <div key={`${r.vin}|${r.dealerId ?? ""}`} className={`flex border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-brand-500/5 ${r.removedAt ? "opacity-60" : ""}`} style={{ height: ROW_H }}>
                   {VEHICLE_SHEET_COLUMNS.map((c) => {
                     const raw = vehicleRowCell(r, c.key);

@@ -86,8 +86,6 @@ export interface Vehicle {
   msrp: number;
   dealerPrice: number;
   daysOnLot: number;
-  /** YYYY-MM-DD our inventory crawl first saw the VIN on this lot — the source of daysOnLot when the feed had none. */
-  lotFirstSeen?: string;
   status: VehicleStatus;
   condition?: VehicleCondition;
   location: {

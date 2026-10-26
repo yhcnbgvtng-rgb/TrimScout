@@ -3,6 +3,8 @@
  * have already opened ("viewed"). Pure — storage and the network live in components/search/useBuyerSearchState.ts.
  * Nothing here opens a quote, sends email, or creates a dealer invite.
  */
+import { isRfqEligible } from "./lastConfirmed";
+
 export const MAX_PICKS = 3;
 export const MAX_VIEWED = 2000;
 
@@ -138,10 +140,11 @@ export function pickNotice({ gone, expired }: { gone: number; expired: number })
 }
 
 /** Decide, from every listing of a VIN, whether this pick's car is still listed at its store. */
-export function listingFor(pick: { vin: string; dealerId: string | null; dealerName: string }, listings: Array<{ dealerId: string | null; dealerName: string; removedAt: string | null }>): PickListing {
+export function listingFor(pick: { vin: string; dealerId: string | null; dealerName: string }, listings: Array<{ dealerId: string | null; dealerName: string; removedAt: string | null; lastSeenAt?: string | null }>, now: number = Date.now()): PickListing {
   if (listings.length === 0) return "unknown"; // the box has no record: say nothing rather than drop a car it never indexed
   const norm = (s: string) => s.trim().toLowerCase();
   const here = listings.filter((l) => (pick.dealerId && l.dealerId ? String(l.dealerId) === String(pick.dealerId) : norm(l.dealerName) === norm(pick.dealerName)));
   if (here.length === 0) return "gone"; // the VIN is known but not at this store any more
-  return here.some((l) => l.removedAt == null) ? "listed" : "gone";
+  // Still on the lot as far as the box knows, but the crawl has not seen it for more than RFQ_MAX_AGE_DAYS: no longer quotable.
+  return here.some((l) => l.removedAt == null && isRfqEligible(l.lastSeenAt, now)) ? "listed" : "gone";
 }

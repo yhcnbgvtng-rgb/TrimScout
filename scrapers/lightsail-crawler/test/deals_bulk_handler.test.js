@@ -383,7 +383,7 @@ describe('handleInventoryBulk — stable numeric vehicle id (the real handler, i
 
 describe('handleInventoryBulk — ingest guards (the real handler)', () => {
   const COL = { year: 4, make: 5, price: 12, msrp: 13 };
-  const sent = (db, i) => db.rows.find((r) => r[0] === vin(i));
+  const sent = (db, i) => db.rows.find((r) => r[0] === (typeof i === 'string' ? i : vin(i))); // a string is a VIN, a number is veh()'s default one
 
   it('writes null for a ten-times-MSRP price and for a >$300k non-exotic, and reports how many', async () => {
     const db = makeDb(); const h = loadHandlers(db);
@@ -404,12 +404,12 @@ describe('handleInventoryBulk — ingest guards (the real handler)', () => {
     const db = makeDb(); const h = loadHandlers(db);
     const r = await h.bulk([
       veh(1, null, { make: 'Ram', model: '3500', price: 75_170, msrp: 7_514 }),
-      veh(2, null, { make: 'Porsche', model: '911', year: 2025, price: 336_000, msrp: 498 }),
+      veh(2, null, { make: 'Porsche', model: '911', year: 2025, price: 336_000, msrp: 498, vin: 'WP0AB2A92PS123456' }), // VIN matches the make: the write path now checks the make against the WMI
       veh(3, null, { make: 'Chevrolet', model: 'Corvette', year: 2025, price: 330_000, msrp: 210_000 }),
       veh(4, null, { make: 'Ford', model: 'Explorer', price: 660_740, msrp: 66_074 }),
     ]);
     assert.deepEqual([sent(db, 1)[COL.price], sent(db, 1)[COL.msrp]], [75_170, null], 'correct price survives, corrupt msrp dropped');
-    assert.equal(sent(db, 2)[COL.price], 336_000, 'Porsche GT');
+    assert.equal(sent(db, 'WP0AB2A92PS123456')[COL.price], 336_000, 'Porsche GT');
     assert.equal(sent(db, 3)[COL.price], 330_000, 'supported by its MSRP');
     assert.deepEqual([sent(db, 4)[COL.price], sent(db, 4)[COL.msrp]], [null, 66_074], 'broken price dropped, msrp kept');
     assert.equal(r.json.priceGuarded, 2);
@@ -430,8 +430,8 @@ describe('handleInventoryBulk — ingest guards (the real handler)', () => {
 
   it('stores LEXUS and Lexus under one make', async () => {
     const db = makeDb(); const h = loadHandlers(db);
-    await h.bulk([veh(1, null, { make: 'LEXUS' }), veh(2, null, { make: 'Lexus' }), veh(3, null, { make: 'lexus' })]);
-    assert.deepEqual([1, 2, 3].map((i) => sent(db, i)[COL.make]), ['Lexus', 'Lexus', 'Lexus']);
+    await h.bulk([veh(1, null, { make: 'LEXUS', vin: 'JTHBK1GG5E2123451' }), veh(2, null, { make: 'Lexus', vin: 'JTHBK1GG5E2123452' }), veh(3, null, { make: 'lexus', vin: 'JTHBK1GG5E2123453' })]);
+    assert.deepEqual([1, 2, 3].map((i) => sent(db, `JTHBK1GG5E212345${i}`)[COL.make]), ['Lexus', 'Lexus', 'Lexus']);
   });
 });
 

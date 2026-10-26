@@ -1,0 +1,1080 @@
+Hyundai Tucson SEL: 3000 cars read (limit 3000), 5699 distinct labels
+
+cars  paid  min-max            kinds            verdict                    label
+1434  1166  $125-$240          factory,dealer   drop: accessory/subscr.    Carpeted Floor Mats
+1196   998  $50-$60            dealer,factory   drop: accessory/subscr.    Cargo Net
+1130   921  $30-$45            dealer,factory   drop: accessory/subscr.    First Aid Kit
+1033   866  $100-$130          dealer,factory   drop: accessory/subscr.    Cargo Tray
+ 786     0  -                  dealer,factory   drop: never priced         Radio: AM/FM/HD Audio System
+ 647   537  $190-$205          factory,dealer   drop: accessory/subscr.    Cargo Cover
+ 500   422  $120-$130          dealer,factory   drop: accessory/subscr.    Front and Rear Mudguards
+ 469     0  -                  factory,dealer   drop: never priced         Power Sunroof
+ 441     0  -                  factory,dealer   drop: never priced         Dual Automatic Temperature Control
+ 439     0  -                  dealer,factory   drop: never priced         Heated Front Bucket Seats
+ 439     0  -                  factory,dealer   drop: never priced         Ultrasonic Rear Occupant Alert
+ 432     0  -                  dealer,factory   drop: never priced         Power Liftgate
+ 426     0  -                  factory,dealer   drop: never priced         Leather-Wrapped Steering Wheel
+ 418     0  -                  factory,dealer   drop: never priced         Leather-Wrapped Shift Knob
+ 390     0  -                  factory,dealer   drop: never priced         Option Group 02
+ 374   303  $70-$80            dealer,factory   drop: accessory/subscr.    Rear Bumper Applique
+ 361     0  -                  dealer,factory   drop: never priced         H-Tex Seat Trim
+ 351   300  $2250-$2600        dealer,factory   KEEP                       Convenience Package
+ 334     0  -                  dealer,factory   drop: never priced         Wheels: 19" x 7.5J" Machine-Face Finish Alloy
+ 317     0  -                  dealer,factory   drop: never priced         10.25" Digital Instrument Cluster
+ 314     0  -                  dealer,factory   drop: never priced         Auto-Dimming Interior Mirror
+ 308   269  $55-$75            dealer,factory   drop: accessory/subscr.    Wheel Locks
+ 305     0  -                  dealer,factory   drop: never priced         Ambient Interior Lighting
+ 304     0  -                  dealer,factory   drop: never priced         LED Taillights
+ 300     0  -                  dealer,factory   drop: never priced         Dynamic Voice Recognition
+ 284   262  $245-$280          factory,dealer   drop: accessory/subscr.    All Season Fitted Liners
+ 250     0  -                  dealer,factory   drop: never priced         Stain & Odor Resistant Cloth Seat Trim
+ 233   197  $315-$349          factory,dealer   drop: accessory/subscr.    Roof Rack Cross Rails
+ 232   181  $70-$75            dealer,factory   drop: accessory/subscr.    Roadside Assistance Kit
+ 216     0  -                  dealer,factory   drop: never priced         Roof rack: rails only
+ 213     0  -                  dealer,factory   drop: never priced         Option Group 01
+ 191     0  -                  dealer,factory   drop: never priced         648 Axle Ratio
+ 177     0  -                  dealer,factory   drop: never priced         Clean CARFAX
+ 161     0  -                  dealer,factory   drop: never priced         CARFAX One-Owner
+ 161     0  -                  factory,dealer   drop: never priced         Steering Wheel Controls
+ 160    99  $130               dealer,factory   drop: accessory/subscr.    Cargo Organizer
+ 154     0  -                  factory,dealer   drop: never priced         3-Months SiriusXM Trial Subscription
+ 150     0  -                  dealer,factory   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp
+ 146     0  -                  factory,dealer   drop: never priced         Clock
+ 144     0  -                  factory,dealer   drop: never priced         Front Vented Discs
+ 142     0  -                  factory,dealer   drop: never priced         Speed Compensated Volume Control
+ 140     0  -                  factory,dealer   drop: never priced         Hill Descent Control
+ 134     0  -                  factory,dealer   drop: never priced         3 Gal
+ 131     0  -                  factory,dealer   drop: never priced         Apple CarPlay & Android Auto integration
+ 131     0  -                  factory,dealer   drop: never priced         10-Year/100
+ 126   116  $450-$480          factory,dealer   drop: accessory/subscr.    Tow Hitch
+ 126     0  -                  factory,dealer   drop: never priced         0J Alloy
+ 123    95  $120-$140          dealer,factory   drop: accessory/subscr.    Mudguards
+ 117    99  $375               factory,dealer   drop: accessory/subscr.    Cross Rails
+ 114     0  -                  factory,dealer   drop: never priced         000 Mile Hybrid/EV Battery Warranty
+ 112     0  -                  factory,dealer   drop: never priced         Auto-Dimming Interior Mirror w/Homelink
+ 111     0  -                  factory,dealer   drop: never priced         3 color touchscreen display
+ 111     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio system (3-month trial subscription)
+ 111     0  -                  factory,dealer   drop: never priced         wireless Apple CarPlay and Android Auto integration
+ 111     0  -                  factory,dealer   drop: never priced         controller OTA update capability
+ 105     0  -                  dealer,factory   drop: never priced         and Variably intermittent wipers
+ 101     0  -                  factory,dealer   drop: never priced         Electronic stability control and traction control
+ 101     0  -                  factory,dealer   drop: never priced         25 Digital Instrument Cluster
+ 101     0  -                  factory,dealer   drop: never priced         LED Interior Lights (Room
+ 101     0  -                  factory,dealer   drop: never priced         Map)
+ 101     0  -                  factory,dealer   drop: never priced         Wireless Phone Charging
+  98     0  -                  factory,dealer   drop: never priced         Certified
+  90     0  -                  factory,dealer   drop: never priced         Radio: AM/FM/HD/SiriusXM Audio System
+  88     0  -                  factory,dealer   drop: never priced         * Powertrain Limited Warranty: 120 Month/100
+  88     0  -                  factory,dealer   drop: never priced         * Limited Warranty: 60 Month/60
+  86     0  -                  factory,dealer   drop: never priced         Digital Key
+  86     0  -                  factory,dealer   drop: never priced         Hands-Free Power Liftgate w/Auto-Open
+  85     0  -                  factory,dealer   drop: never priced         and Wheels: 17 x 7
+  83     0  -                  dealer,factory   drop: never priced         18 x 7
+  82     0  -                  factory,dealer   drop: never priced         * Vehicle History
+  81    69  $30                dealer,factory   drop: accessory/subscr.    CARGO BLOCKS
+  79     0  -                  factory,dealer   drop: never priced         * Warranty Deductible: $50
+  75     0  -                  factory,dealer   drop: never priced         Hyundai Certified Used Vehicles Details:
+  74     0  -                  dealer,factory   drop: never priced         Inside
+  71     0  -                  dealer,factory   drop: never priced         18 Alloy Wheels
+  71     0  -                  dealer,factory   drop: never priced         you will
+  71     0  -                  dealer,factory   drop: never priced         Brake assist can stop the accident before it is one
+  70     0  -                  dealer,factory   drop: never priced         Cruise control only managed speed
+  70     0  -                  dealer,factory   drop: never priced         but not distance or safety
+  70     0  -                  dealer,factory   drop: never priced         Now
+  70     0  -                  dealer,factory   drop: never priced         Safety and Security Hands-on cruise control
+  70     0  -                  dealer,factory   drop: never priced         with hands-on cruise control
+  70     0  -                  dealer,factory   drop: never priced         Meet your ultimate co-pilot with hands-on cruise control
+  70     0  -                  dealer,factory   drop: never priced         Pedestrian impact prevention - An extra step toward safety
+  70     0  -                  dealer,factory   drop: never priced         Pedestrians don't always stop
+  70     0  -                  dealer,factory   drop: never priced         look
+  70     0  -                  dealer,factory   drop: never priced         and listen
+  70     0  -                  dealer,factory   drop: never priced         but with Pedestrian Impact Prevention
+  70     0  -                  dealer,factory   drop: never priced         your vehicle is equipped to better see them and avoid them
+  70     0  -                  dealer,factory   drop: never priced         It projects that image to an interior display screen
+  70     0  -                  dealer,factory   drop: never priced         AND should an impact become likely
+  70     0  -                  dealer,factory   drop: never priced         Brake assist - Stop right there
+  66     0  -                  dealer,factory   drop: never priced         5J Alloy Wheels
+  63     0  -                  factory,dealer   drop: never priced         19% APR for 24 months
+  63     0  -                  factory,dealer   drop: never priced         $43
+  63     0  -                  factory,dealer   drop: never priced         96 per $1000 financed
+  63     0  -                  factory,dealer   drop: never priced         H704
+  63     0  -                  factory,dealer   drop: never priced         Wheels: 17 x 7
+  62     0  -                  factory,dealer   drop: never priced         5J Machine-Face Finish Alloy
+  61     0  -                  factory,dealer   drop: never priced         Wheels: 19 x 7
+  57     0  -                  dealer,factory   drop: never priced         absolute accuracy cannot be guaranteed
+  55     0  -                  factory,dealer   drop: never priced         18-inch alloy wheels
+  55     0  -                  dealer,factory   drop: never priced         with Distance pacing cruise control with traffic stop-go
+  53    48  $4300              dealer,factory   KEEP                       Convenience + Premium Package
+  53     0  -                  factory,dealer   drop: never priced         Radio: AM/FM/HD Audio System (P2)
+  53     0  -                  factory,dealer   drop: never priced         Side Mirrors w/Turn Signal Indicators
+  52     0  -                  factory,dealer   drop: never priced         8-Speed Automatic with SHIFTRONIC
+  51     0  -                  dealer,factory   drop: never priced         com
+  50     0  -                  dealer,factory   drop: never priced         Emergency communication system: Bluelink+
+  50     0  -                  dealer,factory   drop: never priced         HGreg
+  50     0  -                  dealer,factory   drop: never priced         Orlando
+  50     0  -                  dealer,factory   drop: never priced         Kendall
+  50     0  -                  dealer,factory   drop: never priced         West Palm Beach
+  50     0  -                  dealer,factory   drop: never priced         Tampa and Houston
+  50     0  -                  dealer,factory   drop: never priced         com is the FASTEST GROWING automotive group in North America
+  50     0  -                  dealer,factory   drop: never priced         Dealer is not responsible for errors and omissions
+  49    48  $180-$200          dealer,factory   drop: accessory/subscr.    Cargo Package
+  48     0  -                  dealer,factory   drop: never priced         Heated Driver Seat
+  48     0  -                  dealer,factory   drop: never priced         If the system determines a likely impact
+  48     0  -                  factory,dealer   drop: never priced         Radio: Bose Premium Audio System w/AM/FM/HD
+  47    44  $325               dealer,factory   drop: accessory/subscr.    Illuminated Door Sills
+  47     0  -                  factory,dealer   drop: never priced         Ventilated Front Seats
+  47     0  -                  factory,dealer   drop: never priced         Dark Chrome Grille & H-Logo
+  47     0  -                  factory,dealer   drop: never priced         Premium 5-LED DRLs
+  45     0  -                  dealer,factory   drop: never priced         Emergency communication system: None
+  44     0  -                  factory,dealer   drop: never priced         and Wheels: 19 x 7
+  44     0  -                  factory,dealer   drop: never priced         25 Navigation System (AVNT)
+  42     0  -                  factory,dealer   drop: never priced         5J Machine-Face Finish Alloy)
+  41     0  -                  dealer,factory   drop: never priced         This 2026 Hyundai Tucson is equipped with Option Group 01
+  40     0  -                  factory,dealer   drop: never priced         SEL
+  39     0  -                  factory,dealer   drop: never priced         Automatic Temperature Control with Front Dual Zone A/C
+  39     0  -                  dealer,factory   drop: never priced         Cloth Seat Trim
+  39     0  -                  dealer,factory   drop: never priced         Remote start
+  38     0  -                  factory,dealer   drop: never priced         Remote keyless entry and power liftgate
+  38     0  -                  dealer,factory   drop: never priced         Heated Seats
+  38     0  -                  factory,dealer   drop: never priced         24/30 City/Highway MPG
+  38     0  -                  dealer,factory   drop: never priced         Four-wheel independent suspension
+  38     0  -                  dealer,factory   drop: never priced         2 LCD Monitors In The Front
+  38     0  -                  factory,dealer   drop: never priced         Option Group 03
+  37     0  -                  dealer,factory   drop: never priced         Lane Keeping Assist
+  37     0  -                  factory,dealer   drop: never priced         we offer the right cars at the right price
+  37     0  -                  factory,dealer   drop: never priced         and the transparency to back it up!
+  36     0  -                  dealer,factory   drop: never priced         SiriusXM satellite radio
+  36     0  -                  dealer,factory   drop: never priced         Visit www
+  36     0  -                  dealer,factory   drop: never priced         $50 Warranty Deductible
+  35     0  -                  factory,dealer   drop: never priced         5L I4 DGI DOHC 16V LEV3-ULEV70 187hp
+  35     0  -                  dealer           drop: never priced         license
+  34     0  -                  factory,dealer   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp AWD
+  34     0  -                  dealer,factory   drop: never priced         dual-zone automatic climate control
+  34     0  -                  factory,dealer   drop: never priced         Bluetooth® connectivity
+  34     0  -                  dealer,factory   drop: never priced         However
+  33     0  -                  factory,dealer   drop: never priced         Fully automatic headlights with delay-off function
+  33     0  -                  dealer           drop: never priced         Tag
+  32     0  -                  dealer,factory   drop: never priced         Under the hood
+  32     0  -                  factory,dealer   drop: never priced         Leather Seat Trim
+  32     0  -                  factory,dealer   drop: never priced         Limited Warranty: 60 Month/60
+  32     0  -                  factory,dealer   drop: never priced         Powertrain Limited Warranty: 120 Month/100
+  31    32  $80                dealer,factory   drop: accessory/subscr.    Severe Weather Kit
+  31     0  -                  dealer,factory   drop: never priced         Horsepower calculations based on trim engine configuration
+  31     0  -                  factory,dealer   drop: never priced         000 Miles or Less
+  30     0  -                  dealer,factory   drop: never priced         Power liftgate and remote keyless entry
+  30     0  -                  dealer,factory   drop: never priced         comfort
+  30     0  -                  dealer,factory   drop: never priced         You can connect with us by calling 270-238-0309
+  29     0  -                  dealer,factory   drop: never priced         Equipment
+  29     0  -                  dealer,factory   drop: never priced         Packages
+  29     0  -                  factory,dealer   drop: never priced         000 miles
+  29     0  -                  factory,dealer   drop: never priced         25/32 City/Highway MPG
+  28     0  -                  factory,dealer   drop: never priced         Rear Parking Camera
+  28     0  -                  factory,dealer   drop: never priced         23/29 City/Highway MPG
+  28     0  -                  factory,dealer   drop: never priced         Hyundai Certified Used Vehicles
+  28     0  -                  dealer,factory   drop: never priced         Cruise Control w/Steering Wheel Controls
+  28     0  -                  dealer           drop: never priced         While we make every effort to prevent pricing errors
+  28     0  -                  dealer           drop: never priced         key stroke and human errors do occur
+  27     0  -                  dealer,factory   drop: never priced         Backup Camera
+  27     0  -                  dealer,factory   drop: never priced         0J Alloy Wheels
+  27     0  -                  dealer,factory   drop: never priced         Leather-Wrapped Steering Wheel and Shift Knob
+  26     0  -                  dealer,factory   drop: never priced         Axle Ratio: 3
+  26     0  -                  dealer,factory   drop: never priced         Power Liftgate Rear Cargo Access
+  25     0  -                  dealer,factory   drop: never priced         STAIN &amp; ODOR RESISTANT CLOTH SEAT TRIM
+  25     0  -                  factory,dealer   drop: never priced         Piano Black/Metal-Look Door Panel Insert
+  25     0  -                  factory,dealer   drop: never priced         AWD
+  25     0  -                  factory,dealer   drop: never priced         Gray Cloth
+  25     0  -                  dealer,factory   drop: never priced         Powered by a 2
+  25     0  -                  factory,dealer   drop: never priced         (for Hyundai Certified Used Vehicles program)
+  25     0  -                  factory,dealer   drop: never priced         6 Model Years Old and Newer With 80
+  25     0  -                  factory,dealer   drop: never priced         000 - 120
+  25     0  -                  factory,dealer   drop: never priced         7-10 Model Years Old Vehicles With 120
+  25     0  -                  factory,dealer   drop: never priced         Powertrain Warranty 90 Days/5
+  25     0  -                  factory,dealer   drop: never priced         HEV/PHEV Battery Warranty 10 Years/100
+  25     0  -                  factory,dealer   drop: never priced         Roadside Assistance 90 Days/Unlimited Miles
+  25     0  -                  factory,dealer   drop: never priced         Rental Car $35/Day Up to 5 Days
+  25     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with front center armrest
+  25     0  -                  dealer           drop: never priced         That means they'll help you find the car that fits you best
+  25     0  -                  dealer           drop: never priced         not the one that earns them the biggest commission check
+  25     0  -                  dealer           drop: never priced         plain and simple
+  25     0  -                  dealer           drop: never priced         00 Dealer Document Processing Fee
+  25     0  -                  dealer           drop: never priced         and a $399
+  25     0  -                  dealer           drop: never priced         cleaning and adjusting vehicles
+  25     0  -                  dealer           drop: never priced         and preparing documents related to the sale
+  25     0  -                  dealer           drop: never priced         Just Add Tax
+  25     0  -                  dealer           drop: never priced         Title/Registration and other government required charges
+  25     0  -                  dealer           drop: never priced         00 fee to cover additional costs of titling
+  25     0  -                  dealer           drop: never priced         registration
+  25     0  -                  dealer           drop: never priced         administrative resources and document shipping
+  24     0  -                  dealer,factory   drop: never priced         Rear Spoiler
+  24     0  -                  factory,dealer   drop: never priced         Standard EquipmentMECHANICAL3
+  24     0  -                  factory,dealer   drop: never priced         648 Axle RatioGVWR: 4
+  24     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio (3-month trial subscription)
+  24     0  -                  factory,dealer   drop: never priced         25/33 City/Highway MPG
+  24     0  -                  dealer,factory   drop: never priced         AWD 8-Speed Automatic with SHIFTRONIC 2
+  24     0  -                  dealer,factory   drop: never priced         2024 Hyundai Tucson SEL
+  24     0  -                  dealer,factory   drop: never priced         8-Speed Automatic Transmission with SHIFTRONIC
+  23     0  -                  dealer,factory   drop: never priced         Remote Engine Start
+  23     0  -                  factory,dealer   drop: never priced         Steering wheel-mounted audio controls
+  23     0  -                  dealer           drop: never priced         trucks
+  23     0  -                  dealer           drop: never priced         No surprises
+  23     0  -                  dealer           drop: never priced         license and document fee
+  22     0  -                  dealer,factory   drop: never priced         Fully automatic headlights with delay-off feature
+  22     0  -                  dealer,factory   drop: never priced         Apple CarPlay & Android Auto connectivity
+  22     0  -                  dealer,factory   drop: never priced         OTHER NOTABLE FEATURES AND OPTIONS YOU SHOULD KNOW ABOUT:
+  22     0  -                  dealer,factory   drop: never priced         Apple CarPlay & Android Auto compatibility
+  22     0  -                  dealer,factory   drop: never priced         SUVs
+  21     0  -                  dealer,factory   drop: never priced         This 2025 Hyundai Tucson SEL
+  21     0  -                  factory,dealer   drop: never priced         BlueLink+ connected car
+  21     0  -                  dealer,factory   drop: never priced         5L I4 DGI DOHC 16V LEV3-ULEV70 187hp AWD
+  21     0  -                  dealer,factory   drop: never priced         SEL trim
+  21     0  -                  factory,dealer   drop: never priced         To ensure we exceed your expectations
+  21     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto Integration
+  21     0  -                  dealer,factory   drop: never priced         Serenity White Pearl
+  21     0  -                  factory,dealer   drop: never priced         Hyundai
+  21     0  -                  factory,dealer   drop: never priced         GMC
+  21     0  -                  dealer,factory   drop: never priced         Ambient Interior Lighting w/10-colors
+  21     0  -                  dealer,factory   drop: never priced         center console
+  21     0  -                  dealer,factory   drop: never priced         front door pockets
+  21     0  -                  dealer,factory   drop: never priced         soft-touch door panels and fabric
+  21     0  -                  dealer,factory   drop: never priced         Tires: 235/55R19
+  21     0  -                  dealer,factory   drop: never priced         auto defogger
+  21     0  -                  factory,dealer   drop: never priced         Transparent
+  21     0  -                  factory,dealer   drop: never priced         Sunroof
+  21     0  -                  factory,dealer   drop: never priced         Irwin Rewards saving you hundreds!
+  20     0  -                  dealer,factory   drop: never priced         Privacy Glass
+  20    15  $115               dealer,factory   drop: accessory/subscr.    Reversible Cargo Tray
+  20     0  -                  factory,dealer   drop: never priced         Lane Following Assist
+  20     0  -                  dealer           drop: never priced         Smart Cruise Control with Stop &amp; Go (SCC)
+  20     0  -                  factory,dealer   drop: never priced         Dodge
+  20     0  -                  dealer           drop: never priced         automatic headlights
+  20     0  -                  dealer           drop: never priced         CONTACT COUGHLIN HYUNDAI AT 740-928-9000
+  20     0  -                  dealer           drop: never priced         coughlinhyundai
+  20     0  -                  dealer           drop: never priced         Pricing excludes tax
+  20     0  -                  dealer           drop: never priced         Please
+  20     0  -                  factory,dealer   drop: never priced         Split-Folding Rear Seat for Versatile Cargo Space
+  20     0  -                  dealer           drop: never priced         tags
+  20     0  -                  factory,dealer   drop: never priced         Vehicle Exchange Promise*; 3
+  20     0  -                  factory,dealer   drop: never priced         All vehicles are priced thousands below book value; 7
+  19    13  $380               dealer,factory   drop: accessory/subscr.    Illuminated Door Sill Plates
+  19     0  -                  factory,dealer   drop: never priced         Rear backup camera
+  19     0  -                  dealer,factory   drop: never priced         5L high output engine
+  19     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with power adjustment
+  19     0  -                  dealer,factory   drop: never priced         adaptive cruise control
+  19     0  -                  dealer,factory   drop: never priced         Bluetooth® Wireless Phone Connectivity
+  19     0  -                  factory,dealer   drop: never priced         Kia
+  19     0  -                  factory,dealer   drop: never priced         Honda
+  19     0  -                  factory,dealer   drop: never priced         Toyota
+  19     0  -                  factory,dealer   drop: never priced         Chevrolet
+  19     0  -                  factory,dealer   drop: never priced         Ram
+  19     0  -                  factory,dealer   drop: never priced         Acura
+  19     0  -                  factory,dealer   drop: never priced         Lexus
+  19     0  -                  dealer,factory   drop: never priced         Recent Arrival! Clean CARFAX
+  19     0  -                  dealer           drop: never priced         Dealer Disclosure: *The advertised price includes a $999
+  19     0  -                  factory,dealer   drop: never priced         Simple
+  18     0  -                  dealer,factory   drop: never priced         CARFAX 1-Owner
+  18     0  -                  dealer,factory   drop: never priced         Smart Device Integration
+  18     0  -                  dealer,factory   drop: never priced         One Owner!
+  18     0  -                  dealer,factory   drop: never priced         Ultimate Red
+  18     0  -                  dealer,factory   drop: never priced         Radio: AM/FM/SiriusXM Audio System
+  18     0  -                  factory,dealer   drop: never priced         Get your free and quick offer to purchase
+  18     0  -                  factory,dealer   drop: never priced         To get our top dollar offer
+  18     0  -                  factory,dealer   drop: never priced         call our Bergstrom Buying Team Hotline at 920-429-6222
+  18     0  -                  factory,dealer   drop: never priced         transparent buying experience with upfront pricing
+  18     0  -                  factory,dealer   drop: never priced         one dedicated point of contact
+  18     0  -                  dealer           drop: never priced         vans and wagons on a 39 acre facility
+  18     0  -                  dealer           drop: never priced         don't be fooled by our size
+  18     0  -                  dealer           drop: never priced         PA Buick and GMC dealership
+  18     0  -                  dealer           drop: never priced         We treat every person with honesty and integrity
+  18     0  -                  dealer           drop: never priced         Whether you're researching Buick cars
+  18     0  -                  dealer           drop: never priced         GMC trucks
+  18     0  -                  dealer           drop: never priced         used cars
+  18     0  -                  dealer           drop: never priced         financing options
+  18     0  -                  dealer           drop: never priced         located at Route 51 & Lewis Run Road in Pleasant Hills
+  18     0  -                  dealer,factory   drop: never priced         Recent Arrival!
+  18     0  -                  dealer           drop: never priced         No Accidents! One Owner!
+  18     0  -                  factory,dealer   drop: never priced         Please note that state sales tax
+  18     0  -                  factory,dealer   drop: never priced         and registration fees are not included
+  18     0  -                  dealer           drop: never priced         DMV
+  18     0  -                  dealer           drop: never priced         finance charges (if applicable)
+  18     0  -                  dealer           drop: never priced         documentation charges
+  18     0  -                  dealer           drop: never priced         emissions testing charges
+  18     0  -                  dealer           drop: never priced         or other fees required by law
+  18     0  -                  dealer           drop: never priced         vehicle sellers or lending organizations
+  18     0  -                  dealer           drop: never priced         Must take same day delivery
+  18     0  -                  dealer,factory   drop: never priced         Finding the right pre-owned vehicle should be simple
+  18     0  -                  dealer,factory   drop: never priced         and comfortable
+  18     0  -                  dealer,factory   drop: never priced         With Express Buying
+  18     0  -                  dealer,factory   drop: never priced         you stay in control: shop online
+  18     0  -                  dealer,factory   drop: never priced         visit our dealership
+  18     0  -                  dealer,factory   drop: never priced         helping you shop and compare with confidence
+  18     0  -                  dealer,factory   drop: never priced         giving you added confidence after your purchase
+  18     0  -                  dealer,factory   drop: never priced         Have a question
+  18     0  -                  dealer,factory   drop: never priced         want to confirm availability
+  18     0  -                  dealer,factory   drop: never priced         or need help reviewing pricing
+  18     0  -                  dealer,factory   drop: never priced         payments
+  18     0  -                  dealer,factory   drop: never priced         Fast
+  18     0  -                  dealer,factory   drop: never priced         Friendly—you’ll like the way we do business!
+  17     0  -                  dealer,factory   drop: never priced         Hands-Free Liftgate
+  17     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with power driver seat adjustment
+  17     0  -                  factory,dealer   drop: never priced         CARFAX Available: No Accidents! One Owner! Enjoy a simple
+  17     0  -                  dealer,factory   drop: never priced         HD Radio
+  17     0  -                  dealer,factory   drop: never priced         roof rack rails
+  17     0  -                  factory,dealer   drop: never priced         Buick
+  17     0  -                  dealer           drop: never priced         You can connect with us by calling (407) 628-4343
+  17     0  -                  dealer           drop: never priced         SERVICE RECORDS AVAILABLE
+  17     0  -                  dealer           drop: never priced         Bluetooth® wireless audio streaming
+  16    23  $570               factory,dealer   KEEP                       Tow and Go Package
+  16    23  $90                factory,dealer   drop: accessory/subscr.    Ball Mount Kit
+  16     0  -                  dealer,factory   drop: never priced         Cross-Traffic Alert
+  16     0  -                  dealer,factory   drop: never priced         Automatic temperature control with dual front zones
+  16     8  $140               dealer,factory   drop: accessory/subscr.    MUD GUARDS
+  16     0  -                  factory,dealer   drop: never priced         761 lbs
+  16     0  -                  dealer,factory   drop: never priced         17-inch alloy wheels
+  16     0  -                  dealer,factory   drop: never priced         Power liftgate for convenient cargo access
+  16     0  -                  dealer,factory   drop: never priced         19 Machine-Face Alloy Wheels
+  16     0  -                  factory,dealer   drop: never priced         Shimmering Silver
+  16     0  -                  dealer           drop: never priced         cyclist
+  16     0  -                  dealer           drop: never priced         For entertainment
+  16     0  -                  dealer,factory   drop: never priced         23/28 City/Highway MPG
+  16     0  -                  dealer,factory   drop: never priced         reconditioned
+  16     0  -                  dealer,factory   drop: never priced         and confirmed front-line ready by Leo Auto Group
+  16     0  -                  dealer,factory   drop: never priced         retail-ready
+  16     0  -                  dealer,factory   drop: never priced         and priced to market
+  16     0  -                  dealer,factory   drop: never priced         When we put the Leo name on it
+  16     0  -                  dealer,factory   drop: never priced         we mean it
+  16     0  -                  dealer,factory   drop: never priced         Additional tax
+  16     0  -                  dealer,factory   drop: never priced         ONE OWNER
+  16     0  -                  dealer           drop: never priced         Remainder of Factory Warranty
+  15     0  -                  factory,dealer   drop: never priced         Automatic temperature control with dual-zone front A/C
+  15     0  -                  factory,dealer   drop: never priced         Standard EquipmentMECHANICALFront-Wheel Drive3
+  15     0  -                  dealer,factory   drop: never priced         advanced technology
+  15     0  -                  dealer           drop: never priced         and junction-turning detection
+  15     0  -                  dealer           drop: never priced         5L I-4 engine
+  15     0  -                  factory,dealer   drop: never priced         Chrysler
+  15     0  -                  factory,dealer   drop: never priced         Subaru
+  15     0  -                  dealer,factory   drop: never priced         errands
+  15     0  -                  dealer,factory   drop: never priced         and Wheel Locks
+  15     0  -                  dealer,factory   drop: never priced         CONVENIENCE PACKAGE Option Group 02
+  15     0  -                  dealer,factory   drop: never priced         This vehicle has been inspected
+  15     0  -                  dealer           drop: never priced         At Holler Hyundai
+  15     0  -                  dealer           drop: never priced         Convenience Adaptive cruise control with traffic stop-go
+  15     0  -                  dealer           drop: never priced         with Adaptive cruise control with traffic stop-go
+  15     0  -                  dealer           drop: never priced         ***This 2024 Hyundai Tucson SEL is a great choice***
+  15     0  -                  factory,dealer   drop: never priced         The online price includes a $129 Service & Handling Fee
+  15     0  -                  dealer,factory   drop: never priced         All-wheel drive with four-wheel independent suspension
+  15     0  -                  factory,dealer   drop: never priced         flowhyundaistatesville
+  15     0  -                  dealer           drop: never priced         Rear Back Up Camera
+  14     0  -                  dealer,factory   drop: never priced         Aluminum Wheels
+  14     0  -                  dealer,factory   drop: never priced         OPTION GROUP 01 standard equipment
+  14     0  -                  dealer,factory   drop: never priced         Hands-Free Power Liftgate with Auto-Open
+  14     0  -                  dealer,factory   drop: never priced         Power driver seat with lumbar support
+  14     0  -                  dealer,factory   drop: never priced         and reliability
+  14     0  -                  dealer,factory   drop: never priced         064
+  14     0  -                  dealer,factory   drop: never priced         luggage
+  14     0  -                  dealer,factory   drop: never priced         Remote keyless entry with illuminated entry
+  14     0  -                  factory,dealer   drop: never priced         Added accessories includes $399 REVA by Safely Brake
+  14     0  -                  factory,dealer   drop: never priced         Dealer Charges $299 Doc Fee
+  14     0  -                  factory,dealer   drop: never priced         Despite efforts
+  14     0  -                  dealer,factory   drop: never priced         and more
+  14     0  -                  dealer           drop: never priced         5J Alloy
+  14     0  -                  factory,dealer   drop: never priced         Forward Collision-Avoidance Assist
+  14     0  -                  dealer,factory   drop: never priced         Telescoping and tilt steering wheel
+  14     0  -                  dealer,factory   drop: never priced         This 2024 Hyundai Tucson SEL
+  14     0  -                  dealer,factory   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp Option Group 01
+  14     0  -                  factory,dealer   drop: never priced         flowhondastatesville
+  14     0  -                  dealer           drop: never priced         Hyundai Certified
+  14     0  -                  dealer           drop: never priced         Iphone / Droid Navigation Compatible
+  14     0  -                  dealer           drop: never priced         Blind Spot Indicator
+  14     0  -                  dealer           drop: never priced         Driver Power Seat
+  14     0  -                  dealer           drop: never priced         Mutli-function Steering Wheel
+  14     0  -                  dealer           drop: never priced         Touch Screen Controls
+  14     0  -                  dealer           drop: never priced         *Please contact dealer for full details
+  14     0  -                  dealer           drop: never priced         All prices do not include taxes
+  14     0  -                  dealer           drop: never priced         estimated tax fees
+  14     0  -                  dealer           drop: never priced         certification costs
+  14     0  -                  dealer           drop: never priced         reconditioning costs and any installed equipment
+  14     0  -                  dealer           drop: never priced         *Limited warranties
+  14     0  -                  factory,dealer   drop: never priced         saving you time and money
+  14     0  -                  factory,dealer   drop: never priced         We call this market based pricing
+  13     0  -                  factory,dealer   drop: never priced         All-wheel drive with electronic stability control
+  13     0  -                  dealer,factory   drop: never priced         Roof rack with rails
+  13     0  -                  factory,dealer   drop: never priced         BACK UP CAMERA
+  13     0  -                  dealer,factory   drop: never priced         Automatic temperature control with front dual-zone A/C
+  13     0  -                  factory,dealer   drop: never priced         options
+  13     0  -                  dealer,factory   drop: never priced         At Burlington Hyundai
+  13     0  -                  dealer,factory   drop: never priced         Burlington Township
+  13     0  -                  dealer,factory   drop: never priced         and Willingboro
+  13     0  -                  dealer,factory   drop: never priced         If you have any questions or need assistance
+  13     0  -                  dealer,factory   drop: never priced         our friendly team is here to help
+  13     0  -                  dealer,factory   drop: never priced         Explore our extensive inventory
+  13     0  -                  dealer,factory   drop: never priced         take advantage of our service and parts expertise
+  13     0  -                  dealer,factory   drop: never priced         and discover the perfect vehicle for your needs
+  13     0  -                  factory,dealer   drop: never priced         2025 Hyundai Tucson SEL
+  13     0  -                  dealer,factory   drop: never priced         and Wireless Phone Charging)
+  13     0  -                  factory,dealer   drop: never priced         Show Local
+  13     0  -                  factory,dealer   drop: never priced         Shop Earnhardt
+  13     0  -                  factory,dealer   drop: never priced         A trusted name in Arizona for 75 years
+  13     0  -                  factory,dealer   drop: never priced         Our transparent pricing and wide selection are well known
+  13     0  -                  factory,dealer   drop: never priced         Earnhardt is where Arizona buys cars!
+  13     0  -                  factory,dealer   drop: never priced         Sunroof / Moonroof
+  13     0  -                  factory,dealer   drop: never priced         Forward Collision-Avoidance Assist with Pedestrian Detection
+  13     0  -                  factory,dealer   drop: never priced         Our hours are Monday-Friday 8:30am-7pm
+  13     0  -                  factory,dealer   drop: never priced         Saturday 8:30am-5pm
+  13     0  -                  factory,dealer   drop: never priced         and Sunday 11am-3pm
+  13     0  -                  factory,dealer   drop: never priced         Since 1951 we have been New Hampshire's Premier Auto Group
+  13     0  -                  factory,dealer   drop: never priced         3 generations
+  13     0  -                  factory,dealer   drop: never priced         family owned
+  12     0  -                  dealer,factory   drop: never priced         Dual Zone A/C
+  12     0  -                  dealer,factory   drop: never priced         Onboard Communications System
+  12     0  -                  dealer,factory   drop: never priced         Apple CarPlay & Android Auto smartphone integration
+  12     0  -                  factory,dealer   drop: never priced         24/29 City/Highway MPG
+  12     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto smartphone integration
+  12     0  -                  factory,dealer   drop: never priced         we created the Bill Dodge Rewards Club
+  12     0  -                  dealer,factory   drop: never priced         Tax
+  12     0  -                  dealer,factory   drop: never priced         title & license extra
+  12     0  -                  dealer,factory   drop: never priced         00 Doc Fee
+  12     0  -                  dealer,factory   drop: never priced         Dealer doc fee is included in the advertised price
+  12     0  -                  dealer,factory   drop: never priced         Residency restrictions apply
+  12     0  -                  dealer           drop: never priced         Wheels: 18 x 7
+  12     0  -                  dealer,factory   drop: never priced         Fuel Tank150 Amp Alternator3
+  12     0  -                  factory,dealer   drop: never priced         and comfort
+  12     0  -                  dealer,factory   drop: never priced         Recent Arrival! 23/28 City/Highway MPG
+  12     0  -                  dealer,factory   drop: never priced         Turn-By-Turn Navigation Directions
+  12     0  -                  factory,dealer   drop: never priced         Best place to buy a used car
+  12     0  -                  factory,dealer   drop: never priced         Buy a used car
+  12     0  -                  factory,dealer   drop: never priced         New Hyundai dealership near me
+  12     0  -                  factory,dealer   drop: never priced         New Hyundai for sale near me
+  12     0  -                  factory,dealer   drop: never priced         Used car deals this weekend
+  12     0  -                  factory,dealer   drop: never priced         Used car for sale
+  12     0  -                  factory,dealer   drop: never priced         Used car special
+  12     0  -                  factory,dealer   drop: never priced         Used car specials
+  12     0  -                  factory,dealer   drop: never priced         Used cars near Indianapolis
+  12     0  -                  factory,dealer   drop: never priced         Used cars near me
+  12     0  -                  factory,dealer   drop: never priced         At Indy Hyundai in Indianapolis
+  12     0  -                  factory,dealer   drop: never priced         we offer a full lineup of new Hyundai vehicles for sale
+  12     0  -                  factory,dealer   drop: never priced         including the latest Hyundai SUVs
+  12     0  -                  factory,dealer   drop: never priced         sedans
+  12     0  -                  factory,dealer   drop: never priced         and hybrid models
+  12     0  -                  factory,dealer   drop: never priced         fuel efficiency
+  12     0  -                  factory,dealer   drop: never priced         Proudly serving Indianapolis
+  12     0  -                  factory,dealer   drop: never priced         Carmel
+  12     0  -                  factory,dealer   drop: never priced         Fishers
+  12     0  -                  factory,dealer   drop: never priced         Greenwood
+  12     0  -                  factory,dealer   drop: never priced         and surrounding Indiana areas
+  12     0  -                  factory,dealer   drop: never priced         we make it easy to upgrade into a new Hyundai
+  12     0  -                  factory,dealer   drop: never priced         Vehicle description
+  12     0  -                  factory,dealer   drop: never priced         Bob Rohrman's Indy Hyundai proudly selling and servicing New
+  12     0  -                  factory,dealer   drop: never priced         Used
+  12     0  -                  factory,dealer   drop: never priced         and surrounding central Indiana
+  12     0  -                  factory,dealer   drop: never priced         We stock all makes and models of used SUV's
+  12     0  -                  factory,dealer   drop: never priced         cars and trucks
+  12     0  -                  factory,dealer   drop: never priced         We even offer budget vehicles under $5k
+  12     0  -                  factory,dealer   drop: never priced         Ford
+  12     0  -                  dealer           drop: never priced         2024 Hyundai Certified
+  12     0  -                  dealer,factory   drop: never priced         Front dual-zone automatic climate control
+  12     0  -                  dealer           drop: never priced         and doc fee
+  12     0  -                  dealer           drop: never priced         Price includes all applicable incentives
+  12     0  -                  dealer           drop: never priced         Price includes incentives that may require qualification
+  12     0  -                  dealer           drop: never priced         see dealer for more details
+  12     0  -                  dealer           drop: never priced         Dealer not responsible for typographical errors
+  12     0  -                  factory,dealer   drop: never priced         Lane Keep Assist
+  12     0  -                  dealer,factory   drop: never priced         families
+  12     0  -                  dealer,factory   drop: never priced         either express or implied
+  12    12  $365               dealer           drop: accessory/subscr.    Winter Package
+  12     0  -                  dealer,factory   drop: never priced         000 MILE WARRANTY
+  12     0  -                  factory,dealer   drop: never priced         SHOP WITH CONFIDENCE
+  12     0  -                  factory,dealer   drop: never priced         Powertrain coverage
+  12     0  -                  factory,dealer   drop: never priced         Must have fewer than 100
+  12     0  -                  factory,dealer   drop: never priced         000 miles or be less than nine years old
+  12     0  -                  dealer,factory   drop: never priced         This Tucson is priced $400 below J
+  12     0  -                  dealer           drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp Bluetooth® Hands Free
+  12     0  -                  factory,dealer   drop: never priced         AFFORDABLE TO OWN
+  11    10  $755               factory,dealer   drop: accessory/subscr.    Side Steps
+  11     0  -                  dealer,factory   drop: never priced         Blind Spot Monitor
+  11     0  -                  dealer,factory   drop: never priced         Power liftgate and power driver seat
+  11     0  -                  dealer,factory   drop: never priced         Premium Wheels
+  11     0  -                  dealer           drop: never priced         This vehicle is a certified CARFAX 1-owner
+  11     0  -                  dealer,factory   drop: never priced         5L Gasoline engine
+  11     0  -                  dealer,factory   drop: never priced         capability
+  11     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with split folding rear seat
+  11     0  -                  dealer,factory   drop: never priced         Split-folding rear seat for flexible cargo space
+  11     0  -                  dealer,factory   drop: never priced         65 Axle Ratio4-Wheel Disc Brakes w/4-Wheel ABS
+  11     0  -                  factory,dealer   drop: never priced         Driver Attention Warning
+  11     0  -                  dealer,factory   drop: never priced         and First Aid Kit)
+  11     0  -                  dealer,factory   drop: never priced         Rear Camera
+  11     0  -                  factory,dealer   drop: never priced         The 2
+  11     0  -                  factory,dealer   drop: never priced         ** One Owner
+  11     0  -                  factory,dealer   drop: never priced         ** Backup Camera
+  11     0  -                  factory,dealer   drop: never priced         ** Apple CarPlay/Android Auto
+  11     0  -                  factory,dealer   drop: never priced         ** Proximity Key w/Push Button Start
+  11     0  -                  factory,dealer   drop: never priced         ** Automatic Headlights
+  11     0  -                  factory,dealer   drop: never priced         ** Power Drivers Seat
+  11     0  -                  factory,dealer   drop: never priced         ** Forward Collision-Avoidance Assist w/Pedestrian Detection
+  11     0  -                  factory,dealer   drop: never priced         ** Blind Spot-Collision Avoidance Assist
+  11     0  -                  factory,dealer   drop: never priced         ** Rear Cross-Traffic Collision-Avoidance Assist
+  11     0  -                  factory,dealer   drop: never priced         ** Lane Keep Assist
+  11     0  -                  factory,dealer   drop: never priced         ** Sirius XM Radio Capable
+  11     0  -                  factory,dealer   drop: never priced         ** Power Liftgate
+  11     0  -                  factory,dealer   drop: never priced         operated and community minded
+  10     0  -                  dealer,factory   drop: never priced         Apple CarPlay®
+  10     0  -                  dealer,factory   drop: never priced         and YES Essentials Stain-Resistant Cloth Seat Trim
+  10     0  -                  factory,dealer   drop: never priced         Priced below KBB Fair Purchase Price! CARFAX One-Owner
+  10     0  -                  factory,dealer   drop: never priced         Engine: 2
+  10     0  -                  dealer,factory   drop: never priced         and technology
+  10     0  -                  dealer,factory   drop: never priced         Decatur
+  10     0  -                  dealer,factory   drop: never priced         Towing Equipment -inc: Trailer Sway Control
+  10     0  -                  dealer,factory   drop: never priced         Headlights-Automatic Highbeams
+  10     0  -                  dealer,factory   drop: never priced         Streaming Audio
+  10     0  -                  dealer,factory   drop: never priced         WHITE PEARL
+  10     0  -                  dealer           drop: never priced         Auto high-beam headlights with delay-off function
+  10     0  -                  factory,dealer   drop: never priced         BLACK PEARL
+  10     0  -                  factory,dealer   drop: never priced         000 mile powertrain warranty
+  10     0  -                  dealer,factory   drop: never priced         except for licensing costs
+  10     0  -                  dealer,factory   drop: never priced         com 10 Best SUVs Under $25
+  10     0  -                  dealer           drop: never priced         Vehicles are sold cosmetically as is
+  10     0  -                  factory,dealer   drop: never priced         60 Month/60
+  10     0  -                  factory,dealer   drop: never priced         120 Month/100
+  10     0  -                  factory,dealer   drop: never priced         (for Hyundai Select Used program)
+  10     0  -                  factory,dealer   drop: never priced         This vehicle is at our Chambersburg PA location
+  10     0  -                  factory,dealer   drop: never priced         Employee-Owned
+  10     0  -                  factory,dealer   drop: never priced         Customer-Focused
+  10     0  -                  factory,dealer   drop: never priced         As a 100% employee-owned company
+  10     0  -                  factory,dealer   drop: never priced         You’ll get honest advice
+  10     0  -                  factory,dealer   drop: never priced         transparent deals
+  10     0  -                  factory,dealer   drop: never priced         and attentive service from people who genuinely care
+  10     0  -                  factory,dealer   drop: never priced         When employees are owners
+  10     0  -                  factory,dealer   drop: never priced         your satisfaction isn’t just a goal
+  10     0  -                  factory,dealer   drop: never priced         it’s part of our success
+  10     0  -                  factory,dealer   drop: never priced         ** Heated Front Seats
+  10     0  -                  dealer           drop: never priced         Sirius XM Satellite Radio
+  10     0  -                  factory,dealer   drop: never priced         At LaFontaine
+  10     0  -                  factory,dealer   drop: never priced         so you can drive away with total peace of mind
+  10     0  -                  factory,dealer   drop: never priced         We go the extra mile with unbeatable perks
+  10     0  -                  factory,dealer   drop: never priced         and aggressive pricing across our entire inventory
+  10     0  -                  factory,dealer   drop: never priced         we have the selection
+  10     0  -                  factory,dealer   drop: never priced         service
+  10     0  -                  factory,dealer   drop: never priced         and experience you can count on
+  10     0  -                  factory,dealer   drop: never priced         When you choose LaFontaine
+  10     0  -                  factory,dealer   drop: never priced         you're joining a family!
+  10     0  -                  dealer           drop: never priced         Recent Arrival! Fully Serviced & White Gloved Detailed
+  10     0  -                  dealer           drop: never priced         Hartford
+  10     0  -                  dealer           drop: never priced         CT 06120
+   9     0  -                  factory,dealer   drop: never priced         Recent Arrival! 24/30 City/Highway MPG
+   9     0  -                  factory,dealer   drop: never priced         8-speed automatic transmission with SHIFTRONIC control
+   9     0  -                  dealer,factory   drop: never priced         SiriusXM satellite radio with AM/FM/HD audio
+   9     0  -                  dealer,factory   drop: never priced         Recent Arrival! 24/29 City/Highway MPG
+   9     0  -                  factory,dealer   drop: never priced         8-Speed Automatic Transmission
+   9     0  -                  dealer,factory   drop: never priced         LED Taillights and Interior Lighting
+   9     0  -                  dealer,factory   drop: never priced         Variable Intermittent Wipers
+   9     0  -                  factory,dealer   drop: never priced         Front-Wheel Drive (FWD)
+   9     0  -                  factory,dealer   drop: never priced         Bluetooth® Hands-Free Connectivity
+   9     0  -                  factory,dealer   drop: never priced         Rear Cross-Traffic Collision-Avoidance Assist
+   9     0  -                  dealer           drop: never priced         Experience the 2026 Hyundai Tucson SEL
+   9     0  -                  dealer,factory   drop: never priced         bonded
+   9     0  -                  dealer,factory   drop: never priced         2024 Hyundai Tucson SEL 2
+   9     0  -                  dealer,factory   drop: never priced         Deep Tinted Glass
+   9     0  -                  dealer,factory   drop: never priced         LED Brakelights
+   9     0  -                  dealer,factory   drop: never priced         Day-Night Rearview Mirror
+   9     0  -                  dealer,factory   drop: never priced         Perimeter Alarm
+   9     0  -                  dealer,factory   drop: never priced         Collision Mitigation-Front
+   9     0  -                  dealer,factory   drop: never priced         Driver Monitoring-Alert
+   9     0  -                  dealer,factory   drop: never priced         Blind-spot Collision-Avoidance Assist (BCA) Blind Spot
+   9     0  -                  dealer,factory   drop: never priced         Rear Cross-Traffic Collision-Avoidance Assist (RCCA)
+   9     0  -                  dealer,factory   drop: never priced         Rear View Monitor (RVM) Back-Up Camera
+   9     0  -                  factory,dealer   drop: never priced         Auto high-beam headlights for enhanced visibility
+   9     0  -                  dealer,factory   drop: never priced         Child Safety Locks
+   9     0  -                  factory,dealer   drop: never priced         629 lbs
+   9     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with power driver adjustment
+   9     0  -                  dealer           drop: never priced         This 2026 Hyundai Tucson SEL
+   9     0  -                  factory,dealer   drop: never priced         100 Year or 100
+   9     0  -                  factory,dealer   drop: never priced         Blind Spot Warning System
+   9     0  -                  factory,dealer   drop: never priced         Cruise Control
+   9     0  -                  factory,dealer   drop: never priced         Leather
+   9     0  -                  factory,dealer   drop: never priced         Wireless Apple CarPlay
+   9     0  -                  factory,dealer   drop: never priced         100
+   9     0  -                  factory,dealer   drop: never priced         100 hour Love it or leave it policy
+   9     0  -                  factory,dealer   drop: never priced         Our Finance Professionals work with all credit types
+   9     0  -                  factory,dealer   drop: never priced         from good to bad
+   9     0  -                  factory,dealer   drop: never priced         even first time buyers with no credit
+   9     0  -                  factory,dealer   drop: never priced         They believe they can get an approval for everyone
+   9     0  -                  dealer,factory   drop: never priced         17 x 7
+   9     0  -                  dealer,factory   drop: never priced         000 * 2018 KBB
+   9     0  -                  dealer,factory   drop: never priced         com 10 Most Awarded Brands * 2018 KBB
+   9     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with power driver control
+   9     0  -                  factory,dealer   drop: never priced         2024 Hyundai Tucson SEL SEL 2
+   9     0  -                  factory,dealer   drop: never priced         SiriusXM Audio System with 6 Speakers
+   9     0  -                  factory,dealer   drop: never priced         Warranty Deductible: $50
+   9     0  -                  factory,dealer   drop: never priced         Clean
+   9     0  -                  factory,dealer   drop: never priced         Heated front bucket seats with power adjustments
+   9     0  -                  factory,dealer   drop: never priced         ** Bluetooth® Connectivity
+   9     0  -                  dealer,factory   drop: never priced         Bluelink connected car system
+   9     0  -                  dealer,factory   drop: never priced         Bluetooth® w/voice recognition
+   9     0  -                  dealer           drop: never priced         Powered by a Smartstream 2
+   9     0  -                  dealer           drop: never priced         and external memory control
+   9     0  -                  factory,dealer   drop: never priced         Gas-Pressurized Shock Absorbers
+   9     0  -                  dealer,factory   drop: never priced         Rental car reimbursement provided during covered repairs
+   9     0  -                  dealer,factory   drop: never priced         10-Year/ 100
+   9     0  -                  dealer,factory   drop: never priced         000-mile New Vehicle Limited Warranty
+   9     0  -                  dealer,factory   drop: never priced         Reimbursement (includes towing
+   9     0  -                  dealer,factory   drop: never priced         jump starts
+   9     0  -                  dealer,factory   drop: never priced         tire service
+   9     0  -                  dealer,factory   drop: never priced         lockout service and fuel delivery)
+   9     0  -                  dealer,factory   drop: never priced         SERVICE COMPLETED
+   9     0  -                  dealer,factory   drop: never priced         Tires Inspected
+   9     0  -                  dealer,factory   drop: never priced         Brake System Flush
+   9     0  -                  dealer,factory   drop: never priced         Emissions System Check
+   9     0  -                  dealer,factory   drop: never priced         Professional Detailed Inside and Out
+   9     0  -                  dealer,factory   drop: never priced         Function Test all Lights
+   9     0  -                  dealer,factory   drop: never priced         Check the Complete Exhaust System
+   9     0  -                  dealer,factory   drop: never priced         Function Test all Options & Accessories
+   9     0  -                  dealer,factory   drop: never priced         EXPERIENCE THE WAY CAR BUYING SHOULD BE
+   9     0  -                  dealer,factory   drop: never priced         Prices include all costs to be paid by a consumer
+   9     0  -                  dealer,factory   drop: never priced         registration fees and taxes
+   9     0  -                  dealer,factory   drop: never priced         Pricing listed on this vehicle is subject to change
+   9     0  -                  dealer,factory   drop: never priced         Vehicle subject to availability
+   8     0  -                  factory,dealer   drop: never priced         Heated front bucket seats with power driver seat
+   8     0  -                  dealer,factory   drop: never priced         Keyless Start
+   8     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with center armrest
+   8     0  -                  dealer,factory   drop: never priced         Comfortable
+   8     0  -                  dealer,factory   drop: never priced         Additional Information
+   8     0  -                  dealer,factory   drop: never priced         spacious interior
+   8     0  -                  dealer,factory   drop: never priced         maps
+   8     0  -                  dealer,factory   drop: never priced         efficiency
+   8     0  -                  dealer,factory   drop: never priced         YES Essentials Stain-Resistant Cloth Seat Trim
+   8     0  -                  factory,dealer   drop: never priced         Dealer charges $299
+   8     0  -                  dealer,factory   drop: never priced         a rearview camera
+   8     0  -                  dealer           drop: never priced         For your entertainment needs
+   8     0  -                  dealer,factory   drop: never priced         Lane Departure Warning
+   8     0  -                  dealer           drop: never priced         Come see it at **Crossroads Ford of Apex**
+   8     0  -                  dealer           drop: never priced         where the inventory is anything but ordinary
+   8     0  -                  dealer           drop: never priced         classics
+   8     0  -                  dealer           drop: never priced         and grab a bite at our in-house diner while youre here
+   8     0  -                  dealer           drop: never priced         Open the door
+   8     0  -                  factory,dealer   drop: never priced         No Accidents!
+   8     0  -                  dealer,factory   drop: never priced         64-color upper center console and front door pockets
+   8     0  -                  dealer,factory   drop: never priced         6-speakers
+   8     0  -                  dealer,factory   drop: never priced         Shimmering Silver 2
+   8     0  -                  dealer           drop: never priced         This Tucson has the following features:
+   8     0  -                  dealer,factory   drop: never priced         EXCELLENT CONDITION
+   8     0  -                  dealer           drop: never priced         Coastal Hyundai is located in Melbourne FL
+   8     0  -                  dealer           drop: never priced         And serves the automotive needs of Melbourne
+   8     0  -                  dealer           drop: never priced         Palm Bay
+   8     0  -                  dealer           drop: never priced         Viera
+   8     0  -                  dealer           drop: never priced         Satellite Beach
+   8     0  -                  dealer           drop: never priced         and surrounding areas of Brevard County
+   8     0  -                  dealer,factory   drop: never priced         EXCELLENT VALUE
+   8     0  -                  dealer           drop: never priced         Please contact dealer for details
+   8     0  -                  dealer,factory   drop: never priced         everyday comfort
+   8     0  -                  factory,dealer   drop: never priced         Power liftgate and power door mirrors
+   8     0  -                  factory,dealer   drop: never priced         Forward Collision Alert
+   8     0  -                  dealer           drop: never priced         Interior Color: Gray
+   8     0  -                  dealer           drop: never priced         modern technology
+   8     0  -                  dealer,factory   drop: never priced         Front fog lights
+   8     0  -                  dealer,factory   drop: never priced         Radio: AM/FM/HD Radio/MP3 Audio System
+   8     0  -                  dealer           drop: never priced         All prices exclude tax
+   8     0  -                  factory,dealer   drop: never priced         Rear parking camera with electronic stability control
+   8     0  -                  factory,dealer   drop: never priced         Dual front zone air conditioning with rear window defroster
+   8     0  -                  factory,dealer   drop: never priced         Alloy wheels with 4-wheel disc brakes and ABS
+   8     0  -                  factory,dealer   drop: never priced         23 city / 29 highway MPG
+   8     0  -                  factory,dealer   drop: never priced         Hyundai Combined Details:
+   8     0  -                  factory,dealer   drop: never priced         SiriusXM and Fender audio system with Bluetooth® control
+   8     0  -                  factory,dealer   drop: never priced         Electronic Stability Control with traction assistance
+   8     0  -                  factory,dealer   drop: never priced         Dual front and side airbags plus overhead protection
+   8     0  -                  factory,dealer   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp Ecotronic Gray Matte
+   8     0  -                  factory,dealer   drop: never priced         Transparency and trust are at the core of the FitzWay
+   8     0  -                  factory,dealer   drop: never priced         We post the genuine FitzWay price for all car buyers
+   8     0  -                  factory,dealer   drop: never priced         Blind Spot Detection
+   8     0  -                  factory,dealer   drop: never priced         Collision Avoidance
+   8     0  -                  factory,dealer   drop: never priced         Premium Fender audio system with SiriusXM satellite radio
+   8     0  -                  factory,dealer   drop: never priced         Four-wheel independent suspension for smooth handling
+   8     0  -                  factory,dealer   drop: never priced         Maryland Inspected
+   8     0  -                  factory,dealer   drop: never priced         6-Speaker AM/FM/HD Audio System
+   8     0  -                  factory,dealer   drop: never priced         Heated front bucket seats with driver power adjustments
+   8     0  -                  factory,dealer   drop: never priced         Fender premium audio system with SiriusXM
+   8     0  -                  factory,dealer   drop: never priced         Vehicle History Report included
+   8     0  -                  factory,dealer   drop: never priced         Bluetooth® connectivity and dynamic voice recognition
+   8     0  -                  factory,dealer   drop: never priced         Electronic stability control with ABS and traction control
+   8     0  -                  factory,dealer   drop: never priced         SiriusXM AM/FM radio with Fender audio system
+   8     0  -                  factory,dealer   drop: never priced         Power driver seat with heating
+   8     0  -                  factory,dealer   drop: never priced         Power door mirrors and alloy wheels
+   8     0  -                  factory,dealer   drop: never priced         Premium Fender audio system with SiriusXM
+   8     0  -                  dealer,factory   drop: never priced         Driver Seat
+   8     0  -                  dealer           drop: never priced         5L I-4 engine delivering 187 horsepower
+   8     0  -                  dealer,factory   drop: never priced         This Tucson is priced $2
+   8     0  -                  dealer           drop: never priced         Leather Seats
+   7     0  -                  dealer,factory   drop: never priced         CLICK ME!
+   7     0  -                  dealer,factory   drop: never priced         BUY FROM AN AWARD WINNING DEALER
+   7     0  -                  dealer,factory   drop: never priced         Texas
+   7     0  -                  dealer,factory   drop: never priced         Power driver seat with heated front bucket seats
+   7     0  -                  factory,dealer   drop: never priced         Low mileage
+   7     0  -                  dealer,factory   drop: never priced         running errands
+   7     0  -                  dealer           drop: never priced         music
+   7     0  -                  dealer,factory   drop: never priced         auto-dimming interior mirror with Homelink
+   7     0  -                  dealer,factory   drop: never priced         Automatic Temperature Control with Dual Front Zone A/C
+   7     0  -                  dealer,factory   drop: never priced         Power liftgate for easy cargo access
+   7     0  -                  dealer,factory   drop: never priced         blind-spot monitoring
+   7     0  -                  dealer,factory   drop: never priced         ATLANTIS BLUE
+   7     0  -                  dealer,factory   drop: never priced         dual-zone climate control
+   7     0  -                  factory,dealer   drop: never priced         Smart Cruise Control
+   7     0  -                  factory,dealer   drop: never priced         Power Driver's Seat
+   7     0  -                  dealer,factory   drop: never priced         responsive handling
+   7     0  -                  dealer           drop: never priced         a perfect blend of style
+   7     0  -                  dealer,factory   drop: never priced         Bowie
+   7     0  -                  dealer,factory   drop: never priced         affordable
+   7     0  -                  dealer,factory   drop: never priced         Recent Arrival! 2024 Hyundai Tucson SEL 2
+   7     0  -                  dealer,factory   drop: never priced         Convenience Package ($2
+   7     0  -                  dealer           drop: never priced         Hyundai Certified Pre-Owned
+   7     0  -                  dealer,factory   drop: never priced         Four-wheel disc brakes with ABS
+   7     0  -                  dealer,factory   drop: never priced         Nissan Rogue
+   7     0  -                  dealer,factory   drop: never priced         Blind Spot Monitoring
+   7     0  -                  dealer,factory   drop: never priced         road trips
+   7     0  -                  dealer,factory   drop: never priced         and road trips
+   7     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with H-Tex trim
+   7     0  -                  dealer           drop: never priced         Wheels: 18 Alloy
+   7     0  -                  dealer,factory   drop: never priced         Voice Activation
+   7     0  -                  dealer,factory   drop: never priced         Non-Smoker vehicle
+   7     0  -                  dealer,factory   drop: never priced         17 Alloy Wheels
+   7     0  -                  dealer,factory   drop: never priced         covertford
+   7     0  -                  factory,dealer   drop: never priced         Apple CarPlay and Android Auto connectivity
+   7     0  -                  factory,dealer   drop: never priced         Safety Package
+   7     0  -                  factory,dealer   drop: never priced         Automatic Temperature Control with Dual Front Zone
+   7     0  -                  dealer,factory   drop: never priced         advanced safety features
+   7     0  -                  dealer,factory   drop: never priced         Awards:
+   7     0  -                  dealer,factory   drop: never priced         * 2018 KBB
+   7     0  -                  dealer           drop: never priced         FWD 8-Speed Automatic with SHIFTRONIC 2
+   7     0  -                  dealer           drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp No Games
+   7     0  -                  dealer           drop: never priced         No Gimmicks! Just honest family run business
+   7     0  -                  dealer           drop: never priced         Price- The Information presented on this website
+   7     0  -                  dealer           drop: never priced         specifically pricing details on new and used cars
+   7     0  -                  dealer           drop: never priced         aims to be accurate and reliable
+   7     0  -                  dealer           drop: never priced         Despite our efforts to maintain precision
+   7     0  -                  dealer           drop: never priced         we offer no guarantees or warranties
+   7     0  -                  dealer           drop: never priced         concerning accuracy or suitability of pricing information
+   7     0  -                  dealer           drop: never priced         $3000 - Hyundai HMF Dealer Choice: $3000 discount and 5
+   7     0  -                  dealer           drop: never priced         11/02/2026 $500 - First Responders Program
+   7     0  -                  dealer,factory   drop: never priced         Jeep
+   7     0  -                  dealer,factory   drop: never priced         Nissan
+   7     0  -                  dealer,factory   drop: never priced         BMW
+   7     0  -                  dealer,factory   drop: never priced         Infiniti
+   7     0  -                  factory,dealer   drop: never priced         Wireless Phone Connectivity
+   7     0  -                  dealer,factory   drop: never priced         Lebanon
+   7     0  -                  dealer,factory   drop: never priced         Reading
+   7     0  -                  dealer           drop: never priced         No Accidents
+   7     0  -                  dealer,factory   drop: never priced         Heated front bucket seats with split-folding rear seat
+   7     0  -                  factory,dealer   drop: never priced         ** Remote Start
+   7     0  -                  factory,dealer   drop: never priced         ** No Accidents
+   7     0  -                  factory,dealer   drop: never priced         Front And Rear Anti-Roll Bars
+   7     0  -                  factory,dealer   drop: never priced         Remote Keyless Entry W/Integrated Key Transmitter
+   7     0  -                  factory,dealer   drop: never priced         Illuminated Ignition Switch And Panic Button
+   7     0  -                  dealer,factory   drop: never priced         One-year membership for the Road America Auto Assist Program
+   7     0  -                  dealer,factory   drop: never priced         VEHICLE REVIEWS
+   6     0  -                  factory,dealer   drop: never priced         Remote keyless entry with power liftgate
+   6     0  -                  dealer,factory   drop: never priced         Emergency communication via Blue Link Connected Car Service
+   6     0  -                  dealer,factory   drop: never priced         Alloy wheels with all-season tires
+   6     0  -                  dealer           drop: never priced         value
+   6     0  -                  factory,dealer   drop: never priced         everyday versatility
+   6     0  -                  dealer,factory   drop: never priced         and advanced technology
+   6     0  -                  dealer           drop: never priced         calls
+   6     0  -                  dealer           drop: never priced         heated power mirrors
+   6     0  -                  dealer,factory   drop: never priced         wireless charging
+   6     0  -                  dealer,factory   drop: never priced         Valet Function
+   6     0  -                  factory,dealer   drop: never priced         Style
+   6     0  -                  factory,dealer   drop: never priced         Proximity Key with Push-Button Start
+   6     0  -                  factory,dealer   drop: never priced         LED Daytime Running Lights
+   6     0  -                  dealer           drop: never priced         At the heart of this SUV is the efficient Smartstream 2
+   6     0  -                  dealer           drop: never priced         enhancing both its appearance and road performance
+   6     0  -                  dealer           drop: never priced         Safety is a top priority in this model
+   6     0  -                  dealer           drop: never priced         and driver attention monitoring
+   6     0  -                  dealer           drop: never priced         ensuring connectivity and enjoyment while you drive
+   6     0  -                  dealer           drop: never priced         With its blend of style
+   6     0  -                  dealer           drop: never priced         this front-wheel-drive SUV stands out on the road
+   6     0  -                  dealer           drop: never priced         the Tucson is powered by a robust Smartstream 2
+   6     0  -                  dealer           drop: never priced         5L i-4 engine that generates an impressive 187 horsepower
+   6     0  -                  dealer           drop: never priced         You'll enjoy the added luxury of heated front bucket seats
+   6     0  -                  dealer           drop: never priced         making every drive a cozy experience
+   6     0  -                  dealer           drop: never priced         providing a perfect balance of style and stability
+   6     0  -                  dealer           drop: never priced         this Tucson is equipped with an AM/FM/HD audio system
+   6     0  -                  dealer           drop: never priced         With its thoughtful design and desirable features
+   6     0  -                  dealer,factory   drop: never priced         Welcome to Grubbs of Wichita Falls
+   6     0  -                  dealer,factory   drop: never priced         expert auto service
+   6     0  -                  dealer,factory   drop: never priced         Childress
+   6     0  -                  dealer,factory   drop: never priced         Vernon
+   6     0  -                  dealer,factory   drop: never priced         Gainesville
+   6     0  -                  dealer,factory   drop: never priced         Seymour
+   6     0  -                  dealer,factory   drop: never priced         Jacksboro
+   6     0  -                  dealer,factory   drop: never priced         and Abilene
+   6     0  -                  dealer,factory   drop: never priced         helping Texans find their perfect ride at unbeatable prices
+   6     0  -                  dealer,factory   drop: never priced         Whether you’re searching for a new or a reliable used car
+   6     0  -                  dealer,factory   drop: never priced         truck
+   6     0  -                  dealer,factory   drop: never priced         or SUV
+   6     0  -                  dealer,factory   drop: never priced         factory-trained team
+   6     0  -                  dealer,factory   drop: never priced         and fast vehicle shipping across the U
+   6     0  -                  dealer,factory   drop: never priced         Through our licensed
+   6     0  -                  dealer,factory   drop: never priced         and fully insured shipping partners
+   6     0  -                  dealer,factory   drop: never priced         located at 2900 Old Jacksboro Hwy
+   6     0  -                  dealer,factory   drop: never priced         Wichita Falls
+   6     0  -                  dealer,factory   drop: never priced         TX 76302
+   6     0  -                  dealer,factory   drop: never priced         All-Wheel Drive with 8-Speed Automatic transmission
+   6     0  -                  dealer,factory   drop: never priced         5L 4-Cylinder Engine
+   6     0  -                  dealer,factory   drop: never priced         Rear Privacy Glass
+   6     0  -                  dealer           drop: never priced         advanced safety technology
+   6     0  -                  dealer           drop: never priced         premium trade-ins
+   6     0  -                  dealer           drop: never priced         specialty inventory
+   6     0  -                  dealer           drop: never priced         settle into the Gray interior
+   6     0  -                  dealer,factory   drop: never priced         rearview camera
+   6     0  -                  factory,dealer   drop: never priced         This Certified 2025 Hyundai Tucson SEL
+   6     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio with AM/FM capability
+   6     0  -                  factory,dealer   drop: never priced         Android Auto and Apple CarPlay
+   6     0  -                  dealer,factory   drop: never priced         Casa fully inspects all the vehicles that make it to our lot
+   6     0  -                  dealer,factory   drop: never priced         so we stand behind them
+   6     0  -                  dealer,factory   drop: never priced         7-Day Cash Back Promise A vehicle is a big purchase
+   6     0  -                  dealer,factory   drop: never priced         and we want to make sure you make the right choice
+   6     0  -                  dealer,factory   drop: never priced         If you don't love your pre-owned Casa vehicle
+   6     0  -                  dealer,factory   drop: never priced         bring it back within 7 days and find the one you do love
+   6     0  -                  dealer,factory   drop: never priced         We guarantee to find you the right vehicle
+   6     0  -                  dealer,factory   drop: never priced         If you aren't happy with it
+   6     0  -                  dealer,factory   drop: never priced         you get 100% cashback! https://www
+   6     0  -                  dealer,factory   drop: never priced         casanissan
+   6     0  -                  dealer           drop: never priced         Also
+   6     0  -                  dealer,factory   drop: never priced         2022 Hyundai Tucson SEL
+   6     0  -                  dealer           drop: never priced         This 2022 Hyundai Tucson SEL
+   6     0  -                  dealer           drop: never priced         We price our cars
+   6     0  -                  dealer           drop: never priced         not our Customers
+   6     0  -                  dealer           drop: never priced         Our Best Price is clearly marked on every vehicle
+   6     0  -                  dealer           drop: never priced         250 value) 10
+   6     0  -                  dealer,factory   drop: never priced         AWD with 2
+   6     0  -                  dealer,factory   drop: never priced         navigating city traffic
+   6     0  -                  dealer,factory   drop: never priced         Toyota RAV4
+   6     0  -                  dealer,factory   drop: never priced         VEHICLE HIGHLIGHTS
+   6     0  -                  dealer,factory   drop: never priced         Four-door sport utility vehicle
+   6     0  -                  dealer,factory   drop: never priced         groceries
+   6     0  -                  dealer,factory   drop: never priced         SHOP USED SUVs AT COVERT FORD IN AUSTIN
+   6     0  -                  dealer,factory   drop: never priced         Round Rock
+   6     0  -                  dealer,factory   drop: never priced         Georgetown
+   6     0  -                  dealer,factory   drop: never priced         Cedar Park
+   6     0  -                  dealer,factory   drop: never priced         Leander
+   6     0  -                  dealer,factory   drop: never priced         Pflugerville
+   6     0  -                  dealer,factory   drop: never priced         Lakeway
+   6     0  -                  dealer,factory   drop: never priced         Bee Cave
+   6     0  -                  dealer,factory   drop: never priced         Buda
+   6     0  -                  dealer,factory   drop: never priced         Kyle
+   6     0  -                  dealer,factory   drop: never priced         New Braunfels
+   6     0  -                  dealer,factory   drop: never priced         Nearby ZIP codes include 78701
+   6     0  -                  dealer,factory   drop: never priced         78704
+   6     0  -                  dealer,factory   drop: never priced         78717
+   6     0  -                  dealer,factory   drop: never priced         78727
+   6     0  -                  dealer,factory   drop: never priced         78745
+   6     0  -                  dealer,factory   drop: never priced         78748
+   6     0  -                  dealer,factory   drop: never priced         78613
+   6     0  -                  dealer,factory   drop: never priced         78641
+   6     0  -                  dealer,factory   drop: never priced         78664
+   6     0  -                  dealer,factory   drop: never priced         78665
+   6     0  -                  dealer,factory   drop: never priced         78681
+   6     0  -                  dealer,factory   drop: never priced         78660
+   6     0  -                  dealer,factory   drop: never priced         78610
+   6     0  -                  dealer,factory   drop: never priced         78640
+   6     0  -                  dealer,factory   drop: never priced         78130
+   6     0  -                  dealer,factory   drop: never priced         Call Covert Ford: 512-345-4343
+   6     0  -                  dealer,factory   drop: never priced         schedule your visit
+   6     0  -                  dealer,factory   drop: never priced         versatility
+   6     0  -                  factory,dealer   drop: never priced         Gray Interior
+   6     0  -                  factory,dealer   drop: never priced         100 Hour Love It or Leave It Exchange Policy
+   6     0  -                  factory,dealer   drop: never priced         000 Mile Power-Train Warranty
+   6     0  -                  factory,dealer   drop: never priced         Backup / Rear View Camera
+   6     0  -                  factory,dealer   drop: never priced         Color Touchscreen Display
+   6     0  -                  factory,dealer   drop: never priced         Premium Audio
+   6     0  -                  factory,dealer   drop: never priced         USB / AUV Ports
+   6     0  -                  factory,dealer   drop: never priced         Wireless Google Android Auto
+   6     0  -                  factory,dealer   drop: never priced         26/33 City/Highway MPG
+   6     0  -                  dealer,factory   drop: never priced         2026 Hyundai Tucson SEL
+   6     0  -                  dealer,factory   drop: never priced         Electronic Stability Control with traction control
+   6     0  -                  dealer,factory   drop: never priced         and YES Essentials Cloth Seat Trim
+   6     0  -                  dealer           drop: never priced         $175 NYS Doc Fee
+   6     0  -                  dealer,factory   drop: never priced         Enjoy commercial free music
+   6     0  -                  dealer,factory   drop: never priced         performances and interviews
+   6     0  -                  dealer,factory   drop: never priced         plus comedy
+   6     0  -                  dealer,factory   drop: never priced         talk
+   6     0  -                  dealer,factory   drop: never priced         sports and more
+   6     0  -                  dealer,factory   drop: never priced         * Roadside Assistance * and the OnStar Guardian® app
+   6     0  -                  dealer,factory   drop: never priced         * Plus
+   6     0  -                  dealer,factory   drop: never priced         26/29 City/Highway MPG
+   6     0  -                  dealer,factory   drop: never priced         Clean Carfax 1 Owner
+   6     0  -                  dealer,factory   drop: never priced         Faulkner Chevrolet is proudly serving Lancaster
+   6     0  -                  dealer,factory   drop: never priced         York
+   6     0  -                  dealer,factory   drop: never priced         Harrisburg
+   6     0  -                  dealer,factory   drop: never priced         Since opening our doors
+   6     0  -                  dealer,factory   drop: never priced         Faulkner Chevrolet has maintained a solid commitment to you
+   6     0  -                  dealer,factory   drop: never priced         our customers
+   6     0  -                  dealer,factory   drop: never priced         Even if you have bad credit or are a first time car buyer
+   6     0  -                  dealer,factory   drop: never priced         Please call and schedule a test drive with us today!
+   6     0  -                  dealer,factory   drop: never priced         Just Serviced Here
+   6     0  -                  dealer,factory   drop: never priced         Rear window defroster and wiper
+   6     0  -                  dealer           drop: never priced         NEW TIRES
+   6     0  -                  dealer,factory   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp 10
+   6     0  -                  dealer,factory   drop: never priced         Discover the 2026 Hyundai Tucson SEL
+   6     0  -                  factory,dealer   drop: never priced         EPA estimate 28 MPG Hwy/23 MPG City! SEL trim
+   6     0  -                  factory,dealer   drop: never priced         Hubler Q Certified
+   6     0  -                  factory,dealer   drop: never priced         GREAT MILES 43
+   6     0  -                  factory,dealer   drop: never priced         715! Sunroof
+   6     0  -                  factory,dealer   drop: never priced         This Tucson is priced $700 below J
+   6     0  -                  factory,dealer   drop: never priced         VEHICLE FEATURES
+   6     0  -                  factory,dealer   drop: never priced         Heated Mirrors
+   6     0  -                  factory,dealer   drop: never priced         Permanent Locking Hubs
+   6     0  -                  factory,dealer   drop: never priced         Multi-Link Rear Suspension W/Coil Springs
+   6     0  -                  factory,dealer   drop: never priced         4-Wheel Disc Brakes W/4-Wheel Abs
+   6     0  -                  factory,dealer   drop: never priced         Hill Hold Control And Electric Parking Brake
+   6     0  -                  factory,dealer   drop: never priced         Tires: 235/65R17
+   6     0  -                  factory,dealer   drop: never priced         Tailgate/Rear Door Lock Included W/Power Door Locks
+   6     0  -                  factory,dealer   drop: never priced         Integrated Roof Antenna
+   6     0  -                  factory,dealer   drop: never priced         Airbag Occupancy Sensor
+   6     0  -                  factory,dealer   drop: never priced         Tire Specific Low Tire Pressure Warning
+   6     0  -                  factory,dealer   drop: never priced         Power Rear Windows And Fixed 3Rd Row Windows
+   6     0  -                  factory,dealer   drop: never priced         Remote Releases -Inc: Smart Liftgate Proximity Cargo Access
+   6     0  -                  factory,dealer   drop: never priced         Smart Cruise Control With Stop & Go (Scc)
+   6     0  -                  factory,dealer   drop: never priced         Redundant Digital Speedometer
+   6     0  -                  factory,dealer   drop: never priced         Analog Appearance
+   6     0  -                  factory,dealer   drop: never priced         Lane Keeping Assist (Lka) Lane Keeping Assist
+   6     0  -                  factory,dealer   drop: never priced         Lane Keeping Assist (Lka) Lane Departure Warning
+   6     0  -                  factory,dealer   drop: never priced         Emergency Sos Capability
+   6     0  -                  factory,dealer   drop: never priced         Manual Tilt/Telescoping Steering Column
+   6     0  -                  factory,dealer   drop: never priced         2yr/100
+   6     0  -                  factory,dealer   drop: never priced         BETTER HURRY!
+   6     0  -                  dealer,factory   drop: never priced         Ultimate Red exterior and Black interior
+   6     0  -                  dealer,factory   drop: never priced         Pricing analysis performed on 10/17/2026
+   6     0  -                  dealer,factory   drop: never priced         FUEL EFFICIENT EPA estimate 30 MPG Hwy/24 MPG City! SEL trim
+   6     0  -                  dealer,factory   drop: never priced         LOW MILES - 107! Heated Seats
+   6     0  -                  dealer,factory   drop: never priced         Great Gas Mileage: EPA estimate 30 MPG Hwy
+   6     0  -                  dealer,factory   drop: never priced         Pricing analysis performed on 10/23/2026
+   6     0  -                  dealer           drop: never priced         Rogue
+   6     0  -                  dealer           drop: never priced         CLEAN LOCAL TRADE
+   6     0  -                  factory,dealer   drop: never priced         New Price!
+   6     0  -                  dealer,factory   drop: never priced         Memphis
+   6     0  -                  dealer,factory   drop: never priced         TN 38128
+   6     0  -                  factory,dealer   drop: never priced         5L I4 DGI DOHC 16V LEV3-SULEV30 187hp AWD AWD
+   6     0  -                  dealer           drop: never priced         Lakeland
+   6     0  -                  dealer,factory   drop: never priced         BUY WITH CONFIDENCE
+   6     0  -                  dealer,factory   drop: never priced         AutoCheck One Owner 173-point mechanical
+   5     0  -                  dealer,factory   drop: never priced         PURCHASE WITH CONFIDENCE
+   5     0  -                  dealer,factory   drop: never priced         Remote keyless entry and steering wheel audio controls
+   5     0  -                  dealer,factory   drop: never priced         Dual front zone automatic temperature control
+   5     0  -                  dealer,factory   drop: never priced         including cell phone numbers
+   5     0  -                  factory,dealer   drop: never priced         text
+   5     0  -                  dealer,factory   drop: never priced         weekend travel
+   5     0  -                  dealer           drop: never priced         and everything in between
+   5     0  -                  dealer           drop: never priced         and confident performance
+   5     0  -                  dealer,factory   drop: never priced         Powered by a 4-cylinder
+   5     0  -                  dealer,factory   drop: never priced         durability
+   5     0  -                  dealer,factory   drop: never priced         BlueLink+ Emergency Communication System
+   5     0  -                  factory,dealer   drop: never priced         851 miles
+   5     0  -                  factory,dealer   drop: never priced         151 miles
+   5     0  -                  factory,dealer   drop: never priced         126 miles
+   5     0  -                  dealer,factory   drop: never priced         Key Features
+   5     0  -                  factory,dealer   drop: never priced         Convenience Package (10
+   5     0  -                  dealer           drop: never priced         Bold and modern
+   5     0  -                  dealer           drop: never priced         our Tucson is crafted for today's drivers with LED lighting
+   5     0  -                  dealer           drop: never priced         a hands-free liftgate
+   5     0  -                  dealer           drop: never priced         a rear spoiler
+   5     0  -                  dealer           drop: never priced         roof rails
+   5     0  -                  dealer           drop: never priced         a multifunction steering wheel
+   5     0  -                  dealer           drop: never priced         keyless entry/ignition
+   5     0  -                  dealer           drop: never priced         lane-keeping assistance
+   5     0  -                  dealer           drop: never priced         pedestrian/cyclist detection
+   5     0  -                  dealer           drop: never priced         a rear-seat reminder
+   5     0  -                  dealer           drop: never priced         a driver attention monitor
+   5     0  -                  dealer           drop: never priced         tire pressure monitoring
+   5     0  -                  dealer           drop: never priced         hill start assistance
+   5     0  -                  dealer           drop: never priced         We Know You Will Enjoy Your Test Drive Towards Ownership!
+   5     0  -                  dealer,factory   drop: never priced         Split folding rear seat for flexible cargo space
+   5     0  -                  factory,dealer   drop: never priced         Blind-Spot Collision-Avoidance Assist
+   5     0  -                  factory,dealer   drop: never priced         and weekend travel
+   5     0  -                  dealer,factory   drop: never priced         Dual Stage Driver And Passenger Seat-Mounted Side Airbags
+   5     0  -                  dealer           drop: never priced         SiriusXM
+   5     0  -                  factory,dealer   drop: never priced         Hampton Gray
+   5     0  -                  dealer           drop: never priced         LED Headlights
+   5     0  -                  dealer,factory   drop: never priced         push-button start
+   5     0  -                  dealer           drop: never priced         family use
+   5     0  -                  dealer,factory   drop: never priced         roof side rails
+   5     0  -                  dealer           drop: never priced         USB ports
+   5     0  -                  dealer           drop: never priced         This 2023 Hyundai Tucson SEL
+   5     0  -                  dealer,factory   drop: never priced         See dealer for complete details
+   5     0  -                  dealer,factory   drop: never priced         wireless Apple CarPlay and Android Auto
+   5     0  -                  dealer           drop: never priced         ***This 2025 Hyundai Tucson SEL is a great choice***
+   5     0  -                  dealer           drop: never priced         Blue Link Connected Car Service
+   5     0  -                  dealer           drop: never priced         2024 Hyundai Tucson SEL in Shimmering Silver with Cloth
+   5     0  -                  dealer           drop: never priced         TO CONFIRM AVAILABILITY
+   5     0  -                  dealer           drop: never priced         coughlinlancasterkia
+   5     0  -                  dealer           drop: never priced         : Price excludes tax
+   5     0  -                  dealer           drop: never priced         document fee and dealer added accessories
+   5     0  -                  dealer,factory   drop: never priced         Whether you're commuting to work
+   5     0  -                  dealer,factory   drop: never priced         Nissan Rogue SV
+   5     0  -                  dealer,factory   drop: never priced         Chevrolet Equinox LT
+   5     0  -                  factory,dealer   drop: never priced         Rear Cross Traffic Alert
+   5     0  -                  factory,dealer   drop: never priced         000 vehicles to choose from
+   5     0  -                  factory,dealer   drop: never priced         This site
+   5     0  -                  factory,dealer   drop: never priced         and all information and materials appearing on it
+   5     0  -                  factory,dealer   drop: never priced         are presented to the user as is without warranty of any kind
+   5     0  -                  dealer,factory   drop: never priced         422 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YB9981
+   5     0  -                  dealer,factory   drop: never priced         202 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YB9962
+   5     0  -                  dealer,factory   drop: never priced         INTENSE BLUE
+   5     0  -                  dealer,factory   drop: never priced         557 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YB9964
+   5     0  -                  dealer,factory   drop: never priced         811 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YC9984
+   5     0  -                  dealer,factory   drop: never priced         FIRST AID KIT At Don Moore Chevrolet
+   5     0  -                  dealer,factory   drop: never priced         331 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YB9998
+   5     0  -                  dealer,factory   drop: never priced         139 miles
+   5     0  -                  dealer,factory   drop: never priced         Stock Number YB9979
+   5     0  -                  dealer           drop: never priced         and weekend adventures alike
+   5     0  -                  dealer           drop: never priced         5L gasoline engine and equipped with 4WD
+   5     0  -                  dealer           drop: never priced         Navigation GPS
+   5     0  -                  factory,dealer   drop: never priced         The vehicle features a hands-free Bluetooth® phone system
+   5     0  -                  factory,dealer   drop: never priced         Power driver seat with telescoping steering wheel
+   5     0  -                  factory,dealer   drop: never priced         Montgomery
+   5     0  -                  factory,dealer   drop: never priced         This vehicle comes equipped with: Cargo Package (Cargo Net
+   5     0  -                  factory,dealer   drop: never priced         4-Cylinder Engine with Great MPG (24 city / 29 highway)
+   5     0  -                  factory,dealer   drop: never priced         Power Windows and Power Doors
+   5     0  -                  factory,dealer   drop: never priced         4-cylinder with great MPG
+   5     0  -                  factory,dealer   drop: never priced         Apple CarPlay integration
+   5     0  -                  factory,dealer   drop: never priced         and Reversible Cargo Tray)
+   5     0  -                  dealer,factory   drop: never priced         Power liftgate with remote keyless entry
+   5     0  -                  dealer           drop: never priced         DEALER SERVICED
+   5     0  -                  dealer,factory   drop: never priced         Remote keyless entry and power windows
+   5     0  -                  dealer,factory   drop: never priced         SiriusXM satellite radio with 6 speakers
+   5     0  -                  dealer           drop: never priced         family travel
+   5     0  -                  dealer           drop: never priced         1 Owner
+   5     0  -                  dealer           drop: never priced         DRIVE A LITTLE SAVE A LOT!!!
+   5     0  -                  dealer           drop: never priced         Safety is paramount in the Tucson
+   5     0  -                  dealer           drop: never priced         autonomous cruise control with Lane Following Assist
+   5     0  -                  dealer           drop: never priced         the Tucson is powered by a Smartstream 2
+   5     0  -                  dealer           drop: never priced         and a Driver Attention Warning system
+   5     0  -                  dealer           drop: never priced         and safety
+   5     0  -                  factory,dealer   drop: never priced         One-year
+   5     0  -                  dealer,factory   drop: never priced         988
+   5     0  -                  dealer,factory   drop: never priced         500 below J
+   5     0  -                  dealer,factory   drop: never priced         NAV
+   5     0  -                  dealer,factory   drop: never priced         iPod/MP3 Input Rear Spoiler
+   5     0  -                  dealer,factory   drop: never priced         The Hubler Auto Group
+   5     0  -                  dealer,factory   drop: never priced         through the power of ten central Indiana locations
+   5     0  -                  dealer,factory   drop: never priced         The Hubler Auto Group can claim the title for selling more G
+   5     0  -                  dealer           drop: never priced         Pano / Panoramic Roof
+   5     0  -                  dealer,factory   drop: never priced         Phantom Black exterior and Gray interior
+   5     0  -                  dealer,factory   drop: never priced         including Lynch GM Superstore in Burlington
+   5     0  -                  dealer,factory   drop: never priced         Lynch Chevrolet of Mukwonago
+   5     0  -                  dealer,factory   drop: never priced         Lynch Chrysler Dodge Jeep RAM in Mukwonago
+   5     0  -                  dealer,factory   drop: never priced         Lynch Ford of Mukwonago
+   5     0  -                  dealer,factory   drop: never priced         Lynch Buick GMC of West Bend
+   5     0  -                  dealer,factory   drop: never priced         and Lynch Chevrolet of Kenosha
+   5     0  -                  dealer,factory   drop: never priced         you'll receive a free car wash
+   5     0  -                  dealer,factory   drop: never priced         and with every vehicle purchase
+   5     0  -                  dealer,factory   drop: never priced         you’ll Receive our Lynch Protect Program
+   5     0  -                  dealer,factory   drop: never priced         which includes one year of Tire
+   5     0  -                  dealer,factory   drop: never priced         Windshield
+   5     0  -                  dealer,factory   drop: never priced         and Paint Protection
+   5     0  -                  dealer,factory   drop: never priced         Lynch
+   5     0  -                  dealer,factory   drop: never priced         and we have received excellent reviews on Google
+   5     0  -                  dealer,factory   drop: never priced         For the best car buying experience
+   5     0  -                  dealer,factory   drop: never priced         come to Lynch Family of Dealerships!
+   5     0  -                  dealer,factory   drop: never priced         At Lynch Chevrolet of Mukwonago
