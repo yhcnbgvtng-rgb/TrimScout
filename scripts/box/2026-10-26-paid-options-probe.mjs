@@ -28,7 +28,10 @@ if (trim) { where.push("`trim` = ?"); params.push(trim); }
 const conn = await pool.getConnection();
 try {
   await conn.query("SET SESSION TRANSACTION READ ONLY");
-  const [cars] = await conn.query(`SET STATEMENT max_statement_time=20 FOR SELECT vin, options_json FROM dealer_inventory WHERE ${where.join(" AND ")} AND options_json IS NOT NULL LIMIT ${LIMIT}`, params);
+  const sql = `SELECT vin, options_json FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim) WHERE ${where.join(" AND ")} AND options_json IS NOT NULL LIMIT ${LIMIT}`;
+  const [plan] = await conn.query(`EXPLAIN ${sql}`, params);
+  console.error(`EXPLAIN: key=${plan[0].key} type=${plan[0].type} rows~${plan[0].rows}`);
+  const [cars] = await conn.query(`SET STATEMENT max_statement_time=20 FOR SELECT vin, options_json FROM dealer_inventory FORCE INDEX (idx_inv_stock_make_model_trim) WHERE ${where.join(" AND ")} AND options_json IS NOT NULL LIMIT ${LIMIT}`, params);
   const byLabel = new Map();
   for (const c of cars) {
     let opts; try { opts = typeof c.options_json === "string" ? JSON.parse(c.options_json) : c.options_json; } catch { continue; }
