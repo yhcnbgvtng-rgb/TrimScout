@@ -1,10 +1,10 @@
 /**
- * How old a buyer-search car's last sighting may be, from `last_seen_at` (the last night a crawl actually saw it listed):
- *   under 3 days  -> no label
- *   3 to 7 days   -> a small grey "Last seen <Mon D>" under the dealer name
- *   over 7 days   -> hidden from buyer search, from its count and from the facets (the box filters on `seenWithinDays`)
- * Admin views and a car's direct page still show a hidden car, with the label.
- * Ages are elapsed time; the label date is the calendar date in US Eastern.
+ * How old a buyer-search car's last sighting may be, from `last_seen_at` (the last night a crawl actually saw it listed).
+ * Buyers never see the date or a badge; it only works quietly behind the page:
+ *   over 3 days  -> not eligible for a quote request (RFQ_MAX_AGE_DAYS)
+ *   over 7 days  -> hidden from buyer search, its count and the facets (STALE_HIDE_DAYS; the box filters on `seenWithinDays`)
+ * Admin views and a car's direct page still show a hidden car. The admin Vehicles tab shows the date and time.
+ * Ages are elapsed time.
  */
 
 /** A car last seen more than this many days ago is hidden from buyer search. The one place the number lives: the web query sends it to the box as `seenWithinDays`, and the box's catalog rebuild default (STALE_HIDE_DAYS in deals_api_server.js) is pinned to it by lastConfirmed.test.ts. */
@@ -17,11 +17,10 @@ export function buyerHideDays(env: Record<string, string | undefined> = process.
   const n = Number(env.STALE_RULE_HIDE_DAYS);
   return Number.isInteger(n) && n >= 2 && n <= 30 ? n : STALE_RULE_HIDE_DAYS;
 }
-/** Cars last seen this many days ago or longer carry the "Last seen" label. */
-export const LAST_SEEN_LABEL_AFTER_DAYS = 3;
+/** A car last seen more than this many days ago cannot be picked for a quote request (it may already be sold). */
+export const RFQ_MAX_AGE_DAYS = 3;
 
 const DAY_MS = 86_400_000;
-const ET = "America/New_York";
 
 const ageMs = (lastSeenAt: string | null | undefined, now: number): number | null => {
   if (!lastSeenAt) return null;
@@ -35,11 +34,8 @@ export function isHiddenFromBuyerSearch(lastSeenAt: string | null | undefined, n
   return age !== null && age > buyerHideDays() * DAY_MS;
 }
 
-/** "Last seen Oct 7" (with the year when it is not the current one, in ET), or null when the car was seen under 3 days ago / the date is unusable. Still returns the label for a car older than 7 days, for the admin and direct-page views. */
-export function lastSeenLabel(lastSeenAt: string | null | undefined, now: number = Date.now()): string | null {
+/** True when the car may be picked for an RFQ: seen within RFQ_MAX_AGE_DAYS. A missing/unusable date is allowed (nothing to judge by). */
+export function isRfqEligible(lastSeenAt: string | null | undefined, now: number = Date.now()): boolean {
   const age = ageMs(lastSeenAt, now);
-  if (age === null || age < LAST_SEEN_LABEL_AFTER_DAYS * DAY_MS) return null;
-  const parts = (ms: number) => Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: ET, year: "numeric", month: "short", day: "numeric" }).formatToParts(ms).map((p) => [p.type, p.value]));
-  const d = parts(Date.parse(lastSeenAt as string));
-  return `Last seen ${d.month} ${d.day}${d.year === parts(now).year ? "" : `, ${d.year}`}`;
+  return age === null || age <= RFQ_MAX_AGE_DAYS * DAY_MS;
 }

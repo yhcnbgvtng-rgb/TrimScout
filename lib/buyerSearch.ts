@@ -4,19 +4,20 @@ import { calculateDistanceMiles } from "./otdCalculator";
 import { contactStatus, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
 import { contactOnFileDealerIds } from "./contactFilter";
 import { sortByDistance } from "./buyerSort";
+import { isRfqEligible } from "./lastConfirmed";
 
 /** Fields a buyer has no reason to see — crawl-pipeline provenance, not vehicle or deal facts. */
-export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"> & {
+export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen" | "firstSeenAt" | "lastSeenAt"> & {
   distanceMiles: number | null;
   /** Does this dealership have a contact (email) on file? null = unknown (directory unavailable / no dealer id). */
   dealerHasContact: boolean | null;
-  /** The last night the crawl actually saw this car listed (its last_seen_at). The UI shows "Last confirmed <date>" once it is 48+ hours old (lastConfirmed.ts). */
-  lastConfirmedAt: string | null;
+  /** False when the crawl last saw the car more than RFQ_MAX_AGE_DAYS ago: it cannot be picked for a quote. The date itself never reaches buyers. */
+  rfqEligible: boolean;
 };
 
 export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
-  const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, ...rest } = v;
-  return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v), lastConfirmedAt: v.lastSeenAt || null };
+  const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, firstSeenAt: _firstSeenAt, lastSeenAt, ...rest } = v;
+  return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v), rfqEligible: isRfqEligible(lastSeenAt) };
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
