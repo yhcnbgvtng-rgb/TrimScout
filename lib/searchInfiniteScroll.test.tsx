@@ -63,7 +63,7 @@ describe("/search infinite scroll", () => {
   });
   after(() => dom.window.close());
   afterEach(() => { for (const r of roots.splice(0)) r.unmount(); });
-  beforeEach(() => { searchCalls = []; failNext = false; gate = null; observers.length = 0; installFetch(); document.body.innerHTML = '<div id="root"></div>'; });
+  beforeEach(() => { searchCalls = []; failNext = false; gate = null; observers.length = 0; installFetch(); document.body.innerHTML = '<div id="root"></div>'; dom.window.history.replaceState(null, "", "/search"); });
 
   const tick = () => new Promise((r) => setTimeout(r, 20));
   async function mount() {
@@ -80,14 +80,10 @@ describe("/search infinite scroll", () => {
     await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
-    // Pick the Toyota make (the Make dropdown is a labelled <select>), then Search.
-    const make = [...document.querySelectorAll("select")].find((e) => e.id && document.querySelector(`label[for="${e.id}"]`)?.textContent === "Make") as HTMLSelectElement;
-    await act(async () => {
-      Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!.call(make, "Toyota");
-      make.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
-      await tick();
-    });
-    await click(btn("Search"));
+    // Pick the Toyota make (a chip in the Make group), then press the green "Show N vehicles" button.
+    const makeChip = [...document.querySelectorAll('[role="group"][aria-label="Make"] button')].find((e) => e.textContent?.startsWith("Toyota")) as HTMLButtonElement;
+    await click(makeChip);
+    await click(btn("Show"));
     const hitSentinel = async () => {
       const live = observers.filter((o) => o.live && o.el);
       await act(async () => { for (const o of live) o.cb([{ isIntersecting: true, target: o.el! } as IntersectionObserverEntry], {} as IntersectionObserver); await tick(); });
@@ -163,7 +159,7 @@ describe("/search infinite scroll", () => {
       const set = Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!;
       set.call(sort, "price:asc"); sort.dispatchEvent(new dom.window.Event("change", { bubbles: true })); await tick();
     });
-    await t.click(t.btn("Search"));
+    await t.click(t.btn("Show"));
     const last = searchCalls[searchCalls.length - 1];
     assert.equal(last.get("offset"), null, "page 1 again");
     assert.equal(last.get("sort"), "price:asc");
