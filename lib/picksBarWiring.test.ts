@@ -87,17 +87,21 @@ describe("/api/buyer/pick-status", () => {
   });
 });
 
-// ---- results layout: the picks bar must not cover rows; wide tables scroll sideways; column order is locked ------------------------
+// ---- results layout: the picks bar must not cover rows; wide grids scroll sideways; column order is locked ------------------------
+const grid = fs.readFileSync(new URL("../components/search/ResultsGrid.tsx", import.meta.url), "utf8");
+const gridLib = fs.readFileSync(new URL("./searchGrid.ts", import.meta.url), "utf8");
 describe("results layout", () => {
-  const table = view.slice(view.indexOf("function VehicleTable("), view.indexOf("const pickLabel"));
-  it("LOCKED column order: pick, days, vehicleId, vin, year, make, model, trim, ext, int, mileage, price, dealer, state, contact, listing, then distance (ZIP search only, always last)", () => {
-    const block = view.slice(view.indexOf("const TABLE_COLUMNS"), view.indexOf("const ROW_H"));
+  const table = grid.slice(grid.indexOf("export function ResultsGrid"), grid.indexOf("function GridFooter"));
+  it("LOCKED column order: year, make, model, trim, condition, ext, int, mileage, price, paid options, body, fuel, drivetrain, transmission, dealer, state, days, then the opt-in VIN", () => {
+    const block = gridLib.slice(gridLib.indexOf("export const GRID_COLUMNS"), gridLib.indexOf("export const COLUMN_KEYS"));
     const keys = [...block.matchAll(/\{ key: "(\w+)"/g)].map((m) => m[1]);
-    assert.deepEqual(keys, ["pick", "days", "vehicleId", "vin", "year", "make", "model", "trim", "ext", "int", "mileage", "price", "dealer", "state", "contact", "listing", "distance"]);
+    assert.deepEqual(keys, ["year", "make", "model", "trim", "condition", "ext", "int", "mileage", "price", "paid", "body", "fuel", "drive", "trans", "dealer", "state", "days", "vin"]);
   });
-  it("the header row and every body row render the same filtered column list, in that order", () => {
-    assert.equal((table.match(/\{cols\.map\(\(c\) =>/g) || []).length, 2, "header and body both map the same cols");
-    assert.match(table, /const cols = TABLE_COLUMNS\.filter\(\(c\) => c\.key !== "distance" \|\|/);
+  it("Last seen and First seen are not columns anywhere in the public grid", () => {
+    assert.doesNotMatch(gridLib + grid, /last ?seen|first ?seen|lastSeen|firstSeen/i);
+  });
+  it("the pick checkbox leads and the Listing link closes every row; distance sits between them and shows for a ZIP search only", () => {
+    assert.ok(table.indexOf("Pick ") > 0 && table.indexOf("View at dealer") > table.indexOf("p.showDistance"));
   });
   it("the page pads its bottom by the picks bar's measured height (no fixed pb-28 guess)", () => {
     assert.match(view, /style=\{\{ paddingBottom: "calc\(var\(--picks-bar-h, 7rem\) \+ 1\.5rem\)" \}\}/);
@@ -110,21 +114,17 @@ describe("results layout", () => {
     assert.match(bar, /<div ref=\{bar\} className="fixed inset-x-0 bottom-0/);
   });
   it("the results scroller sits above the bar: its height is capped by the viewport minus its own top minus the bar", () => {
-    assert.match(table, /calc\(100dvh - var\(--table-top, 260px\) - var\(--picks-bar-h, 7rem\)/);
+    assert.match(table, /calc\(100dvh - var\(--table-top, 300px\) - var\(--picks-bar-h, 7rem\)/);
     assert.match(table, /setProperty\("--table-top"/);
     assert.match(table, /window\.addEventListener\("resize", measure\)/);
   });
-  it("it scrolls sideways when the columns overflow, with nothing clipping the right edge: full-width inner content, columns do not shrink", () => {
+  it("it scrolls sideways when the columns overflow: full-width inner content, columns do not shrink", () => {
     assert.match(table, /className="overflow-x-auto overflow-y-auto overscroll-x-contain"/);
     assert.match(table, /style=\{\{ width: totalW, minWidth: "100%" \}\}/);
     assert.ok((table.match(/shrink-0/g) || []).length >= 2, "header and body cells are shrink-0");
-    assert.match(table, /const totalW = cols\.reduce\(\(s, c\) => s \+ c\.w, 0\)/);
   });
-  it("the header stays sticky inside the scroller", () => {
+  it("the header stays sticky inside the scroller, and a short spacer follows the last row so overlay scrollbars never hide it", () => {
     assert.match(table, /className="sticky top-0 z-20 flex border-b/);
-  });
-  it("the checkbox column is first and a short spacer follows the last row so overlay scrollbars never hide it", () => {
-    assert.ok(table.indexOf('aria-label={`Pick ') > 0);
-    assert.match(table, /<div aria-hidden style=\{\{ height: 10 \}\} \/>/);
+    assert.match(grid, /<div aria-hidden style=\{\{ height: 10 \}\} \/>/);
   });
 });

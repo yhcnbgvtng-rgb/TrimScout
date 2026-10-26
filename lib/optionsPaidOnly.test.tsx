@@ -138,11 +138,11 @@ describe("paid-only catalog filter (/search)", () => {
   it("BuyerSearchView: price in the label and the empty state are behind the flag; the old empty text stays for flag off", () => {
   const src = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
   assert.ok(src.includes('paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."'));
-  // The price next to each option now comes from the new filter bar, straight from the catalog data (min/max price): no price in the data, no price slot.
-  const bar = fs.readFileSync(new URL("../components/search/SearchFilterBar.tsx", import.meta.url), "utf8");
-  assert.ok(bar.includes("detail: paidOnly ? optionPriceText(o.minPrice, o.maxPrice, true) || undefined : undefined"));
-  const chips = fs.readFileSync(new URL("../components/search/FacetChips.tsx", import.meta.url), "utf8");
-  assert.ok(chips.includes("{c.detail && <span"));
+  // The price next to each option comes straight from the catalog data (min/max price) into the Paid options column filter: no price in the data, no price slot.
+  assert.ok(src.includes("hint: optionPriceText(o.minPrice, o.maxPrice)"));
+  assert.ok(src.includes('const paidReady = paidOnly && catalogOptions.some((o) => typeof o.minPrice === "number")'));
+  const panel = fs.readFileSync(new URL("../components/search/ColumnFilterPanel.tsx", import.meta.url), "utf8");
+  assert.ok(panel.includes("{r.hint && <span"));
 });
 
 });

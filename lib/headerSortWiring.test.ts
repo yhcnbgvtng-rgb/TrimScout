@@ -5,29 +5,26 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const view = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
-const table = view.slice(view.indexOf("function VehicleTable("), view.indexOf("const pickLabel"));
+const table = fs.readFileSync(new URL("../components/search/ResultsGrid.tsx", import.meta.url), "utf8");
 const page = view.slice(view.indexOf("export function BuyerSearchView"), view.indexOf("const money ="));
 const qs = view.slice(view.indexOf("function filtersToQueryString"), view.indexOf("const RESULTS_PAGE_SIZE"));
 
 describe("headers", () => {
-  it("every sortable column header is a button that calls onSort with its column key; the checkbox column is plain text", () => {
-    assert.match(table, /const sortable = isSortableColumn\(c\.key\);/);
-    assert.match(table, /onClick=\{\(\) => onSort\(c\.key as SortableColumn\)\}/);
-    assert.match(table, /\) : \(\s*<span className="truncate px-2\.5">\{c\.label\}<\/span>/, "non-sortable fallback");
+  it("every sortable column header is a button that calls onSort with its sort key; a column the box cannot order by is plain text", () => {
+    assert.match(table, /onClick=\{\(\) => onSort\(c\.sort!\)\}/);
+    assert.match(table, /\) : \(\s*<span className=\{`flex min-w-0 flex-1 items-center truncate px-2\.5/, "non-sortable fallback");
   });
   it("the header cell carries aria-sort and the sorted one shows an up or down arrow", () => {
-    assert.match(table, /role="columnheader" aria-sort=\{sortable \? ariaSortFor\(sort, c\.key\) : undefined\}/);
+    assert.match(table, /role="columnheader" aria-sort=\{c\.sort \? ariaSortFor\(sort, c\.sort\) : undefined\}/);
     assert.match(table, /here\.dir === "asc" \? <ArrowUp [^>]*data-testid="sort-arrow-asc"/);
     assert.match(table, /<ArrowDown [^>]*data-testid="sort-arrow-desc"/);
-    assert.match(table, /const here = sortable && active\?\.column === c\.key \? active : null;/);
   });
   it("the header is a keyboard-focusable button with a tooltip naming the next click, and is disabled while a search runs", () => {
     assert.match(table, /title=\{`Sort by \$\{c\.label\} — click for/);
     assert.match(table, /disabled=\{sortBusy\}/);
   });
-  it("the sticky header and the locked column order are untouched", () => {
-    assert.match(table, /className="sticky top-0 z-20 flex border-b/);
-    assert.equal((table.match(/\{cols\.map\(\(c\) =>/g) || []).length, 2);
+  it("every header also has its own filter button", () => {
+    assert.match(table, /aria-label=\{`Filter \$\{c\.label\}/);
   });
 });
 
@@ -78,15 +75,13 @@ describe("the sort sticks", () => {
   it("through paging: Load more re-runs the SAME applied filters (sort included) from where the list ended", () => {
     assert.match(page, /void runSearch\(applied, results\.vehicles\.length\);/);
   });
-  it("through filter changes: Search commits the draft, which already carries the sort", () => {
-    assert.match(page, /setApplied\(\{ \.\.\.filters \}\);/);
+  it("through filter changes: the debounced auto-apply commits the draft, which already carries the sort", () => {
+    assert.match(page, /setApplied\(\(prev\) => \(prev && JSON\.stringify\(prev\) === JSON\.stringify\(filters\) \? prev : \{ \.\.\.filters \}\)\);/);
   });
-  it("'Clear more filters' keeps the header sort (only a Distance sort goes, with the ZIP), and the More badge no longer counts it", () => {
-    assert.match(page, /sort: parseSort\(f\.sort\)\?\.key === "distance" \? "" : f\.sort,/);
-    const count = view.slice(view.indexOf("function countMoreFilters"), view.indexOf("function countMoreFilters") + 400);
-    assert.doesNotMatch(count, /f\.sort/);
+  it("'Clear all' keeps the header sort (only a Distance sort goes, with the ZIP)", () => {
+    assert.match(page, /sort: parseSort\(f\.sort\)\?\.key === "distance" \? "" : f\.sort \}\)\);/);
   });
-  it("a fresh Search clears an old sort note", () => {
-    assert.match(page, /setMoreOpen\(false\);\s*setSortNote\(null\);/);
+  it("a fresh search clears an old sort note", () => {
+    assert.match(page, /setSortNote\(null\);\s*setApplied/);
   });
 });

@@ -2,20 +2,24 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, X } from "lucide-react";
-import { NO_PAID_FACTORY_OPTIONS, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
+import { X } from "lucide-react";
+import { NO_PAID_FACTORY_OPTIONS, optionPriceText, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { DropdownOption } from "./search/SearchableDropdown";
-import { SearchFilterBar } from "./search/SearchFilterBar";
+import { ResultCards, ResultsGrid } from "./search/ResultsGrid";
+import { FilterSheet, GridToolbar } from "./search/GridToolbar";
+import type { ColumnPanel, ListRow } from "./search/ColumnFilterPanel";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
-import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
-import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
+import { MAX_PICKS, type PickedVehicle } from "@/lib/buyerPicks";
+import { SORT_TIMEOUT_NOTE, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
 import { writeQuoteSeed } from "@/lib/quoteSeed";
 import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
 import type { FacetCountsResult, PriceHistogram } from "@/lib/inventoryApi";
-import { daysBandRange, vinPatternUsable, cleanVinPattern } from "@/lib/searchFilters";
-import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
+import { DRIVETRAIN_CHOICES, FUEL_CHOICES, TRANSMISSION_CHOICES, vinPatternUsable, cleanVinPattern, type FilterChoice } from "@/lib/searchFilters";
+import { filtersFromSearchParams, urlWithFilters, urlWithParam } from "@/lib/searchUrlState";
+import { PRICE_SLIDER } from "@/lib/searchLive";
+import { buildPills, columnActive, columnOf, columnSent, GRID_COLUMNS, visibleColumnsFromParam, visibleColumnsToParam, type GridColumnKey, type Pill } from "@/lib/searchGrid";
 import type { LiveCountProps } from "./search/LiveCount";
 
 interface BuyerVehicle {
@@ -40,6 +44,10 @@ interface BuyerVehicle {
   priceDiff: number | null;
   distanceMiles: number | null;
   dealerHasContact?: boolean | null;
+  bodyStyle?: string | null;
+  engine?: string | null;
+  transmission?: string | null;
+  options?: Array<{ code: string | null; name: string | null; price: number | null; kind: "factory" | "dealer" }> | null;
   /** False when the car is too long unconfirmed to quote; the checkbox is disabled. */
   rfqEligible?: boolean;
 }
@@ -96,8 +104,9 @@ export interface Filters {
   drivetrain: string[];
   transmission: string[];
   dealerIds: string[];
-  /** One days-on-market band ("0-7" ... "91+", lib/searchFilters.ts). */
-  days: string;
+  /** Days on market, inclusive whole-day bounds. */
+  daysMin: string;
+  daysMax: string;
   /** A VIN pattern with ? and * (lib/searchFilters.ts). */
   vinPattern: string;
 }
@@ -106,19 +115,8 @@ const EMPTY_FILTERS: Filters = {
   state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
   exteriorColor: "", interiorColor: "", optionKeys: [],
   possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "",
-  odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "",
+  odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], daysMin: "", daysMax: "", vinPattern: "",
 };
-
-// A "More" filter is anything not always visible in the primary row — its own count so the
-// trigger can say "3 more filters" instead of a generic icon with no idea how many are hiding.
-function countMoreFilters(f: Filters): number {
-  return (
-    [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.odometerMin, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles, f.days, f.vinPattern].filter(Boolean).length +
-    f.bodyStyle.length + f.fuel.length + f.drivetrain.length + f.transmission.length + f.dealerIds.length +
-    (f.possibleDemo ? 1 : 0) +
-    (f.contactOnFile ? 1 : 0)
-  );
-}
 
 export function filtersToQueryString(f: Filters, extra: { limit?: number; offset?: number } = {}): string {
   const sp = new URLSearchParams();
@@ -138,9 +136,8 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
   for (const v of f.drivetrain) sp.append("drivetrain", v);
   for (const v of f.transmission) sp.append("transmission", v);
   for (const v of f.dealerIds) sp.append("dealerId", v);
-  const band = daysBandRange(f.days);
-  if (band?.min != null) sp.set("minDays", String(band.min));
-  if (band?.max != null) sp.set("maxDays", String(band.max));
+  if (f.daysMin) sp.set("minDays", f.daysMin);
+  if (f.daysMax) sp.set("maxDays", f.daysMax);
   if (f.make && vinPatternUsable(f.vinPattern, true)) sp.set("vinPattern", cleanVinPattern(f.vinPattern));
   if (f.exteriorColor) sp.set("exteriorColor", f.exteriorColor);
   if (f.interiorColor) sp.set("interiorColor", f.interiorColor);
@@ -179,6 +176,7 @@ export function unappliedFilters(qs: string, applied: string[] | undefined): str
 
 const RESULTS_PAGE_SIZE = 24;
 const COUNT_DEBOUNCE_MS = 250;
+const APPLY_DEBOUNCE_MS = 300;
 
 /**
  * Why Search is disabled, or null when it can run. Mirrors the server's gates
@@ -224,7 +222,31 @@ export function BuyerSearchView() {
   }, [filters]);
   const picksState = useBuyerSearchState();
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  // Columns turned on or off (relative to the defaults), kept in the page URL as cols=-year,+vin.
+  const [visibleCols, setVisibleCols] = useState<GridColumnKey[]>(() => visibleColumnsFromParam(null));
+  const colsReady = useRef(false);
+  useEffect(() => {
+    try { setVisibleCols(visibleColumnsFromParam(new URLSearchParams(window.location.search).get("cols"))); } catch { /* defaults */ }
+    colsReady.current = true;
+  }, []);
+  const changeVisibleCols = (next: GridColumnKey[]) => {
+    setVisibleCols(next);
+    try {
+      const url = urlWithParam(window.location.href, "cols", visibleColumnsToParam(next));
+      if (url !== window.location.href) window.history.replaceState(window.history.state, "", url);
+    } catch { /* ignore */ }
+  };
+  // Phone layout below Tailwind's md breakpoint. Desktop until the browser says otherwise, so the server render matches.
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const on = () => setIsDesktop(mq.matches);
+    on();
+    mq.addEventListener?.("change", on);
+    return () => mq.removeEventListener?.("change", on);
+  }, []);
 
   const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);
   const [makeOptions, setMakeOptions] = useState<DropdownOption[]>([]);
@@ -433,14 +455,17 @@ export function BuyerSearchView() {
   useEffect(() => () => controllerRef.current?.abort(), []);
 
   const blockedReason = searchBlockedReason(filters);
-  const submitSearch = () => {
-    if (blockedReason) return;
-    setMoreOpen(false);
-    setSortNote(null);
-    // A fresh object every time, so pressing Search again re-runs the same filters on purpose.
-    setApplied({ ...filters });
-  };
-  // Filters edited since the last Search — the results on screen no longer match the panel.
+  // Every filter change searches by itself: the draft becomes the applied search 300 ms after the last change (a burst of clicks is one request,
+  // the previous one aborted). No make = nothing to search; the headline count and the column lists still work from the facets.
+  useEffect(() => {
+    if (blockedReason) { setApplied(null); setResults(null); setSearchError(null); return; }
+    const t = setTimeout(() => {
+      setSortNote(null);
+      setApplied((prev) => (prev && JSON.stringify(prev) === JSON.stringify(filters) ? prev : { ...filters }));
+    }, APPLY_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [filters, blockedReason]);
+  // Filters edited since the last request went out — the rows on screen are about to be replaced.
   const dirty = applied !== null && JSON.stringify(applied) !== JSON.stringify(filters);
 
   // Clicking a column header: ascending, then descending, then cleared. It re-runs the search already on screen (the applied filters,
@@ -448,7 +473,7 @@ export function BuyerSearchView() {
   // are ignored while a search is loading, so a burst cannot become a burst of box queries.
   const onSort = (column: SortableColumn) => {
     if (!applied || searchLoading) return;
-    const label = TABLE_COLUMNS.find((c) => c.key === column)?.label || column;
+    const label = GRID_COLUMNS.find((c) => c.sort === column)?.label || column;
     const next = nextSort(applied.sort, column);
     if (next) {
       const why = sortBlockedReason(column, Boolean(applied.model), label);
@@ -472,14 +497,6 @@ export function BuyerSearchView() {
   }, [results, applied, searchLoading, runSearch]);
   // A capped total is a floor, so "more" is known only from the last page having been full.
   const hasMore = results ? (results.totalCapped ? (results.lastPageCount ?? 0) >= RESULTS_PAGE_SIZE : results.vehicles.length < results.total) : false;
-
-  const moreCount = countMoreFilters(filters);
-  const clearMore = () =>
-    setFilters((f) => ({
-      ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "",
-      // The header sort is kept (it is not a filter); only a Distance sort goes, because clearing the ZIP removes that column.
-      exteriorColor: "", interiorColor: "", possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort,
-    }));
 
   // "Clear all": every filter back to empty. The header sort is kept (it is not a filter), except a Distance sort, which goes with the ZIP.
   const clearAll = () => setFilters((f) => ({ ...EMPTY_FILTERS, sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort }));
@@ -559,217 +576,93 @@ export function BuyerSearchView() {
   // A shared link (or an older box) can carry filters this box does not apply: say so instead of showing unfiltered cars under a filter pill.
   const resultsUnapplied = results && applied ? unappliedFilters(filtersToQueryString(applied), results.filtersApplied) : [];
 
+  // ---- the grid: which columns the box can serve, and each column's filter ----
+  const fcResult = facetCountsState && facetCountsState.make === filters.make ? facetCountsState.result : null;
+  const fcPending = Boolean(fcQs) && !(facetCountsState && facetCountsState.qs === fcQs) && !facetCountsFailed;
+  // Every box that answers facet-counts also applies odometerMin and the other filter-panel params (one install), so a supported answer is the proof.
+  const [panelSupported, setPanelSupported] = useState<boolean | null>(null);
+  useEffect(() => { if (fcResult) setPanelSupported(fcResult.supported); }, [fcResult]);
+  const dims = fcResult && fcResult.supported && !fcResult.tooBroad ? fcResult.dims : null;
+  const tooBroad = Boolean(fcResult && fcResult.supported && fcResult.tooBroad);
+  const needMake = "Pick a make first.";
+  const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
+  const rowsOf = (o: Array<Omit<DropdownOption, "count"> & { count?: number }>): ListRow[] => o.map((x) => ({ value: x.value, label: x.label, count: x.count }));
+  const choiceRows = (choices: FilterChoice[], counts?: Array<{ v: string; n: number }>): ListRow[] =>
+    counts ? choices.map((c) => ({ value: c.value, label: c.label, count: counts.find((x) => x.v === c.value)?.n ?? 0 })) : choices.map((c) => ({ value: c.value, label: c.label }));
+  const countsRows = (rows?: Array<{ color: string; n: number }>, plain?: string[]): ListRow[] =>
+    rows ? rows.map((r) => ({ value: r.color, label: r.color, count: r.n })) : (plain ?? []).map((c) => ({ value: c, label: c }));
+  const currentYear = new Date().getFullYear();
+  const yearTrack = dims?.year?.length ? { min: Math.min(...dims.year.map((y) => y.v)), max: Math.max(...dims.year.map((y) => y.v)), step: 1 } : { min: currentYear - 15, max: currentYear + 1, step: 1 };
+  const yearHist = dims?.year?.length ? Array.from({ length: yearTrack.max - yearTrack.min + 1 }, (_, i) => dims.year!.find((y) => y.v === yearTrack.min + i)?.n ?? 0) : undefined;
+  const histFor = catalogExtras.priceHistogram ? (filters.cond === "new" ? catalogExtras.priceHistogram.new : filters.cond === "used" ? catalogExtras.priceHistogram.used : filters.cond === "cpo" ? catalogExtras.priceHistogram.cpo : catalogExtras.priceHistogram.all) : undefined;
+  const optionRows: ListRow[] = catalogOptions.filter((o) => typeof o.minPrice === "number" && o.minPrice > 0).map((o) => ({ value: o.key, label: o.label, hint: optionPriceText(o.minPrice, o.maxPrice), count: o.vehicleCount }));
+  const paidReady = paidOnly && catalogOptions.some((o) => typeof o.minPrice === "number");
+  const panels = useMemo(() => {
+    const out: Partial<Record<GridColumnKey, ColumnPanel>> = {};
+    const single = (key: string, rows: ListRow[], empty: string, extra: Partial<Extract<ColumnPanel, { kind: "list" }>> = {}) =>
+      ({ kind: "list", single: true, rows, picked: key ? [key] : [], empty, ...extra }) as Extract<ColumnPanel, { kind: "list" }>;
+    const lists = (rows: ListRow[], picked: string[], onChange: (n: string[]) => void, empty: string, extra: Partial<Extract<ColumnPanel, { kind: "list" }>> = {}) =>
+      ({ kind: "list", rows, picked, onChange, empty, ...extra }) as Extract<ColumnPanel, { kind: "list" }>;
+    const hide = (o: DropdownOption[]): Array<Omit<DropdownOption, "count"> & { count?: number }> => (countsHidden ? o.map((x) => ({ ...x, count: undefined })) : o);
+    out.make = { ...single(filters.make, rowsOf(hide(makeOptions)), "No makes in stock.", { pending: countsHidden }), onChange: (v: string[]) => setMake(v[0] ?? "") };
+    out.model = { ...single(filters.model, filters.make ? rowsOf(hide(modelOptions)) : [], filters.make ? "No models listed." : needMake, { pending: countsHidden }), onChange: (v: string[]) => setModel(v[0] ?? "") };
+    out.trim = { ...single(filters.trim, filters.model ? rowsOf(hide(trimOptions)) : [], filters.model ? "No trims listed." : "Pick a model first.", { pending: countsHidden }), onChange: (v: string[]) => set({ trim: v[0] ?? "" }) };
+    out.state = { ...single(filters.state, rowsOf(hide(stateOptions)), "No states.", { pending: countsHidden }), onChange: (v: string[]) => set({ state: v[0] ?? "" }) };
+    out.condition = { ...single(filters.cond, choiceRows([{ value: "new", label: "New" }, { value: "used", label: "Used" }, { value: "cpo", label: "Certified" }], catalogExtras.conditionCounts ? Object.entries(catalogExtras.conditionCounts).map(([v, n]) => ({ v, n })) : undefined), "", { searchable: false, note: catalogExtras.conditionCounts ? undefined : "Counts appear once the search service sends them." }), onChange: (v: string[]) => set({ cond: v[0] ?? "" }) };
+    out.ext = { ...single(filters.exteriorColor, filters.make ? countsRows(catalogExtras.exteriorColorCounts, exteriorColors) : [], filters.make ? "No colors listed." : needMake), onChange: (v: string[]) => set({ exteriorColor: v[0] ?? "" }) };
+    out.int = { ...single(filters.interiorColor, filters.make ? countsRows(catalogExtras.interiorColorCounts, interiorColors) : [], filters.make ? "No colors listed." : needMake), onChange: (v: string[]) => set({ interiorColor: v[0] ?? "" }) };
+    out.year = { kind: "range", min: filters.yearMin, max: filters.yearMax, onChange: (a, b) => set({ yearMin: a, yearMax: b }), track: yearTrack, unit: "year", hist: yearHist };
+    out.mileage = { kind: "range", min: filters.odometerMin, max: filters.odometerMax, onChange: (a, b) => set({ odometerMin: a, odometerMax: b }), track: { min: 0, max: 150000, step: 5000 }, unit: "miles", hist: dims?.mileage?.hist, maxOnly: panelSupported !== true };
+    out.price = { kind: "range", min: filters.priceMin, max: filters.priceMax, onChange: (a, b) => set({ priceMin: a, priceMax: b }), track: PRICE_SLIDER, unit: "money", hist: histFor && histFor.length === 31 ? histFor : undefined };
+    out.days = { kind: "range", min: filters.daysMin, max: filters.daysMax, onChange: (a, b) => set({ daysMin: a, daysMax: b }), track: { min: 0, max: 180, step: 5 }, unit: "days" };
+    if (paidReady) out.paid = lists(optionRows, filters.optionKeys, (n) => set({ optionKeys: n.slice(0, 8) }), filters.model ? (catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet.") : "Pick a model to filter by paid options.", { pending: catalogOptionsLoading, note: filters.model ? "Paid factory options only, with the price on the sticker." : undefined });
+    if (dims?.bodyStyle) out.body = lists(dims.bodyStyle.map((b) => ({ value: b.v, label: b.v, count: b.n })), filters.bodyStyle, (n) => set({ bodyStyle: n }), "No body styles.", { pending: fcPending });
+    const fixed = (choices: FilterChoice[], list: Array<{ v: string; n: number }> | undefined, picked: string[], key: "fuel" | "drivetrain" | "transmission") =>
+      dims && list ? lists(choiceRows(choices, list), picked, (n) => set({ [key]: n } as Partial<Filters>), "None in this set.", { pending: fcPending, searchable: false })
+      : tooBroad ? lists(choiceRows(choices), picked, (n) => set({ [key]: n } as Partial<Filters>), "", { searchable: false, note: "Pick a model for a number on each choice." }) : null;
+    const fuel = fixed(FUEL_CHOICES, dims?.fuel, filters.fuel, "fuel"); if (fuel) out.fuel = fuel;
+    const drive = fixed(DRIVETRAIN_CHOICES, dims?.drivetrain, filters.drivetrain, "drivetrain"); if (drive) out.drive = drive;
+    const trans = fixed(TRANSMISSION_CHOICES, dims?.transmission, filters.transmission, "transmission"); if (trans) out.trans = trans;
+    if (dims?.dealer) out.dealer = lists(dims.dealer.map((d) => ({ value: d.id, label: d.name, count: d.n })), filters.dealerIds, (n) => set({ dealerIds: n }), "No dealers.", { pending: fcPending, note: "The dealers with the most cars in this set." });
+    if (panelSupported === true) out.vin = { kind: "pattern", value: filters.vinPattern, onChange: (v: string) => set({ vinPattern: v }) };
+    // Without a make nothing but Make / State can count anything (the box needs a make for every other list).
+    if (!filters.make) for (const k of ["year", "mileage", "price", "days", "condition", "paid", "body", "fuel", "drive", "trans", "dealer", "vin"] as GridColumnKey[]) if (k !== "paid") delete out[k];
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, makeOptions, modelOptions, trimOptions, stateOptions, countsHidden, catalogOptions, catalogExtras, exteriorColors, interiorColors, dims, tooBroad, fcPending, panelSupported, paidReady, catalogOptionsLoading, catalogOptionsFailed]);
+
+  const rowsSent = shownVehicles;
+  const available = GRID_COLUMNS.map((c) => c.key).filter((k) => columnSent(k, rowsSent) && (k !== "paid" || paidReady || rowsSent.some((r) => r.options != null)));
+  const shownColumns = available.filter((k) => visibleCols.includes(k));
+  const pillNames = useMemo(() => ({
+    dealers: Object.fromEntries((dims?.dealer ?? []).map((d) => [d.id, d.name])),
+    options: Object.fromEntries(catalogOptions.map((o) => [o.key, o.label])),
+  }), [dims, catalogOptions]);
+  const pills = useMemo(() => buildPills(filters, pillNames), [filters, pillNames]);
+  const removePill = (pill: Pill) => setFilters((f) => pill.clear(f));
+  const gridProps = {
+    columns: shownColumns, rows: shownVehicles, sort: applied?.sort ?? filters.sort, onSort, sortBusy: searchLoading, panels,
+    isActive: (k: GridColumnKey) => columnActive(k, filters), resetKey: applied, hasMore, loadingMore: searchLoading, moreError, onLoadMore: loadMore, dimmed: dirty,
+    picks: picksState.picks, viewed: viewedSet, onTogglePick: picksState.togglePicked, onView: picksState.markViewed, showDistance: shownVehicles.some((v) => v.distanceMiles != null),
+    emptyMessage: searchError ? "No results to show right now — try again, or narrow your filters." : blockedReason ? `${blockedReason} Use the Make filter in the header${isDesktop ? "" : " (Filters)"}.` : searchLoading && !results ? "Searching…" : "No vehicles match these filters — try widening them.",
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
-      <SearchFilterBar
-        filters={filters} setFilters={setFilters} setMake={setMake} setModel={setModel}
-        stateOptions={shownCounts(stateOptions)} makeOptions={shownCounts(makeOptions)} modelOptions={shownCounts(modelOptions)} trimOptions={shownCounts(trimOptions)}
-        facetsFailed={facetsFailed} facetsLoading={facetsLoading}
-        catalogOptions={catalogOptions} catalogOptionsLoading={catalogOptionsLoading}
-        optionsEmptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."}
-        exteriorColors={exteriorColors} interiorColors={interiorColors}
-        moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
-        contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
-        live={live} excludedHidden={excludedHidden} extras={catalogExtras}
-        facetCounts={facetCountsState && facetCountsState.make === filters.make ? facetCountsState.result : null} facetCountsPending={Boolean(fcQs) && !(facetCountsState && facetCountsState.qs === fcQs) && !facetCountsFailed} facetCountsFailed={facetCountsFailed}
+      <GridToolbar
+        live={live} filters={filters} pills={pills} onPill={removePill} onClearAll={clearAll} setFilters={setFilters}
+        available={available} visible={shownColumns} onVisible={changeVisibleCols}
+        contactFilterOn={contactFilterEnabled()} excludedHidden={excludedHidden} onOpenSheet={() => setSheetOpen(true)} blockedReason={blockedReason}
       />
+      <FilterSheet open={sheetOpen} onClose={() => setSheetOpen(false)} panels={panels} filters={filters} available={available} count={live.value} countPending={Boolean(live.pending)} onClearAll={clearAll} blockedReason={blockedReason} />
 
       <div>
-        <p className="mb-3 text-xs font-semibold text-ink-muted">
-          {results ? `${results.total.toLocaleString()}${results.totalCapped ? "+" : ""} vehicle${results.total === 1 && !results.totalCapped ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
-        </p>
-
-        {searchError && (
-          <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/30 px-4 py-3 text-sm text-rose-300">{searchError}</div>
-        )}
-
-        {searchError && (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
-            No results to show right now — try again, or narrow your filters.
-          </div>
-        )}
-
-        {!searchError && !results && !searchLoading && (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
-            Pick a make (add a model to narrow it further), then press the green button.
-          </div>
-        )}
-
-        {!searchError && results && (
-          <>
-            {resultsUnapplied.length > 0 && <p role="status" data-testid="unapplied-note" className="mb-2 text-[11px] font-semibold text-amber-300">{resultsUnapplied.map((k) => FILTER_LABEL[k]).join(", ")} can&apos;t be applied by the search service yet, so {resultsUnapplied.length === 1 ? "it was" : "they were"} left out of these results.</p>}
-            {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
-            {results.vehicles.length > 0 && <VehicleTable resetKey={applied} hasMore={hasMore} loadingMore={searchLoading} moreError={moreError} onLoadMore={loadMore} sort={applied?.sort ?? ""} onSort={onSort} sortBusy={searchLoading} vehicles={shownVehicles} dimmed={dirty} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />}
-            {results.vehicles.length === 0 && (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-16 text-center text-sm text-ink-faint">
-                No vehicles match these filters — try widening them.
-              </div>
-            )}
-          </>
-        )}
+        {searchError && <div role="alert" className="mb-4 rounded-xl border border-rose-500/30 bg-rose-950/30 px-4 py-3 text-sm text-rose-300">{searchError}</div>}
+        {resultsUnapplied.length > 0 && <p role="status" data-testid="unapplied-note" className="mb-2 text-[11px] font-semibold text-amber-300">{resultsUnapplied.map((k) => FILTER_LABEL[k]).join(", ")} can&apos;t be applied by the search service yet, so {resultsUnapplied.length === 1 ? "it was" : "they were"} left out of these results.</p>}
+        {sortNote && <p role="status" data-testid="sort-note" className="mb-2 text-[11px] font-semibold text-amber-300">{sortNote}</p>}
+        {isDesktop ? <ResultsGrid {...gridProps} /> : <ResultCards {...gridProps} />}
       </div>
       <PicksBar state={picksState} />
-    </div>
-  );
-}
-
-const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
-const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "Used", cpo: "Certified" } as const)[c] : "");
-
-// Same order, density and type style as the admin Vehicles table (app/admin/crawl/VehiclesSheet.tsx), limited to
-// what the public search returns. Distance only appears when the search was by ZIP.
-const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
-  { key: "pick", label: "", w: 40 },
-  { key: "days", label: "Days on market", w: 110, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
-  { key: "vehicleId", label: "Vehicle ID", w: 90, show: (v) => (v.vehicleId == null ? "" : String(v.vehicleId)) },
-  { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
-  { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
-  { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
-  { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
-  { key: "trim", label: "Trim", w: 190, show: (v) => v.trim ?? "" },
-  { key: "ext", label: "Exterior color", w: 170, show: (v) => v.exteriorColor ?? "" },
-  { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
-  { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
-  { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
-  { key: "dealer", label: "Dealer", w: 340, show: (v) => v.dealerName },
-  { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
-  { key: "contact", label: "Contact on file", w: 110, show: (v) => (v.dealerHasContact == null ? "" : v.dealerHasContact ? "Yes" : "No") },
-  { key: "listing", label: "Listing link", w: 170 },
-  // Only when the search was by ZIP — after the fixed fields so their order never moves.
-  { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
-];
-const ROW_H = 32;
-
-function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
-  /** Changes (new object) whenever a fresh search starts — the list scrolls back to the top. */
-  resetKey: unknown; hasMore: boolean; loadingMore: boolean; moreError: boolean; onLoadMore: () => void;
-  vehicles: BuyerVehicle[]; dimmed: boolean; picks: PickedVehicle[]; viewed: Set<string>;
-  onTogglePick: (p: PickedVehicle) => void; onView: (key: string) => void;
-  /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
-  sort: string; onSort: (column: SortableColumn) => void; sortBusy: boolean;
-}) {
-  const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
-  const totalW = cols.reduce((s, c) => s + c.w, 0);
-  const picked = new Set(picks.map((p) => p.key));
-  // The scroller's own bottom edge — and with it the horizontal scrollbar and the last rows — must stay above the fixed picks bar.
-  // Its top moves with the filters above it, so measure it and cap the height at: viewport − its top − the bar's height (--picks-bar-h,
-  // published by PicksBar) − a margin. The page also pads its bottom by the bar's height, so everything stays reachable by scrolling.
-  const scroller = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    const measure = () => el.style.setProperty("--table-top", `${Math.round(el.getBoundingClientRect().top + window.scrollY)}px`);
-    measure();
-    window.addEventListener("resize", measure);
-    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
-    ro?.observe(document.body);
-    return () => { window.removeEventListener("resize", measure); ro?.disconnect(); };
-  });
-  // Infinite scroll: a sentinel row after the last vehicle, watched inside the scroller with a 300px lead. The observer is
-  // re-created after every page so a sentinel that is still in view (short pages, tall window) asks for the next one.
-  const sentinel = useRef<HTMLDivElement>(null);
-  const loadRef = useRef(onLoadMore);
-  loadRef.current = onLoadMore;
-  useEffect(() => { scroller.current?.scrollTo?.({ top: 0 }); }, [resetKey]);
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el || !hasMore || moreError || loadingMore || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) loadRef.current(); }, { root: scroller.current, rootMargin: "0px 0px 300px 0px" });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [hasMore, moreError, loadingMore, vehicles.length]);
-  return (
-    <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
-      <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
-        <div style={{ width: totalW, minWidth: "100%" }}>
-          <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>
-            {cols.map((c) => {
-              const sortable = isSortableColumn(c.key);
-              const active = activeSort(sort);
-              const here = sortable && active?.column === c.key ? active : null;
-              return (
-                <div key={c.key} role="columnheader" aria-sort={sortable ? ariaSortFor(sort, c.key) : undefined} className={`flex shrink-0 items-center border-r border-gray-300 text-[10.5px] font-black uppercase tracking-wider text-gray-900 ${c.right ? "justify-end" : ""}`} style={{ width: c.w }}>
-                  {sortable ? (
-                    <button
-                      type="button"
-                      onClick={() => onSort(c.key as SortableColumn)}
-                      disabled={sortBusy}
-                      title={`Sort by ${c.label} — click for ${here ? (here.dir === "asc" ? "descending" : "no sort") : "ascending"}`}
-                      className={`flex h-full w-full min-w-0 items-center gap-1 px-2.5 uppercase tracking-wider hover:bg-gray-200 focus-visible:outline-2 disabled:cursor-wait ${c.right ? "justify-end" : ""}`}
-                    >
-                      <span className="truncate">{c.label}</span>
-                      {here && (here.dir === "asc" ? <ArrowUp aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-asc" /> : <ArrowDown aria-hidden className="h-3 w-3 shrink-0" data-testid="sort-arrow-desc" />)}
-                    </button>
-                  ) : (
-                    <span className="truncate px-2.5">{c.label}</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {vehicles.map((v, idx) => {
-            const key = vehicleKey(v);
-            const isViewed = viewed.has(key);
-            return (
-              <div key={key} onClick={() => onView(key)} className={`flex cursor-default border-b border-border/40 text-[11.5px] ${idx % 2 ? "bg-surface" : "bg-surface-elevated/40"} hover:bg-brand-500/5`} style={{ height: ROW_H }}>
-                {cols.map((c) => {
-                  const text = c.show ? c.show(v) : "";
-                  const tone = isViewed ? "text-ink-faint" : c.key === "dealer" ? "font-semibold text-white"
-                    : c.key === "vin" || c.key === "vehicleId" ? "font-mono text-ink-light"
-                    : c.right ? "tabular-nums text-ink-light" : "text-ink-light";
-                  return (
-                    <div key={c.key} className={`flex shrink-0 items-center overflow-hidden whitespace-nowrap border-r border-border/40 px-2.5 ${c.right ? "justify-end" : ""} ${tone}`} style={{ width: c.w }} title={c.key === "pick" ? undefined : text || undefined}>
-                      {c.key === "pick" ? (
-                        <input
-                          type="checkbox"
-                          checked={picked.has(key)}
-                          disabled={v.rfqEligible === false && !picked.has(key)}
-                          title={v.rfqEligible === false && !picked.has(key) ? "Not available for a quote request right now" : undefined}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={() => onTogglePick(toPick(v))}
-                          aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
-                          className="h-3.5 w-3.5 accent-brand-500"
-                        />
-                      ) : c.key === "listing" ? (
-                        <span className="flex min-w-0 items-center gap-2">
-                          {v.vdpUrl ? (
-                            <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="truncate text-brand-400 hover:underline">View at dealer ↗</Link>
-                          ) : (
-                            <span className="truncate text-ink-faint">No link</span>
-                          )}
-                          {isViewed && <span className="shrink-0 text-[10.5px] text-ink-faint">Viewed</span>}
-                        </span>
-                      ) : (
-                        <span className="truncate">{text}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-          {hasMore && !moreError && <div ref={sentinel} data-testid="results-sentinel" aria-hidden style={{ height: 1 }} />}
-          {hasMore && loadingMore && !moreError && (
-            <div role="status" data-testid="results-loading-more" className="flex items-center justify-center gap-2 py-3 text-[11px] text-ink-faint">
-              <span aria-hidden className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-faint border-t-transparent" /> Loading more vehicles…
-            </div>
-          )}
-          {moreError && (
-            <div role="alert" data-testid="results-more-error" className="flex items-center justify-center gap-2 py-3 text-[11px] text-amber-300">
-              Couldn&apos;t load more —
-              <button type="button" onClick={onLoadMore} className="font-bold underline hover:text-white">retry</button>
-            </div>
-          )}
-          {/* Keyboard / screen-reader fallback: reachable by Tab, visually hidden until focused. */}
-          {hasMore && !moreError && !loadingMore && (
-            <button type="button" onClick={onLoadMore} className="sr-only focus:not-sr-only focus:m-2 focus:rounded focus:border focus:border-border focus:px-2 focus:py-1 focus:text-[11px] focus:text-ink-light">Load more vehicles</button>
-          )}
-          {!hasMore && vehicles.length > 0 && (
-            <div data-testid="results-end" className="py-3 text-center text-[11px] text-ink-faint">All {vehicles.length.toLocaleString()} vehicles shown.</div>
-          )}
-          <div aria-hidden style={{ height: 10 }} />
-        </div>
-      </div>
     </div>
   );
 }

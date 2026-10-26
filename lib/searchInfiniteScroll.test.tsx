@@ -80,10 +80,11 @@ describe("/search infinite scroll", () => {
     await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
-    // Pick the Toyota make (a chip in the Make group), then press the green "Show N vehicles" button.
-    const makeChip = [...document.querySelectorAll('[role="group"][aria-label="Make"] button')].find((e) => e.textContent?.startsWith("Toyota")) as HTMLButtonElement;
-    await click(makeChip);
-    await click(btn("Show"));
+    // Pick the Toyota make in the Make column's filter; the grid searches by itself 300 ms later.
+    await click(document.querySelector('[aria-label^="Filter Make"]')!);
+    const toyota = [...document.querySelectorAll('[role="dialog"] label')].find((e) => e.textContent?.startsWith("Toyota"))!.querySelector("input")!;
+    await click(toyota);
+    await act(async () => { await new Promise((r) => setTimeout(r, 380)); });
     const hitSentinel = async () => {
       const live = observers.filter((o) => o.live && o.el);
       await act(async () => { for (const o of live) o.cb([{ isIntersecting: true, target: o.el! } as IntersectionObserverEntry], {} as IntersectionObserver); await tick(); });
@@ -152,17 +153,12 @@ describe("/search infinite scroll", () => {
     await t.hitSentinel();
     assert.equal(box().checked, true, "pick survives the append");
     assert.equal(t.rows(), PAGE * 2);
-    // Change the sort in the More panel, press Search: back to one page, starting at offset 0.
-    await t.click(t.btn("More"));
-    const sort = [...document.querySelectorAll("select")].find((s) => [...s.options].some((o) => o.value === "price:asc"))!;
-    await t.act(async () => {
-      const set = Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!;
-      set.call(sort, "price:asc"); sort.dispatchEvent(new dom.window.Event("change", { bubbles: true })); await tick();
-    });
-    await t.click(t.btn("Show"));
+    // Sort by the Make header (a sort that needs no model): back to one page, starting at offset 0.
+    await t.click(document.querySelector('[data-testid="col-make"] button[title^="Sort by Make"]')!);
+    await t.act(async () => { await new Promise((r) => setTimeout(r, 380)); });
     const last = searchCalls[searchCalls.length - 1];
     assert.equal(last.get("offset"), null, "page 1 again");
-    assert.equal(last.get("sort"), "price:asc");
+    assert.equal(last.get("sort"), "make:asc");
     assert.equal(t.rows(), PAGE);
     assert.equal(box().checked, true, "the pick is still ticked");
   });

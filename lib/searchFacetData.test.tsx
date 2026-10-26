@@ -3,36 +3,41 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { FacetChips } from "../components/search/FacetChips";
-import { PriceRange } from "../components/search/PriceRange";
+import { ColumnFilterPanel, type ListRow } from "../components/search/ColumnFilterPanel";
 import { filtersToQueryString } from "../components/BuyerSearchView";
 import { parseBuyerSearchParams } from "./buyerSearchQuery";
 import { inventoryQueryString } from "./inventoryApi";
 import { hasNonFacetFilter, needsServerCount } from "./searchLive";
 
 const none = () => {};
-const base = { state: "", make: "Toyota", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "" };
+const base = { state: "", make: "Toyota", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], daysMin: "", daysMax: "", vinPattern: "" };
 
-describe("chips carry the box's counts", () => {
-  it("shows a number on each chip that has one, hides a zero-count chip, and shows none for a chip without a count", () => {
-    const html = renderToStaticMarkup(<FacetChips label="Condition" selected={[]} onToggle={none}
-      chips={[{ value: "new", label: "New", count: 1200 }, { value: "used", label: "Used", count: 0 }, { value: "cpo", label: "Certified" }]} />);
+describe("column filter lists carry the box's counts", () => {
+  const list = (rows: ListRow[], extra = {}) => renderToStaticMarkup(<ColumnFilterPanel label="Condition" panel={{ kind: "list", rows, picked: [], onChange: none, empty: "none", ...extra }} />);
+  it("shows a number on each row that has one, hides a zero-count row, and shows none for a row without a count", () => {
+    const html = list([{ value: "new", label: "New", count: 1200 }, { value: "used", label: "Used", count: 0 }, { value: "cpo", label: "Certified" }]);
     assert.match(html, />New<\/span><span[^>]*>1,200</);
     assert.doesNotMatch(html, />Used</);
     assert.match(html, />Certified</);
   });
+  it("keeps a picked row even at zero, so it can be unticked", () => {
+    assert.match(list([{ value: "used", label: "Used", count: 0 }], { picked: ["used"] }), />Used</);
+  });
+  it("hides every count while they are pending", () => {
+    assert.doesNotMatch(list([{ value: "new", label: "New", count: 1200 }], { pending: true }), /1,200/);
+  });
 });
 
-describe("price sparkline", () => {
+describe("range histogram", () => {
   const counts = Array.from({ length: 31 }, (_, i) => (i === 6 ? 40 : i === 7 ? 20 : 0));
-  it("draws one bar per non-empty bucket, bright inside the picked range and dim outside", () => {
-    const html = renderToStaticMarkup(<PriceRange min="30000" max="40000" histogram={counts} onChange={none} />);
-    assert.match(html, /data-testid="price-sparkline"/);
-    assert.equal((html.match(/<rect/g) || []).length, 31);
-    assert.equal((html.match(/fill-brand-500/g) || []).length, 2); // buckets 6 ($30-35k) and 7 ($35-40k) are inside; the rest are not
+  const range = (hist?: number[]) => renderToStaticMarkup(<ColumnFilterPanel label="Price" panel={{ kind: "range", min: "30000", max: "40000", onChange: none, track: { min: 0, max: 150000, step: 1000 }, unit: "money", hist }} />);
+  it("draws one bar per bucket", () => {
+    const html = range(counts);
+    assert.match(html, /data-testid="range-hist"/);
+    assert.equal((html.match(/bg-brand-500\/30/g) || []).length, 31);
   });
   it("draws nothing without a histogram (an older box)", () => {
-    assert.doesNotMatch(renderToStaticMarkup(<PriceRange min="" max="" onChange={none} />), /price-sparkline/);
+    assert.doesNotMatch(range(), /range-hist/);
   });
 });
 

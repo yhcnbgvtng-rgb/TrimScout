@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { filtersFromSearchParams, filtersToSearchParams, urlWithFilters, type UrlFilters } from "./searchUrlState";
 
-const base: UrlFilters = { state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "" };
+const base: UrlFilters = { state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], daysMin: "", daysMax: "", vinPattern: "" };
 
 describe("search URL state", () => {
   it("round-trips every filter", () => {
@@ -10,7 +10,7 @@ describe("search URL state", () => {
     assert.deepEqual(filtersFromSearchParams(filtersToSearchParams(f), base), f);
   });
   it("round-trips the More-filters set as repeated params", () => {
-    const f: UrlFilters = { ...base, make: "Ford", odometerMin: "10000", odometerMax: "60000", bodyStyle: ["SUV", "Crew Cab Pickup"], fuel: ["hybrid", "electric"], drivetrain: ["awd"], transmission: ["automatic"], dealerIds: ["12", "340"], days: "31-60", vinPattern: "1FT*" };
+    const f: UrlFilters = { ...base, make: "Ford", odometerMin: "10000", odometerMax: "60000", bodyStyle: ["SUV", "Crew Cab Pickup"], fuel: ["hybrid", "electric"], drivetrain: ["awd"], transmission: ["automatic"], dealerIds: ["12", "340"], daysMin: "31", daysMax: "60", vinPattern: "1FT*" };
     const sp = filtersToSearchParams(f);
     assert.deepEqual(sp.getAll("dealerId"), ["12", "340"]);
     assert.deepEqual(sp.getAll("fuel"), ["hybrid", "electric"]);
@@ -26,7 +26,8 @@ describe("search URL state", () => {
     assert.deepEqual(f.drivetrain, []);
     assert.deepEqual(f.transmission, ["cvt"]);
     assert.deepEqual(f.dealerIds, ["7"]);
-    assert.equal(f.days, "");
+    assert.equal(f.daysMin, "");
+    assert.equal(f.daysMax, "");
     assert.deepEqual(f.bodyStyle, ["script"]);
     assert.equal(f.vinPattern, "AB*0");
   });

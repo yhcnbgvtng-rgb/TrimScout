@@ -2,6 +2,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { GRID_COLUMNS } from "./searchGrid";
 import { SORT_KEY_BY_COLUMN, activeSort, ariaSortFor, formatSort, isSortableColumn, nextSort, parseSort, sortBlockedReason, sortByDistance, FAST_WITHOUT_MODEL, SORT_TIMEOUT_NOTE, type SortableColumn } from "./buyerSort";
 
 describe("the click cycle: ascending, then descending, then cleared", () => {
@@ -59,12 +60,11 @@ describe("the arrow and aria-sort", () => {
 });
 
 describe("columns", () => {
-  it("every table column except the checkbox is sortable; the checkbox column is not", () => {
-    const view = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
-    const block = view.slice(view.indexOf("const TABLE_COLUMNS"), view.indexOf("const ROW_H"));
-    const keys = [...block.matchAll(/\{ key: "(\w+)"/g)].map((m) => m[1]);
-    assert.deepEqual(keys, ["pick", "days", "vehicleId", "vin", "year", "make", "model", "trim", "ext", "int", "mileage", "price", "dealer", "state", "contact", "listing", "distance"], "the locked column order");
-    for (const k of keys) assert.equal(isSortableColumn(k), k !== "pick", k);
+  it("every grid column that has a sort toggle uses a sort key the box knows; the others (condition, paid options, body, fuel, drivetrain, transmission) have none", () => {
+    for (const c of GRID_COLUMNS) {
+      if (c.sort) assert.equal(isSortableColumn(c.sort), true, c.key);
+      else assert.ok(["condition", "paid", "body", "fuel", "drive", "trans"].includes(c.key), `${c.key} has no sort`);
+    }
   });
 });
 

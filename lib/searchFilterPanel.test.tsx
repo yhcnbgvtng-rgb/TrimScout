@@ -10,7 +10,7 @@ import { inventoryQueryString } from "./inventoryApi";
 import { cleanBodyStyle, cleanDealerId, cleanVinPattern, daysBandRange, vinMatchesPattern, vinPatternUsable } from "./searchFilters";
 import { hasNonFacetFilter } from "./searchLive";
 
-const base = { state: "", make: "Ford", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], days: "", vinPattern: "" };
+const base = { state: "", make: "Ford", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "", sort: "", exclude: "", odometerMin: "", bodyStyle: [], fuel: [], drivetrain: [], transmission: [], dealerIds: [], daysMin: "", daysMax: "", vinPattern: "" };
 
 describe("filter values", () => {
   it("cleans a VIN pattern: upper-case, no I/O/Q, only ? and * as wildcards, 17 at most", () => {
@@ -48,7 +48,7 @@ describe("filter values", () => {
 
 describe("the request the panel builds", () => {
   it("sends the lists as repeated params, the days band as minDays/maxDays, and the VIN pattern only with a make", () => {
-    const sp = new URLSearchParams(filtersToQueryString({ ...base, odometerMin: "10000", bodyStyle: ["SUV", "Pickup"], fuel: ["hybrid"], drivetrain: ["awd", "fwd"], transmission: ["cvt"], dealerIds: ["12", "34"], days: "31-60", vinPattern: "1ft*" }, { limit: 1 }));
+    const sp = new URLSearchParams(filtersToQueryString({ ...base, odometerMin: "10000", bodyStyle: ["SUV", "Pickup"], fuel: ["hybrid"], drivetrain: ["awd", "fwd"], transmission: ["cvt"], dealerIds: ["12", "34"], daysMin: "31", daysMax: "60", vinPattern: "1ft*" }, { limit: 1 }));
     assert.deepEqual(sp.getAll("bodyStyle"), ["SUV", "Pickup"]);
     assert.deepEqual(sp.getAll("drivetrain"), ["awd", "fwd"]);
     assert.deepEqual(sp.getAll("dealerId"), ["12", "34"]);
@@ -60,7 +60,7 @@ describe("the request the panel builds", () => {
     assert.equal(new URLSearchParams(filtersToQueryString({ ...base, vinPattern: "1f" })).has("vinPattern"), false);
   });
   it("makes the headline count a server count", () => {
-    for (const f of [{ fuel: ["gas"] }, { bodyStyle: ["SUV"] }, { dealerIds: ["3"] }, { days: "0-7" }, { odometerMin: "5000" }, { vinPattern: "1FT*" }]) assert.equal(hasNonFacetFilter({ ...base, ...f }), true, JSON.stringify(f));
+    for (const f of [{ fuel: ["gas"] }, { bodyStyle: ["SUV"] }, { dealerIds: ["3"] }, { daysMax: "7" }, { odometerMin: "5000" }, { vinPattern: "1FT*" }]) assert.equal(hasNonFacetFilter({ ...base, ...f }), true, JSON.stringify(f));
     assert.equal(hasNonFacetFilter(base), false);
   });
   it("the search route parses them, drops junk, and forwards them as repeated params", () => {
@@ -91,7 +91,7 @@ let dom: JSDOM;
 let calls: Array<{ path: string; sp: URLSearchParams }> = [];
 let boxCounts: "full" | "tooBroad" | "old" = "full";
 const roots: Array<{ unmount: () => void }> = [];
-const mkVehicle = (i: number) => ({ vin: `VIN${String(i).padStart(14, "0")}`, vehicleId: i, year: 2025, make: "Ford", model: "F-150", trim: "XLT", dealerId: 1, dealerName: "D", price: 40000 + i, daysOnLot: i, vdpUrl: null });
+const mkVehicle = (i: number) => ({ vin: `VIN${String(i).padStart(14, "0")}`, vehicleId: i, year: 2025, make: "Ford", model: "F-150", trim: "XLT", dealerId: 1, dealerName: "D", dealerState: "FL", condition: "used", mileage: 12000 + i, bodyStyle: "SUV", engine: "3.5L V6", transmission: "8-Speed Automatic", options: [{ name: "Tow Package", price: 650, kind: "factory" }], exteriorColor: "Blue", interiorColor: "Black", price: 40000 + i, daysOnLot: i, vdpUrl: null });
 
 function installFetch() {
   const json = (body: unknown, status = 200) => Promise.resolve(new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } }));
@@ -122,7 +122,7 @@ function installFetch() {
   };
 }
 
-describe("/search More filters, through the real page", () => {
+describe("/search column filters, through the real page", () => {
   before(() => {
     dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: "http://localhost/search" });
     const w = dom.window as unknown as Record<string, unknown>;
@@ -130,6 +130,7 @@ describe("/search More filters, through the real page", () => {
     for (const k of ["window", "document", "navigator", "HTMLElement", "HTMLInputElement", "Node", "Event", "KeyboardEvent", "MouseEvent", "sessionStorage", "localStorage"]) define(k, w[k]);
     define("getComputedStyle", dom.window.getComputedStyle.bind(dom.window));
     define("requestAnimationFrame", (cb: FrameRequestCallback) => setTimeout(() => cb(Date.now()), 0));
+    define("cancelAnimationFrame", (id: number) => clearTimeout(id));
     define("IS_REACT_ACT_ENVIRONMENT", true);
     define("BroadcastChannel", class { postMessage() {} close() {} addEventListener() {} removeEventListener() {} });
     define("self", dom.window);
@@ -143,7 +144,7 @@ describe("/search More filters, through the real page", () => {
   beforeEach(() => { calls = []; boxCounts = "full"; installFetch(); document.body.innerHTML = '<div id="root"></div>'; dom.window.history.replaceState(null, "", "/search"); });
 
   const tick = (ms = 20) => new Promise((r) => setTimeout(r, ms));
-  async function mount() {
+  async function mount(pickFord = true) {
     const React = (await import("react")).default;
     (globalThis as { React?: unknown }).React = React;
     const { act } = await import("react");
@@ -156,69 +157,86 @@ describe("/search More filters, through the real page", () => {
     const router = { push() {}, replace() {}, back() {}, forward() {}, refresh() {}, prefetch() {} };
     await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
-    const wait = async (ms = 320) => { await act(async () => { await tick(ms); }); };
-    const group = (label: string) => document.querySelector(`[role="group"][aria-label="${label}"]`);
-    const chip = (label: string, text: string) => [...(group(label)?.querySelectorAll("button") ?? [])].find((b) => b.textContent?.startsWith(text)) as HTMLButtonElement | undefined;
-    await click(chip("Make", "Ford")!);
-    return { click, wait, group, chip };
+    const wait = async (ms = 380) => { await act(async () => { await tick(ms); }); };
+    const filterButton = (label: string) => document.querySelector(`[aria-label^="Filter ${label}"]`) as HTMLButtonElement | null;
+    const open = async (label: string) => { await click(filterButton(label)!); };
+    const row = (text: string) => [...document.querySelectorAll('[role="dialog"] label')].find((l) => l.textContent?.startsWith(text)) as HTMLLabelElement | undefined;
+    const tickRow = async (text: string) => click(row(text)!.querySelector("input")!);
+    const hasHeader = (label: string) => Boolean(document.querySelector(`[role="columnheader"][data-testid]`) && [...document.querySelectorAll('[role="columnheader"]')].some((h) => h.textContent?.toLowerCase().startsWith(label.toLowerCase())));
+    if (pickFord) { await open("Make"); await tickRow("Ford"); }
+    await wait();
+    return { act, click, wait, open, row, tickRow, filterButton, hasHeader };
   }
-  const openMore = async (h: Awaited<ReturnType<typeof mount>>) => { await h.click([...document.querySelectorAll("button")].find((b) => b.textContent?.startsWith("More filters")) as HTMLButtonElement); await h.wait(); };
 
-  it("shows each group with live counts, hides zero-count chips, and lists the dealers", async () => {
+  it("shows each column's list with live counts, hides zero-count values, and lists the dealers", async () => {
     const h = await mount();
-    await h.wait();
-    await openMore(h);
     assert.ok(calls.some((c) => c.path === "/api/vehicles/facet-counts" && c.sp.get("make") === "Ford"));
-    assert.match(h.chip("Fuel type", "Hybrid")!.textContent!, /90/);
-    assert.equal(h.chip("Fuel type", "Diesel"), undefined); // 0 cars: not offered
-    assert.match(h.chip("Body style", "Pickup")!.textContent!, /300/);
-    assert.match(h.chip("Drivetrain", "AWD")!.textContent!, /250/);
-    assert.match(h.chip("Days on market", "Under a week")!.textContent!, /60/);
-    assert.match(h.chip("Dealer", "Metro Ford")!.textContent!, /80/);
-    assert.match(h.chip("Interior colour", "Black")!.textContent!, /300/);
-    assert.ok(document.querySelector('[data-testid="mileage-sparkline"]'));
-    assert.ok(document.querySelector('[data-testid="year-sparkline"]'));
+    await h.open("Fuel");
+    assert.match(h.row("Hybrid")!.textContent!, /90/);
+    assert.equal(h.row("Diesel"), undefined); // 0 cars: not offered
+    await h.open("Body style");
+    assert.match(h.row("Pickup")!.textContent!, /300/);
+    await h.open("Drivetrain");
+    assert.match(h.row("AWD")!.textContent!, /250/);
+    await h.open("Dealer");
+    assert.match(h.row("Metro Ford")!.textContent!, /80/);
+    await h.open("Interior color");
+    assert.match(h.row("Black")!.textContent!, /300/);
+    await h.open("Mileage");
+    assert.ok(document.querySelector('[data-testid="range-hist"]'));
   });
 
-  it("a pick becomes a removable pill, goes to the box, and is counted by the headline search", async () => {
+  it("a pick becomes a removable pill, goes to the box, and stays in the URL", async () => {
     const h = await mount();
-    await h.wait();
-    await openMore(h);
-    await h.click(h.chip("Fuel type", "Hybrid")!);
-    await h.click(h.chip("Dealer", "Metro Ford")!);
+    await h.open("Fuel");
+    await h.tickRow("Hybrid");
+    await h.open("Dealer");
+    await h.tickRow("Metro Ford");
     await h.wait();
     const pills = [...document.querySelectorAll('[aria-label="Active filters"] li')].map((li) => li.textContent);
     assert.ok(pills.some((t) => t?.includes("Hybrid")), String(pills));
     assert.ok(pills.some((t) => t?.includes("Metro Ford")), String(pills));
-    const count = calls.filter((c) => c.path === "/api/vehicles/search" && c.sp.get("limit") === "1").pop();
-    assert.deepEqual(count?.sp.getAll("fuel"), ["hybrid"]);
-    assert.deepEqual(count?.sp.getAll("dealerId"), ["12"]);
+    const search = calls.filter((c) => c.path === "/api/vehicles/search" && c.sp.get("limit") === "24").pop();
+    assert.deepEqual(search?.sp.getAll("fuel"), ["hybrid"]);
+    assert.deepEqual(search?.sp.getAll("dealerId"), ["12"]);
     assert.match(window.location.search, /fuel=hybrid/);
     assert.match(window.location.search, /dealerId=12/);
-    await h.click(document.querySelector('[aria-label="Remove Hybrid"]')!);
+    await h.click(document.querySelector('[aria-label="Remove Fuel: Hybrid"]')!);
     assert.doesNotMatch(window.location.search, /fuel=/);
+  });
+
+  it("a range filter sends min and max, and a clear-all button empties every filter", async () => {
+    const h = await mount();
+    await h.open("Price");
+    await h.act(async () => {
+      const input = document.querySelector('input[aria-label="Price minimum"]') as HTMLInputElement;
+      const set = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!;
+      set.call(input, "20000"); input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    });
+    await h.wait();
+    assert.match(window.location.search, /priceMin=20000/);
+    await h.click([...document.querySelectorAll("button")].find((b) => b.textContent === "Clear all")!);
+    assert.doesNotMatch(window.location.search, /priceMin|make=/);
   });
 
   it("a too-broad set still offers the fixed choices, without numbers", async () => {
     boxCounts = "tooBroad";
     const h = await mount();
-    await h.wait();
-    await openMore(h);
-    assert.ok(h.chip("Fuel type", "Hybrid"));
-    assert.doesNotMatch(h.chip("Fuel type", "Hybrid")!.textContent!, /\d/);
-    assert.equal(h.group("Body style"), null); // open-ended lists need the counts
+    await h.open("Fuel");
+    assert.ok(h.row("Hybrid"));
+    assert.doesNotMatch(h.row("Hybrid")!.textContent!, /\d/);
+    assert.equal(h.filterButton("Body style"), null); // open-ended lists need the counts
     assert.match(document.body.textContent!, /Pick a model for a number on each choice/);
   });
 
-  it("an older box hides the groups that need it, and a shared link's filters are reported as not applied", async () => {
+  it("an older box hides the filters that need it, and a shared link's filters are reported as not applied", async () => {
     boxCounts = "old";
     dom.window.history.replaceState(null, "", "/search?make=Ford&fuel=gas&bodyStyle=SUV");
-    const h = await mount();
-    await h.wait();
-    await openMore(h);
-    assert.equal(h.group("Fuel type"), null);
-    assert.equal(h.group("Drivetrain"), null);
-    assert.ok(h.group("Days on market")); // an old param the box already honours
+    const h = await mount(false);
+    assert.equal(h.filterButton("Fuel"), null);
+    assert.equal(h.filterButton("Drivetrain"), null);
+    assert.equal(h.filterButton("Body style"), null);
+    assert.ok(h.filterButton("Days on market")); // an old param the box already honours
     const note = document.querySelector('[data-testid="unapplied-note"]');
     assert.ok(note, "the page says the filters were not applied");
     assert.match(note!.textContent!, /Body style/);
