@@ -1,0 +1,1709 @@
+Chevrolet Silverado 1500 LT: 3000 cars read (limit 3000), 7988 distinct labels
+
+cars  paid  min-max            kinds            verdict                    label
+ 797     0  -                  dealer,factory   drop: never priced         Dual-Zone Automatic Climate Control
+ 720     0  -                  dealer,factory   drop: never priced         Remote Vehicle Starter System
+ 640     0  -                  dealer,factory   drop: never priced         includes multi-touch display
+ 455     0  -                  dealer,factory   drop: never priced         Cloth Seat Trim
+ 455     0  -                  dealer,factory   drop: never priced         TRANSMISSION
+ 454   132  $395-$790          dealer,factory   KEEP                       Trailering Package
+ 438     6  $175               dealer,factory   KEEP                       Electric Rear-Window Defogger
+ 438     0  -                  dealer,factory   drop: never priced         Steering Wheel Audio Controls
+ 435     0  -                  dealer,factory   drop: never priced         ENGINE
+ 405     0  -                  dealer,factory   drop: never priced         AUDIO SYSTEM
+ 396     0  -                  dealer,factory   drop: never priced         Deep-Tinted Glass
+ 395     0  -                  dealer,factory   drop: never priced         LED Cargo Area Lighting
+ 390    70  $860-$2025         dealer,factory   KEEP                       Convenience Package
+ 385     0  -                  dealer           drop: never priced         Google
+ 381     0  -                  dealer           drop: never priced         Requires compatible iPhone and data plan rates apply
+ 381     0  -                  dealer           drop: never priced         Apple CarPlay is a trademark of Apple Inc
+ 381     0  -                  dealer           drop: never priced         Siri
+ 381     0  -                  dealer           drop: never priced         iPhone and Apple Music are trademarks for Apple Inc
+ 381     0  -                  dealer           drop: never priced         registered in the U
+ 381     0  -                  dealer           drop: never priced         and other countries
+ 381     0  -                  dealer           drop: never priced         To use Android Auto on your car display
+ 381     0  -                  dealer           drop: never priced         you'll need an Android phone running Android 6 or higher
+ 381     0  -                  dealer           drop: never priced         an active data plan
+ 381     0  -                  dealer           drop: never priced         and the Android Auto app
+ 381     0  -                  dealer           drop: never priced         Android and Android Auto are trademarks of Google LLC
+ 381     0  -                  dealer           drop: never priced         4 diagonal touch-screen display Use
+ 372     0  -                  dealer           drop: never priced         talk and news
+ 372     0  -                  dealer           drop: never priced         live sports
+ 372     0  -                  dealer           drop: never priced         comedy
+ 365    37  $1275-$2815        dealer,factory   KEEP                       All-Star Edition
+ 365     0  -                  dealer,factory   drop: never priced         Hitch Guidance
+ 359     0  -                  dealer,factory   drop: never priced         Chrome Mirror Caps
+ 354     0  -                  factory,dealer   drop: never priced         HD Rear Vision Camera
+ 353     0  -                  dealer,factory   drop: never priced         Color-Keyed Carpeting Floor Covering
+ 347     0  -                  dealer,factory   drop: never priced         40/20/40 Front Split-Bench Seat
+ 330     0  -                  factory,dealer   drop: never priced         Electronic Cruise Control
+ 328    76  $200-$275          dealer,factory   KEEP                       Integrated Trailer Brake Controller
+ 327     0  -                  dealer,factory   drop: never priced         120-Volt Bed Mounted Power Outlet
+ 315    13  $100               dealer,factory   KEEP                       Manual Tilt/Telescoping Steering Column
+ 312     0  -                  dealer,factory   drop: never priced         SEATS
+ 306     0  -                  dealer,factory   drop: never priced         6-Speaker Audio System
+ 306    42  $525               factory,dealer   KEEP                       Remote Start Package
+ 306     0  -                  factory,dealer   drop: never priced         Auto-Locking Rear Differential
+ 305     0  -                  dealer,factory   drop: never priced         Radio: Chevrolet Infotainment 3 Premium System
+ 305     0  -                  dealer           drop: never priced         per cornerHeadlamps
+ 285     0  -                  dealer,factory   drop: never priced         Front Rubberized Vinyl Floor Mats
+ 285     0  -                  dealer,factory   drop: never priced         Rear Rubberized-Vinyl Floor Mats
+ 285     0  -                  factory,dealer   drop: never priced         WHEELS
+ 282     1  $50                factory,dealer   KEEP                       Front Frame-Mounted Black Recovery Hooks
+ 278     0  -                  factory,dealer   drop: never priced         Lane Keep Assist with Lane Departure Warning
+ 273     0  -                  dealer,factory   drop: never priced         AM/FM stereo
+ 269     0  -                  factory,dealer   drop: never priced         Automatic Emergency Braking
+ 269     0  -                  factory,dealer   drop: never priced         Forward Collision Alert
+ 265     0  -                  dealer           drop: never priced         Rear Air
+ 260     0  -                  dealer,factory   drop: never priced         in-vehicle apps
+ 259     0  -                  dealer,factory   drop: never priced         4 diagonal HD color touchscreen
+ 259     0  -                  dealer,factory   drop: never priced         advanced voice recognition
+ 258     0  -                  factory,dealer   drop: never priced         120-Volt Interior Power Outlet
+ 256     0  -                  dealer,factory   drop: never priced         Preferred Equipment Group 1LT
+ 255     0  -                  dealer           drop: never priced         (UTJ) Theft-deterrent system and (C49) rear-window defogger
+ 254     0  -                  dealer           drop: never priced         REMOTE START PACKAGE includes (BTV) Remote Start
+ 254     0  -                  dealer,factory   drop: never priced         Auxiliary External Transmission Oil Cooler
+ 248     0  -                  dealer           drop: never priced         terms and limitations apply) including navigation capability
+ 247     0  -                  factory,dealer   drop: never priced         Heated Seats
+ 245     0  -                  factory,dealer   drop: never priced         Bluetooth® For Phone
+ 243     0  -                  factory,dealer   drop: never priced         Rear 60/40 Folding Bench Seat (Folds Up)
+ 239     0  -                  factory,dealer   drop: never priced         Front Pedestrian Braking
+ 237     0  -                  dealer           drop: never priced         Heated Driver Seat
+ 232    35  $565-$1145         dealer,factory   KEEP                       CONVENIENCE PACKAGE II
+ 231     0  -                  factory,dealer   drop: never priced         Following Distance Indicator
+ 230     0  -                  dealer,factory   drop: never priced         Keyless Open & Start
+ 224     0  -                  factory,dealer   drop: never priced         Standard Tailgate
+ 224     0  -                  dealer           drop: never priced         Trailer Hitch
+ 223     0  -                  dealer,factory   drop: never priced         External Engine Oil Cooler
+ 215     0  -                  dealer,factory   drop: never priced         Heated Driver & Front Outboard Passenger Seats
+ 215     0  -                  factory,dealer   drop: never priced         Heated Power-Adjustable Outside Mirrors
+ 214     0  -                  factory,dealer   drop: never priced         IntelliBeam Automatic High Beam on/Off
+ 213     0  -                  dealer,factory   drop: never priced         Wrapped Steering Wheel
+ 213     0  -                  dealer           drop: never priced         Steering Wheel Controls
+ 212     0  -                  dealer,factory   drop: never priced         Front wheel independent suspension
+ 210     0  -                  dealer,factory   drop: never priced         OnStar & Chevrolet Connected Services Capable
+ 210     0  -                  dealer           drop: never priced         Includes Cruise Grade Braking and Powertrain Grade Braking
+ 208     0  -                  dealer           drop: never priced         Dual Zone A/C
+ 203     0  -                  dealer           drop: never priced         WiFi Hotspot
+ 203     0  -                  dealer,factory   drop: never priced         Rear step bumper
+ 202     0  -                  factory,dealer   drop: never priced         Apple CarPlay/Android Auto
+ 201     0  -                  factory,dealer   drop: never priced         TIRES
+ 201     0  -                  dealer,factory   drop: never priced         3 Multicolor Reconfigurable Digital Display
+ 201     0  -                  dealer,factory   drop: never priced         REAR AXLE
+ 200     0  -                  dealer           drop: never priced         Lane Keeping Assist
+ 200     0  -                  dealer,factory   drop: never priced         Front Center Armrest w/Storage
+ 199     0  -                  dealer,factory   drop: never priced         Dual Rear USB Ports (Charge Only)
+ 199     0  -                  dealer,factory   drop: never priced         Bumpers: chrome
+ 198     0  -                  dealer           drop: never priced         Heated Mirrors
+ 193     0  -                  dealer,factory   drop: never priced         Heated Steering Wheel
+ 190     0  -                  factory,dealer   drop: never priced         8 CM X 22
+ 189     0  -                  factory,dealer   drop: never priced         SiriusXM with 360L Trial Subscription
+ 189     0  -                  factory,dealer   drop: never priced         20 X 9 (50
+ 189     0  -                  dealer,factory   drop: never priced         CHEVROLET INFOTAINMENT 3 PREMIUM SYSTEM
+ 186     0  -                  dealer           drop: never priced         Onboard Communications System
+ 184     0  -                  dealer,factory   drop: never priced         Universal Home Remote
+ 183     0  -                  dealer,factory   drop: never priced         without eating up your data allowance
+ 183     0  -                  dealer,factory   drop: never priced         Find the hotspot with mobile hotspot
+ 181     0  -                  dealer,factory   drop: never priced         Power Front Windows w/Driver Express Up/Down
+ 181     0  -                  factory,dealer   drop: never priced         Heated Driver and Front Outboard Passenger Seats
+ 179     0  -                  dealer,factory   drop: never priced         Power Rear Windows w/Express Down
+ 179     0  -                  factory,dealer   drop: never priced         Wi-Fi Hot Spot Capable
+ 178     0  -                  factory,dealer   drop: never priced         OnStar Services Capable
+ 178     0  -                  dealer,factory   drop: never priced         Theft Deterrent System (Unauthorized Entry)
+ 177     0  -                  dealer,factory   drop: never priced         10-Way Power Driver Seat w/Lumbar
+ 177     0  -                  factory,dealer   drop: never priced         Standard Suspension Package
+ 177     0  -                  dealer           drop: never priced         (A48) rear sliding power window
+ 177     0  -                  dealer,factory   drop: never priced         LPO
+ 176     0  -                  factory,dealer   drop: never priced         Teen Driver
+ 176     0  -                  dealer,factory   drop: never priced         TIRE
+ 175     0  -                  dealer,factory   drop: never priced         Power Front Windows w/Passenger Express Down
+ 173     0  -                  dealer,factory   drop: never priced         GVWR
+ 172     0  -                  dealer,factory   drop: never priced         EMISSIONS
+ 171     0  -                  dealer           drop: never priced         CONVENIENCE PACKAGE II includes (UG1) Universal Home Remote
+ 170     0  -                  dealer           drop: never priced         ELECTRONICALLY CONTROLLED with overdrive and tow/haul mode
+ 168     0  -                  dealer           drop: never priced         This New 2026 Chevrolet Silverado 1500 LT
+ 167     0  -                  factory,dealer   drop: never priced         Tire Pressure Monitoring System
+ 167     0  -                  dealer,factory   drop: never priced         Premium audio system: Chevrolet Infotainment 3 Premium
+ 164     0  -                  factory,dealer   drop: never priced         Keyless Open and Start
+ 163     0  -                  dealer,factory   drop: never priced         AM/FM radio: SiriusXM with 360L
+ 160     0  -                  dealer,factory   drop: never priced         Chevrolet Connected Access Capable
+ 160     0  -                  factory,dealer   drop: never priced         When it senses an impending impact
+ 160     0  -                  factory,dealer   drop: never priced         Forward collision mitigation is always looking ahead
+ 159     0  -                  factory,dealer   drop: never priced         Pedestrian impact prevention - An extra step toward safety
+ 157     0  -                  factory,dealer   drop: never priced         EZ Lift Power Lock and Release Tailgate
+ 157     0  -                  factory,dealer   drop: never priced         Pedestrians don't always stop
+ 157     0  -                  factory,dealer   drop: never priced         look
+ 157     0  -                  factory,dealer   drop: never priced         and listen
+ 157     0  -                  factory,dealer   drop: never priced         but with Pedestrian Impact Prevention
+ 157     0  -                  factory,dealer   drop: never priced         your vehicle is equipped to better see them and avoid them
+ 156     0  -                  dealer,factory   drop: never priced         EZ Lift Power Lock & Release Tailgate
+ 154   104  $395               dealer,factory   KEEP                       Heavy-Duty Rear Locking Differential
+ 154     0  -                  factory,dealer   drop: never priced         Power Front Windows with Driver Express Up/Down
+ 154     0  -                  factory,dealer   drop: never priced         Power Rear Windows with Express Down
+ 153     0  -                  dealer           drop: never priced         LT trim
+ 153     0  -                  dealer           drop: never priced         Privacy Glass
+ 153     0  -                  factory,dealer   drop: never priced         It projects that image to an interior display screen
+ 152     0  -                  factory,dealer   drop: never priced         Power Front Windows with Passenger Express Down
+ 151     0  -                  factory,dealer   drop: never priced         AND should an impact become likely
+ 150     0  -                  dealer           drop: never priced         mud
+ 149     0  -                  dealer,factory   drop: never priced         220 Amp Alternator
+ 147     0  -                  dealer,factory   drop: never priced         23 Rear Axle Ratio
+ 147     0  -                  dealer           drop: never priced         rocks
+ 144     0  -                  dealer,factory   drop: never priced         FRONT 40/20/40 SPLIT-BENCH
+ 143     0  -                  dealer,factory   drop: never priced         Hill Descent Control
+ 143     0  -                  dealer           drop: never priced         Chrome Wheels
+ 141     0  -                  dealer,factory   drop: never priced         Emergency communication system: OnStar
+ 140     0  -                  factory,dealer   drop: never priced         Depending on Demand
+ 140     0  -                  dealer,factory   drop: never priced         10-Way Power Driver Seat with Lumbar Support
+ 138     0  -                  dealer,factory   drop: never priced         23 RATIO
+ 137     0  -                  dealer           drop: never priced         to optimize power delivery and efficiency
+ 137     0  -                  dealer,factory   drop: never priced         SPARE 255/80R17SL ALL-SEASON
+ 136     0  -                  dealer           drop: never priced         3L ECOTEC3 V8 (355 hp [265 kW] @ 5600 rpm
+ 134     0  -                  dealer,factory   drop: never priced         ELECTRONICALLY CONTROLLED
+ 131     0  -                  dealer,factory   drop: never priced         High Capacity Suspension Package
+ 128     0  -                  factory,dealer   drop: never priced         Inside Rearview Mirror with Tilt
+ 127     0  -                  dealer,factory   drop: never priced         Jet Black Cloth
+ 123     0  -                  dealer,factory   drop: never priced         front
+ 123     0  -                  factory,dealer   drop: never priced         9 CM) PAINTED ALUMINUM
+ 122     0  -                  dealer,factory   drop: never priced         170 Amp Alternator
+ 121     0  -                  dealer,factory   drop: never priced         Rear Wheelhouse Liners
+ 121     1  $450               dealer,factory   KEEP                       Rear Vision Camera
+ 118    27  $1150-$1545        dealer,factory   KEEP                       Z71 Off-Road Package
+ 118     0  -                  dealer,factory   drop: never priced         SUSPENSION PACKAGE
+ 117     0  -                  dealer,factory   drop: never priced         3L ECOTEC3 V8
+ 116     0  -                  factory,dealer   drop: never priced         10-Way Power Driver Seat with Lumbar
+ 116     0  -                  dealer           drop: never priced         SEAT
+ 115     0  -                  dealer,factory   drop: never priced         Leather Wrapped Steering Wheel
+ 114     0  -                  dealer,factory   drop: never priced         Off-Road Suspension
+ 113     0  -                  dealer,factory   drop: never priced         THEFT-DETERRENT SYSTEM
+ 113     0  -                  dealer,factory   drop: never priced         HIGH CAPACITY
+ 111     0  -                  dealer           drop: never priced         electronically controlled with overdrive
+ 111     0  -                  dealer           drop: never priced         tow/haul mode and steering column paddle shifters
+ 111     0  -                  dealer           drop: never priced         Hitch Guidance with Hitch View
+ 108     0  -                  dealer           drop: never priced         (JHD) Hill Descent Control
+ 108     0  -                  dealer,factory   drop: never priced         Wheels: 17 x 8 Bright Silver Painted Aluminum
+ 108     0  -                  dealer,factory   drop: never priced         UNAUTHORIZED ENTRY
+ 106     0  -                  dealer,factory   drop: never priced         120-Volt Instrument Panel Power Outlet
+ 105     0  -                  dealer           drop: never priced         (N10) dual exhaust
+ 105     0  -                  dealer           drop: never priced         (RCV) 18 bright silver painted wheels
+ 105     0  -                  dealer           drop: never priced         (XCK) 265/65R18 all-terrain
+ 105     0  -                  dealer           drop: never priced         blackwall tires and (NQH) 2-speed transfer case
+ 104     0  -                  dealer           drop: never priced         Z71 OFF-ROAD PACKAGE includes (Z71) Off-Road suspension
+ 104     0  -                  dealer,factory   drop: never priced         COOLING
+ 103     4  $760-$985          dealer,factory   KEEP                       Leather Package
+ 102     0  -                  dealer           drop: never priced         textured
+ 101     0  -                  dealer           drop: never priced         Texas
+ 101     0  -                  dealer,factory   drop: never priced         Heavy-Duty Air Filter
+ 100     0  -                  dealer,factory   drop: never priced         40/20/40 Front Split Bench Seat
+  99     0  -                  dealer,factory   drop: never priced         LICENSE PLATE KIT
+  98     0  -                  dealer,factory   drop: never priced         Power Door Locks
+  97     0  -                  dealer,factory   drop: never priced         12-Volt Rear Auxiliary Power Outlet
+  97     0  -                  dealer,factory   drop: never priced         Electrical Lock Control Steering Column
+  97     0  -                  dealer,factory   drop: never priced         EcoTec3 5
+  96     0  -                  dealer,factory   drop: never priced         Rear Dual USB Charging-Only Ports
+  96     3  $422               dealer,factory   KEEP                       Chrome Grille
+  96     0  -                  dealer,factory   drop: never priced         Wheels: 17" x 8" Bright Silver Painted Aluminum
+  96     0  -                  dealer           drop: never priced         NAV
+  96    21  $385-$685          dealer,factory   KEEP                       PROTECTION PACKAGE
+  96     0  -                  dealer           drop: never priced         Prices include $225 dealer doc fee
+  95     0  -                  dealer,factory   drop: never priced         SiriusXM Satellite Radio
+  95     0  -                  dealer,factory   drop: never priced         FEDERAL REQUIREMENTS
+  93     0  -                  dealer,factory   drop: never priced         ALL-WEATHER FLOOR LINERS
+  93     0  -                  dealer,factory   drop: never priced         DEFOGGER
+  92     5  $1690-$1875        dealer,factory   KEEP                       All Star Edition Plus
+  91    66  $455-$2640         dealer,factory   KEEP                       All Star Edition
+  91     0  -                  dealer           drop: never priced         Plus TT&L
+  90    53  $125-$150          dealer,factory   KEEP                       110-Volt AC Power Outlet
+  90     0  -                  dealer,factory   drop: never priced         DURAMAX 3
+  88     0  -                  dealer,factory   drop: never priced         4.2" Diagonal Color Display Driver Info Center
+  88     0  -                  dealer,factory   drop: never priced         Electrical Steering Column Lock
+  87     0  -                  dealer,factory   drop: never priced         275/60R20 ALL-SEASON
+  87     0  -                  dealer,factory   drop: never priced         and then prepares
+  87     0  -                  dealer,factory   drop: never priced         the vehicle and/or occupants
+  87     0  -                  dealer,factory   drop: never priced         for an impending forward collision
+  87     0  -                  dealer,factory   drop: never priced         If the system determines a likely impact
+  86     0  -                  dealer,factory   drop: never priced         (3221 KG)
+  85     0  -                  dealer,factory   drop: never priced         Compass
+  85     0  -                  dealer           drop: never priced         Assist Steps
+  85     0  -                  dealer,factory   drop: never priced         POWER
+  84     0  -                  dealer,factory   drop: never priced         5 Bright Silver Painted Aluminum
+  84     0  -                  dealer,factory   drop: never priced         7100 LBS
+  84     0  -                  dealer,factory   drop: never priced         ALTERNATOR
+  83     0  -                  dealer,factory   drop: never priced         Wheels: 18 x 8
+  83     0  -                  dealer,factory   drop: never priced         in-Vehicle Trailering System App
+  83     0  -                  dealer,factory   drop: never priced         170 AMPS
+  83     0  -                  dealer           drop: never priced         CHROMED TUBULAR
+  82    33  $250               dealer,factory   KEEP                       Heated Driver & Front Passenger Seats
+  82     0  -                  factory,dealer   drop: never priced         275/60R20SL ALL-TERRAIN
+  82     0  -                  dealer,factory   drop: never priced         SiriusXM w/360L
+  81     0  -                  dealer,factory   drop: never priced         Lane Keep Assist w/Lane Departure Warning
+  81     0  -                  dealer,factory   drop: never priced         Maryland
+  80     0  -                  factory,dealer   drop: never priced         12.3" Multicolor Reconfigurable Digital Display
+  80    96  $1100-$1400        dealer,factory   KEEP                       Wheels: 20" x 9" Painted Aluminum
+  80     0  -                  dealer,factory   drop: never priced         CONNECTICUT
+  80     0  -                  dealer,factory   drop: never priced         MAINE
+  80     0  -                  dealer,factory   drop: never priced         MASSACHUSETTS
+  80     0  -                  dealer,factory   drop: never priced         NEW JERSEY
+  80     0  -                  dealer,factory   drop: never priced         NEW YORK
+  80     0  -                  dealer,factory   drop: never priced         OREGON
+  79     0  -                  factory,dealer   drop: never priced         Clean CARFAX
+  79     0  -                  dealer,factory   drop: never priced         Manual Tilt Wheel Steering Column
+  79     0  -                  dealer,factory   drop: never priced         Front License Plate Kit
+  79     0  -                  dealer,factory   drop: never priced         WINDOW
+  78     0  -                  dealer,factory   drop: never priced         PENNSYLVANIA
+  78     0  -                  dealer,factory   drop: never priced         RHODE ISLAND
+  78     0  -                  dealer,factory   drop: never priced         VERMONT AND WASHINGTON STATE REQUIREMENTS
+  76     0  -                  dealer           drop: never priced         (UD5) Front and Rear Park Assist
+  76     0  -                  dealer           drop: never priced         (TRG) Trailer Camera Provisions
+  76     0  -                  dealer           drop: never priced         (UKV) Trailer Side Blind Zone Alert
+  76     0  -                  dealer           drop: never priced         (UFB) Rear Cross Traffic Braking
+  76     0  -                  dealer,factory   drop: never priced         2 USB Data Ports
+  76     0  -                  dealer,factory   drop: never priced         DELAWARE
+  75     0  -                  dealer,factory   drop: never priced         Chevytec Spray-On Black Bedliner
+  74     0  -                  dealer,factory   drop: never priced         Radio: Chevrolet Infotainment 3 System
+  74     6  $95                dealer,factory   KEEP                       Locking Tailgate
+  74     0  -                  dealer,factory   drop: never priced         Electronic Transmission Range Selector Shifter
+  74     0  -                  dealer,factory   drop: never priced         Floor Mounted Center Console
+  73     0  -                  dealer           drop: never priced         (ETRS)
+  73     0  -                  dealer           drop: never priced         SAFETY PACKAGE includes (UV2) HD Surround Vision
+  73     6  $890-$1115         dealer,factory   KEEP                       SAFETY PACKAGE
+  73     0  -                  factory,dealer   drop: never priced         New Mexico
+  71     0  -                  dealer,factory   drop: never priced         Theft Deterrent System
+  71     0  -                  dealer,factory   drop: never priced         18 X 8
+  70    29  $300               dealer,factory   KEEP                       Wheels: 18" x 8.5" Bright Silver Painted Aluminum
+  70     0  -                  dealer           drop: never priced         center fold out armrest with 2 cupholders
+  70     0  -                  dealer           drop: never priced         (includes child seat top tether anchor)
+  70     0  -                  dealer,factory   drop: never priced         REAR-WINDOW ELECTRIC
+  69     0  -                  dealer,factory   drop: never priced         Radio: AM/FM 8" Diagonal Color Touch Screen
+  69     1  $175               dealer,factory   KEEP                       Bluetooth For Phone
+  69     0  -                  dealer,factory   drop: never priced         Rear 60/40 Folding Bench Seat
+  69     0  -                  dealer,factory   drop: never priced         Wheels: 20 x 9 Painted Aluminum
+  68     0  -                  dealer,factory   drop: never priced         4G LTE Wi-Fi Hot Spot Capable
+  68     0  -                  dealer,factory   drop: never priced         Remote Keyless Entry
+  68     0  -                  factory,dealer   drop: never priced         Inside
+  68     0  -                  dealer,factory   drop: never priced         5 (45
+  68     0  -                  dealer,factory   drop: never priced         7 CM X 21
+  68     0  -                  dealer,factory   drop: never priced         Trailering Package (Hitch Guidance)
+  67     0  -                  dealer           drop: never priced         includes full-length bench seat
+  67     0  -                  dealer           drop: never priced         seatback storage on left and right side
+  67     0  -                  dealer           drop: never priced         full cab width under-seat storage
+  66     0  -                  factory,dealer   drop: never priced         CARFAX One-Owner
+  65     0  -                  dealer           drop: never priced         Horsepower calculations based on trim engine configuration
+  64     0  -                  dealer,factory   drop: never priced         REAR SLIDING
+  64     0  -                  dealer           drop: never priced         LEATHER-APPOINTED FRONT OUTBOARD SEATING POSITIONS
+  63     0  -                  dealer           drop: never priced         Power Sliding Rear Window with Rear Defogger
+  63    18  $90-$100           dealer,factory   KEEP                       Engine Block Heater
+  62     0  -                  dealer,factory   drop: never priced         Single-Zone Manual/Semi-Automatic Air Conditioning
+  62     0  -                  dealer,factory   drop: never priced         4-Way Manual Driver Seat Adjuster
+  62    16  $200-$295          dealer,factory   drop: accessory/subscr.    All-Weather Floor Liner
+  62     0  -                  dealer,factory   drop: never priced         42 RATIO
+  62     0  -                  dealer,factory   drop: never priced         equipment
+  62     0  -                  dealer           drop: never priced         You can connect with us by calling 956-686-5441
+  61     0  -                  factory,dealer   drop: never priced         Standard Equipment
+  60     0  -                  dealer           drop: never priced         430 lb-ft of torque [583 Nm] @ 3000 rpm) (STD)
+  60     0  -                  dealer,factory   drop: never priced         HD Radio
+  60     0  -                  dealer           drop: never priced         You can connect with us by calling (585) 663-4040
+  59     0  -                  dealer,factory   drop: never priced         3L V8
+  59     0  -                  dealer           drop: never priced         Tow Hitch
+  59     0  -                  dealer,factory   drop: never priced         and Theft Deterrent System (Unauthorized Entry))
+  59     0  -                  dealer           drop: never priced         Dual Exhaust with Polished Outlets
+  58     0  -                  dealer,factory   drop: never priced         Chevrolet Connected Access
+  57     0  -                  dealer,factory   drop: never priced         Chevrolet w/4G LTE
+  57     0  -                  dealer,factory   drop: never priced         SUMMIT WHITE
+  56     0  -                  dealer,factory   drop: never priced         2 cm x 20
+  56     0  -                  dealer           drop: never priced         0L TURBO-DIESEL I6 (305 hp [227 kW] @ 3750 rpm
+  56     0  -                  dealer           drop: never priced         Heated Seats Privacy Glass
+  56     0  -                  dealer,factory   drop: never priced         Wireless Phone Projection
+  55     0  -                  dealer,factory   drop: never priced         Power Sliding Rear Window w/Rear Defogger
+  55     0  -                  dealer           drop: never priced         IN-VEHICLE TRAILERING APP
+  54     0  -                  dealer,factory   drop: never priced         17 x 8 (43
+  54     0  -                  factory,dealer   drop: never priced         Single-Speed Transfer Case
+  54     0  -                  dealer,factory   drop: never priced         Remote Start
+  54     0  -                  dealer           drop: never priced         11/04/2026 $4250 - Chevrolet Consumer Cash Program
+  54     0  -                  dealer           drop: never priced         COLORADO
+  54     0  -                  dealer           drop: never priced         MINNESOTA
+  54     0  -                  dealer           drop: never priced         NEVADA
+  53     0  -                  dealer           drop: never priced         TURBOMAX (310 hp [231 kW] @ 5600 rpm
+  53     0  -                  dealer,factory   drop: never priced         and Wrapped Steering Wheel)
+  52    20  $200               dealer,factory   KEEP                       Thin Profile LED Fog Lamps
+  52     0  -                  factory,dealer   drop: never priced         Chevy Safety Assist
+  51     0  -                  dealer,factory   drop: never priced         Urethane Steering Wheel
+  51     0  -                  dealer           drop: never priced         FRONT BUCKET
+  51     0  -                  dealer,factory   drop: never priced         42 Rear Axle Ratio
+  51     0  -                  dealer           drop: never priced         Family owned and operated for over 43 years
+  50     0  -                  factory,dealer   drop: never priced         2 Diagonal Color Display Driver Info Center
+  50     0  -                  dealer           drop: never priced         (UKK) Rear Pedestrian Alert and (U12) Perimeter Lighting
+  50     0  -                  dealer           drop: never priced         All American Chevrolet of Odessa sells new and used cars
+  50     0  -                  dealer           drop: never priced         trucks and SUVs near Midland and San Angelo
+  50     0  -                  dealer           drop: never priced         If you have any questions
+  50     0  -                  dealer           drop: never priced         Disclosure for used:
+  50     0  -                  dealer           drop: never priced         Disclosure for new:
+  50     0  -                  dealer           drop: never priced         Does not include optional accessories of $245 Wheel Locks
+  50     0  -                  dealer           drop: never priced         $45 Hitch Cover
+  50     0  -                  dealer           drop: never priced         $45 Emergency Kit
+  50     0  -                  dealer           drop: never priced         $140 Artic Blast
+  50     0  -                  dealer           drop: never priced         and $249 Perma Seal
+  50     0  -                  dealer           drop: never priced         We want to earn your business now and in the future
+  49     0  -                  dealer,factory   drop: never priced         com
+  49     0  -                  dealer,factory   drop: never priced         Packages
+  49     0  -                  dealer           drop: never priced         UP-LEVEL REAR WITH STORAGE PACKAGE
+  48    34  $60-$125           dealer,factory   KEEP                       LED Cargo Box Lighting
+  48     0  -                  dealer           drop: never priced         Heated Seats Keyless Entry
+  48     0  -                  dealer,factory   drop: never priced         6 CM) BRIGHT SILVER PAINTED ALUMINUM
+  47     0  -                  dealer           drop: never priced         Black exterior and Jet Black interior
+  47     0  -                  dealer,factory   drop: never priced         Wireless Charging
+  46     0  -                  dealer           drop: never priced         front bed top rail
+  46     0  -                  dealer,factory   drop: never priced         MOLDED SPLASH GUARDS
+  46     0  -                  dealer           drop: never priced         Ridge Rd Spencerport
+  45    14  $200               dealer,factory   KEEP                       Rear Vision Camera w/Dynamic Guide Lines
+  45     0  -                  dealer,factory   drop: never priced         Inside Rear-View Mirror w/Tilt
+  45     0  -                  dealer,factory   drop: never priced         EZ Lift & Lower Tailgate
+  45     0  -                  dealer,factory   drop: never priced         and Wi-Fi Hot Spot Capable)
+  45     0  -                  dealer           drop: never priced         Sugar Land
+  44     0  -                  dealer,factory   drop: never priced         6 Speaker Audio System
+  44     0  -                  dealer,factory   drop: never priced         Leather Wrapped Steering Wheel w/Cruise Controls
+  44     0  -                  dealer,factory   drop: never priced         Single Slot CD/MP3 Player
+  44     0  -                  dealer           drop: never priced         ** Alloy Wheels / Premium Wheels
+  44     0  -                  dealer           drop: never priced         ** Bluetooth®
+  44     0  -                  dealer           drop: never priced         SYSTEM
+  43    11  $140               dealer,factory   KEEP                       Front Halogen Fog Lamps
+  43     0  -                  dealer           drop: never priced         Equinox
+  43     0  -                  dealer           drop: never priced         gauge hole plugs and tie-downsChemically bonded
+  43     0  -                  dealer,factory   drop: never priced         Driver & Front Passenger Illuminated Vanity Mirrors
+  43     0  -                  dealer           drop: never priced         0 miles
+  42     0  -                  dealer           drop: never priced         3L V8 10-Speed Automatic
+  42     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto integration
+  42     0  -                  dealer,factory   drop: never priced         Body-Color Power Adjustable Heated Outside Mirrors
+  42     0  -                  dealer,factory   drop: never priced         Power Windows w/Driver Express Up
+  42     0  -                  dealer           drop: never priced         MOBILE SERVICE PLUS
+  41     0  -                  dealer           drop: never priced         the Silverado
+  41     0  -                  dealer           drop: never priced         Trax
+  41     0  -                  dealer           drop: never priced         as well as an extensive used vehicle inventory
+  41     0  -                  dealer           drop: never priced         the Big Country and beyond
+  41     0  -                  dealer           drop: never priced         conveniently located off of US-67
+  41     0  -                  dealer           drop: never priced         US-87 in San Angelo
+  41     0  -                  dealer           drop: never priced         $100 Wheel Locks
+  41     0  -                  dealer           drop: never priced         000 Running Boards (trucks only)
+  41     0  -                  dealer           drop: never priced         and $600 Bedliner (trucks only)
+  41     0  -                  dealer,factory   drop: never priced         150 Amp Alternator
+  41     0  -                  dealer,factory   drop: never priced         Preferred Equipment Group 2FL
+  41     0  -                  dealer,factory   drop: never priced         Color-Keyed Carpeting w/Rubberized Vinyl Floor Mats
+  41     0  -                  dealer,factory   drop: never priced         Front Chrome Bumper
+  41     0  -                  dealer,factory   drop: never priced         Rear Chrome Bumper
+  41     0  -                  dealer           drop: never priced         ** Apple CarPlay / Android Auto
+  41     0  -                  dealer           drop: never priced         ** Backup Camera / Parking Sensors
+  41     0  -                  dealer           drop: never priced         Hands-Free
+  41     0  -                  dealer           drop: never priced         ** Multi Zone Climate Control
+  41     0  -                  dealer           drop: never priced         ** Security System
+  41     0  -                  dealer           drop: never priced         ** Stability Control
+  41     0  -                  dealer           drop: never priced         ** USB Port
+  40    64  $770               dealer,factory   KEEP                       Trailering Equipment
+  40     0  -                  dealer,factory   drop: never priced         TURBOMAX
+  40     0  -                  dealer,factory   drop: never priced         Preferred Equipment Group 1LT (12
+  40     0  -                  dealer,factory   drop: never priced         Remote Start Package (Electric Rear-Window Defogger
+  39     0  -                  dealer           drop: never priced         Exclusively available at Bob Johnson Chevrolet West
+  39     0  -                  dealer           drop: never priced         Stop by 5049 W
+  38     0  -                  factory,dealer   drop: never priced         too
+  38     0  -                  dealer,factory   drop: never priced         STERLING GRAY METALLIC
+  38     0  -                  dealer,factory   drop: never priced         Body-Color Mirror Caps
+  38     0  -                  dealer,factory   drop: never priced         Body Color Bodyside Moldings
+  37     0  -                  dealer           drop: never priced         Great Gas Mileage: EPA estimate 21 MPG Hwy
+  37     0  -                  dealer           drop: never priced         3 YEARS ONSTAR ONE
+  37     0  -                  dealer,factory   drop: never priced         Heated Driver and Front Passenger Seats
+  37     0  -                  dealer           drop: never priced         Dual Rear USB Ports
+  37     0  -                  dealer,factory   drop: never priced         Get your free and quick offer to purchase
+  37     0  -                  dealer,factory   drop: never priced         To get our top dollar offer
+  37     0  -                  dealer,factory   drop: never priced         call our Bergstrom Buying Team Hotline at 920-429-6222
+  37     0  -                  dealer,factory   drop: never priced         transparent buying experience with upfront pricing
+  37     0  -                  dealer,factory   drop: never priced         one dedicated point of contact
+  37     0  -                  dealer,factory   drop: never priced         Chevrolet Infotainment 3 Premium System with SiriusXM
+  37     0  -                  dealer           drop: never priced         11/04/2026 $2250 - Chevrolet Bonus Cash
+  36     0  -                  factory,dealer   drop: never priced         SiriusXM Radio
+  36     0  -                  dealer           drop: never priced         Summit White exterior and Jet Black interior
+  36     0  -                  dealer           drop: never priced         has a Black exterior and an Jet Black interior color
+  35     0  -                  dealer,factory   drop: never priced         rear
+  35     0  -                  dealer           drop: never priced         Aluminum Wheels
+  35     0  -                  dealer,factory   drop: never priced         comfort
+  35     0  -                  dealer,factory   drop: never priced         20 painted aluminum wheels with all-terrain tires
+  35     0  -                  dealer           drop: never priced         the sprayed-on liner permanently bonds to the truck bed
+  35     0  -                  dealer,factory   drop: never priced         REAR CROSS TRAFFIC BRAKING
+  35     0  -                  factory,dealer   drop: never priced         and Wheels: 18 x 8
+  34     0  -                  dealer,factory   drop: never priced         Dual Exhaust w/Polished Outlets
+  34     0  -                  dealer           drop: never priced         Sterling Gray Metallic exterior and Jet Black interior
+  34     0  -                  dealer           drop: never priced         Hitch
+  34     0  -                  dealer           drop: never priced         6 Rectangular Chrome Tubular Assist Steps
+  34     0  -                  dealer,factory   drop: never priced         Brake assist - Stop right there
+  34     0  -                  dealer,factory   drop: never priced         you will
+  34     0  -                  dealer,factory   drop: never priced         REAR PEDESTRIAN ALERT
+  34     0  -                  dealer,factory   drop: never priced         SPARE 265/70R17SL ALL-SEASON
+  33     0  -                  dealer,factory   drop: never priced         TAILGATE
+  33     0  -                  dealer,factory   drop: never priced         until cruise control set the pace
+  33     0  -                  dealer,factory   drop: never priced         Perimeter Lighting
+  33     0  -                  dealer           drop: never priced         Tires: 265/65R18SL AS BW
+  32     0  -                  factory,dealer   drop: never priced         And
+  32     0  -                  dealer,factory   drop: never priced         Remote Locking Tailgate
+  31     0  -                  factory,dealer   drop: never priced         Sometimes the road ahead being bright is a bad thing
+  31     0  -                  factory,dealer   drop: never priced         Take the edge off the sunshine with deep tinted windows
+  31     0  -                  factory,dealer   drop: never priced         You can store things close to you for easy access
+  31     0  -                  factory,dealer   drop: never priced         Since it’s covered
+  31     0  -                  factory,dealer   drop: never priced         of course
+  31     0  -                  factory,dealer   drop: never priced         you have a comfortable place for your arm while you drive
+  31     0  -                  factory,dealer   drop: never priced         When it comes to convenience
+  31     0  -                  factory,dealer   drop: never priced         front seat armrest storage has you covered
+  31     0  -                  dealer,factory   drop: never priced         TRAILER BRAKE CONTROLLER
+  31     0  -                  dealer           drop: never priced         HD SURROUND VISION
+  31    34  $1095-$1595        dealer,factory   KEEP                       Engine: 5.3L EcoTec3 V8
+  31     0  -                  dealer,factory   drop: never priced         Remote vehicle starter system with keyless open and start
+  31     0  -                  dealer           drop: never priced         has a Summit White exterior and an Jet Black interior color
+  30     0  -                  factory,dealer   drop: never priced         it all fits
+  30     0  -                  factory,dealer   drop: never priced         They’re too hot
+  30     0  -                  factory,dealer   drop: never priced         so you change the temp and now…
+  30     0  -                  factory,dealer   drop: never priced         you’re too cold
+  30     0  -                  factory,dealer   drop: never priced         With fold-up rear seat cushion
+  30     0  -                  dealer,factory   drop: never priced         255/80R17SL AS BW Spare Tire
+  30     0  -                  dealer           drop: never priced         You've found the one you've been looking for
+  29     0  -                  dealer,factory   drop: never priced         220 Amps Alternator
+  29     0  -                  factory,dealer   drop: never priced         Sometimes you need a little more room for your cargo
+  29     0  -                  factory,dealer   drop: never priced         Other times
+  29     0  -                  factory,dealer   drop: never priced         you need a lot more room
+  29     0  -                  factory,dealer   drop: never priced         Or fold both sides down to load large items
+  29     0  -                  factory,dealer   drop: never priced         With 60-40 folding rear seat
+  29     0  -                  factory,dealer   drop: never priced         Dual zone front climate controls - comfort is on your side
+  29     0  -                  dealer           drop: never priced         SiriusXM with 360L
+  29     0  -                  dealer,factory   drop: never priced         2 USB Ports
+  29     0  -                  dealer,factory   drop: never priced         Keyfob engine start control - Get an early start
+  29     0  -                  dealer,factory   drop: never priced         Remotely start your vehicle's engine from the key fob
+  29     0  -                  dealer,factory   drop: never priced         ensuring your ride is ready to go when you get in
+  29     0  -                  dealer,factory   drop: never priced         thanks to Keyfob engine start control
+  29     0  -                  dealer,factory   drop: never priced         Under the hood
+  29     0  -                  dealer,factory   drop: never priced         7000 LBS
+  29     0  -                  dealer,factory   drop: never priced         Texas Edition Badging
+  29     3  $1415-$1690        dealer           KEEP                       Texas Edition Plus
+  28    23  $475-$495          dealer           KEEP                       Spray-On Pickup Box Bed Liner
+  28     0  -                  dealer,factory   drop: never priced         and more
+  28     0  -                  factory,dealer   drop: never priced         Deep tinted windows - a dark outlook
+  28     0  -                  factory,dealer   drop: never priced         Front seat center armrest - comfort in the middle ground
+  28     0  -                  factory,dealer   drop: never priced         There’s room for two to relax with front seat center armrest
+  28     0  -                  factory,dealer   drop: never priced         Front seat center armrest puts your comfort front and center
+  28     0  -                  dealer           drop: never priced         EXPERTS ARE SAYING
+  28     0  -                  dealer,factory   drop: never priced         Heavy Duty Suspension
+  28     0  -                  dealer           drop: never priced         May require additional optional equipment13
+  28     0  -                  dealer,factory   drop: never priced         (3175 KG)
+  28     0  -                  dealer,factory   drop: never priced         OnStar w/4G LTE
+  28     0  -                  factory,dealer   drop: never priced         Convenience Package (10-Way Power Driver Seat w/Lumbar
+  28     0  -                  dealer           drop: never priced         Deleted Mobile Service Plus
+  27     0  -                  dealer,factory   drop: never priced         6-Speed Automatic Electronic with Overdrive
+  27     0  -                  dealer,factory   drop: never priced         cruise control
+  27     0  -                  dealer,factory   drop: never priced         WiFi compatibility
+  27     0  -                  factory,dealer   drop: never priced         If you have lower body pain
+  27     0  -                  factory,dealer   drop: never priced         you might also be soothed by the heat while you drive
+  27     0  -                  factory,dealer   drop: never priced         No matter the weather
+  27     0  -                  dealer,factory   drop: never priced         Radio: Chevrolet Infotainment 3 Plus System
+  27     0  -                  dealer,factory   drop: never priced         HD Rear Vision Camera with Hitch Guidance
+  27     0  -                  dealer,factory   drop: never priced         Chrome Grille Surround
+  27     0  -                  dealer,factory   drop: never priced         Dual-Zone Automatic Climate Control with Heated Front Seats
+  27     0  -                  dealer           drop: never priced         SHIFTER
+  27     0  -                  dealer           drop: never priced         6900 LBS
+  27     0  -                  dealer           drop: never priced         ** LED Headlights
+  27     0  -                  dealer           drop: never priced         ** Navigation System
+  27     0  -                  dealer           drop: never priced         KEY STROKE AND HUMAN ERRORS DO OCCUR
+  26     0  -                  dealer           drop: never priced         4-inch touchscreen
+  26     0  -                  dealer,factory   drop: never priced         We Know You Will Enjoy Your Test Drive Towards Ownership!
+  26     0  -                  factory,dealer   drop: never priced         When it comes to seating position
+  26     0  -                  factory,dealer   drop: never priced         and vice versa
+  26     0  -                  factory,dealer   drop: never priced         allowing everyone to be comfortable
+  26     0  -                  dealer           drop: never priced         Red Hot exterior and Jet Black interior
+  26     0  -                  dealer           drop: never priced         MORE ABOUT US
+  26     0  -                  dealer,factory   drop: never priced         Remote Vehicle Starter System and Keyless Open and Start
+  26     0  -                  dealer,factory   drop: never priced         Brake assist can stop the accident before it is one
+  26     0  -                  dealer,factory   drop: never priced         hauling
+  26     0  -                  dealer,factory   drop: never priced         Skid plates
+  26     0  -                  dealer,factory   drop: never priced         WHEELHOUSE LINERS
+  26     0  -                  dealer           drop: never priced         3 CM) FULL-SIZE
+  26     0  -                  dealer,factory   drop: never priced         RED HOT
+  26     0  -                  dealer           drop: never priced         (3130 KG)
+  26     0  -                  dealer,factory   drop: never priced         Hitch Guidance w/Hitch View
+  26     0  -                  dealer,factory   drop: never priced         Body-Color Door Handles
+  26     1  $450               dealer           KEEP                       Liner Protection Package
+  26     0  -                  dealer           drop: never priced         ** Memory Seat
+  26     0  -                  dealer           drop: never priced         ** Rain Sensing Wipers
+  26     0  -                  dealer           drop: never priced         Please contact dealer for details
+  25    16  $685               dealer,factory   KEEP                       Bed Protection Package
+  25     0  -                  dealer,factory   drop: never priced         Steering Wheel Mounted Electronic Cruise Control
+  25     0  -                  dealer,factory   drop: never priced         Manual Tilt-Wheel Steering Column
+  25     0  -                  dealer,factory   drop: never priced         Certified
+  25     0  -                  dealer           drop: never priced         lane-keeping assistance
+  25     0  -                  factory,dealer   drop: never priced         Keep your cool
+  25     0  -                  factory,dealer   drop: never priced         with automatic air conditioning
+  25     5  $365-$385          dealer           KEEP                       Bed Liner
+  25     0  -                  dealer,factory   drop: never priced         20 Painted Aluminum Wheels
+  25     0  -                  dealer,factory   drop: never priced         Awards:
+  25     0  -                  dealer,factory   drop: never priced         WHEEL
+  25     0  -                  dealer,factory   drop: never priced         Mobile hotspot - WiFi on the fly
+  25     0  -                  dealer,factory   drop: never priced         Residency restrictions apply
+  25     0  -                  dealer           drop: never priced         3 miles
+  25     0  -                  dealer           drop: never priced         23 RATIO LPO
+  25     0  -                  dealer           drop: never priced         20 Aluminum Wheels TIRES
+  24     0  -                  dealer           drop: never priced         power front
+  24     0  -                  dealer           drop: never priced         an HD rearview camera
+  24     0  -                  dealer           drop: never priced         Price includes: $2250 - Chevrolet Bonus Cash
+  24     0  -                  dealer,factory   drop: never priced         Recent Arrival!
+  24     0  -                  dealer           drop: never priced         3L/325 engine powering this Automatic transmission
+  24     0  -                  factory,dealer   drop: never priced         and Universal Home Remote)
+  24     0  -                  dealer           drop: never priced         Just what you've been looking for
+  23     3  $295               dealer,factory   KEEP                       Ultrasonic Rear Park Assist
+  23     7  $1710-$2440        dealer,factory   KEEP                       Z71 Off-Road & Protection Package
+  23     0  -                  factory,dealer   drop: never priced         0L I6
+  23     0  -                  factory,dealer   drop: never priced         every trip feels like a chore
+  23     0  -                  factory,dealer   drop: never priced         With 8-way driver seat
+  23     0  -                  factory,dealer   drop: never priced         finding the perfect position is easy
+  23     0  -                  factory,dealer   drop: never priced         so you can sit back
+  23     0  -                  factory,dealer   drop: never priced         (or up
+  23     0  -                  factory,dealer   drop: never priced         or a little forward)
+  23     0  -                  factory,dealer   drop: never priced         relax and enjoy the journey
+  23     0  -                  dealer,factory   drop: never priced         SiriusXM w/360L Trial Subscription
+  23     0  -                  dealer,factory   drop: never priced         5 Bright Silver Painted Aluminum)
+  23     0  -                  dealer,factory   drop: never priced         We want to buy your vehicle - even if you don't buy ours
+  23     0  -                  dealer           drop: never priced         ELECTRONIC TRANSMISSION RANGE SELECTOR
+  23     0  -                  dealer           drop: never priced         blackwall tiresChevytec spray-on bedliner Provides a Black
+  22     0  -                  factory,dealer   drop: never priced         2 USB Ports (First Row)
+  22     0  -                  dealer           drop: never priced         (includes Chevrolet Bowtie logo)
+  22     0  -                  dealer           drop: never priced         EXPERTS REPORT
+  22     0  -                  dealer,factory   drop: never priced         SEAT ADJUSTER
+  22     1  $185               dealer           KEEP                       Power Tailgate
+  22     0  -                  dealer,factory   drop: never priced         TRAILER SIDE BLIND ZONE ALERT
+  22     0  -                  dealer,factory   drop: never priced         TRAILER CAMERA PROVISIONS
+  22     0  -                  factory,dealer   drop: never priced         Leather-Appointed Front Seat Trim
+  22     0  -                  dealer           drop: never priced         6 RECTANGULAR
+  22     0  -                  dealer           drop: never priced         While we make every effort to prevent pricing errors
+  21     0  -                  dealer,factory   drop: never priced         Radio: AM/FM 8 Diagonal Color Touch Screen
+  21     0  -                  dealer,factory   drop: never priced         10-way power for the driver
+  21     0  -                  dealer,factory   drop: never priced         3-PASSENGER
+  21     0  -                  dealer,factory   drop: never priced         Automatic Emergency Braking with Lane Keep Assist
+  21     0  -                  dealer,factory   drop: never priced         Power 2-way driver lumbar - It’s got your back
+  21     0  -                  dealer,factory   drop: never priced         Enhance your comfort with power 2-way driver lumbar
+  21     0  -                  dealer,factory   drop: never priced         Simply set it to the support you want for your lower back
+  21     0  -                  dealer,factory   drop: never priced         and it will reduce the strain you would feel otherwise
+  21     0  -                  dealer,factory   drop: never priced         Chevrolet Infotainment 3 Premium System with SiriusXM 360L
+  21     0  -                  dealer,factory   drop: never priced         com 10 Most Awarded Brands
+  21     0  -                  dealer,factory   drop: never priced         INTEGRATED
+  21     0  -                  dealer,factory   drop: never priced         Electric Power Steering (EPS) assist
+  21     5  $295               dealer,factory   KEEP                       10-Way Power Driver Seat Adjuster
+  21     1  $445               dealer,factory   KEEP                       Multi-Flex Tailgate
+  21     0  -                  dealer,factory   drop: never priced         We know you love your vehicle
+  21     0  -                  dealer           drop: never priced         You can finally stop searching
+  21     0  -                  dealer           drop: never priced         Style
+  21     0  -                  dealer           drop: never priced         For our valued sales customers shopping online
+  20     0  -                  dealer,factory   drop: never priced         Tires: 255/70R17 AS BW
+  20     0  -                  dealer,factory   drop: never priced         255/70R17 AS BW Spare Tire
+  20     0  -                  dealer,factory   drop: never priced         frame-mounted
+  20     0  -                  dealer,factory   drop: never priced         Reviews:
+  20     0  -                  dealer,factory   drop: never priced         Source: Edmunds
+  20     0  -                  factory,dealer   drop: never priced         7L I4 Turbocharged DOHC 16V LEV3-SULEV30 310hp
+  20     0  -                  factory,dealer   drop: never priced         Financing Options
+  20     0  -                  factory,dealer   drop: never priced         and style
+  20     0  -                  factory,dealer   drop: never priced         dual-zone climate control
+  20     0  -                  dealer           drop: never priced         1ST AND 2ND ROWS (includes Z71 logo on front mats)
+  20     0  -                  dealer,factory   drop: never priced         (C49) rear-window defogger
+  20    15  $225               dealer,factory   KEEP                       Cloth Rear Seat w/Storage Package
+  20     0  -                  dealer,factory   drop: never priced         10-Speed Automatic Transmission with 4WD
+  20     0  -                  factory,dealer   drop: never priced         Louisiana
+  20     0  -                  dealer,factory   drop: never priced         18 bright silver painted aluminum wheels
+  20     0  -                  dealer,factory   drop: never priced         Transfer case
+  20     0  -                  dealer,factory   drop: never priced         fully-boxed
+  20     0  -                  dealer,factory   drop: never priced         rack-and-pinionBrakes
+  20     0  -                  dealer,factory   drop: never priced         265/65R18SL ALL-TERRAIN
+  20     0  -                  dealer,factory   drop: never priced         3.08 Rear Axle Ratio
+  20     0  -                  dealer,factory   drop: never priced         720 CCA/80 Amp-hr Maintenance Free HD Battery
+  20     0  -                  dealer,factory   drop: never priced         P265/70R17 AS BW Spare Tire
+  20     0  -                  dealer,factory   drop: never priced         Remote vehicle starter system and keyless entry
+  20     0  -                  dealer           drop: never priced         Automatic Emergency Braking and Lane Keep Assist
+  20     0  -                  dealer           drop: never priced         4WD with Auto-Locking Rear Differential
+  20     5  $60-$75            factory,dealer   drop: accessory/subscr.    Wheel Locks
+  20     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto compatibility
+  20     0  -                  dealer           drop: never priced         With quality in mind
+  20     0  -                  dealer           drop: never priced         this vehicle is the perfect addition to take home
+  19     9  $960-$1040         dealer,factory   KEEP                       LT Plus Package
+  19     0  -                  dealer,factory   drop: never priced         cargo area
+  19     0  -                  dealer,factory   drop: never priced         CD Player
+  19     0  -                  factory,dealer   drop: never priced         Oklahoma and Texas
+  19     0  -                  factory,dealer   drop: never priced         Backup Camera
+  19     0  -                  dealer           drop: never priced         10-Speed Automatic Transmission
+  19     0  -                  dealer,factory   drop: never priced         Heated front seats and steering wheel
+  19     0  -                  dealer,factory   drop: never priced         USB PORTS
+  19     0  -                  factory,dealer   drop: never priced         No Accidents!
+  19     0  -                  dealer,factory   drop: never priced         10-Way Power Driver's Seat Adjuster
+  19     0  -                  dealer           drop: never priced         Wheels: 17" x 8" Bright Machined Aluminum
+  19     0  -                  factory,dealer   drop: never priced         Integrated trailer brake controller with hitch guidance
+  19     0  -                  dealer,factory   drop: never priced         Tax
+  19     0  -                  dealer           drop: never priced         3L V8 10-Way Power Driver Seat with Lumbar
+  19     0  -                  dealer           drop: never priced         is Red Hot in color with an Jet Black interior
+  19     0  -                  dealer           drop: never priced         7200 LBS ENGINE
+  18     0  -                  dealer,factory   drop: never priced         Power Adjustable Pedals
+  18     0  -                  dealer           drop: never priced         rear 60/40 folding bench (folds up)
+  18     0  -                  dealer           drop: never priced         11/04/2026 $3000 - Chevrolet Bonus Cash
+  18     0  -                  dealer,factory   drop: never priced         Settle in
+  18     1  $1730              dealer,factory   KEEP                       Z71 off-road and protection package
+  18     0  -                  dealer,factory   drop: never priced         NOT EQUIPPED WITH STEERING COLUMN LOCK
+  18     0  -                  dealer,factory   drop: never priced         deep-tintedDoor handles
+  18     0  -                  dealer           drop: never priced         )INTERIORSeats
+  18    21  $200-$400          dealer,factory   KEEP                       Tires: 275/60R20SL AT BW
+  18     0  -                  dealer,factory   drop: never priced         E85 FlexFuel Capable
+  18     0  -                  dealer           drop: never priced         ** Cruise Control
+  18     0  -                  dealer           drop: never priced         ** Keyless Entry
+  18     0  -                  dealer           drop: never priced         ** Premium Sound System / Premium Audio
+  18     0  -                  dealer           drop: never priced         ** Steering Wheel Controls
+  18     0  -                  dealer,factory   drop: never priced         CHEVYTEC SPRAY-ON BEDLINER
+  18     0  -                  dealer           drop: never priced         visit www
+  18     0  -                  dealer           drop: never priced         17 Bright Silver Painted Aluminum Wheels
+  18     0  -                  dealer           drop: never priced         Convenience Package (10-Way Power Driver Seat with Lumbar
+  18     0  -                  dealer,factory   drop: never priced         and six-speaker audio
+  18     0  -                  dealer           drop: never priced         2 miles
+  18     0  -                  dealer           drop: never priced         Bastrop
+  17     0  -                  dealer,factory   drop: never priced         front chromeBumper
+  17     0  -                  dealer,factory   drop: never priced         255/70R17 all-season
+  17     0  -                  dealer,factory   drop: never priced         siriusxm
+  17     0  -                  dealer           drop: never priced         EXPERTS CONCLUDE
+  17     0  -                  dealer           drop: never priced         WHO WE ARE
+  17     0  -                  dealer           drop: never priced         Great Gas Mileage: EPA estimate 20 MPG Hwy
+  17     0  -                  dealer,factory   drop: never priced         (KI4) 120-volt power outlet
+  17     0  -                  dealer,factory   drop: never priced         (KC9) 120-volt bed-mounted power outlet
+  17     0  -                  dealer           drop: never priced         Heated Power-Adjustable Mirrors and Heated Steering Wheel
+  17     0  -                  dealer,factory   drop: never priced         Power reclining driver seat - Lean back
+  17     0  -                  dealer,factory   drop: never priced         or for a more comfortable rest while you’re pulled over
+  17     0  -                  dealer,factory   drop: never priced         with power reclining driver seat
+  17     0  -                  factory,dealer   drop: never priced         (A2X) 10-way power driver seat including power lumbar
+  17     0  -                  factory,dealer   drop: never priced         (KA1) heated driver and passenger seats
+  17     0  -                  factory,dealer   drop: never priced         (AVJ) Keyless Open and Start
+  17     4  $100               dealer,factory   KEEP                       Color-Keyed Carpeting w/Rubberized Vinyl Floormats
+  17     4  $200               dealer,factory   KEEP                       Solar-Ray Deep-Tinted Glass
+  17     0  -                  dealer           drop: never priced         Stop By Today
+  17     0  -                  dealer,factory   drop: never priced         STEERING COLUMN LOCK
+  17     0  -                  dealer           drop: never priced         OnStar and Chevrolet Connected Services Capable
+  17     0  -                  dealer,factory   drop: never priced         Engine: 4.3L EcoTec3 V6
+  17     0  -                  dealer,factory   drop: never priced         4WD Active Transfer Case
+  17     0  -                  dealer           drop: never priced         7L I4 Turbocharged DOHC
+  17     0  -                  dealer           drop: never priced         reliability
+  17     0  -                  dealer,factory   drop: never priced         a rear defogger
+  17     0  -                  dealer           drop: never priced         3-inch driver display
+  17     0  -                  dealer           drop: never priced         forward collision warning
+  17     0  -                  dealer           drop: never priced         6800 lbs
+  17     0  -                  dealer           drop: never priced         (3084 kg)
+  17     0  -                  dealer           drop: never priced         is Summit White in color with an Jet Black interior
+  17     0  -                  dealer           drop: never priced         Additional tax
+  17     0  -                  dealer           drop: never priced         however
+  17     0  -                  dealer           drop: never priced         Visit Classic Chevrolet Sugar Land at 13115 Southwest Fwy
+  16     0  -                  dealer           drop: never priced         Remote Engine Start
+  16     0  -                  dealer           drop: never priced         Technology and Telematics Mobile hotspot - WiFi on the fly
+  16     0  -                  factory,dealer   drop: never priced         (KI3) heated steering wheel
+  16     9  $1425-$2815        dealer,factory   KEEP                       TEXAS EDITION
+  16     0  -                  dealer,factory   drop: never priced         body-colorTailgate and bed rail protection cap
+  16     0  -                  dealer,factory   drop: never priced         OnStar 3 Months Guidance Plan
+  16     0  -                  dealer,factory   drop: never priced         and Wireless Charging
+  16     0  -                  dealer,factory   drop: never priced         Heated Steering Wheel and Heated Front Seats
+  16     0  -                  dealer           drop: never priced         wireless Apple CarPlay®/Android Auto®
+  16     0  -                  dealer           drop: never priced         pedestrian detection
+  16     0  -                  dealer           drop: never priced         Stock Number
+  16     0  -                  dealer,factory   drop: never priced         DIFFERENTIAL
+  16     0  -                  dealer,factory   drop: never priced         www
+  16     0  -                  dealer,factory   drop: never priced         Automatic Emergency Braking and Forward Collision Alert
+  16     0  -                  factory,dealer   drop: never priced         SET OF 4
+  16     0  -                  dealer           drop: never priced         is Black in color with an Jet Black interior
+  16     0  -                  dealer           drop: never priced         3L/325 engine
+  16     0  -                  dealer           drop: never priced         Price excludes tax
+  15     0  -                  dealer,factory   drop: never priced         spare 255/70R17 all-season
+  15     0  -                  dealer           drop: never priced         keyless access/ignition
+  15     0  -                  dealer           drop: never priced         Google Built-In
+  15     0  -                  factory,dealer   drop: never priced         One size doesn’t fit all when it comes to keeping you safe
+  15     0  -                  dealer           drop: never priced         Also includes manually adjustable driver lumbar
+  15     0  -                  dealer           drop: never priced         lockable storage compartment in seat cushion
+  15     0  -                  dealer           drop: never priced         and storage pockets
+  15     0  -                  dealer,factory   drop: never priced         Up-Level Rear Seat w/Storage Package
+  15     0  -                  dealer,factory   drop: never priced         PAINT
+  15     0  -                  dealer,factory   drop: never priced         SOLID
+  15     0  -                  factory,dealer   drop: never priced         (UKJ) Front Pedestrian Braking
+  15     0  -                  factory,dealer   drop: never priced         (UHX) Lane Keep Assist with Lane Departure Warning
+  15     0  -                  factory,dealer   drop: never priced         (UE4) Following Distance Indicator
+  15     0  -                  factory,dealer   drop: never priced         (UBI) 2 charge-only USB ports for second row
+  15     0  -                  dealer,factory   drop: never priced         Automatic Emergency Braking with Front Pedestrian Braking
+  15     0  -                  dealer,factory   drop: never priced         Automatic Emergency Braking and Front Pedestrian Braking
+  15     0  -                  dealer,factory   drop: never priced         Automatic Emergency Braking with Forward Collision Alert
+  15     2  $275               dealer,factory   KEEP                       Off-Road Suspension Package
+  15     0  -                  dealer,factory   drop: never priced         High-Intensity Discharge Headlights
+  15     0  -                  dealer           drop: never priced         LT PREFERRED EQUIPMENT GROUP includes standard equipment
+  15     0  -                  dealer,factory   drop: never priced         4-wheel antilock
+  15     0  -                  dealer,factory   drop: never priced         and Wheels: 17 x 8 Bright Silver Painted Aluminum
+  15     0  -                  dealer,factory   drop: never priced         Premium Cloth Seat Trim
+  15     0  -                  dealer           drop: never priced         has a Black exterior and an Jet Black
+  15     0  -                  dealer,factory   drop: never priced         This 2023 Chevrolet Silverado 1500 LT
+  15     0  -                  dealer,factory   drop: never priced         Trucks
+  15     0  -                  dealer           drop: never priced         $2250 - Chevrolet Bonus Cash
+  15     0  -                  dealer           drop: never priced         we offer the right cars at the right price
+  15     0  -                  dealer           drop: never priced         3L ECOTEC3 V8 8 Cylinder Engine Gasoline Fuel TRANSMISSION
+  15     0  -                  dealer           drop: never priced         1ST AND 2ND ROWS Floor Mats GVWR
+  15     0  -                  dealer           drop: never priced         7100 LBS SEATS
+  15     0  -                  dealer           drop: never priced         ** Blind Spot Monitoring
+  15     0  -                  dealer           drop: never priced         ** Brake Assist
+  15     0  -                  dealer           drop: never priced         ** Lane Departure Warning
+  15     0  -                  dealer           drop: never priced         ** Satellite Radio Capable
+  15     0  -                  dealer           drop: never priced         we are committed to putting the customer first
+  15     0  -                  dealer           drop: never priced         From our showroom to our service department
+  15     0  -                  dealer           drop: never priced         we work hard to make sure that you always leave satisfied
+  14     0  -                  dealer,factory   drop: never priced         cab mounted integrated with center high mount stop lamp
+  14     0  -                  dealer,factory   drop: never priced         topTailgate
+  14     0  -                  dealer,factory   drop: never priced         High Capacity Air Filter
+  14     0  -                  dealer,factory   drop: never priced         chrome bumpers
+  14     0  -                  dealer           drop: never priced         an EZ Lift power lock/release tailgate
+  14     0  -                  dealer           drop: never priced         a heated-wrapped steering wheel
+  14     0  -                  dealer           drop: never priced         voice control
+  14     0  -                  dealer           drop: never priced         OUR OFFERINGS
+  14     0  -                  dealer           drop: never priced         VEHICLE REVIEWS
+  14     0  -                  factory,dealer   drop: never priced         (BTV) Remote Start and (UTJ) content theft alarm
+  14     0  -                  dealer,factory   drop: never priced         Leather-Wrapped Steering Wheel
+  14     0  -                  dealer,factory   drop: never priced         Electronic Stability Control and traction control
+  14     0  -                  dealer           drop: never priced         towing
+  14     0  -                  dealer           drop: never priced         265/65R18SL ALL-SEASON
+  14     0  -                  dealer,factory   drop: never priced         StabiliTrak
+  14     0  -                  dealer           drop: never priced         music
+  14     0  -                  dealer,factory   drop: never priced         durability
+  14     0  -                  dealer,factory   drop: never priced         blackwallTire
+  14    13  $325-$395          dealer           KEEP                       Heavy-Duty Rear Automatic Locking Differential
+  14     0  -                  dealer           drop: never priced         Heavy Duty Cooling Package
+  14     0  -                  dealer,factory   drop: never priced         0L TURBO-DIESEL I6
+  14     0  -                  dealer,factory   drop: never priced         TWO-SPEED
+  14     0  -                  dealer,factory   drop: never priced         Service
+  14     0  -                  dealer,factory   drop: never priced         a heated steering wheel
+  14     4  $140               dealer           KEEP                       Front Black Bowtie Emblem
+  14     0  -                  dealer,factory   drop: never priced         title & license extra
+  14     0  -                  dealer,factory   drop: never priced         00 Doc Fee
+  14     0  -                  dealer,factory   drop: never priced         Dealer doc fee is included in the advertised price
+  14     0  -                  dealer,factory   drop: never priced         Recent Arrival! CARFAX One-Owner
+  14     0  -                  dealer,factory   drop: never priced         20 X 9 Painted Aluminum Wheels
+  14     0  -                  dealer           drop: never priced         22 TRANSIT STEEL WHEELS FOR LPO 22 WHEELS AND TIRES
+  14     0  -                  dealer           drop: never priced         275/50R22SL ALL-SEASON
+  13     0  -                  dealer           drop: never priced         (PDA) Texas Edition or (PDU) All Star Edition
+  13     0  -                  dealer,factory   drop: never priced         Power Door Locks w/Remote Keyless Entry
+  13     0  -                  dealer           drop: never priced         power rear
+  13     0  -                  dealer,factory   drop: never priced         3 cm) Bright Silver painted aluminum
+  13     0  -                  dealer           drop: never priced         Daytime Running Lamps with automatic exterior lamp control
+  13     0  -                  dealer,factory   drop: never priced         ELECTRICAL
+  13     0  -                  dealer,factory   drop: never priced         EXHAUST
+  13     0  -                  dealer,factory   drop: never priced         3.23 Rear Axle Ratio
+  13     4  $200               dealer,factory   KEEP                       Tires: P265/65R18 AT BW
+  13     0  -                  dealer           drop: never priced         OnStar 6 Months Directions & Connections Plan
+  13     0  -                  dealer,factory   drop: never priced         Premium audio system: Chevrolet MyLink
+  13     0  -                  dealer           drop: never priced         Radio: AM/FM Audio System w/Chevrolet MyLink
+  13     0  -                  dealer,factory   drop: never priced         single outletEXTERIORWheels
+  13     0  -                  dealer,factory   drop: never priced         rear chromeCornerStep
+  13     0  -                  dealer,factory   drop: never priced         stop and reverse lightsMirrors
+  13     0  -                  dealer           drop: never priced         1 miles
+  13     0  -                  dealer,factory   drop: never priced         has a Summit White exterior and a Jet Black interior
+  12    12  $275-$295          dealer,factory   KEEP                       6-Way Power Driver Seat Adjuster
+  12     0  -                  dealer,factory   drop: never priced         EZ-Lift Tailgate
+  12     0  -                  dealer,factory   drop: never priced         Engine: 2.7L Turbo
+  12     0  -                  dealer,factory   drop: never priced         blackwall tires
+  12     0  -                  dealer,factory   drop: never priced         All fees
+  12     0  -                  dealer,factory   drop: never priced         content
+  12     0  -                  dealer,factory   drop: never priced         features
+  12     0  -                  dealer           drop: never priced         trim
+  12     0  -                  dealer,factory   drop: never priced         Power Sliding Rear Window
+  12     0  -                  factory,dealer   drop: never priced         Remote vehicle starter system and keyless open & start
+  12     0  -                  factory,dealer   drop: never priced         a 12
+  12     0  -                  dealer,factory   drop: never priced         Apple CarPlay®
+  12     0  -                  dealer           drop: never priced         BUY FROM AN AWARD WINNING DEALER
+  12     0  -                  dealer,factory   drop: never priced         3L ECOTEC3 V8 WITH ACTIVE FUEL MANAGEMENT
+  12     0  -                  dealer,factory   drop: never priced         17 bright silver aluminum wheels
+  12     0  -                  dealer,factory   drop: never priced         6 Speaker Audio System Feature
+  12     0  -                  dealer,factory   drop: never priced         Body-Colored Bodyside Moldings
+  12     0  -                  dealer,factory   drop: never priced         Driver & Front Passenger Illuminated Visor Mirrors
+  12     0  -                  dealer,factory   drop: never priced         Driver-Side Manual Lumbar Control Seat Adjuster
+  12     0  -                  dealer,factory   drop: never priced         Heated Power-Adjustable Black Outside Mirrors
+  12     0  -                  dealer,factory   drop: never priced         LT1 Equipment Group
+  12     0  -                  dealer,factory   drop: never priced         Power Windows w/Driver Express-Down
+  12     0  -                  dealer,factory   drop: never priced         Bluetooth® Phone Connectivity
+  12     0  -                  dealer,factory   drop: never priced         7200 LBS
+  12     0  -                  dealer,factory   drop: never priced         (3266 KG)
+  12     0  -                  dealer,factory   drop: never priced         Heated steering
+  12     0  -                  dealer,factory   drop: never priced         Tires: 275/60R20 AS BW
+  12     0  -                  dealer,factory   drop: never priced         Anywhere on the planet
+  12     0  -                  dealer,factory   drop: never priced         you will have hundreds of digital stations to choose from
+  12     0  -                  factory,dealer   drop: never priced         Z71 Off-Road Package (Dual Exhaust w/Polished Outlets
+  12     0  -                  dealer           drop: never priced         Body Color Door Handles
+  12    12  $620-$655          dealer           KEEP                       Front Bucket Seats
+  12     4  $250               dealer           KEEP                       Electronic Cruise Control w/Set & Resume Speed
+  12     4  $15                dealer           KEEP                       Spare Tire Lock
+  12     0  -                  dealer,factory   drop: never priced         Bodyside moldings
+  12     0  -                  dealer,factory   drop: never priced         CARFAX Available: No Accidents! One Owner! Enjoy a simple
+  12     0  -                  dealer           drop: never priced         Z71 Off-Road Package (Dual Exhaust with Polished Outlets
+  12     0  -                  dealer,factory   drop: never priced         StabiliTrak stability/traction control
+  12     0  -                  dealer,factory   drop: never priced         HEAVY-DUTY LOCKING REAR
+  12     0  -                  dealer,factory   drop: never priced         Power driver seat with lumbar support
+  12     0  -                  dealer,factory   drop: never priced         3L high output engine
+  12     0  -                  dealer           drop: never priced         11/04/2026 $2250 - Chevrolet Consumer Cash Program
+  12     0  -                  dealer           drop: never priced         4 Chromed Round Assist Steps
+  12     0  -                  dealer           drop: never priced         Price includes the following incentives
+  12     0  -                  dealer           drop: never priced         some customers may not qualify
+  12     0  -                  dealer           drop: never priced         22 (55
+  12     0  -                  dealer           drop: never priced         FEDERAL REQUIREMENTS GVWR
+  12     0  -                  dealer           drop: never priced         located at 13115 Southwest Fwy
+  12     0  -                  dealer           drop: never priced         license and document fee
+  12     0  -                  dealer           drop: never priced         Informative
+  12     0  -                  dealer           drop: never priced         and Fair!
+  12     0  -                  dealer           drop: never priced         Here are our promises;
+  12     0  -                  dealer           drop: never priced         *Pressure Free
+  12     0  -                  dealer           drop: never priced         Efficient
+  12     0  -                  dealer           drop: never priced         Friendly
+  12     0  -                  dealer           drop: never priced         and Helpful Sales Staff!
+  12     0  -                  dealer           drop: never priced         *Massive Inventory For One Stop Shopping!
+  12     0  -                  dealer           drop: never priced         *Our own in house Bodyshop & Collision Center!
+  12     0  -                  dealer           drop: never priced         *Certified Factory Service Technicians!
+  11     0  -                  dealer,factory   drop: never priced         Steering Wheel Mounted Audio Controls
+  11     0  -                  dealer,factory   drop: never priced         automatic high beam on/offLamps
+  11     0  -                  dealer,factory   drop: never priced         )Mirror caps
+  11     0  -                  dealer,factory   drop: never priced         Chevrolet Infotainment 3 Premium system with Google built-in
+  11     0  -                  dealer           drop: never priced         color-keyed carpetingFloor mats
+  11     0  -                  dealer           drop: never priced         rubberized vinyl
+  11     0  -                  dealer,factory   drop: never priced         Fees and taxes apply
+  11     0  -                  dealer           drop: never priced         license
+  11     0  -                  dealer,factory   drop: never priced         000 miles
+  11     0  -                  dealer           drop: never priced         $2000 - Chevrolet Select Market Bonus Cash 26-32A-010 (Exp
+  11     0  -                  dealer           drop: never priced         $225 - Doc Fee
+  11     0  -                  dealer           drop: never priced         heated power mirrors
+  11     5  $725               dealer,factory   KEEP                       ADAPTIVE CRUISE CONTROL
+  11     0  -                  dealer           drop: never priced         (dealer-installed)
+  11     0  -                  dealer           drop: never priced         3L EcoTec3 V8 engine
+  11     0  -                  dealer,factory   drop: never priced         DRIVER 10-WAY POWER
+  11     0  -                  dealer,factory   drop: never priced         CHEVROLET MYLINK RADIO WITH 8 DIAGONAL COLOR TOUCH-SCREEN
+  11     0  -                  dealer,factory   drop: never priced         SEATING
+  11     0  -                  dealer,factory   drop: never priced         Not Equipped w/Steering Column Lock
+  11     0  -                  dealer           drop: never priced         Electronic Autotrac Transfer Case
+  11     8  $675-$770          dealer           KEEP                       Heavy-Duty Trailering Package
+  11     0  -                  dealer           drop: never priced         Ultrasonic front and rear park assist
+  11     0  -                  dealer           drop: never priced         CHARGE/DATA PORTS LOCATED INSIDE CENTER CONSOLE
+  11     0  -                  dealer,factory   drop: never priced         DARK ASH METALLIC
+  11     0  -                  dealer           drop: never priced         Quincy
+  11     0  -                  dealer           drop: never priced         rear chrome
+  11     0  -                  dealer           drop: never priced         )Audio system feature
+  11     0  -                  dealer,factory   drop: never priced         STEERING COLUMN
+  11     0  -                  dealer,factory   drop: never priced         MANUAL TILT AND TELESCOPING
+  11     0  -                  dealer,factory   drop: never priced         POWER OUTLET
+  11     6  $980-$1140         dealer,factory   KEEP                       Front Power Reclining Bucket Seats
+  11     0  -                  factory,dealer   drop: never priced         Preferred Equipment Group 1LT (2 USB Ports (First Row)
+  11     0  -                  factory,dealer   drop: never priced         and Urethane Steering Wheel)
+  11     0  -                  dealer           drop: never priced         ClothSeat adjuster
+  11     0  -                  dealer,factory   drop: never priced         standardTailgate
+  11     0  -                  dealer,factory   drop: never priced         Remote Keyless Entry w/2 Transmitters
+  11     0  -                  dealer,factory   drop: never priced         Front 40/20/40 Split-Bench Seat
+  11     0  -                  dealer,factory   drop: never priced         HEAVY-DUTY
+  11     0  -                  dealer           drop: never priced         per corner17 Bright Silver painted aluminum wheelsHeadlamps
+  11    11  $495-$695          dealer           KEEP                       Radio: AM/FM 8" Diagonal Clr Touch Nav
+  11     0  -                  dealer           drop: never priced         4WD with Heavy-Duty Rear Locking Differential
+  11     0  -                  dealer,factory   drop: never priced         Dealer charges $299
+  11     0  -                  dealer,factory   drop: never priced         chrome accents
+  11     0  -                  dealer,factory   drop: never priced         a heated leather steering wheel
+  11     0  -                  dealer,factory   drop: never priced         Save this Page and Call for Availability
+  11     0  -                  dealer,factory   drop: never priced         275/60R20SL AT BW Tires
+  11     0  -                  dealer           drop: never priced         (Specialty
+  11     0  -                  dealer           drop: never priced         commercial
+  11     0  -                  dealer           drop: never priced         and 3/4-ton+ vehicles excluded
+  11     0  -                  dealer           drop: never priced         and let us be the one's to tell you
+  11     0  -                  dealer           drop: never priced         it is absolutely true
+  11     0  -                  dealer           drop: never priced         REAR-WINDOW ELECTRIC At Clark Chevrolet
+  11     0  -                  dealer           drop: never priced         We can tailor a finance package to fit your needs
+  11     0  -                  dealer           drop: never priced         To get started
+  11     0  -                  dealer           drop: never priced         complete our secure online credit application
+  11     0  -                  dealer           drop: never priced         11/04/2026 $2250 - Bonus Cash
+  11     0  -                  dealer           drop: never priced         TX 78602
+  11     0  -                  dealer           drop: never priced         CARGURUS
+  10     0  -                  dealer           drop: never priced         and availability are subject to change
+  10     0  -                  dealer           drop: never priced         Oil and Filter Change
+  10     0  -                  dealer           drop: never priced         Vehicle Detailed
+  10     0  -                  dealer           drop: never priced         To save time in the dealership and for your convenience
+  10     0  -                  dealer           drop: never priced         This vehicle may be subject to open safety recalls
+  10     0  -                  dealer           drop: never priced         Check vehicle recall status at https://www
+  10     0  -                  dealer           drop: never priced         nhtsa
+  10     0  -                  dealer           drop: never priced         gov/
+  10     0  -                  dealer           drop: never priced         All prices
+  10     0  -                  dealer           drop: never priced         specifications
+  10     0  -                  dealer           drop: never priced         and availability are subject to change without notice
+  10     0  -                  dealer           drop: never priced         In the event of a pricing error
+  10     0  -                  dealer           drop: never priced         whether due to typographical mistakes
+  10     0  -                  dealer           drop: never priced         incorrect data
+  10     0  -                  dealer           drop: never priced         or technical issues
+  10     0  -                  dealer           drop: never priced         we reserve the right to correct it at any time
+  10     0  -                  dealer           drop: never priced         Advertised prices do not include tax
+  10     0  -                  dealer           drop: never priced         registration
+  10     0  -                  dealer           drop: never priced         plate transfer fees
+  10     0  -                  dealer           drop: never priced         finance charges
+  10     0  -                  dealer           drop: never priced         or other applicable government fees
+  10     0  -                  dealer           drop: never priced         including title applications
+  10     0  -                  dealer           drop: never priced         registration documents
+  10     0  -                  dealer           drop: never priced         odometer statements
+  10     0  -                  dealer           drop: never priced         and other administrative paperwork
+  10     0  -                  dealer           drop: never priced         The Documentary fee is 5 percent of the selling price
+  10     0  -                  dealer           drop: never priced         with a maximum charge of $280
+  10     0  -                  dealer           drop: never priced         Vehicle inventory and availability may vary
+  10     0  -                  dealer           drop: never priced         and vehicles may be sold before posting
+  10     0  -                  dealer           drop: never priced         Vehicle photos may not reflect the actual vehicle (Options
+  10     0  -                  dealer           drop: never priced         colors
+  10     0  -                  dealer           drop: never priced         miles
+  10     0  -                  dealer           drop: never priced         and body style may vary)
+  10     0  -                  dealer           drop: never priced         Dealer is not responsible for typographical
+  10     0  -                  dealer           drop: never priced         pricing
+  10     0  -                  dealer           drop: never priced         product information
+  10     0  -                  dealer           drop: never priced         advertising
+  10     0  -                  dealer           drop: never priced         or shipping errors
+  10     0  -                  dealer           drop: never priced         mileage
+  10     0  -                  dealer           drop: never priced         and any applicable incentives before visiting
+  10     0  -                  dealer           drop: never priced         EXPERTS RAVE
+  10     0  -                  dealer           drop: never priced         CLICK NOW!
+  10     0  -                  dealer           drop: never priced         Great Gas Mileage: EPA estimate 25 MPG Hwy
+  10     4  $700               dealer           KEEP                       Chrome Assist Steps
+  10     0  -                  dealer,factory   drop: never priced         Premium audio system: Chevrolet Infotainment System 3
+  10     0  -                  dealer           drop: never priced         6 CM) BRIGHT-MACHINED ALUMINUM
+  10     0  -                  dealer           drop: never priced         REAR SLIDING with rear defogger
+  10     0  -                  dealer,factory   drop: never priced         to help encourage safe driving behavior
+  10     0  -                  dealer,factory   drop: never priced         It can limit certain available vehicle features
+  10     0  -                  dealer,factory   drop: never priced         and it prevents certain safety systems from being turned off
+  10     0  -                  dealer           drop: never priced         blackwallWheel
+  10     0  -                  dealer,factory   drop: never priced         DUAL WITH POLISHED OUTLETS
+  10     0  -                  dealer,factory   drop: never priced         REAR VISION CAMERA WITH DYNAMIC GUIDE LINES
+  10     0  -                  dealer           drop: never priced         blackwall tiresCargo tie-downs 12-fixed rated at 500 lbs
+  10     0  -                  dealer,factory   drop: never priced         SiriusXM Satellite & HD Radio
+  10    11  $200               dealer,factory   KEEP                       Tires: 265/65R18SL AT BW
+  10     1  $25                dealer,factory   KEEP                       High Capacity Air Cleaner
+  10     0  -                  dealer,factory   drop: never priced         Heavy-Duty Handling/Trailering Suspension Package
+  10     5  $150               dealer           KEEP                       Skid Plate Package
+  10     0  -                  dealer           drop: never priced         Pearland
+  10     0  -                  dealer           drop: never priced         Z71 Off-Road Package with off-road suspension
+  10     0  -                  dealer,factory   drop: never priced         Convenience Package II (Hitch Guidance w/Hitch View
+  10     0  -                  dealer,factory   drop: never priced         (N57) wrapped steering wheel
+  10     0  -                  dealer,factory   drop: never priced         pickup bedPush Button StartAutomatic Stop/StartTransfer case
+  10     0  -                  dealer,factory   drop: never priced         heavy-duty 730 cold-cranking amps/80 Amp-hr
+  10     0  -                  dealer,factory   drop: never priced         hydroformed front sectionSuspension Package
+  10     0  -                  dealer,factory   drop: never priced         StandardSteering
+  10     0  -                  dealer,factory   drop: never priced         rear bumperCargo tie downs (12)
+  10     0  -                  dealer,factory   drop: never priced         fixed rated at 500 lbs per cornerHeadlamps
+  10     0  -                  dealer           drop: never priced         Designed for busy owners like you
+  10     0  -                  dealer           drop: never priced         and LED bed lighting
+  10     0  -                  dealer           drop: never priced         and keyless access/ignition
+  10     0  -                  dealer           drop: never priced         Your digital world awaits with a 13
+  10     0  -                  dealer           drop: never priced         Google Services
+  10     0  -                  dealer           drop: never priced         hill start assistance
+  10     0  -                  dealer           drop: never priced         trailer sway control
+  10     0  -                  dealer           drop: never priced         When it's time for better trucking
+  10     0  -                  dealer           drop: never priced         it's time for our Silverado 1500 LT
+  10     0  -                  dealer           drop: never priced         DARK ESSENTIALS PACKAGE
+  10     0  -                  dealer           drop: never priced         7L I4 Turbocharged DOHC 8-Speed Automatic
+  10     0  -                  dealer,factory   drop: never priced         WHY THIS VEHICLE?
+  10     0  -                  dealer           drop: never priced         11/04/2026 $1250 - Chevrolet Consumer Cash Program
+  10     0  -                  dealer           drop: never priced         Don't miss your chance to make it your new ride
+  10     0  -                  dealer           drop: never priced         10-Speed Automatic transmission with 4WD capability
+  10     0  -                  dealer           drop: never priced         Trade-Up program
+  10     0  -                  dealer           drop: never priced         The look is unmistakably Chevrolet
+  10     0  -                  dealer           drop: never priced         upfront pricing
+  10     0  -                  dealer           drop: never priced         Our online prices include dealer fees
+  10     0  -                  dealer           drop: never priced         3L V8 BEST PRICE
+  10     0  -                  dealer           drop: never priced         BEST SELECTION!
+  10     0  -                  dealer           drop: never priced         BEST PRICES IN THE COUNTRY!
+  10     0  -                  dealer           drop: never priced         CHEVYOFWESLEYCHAPEL
+  10     0  -                  dealer           drop: never priced         DRIVEWAY
+  10     0  -                  dealer           drop: never priced         This vehicle has been inspected
+  10     0  -                  dealer           drop: never priced         reconditioned
+  10     0  -                  dealer           drop: never priced         and confirmed front-line ready by Leo Auto Group
+  10     0  -                  dealer           drop: never priced         retail-ready
+  10     0  -                  dealer           drop: never priced         and priced to market
+  10     0  -                  dealer           drop: never priced         When we put the Leo name on it
+  10     0  -                  dealer           drop: never priced         we mean it
+  10     0  -                  dealer           drop: never priced         and Character
+  10     0  -                  dealer           drop: never priced         Your dream car
+  10     0  -                  dealer           drop: never priced         FRONT BUCKET Bucket Seats REAR AXLE
+  10     0  -                  dealer           drop: never priced         now available at Classic Chevrolet Sugar Land
+  10     0  -                  dealer           drop: never priced         Colonial West Chevrolet of Fitchburg
+  10     0  -                  dealer           drop: never priced         our staff is like family and we're considered one big team
+  10     0  -                  dealer           drop: never priced         We are excited to help you in finding your next vehicle
+  10     0  -                  dealer           drop: never priced         AUTOTRADER
+   9     0  -                  dealer,factory   drop: never priced         blackwall (Included with (QBN) 255/70R17 all-season
+   9     0  -                  dealer,factory   drop: never priced         dual
+   9     0  -                  dealer           drop: never priced         a rear CornerStep
+   9     0  -                  dealer           drop: never priced         wireless Android Auto®/Apple CarPlay®
+   9     0  -                  dealer           drop: never priced         automatic braking
+   9     0  -                  dealer,factory   drop: never priced         a rear-seat reminder
+   9     0  -                  dealer           drop: never priced         our One Owner
+   9     0  -                  dealer           drop: never priced         Smart Device Integration
+   9     0  -                  dealer           drop: never priced         MULTI-FLEX with six functional load/access features
+   9     0  -                  dealer           drop: never priced         See Owner's manual for details
+   9     0  -                  dealer           drop: never priced         (BTV) Remote Vehicle Starter system
+   9     0  -                  dealer,factory   drop: never priced         Gideon/Very Dark Atmosphere Leather
+   9     0  -                  dealer           drop: never priced         11/04/2026 $4250 - Customer Cash
+   9     0  -                  dealer,factory   drop: never priced         SiriusXM with 360L satellite radio
+   9     0  -                  dealer           drop: never priced         trust
+   9     0  -                  dealer           drop: never priced         truck
+   9     0  -                  dealer           drop: never priced         and everything in between
+   9     0  -                  dealer,factory   drop: never priced         and everyday driving
+   9     0  -                  dealer,factory   drop: never priced         3L V8 engine
+   9     0  -                  dealer           drop: never priced         and practicality
+   9     0  -                  dealer,factory   drop: never priced         * 2017 KBB
+   9     0  -                  dealer           drop: never priced         ALUMINUM SPARE
+   9     0  -                  dealer           drop: never priced         7L/166 engine powering this Automatic transmission
+   9     0  -                  dealer,factory   drop: never priced         17 (43
+   9     0  -                  dealer           drop: never priced         Arcadia
+   9     0  -                  dealer,factory   drop: never priced         ABS
+   9     0  -                  dealer,factory   drop: never priced         )Glass
+   9     0  -                  dealer           drop: never priced         OUTSTANDING CONDITION!
+   9     0  -                  dealer           drop: never priced         ask for details)
+   9     0  -                  dealer           drop: never priced         Text questions directly to sales at (815) 446-7319
+   9     0  -                  dealer,factory   drop: never priced         Jet Black w/Cloth Seat Trim
+   9     0  -                  dealer           drop: never priced         We are located at: 901 E
+   9     0  -                  dealer           drop: never priced         Baltimore St
+   9     0  -                  dealer           drop: never priced         Wilmington IL 60481
+   9     5  $215-$490          dealer           KEEP                       Advanced Trailering Package
+   9     0  -                  dealer,factory   drop: never priced         Floor Mounted Console
+   9     0  -                  dealer,factory   drop: never priced         Underbody Shield Transfer Case Protection
+   9     0  -                  dealer,factory   drop: never priced         Wheels: 18" x 8.5" Bright Machined Aluminum
+   9     0  -                  dealer,factory   drop: never priced         Preferred Equipment Group 2LT
+   9     0  -                  dealer,factory   drop: never priced         Front Body-Color Bumper
+   9     0  -                  dealer,factory   drop: never priced         Body Color Rear Bumper w/Cornersteps
+   9     0  -                  dealer,factory   drop: never priced         Body-Color Grille Surround
+   9     0  -                  dealer,factory   drop: never priced         Body-Color Headlamp Bezels
+   9     0  -                  factory,dealer   drop: never priced         3L V8 8-Speed Automatic
+   9     0  -                  factory,dealer   drop: never priced         Gideon/Very Dark Atmosphere Cloth
+   9     0  -                  dealer           drop: never priced         steel spareTire carrier lock
+   9     0  -                  dealer           drop: never priced         passenger 4-way manualSeating
+   9     0  -                  dealer           drop: never priced         shows and exclusive content for a ride that's uniquely you
+   9     9  $345-$395          dealer           KEEP                       Wheels: 18" x 8.5" Bright-Machined Aluminum
+   9     0  -                  dealer           drop: never priced         Heavy-Duty Air-to-Oil External Engine Oil Cooler
+   9     0  -                  dealer,factory   drop: never priced         * 2018 KBB
+   9     0  -                  dealer,factory   drop: never priced         17" x 7" Aluminum Full-Size Spare Wheel
+   9     0  -                  dealer           drop: never priced         Chrome Grille w/Chrome Surround
+   9     9  $15                dealer           KEEP                       Front License Plate Bracket
+   9     0  -                  dealer,factory   drop: never priced         CARFAX Available: No Accidents! Enjoy a simple
+   9     0  -                  dealer           drop: never priced         All Star Edition ($1
+   9     0  -                  dealer,factory   drop: never priced         5 Bright Silver Painted Aluminum Wheels Cloth Seat Trim 12
+   9     0  -                  dealer           drop: never priced         Convenience Package II (Hitch Guidance with Hitch View
+   9     0  -                  dealer,factory   drop: never priced         Rear Vision Camera with Hitch Guidance
+   9     0  -                  dealer,factory   drop: never priced         Chevrolet Infotainment 3 Plus System
+   9     0  -                  dealer,factory   drop: never priced         Heated front seats and heated steering wheel
+   9     0  -                  dealer           drop: never priced         but why? You've found the perfect vehicle right here
+   9     0  -                  dealer,factory   drop: never priced         This model keeps you comfortable with Auto Climate
+   9     0  -                  dealer           drop: never priced         versatility
+   9     0  -                  dealer           drop: never priced         both during and after the warranty period
+   9     0  -                  dealer           drop: never priced         To help keep things in proper working order
+   9     0  -                  dealer           drop: never priced         000 miles (whichever comes first;
+   9     0  -                  dealer,factory   drop: never priced         we're here to help every step of the way
+   9     0  -                  factory,dealer   drop: never priced         7L TURBO HIGH-OUTPUT
+   9     0  -                  factory,dealer   drop: never priced         AIR CLEANER
+   9     0  -                  factory,dealer   drop: never priced         HIGH-CAPACITY
+   9     0  -                  dealer,factory   drop: never priced         Heated Seats and Heated Steering Wheel
+   9     0  -                  dealer           drop: never priced         23 RATIO TEXAS EDITION PLUS Aluminum Wheels LPO
+   9     0  -                  dealer           drop: never priced         FEDERAL REQUIREMENTS ENGINE
+   9     0  -                  dealer           drop: never priced         efficiency
+   9     0  -                  dealer           drop: never priced         available at Classic Chevrolet Sugar Land
+   9     0  -                  dealer           drop: never priced         Colonial South Chevrolet of Dartmouth
+   9     0  -                  dealer           drop: never priced         All rebates to dealer
+   9     0  -                  dealer           drop: never priced         All prior sales excluded
+   9     0  -                  dealer           drop: never priced         In stock units only
+   9     0  -                  dealer           drop: never priced         Leases include 10K miles per year with $0
+   9     0  -                  dealer           drop: never priced         25 per mile over penalty
+   9     0  -                  dealer           drop: never priced         registration and document fee
+   9     0  -                  dealer           drop: never priced         No security deposit required
+   9     0  -                  dealer           drop: never priced         Residency restrictions may apply
+   9     0  -                  dealer           drop: never priced         CARFAX
+   9     0  -                  dealer           drop: never priced         USED CARS FOR SALE
+   9     0  -                  dealer           drop: never priced         USED TRUCKS FOR SALE
+   9     0  -                  dealer           drop: never priced         USED TRUCKS FOR SALE OKLAHOMA CITY
+   9     0  -                  dealer           drop: never priced         Bumper
+   9     0  -                  dealer           drop: never priced         front chrome
+   9     0  -                  dealer           drop: never priced         SAVE HUGE IN BANNING CA
+   9     0  -                  dealer           drop: never priced         DRIVE A LITTLE
+   9     0  -                  dealer           drop: never priced         SAVE A LOT
+   9     0  -                  dealer           drop: never priced         4545 West Ramsey Street Banning CA 92220
+   9     0  -                  dealer           drop: never priced         951-849-7861 https://www
+   9     0  -                  dealer           drop: never priced         diamondchevroletgmcbanning
+   8     0  -                  dealer,factory   drop: never priced         Power Sliding Rear Window w/Defogger
+   8     0  -                  dealer,factory   drop: never priced         2026 Chevrolet Silverado 1500 LT LT1
+   8     0  -                  dealer,factory   drop: never priced         * All warranty repairs include parts
+   8     0  -                  dealer,factory   drop: never priced         labor
+   8     0  -                  dealer,factory   drop: never priced         & towing to the nearest CarBravo dealership (if necessary)
+   8     0  -                  dealer,factory   drop: never priced         redeemable towards GM Certified Service
+   8     0  -                  dealer,factory   drop: never priced         eligible accessories & more
+   8     0  -                  factory,dealer   drop: never priced         WebbDriven ! Excellent selection New and Used Vehicles
+   8     0  -                  factory,dealer   drop: never priced         serving Vancouver
+   8     0  -                  factory,dealer   drop: never priced         Portland
+   8     0  -                  factory,dealer   drop: never priced         Gresham
+   8     0  -                  factory,dealer   drop: never priced         Camas
+   8     0  -                  factory,dealer   drop: never priced         Battleground
+   8     0  -                  factory,dealer   drop: never priced         Ridgefield
+   8     0  -                  factory,dealer   drop: never priced         Woodland
+   8     0  -                  factory,dealer   drop: never priced         Lacenter
+   8     0  -                  factory,dealer   drop: never priced         Beaverton
+   8     0  -                  factory,dealer   drop: never priced         Clackamas
+   8     0  -                  factory,dealer   drop: never priced         Hood River
+   8     0  -                  factory,dealer   drop: never priced         Tualatin
+   8     0  -                  factory,dealer   drop: never priced         Troutdale
+   8     0  -                  factory,dealer   drop: never priced         Clark County
+   8     0  -                  factory,dealer   drop: never priced         Skamania County
+   8     0  -                  factory,dealer   drop: never priced         Multnomah County
+   8     0  -                  factory,dealer   drop: never priced         Clackamas County
+   8     0  -                  dealer           drop: never priced         and it scores nearly 21mpg on the highway
+   8     0  -                  dealer           drop: never priced         The upscale exterior includes high-intensity LED headlamps
+   8     0  -                  dealer           drop: never priced         matching mirror caps
+   8     0  -                  dealer           drop: never priced         cargo-bed lighting
+   8     0  -                  dealer           drop: never priced         black recovery hooks
+   8     0  -                  dealer           drop: never priced         and a trailer hitch with Hitch Guidance
+   8     0  -                  dealer           drop: never priced         and a 12-inch driver display
+   8     0  -                  dealer           drop: never priced         Additional digital benefits include a 13
+   8     0  -                  dealer           drop: never priced         and a six-speaker sound system
+   8     0  -                  dealer           drop: never priced         To help you stay safe and secure
+   8     0  -                  factory,dealer   drop: never priced         BLACK BOWTIE EMBLEM
+   8     0  -                  dealer           drop: never priced         AM/FM STEREO with seek-and-scan and digital clock
+   8     0  -                  dealer           drop: never priced         select and install apps to your vehicle
+   8     0  -                  dealer           drop: never priced         Apps include Pandora
+   8     0  -                  dealer           drop: never priced         iHeartRadio
+   8     0  -                  dealer           drop: never priced         The Weather Channel and more
+   8     0  -                  dealer           drop: never priced         Heated steering wheel - A warm touch
+   8     0  -                  dealer,factory   drop: never priced         DIRECT INJECTION AND VARIABLE VALVE TIMING
+   8     0  -                  dealer,factory   drop: never priced         Priced below KBB Fair Purchase Price! Clean CARFAX
+   8     0  -                  dealer           drop: never priced         100K WARRANTY AVAILABLE
+   8     0  -                  dealer           drop: never priced         NATION WIDE SHIPPING
+   8     0  -                  dealer           drop: never priced         FULLY SERVICED
+   8     0  -                  dealer           drop: never priced         2026 Chevrolet Silverado 1500
+   8     0  -                  dealer           drop: never priced         For fifteen consecutive years
+   8     0  -                  dealer           drop: never priced         you’ve named us your Dealer of the Year
+   8     0  -                  dealer           drop: never priced         When you choose Chevy of Merrillville
+   8     0  -                  dealer           drop: never priced         and community
+   8     0  -                  dealer           drop: never priced         Voted by You: Our record speaks for itself
+   8     0  -                  dealer           drop: never priced         integrity
+   8     0  -                  dealer           drop: never priced         and a customer-first philosophy
+   8     0  -                  dealer           drop: never priced         This award reflects our promise to you
+   8     0  -                  dealer           drop: never priced         year after year
+   8     0  -                  dealer           drop: never priced         or SUV to fit your life and budget
+   8     0  -                  dealer,factory   drop: never priced         Integrated Trailer Brake Controller with Trailering Package
+   8     0  -                  dealer           drop: never priced         Waco
+   8     0  -                  dealer           drop: never priced         Killeen
+   8     0  -                  dealer           drop: never priced         must-drive
+   8     0  -                  dealer           drop: never priced         Windows
+   8     0  -                  dealer           drop: never priced         hydroformed front sectionSteering
+   8     0  -                  dealer,factory   drop: never priced         LIGHTING
+   8     0  -                  dealer,factory   drop: never priced         PERIMETER
+   8     0  -                  dealer,factory   drop: never priced         110-VOLT AC
+   8     0  -                  dealer           drop: never priced         Advanced Trailering System
+   8     0  -                  dealer           drop: never priced         Integrated trailer brake controller for confident towing
+   8     0  -                  dealer,factory   drop: never priced         The vehicle features steering wheel audio controls
+   8     0  -                  dealer           drop: never priced         stop and turn signal lightsTailgate with EZ Lift assist
+   8     0  -                  dealer,factory   drop: never priced         Remote vehicle starter system with keyless entry
+   8     0  -                  dealer           drop: never priced         For more information on this vehicle
+   8     0  -                  dealer           drop: never priced         please call (217) 731-4139
+   8     0  -                  dealer           drop: never priced         Since 1928
+   8     0  -                  dealer           drop: never priced         Baum Chevrolet Buick in Clinton
+   8     0  -                  dealer           drop: never priced         Illinois
+   8     0  -                  dealer           drop: never priced         has been serving customers the right way
+   8     0  -                  dealer           drop: never priced         Right from the Start
+   8     0  -                  dealer           drop: never priced         Our priority is to guide you through vehicle purchasing
+   8     0  -                  dealer           drop: never priced         Parts
+   8     0  -                  dealer           drop: never priced         Sales
+   8     0  -                  dealer           drop: never priced         Finance
+   8     0  -                  dealer           drop: never priced         Quick Lube
+   8     0  -                  dealer           drop: never priced         Detail and Towing
+   8     0  -                  dealer,factory   drop: never priced         2-Speed Transfer Case
+   8     0  -                  dealer           drop: never priced         and Voltmeter
+   8     0  -                  dealer           drop: never priced         the EcoTec3 5
+   8     0  -                  factory,dealer   drop: never priced         17-inch bright silver aluminum wheels
+   8     0  -                  dealer,factory   drop: never priced         CARFAX Available: Enjoy a simple
+   8     0  -                  factory,dealer   drop: never priced         Forward collision mitigation - Forward thinking
+   8     0  -                  dealer           drop: never priced         42 ratioDurabed
+   8     0  -                  dealer           drop: never priced         BlackFrame
+   8     0  -                  dealer           drop: never priced         6 cm) Bright Silver painted aluminumTires
+   8     0  -                  dealer           drop: never priced         outside heated power-adjustableMirror caps
+   8     0  -                  dealer           drop: never priced         chromeGlass
+   8     0  -                  dealer           drop: never priced         driver 10-way power including lumbarSeat adjuster
+   8     0  -                  dealer           drop: never priced         heated driver and front outboard passengerSeat
+   8     0  -                  dealer           drop: never priced         frontFloor mats
+   8     0  -                  dealer           drop: never priced         rubberized-vinyl rearSteering wheel
+   8     0  -                  dealer           drop: never priced         Doc fee of $436 included in Price
+   8     0  -                  dealer,factory   drop: never priced         Apple CarPlay and Android Auto
+   8     0  -                  dealer           drop: never priced         SiriusXM Satellite Radio with 360L Trial Subscription
+   8     0  -                  dealer           drop: never priced         a power lock/release EZ Lift tailgate
+   8     0  -                  dealer,factory   drop: never priced         Trailering Package with Hitch Guidance
+   8     0  -                  dealer           drop: never priced         Chevrolet Infotainment 3 Premium System with 12
+   8     0  -                  dealer,factory   drop: never priced         spring
+   8     0  -                  dealer,factory   drop: never priced         commuting
+   8     0  -                  factory,dealer   drop: never priced         has a Dark Ash Metallic exterior and a Jet Black interior
+   8     0  -                  dealer           drop: never priced         you always get more for less! Visit our website www
+   8     0  -                  dealer           drop: never priced         carrollchevrolet
+   8     0  -                  dealer           drop: never priced         com or contact us at 386-734-2661
+   8     0  -                  dealer           drop: never priced         CALL 866-240-2964 TO SCHEDULE YOUR TEST DRIVE TODAY!!!
+   8     0  -                  dealer           drop: never priced         9 CM) HIGH GLOSS BLACK MULTI-SPOKE WHEELS
+   8     0  -                  dealer           drop: never priced         along with the options and color
+   8     0  -                  dealer           drop: never priced         this Chevrolet Silverado 1500 LT is sure to sell fast
+   8     0  -                  dealer           drop: never priced         You could keep looking
+   8     0  -                  dealer           drop: never priced         you'll find a robust Gas V8 5
+   8     0  -                  dealer,factory   drop: never priced         Heated Steering Wheel & Heated Front Seats
+   8     0  -                  dealer           drop: never priced         To be sure you don't miss out
+   8     0  -                  dealer           drop: never priced         give us a call at 518-585-2842 and schedule a test drive
+   8     0  -                  dealer           drop: never priced         We are located at 1111 WICKER ST TICONDEROGA NY 12883
+   8     0  -                  dealer           drop: never priced         We look forward to seeing you soon!
+   8     0  -                  dealer           drop: never priced         20 aluminum wheels with all-terrain tires
+   8     0  -                  dealer           drop: never priced         USED CARS FOR SALE OKLAHOMA CITY
+   8     0  -                  dealer           drop: never priced         000 FINANCE ASSIST and $500 TRADE ASSIST
+   8     0  -                  dealer           drop: never priced         com/
+   8     0  -                  factory,dealer   drop: never priced         We are a market based pricing store
+   8     0  -                  factory,dealer   drop: never priced         and we are the fastest growing group in Kentucky
+   7     7  $160-$165          dealer           KEEP                       Front & Rear All-Weather Floor Mats
+   7     0  -                  dealer,factory   drop: never priced         Black (Included with 4WD models only
+   7     0  -                  dealer           drop: never priced         electronic with set and resume speed
+   7     0  -                  dealer           drop: never priced         enhanced
+   7     0  -                  dealer,factory   drop: never priced         If you decide to continue service after your trial
+   7     0  -                  dealer,factory   drop: never priced         Should your vehicle need warranty repair
+   7     0  -                  dealer,factory   drop: never priced         Earn points from GM Rewards when you buy a CarBravo vehicle
+   7     0  -                  factory,dealer   drop: never priced         BLACKWALL (Includes (QAQ) spare tire
+   7     0  -                  factory,dealer   drop: never priced         capability
+   7     0  -                  dealer           drop: never priced         LT trim CLICK NOW!
+   7     0  -                  dealer           drop: never priced         CARFAX 1-Owner
+   7     0  -                  dealer           drop: never priced         (CJ2) dual-zone climate control
+   7     0  -                  dealer           drop: never priced         TRAILERING PACKAGE includes trailer hitch
+   7     0  -                  dealer           drop: never priced         (STD)
+   7     0  -                  dealer           drop: never priced         P265/65R18 ALL-TERRAIN
+   7     0  -                  dealer,factory   drop: never priced         SILVER ICE METALLIC
+   7     0  -                  factory,dealer   drop: never priced         (NP5) leather-wrapped steering wheel
+   7     0  -                  factory,dealer   drop: never priced         Tow Package
+   7     0  -                  dealer           drop: never priced         Premium Wheels
+   7     0  -                  dealer           drop: never priced         Automatic Headlights
+   7     0  -                  dealer           drop: never priced         Jet Blk Clth Cloth
+   7     0  -                  dealer,factory   drop: never priced         Bluetooth® connectivity with steering wheel audio controls
+   7     0  -                  dealer           drop: never priced         Heated power-adjustable mirrors
+   7     0  -                  dealer           drop: never priced         355 horsepower and 383 lb-ft of torque
+   7     0  -                  dealer           drop: never priced         Test drive this must-see
+   7     0  -                  dealer           drop: never priced         Wireless phone projection for Apple CarPlay and Android Auto
+   7     0  -                  dealer           drop: never priced         Tailgate and bed rail protection cap
+   7     0  -                  dealer           drop: never priced         top
+   7     0  -                  dealer,factory   drop: never priced         P255/70R17 all-season
+   7     0  -                  dealer,factory   drop: never priced         full-size spare
+   7     0  -                  dealer,factory   drop: never priced         )Tire carrier lock
+   7     0  -                  dealer           drop: never priced         bodyside
+   7     0  -                  dealer           drop: never priced         plus sports
+   7     0  -                  dealer           drop: never priced         so you'll hear the best SiriusXM has to offer
+   7     0  -                  dealer           drop: never priced         This Chevrolet Silverado 1500 Features the Following Options
+   7     0  -                  dealer           drop: never priced         Stability Control
+   7     0  -                  dealer,factory   drop: never priced         LED LIGHTING
+   7     0  -                  dealer,factory   drop: never priced         GVWR: 7,100 lbs
+   7     0  -                  dealer           drop: never priced         3L gasoline engine
+   7     0  -                  dealer,factory   drop: never priced         It features a hands-free Bluetooth® phone system
+   7     0  -                  dealer           drop: never priced         This vehicle features steering wheel audio controls
+   7     0  -                  dealer,factory   drop: never priced         The vehicle features a hands-free Bluetooth® phone system
+   7     0  -                  dealer,factory   drop: never priced         17 Bright Machined Aluminum Wheels
+   7     0  -                  dealer           drop: never priced         drivers express up/downWindow
+   7     0  -                  dealer           drop: never priced         passenger express downWindows
+   7     0  -                  dealer           drop: never priced         express downDoor locks
+   7     0  -                  dealer,factory   drop: never priced         265/70R17SL AS BW Spare Tire
+   7     0  -                  dealer           drop: never priced         Transmission: 8-Speed Automatic
+   7     0  -                  dealer,factory   drop: never priced         Premium audio system: Chevrolet Infotainment 3
+   7     0  -                  dealer           drop: never priced         incandescent on Regular Cab modelsHeadlamps
+   7     0  -                  dealer,factory   drop: never priced         AIR FILTER
+   7     0  -                  dealer,factory   drop: never priced         The vehicle is equipped with a system that senses
+   7     0  -                  dealer           drop: never priced         EPA estimate 21 MPG Hwy/17 MPG City!
+   7     0  -                  dealer           drop: never priced         EPA estimate 26 MPG Hwy/22 MPG City!
+   7     7  $350               dealer           KEEP                       Tires: P265/65R18 AT OWL
+   7     0  -                  dealer           drop: never priced         7L Turbo 4WD 8-Speed Automatic
+   7     0  -                  dealer           drop: never priced         MECHANICALRear axle
+   7     0  -                  dealer           drop: never priced         220 ampsRecovery hooks
+   7     0  -                  dealer           drop: never priced         Molded Black Splash Guards
+   7     0  -                  dealer           drop: never priced         Remote Vehicle Starter System with Keyless Open & Start
+   7     0  -                  dealer           drop: never priced         a trailer hitch
+   7     0  -                  dealer           drop: never priced         a 13
+   7     0  -                  dealer,factory   drop: never priced         premium alloy wheels
+   7     0  -                  dealer           drop: never priced         where you'll find heated front cloth seats
+   7     0  -                  dealer           drop: never priced         Comfort and convenience rule our LT cabin
+   7     0  -                  dealer           drop: never priced         All Star Edition Plus ($1
+   7     0  -                  dealer           drop: never priced         29% APR for 36 months
+   7     0  -                  dealer           drop: never priced         $30
+   7     0  -                  dealer           drop: never priced         55 per $1000 financed
+   7     0  -                  dealer           drop: never priced         XGQ
+   7     0  -                  dealer           drop: never priced         NCC
+   7     0  -                  dealer           drop: never priced         variable valve control
+   7     0  -                  factory,dealer   drop: never priced         has a Black exterior and a Jet Black interior
+   7     0  -                  dealer           drop: never priced         SYSTEM Here For You Now
+   7     0  -                  dealer           drop: never priced         you can take advantage of our Trade-In
+   7     0  -                  dealer           drop: never priced         18 bright silver aluminum wheels with all-terrain tires
+   7     0  -                  dealer           drop: never priced         You have a few easy options:
+   7     0  -                  dealer           drop: never priced         NY!
+   7     0  -                  dealer           drop: never priced         Tow
+   7     0  -                  dealer           drop: never priced         Dallas
+   7     0  -                  dealer           drop: never priced         Integrated trailer brake controller and hitch guidance
+   7     0  -                  dealer           drop: never priced         Based on the superb condition of this vehicle
+   7     0  -                  dealer           drop: never priced         20 Aluminum Wheels SEATS
+   7     0  -                  dealer           drop: never priced         6900 LBS TAILGATE
+   7     0  -                  dealer           drop: never priced         MULTI-FLEX Integrated Tailgate Step LPO
+   7     0  -                  dealer           drop: never priced         6 RECTANGULAR Running Boards/Side Steps ENGINE
+   7     0  -                  dealer           drop: never priced         3L/325
+   7     0  -                  dealer,factory   drop: never priced         The Woodlands
+   7     0  -                  dealer           drop: never priced         includes (BTV) Remote Start
+   7     0  -                  dealer           drop: never priced         with overdrive and tow/haul mode
+   7     0  -                  dealer           drop: never priced         2026 Chevrolet Silverado 1500 LT
+   7     0  -                  factory,dealer   drop: never priced         SiriusXM satellite radio with 360L
+   7     0  -                  dealer           drop: never priced         11/04/2026 $1250 - Chevrolet Bonus Cash
+   7     0  -                  dealer           drop: never priced         11/04/2026 $2000 - Chevrolet Select Market Bonus Cash
+   6     0  -                  dealer           drop: never priced         USB Port
+   6     0  -                  dealer,factory   drop: never priced         chrome (Not available with (DPO) trailering mirrors
+   6     0  -                  dealer,factory   drop: never priced         See the SiriusXM Customer Agreement at www
+   6     0  -                  dealer,factory   drop: never priced         com for complete terms and how to cancel
+   6     0  -                  dealer           drop: never priced         CLEAN Condition! Non Smoker!
+   6     0  -                  dealer,factory   drop: never priced         CarBravo Certified Details:
+   6     0  -                  dealer           drop: never priced         * Vehicle History
+   6     0  -                  dealer,factory   drop: never priced         * Warranty Deductible: $0 (for CarBravo Certified program)
+   6     0  -                  dealer           drop: never priced         $2250 - Chevrolet Bonus Cash 26-40AF-014 (Exp
+   6     0  -                  factory,dealer   drop: never priced         LOWEST PRICING AROUND! 10-Speed Automatic
+   6     0  -                  dealer           drop: never priced         LT trim SEE MORE!
+   6     0  -                  dealer           drop: never priced         LPO (available on 1LT/1LZ)
+   6     0  -                  dealer           drop: never priced         (RVQ) Black 6 rectangular assist steps
+   6     0  -                  dealer           drop: never priced         (UTJ) content theft alarm and (C49) rear-window defogger
+   6     0  -                  dealer,factory   drop: never priced         4-wheel disc brakes with electronic stability control
+   6     0  -                  dealer           drop: never priced         Premium Sound Package
+   6     0  -                  dealer,factory   drop: never priced         including cell phone numbers
+   6     0  -                  dealer,factory   drop: never priced         Integrated trailer brake controller and trailering package
+   6     0  -                  factory,dealer   drop: never priced         7L Turbo
+   6     0  -                  dealer           drop: never priced         Frankfort
+   6     0  -                  dealer           drop: never priced         Whether you're towing
+   6     0  -                  dealer,factory   drop: never priced         Wireless Apple CarPlay and Android Auto
+   6     0  -                  dealer,factory   drop: never priced         TRAILERING APP
+   6     0  -                  dealer           drop: never priced         This Chevrolet Silverado 1500 LT Has Everything You Want
+   6     0  -                  dealer           drop: never priced         express down
+   6     0  -                  dealer           drop: never priced         Wi-Fi Hotspot capable (Terms and limitations apply
+   6     0  -                  dealer           drop: never priced         news and entertainment
+   6     0  -                  dealer           drop: never priced         anywhere life takes you
+   6     0  -                  dealer           drop: never priced         Welcome to the world of SiriusXM
+   6     0  -                  dealer           drop: never priced         Just minutes away!
+   6     0  -                  dealer           drop: never priced         210 S Brevard Ave
+   6     0  -                  dealer           drop: never priced         Lane Departure Warning
+   6     0  -                  dealer           drop: never priced         LED Headlights
+   6     0  -                  dealer           drop: never priced         7 cm x 20
+   6     0  -                  dealer           drop: never priced         CONSOLE
+   6     0  -                  dealer           drop: never priced         SPARE P265/70R17 ALL-SEASON
+   6     0  -                  factory,dealer   drop: never priced         Our clientele depend on us for Transparent Pricing
+   6     0  -                  factory,dealer   drop: never priced         Convenience and
+   6     0  -                  factory,dealer   drop: never priced         most importantly
+   6     0  -                  dealer           drop: never priced         **CERTIFIED BY CARFAX NO ACCIDENTS!
+   6     0  -                  dealer           drop: never priced         OIL JUST CHANGED!
+   6     0  -                  dealer           drop: never priced         GOOD TIRES
+   6     0  -                  dealer           drop: never priced         GOOD BRAKES
+   6     0  -                  dealer           drop: never priced         CHROME
+   6     0  -                  dealer,factory   drop: never priced         It is equipped with the latest generation of XM/Sirius Radio
+   6     0  -                  dealer,factory   drop: never priced         This vehicle features a hands-free Bluetooth® phone system
+   6     0  -                  dealer           drop: never priced         weekend towing
+   6     0  -                  dealer,factory   drop: never priced         See what's behind you with the back up camera on this model
+   6     0  -                  dealer,factory   drop: never priced         See what's behind you with the back up camera on this unit
+   6     0  -                  factory,dealer   drop: never priced         Polished Exhaust Tip
+   6     0  -                  factory,dealer   drop: never priced         Up-Level Rear Seat with Storage Package
+   6     0  -                  dealer           drop: never priced         11/04/2026 $1250 - Customer Cash
+   6     0  -                  dealer           drop: never priced         3L V8 6-Speed Automatic Electronic with Overdrive
+   6     0  -                  dealer,factory   drop: never priced         This 2024 Chevrolet Silverado 1500 LT
+   6     0  -                  dealer,factory   drop: never priced         1ST AND 2ND ROWS
+   6     0  -                  factory,dealer   drop: never priced         Remote Vehicle Starter and Keyless Entry
+   6     0  -                  dealer           drop: never priced         Jet Black Leather
+   6     0  -                  dealer,factory   drop: never priced         Leather Package (Leather-Appointed Front Seat Trim)
+   6     0  -                  dealer           drop: never priced         com which includes full terms and how to cancel
+   6     0  -                  dealer           drop: never priced         Some features require GM connected vehicle services
+   6     0  -                  dealer           drop: never priced         wrappedSteering wheel
+   6     0  -                  dealer           drop: never priced         heatedSteering wheel audio controlsSteering column
+   6     0  -                  dealer           drop: never priced         Factory MSRP: $62
+   6     0  -                  dealer           drop: never priced         a 120V outlet
+   6     0  -                  dealer           drop: never priced         and head-turning chrome accents
+   6     0  -                  dealer           drop: never priced         and an interior 120V outlet
+   6     0  -                  dealer           drop: never priced         Your technology is front and center with a 12
+   6     0  -                  dealer           drop: never priced         job sites
+   6     0  -                  dealer           drop: never priced         has a Red Hot exterior and an Jet Black interior color
+   6     0  -                  dealer           drop: never priced         CENTER CONSOLE
+   6     0  -                  dealer           drop: never priced         FLOOR-MOUNTED
+   6     0  -                  dealer           drop: never priced         per cornerTailgate with EZ Lift assist
+   6     0  -                  dealer           drop: never priced         Welcome to Bowser Chevrolet Of Monroeville
+   6     0  -                  dealer           drop: never priced         and a parts and an accessories division
+   6     0  -                  dealer           drop: never priced         We also invite our Murrysville
+   6     0  -                  dealer           drop: never priced         View our inventory to find the vehicle you are looking for
+   6     0  -                  dealer           drop: never priced         Plum
+   6     0  -                  dealer           drop: never priced         Export
+   6     0  -                  dealer           drop: never priced         We offer more than just sales
+   6     0  -                  dealer           drop: never priced         repair
+   6     0  -                  dealer           drop: never priced         accessories
+   6     0  -                  dealer           drop: never priced         and many more things
+   6     0  -                  dealer           drop: never priced         With lifetime
+   6     0  -                  dealer           drop: never priced         we can serve all your vehicle needs
+   6     0  -                  dealer           drop: never priced         If you are searching for a Murrysville or Monroeville
+   6     0  -                  dealer           drop: never priced         PA Chevrolet dealer alternative
+   6     0  -                  dealer           drop: never priced         We carry all the latest models
+   6     0  -                  dealer           drop: never priced         Browse through our inventory and find exactly what you need
+   6     0  -                  dealer           drop: never priced         You can also get a quick quote online
+   6     0  -                  dealer           drop: never priced         All Star Edition Plus with Safety Package
+   6     4  $425               dealer           KEEP                       StabiliTrak Stability Control System
+   6     0  -                  dealer           drop: never priced         ULTRASONIC
+   6     0  -                  dealer           drop: never priced         Driven by many
+   6     0  -                  dealer           drop: never priced         but adored by more
+   6     0  -                  dealer           drop: never priced         lumbar support
+   6     0  -                  dealer           drop: never priced         cushion tilt
+   6     0  -                  dealer           drop: never priced         DOHC
+   6     0  -                  dealer           drop: never priced         intercooled turbo
+   6     0  -                  dealer           drop: never priced         regular gasoline
+   6     0  -                  dealer           drop: never priced         Z71 Off-Road Package with Hill Descent Control
+   6     0  -                  dealer           drop: never priced         and modern technology
+   6     0  -                  dealer,factory   drop: never priced         Preferred Equipment Group 2FL (12
+   6     0  -                  dealer,factory   drop: never priced         Harper Prime
+   6     0  -                  dealer           drop: never priced         and 9
+   6     0  -                  dealer           drop: never priced         Bertram
+   6     0  -                  dealer           drop: never priced         Buchanan Dam
+   6     0  -                  dealer           drop: never priced         Lampasas
+   6     0  -                  dealer           drop: never priced         Liberty Hill
+   6     0  -                  dealer           drop: never priced         Leander
+   6     0  -                  dealer           drop: never priced         Round Rock
+   6     0  -                  dealer           drop: never priced         Lakeway
+   6     0  -                  dealer           drop: never priced         Llano
+   6     0  -                  dealer           drop: never priced         Kingsland
+   6     0  -                  dealer           drop: never priced         Sunrise Beach
+   6     0  -                  dealer           drop: never priced         Marble Falls
+   6     0  -                  dealer           drop: never priced         Horseshoe Bay
+   6     0  -                  dealer           drop: never priced         Granite Shoals
+   6     0  -                  dealer           drop: never priced         Cedar Park
+   6     0  -                  dealer           drop: never priced         George Town
+   6     0  -                  dealer           drop: never priced         Spicewood
+   6     0  -                  dealer           drop: never priced         Johnson City
+   6     0  -                  dealer           drop: never priced         Blanco
+   6     0  -                  dealer           drop: never priced         Bee Caves
+   6     0  -                  dealer           drop: never priced         Austin
+   6     0  -                  dealer           drop: never priced         San Antonio
+   6     0  -                  dealer           drop: never priced         Fort Worth and more
+   6     0  -                  dealer           drop: never priced         We do offer free delivery within the state of Texas
+   6     0  -                  dealer           drop: never priced         ask us for more info!
+   6     0  -                  dealer           drop: never priced         MULTI-FLEX At Clark Chevrolet
+   6     0  -                  dealer           drop: never priced         2023 Chevrolet Silverado 1500 LT
+   6     0  -                  dealer           drop: never priced         and comfort
+   6     0  -                  dealer           drop: never priced         With zero miles on the odometer
+   6     0  -                  dealer           drop: never priced         Oil & Filter Change by a Factory Trained Technician
+   6     0  -                  dealer           drop: never priced         Battery Voltage Test
+   6     0  -                  dealer           drop: never priced         Tires Inspected
+   6     0  -                  dealer           drop: never priced         Emissions System Check
+   6     0  -                  dealer           drop: never priced         Professional Detailed Inside and Out
+   6     0  -                  dealer           drop: never priced         Function Test all Lights
+   6     0  -                  dealer           drop: never priced         Check the Complete Exhaust System
+   6     0  -                  dealer           drop: never priced         Function Test all Options & Accessories
+   6     0  -                  dealer           drop: never priced         Apple CarPlay & Android Auto Integration
+   6     0  -                  dealer           drop: never priced         Pricing excludes tax
+   6     0  -                  factory,dealer   drop: never priced         You may enjoy services like Automatic Crash Response
+   6     0  -                  dealer           drop: never priced         visit Covert Chevrolet Bastrop at 702 State Hwy 71
+   6     0  -                  factory,dealer   drop: never priced         The online price includes a $129 Service & Handling Fee
+   6     0  -                  factory,dealer   drop: never priced         Please note that state sales tax
+   6     0  -                  factory,dealer   drop: never priced         and registration fees are not included
+   6     0  -                  factory,dealer   drop: never priced         Remote start system and keyless entry
+   6     0  -                  dealer           drop: never priced         Advanced Safety: Automatic Emergency Braking
+   6     0  -                  dealer,factory   drop: never priced         Chevrolet Infotainment 3 Premium with SiriusXM 360L
+   6     0  -                  dealer           drop: never priced         ADVERTISED PRICE INCLUDES $1
+   6     0  -                  dealer,factory   drop: never priced         At DeMontrond Buick GMC
+   6     0  -                  dealer,factory   drop: never priced         we take pride in delivering a trusted
+   6     0  -                  dealer,factory   drop: never priced         family-owned dealership experience right here in Houston
+   6     0  -                  dealer,factory   drop: never priced         Since 1953
+   6     0  -                  dealer,factory   drop: never priced         expert service
+   6     0  -                  dealer,factory   drop: never priced         and a welcoming
+   6     0  -                  dealer,factory   drop: never priced         no-pressure environment for every customer
+   6     0  -                  dealer,factory   drop: never priced         Whether you’re searching for a new GMC truck
+   6     0  -                  dealer,factory   drop: never priced         a stylish Buick SUV
+   6     0  -                  dealer,factory   drop: never priced         or a quality pre-owned vehicle
+   6     0  -                  dealer,factory   drop: never priced         our team is here to guide you every step of the way
+   6     0  -                  dealer,factory   drop: never priced         DeMontrond is recognized for exceptional value
+   6     0  -                  dealer,factory   drop: never priced         and selection
+   6     0  -                  dealer,factory   drop: never priced         Canyon
+   6     0  -                  dealer,factory   drop: never priced         Yukon
+   6     0  -                  dealer,factory   drop: never priced         Terrain
+   6     0  -                  dealer,factory   drop: never priced         and Acadia
+   6     0  -                  dealer,factory   drop: never priced         along with Buick favorites including the Encore
+   6     0  -                  dealer,factory   drop: never priced         Enclave
+   6     0  -                  dealer,factory   drop: never priced         Envision
+   6     0  -                  dealer,factory   drop: never priced         and Envista
+   6     0  -                  dealer,factory   drop: never priced         You’ll also find a wide range of certified pre-owned cars
+   6     0  -                  dealer,factory   drop: never priced         and SUVs from all makes and models
+   6     0  -                  dealer,factory   drop: never priced         With DeMontrond Direct
+   6     0  -                  dealer,factory   drop: never priced         fresh coffee
+   6     0  -                  dealer,factory   drop: never priced         a comfortable waiting area
+   6     0  -                  dealer,factory   drop: never priced         a children’s play zone
+   6     0  -                  dealer,factory   drop: never priced         loaner vehicles
+   6     0  -                  dealer,factory   drop: never priced         and rental assistance
+   6     0  -                  dealer,factory   drop: never priced         Family-owned and operated since 1953
+   6     0  -                  dealer,factory   drop: never priced         Tomball
+   6     0  -                  dealer,factory   drop: never priced         and Cypress
+   6     0  -                  dealer,factory   drop: never priced         Low tir
+   5     0  -                  dealer,factory   drop: never priced         XM Radio
+   5     0  -                  dealer,factory   drop: never priced         7L Turbo 8-Speed Automatic
+   5     0  -                  dealer,factory   drop: never priced         000 mile warranty
+   5     0  -                  dealer,factory   drop: never priced         with a greater variety of SiriusXM content
+   5     0  -                  dealer,factory   drop: never priced         a more personalized experience and easier navigation
+   5     0  -                  dealer,factory   drop: never priced         you can also enjoy your favorites everywhere you go
+   5     0  -                  dealer,factory   drop: never priced         with the SiriusXM app
+   5     0  -                  dealer,factory   drop: never priced         online and at home on compatible connected devices
+   5     0  -                  dealer           drop: never priced         Price includes: $2250 - Chevrolet Consumer Cash Program
+   5     0  -                  dealer,factory   drop: never priced         * Powertrain Limited Warranty: 1 Month/1
+   5     0  -                  dealer,factory   drop: never priced         * Powerful
+   5     0  -                  dealer,factory   drop: never priced         comfortable interior; quiet highway ride
+   5     0  -                  dealer           drop: never priced         &nbsp; &nbsp;
+   5     0  -                  dealer           drop: never priced         $1000 - Chevrolet Select Market Bonus Cash 26-40AC-009 (Exp
+   5     0  -                  dealer           drop: never priced         $1250 - Chevrolet Bonus Cash 26-40AF-014 (Exp
+   5     0  -                  dealer           drop: never priced         Combining versatility with everyday comfort
+   5     0  -                  dealer           drop: never priced         a 10-way power driver's seat
+   5     0  -                  dealer           drop: never priced         Chevrolet offers forward-collision warning
+   5     0  -                  dealer           drop: never priced         LT trim READ MORE!
+   5     0  -                  dealer           drop: never priced         Great Gas Mileage: 21 MPG Hwy
+   5     0  -                  dealer           drop: never priced         At All American Chevrolet of Midland
+   5     0  -                  dealer           drop: never priced         our inventory includes the popular Chevy Cruze
+   5     0  -                  dealer           drop: never priced         New disclaimer: Plus TT&L
+   5     0  -                  dealer           drop: never priced         Does not include optional accessories of $100 Wheel Locks
+   5     0  -                  dealer           drop: never priced         and $399 Window Tint
+   5     0  -                  dealer           drop: never priced         Used disclaimer: Plus TT&L
+   5     0  -                  dealer           drop: never priced         AND MORE!
+   5     0  -                  dealer           drop: never priced         WiFi Hotspot Privacy Glass
+   5     0  -                  dealer           drop: never priced         Great Gas Mileage: EPA estimate 26 MPG Hwy
+   5     0  -                  dealer,factory   drop: never priced         Bluetooth® for Phone Connectivity
+   5     1  $1195              dealer,factory   KEEP                       Leather Appointed Seat Trim
+   5     0  -                  dealer           drop: never priced         Automatic Emergency Braking and HD Rear Vision Camera
+   5     0  -                  dealer           drop: never priced         Your driving glove
+   5     0  -                  dealer           drop: never priced         value
+   5     0  -                  factory,dealer   drop: never priced         (N37) manual tilt/telescoping steering column
+   5     0  -                  factory,dealer   drop: never priced         which removes heated front seats
+   5     0  -                  factory,dealer   drop: never priced         which removes the heated steering wheel
+   5     0  -                  dealer           drop: never priced         18 bright silver aluminum wheels
+   5     0  -                  dealer           drop: never priced         All-Terrain Tires
+   5     0  -                  dealer           drop: never priced         Front bucket seats with center console
+   5     0  -                  dealer           drop: never priced         passenger express down
+   5     0  -                  dealer           drop: never priced         drivers express up/down
+   5     0  -                  dealer           drop: never priced         Charge/Data ports located on instrument panel
+   5     0  -                  dealer           drop: never priced         Tire carrier lock
+   5     0  -                  dealer           drop: never priced         heavy-duty 730 cold-cranking amps/70 Amp-hr
+   5     0  -                  dealer           drop: never priced         4-wheel disc with DURALIFE rotors
+   5     0  -                  dealer           drop: never priced         4-wheel antilockCapless Fuel FillExhaust
+   5     0  -                  dealer           drop: never priced         cab mounted with switch on center switch bankCornerStep
+   5     0  -                  dealer           drop: never priced         rear bumperMoldings
+   5     0  -                  dealer           drop: never priced         body colorWheelhouse liners
+   5     0  -                  dealer           drop: never priced         rear (Requires Crew Cab or Double Cab model
+   5     0  -                  dealer           drop: never priced         )Grille surround
+   5     0  -                  dealer           drop: never priced         frontHeadlamps
+   5     0  -                  dealer           drop: never priced         )Tailgate
+   5     0  -                  dealer           drop: never priced         EZ-Lift and LowerENTERTAINMENTAudio system
+   5     0  -                  dealer           drop: never priced         Single-slot CD/MP3 playerRadio
+   5     0  -                  dealer           drop: never priced         Plus listening on the app and online is included
+   5     0  -                  dealer           drop: never priced         To cancel you must call us at 1-866-635-2349
+   5     0  -                  dealer           drop: never priced         See our Customer Agreement for complete terms at www
+   5     0  -                  dealer           drop: never priced         All fees and programming subject to change
+   5     0  -                  dealer           drop: never priced         )6-speaker audio systemBluetooth® for phone
+   5     0  -                  dealer           drop: never priced         active OnStar service and data plan
+   5     0  -                  dealer           drop: never priced         Data plans provided by AT&T
+   5     0  -                  dealer           drop: never priced         )Floor covering
+   5     0  -                  dealer           drop: never priced         Tilt-Wheel
+   5     0  -                  dealer,factory   drop: never priced         3 cm) bright machined aluminum
+   5     0  -                  dealer           drop: never priced         enhanced cooling radiator
+   5     2  $299               dealer           drop: accessory/subscr.    3 Years SiriusXM
+   5     0  -                  dealer           drop: never priced         calls
+   5     0  -                  dealer           drop: never priced         It offers Apple CarPlay for seamless connectivity
+   5     0  -                  dealer           drop: never priced         Bluetooth® technology is built into this vehicle
+   5     0  -                  dealer,factory   drop: never priced         OnStar 4G LTE Connectivity
+   5     0  -                  dealer,factory   drop: never priced         3 cm) Bright Silver painted aluminumTires
+   5     0  -                  dealer           drop: never priced         Chevrolet Infotainment 3 system 8 diagonal color touchscreen
+   5     0  -                  dealer           drop: never priced         voice command pass-through to phone
+   5     0  -                  dealer,factory   drop: never priced         See the Owner's Manual for more information
+   5     0  -                  dealer           drop: never priced         Engine: TurboMax
+   5     2  $1125              dealer           KEEP                       Max Trailering Package
+   5     0  -                  dealer           drop: never priced         11/04/2026 $3000 - Bonus Cash
+   5     0  -                  dealer           drop: never priced         FUEL EFFICIENT EPA estimate 21 MPG Hwy/17 MPG City!
+   5     0  -                  dealer           drop: never priced         FUEL EFFICIENT EPA estimate 26 MPG Hwy/22 MPG City!
+   5     0  -                  dealer,factory   drop: never priced         Emergency communication system: OnStar Guidance
+   5     0  -                  factory,dealer   drop: never priced         4WD with Z71 Off-Road Package and hill descent control
+   5     0  -                  factory,dealer   drop: never priced         Lane keep assist
+   5     0  -                  dealer           drop: never priced         Bluetooth® connectivity
+   5     0  -                  dealer           drop: never priced         Wi-Fi hotspot capability
+   5     0  -                  dealer           drop: never priced         Experience more channels in the vehicle
+   5     0  -                  dealer           drop: never priced         manual tilt and telescopingDriver Information Center
+   5     1  $265               dealer           KEEP                       Underseat Storage
+   5     0  -                  dealer           drop: never priced         Best Chevrolet has been serving drivers in Newton
+   5     0  -                  dealer           drop: never priced         Braintree
+   5     0  -                  dealer           drop: never priced         Boston
+   5     0  -                  dealer           drop: never priced         Brockton
+   5     0  -                  dealer           drop: never priced         and beyond since 1957
+   5     0  -                  dealer           drop: never priced         and we look forward to doing so for many years to come
+   5     0  -                  dealer           drop: never priced         Power-Adjustable Heated Mirrors
+   5     0  -                  dealer           drop: never priced         Spray-on bedliner
+   5     0  -                  dealer           drop: never priced         Get behind the wheel of our impressively popular One Owner
+   5     0  -                  dealer           drop: never priced         This model offers Apple CarPlay for seamless connectivity
+   5     0  -                  dealer,factory   drop: never priced         This vehicle is pure luxury with a heated steering wheel
+   5     0  -                  dealer           drop: never priced         FRONT DRIVERSEATS
+   5     0  -                  dealer           drop: never priced         You can connect with us by calling 585-768-2251
+   5     0  -                  dealer,factory   drop: never priced         All-Star Edition ($2
+   5     0  -                  dealer           drop: never priced         Exclusively available at Bob Johnson Budget Lot
+   5     0  -                  dealer           drop: never priced         stop by 4621 W
+   5     0  -                  dealer           drop: never priced         Trade-ins welcome!
+   5     0  -                  dealer,factory   drop: never priced         Limited Promotion Option
+   5     0  -                  dealer           drop: never priced         Summit White 2026 Chevrolet Silverado 1500 LT
+   5     0  -                  dealer           drop: never priced         3L V8 Priced below KBB Fair Purchase Price!
+   5     0  -                  dealer           drop: never priced         7L I-4 direct injection
+   5     0  -                  dealer           drop: never priced         engine with cylinder deactivation and 310HP TurboMax 2
+   5     0  -                  dealer           drop: never priced         7L I-4 DOHC TurboMax I4 Gauge cluster display size: 12
+   5     0  -                  dealer           drop: never priced         With power driver seat fore/aft adjustment
+   5     0  -                  dealer           drop: never priced         Not only are you more comfortable
+   5     0  -                  dealer           drop: never priced         you’re safer
+   5     0  -                  dealer           drop: never priced         with power driver seat with fore/aft adjustment
+   5     0  -                  dealer,factory   drop: never priced         Power driver seat with 10-way adjustment and lumbar support
+   5     0  -                  dealer           drop: never priced         Bluetooth® connectivity and steering wheel audio controls
+   5     0  -                  dealer,factory   drop: never priced         This vehicle is a certified CARFAX 1-owner
+   5     0  -                  dealer           drop: never priced         0L Diesel engine
+   5     0  -                  dealer           drop: never priced         The vehicle stays safely in its lane with Lane Keep Assist
+   5     0  -                  factory,dealer   drop: never priced         When you encounter slick or muddy roads
+   5     0  -                  factory,dealer   drop: never priced         Thank you for choosing Cable Dahmer Kia of Lawrence!
+   5     0  -                  factory,dealer   drop: never priced         Clean Accident History! Carfax One Owner!
+   5     0  -                  dealer           drop: never priced         BLACK NAMEPLATES
+   5     0  -                  dealer           drop: never priced         BLACK TAILGATE LETTERING
+   5     0  -                  factory,dealer   drop: never priced         2022 Chevrolet Silverado 1500 LT
+   5     0  -                  dealer           drop: never priced         Electronic Cruise Control and Hill Descent Control
+   5     0  -                  dealer           drop: never priced         Remote Start and Keyless Entry
+   5     0  -                  dealer           drop: never priced         Call 727-819-5300 to schedule a test drive today!
+   5     0  -                  dealer           drop: never priced         200 lbs of towing
+   5     0  -                  dealer           drop: never priced         1 OWNER
+   5     0  -                  dealer           drop: never priced         Some information provided may come from third party sources
+   5     0  -                  dealer           drop: never priced         To ensure your complete satisfaction
+   5     0  -                  dealer           drop: never priced         please verify the accuracy prior to your purchase
+   5     0  -                  dealer           drop: never priced         Front Recovery Hooks
+   5     0  -                  dealer           drop: never priced         Vortec 5
+   5     0  -                  dealer           drop: never priced         Price includes: $2000 - Select Market Purchase Bonus Cash
+   5     0  -                  dealer,factory   drop: never priced         Texas Edition Plus package
+   5     0  -                  dealer           drop: never priced         you'll be able to do it with confidence
+   5     0  -                  dealer           drop: never priced         and you will have the power of 4WD
+   5     0  -                  dealer           drop: never priced         this Four Wheel Drive is engineered with higher standards
+   5     0  -                  dealer           drop: never priced         With improved performance
+   5     0  -                  dealer           drop: never priced         mileage and acceleration
+   5     0  -                  dealer           drop: never priced         This is the one
+   5     0  -                  dealer           drop: never priced         This Chevrolet Silverado 1500 LT delivers with a luxurious
+   5     0  -                  dealer           drop: never priced         well-appointed interior and world-class engineering
+   5     0  -                  dealer           drop: never priced         the vehicle you drive should not be the exception
+   5     0  -                  dealer           drop: never priced         DRIVER 6-WAY POWER
+   5     0  -                  dealer           drop: never priced         PEDALS
+   5     0  -                  dealer           drop: never priced         POWER-ADJUSTABLE FOR ACCELERATOR AND BRAKE
+   5     0  -                  dealer           drop: never priced         available now at Classic Chevrolet Sugar Land
+   5     0  -                  dealer           drop: never priced         Paired with an advanced Automatic transmission
+   5     0  -                  dealer           drop: never priced         Houston
+   5     0  -                  dealer           drop: never priced         Wheels: 20 x
+   5     0  -                  dealer           drop: never priced         4WD with Z71 Off-Road & Protection Package
+   5     0  -                  dealer           drop: never priced         998
+   5     0  -                  dealer           drop: never priced         SERVICE WORK COMPLETED
+   5     0  -                  dealer           drop: never priced         At Colonial South Chevrolet of Dartmouth
+   5     0  -                  dealer           drop: never priced         Pricing analysis performed on 10/21/2026
+   5     0  -                  dealer           drop: never priced         030
+   5     0  -                  dealer           drop: never priced         11/04/2026 $4250
+   5     0  -                  dealer           drop: never priced         includes (UG1) Universal Home Remote
+   5     0  -                  dealer           drop: never priced         60/40 folding bench for Crew Cab models
+   5     0  -                  dealer           drop: never priced         *** WHILE WE MAKE EVERY EFFORT TO PREVENT PRICING ERRORS
+   5     0  -                  dealer           drop: never priced         PLEASE CONTACT DEALER FOR FINAL PRICING DETAILS ***
+   5     0  -                  dealer           drop: never priced         coughlinpataskala
+   5     0  -                  dealer           drop: never priced         4x4 Four-Wheel Drive
+   5     0  -                  dealer           drop: never priced         Convenience & Remote Start Packages
+   5     0  -                  dealer           drop: never priced         Payment excludes taxes and fees
+   5     0  -                  dealer           drop: never priced         $395 disposition fee for GM Financial
+   5     0  -                  dealer           drop: never priced         All Star Edition Plus: 20 X 9 Painted Aluminum Wheels
+   5     0  -                  dealer           drop: never priced         In regions like Bastrop
+   5     0  -                  dealer           drop: never priced         TX 78602 or call (512) 308-3161
+   5     0  -                  dealer           drop: never priced         4WD with Off-Road Suspension
+   5     0  -                  dealer,factory   drop: never priced         120-volt bed-mounted and interior power outlets
+   5     0  -                  dealer           drop: never priced         Automatic Emergency Braking & Lane Keep Assist
+   5     0  -                  dealer           drop: never priced         6 Black Tubular Assist Steps
+   5     0  -                  dealer           drop: never priced         Smithfield
+   5     0  -                  dealer,factory   drop: never priced         either express or implied

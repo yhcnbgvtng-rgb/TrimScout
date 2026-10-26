@@ -237,7 +237,9 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   // ---- factory options list ----
   const [optionFilter, setOptionFilter] = useState("");
   const paidOnly = optionsPaidOnlyEnabled();
-  const shownOptions = p.catalogOptions.filter((o) => !optionFilter.trim() || o.label.toLowerCase().includes(optionFilter.trim().toLowerCase()));
+  // Paid-only: a row with no paid price never lists (the endpoint already drops them; this keeps an older endpoint from showing a bare, unpriced list).
+  const listedOptions = paidOnly ? p.catalogOptions.filter((o) => optionPriceText(o.minPrice, o.maxPrice)) : p.catalogOptions;
+  const shownOptions = listedOptions.filter((o) => !optionFilter.trim() || o.label.toLowerCase().includes(optionFilter.trim().toLowerCase()));
   const toggleKey = (key: string) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((k) => k !== key) : [...f.optionKeys, key] }));
 
   return (
@@ -289,15 +291,15 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
 
       <Panel open={optionsOpen} onClose={closeOptions} anchorRef={optionsAnchor} title="Factory options" width={340} onShowResults={showResults(closeOptions)}>
         <div id={optionsPanelId}>
-          {p.catalogOptions.length > 8 && (
+          {listedOptions.length > 8 && (
             <div className="mb-3">
               <label htmlFor={`${optionsPanelId}-filter`} className="sr-only">Filter factory options</label>
               <input id={`${optionsPanelId}-filter`} type="text" value={optionFilter} onChange={(e) => setOptionFilter(e.target.value)} placeholder="Filter options" className={`${fieldBox} ${RING}`} />
             </div>
           )}
-          {p.catalogOptionsLoading && p.catalogOptions.length === 0 ? (
+          {p.catalogOptionsLoading && listedOptions.length === 0 ? (
             <p role="status" className="py-2 text-sm text-ink-muted">Loading…</p>
-          ) : p.catalogOptions.length === 0 ? (
+          ) : listedOptions.length === 0 ? (
             <p className="py-2 text-sm text-ink-muted">{p.optionsEmptyMessage}</p>
           ) : (
             <ul className="-mx-1">
@@ -308,8 +310,8 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
                   <li key={o.key}>
                     <label htmlFor={id} className="flex cursor-pointer items-center gap-3 rounded px-1 py-2 text-sm hover:bg-surface">
                       <input id={id} type="checkbox" checked={filters.optionKeys.includes(o.key)} onChange={() => toggleKey(o.key)} className={`h-4 w-4 shrink-0 ${RING}`} style={{ accentColor: ACCENT }} />
-                      <span className="min-w-0 flex-1">{o.label}</span>
-                      {price && <span className="shrink-0 whitespace-nowrap text-xs tabular-nums text-ink-muted">{price}</span>}
+                      <span className="min-w-0 flex-1">{o.label}{price && <span className="whitespace-nowrap text-ink-muted"> · {price}</span>}</span>
+                      <span className="shrink-0 text-xs tabular-nums text-ink-muted">{o.vehicleCount.toLocaleString()}</span>
                     </label>
                   </li>
                 );
