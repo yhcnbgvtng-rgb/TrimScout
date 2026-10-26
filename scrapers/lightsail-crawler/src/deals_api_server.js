@@ -58,6 +58,7 @@ import { normalizeState } from "./invState.js";
 import { facetRebuildAllowed } from "./facetRebuildGate.js";
 import { createSummaryAccumulator, summaryToQueryRows } from "./catalogSummary.js";
 import { paidOnlyEnabled, paidSql } from "./optionsPaidOnlyServer.js";
+import { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from "./facetExtras.js";
 import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOptionsDiff.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
@@ -91,6 +92,11 @@ const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
 // where that row's price is above 0 (per row, never per label), with the min/max paid price per option. Off = no column, no writes, same queries.
 // Needs the price backfill (scripts/box/2026-10-19-backfill-option-prices.mjs) before the counts are complete; docs/OPTIONS_PAID_ONLY_CATALOG_NOTE.md.
 const PAID_ONLY = paidOnlyEnabled();
+// FACET_COND_PRICE (default off): the facet rebuild also stores condition counts and a price histogram per make/model/trim (inv_price_facets, plus an all-makes
+// inv_price_summary) and the catalog call returns them. One extra aggregate per make, held to FACET_EXTRA_BUDGET_PCT (max 10) of the rest of the build; facetExtras.js.
+// Off = no tables, no extra queries, same catalog payload plus the colour counts (which cost nothing: they were already stored).
+const FACET_EXTRAS = facetExtrasEnabled();
+const EXTRA_BUDGET_PCT = extraBudgetPct();
 // Cars last seen more than this many days ago are hidden from buyers: the list/facets/makes calls carry it as seenWithinDays (the web app's
 // STALE_HIDE_DAYS), and the nightly option/colour catalog rebuild + its live fallback, which have no request to carry it, use this default.
 // lib/lastConfirmed.test.ts pins this number to the web constant. STALE_HIDE_DAYS=0 turns the catalog filter off.
@@ -2271,6 +2277,19 @@ async function ensureInventoryTableOnce(pool) {
     await pool.query("ALTER TABLE inv_option_facets ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL");
     await pool.query("ALTER TABLE inv_option_summary ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL");
   }
+  if (FACET_EXTRAS) {
+    await pool.query(`CREATE TABLE IF NOT EXISTS inv_price_facets (
+      make VARCHAR(64) NOT NULL,
+      model VARCHAR(96) NOT NULL,
+      trim VARCHAR(160) NOT NULL,
+      cond VARCHAR(12) NOT NULL,
+      bucket TINYINT NOT NULL,
+      vehicle_count INT NOT NULL,
+      PRIMARY KEY (make, model, trim, cond, bucket)
+    )`);
+    await pool.query("CREATE TABLE IF NOT EXISTS inv_price_summary (cond VARCHAR(12) NOT NULL, bucket TINYINT NOT NULL, vehicle_count INT NOT NULL, PRIMARY KEY (cond, bucket))");
+    await pool.query("ALTER TABLE inv_facet_meta ADD COLUMN IF NOT EXISTS extra_ms INT NULL, ADD COLUMN IF NOT EXISTS extra_skipped INT NULL");
+  }
   inventoryReady = true;
 }
 
@@ -2770,7 +2789,7 @@ const invSearchGate = createGate({
 async function handleListInventory(req, res, params, extra = {}) {
   const pool = getPool();
   await ensureInventoryTable(pool);
-  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
+  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });
   const limit = Math.min(Math.max(Number(params.get("limit")) || 200, 1), 2000);
   const offset = Math.max(Number(params.get("offset")) || 0, 0);
   // Two independent queries, NOT SQL_CALC_FOUND_ROWS — reverted 2026-09-22 after it caused a
@@ -2817,6 +2836,8 @@ async function handleListInventory(req, res, params, extra = {}) {
   if (result.totalCapped) body.totalCapped = true;
   // Echoed so the web app can tell a box that applied the contact filter from an older one that would silently ignore it.
   if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
+  // Echoed the same way: the keyword-exclude words this box actually applied, so the web app can tell an older box that ignored them.
+  if (excludeTerms.length) body.excludeApplied = excludeTerms;
   sendJson(res, 200, body);
 }
 
@@ -3348,7 +3369,7 @@ async function handleInventoryByDealer(req, res) {
 // Built per make, reading with plain SELECTs (consistent reads, no locks on dealer_inventory or
 // dealer_inventory_options, so a concurrent sync never waits on this) and then swapping each
 // make's rows in one short transaction, so readers always see a complete make.
-const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, lastError: null, timer: null, loaded: false };
+const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, extraMs: null, extraSkipped: null, lastError: null, timer: null, loaded: false };
 const FACET_REBUILD_DEBOUNCE_MS = 15 * 60_000;
 
 function scheduleCatalogFacetRebuild(delayMs = FACET_REBUILD_DEBOUNCE_MS) {
@@ -3358,8 +3379,8 @@ function scheduleCatalogFacetRebuild(delayMs = FACET_REBUILD_DEBOUNCE_MS) {
 
 async function loadCatalogFacetMeta(pool) {
   if (catalogFacets.loaded) return;
-  const [[meta]] = await pool.query("SELECT built_at, duration_ms FROM inv_facet_meta WHERE id = 1");
-  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; }
+  const [[meta]] = await pool.query(`SELECT built_at, duration_ms${FACET_EXTRAS ? ", extra_ms, extra_skipped" : ""} FROM inv_facet_meta WHERE id = 1`);
+  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; if (FACET_EXTRAS) { catalogFacets.extraMs = meta.extra_ms; catalogFacets.extraSkipped = meta.extra_skipped; } }
   catalogFacets.loaded = true;
 }
 
@@ -3384,6 +3405,9 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     await ensureInventoryTable(pool);
     const [makeRows] = await pool.query("SELECT DISTINCT make FROM dealer_inventory WHERE removed_at IS NULL AND make IS NOT NULL");
     const makes = makeRows.map((r) => r.make);
+    // Condition counts + price histogram (flag FACET_COND_PRICE): one more aggregate per make, skipped for a make that would push the extra time past the budget.
+    const extrasAcc = FACET_EXTRAS ? createExtrasAccumulator() : null;
+    let extraMs = 0, extraSkipped = 0, makesDone = 0;
     const summary = createSummaryAccumulator();
     // Paid-only: count a row only where ITS OWN price is above 0 (so a label paid on some cars and $0 on others counts the paid cars only) and keep the price range.
     const paid = paidSql(PAID_ONLY);
@@ -3405,6 +3429,15 @@ async function rebuildCatalogFacets(pool, opts = {}) {
       );
       summary.addOptions(optionAgg);
       summary.addColors(colorAgg);
+      let extraAgg = null;
+      if (FACET_EXTRAS) {
+        if (budgetAllows({ makesDone, elapsedMs: Date.now() - started, extraMs, budgetPct: EXTRA_BUDGET_PCT })) {
+          const t0 = Date.now();
+          [extraAgg] = await pool.query(extraAggSql({ retailOnly: RETAIL_ONLY_FACETS, staleDays: STALE_HIDE_DAYS }), [make]);
+          extraMs += Date.now() - t0;
+          extrasAcc.add(extraAgg);
+        } else extraSkipped++;
+      }
       const conn = await pool.getConnection();
       try {
         await conn.beginTransaction();
@@ -3417,6 +3450,14 @@ async function rebuildCatalogFacets(pool, opts = {}) {
         for (let i = 0; i < colorAgg.length; i += 2000) {
           await conn.query("INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);
         }
+        if (extraAgg) {
+          const tw = Date.now(); // the write counts against the budget too, not just the SELECT
+          await conn.query("DELETE FROM inv_price_facets WHERE make = ?", [make]);
+          for (let i = 0; i < extraAgg.length; i += 2000) {
+            await conn.query("INSERT INTO inv_price_facets (make, model, trim, cond, bucket, vehicle_count) VALUES ?", [extraAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.cond, Number(r.bucket), Number(r.n)])]);
+          }
+          extraMs += Date.now() - tw;
+        }
         await conn.commit();
       } catch (err) {
         await conn.rollback().catch(() => {});
@@ -3424,11 +3465,13 @@ async function rebuildCatalogFacets(pool, opts = {}) {
       } finally {
         conn.release();
       }
+      makesDone++;
     }
     // Makes with nothing left in stock.
     if (makes.length) {
       await pool.query("DELETE FROM inv_option_facets WHERE make NOT IN (?)", [makes]);
       await pool.query("DELETE FROM inv_color_facets WHERE make NOT IN (?)", [makes]);
+      if (FACET_EXTRAS) await pool.query("DELETE FROM inv_price_facets WHERE make NOT IN (?)", [makes]);
     }
     // All-makes summary for the no-make catalog call: replaced in one transaction so a reader never sees it half-written.
     {
@@ -3440,6 +3483,12 @@ async function rebuildCatalogFacets(pool, opts = {}) {
         await sconn.query("DELETE FROM inv_color_summary");
         if (optionRows.length) await sconn.query(PAID_ONLY ? "INSERT INTO inv_option_summary (canonical_key, label, vehicle_count, min_price, max_price) VALUES ?" : "INSERT INTO inv_option_summary (canonical_key, label, vehicle_count) VALUES ?", [optionRows]);
         if (colorRows.length) await sconn.query("INSERT INTO inv_color_summary (kind, color) VALUES ?", [colorRows]);
+        // The all-makes price summary is only rewritten from a COMPLETE pass: a skipped make would leave it short.
+        if (FACET_EXTRAS && extraSkipped === 0) {
+          const priceRows = extrasAcc.rows();
+          await sconn.query("DELETE FROM inv_price_summary");
+          if (priceRows.length) await sconn.query("INSERT INTO inv_price_summary (cond, bucket, vehicle_count) VALUES ?", [priceRows]);
+        }
         await sconn.commit();
       } catch (err) {
         await sconn.rollback().catch(() => {});
@@ -3450,12 +3499,17 @@ async function rebuildCatalogFacets(pool, opts = {}) {
     }
     const durationMs = Date.now() - started;
     await pool.query("INSERT INTO inv_facet_meta (id, built_at, duration_ms) VALUES (1, NOW(), ?) ON DUPLICATE KEY UPDATE built_at = VALUES(built_at), duration_ms = VALUES(duration_ms)", [durationMs]);
+    if (FACET_EXTRAS) {
+      await pool.query("UPDATE inv_facet_meta SET extra_ms = ?, extra_skipped = ? WHERE id = 1", [extraMs, extraSkipped]);
+      catalogFacets.extraMs = extraMs;
+      catalogFacets.extraSkipped = extraSkipped;
+    }
     catalogFacets.builtAt = new Date();
     catalogFacets.durationMs = durationMs;
     catalogFacets.lastError = null;
     catalogFacets.loaded = true;
     invInvalidate();
-    console.log(`${new Date().toISOString()} catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms`);
+    console.log(`${new Date().toISOString()} catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms${FACET_EXTRAS ? ` (cond/price extra ${extraMs}ms = ${(100 * extraMs / Math.max(1, durationMs - extraMs)).toFixed(1)}% of the rest, ${extraSkipped} makes skipped by the budget)` : ""}`);
   } catch (err) {
     catalogFacets.lastError = err.message;
     console.error(`${new Date().toISOString()} catalog facet rebuild failed:`, err.message);
@@ -3477,7 +3531,10 @@ async function handleCatalogFacetRebuild(req, res) {
 async function handleCatalogFacetStatus(req, res) {
   await ensureInventoryTable(getPool());
   await loadCatalogFacetMeta(getPool());
-  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });
+  const extras = FACET_EXTRAS && catalogFacets.extraMs != null
+    ? { extras: { extraMs: catalogFacets.extraMs, skippedMakes: catalogFacets.extraSkipped, pctOfRestOfBuild: Number((100 * catalogFacets.extraMs / Math.max(1, (catalogFacets.durationMs || 0) - catalogFacets.extraMs)).toFixed(1)), budgetPct: EXTRA_BUDGET_PCT } }
+    : {};
+  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError, ...extras });
 }
 
 // The rebuild's all-makes summary as the two row sets handleInventoryCatalogOptions already consumes, or null when it is missing/empty.
@@ -3489,6 +3546,24 @@ async function readAllMakesSummary(pool) {
     return summaryToQueryRows({ options, colors });
   } catch (err) {
     console.warn(`${new Date().toISOString()} catalog summary unavailable, using the full query: ${err.message}`);
+    return null;
+  }
+}
+
+// Condition counts + price histogram for the catalog payload (flag FACET_COND_PRICE): from inv_price_summary for the all-makes call, else a SUM over the
+// make/model/trim rows (at most make's rows, 4 conditions x 31 buckets out). Never fails the catalog call: before the first extras rebuild the table is empty.
+async function readCatalogExtras(pool, fWhereSql, fArgs, allMakes) {
+  try {
+    const [rows] = await withPoolTimeout(
+      allMakes
+        ? pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT cond, bucket, vehicle_count AS n FROM inv_price_summary`)
+        : pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT cond, bucket, SUM(vehicle_count) AS n FROM inv_price_facets ${fWhereSql} GROUP BY cond, bucket`, fArgs),
+      waitMs(),
+      "Timed out waiting for an available database connection or a slow query"
+    );
+    return foldExtras(rows);
+  } catch (err) {
+    console.warn(`${new Date().toISOString()} catalog cond/price extras unavailable: ${err.message}`);
     return null;
   }
 }
@@ -3516,10 +3591,11 @@ async function handleInventoryCatalogOptions(req, res, params) {
         "Timed out waiting for an available database connection or a slow query"
       );
       const [colorRows] = fromSummary ? [fromSummary.colorRows] : await withPoolTimeout(
-        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),
+        pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT exterior_color, interior_color, SUM(vehicle_count) AS n FROM inv_color_facets ${fWhereSql} GROUP BY exterior_color, interior_color`, fArgs),
         waitMs(),
         "Timed out waiting for an available database connection or a slow query"
       );
+      const extras = FACET_EXTRAS ? await readCatalogExtras(pool, fWhereSql, fArgs, !make && !model && !trim) : null;
       return {
         // Cleaned and capped for the buyer's checklist — see buyerOptionCatalog. In allowlist mode,
         // a make with an allowlist shows only options it vouches for; one without falls back.
@@ -3530,6 +3606,9 @@ async function handleInventoryCatalogOptions(req, res, params) {
         exteriorColors: [...new Set(colorRows.map((r) => r.exterior_color).filter(Boolean))].sort(),
         interiorColors: [...new Set(colorRows.map((r) => r.interior_color).filter(Boolean))].sort(),
         countsAsOf: catalogFacets.builtAt,
+        // Per-colour car counts (the all-makes summary keeps names only, so none there) and, with FACET_COND_PRICE, condition counts + the price histogram. Additive fields.
+        ...(colorCountsFrom(colorRows) || {}),
+        ...(extras || {}),
       };
     }));
     return;

@@ -14,6 +14,7 @@ import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { lastSeenLabel } from "@/lib/lastConfirmed";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
+import type { PriceHistogram } from "@/lib/inventoryApi";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
 import type { LiveCountProps } from "./search/LiveCount";
 
@@ -47,6 +48,8 @@ interface SearchResults {
   total: number;
   /** True when `total` is a floor ("1,000+") — the box stopped counting at its cap. */
   totalCapped?: boolean;
+  /** The Leave-out words the box applied. Absent: the box ignored them (an older box), so the page hides matching cars itself. */
+  excludeApplied?: string[];
   /** How many vehicles the most recent page returned — a full page is how "Load more" knows there may be another. */
   lastPageCount?: number;
   limit: number;
@@ -119,6 +122,8 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
   if (f.optionKeys.length) sp.set("optionKeys", f.optionKeys.join(","));
   if (f.possibleDemo) sp.set("possibleDemo", "1");
   if (f.contactOnFile) sp.set("contactOnFile", "1");
+  // "Leave out" words go to the box as repeated exclude= params (it only honours them with a make); an older box ignores them and the page falls back to hiding cars it already has.
+  if (f.make) for (const w of parseExclude(f.exclude)) sp.append("exclude", w);
   if (f.zip) sp.set("zip", f.zip);
   if (f.radiusMiles && f.make && f.zip) sp.set("radiusMiles", f.radiusMiles);
   if (f.sort) {
@@ -129,6 +134,12 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
   if (extra.limit) sp.set("limit", String(extra.limit));
   if (extra.offset) sp.set("offset", String(extra.offset));
   return sp.toString();
+}
+
+export interface CatalogExtras {
+  exteriorColorCounts?: Array<{ color: string; n: number }>;
+  conditionCounts?: { new: number; used: number; cpo: number };
+  priceHistogram?: PriceHistogram;
 }
 
 const RESULTS_PAGE_SIZE = 24;
@@ -190,6 +201,8 @@ export function BuyerSearchView() {
   const [catalogOptions, setCatalogOptions] = useState<CatalogOption[]>([]);
   const [exteriorColors, setExteriorColors] = useState<string[]>([]);
   const [interiorColors, setInteriorColors] = useState<string[]>([]);
+  // Per-colour / per-condition counts and the price histogram for the picked make/model/trim. Absent when the box does not send them (the chips then show no number).
+  const [catalogExtras, setCatalogExtras] = useState<CatalogExtras>({});
   const [catalogOptionsLoading, setCatalogOptionsLoading] = useState(false);
   const [catalogOptionsFailed, setCatalogOptionsFailed] = useState(false);
 
@@ -263,6 +276,11 @@ export function BuyerSearchView() {
         setCatalogOptions(Array.isArray(json?.options) ? json.options : []);
         setExteriorColors(Array.isArray(json?.exteriorColors) ? json.exteriorColors : []);
         setInteriorColors(Array.isArray(json?.interiorColors) ? json.interiorColors : []);
+        setCatalogExtras({
+          exteriorColorCounts: Array.isArray(json?.exteriorColorCounts) ? json.exteriorColorCounts : undefined,
+          conditionCounts: json?.conditionCounts && typeof json.conditionCounts === "object" ? json.conditionCounts : undefined,
+          priceHistogram: Array.isArray(json?.priceHistogram?.all) && json.priceHistogram.all.length === 31 ? json.priceHistogram : undefined,
+        });
       })
       .catch((e) => {
         if (e?.name === "AbortError") return;
@@ -270,6 +288,7 @@ export function BuyerSearchView() {
         setCatalogOptions([]);
         setExteriorColors([]);
         setInteriorColors([]);
+        setCatalogExtras({});
       })
       .finally(() => setCatalogOptionsLoading(false));
     return () => controller.abort();
@@ -411,8 +430,8 @@ export function BuyerSearchView() {
   const COUNT_DEBOUNCE_MS = 250;
   const serverMode = needsServerCount(filters);
   const countQs = useMemo(() => (serverMode ? filtersToQueryString({ ...filters, sort: "" }, { limit: 1 }) : ""), [serverMode, filters]);
-  const countCache = useRef(new Map<string, { total: number; capped: boolean }>());
-  const [serverCount, setServerCount] = useState<{ qs: string; total: number; capped: boolean } | null>(null);
+  const countCache = useRef(new Map<string, { total: number; capped: boolean; excl: boolean }>());
+  const [serverCount, setServerCount] = useState<{ qs: string; total: number; capped: boolean; excl: boolean } | null>(null);
   const [serverCountFailed, setServerCountFailed] = useState(false);
   useEffect(() => {
     if (!countQs) return;
@@ -426,7 +445,7 @@ export function BuyerSearchView() {
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`count ${r.status}`))))
         .then((json) => {
           if (typeof json?.total !== "number") throw new Error("count shape");
-          const entry = { total: json.total, capped: Boolean(json.totalCapped) };
+          const entry = { total: json.total, capped: Boolean(json.totalCapped), excl: Array.isArray(json.excludeApplied) && json.excludeApplied.length > 0 };
           countCache.current.set(countQs, entry);
           setServerCount({ qs: countQs, ...entry });
           setServerCountFailed(false);
@@ -439,7 +458,7 @@ export function BuyerSearchView() {
   useEffect(() => {
     if (!results || !applied || results.offset !== 0) return;
     const key = filtersToQueryString({ ...applied, sort: "" }, { limit: 1 });
-    countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped) });
+    countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped), excl: Boolean(results.excludeApplied?.length) });
   }, [results, applied]);
   const facetLists = useMemo(() => {
     const rows = (o: DropdownOption[]) => o.map((x) => ({ value: x.value, count: x.count ?? 0 }));
@@ -454,6 +473,7 @@ export function BuyerSearchView() {
       capped = fresh ? fresh.capped : lastShown.current?.capped ?? false;
       pending = !fresh && !serverCountFailed;
       if (serverCountFailed && !fresh) note = "Couldn't refresh the count just now.";
+      else if (fresh && parseExclude(filters.exclude).length && !fresh.excl) note = "Leave-out words are not counted yet; they hide cars once results are shown.";
     } else {
       const fc = countsHidden ? null : facetCount(filters, facetLists);
       value = fc ?? lastShown.current?.value ?? null;
@@ -466,7 +486,7 @@ export function BuyerSearchView() {
     return { value, capped, pending, note };
   })();
   const excludeTerms = useMemo(() => parseExclude(filters.exclude), [filters.exclude]);
-  const shownVehicles = useMemo(() => (results && excludeTerms.length ? results.vehicles.filter((v) => !isExcluded(v, excludeTerms)) : results?.vehicles ?? []), [results, excludeTerms]);
+  const shownVehicles = useMemo(() => (results && excludeTerms.length && !results.excludeApplied?.length ? results.vehicles.filter((v) => !isExcluded(v, excludeTerms)) : results?.vehicles ?? []), [results, excludeTerms]);
   const excludedHidden = results ? results.vehicles.length - shownVehicles.length : 0;
 
   return (
@@ -480,7 +500,7 @@ export function BuyerSearchView() {
         exteriorColors={exteriorColors} interiorColors={interiorColors}
         moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
         contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
-        live={live} excludedHidden={excludedHidden}
+        live={live} excludedHidden={excludedHidden} extras={catalogExtras}
       />
 
       <div>

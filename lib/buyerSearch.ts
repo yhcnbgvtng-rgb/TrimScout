@@ -20,7 +20,7 @@ export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
-export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; totalCapped: boolean; limit: number; offset: number; vehicles: BuyerVehicle[] }> {
+export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total: number; totalCapped: boolean; limit: number; offset: number; vehicles: BuyerVehicle[]; excludeApplied?: string[] }> {
   const { query, zip, radiusMiles, sortDistance, distanceDir, contactOnFile } = parsed;
   const contacts = await loadContactIndex();
   // No directory = no way to say who has a contact: refuse, never fall back to the unfiltered list under a checked box.
@@ -35,5 +35,5 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total
   if (zip && sortDistance) {
     vehicles = sortByDistance(vehicles, distanceDir);
   }
-  return { total: result.total, totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles };
+  return { total: result.total, totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles, ...(result.excludeApplied ? { excludeApplied: result.excludeApplied } : {}) };
 }

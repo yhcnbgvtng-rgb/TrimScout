@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 import { optionPriceText, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { parseExclude } from "@/lib/searchLive";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
-import type { CatalogOption, Filters } from "../BuyerSearchView";
+import type { CatalogExtras, CatalogOption, Filters } from "../BuyerSearchView";
 import { FacetChips, type Chip } from "./FacetChips";
 import { LiveCount, type LiveCountProps } from "./LiveCount";
 import { PriceRange } from "./PriceRange";
@@ -48,8 +48,10 @@ export interface SearchFilterBarProps {
   submitSearch: () => void;
   /** The headline count (see LiveCount) and where the shopper is in "Show N vehicles". */
   live: LiveCountProps;
-  /** Cars on screen hidden by the keyword-exclude field. */
+  /** Cars on screen hidden by the keyword-exclude field (only when the box did not apply the words itself). */
   excludedHidden: number;
+  /** Colour / condition counts and the price histogram from the catalog call; empty when the box does not send them. */
+  extras: CatalogExtras;
 }
 
 const money = (n: string) => `$${Number(n).toLocaleString()}`;
@@ -214,6 +216,13 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
     value: o.key, label: o.label, count: o.vehicleCount,
     detail: paidOnly ? optionPriceText(o.minPrice, o.maxPrice, true) || undefined : undefined, // flag off, or no paid price in the data: no price slot
   }));
+  // Exterior colour chips: with counts (most cars first) when the box sends them, else the plain alphabetical names.
+  const exteriorChips: Chip[] = p.extras.exteriorColorCounts?.length
+    ? p.extras.exteriorColorCounts.map((c) => ({ value: c.color, label: c.color, count: c.n }))
+    : p.exteriorColors.map((c) => ({ value: c, label: c }));
+  // The sparkline follows the condition picked (all cars when none).
+  const hist = p.extras.priceHistogram;
+  const histogram = hist ? (filters.cond === "new" || filters.cond === "used" || filters.cond === "cpo" ? hist[filters.cond] : hist.all) : undefined;
   const showResults = (close: () => void) => () => { close(); p.submitSearch(); };
   const countLabel = p.live.value == null ? "Search" : `Show ${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicle${p.live.value === 1 && !p.live.capped ? "" : "s"}`;
 
@@ -277,21 +286,21 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
 
       <div role="group" aria-label="Filters" className="mt-3 divide-y divide-border/40">
         <FacetChips label="Condition" selected={filters.cond ? [filters.cond] : []} onToggle={(v) => toggleOne("cond", v)}
-          chips={[{ value: "new", label: "New" }, { value: "used", label: "Used" }, { value: "cpo", label: "Certified" }]} />
+          chips={[{ value: "new", label: "New" }, { value: "used", label: "Used" }, { value: "cpo", label: "Certified" }].map((c) => ({ ...c, count: filters.make ? p.extras.conditionCounts?.[c.value as "new" | "used" | "cpo"] : undefined }))} />
         <FacetChips label="Location" selected={filters.state ? [filters.state] : []} onToggle={(v) => toggleOne("state", v)} chips={toChips(p.stateOptions)} limit={10} loading={p.facetsLoading} />
         <FacetChips label="Make" selected={filters.make ? [filters.make] : []} onToggle={(v) => p.setMake(filters.make === v ? "" : v)} chips={toChips(p.makeOptions)} limit={14} loading={p.facetsLoading} emptyText="No makes to show right now." />
         {filters.make && <FacetChips label="Model" selected={filters.model ? [filters.model] : []} onToggle={(v) => p.setModel(filters.model === v ? "" : v)} chips={toChips(p.modelOptions)} limit={14} loading={p.facetsLoading} />}
         {filters.model && <FacetChips label="Trim" selected={filters.trim ? [filters.trim] : []} onToggle={(v) => setFilters((f) => ({ ...f, trim: f.trim === v ? "" : v }))} chips={toChips(p.trimOptions)} limit={14} loading={p.facetsLoading} />}
         {filters.make && (p.exteriorColors.length > 0 || p.catalogOptionsLoading) && (
           <FacetChips label="Exterior colour" selected={filters.exteriorColor ? [filters.exteriorColor] : []} onToggle={(v) => toggleOne("exteriorColor", v)}
-            chips={p.exteriorColors.map((c) => ({ value: c, label: c }))} limit={12} loading={p.catalogOptionsLoading} />
+            chips={exteriorChips} limit={12} loading={p.catalogOptionsLoading} />
         )}
         {filters.model && (
           <FacetChips label={paidOnly ? "Paid factory options" : "Factory options"} selected={filters.optionKeys}
             onToggle={(k) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(k) ? f.optionKeys.filter((x) => x !== k) : [...f.optionKeys, k] }))}
             chips={optionChips} limit={12} loading={p.catalogOptionsLoading} emptyText={p.optionsEmptyMessage} />
         )}
-        <PriceRange min={filters.priceMin} max={filters.priceMax} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
+        <PriceRange min={filters.priceMin} max={filters.priceMax} histogram={histogram} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
         <div className="py-2">
           <label htmlFor={`${listId}-exclude`} className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-muted">Leave out</label>
           <input id={`${listId}-exclude`} type="text" value={filters.exclude} onChange={(e) => setFilters((f) => ({ ...f, exclude: e.target.value }))}

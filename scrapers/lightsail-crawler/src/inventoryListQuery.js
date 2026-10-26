@@ -92,6 +92,26 @@ export function contactIdsPredicate(ids, col = "i.dealer_id") {
   return { sql: `${col} IN (${ids.map(() => "?").join(",")})`, args: ids };
 }
 
+/** Most keyword-exclude words one search may carry, and their length limits. Mirrors lib/searchLive.ts parseExclude on the web side. */
+export const MAX_EXCLUDE_TERMS = 5;
+export const EXCLUDE_TERM_MIN = 2;
+export const EXCLUDE_TERM_MAX = 24;
+
+/**
+ * The words a buyer's "Leave out" field sends as repeated exclude= params: lower-cased, letters/digits/space/hyphen only (so a LIKE wildcard or
+ * backslash can never get in), 2-24 characters, de-duplicated, at most five.
+ */
+export function excludeTermsOf(params) {
+  const out = [];
+  for (const raw of params.getAll("exclude")) {
+    const t = String(raw).toLowerCase().replace(/[^a-z0-9 -]/g, " ").replace(/\s+/g, " ").trim();
+    if (t.length < EXCLUDE_TERM_MIN || t.length > EXCLUDE_TERM_MAX || out.includes(t)) continue;
+    out.push(t);
+    if (out.length >= MAX_EXCLUDE_TERMS) break;
+  }
+  return out;
+}
+
 /**
  * opts.contactDealerIds (from contactDealerIdsOf): only cars whose dealer is in the set. Sent by the buyer search's
  * "Dealer contact on file" filter via POST /api/inventory/contact-search; absent = no change to any query below.
@@ -204,6 +224,15 @@ export function inventoryListQuery(params, opts = {}) {
   // car, but a few hundred or more usually means it's been driven as a
   // loaner.
   if (p("possibleDemo") === "1") where.push("i.cond = 'new' AND i.mileage > 500");
+  // Keyword exclude (buyer "Leave out"): drop cars whose year / make / model / trim / colours contain any word. A residual filter on rows the make's index
+  // range already selected, so it adds no scan of its own; only honoured with a make (without one it would be a whole-table string scan) and the
+  // statement timeout still bounds it. The words are sanitised by excludeTermsOf, so no wildcard reaches the LIKE.
+  const excludeTerms = makes.length ? excludeTermsOf(params) : [];
+  if (excludeTerms.length) {
+    const hay = "CONCAT_WS(' ', i.year, i.make, i.model, i.trim, i.exterior_color, i.interior_color)";
+    where.push(`NOT (${excludeTerms.map(() => `${hay} LIKE ?`).join(" OR ")})`);
+    args.push(...excludeTerms.map((t) => `%${t}%`));
+  }
   if (p("q")) {
     // A leading-wildcard LIKE across 5 columns can't use any index — confirmed via EXPLAIN
     // against the live box (2026-09-22): type "ALL", a full scan of 555k+ rows, ~16s per
@@ -364,7 +393,7 @@ export function inventoryListQuery(params, opts = {}) {
   const capN = Math.floor(Number(params.get("countCap")));
   const countCap = Number.isFinite(capN) && capN >= 1 ? Math.min(capN, 100000) : null;
   const cappedCountSql = countCap ? `SELECT COUNT(*) AS total FROM (SELECT 1 ${countSql} LIMIT ${countCap + 1}) capped` : null;
-  return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy };
+  return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms };
 }
 
 /**

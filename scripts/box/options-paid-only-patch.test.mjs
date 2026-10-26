@@ -11,6 +11,13 @@ import { fileURLToPath } from "node:url";
 const PATCHER = fileURLToPath(new URL("./2026-10-19-options-paid-only.mjs", import.meta.url));
 const SRC = fileURLToPath(new URL("../../scrapers/lightsail-crawler/src/", import.meta.url));
 const text = fs.readFileSync(PATCHER, "utf8");
+// Later patches (facet extras, 2026-10-26) edit the same repo files on top of this one's result. Take them off first, so the repo file stands in for "the box after THIS patch".
+const LATER = [fileURLToPath(new URL("./facet-extras-edits.json", import.meta.url))].filter((f) => fs.existsSync(f)).flatMap((f) => JSON.parse(fs.readFileSync(f, "utf8")));
+const repoFile = (f) => {
+  let t = fs.readFileSync(path.join(SRC, f), "utf8");
+  for (const e of [...LATER.filter((x) => x.file === f)].reverse()) { assert.equal(t.split(e.replace).length - 1, 1, `${e.id}: later edit not found exactly once`); t = t.replace(e.replace, () => e.find); }
+  return t;
+};
 const edits = JSON.parse(text.slice(text.indexOf("const EDITS =\n") + "const EDITS =\n".length, text.indexOf("\n;\nfor (const e of EDITS)")));
 const FILES = [...new Set(edits.map((e) => e.file))];
 
@@ -22,7 +29,7 @@ before(() => {
   box = fs.mkdtempSync(path.join(os.tmpdir(), "paidonly-box-"));
   fs.cpSync(SRC, box, { recursive: true });
   for (const f of FILES) {
-    let t = fs.readFileSync(path.join(SRC, f), "utf8");
+    let t = repoFile(f);
     for (const e of [...edits.filter((x) => x.file === f)].reverse()) {
       assert.equal(t.split(e.replace).length - 1, 1, `${e.id}: replacement not found exactly once in the repo file`);
       t = t.replace(e.replace, () => e.find);
@@ -52,7 +59,7 @@ describe("2026-10-19-options-paid-only.mjs", () => {
     assert.equal(r.status, 0, r.stderr + r.stdout);
     assert.match(r.stdout, /has NOT been restarted and OPTIONS_PAID_ONLY was not set/);
     for (const f of FILES) {
-      assert.equal(read(f), fs.readFileSync(path.join(SRC, f), "utf8"), `${f} equals the repo's file`);
+      assert.equal(read(f), repoFile(f), `${f} equals the repo's file (minus later patches)`);
       const baks = fs.readdirSync(box).filter((n) => n.startsWith(`${f}.bak.`));
       assert.equal(baks.length, 1, `${f} has one backup`);
       assert.equal(fs.readFileSync(path.join(box, baks[0]), "utf8"), originals[f], `${f} backup is the original`);

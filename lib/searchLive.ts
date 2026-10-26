@@ -6,6 +6,8 @@ export interface LiveFilterShape {
   priceMin: string; priceMax: string; yearMin: string; yearMax: string; odometerMax: string;
   exteriorColor: string; interiorColor: string; optionKeys: string[];
   possibleDemo: boolean; contactOnFile: boolean; zip: string; radiusMiles: string;
+  /** "Leave out" words, comma separated. Optional so older callers still type-check. */
+  exclude?: string;
 }
 
 export interface FacetLists {
@@ -19,7 +21,7 @@ export interface FacetLists {
 export function hasNonFacetFilter(f: LiveFilterShape): boolean {
   return Boolean(
     f.cond || f.priceMin || f.priceMax || f.yearMin || f.yearMax || f.odometerMax || f.exteriorColor || f.interiorColor ||
-    f.optionKeys.length || f.possibleDemo || (f.zip && f.radiusMiles),
+    f.optionKeys.length || f.possibleDemo || (f.zip && f.radiusMiles) || parseExclude(f.exclude ?? "").length > 0,
   );
 }
 
@@ -47,13 +49,26 @@ export function needsServerCount(f: LiveFilterShape): boolean {
   return true;
 }
 
-/** "demo, loaner  lease" -> ["demo","loaner","lease"], lower-cased, de-duplicated, capped so a paste cannot become a huge scan. */
+export const MAX_EXCLUDE_WORDS = 5;
+export const EXCLUDE_WORD_MIN = 2;
+export const EXCLUDE_WORD_MAX = 24;
+
+/**
+ * One keyword-exclude word, cleaned the way the box cleans it (inventoryListQuery.js excludeTermsOf): lower-case, letters/digits/space/hyphen only,
+ * 2-24 characters. Null when nothing usable is left. Keep the two in step: the web side sends exactly what the box would keep.
+ */
+export function cleanExcludeWord(raw: string): string | null {
+  const t = String(raw).toLowerCase().replace(/[^a-z0-9 -]/g, " ").replace(/\s+/g, " ").trim();
+  return t.length >= EXCLUDE_WORD_MIN && t.length <= EXCLUDE_WORD_MAX ? t : null;
+}
+
+/** "demo, loaner;lease" -> ["demo","loaner","lease"]: split on commas / semicolons / new lines, cleaned, de-duplicated, at most five. */
 export function parseExclude(raw: string): string[] {
   const out: string[] = [];
-  for (const part of raw.toLowerCase().split(/[,;\n]+/)) {
-    const t = part.trim().replace(/\s+/g, " ");
-    if (t && !out.includes(t)) out.push(t);
-    if (out.length >= 10) break;
+  for (const part of String(raw).split(/[,;\n]+/)) {
+    const w = cleanExcludeWord(part);
+    if (w && !out.includes(w)) out.push(w);
+    if (out.length >= MAX_EXCLUDE_WORDS) break;
   }
   return out;
 }
@@ -70,6 +85,8 @@ export function isExcluded(v: Excludable, terms: string[]): boolean {
   return terms.some((t) => hay.includes(t));
 }
 
+/** Width of one price-histogram bucket (the box buckets by $5,000; facetExtras.js). */
+export const HISTOGRAM_BUCKET = 5000;
 export const PRICE_SLIDER = { min: 0, max: 150000, step: 1000 } as const;
 
 /** "$32k", "$150k+" for the slider's readout. */

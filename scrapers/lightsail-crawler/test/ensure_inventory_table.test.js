@@ -37,8 +37,8 @@ function makePool({ failOn = null } = {}) {
   return pool;
 }
 
-function load(paidOnly = false) {
-  const ctx = { PAID_ONLY: paidOnly, BLOCKED_TABLE_DDL: 'CREATE TABLE IF NOT EXISTS blocked_stores (id INT)', VEHICLE_IDS_DDL: 'CREATE TABLE IF NOT EXISTS vehicle_ids (vin CHAR(17))', VEHICLE_ID_COLUMN_DDL: 'ALTER TABLE dealer_inventory ADD COLUMN IF NOT EXISTS vehicle_id INT UNSIGNED NULL', console };
+function load(paidOnly = false, facetExtras = false) {
+  const ctx = { PAID_ONLY: paidOnly, FACET_EXTRAS: facetExtras, BLOCKED_TABLE_DDL: 'CREATE TABLE IF NOT EXISTS blocked_stores (id INT)', VEHICLE_IDS_DDL: 'CREATE TABLE IF NOT EXISTS vehicle_ids (vin CHAR(17))', VEHICLE_ID_COLUMN_DDL: 'ALTER TABLE dealer_inventory ADD COLUMN IF NOT EXISTS vehicle_id INT UNSIGNED NULL', console };
   vm.createContext(ctx);
   vm.runInContext(['let inventoryReady = false;', 'let inventoryReadyPromise = null;', extractFunction('ensureInventoryTable'), extractFunction('ensureInventoryTableOnce', { optional: true }),
     'globalThis.ensureInventoryTable = ensureInventoryTable;', 'globalThis.isReady = () => inventoryReady;'].join('\n'), ctx);
@@ -60,6 +60,21 @@ describe('ensureInventoryTable', () => {
     assert.equal(count(pool, /ALTER TABLE dealer_inventory_options ADD COLUMN IF NOT EXISTS price INT NULL/), 1);
     assert.equal(count(pool, /ALTER TABLE inv_option_facets ADD COLUMN IF NOT EXISTS min_price INT NULL, ADD COLUMN IF NOT EXISTS max_price INT NULL/), 1);
     assert.equal(count(pool, /ALTER TABLE inv_option_summary ADD COLUMN IF NOT EXISTS min_price INT NULL/), 1);
+  });
+
+  it('FACET_COND_PRICE off: no price-facet table or meta column is created', async () => {
+    const ctx = load(false, false), pool = makePool();
+    await ctx.ensureInventoryTable(pool);
+    assert.equal(count(pool, /inv_price_facets|inv_price_summary|extra_ms/), 0);
+  });
+
+  it('FACET_COND_PRICE on: the price-facet tables and the two meta columns are created once (IF NOT EXISTS)', async () => {
+    const ctx = load(false, true), pool = makePool();
+    await ctx.ensureInventoryTable(pool);
+    await ctx.ensureInventoryTable(pool);
+    assert.equal(count(pool, /CREATE TABLE IF NOT EXISTS inv_price_facets/), 1);
+    assert.equal(count(pool, /CREATE TABLE IF NOT EXISTS inv_price_summary/), 1);
+    assert.equal(count(pool, /ALTER TABLE inv_facet_meta ADD COLUMN IF NOT EXISTS extra_ms INT NULL, ADD COLUMN IF NOT EXISTS extra_skipped INT NULL/), 1);
   });
 
   it('concurrent first requests do not collide: all resolve, the DDL runs once, each trigger is created once', async () => {

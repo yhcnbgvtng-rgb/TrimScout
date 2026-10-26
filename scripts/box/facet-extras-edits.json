@@ -1,0 +1,163 @@
+[
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-1",
+  "find": "import { paidOnlyEnabled, paidSql } from \"./optionsPaidOnlyServer.js\";\n",
+  "replace": "import { paidOnlyEnabled, paidSql } from \"./optionsPaidOnlyServer.js\";\nimport { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from \"./facetExtras.js\";\n",
+  "marker": "import { facetExtrasEnabled, extraBudgetPct, extraAggSql, budgetAllows, createExtrasAccumulator, foldExtras, colorCountsFrom } from \"./facetExtras.js\";"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-2",
+  "find": "const PAID_ONLY = paidOnlyEnabled();\n",
+  "replace": "const PAID_ONLY = paidOnlyEnabled();\n// FACET_COND_PRICE (default off): the facet rebuild also stores condition counts and a price histogram per make/model/trim (inv_price_facets, plus an all-makes\n// inv_price_summary) and the catalog call returns them. One extra aggregate per make, held to FACET_EXTRA_BUDGET_PCT (max 10) of the rest of the build; facetExtras.js.\n// Off = no tables, no extra queries, same catalog payload plus the colour counts (which cost nothing: they were already stored).\nconst FACET_EXTRAS = facetExtrasEnabled();\nconst EXTRA_BUDGET_PCT = extraBudgetPct();\n",
+  "marker": "const FACET_EXTRAS = facetExtrasEnabled();"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-3",
+  "find": "  inventoryReady = true;\n}\n\n// normalizeOptionKey()",
+  "replace": "  if (FACET_EXTRAS) {\n    await pool.query(`CREATE TABLE IF NOT EXISTS inv_price_facets (\n      make VARCHAR(64) NOT NULL,\n      model VARCHAR(96) NOT NULL,\n      trim VARCHAR(160) NOT NULL,\n      cond VARCHAR(12) NOT NULL,\n      bucket TINYINT NOT NULL,\n      vehicle_count INT NOT NULL,\n      PRIMARY KEY (make, model, trim, cond, bucket)\n    )`);\n    await pool.query(\"CREATE TABLE IF NOT EXISTS inv_price_summary (cond VARCHAR(12) NOT NULL, bucket TINYINT NOT NULL, vehicle_count INT NOT NULL, PRIMARY KEY (cond, bucket))\");\n    await pool.query(\"ALTER TABLE inv_facet_meta ADD COLUMN IF NOT EXISTS extra_ms INT NULL, ADD COLUMN IF NOT EXISTS extra_skipped INT NULL\");\n  }\n  inventoryReady = true;\n}\n\n// normalizeOptionKey()",
+  "marker": "await pool.query(\"ALTER TABLE inv_facet_meta ADD COLUMN IF NOT EXISTS extra_ms INT NULL, ADD COLUMN IF NOT EXISTS extra_skipped INT NULL\");"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-4",
+  "find": "const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, lastError: null, timer: null, loaded: false };",
+  "replace": "const catalogFacets = { building: false, again: false, builtAt: null, durationMs: null, extraMs: null, extraSkipped: null, lastError: null, timer: null, loaded: false };",
+  "marker": "durationMs: null, extraMs: null, extraSkipped: null,"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-5",
+  "find": "  const [[meta]] = await pool.query(\"SELECT built_at, duration_ms FROM inv_facet_meta WHERE id = 1\");\n  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; }\n",
+  "replace": "  const [[meta]] = await pool.query(`SELECT built_at, duration_ms${FACET_EXTRAS ? \", extra_ms, extra_skipped\" : \"\"} FROM inv_facet_meta WHERE id = 1`);\n  if (meta) { catalogFacets.builtAt = meta.built_at; catalogFacets.durationMs = meta.duration_ms; if (FACET_EXTRAS) { catalogFacets.extraMs = meta.extra_ms; catalogFacets.extraSkipped = meta.extra_skipped; } }\n",
+  "marker": "SELECT built_at, duration_ms${FACET_EXTRAS ? \", extra_ms, extra_skipped\" : \"\"} FROM inv_facet_meta"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-6",
+  "find": "    const makes = makeRows.map((r) => r.make);\n    const summary = createSummaryAccumulator();\n",
+  "replace": "    const makes = makeRows.map((r) => r.make);\n    // Condition counts + price histogram (flag FACET_COND_PRICE): one more aggregate per make, skipped for a make that would push the extra time past the budget.\n    const extrasAcc = FACET_EXTRAS ? createExtrasAccumulator() : null;\n    let extraMs = 0, extraSkipped = 0, makesDone = 0;\n    const summary = createSummaryAccumulator();\n",
+  "marker": "let extraMs = 0, extraSkipped = 0, makesDone = 0;"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-7",
+  "find": "      summary.addColors(colorAgg);\n",
+  "replace": "      summary.addColors(colorAgg);\n      let extraAgg = null;\n      if (FACET_EXTRAS) {\n        if (budgetAllows({ makesDone, elapsedMs: Date.now() - started, extraMs, budgetPct: EXTRA_BUDGET_PCT })) {\n          const t0 = Date.now();\n          [extraAgg] = await pool.query(extraAggSql({ retailOnly: RETAIL_ONLY_FACETS, staleDays: STALE_HIDE_DAYS }), [make]);\n          extraMs += Date.now() - t0;\n          extrasAcc.add(extraAgg);\n        } else extraSkipped++;\n      }\n",
+  "marker": "let extraAgg = null;"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-8",
+  "find": "          await conn.query(\"INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?\", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);\n        }\n        await conn.commit();\n",
+  "replace": "          await conn.query(\"INSERT INTO inv_color_facets (make, model, trim, exterior_color, interior_color, vehicle_count) VALUES ?\", [colorAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.ext, r.intr, Number(r.n)])]);\n        }\n        if (extraAgg) {\n          const tw = Date.now(); // the write counts against the budget too, not just the SELECT\n          await conn.query(\"DELETE FROM inv_price_facets WHERE make = ?\", [make]);\n          for (let i = 0; i < extraAgg.length; i += 2000) {\n            await conn.query(\"INSERT INTO inv_price_facets (make, model, trim, cond, bucket, vehicle_count) VALUES ?\", [extraAgg.slice(i, i + 2000).map((r) => [make, r.model, r.trim, r.cond, Number(r.bucket), Number(r.n)])]);\n          }\n          extraMs += Date.now() - tw;\n        }\n        await conn.commit();\n",
+  "marker": "await conn.query(\"DELETE FROM inv_price_facets WHERE make = ?\", [make]);"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-9",
+  "find": "        conn.release();\n      }\n    }\n    // Makes with nothing left in stock.\n",
+  "replace": "        conn.release();\n      }\n      makesDone++;\n    }\n    // Makes with nothing left in stock.\n",
+  "marker": "      makesDone++;\n"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-10",
+  "find": "      await pool.query(\"DELETE FROM inv_color_facets WHERE make NOT IN (?)\", [makes]);\n",
+  "replace": "      await pool.query(\"DELETE FROM inv_color_facets WHERE make NOT IN (?)\", [makes]);\n      if (FACET_EXTRAS) await pool.query(\"DELETE FROM inv_price_facets WHERE make NOT IN (?)\", [makes]);\n",
+  "marker": "if (FACET_EXTRAS) await pool.query(\"DELETE FROM inv_price_facets WHERE make NOT IN (?)\", [makes]);"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-11",
+  "find": "        if (colorRows.length) await sconn.query(\"INSERT INTO inv_color_summary (kind, color) VALUES ?\", [colorRows]);\n",
+  "replace": "        if (colorRows.length) await sconn.query(\"INSERT INTO inv_color_summary (kind, color) VALUES ?\", [colorRows]);\n        // The all-makes price summary is only rewritten from a COMPLETE pass: a skipped make would leave it short.\n        if (FACET_EXTRAS && extraSkipped === 0) {\n          const priceRows = extrasAcc.rows();\n          await sconn.query(\"DELETE FROM inv_price_summary\");\n          if (priceRows.length) await sconn.query(\"INSERT INTO inv_price_summary (cond, bucket, vehicle_count) VALUES ?\", [priceRows]);\n        }\n",
+  "marker": "if (FACET_EXTRAS && extraSkipped === 0) {"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-12",
+  "find": "    catalogFacets.builtAt = new Date();\n    catalogFacets.durationMs = durationMs;\n",
+  "replace": "    if (FACET_EXTRAS) {\n      await pool.query(\"UPDATE inv_facet_meta SET extra_ms = ?, extra_skipped = ? WHERE id = 1\", [extraMs, extraSkipped]);\n      catalogFacets.extraMs = extraMs;\n      catalogFacets.extraSkipped = extraSkipped;\n    }\n    catalogFacets.builtAt = new Date();\n    catalogFacets.durationMs = durationMs;\n",
+  "marker": "await pool.query(\"UPDATE inv_facet_meta SET extra_ms = ?, extra_skipped = ? WHERE id = 1\", [extraMs, extraSkipped]);"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-13",
+  "find": "catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms`);",
+  "replace": "catalog facets rebuilt: ${makes.length} makes in ${durationMs}ms${FACET_EXTRAS ? ` (cond/price extra ${extraMs}ms = ${(100 * extraMs / Math.max(1, durationMs - extraMs)).toFixed(1)}% of the rest, ${extraSkipped} makes skipped by the budget)` : \"\"}`);",
+  "marker": "(cond/price extra ${extraMs}ms"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-14",
+  "find": "  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError });\n",
+  "replace": "  const extras = FACET_EXTRAS && catalogFacets.extraMs != null\n    ? { extras: { extraMs: catalogFacets.extraMs, skippedMakes: catalogFacets.extraSkipped, pctOfRestOfBuild: Number((100 * catalogFacets.extraMs / Math.max(1, (catalogFacets.durationMs || 0) - catalogFacets.extraMs)).toFixed(1)), budgetPct: EXTRA_BUDGET_PCT } }\n    : {};\n  sendJson(res, 200, { building: catalogFacets.building, lastBuiltAt: catalogFacets.builtAt, lastDurationMs: catalogFacets.durationMs, lastError: catalogFacets.lastError, ...extras });\n",
+  "marker": "pctOfRestOfBuild:"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-15",
+  "find": "async function handleInventoryCatalogOptions(req, res, params) {\n",
+  "replace": "// Condition counts + price histogram for the catalog payload (flag FACET_COND_PRICE): from inv_price_summary for the all-makes call, else a SUM over the\n// make/model/trim rows (at most make's rows, 4 conditions x 31 buckets out). Never fails the catalog call: before the first extras rebuild the table is empty.\nasync function readCatalogExtras(pool, fWhereSql, fArgs, allMakes) {\n  try {\n    const [rows] = await withPoolTimeout(\n      allMakes\n        ? pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT cond, bucket, vehicle_count AS n FROM inv_price_summary`)\n        : pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR SELECT cond, bucket, SUM(vehicle_count) AS n FROM inv_price_facets ${fWhereSql} GROUP BY cond, bucket`, fArgs),\n      waitMs(),\n      \"Timed out waiting for an available database connection or a slow query\"\n    );\n    return foldExtras(rows);\n  } catch (err) {\n    console.warn(`${new Date().toISOString()} catalog cond/price extras unavailable: ${err.message}`);\n    return null;\n  }\n}\n\nasync function handleInventoryCatalogOptions(req, res, params) {\n",
+  "marker": "async function readCatalogExtras(pool, fWhereSql, fArgs, allMakes) {"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-16",
+  "find": "FOR SELECT DISTINCT exterior_color, interior_color FROM inv_color_facets ${fWhereSql}`, fArgs),",
+  "replace": "FOR SELECT exterior_color, interior_color, SUM(vehicle_count) AS n FROM inv_color_facets ${fWhereSql} GROUP BY exterior_color, interior_color`, fArgs),",
+  "marker": "SUM(vehicle_count) AS n FROM inv_color_facets ${fWhereSql} GROUP BY exterior_color, interior_color"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-17",
+  "find": "      return {\n        // Cleaned and capped for the buyer's checklist",
+  "replace": "      const extras = FACET_EXTRAS ? await readCatalogExtras(pool, fWhereSql, fArgs, !make && !model && !trim) : null;\n      return {\n        // Cleaned and capped for the buyer's checklist",
+  "marker": "const extras = FACET_EXTRAS ? await readCatalogExtras("
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-18",
+  "find": "        countsAsOf: catalogFacets.builtAt,\n      };\n    }));\n    return;\n",
+  "replace": "        countsAsOf: catalogFacets.builtAt,\n        // Per-colour car counts (the all-makes summary keeps names only, so none there) and, with FACET_COND_PRICE, condition counts + the price histogram. Additive fields.\n        ...(colorCountsFrom(colorRows) || {}),\n        ...(extras || {}),\n      };\n    }));\n    return;\n",
+  "marker": "...(colorCountsFrom(colorRows) || {}),"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-19",
+  "find": "  const { sql, countSql, countCap, cappedCountSql, args, orderBy } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });\n  const limit",
+  "replace": "  const { sql, countSql, countCap, cappedCountSql, args, orderBy, excludeTerms } = inventoryListQuery(params, { contactDealerIds: extra.contactDealerIds });\n  const limit",
+  "marker": "cappedCountSql, args, orderBy, excludeTerms } = inventoryListQuery(params, { contactDealerIds"
+ },
+ {
+  "file": "deals_api_server.js",
+  "id": "facet-extras-20",
+  "find": "  if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };\n",
+  "replace": "  if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };\n  // Echoed the same way: the keyword-exclude words this box actually applied, so the web app can tell an older box that ignored them.\n  if (excludeTerms.length) body.excludeApplied = excludeTerms;\n",
+  "marker": "if (excludeTerms.length) body.excludeApplied = excludeTerms;"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "facet-extras-21",
+  "find": "/**\n * opts.contactDealerIds (from contactDealerIdsOf)",
+  "replace": "/** Most keyword-exclude words one search may carry, and their length limits. Mirrors lib/searchLive.ts parseExclude on the web side. */\nexport const MAX_EXCLUDE_TERMS = 5;\nexport const EXCLUDE_TERM_MIN = 2;\nexport const EXCLUDE_TERM_MAX = 24;\n\n/**\n * The words a buyer's \"Leave out\" field sends as repeated exclude= params: lower-cased, letters/digits/space/hyphen only (so a LIKE wildcard or\n * backslash can never get in), 2-24 characters, de-duplicated, at most five.\n */\nexport function excludeTermsOf(params) {\n  const out = [];\n  for (const raw of params.getAll(\"exclude\")) {\n    const t = String(raw).toLowerCase().replace(/[^a-z0-9 -]/g, \" \").replace(/\\s+/g, \" \").trim();\n    if (t.length < EXCLUDE_TERM_MIN || t.length > EXCLUDE_TERM_MAX || out.includes(t)) continue;\n    out.push(t);\n    if (out.length >= MAX_EXCLUDE_TERMS) break;\n  }\n  return out;\n}\n\n/**\n * opts.contactDealerIds (from contactDealerIdsOf)",
+  "marker": "export function excludeTermsOf(params) {"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "facet-extras-22",
+  "find": "  if (p(\"possibleDemo\") === \"1\") where.push(\"i.cond = 'new' AND i.mileage > 500\");\n",
+  "replace": "  if (p(\"possibleDemo\") === \"1\") where.push(\"i.cond = 'new' AND i.mileage > 500\");\n  // Keyword exclude (buyer \"Leave out\"): drop cars whose year / make / model / trim / colours contain any word. A residual filter on rows the make's index\n  // range already selected, so it adds no scan of its own; only honoured with a make (without one it would be a whole-table string scan) and the\n  // statement timeout still bounds it. The words are sanitised by excludeTermsOf, so no wildcard reaches the LIKE.\n  const excludeTerms = makes.length ? excludeTermsOf(params) : [];\n  if (excludeTerms.length) {\n    const hay = \"CONCAT_WS(' ', i.year, i.make, i.model, i.trim, i.exterior_color, i.interior_color)\";\n    where.push(`NOT (${excludeTerms.map(() => `${hay} LIKE ?`).join(\" OR \")})`);\n    args.push(...excludeTerms.map((t) => `%${t}%`));\n  }\n",
+  "marker": "const excludeTerms = makes.length ? excludeTermsOf(params) : [];"
+ },
+ {
+  "file": "inventoryListQuery.js",
+  "id": "facet-extras-23",
+  "find": "return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy };",
+  "replace": "return { sql, countSql, countCap, cappedCountSql, args: [...optionArgs, ...args], orderBy, excludeTerms };",
+  "marker": "orderBy, excludeTerms };"
+ }
+]

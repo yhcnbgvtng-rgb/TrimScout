@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude, sliderMoney, type FacetLists, type LiveFilterShape } from "./searchLive";
+import { cleanExcludeWord, facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude, sliderMoney, type FacetLists, type LiveFilterShape } from "./searchLive";
 
 const empty: LiveFilterShape = { state: "", make: "", model: "", trim: "", cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "", exteriorColor: "", interiorColor: "", optionKeys: [], possibleDemo: false, contactOnFile: false, zip: "", radiusMiles: "" };
 const facets: FacetLists = {
@@ -35,8 +35,12 @@ describe("live count source", () => {
 describe("keyword exclude", () => {
   it("parses, lowercases, de-duplicates and caps", () => {
     assert.deepEqual(parseExclude("Black, sport ;BLACK\n  hybrid  "), ["black", "sport", "hybrid"]);
-    assert.equal(parseExclude(Array.from({ length: 30 }, (_, i) => `w${i}`).join(",")).length, 10);
+    assert.equal(parseExclude(Array.from({ length: 30 }, (_, i) => `w${i}`).join(",")).length, 5);
     assert.deepEqual(parseExclude("  , ,"), []);
+  });
+  it("cleans words the way the box does: no wildcards or quotes, 2-24 characters", () => {
+    assert.deepEqual(parseExclude("100%_x\\, a, O'Neil, " + "x".repeat(30)), ["100 x", "o neil"]);
+    assert.equal(cleanExcludeWord("%%"), null);
   });
   it("matches year, make, model, trim and colours; no terms excludes nothing", () => {
     const car = { year: 2026, make: "Toyota", model: "RAV4", trim: "XSE Hybrid", exteriorColor: "Cavalry Blue", interiorColor: "Black" };

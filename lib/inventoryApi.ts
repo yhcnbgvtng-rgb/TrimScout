@@ -85,7 +85,7 @@ export interface InventoryUpsert {
 }
 
 /** Fields the box accepts as REPEATED params (state=FL&state=GA): OR within a field, AND across fields. */
-export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond"] as const;
+export const MULTI_VALUE_KEYS = ["state", "make", "model", "trim", "cond", "exclude"] as const;
 
 export interface InventoryQuery {
   dealerId?: string;
@@ -127,6 +127,8 @@ export interface InventoryQuery {
   optionKeys?: string[];
   /** New condition with over 500 miles — likely a demo/loaner. */
   possibleDemo?: boolean;
+  /** Buyer "Leave out" words (repeated exclude= params, at most five): drop cars whose year/make/model/trim/colours contain any. The box only honours them with a make and echoes `excludeApplied`. */
+  exclude?: string[];
   /** Stop counting at this many matches (the response sets totalCapped) — buyer search never pays for an exact COUNT(*) over a huge set. */
   countCap?: number;
   limit?: number;
@@ -161,6 +163,7 @@ export type BuyerSearchQuery = Pick<
   | "interiorColor"
   | "optionKeys"
   | "possibleDemo"
+  | "exclude"
   | "countCap"
   | "limit"
   | "offset"
@@ -234,7 +237,7 @@ export function inventoryQueryString(q: InventoryQuery): string {
 }
 
 /** `total` is exact unless `totalCapped` — then it is a floor ("at least this many"), counted only up to the request's countCap. */
-export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[] }
+export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[]; /** The exclude words the box actually applied; absent from a box that does not know the parameter. */ excludeApplied?: string[] }
 
 export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPage> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
@@ -277,7 +280,15 @@ export interface CatalogOptions {
   options: Array<{ key: string; label: string; vehicleCount: number; /** Only with OPTIONS_PAID_ONLY on at the endpoint: lowest / highest paid price among the counted cars. */ minPrice?: number; maxPrice?: number }>;
   exteriorColors: string[];
   interiorColors: string[];
+  /** Cars per colour for the picked make/model/trim, most first. Absent from the all-makes call and from a box that predates them. */
+  exteriorColorCounts?: Array<{ color: string; n: number }>;
+  interiorColorCounts?: Array<{ color: string; n: number }>;
+  /** With FACET_COND_PRICE on at the box: cars per condition, and 31 price buckets ($5,000 wide, the last open-ended) for all cars and per condition. */
+  conditionCounts?: { new: number; used: number; cpo: number };
+  priceHistogram?: PriceHistogram;
 }
+
+export interface PriceHistogram { width: number; top: number; all: number[]; new: number[]; used: number[]; cpo: number[] }
 
 /** Factory options (canonical key + display label) and colors that actually exist among in-stock vehicles matching make/model/trim — the /search filter panel's own source of truth, so it never offers a combination with zero results. */
 export async function catalogOptions(f: { make?: string; model?: string; trim?: string } = {}): Promise<CatalogOptions> {

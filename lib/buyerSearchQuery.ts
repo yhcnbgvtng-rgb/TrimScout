@@ -1,6 +1,7 @@
 import type { BuyerSearchQuery } from "./inventoryApi";
 import { contactFilterEnabled } from "./contactFilterFlag";
 import { formatSort, parseSort, type SortDir } from "./buyerSort";
+import { cleanExcludeWord, MAX_EXCLUDE_WORDS } from "./searchLive";
 
 export class BuyerSearchParamsError extends Error {}
 
@@ -13,6 +14,17 @@ export interface ParsedBuyerSearch {
   sortDistance: boolean;
   /** Direction of the in-memory distance sort (distance has no database column). */
   distanceDir: SortDir;
+}
+
+/** The "Leave out" words of a request: repeated exclude= params, cleaned like the box does, at most five. Undefined when there are none. */
+function excludeWords(sp: URLSearchParams): string[] | undefined {
+  const out: string[] = [];
+  for (const raw of sp.getAll("exclude")) {
+    const w = cleanExcludeWord(raw);
+    if (w && !out.includes(w)) out.push(w);
+    if (out.length >= MAX_EXCLUDE_WORDS) break;
+  }
+  return out.length ? out : undefined;
 }
 
 const MAX_LIMIT = 100;
@@ -76,6 +88,7 @@ export function parseBuyerSearchParams(sp: URLSearchParams): ParsedBuyerSearch {
     interiorColor: sp.get("interiorColor") || undefined,
     optionKeys: optionKeys.length ? optionKeys : undefined,
     possibleDemo: sp.get("possibleDemo") === "1",
+    exclude: excludeWords(sp),
     // No explicit sort: the one order the make-scoped index serves with no filesort — trim for
     // make+model (idx_inv_stock_make_model_trim), model for make+state (idx_inv_facet_make_state_model);
     // make alone keeps the box's dealer default (idx_inv_stock_make_dealer). See inventoryListQuery.js.
