@@ -7,7 +7,7 @@ import { sortByDistance } from "./buyerSort";
 import { isRfqEligible } from "./lastConfirmed";
 
 /** Fields a buyer has no reason to see — crawl-pipeline provenance, not vehicle or deal facts. */
-export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen" | "lastSeenAt"> & {
+export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen" | "firstSeenAt" | "lastSeenAt"> & {
   distanceMiles: number | null;
   /** Does this dealership have a contact (email) on file? null = unknown (directory unavailable / no dealer id). */
   dealerHasContact: boolean | null;
@@ -16,7 +16,7 @@ export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"
 };
 
 export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
-  const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, lastSeenAt, ...rest } = v;
+  const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, firstSeenAt: _firstSeenAt, lastSeenAt, ...rest } = v;
   return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v), rfqEligible: isRfqEligible(lastSeenAt) };
 }
 

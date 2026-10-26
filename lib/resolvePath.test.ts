@@ -52,7 +52,7 @@ describe("factoryBuildStateLine — the honest line under a car with no factory 
     );
     assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 14 }))!, /· on the lot 14 days$/);
     assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 1 }))!, /on the lot 1 day$/);
-    assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 0, lotFirstSeen: "2026-09-15" }))!, /on the lot since 2026-09-15$/);
+    assert.doesNotMatch(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 0 }))!, /on the lot/);
   });
   it("an OEM's own pending note or a sticker-service outage leads instead of the generic line", () => {
     assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", stickerPendingNote: "Hyundai posts labels a few days after listing." }))!, /^Hyundai posts labels/);
