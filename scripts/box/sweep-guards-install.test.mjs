@@ -143,7 +143,7 @@ describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
   const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch'] };
   const withoutLater = (name, lines) => {
     const rest = [...lines];
-    for (const rel of LATER[name] || []) for (const l of changed(path.join(ROOT, rel))) { const i = rest.indexOf(l); if (i >= 0) rest.splice(i, 1); }
+    for (const rel of LATER[name] || []) for (const l of changed(path.join(ROOT, rel))) { const i = rest.indexOf(l); assert.ok(i >= 0, `${rel} changes a line the reviewed patch does not carry: ${l}`); rest.splice(i, 1); }
     return rest;
   };
   for (const name of ['deals_api_server.js', 'inventory-sync.mjs']) {
