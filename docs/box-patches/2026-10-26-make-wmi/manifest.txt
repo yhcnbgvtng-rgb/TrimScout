@@ -6,5 +6,5 @@
 47d66cd27da48dd87d583f3e37a71dfa  02-standalone.patch
 7a27bdc2472527f41952adb47f874af9  03-standalone-upgrade.patch
 e6fcef35fc34a0265a0a10248de45d2a  test-five-vins.mjs
-8e528e1e439f7d4d2949024aeea9cbf7  crawler.sh
+0af04343bb5bd7be6cb23d4861c70616  crawler.sh
 0b356582d67fd97c104355e8601c1a61  deals-api.sh
