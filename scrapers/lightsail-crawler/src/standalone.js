@@ -1224,9 +1224,10 @@ for (let i = 0; i < work.length; i++) {
                     // single-franchise VW store's own site) is still kept,
                     // tagged with its own real make, rather than discarded —
                     // see resolveKeptMake's own header for why.
-                    const keptMake = resolveKeptMake(brand, vehicle);
-                    // No make label and a VIN no table can place: still dropped (as before), but logged so the count is visible.
-                    if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table), car skipped: ${vehicle.vin} ${url}`);
+                    const keptMake = resolveKeptMake(brand, vehicle, dealer);
+                    // No page make, VIN not in the WMI table: kept under the dealer's / shard's brand (resolveKeptMake logs make_source=fallback).
+                    // Dropped, and logged here, only when no real brand is available either.
+                    if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table, no brand to fall back on), car skipped: ${vehicle.vin} ${url}`);
 
                     if (keptMake) {
                         // Collapse to the canonical nameplate. keptMake is
