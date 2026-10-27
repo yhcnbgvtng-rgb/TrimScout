@@ -1,0 +1,29 @@
+--- deals_api_server.js
++++ deals_api_server.js
+@@ -54,3 +54,3 @@
+ import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
+-import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
++import { parseSweepRequest, runSweepRequest } from "./inventorySweep.js";
+ import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement } from "./vinKeeper.js";
+@@ -2118,2 +2118,6 @@
+     "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
++    // Sweep miss counter (inventorySweep.js): a missing car is retired only on its Nth sweep in distinct runs. sweep_miss_at is the run cutoff that
++    // counted the latest miss; the count only means something while last_seen_at is still older than it, so an upsert needs no change to reset it.
++    "ADD COLUMN IF NOT EXISTS sweep_miss_count TINYINT UNSIGNED NOT NULL DEFAULT 0",
++    "ADD COLUMN IF NOT EXISTS sweep_miss_at DATETIME NULL",
+     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
+@@ -2760,6 +2764,10 @@
+   if (!parsed.ok) return badRequest(res, parsed.error);
+-  const { sql, args } = buildSweepStatement(parsed);
+-  const [result] = await pool.query(sql, args);
+-  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+-  sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
++  const out = await runSweepRequest((sql, args) => pool.query(sql, args), parsed);
++  if (out.removed) { invInvalidate(); scheduleCatalogFacetRebuild(); }
++  // A request without guard fields gets exactly the response it always did; guarded ones also learn which stores were skipped and how many absences were only counted.
++  sendJson(res, 200, {
++    removed: out.removed,
++    ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}),
++    ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}),
++  });
+ }

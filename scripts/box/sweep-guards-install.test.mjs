@@ -134,3 +134,31 @@ describe('print-explain-sql.mjs', () => {
     assert.match(statements[0], /a\.dealer_id IN \(5100, 12225, 12226\)/);
   });
 });
+
+describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
+  const REFIT = path.join(PKG, 'box2-refit');
+  const changed = (file) => fs.readFileSync(file, 'utf8').split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
+  for (const name of ['deals_api_server.js', 'inventory-sync.mjs']) {
+    it(`${name}: changes exactly the lines the reviewed patch changes, nothing else (only the surrounding context differs)`, () => {
+      assert.deepEqual(changed(path.join(REFIT, `${name}.patch`)), changed(path.join(PKG, `${name}.patch`)));
+    });
+  }
+
+  it('records the box2 md5s it was cut from and produces, and STEPS.md quotes the results', () => {
+    const rows = fs.readFileSync(path.join(REFIT, 'manifest.txt'), 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).map((l) => l.trim().split(/\s+/));
+    assert.deepEqual(rows.map((r) => `${r[1]} ${r[2]}`).sort(), ['BOXBASE deals_api_server.js', 'BOXBASE inventory-sync.mjs', 'BOXFINAL deals_api_server.js', 'BOXFINAL inventory-sync.mjs']);
+    for (const r of rows) assert.match(r[0], /^[0-9a-f]{32}$/);
+    const steps = fs.readFileSync(path.join(PKG, 'STEPS.md'), 'utf8');
+    for (const r of rows.filter((x) => x[1] === 'BOXFINAL')) assert.ok(steps.includes(r[0]) || steps.includes(r[0].slice(0, 8)), `STEPS.md quotes ${r[2]} BOXFINAL`);
+  });
+
+  it('the drift check and the install steps use the refit patches for those two files', () => {
+    const drift = fs.readFileSync(path.join(PKG, 'drift-check.sh'), 'utf8');
+    const steps = fs.readFileSync(path.join(PKG, 'STEPS.md'), 'utf8');
+    assert.match(drift, /box2-refit\/\$name\.patch/);
+    assert.match(steps, /box2-refit\/deals_api_server\.js\.patch/);
+    assert.match(steps, /box2-refit\/inventory-sync\.mjs\.patch/);
+    assert.doesNotMatch(steps, /patch -F0 deals_api_server\.js < \/tmp\/sweep-guards-stage\/deals_api_server\.js\.patch/);
+  });
+});
+

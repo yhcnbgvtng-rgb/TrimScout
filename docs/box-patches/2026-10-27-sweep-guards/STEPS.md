@@ -49,6 +49,9 @@ scp docs/box-patches/2026-10-27-sweep-guards/* scrapers/lightsail-crawler/src/in
 ssh box2 'cd /tmp/sweep-guards-stage && md5sum inventorySweep.js syncSweepGuard.js && grep FINAL manifest.txt'   # the two md5s must equal the FINAL lines above
 ```
 
+## Box2 refit (added after the first drift check, 2026-10-27 11:45 ET)
+Box2's `deals_api_server.js` (md5 `94a1811c…`) and `inventory-sync.mjs` (md5 `a490c373…`) differ from the repo in the lines **around** the change (the import list, the handler's neighbours), so the repo patches for those two reject. `box2-refit/` holds patches cut from box2's own text: the same changed lines as the reviewed patches (a test compares them), with the box's context. After a successful apply the files must have the md5s in `box2-refit/manifest.txt` (`BOXFINAL`): `9af97c81…` for `deals_api_server.js`, `64467d72…` for `inventory-sync.mjs`. If a box file has changed since (its md5 is not `BOXBASE`), the dry run decides; do not improvise.
+
 ## Steps
 
 ### 0. Read-only drift check (changes nothing)
@@ -73,9 +76,9 @@ Expect `SHOW COLUMNS` to list `sweep_miss_count tinyint(3) unsigned NO 0` and `s
 
 ### 3. Deals API files (not yet live)
 ```bash
-ssh box2 'cd /opt/trimscout-deals/src && cp /tmp/sweep-guards-stage/inventorySweep.js inventorySweep.js && patch -F0 deals_api_server.js < /tmp/sweep-guards-stage/deals_api_server.js.patch && md5sum inventorySweep.js deals_api_server.js && node --check inventorySweep.js && cp deals_api_server.js /tmp/chk.mjs && node --check /tmp/chk.mjs && echo SYNTAX_OK; rm -f /tmp/chk.mjs deals_api_server.js.orig deals_api_server.js.rej'
+ssh box2 'cd /opt/trimscout-deals/src && cp /tmp/sweep-guards-stage/inventorySweep.js inventorySweep.js && patch -F0 deals_api_server.js < /tmp/sweep-guards-stage/box2-refit/deals_api_server.js.patch && md5sum inventorySweep.js deals_api_server.js && node --check inventorySweep.js && cp deals_api_server.js /tmp/chk.mjs && node --check /tmp/chk.mjs && echo SYNTAX_OK; rm -f /tmp/chk.mjs deals_api_server.js.orig deals_api_server.js.rej'
 ```
-`inventorySweep.js` md5 must equal its FINAL line. `deals_api_server.js` will differ from FINAL (box drift); that is fine as long as `patch` printed no `FAILED`/`Hunk` errors and `SYNTAX_OK` printed. On any error restore from the backup (step 9) before doing anything else.
+`inventorySweep.js` md5 must equal its FINAL line. `deals_api_server.js` must equal `BOXFINAL` in `box2-refit/manifest.txt` (`9af97c8145d9d2293772af0e4c6b8206`), not the repo FINAL (box drift); that is fine as long as `patch` printed no `FAILED`/`Hunk` errors and `SYNTAX_OK` printed. On any error restore from the backup (step 9) before doing anything else.
 
 ### 4. Restart the deals API (idle only)
 Before: `sudo mysql -e "SELECT id,time,state,LEFT(info,90) FROM information_schema.processlist WHERE command<>'Sleep'"` shows nothing long, and no sync holds the lock.
@@ -99,9 +102,9 @@ Pass = `a` (the swept table) is `range`/`ref` on `idx_inv_stock_dealer_id` or `i
 
 ### 6. Sync client on box2 (not yet run)
 ```bash
-ssh box2 'cd ~/inventory-sync && cp /tmp/sweep-guards-stage/syncSweepGuard.js . && for f in inventory-sync.mjs syncRun.js syncSweep.js; do patch -F0 $f < /tmp/sweep-guards-stage/$f.patch || echo "PATCH FAILED $f"; done; md5sum syncSweepGuard.js inventory-sync.mjs syncRun.js syncSweep.js; for f in syncSweepGuard.js inventory-sync.mjs syncRun.js syncSweep.js; do node --check $f && echo "syntax ok $f"; done; rm -f *.orig *.rej'
+ssh box2 'cd ~/inventory-sync && cp /tmp/sweep-guards-stage/syncSweepGuard.js . && patch -F0 inventory-sync.mjs < /tmp/sweep-guards-stage/box2-refit/inventory-sync.mjs.patch || echo "PATCH FAILED inventory-sync.mjs"; for f in syncRun.js syncSweep.js; do patch -F0 $f < /tmp/sweep-guards-stage/$f.patch || echo "PATCH FAILED $f"; done; md5sum syncSweepGuard.js inventory-sync.mjs syncRun.js syncSweep.js; for f in syncSweepGuard.js inventory-sync.mjs syncRun.js syncSweep.js; do node --check $f && echo "syntax ok $f"; done; rm -f *.orig *.rej'
 ```
-`syncSweepGuard.js` md5 must equal FINAL. Any `PATCH FAILED` or syntax error: restore the three files from the backup (step 9) and stop. Then a dry run (reads the shards and the directory, sends nothing): `cd ~/inventory-sync && set -a && . ./.env && set +a && node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/inventory --dry-run | tail -25` should show `[sync] sweep guard: N crawl log(s) read, M store(s) hit a 403/429/5xx wall`. Do not start a real sync by hand; tonight's 22:10 cron runs it.
+`syncSweepGuard.js` md5 must equal FINAL, `inventory-sync.mjs` must equal `BOXFINAL` (`64467d725c559ea1fd3e1c16c9a37596`), and `syncRun.js` / `syncSweep.js` must equal their FINAL lines. Any `PATCH FAILED` or syntax error: restore the three files from the backup (step 9) and stop. Then a dry run (reads the shards and the directory, sends nothing): `cd ~/inventory-sync && set -a && . ./.env && set +a && node inventory-sync.mjs /home/ubuntu/nj-scraper/scrapers/lightsail-crawler/data/inventory --dry-run | tail -25` should show `[sync] sweep guard: N crawl log(s) read, M store(s) hit a 403/429/5xx wall`. Do not start a real sync by hand; tonight's 22:10 cron runs it.
 
 ### 7. What to check after the first real sync (next morning, `~/inventory-sync/logs/sync-<date>.log`)
 - `[sync] sweep guards acknowledged by the deals API: {...}` near the start of the sweep.
