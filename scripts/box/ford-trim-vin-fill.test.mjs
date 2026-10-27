@@ -61,6 +61,21 @@ describe('fillFor', () => {
   });
 });
 
+describe('fillFor: Raptor R hold', () => {
+  const mapping = new Map([['F-150|W1E|N', { trim: 'Raptor', rows: 100, share: 1 }], ['Explorer|K8A|N', { trim: 'Raptor', rows: 100, share: 1 }]]);
+  it('skips an F-150 Raptor target when VIN position 8 is 5', () => {
+    assert.equal(fillFor({ model: 'F-150', trim: '', vin: '1FTFW1E50NFA12345' }, mapping, mod), null);
+    assert.equal(fillFor({ model: 'F-150', trim: '8 FOOT BED', vin: '1ftfw1e50nfa12345' }, mapping, mod), null);
+  });
+  it('still fills an F-150 Raptor target when position 8 is anything else', () => {
+    assert.equal(fillFor({ model: 'F-150', trim: '', vin: '1FTFW1E80NFA12345' }, mapping, mod), 'Raptor');
+  });
+  it('does not apply the hold to other trims or other models', () => {
+    const xlt = new Map([['F-150|W1E|N', { trim: 'XLT', rows: 100, share: 1 }]]);
+    assert.equal(fillFor({ model: 'F-150', trim: '', vin: '1FTFW1E50NFA12345' }, xlt, mod), 'XLT');
+  });
+});
+
 describe('trimRawFor', () => {
   it('keeps the original text', () => assert.equal(trimRawFor({ trim: '8 FOOT BED', trim_raw: null }), '8 FOOT BED'));
   it('a blank original stays NULL', () => { assert.equal(trimRawFor({ trim: '', trim_raw: null }), null); assert.equal(trimRawFor({ trim: null, trim_raw: null }), null); });

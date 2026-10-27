@@ -70,6 +70,7 @@ export function fillFor(row, mapping, mod) {
   if (!group || !k) return null;
   if (!FILLABLE.has(mod.normalizeFordTrim({ make: "Ford", model: row.model, trim: row.trim }).status)) return null;
   const hit = mapping.get(`${group}|${k}`);
+  if (hit && group === "F-150" && hit.trim === "Raptor" && String(row.vin).toUpperCase()[7] === "5") return null; // Raptor R (VIN position 8 = 5) is on hold: never filled
   return hit ? hit.trim : null;
 }
 
