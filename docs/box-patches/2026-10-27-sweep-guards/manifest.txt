@@ -6,7 +6,7 @@
 074117d3a43fd5cecd60f0cac36be0a4  BASE   syncSweep.js
 6e0fb48ccd2f3ae9a6076aabdaabbeea  FINAL  syncSweep.js
 4b5c560a9f7469d06388e98b2921959d  BASE   deals_api_server.js
-6512f25c22306a6ac506b8ba1426ac1b  FINAL  deals_api_server.js
+dccbc540fb0e79f75bd1af6d81d1986e  FINAL  deals_api_server.js
 a8eddbd033bf3f5312bc43803e58d5dd  BASE   inventorySweep.js
 3076ea15ddb10a79f545a9ab65ff7d2c  FINAL  inventorySweep.js
 1d38a02b9daeae923d1584bb30d9cfc4  FINAL  syncSweepGuard.js
