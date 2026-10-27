@@ -142,7 +142,7 @@ export function isRealWindowStickerUrl(url) {
 // package price (factoryOptionAllowlist.js dtGroup) both read it from there, and 4WD vs 2WD is a real price difference for a buyer. (The first
 // version of this cleanup, #570, stripped it; that is reverted here. The option-policy trim match already ignores a trailing drivetrain word.)
 
-const NAMED_ENTITIES = { reg: '®', trade: '™', amp: '&', quot: '"', apos: "'", nbsp: ' ', lt: '<', gt: '>', copy: '©', ndash: '–', mdash: '—' };
+const NAMED_ENTITIES = { reg: '®', trade: '™', amp: '&', quot: '"', apos: "'", nbsp: ' ', lt: '<', gt: '>', copy: '©', ndash: '–', mdash: '—', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', prime: '′' };
 
 /** `&reg;` / `&#174;` / `&#xAE;` -> the character; unknown entities are left exactly as written. Two passes, for a double-escaped "&amp;reg;". */
 export function decodeHtmlEntities(text) {

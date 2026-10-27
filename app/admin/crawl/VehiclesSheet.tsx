@@ -18,7 +18,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown, Download, RefreshCw, Search, X } from "lucide-react";
-import { BLOCKED_NO_BYPASS_LABEL, VEHICLE_SHEET_COLUMNS, blockedFlagText, vehicleRowCell, vehicleSheetFilename, type BlockedFlag, type VehicleRow } from "@/lib/crawlSheetColumns";
+import { BLOCKED_NO_BYPASS_LABEL, VEHICLE_SHEET_COLUMNS, blockedFlagText, cleanTrimText, vehicleRowCell, vehicleSheetFilename, type BlockedFlag, type VehicleRow } from "@/lib/crawlSheetColumns";
 import {
   EMPTY_FILTERS, activeFilterCount, buildVehicleQuery, cascadeCleared, effectiveSort, facetKey, facetParams, filtersEqual, hasAnyFilter, loadAllFilters, pruneToOptions,
   type Movement, type SortKey, type VehicleFilters, type VehicleSort,
@@ -43,7 +43,7 @@ const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
 const condLabel = (c: string | null) => ({ new: "New", used: "Used", cpo: "Certified" } as Record<string, string>)[c || ""] || (c || "—");
 
 function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T): DropdownOption[] {
-  return rows.map((r) => ({ value: String(r[valueKey]), label: String(r[valueKey]), count: Number(r[countKey]) || 0 }));
+  return rows.map((r) => ({ value: String(r[valueKey]), label: valueKey === "trim" ? cleanTrimText(String(r[valueKey])) || String(r[valueKey]) : String(r[valueKey]), count: Number(r[countKey]) || 0 }));
 }
 
 type Applied = { filters: VehicleFilters; kind: "filters" | "all"; nonce: number };

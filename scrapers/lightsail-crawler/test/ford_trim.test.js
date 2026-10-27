@@ -1,7 +1,8 @@
 // Ford trim normalizer (src/fordTrim.js). Every example is a real string from the 2026-10-26 box2 probe (docs/trim-normalize/ford-probe-2026-10-26.md).
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { fordModelGroup, normalizeFordTrim, normalizeFordTrimForWrite } from '../src/fordTrim.js';
+import { cleanTrim, decodeHtmlEntities } from '../src/ingestSanitize.js';
+import { cleanFordTrimText, fordModelGroup, normalizeFordTrim, normalizeFordTrimForWrite } from '../src/fordTrim.js';
 
 const fix = (model, trim) => normalizeFordTrim({ make: 'Ford', model, trim });
 
@@ -123,5 +124,41 @@ describe('normalizeFordTrimForWrite', () => {
   it('trimRaw is capped to the column width', () => {
     const long = `XLT ${'4WD '.repeat(80)}`;
     assert.ok(normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: long }).trimRaw.length <= 160);
+  });
+});
+
+describe('entities and trademark marks are cleaned before matching', () => {
+  it('reads the official trim through ®, ™ and HTML entities, and flags it as a fix so the stored text is rewritten', () => {
+    for (const [model, input, want] of [
+      ['F-150', 'Raptor®', 'Raptor'], ['F-150', 'Raptor&reg;', 'Raptor'], ['F-150', 'Raptor&#174;', 'Raptor'], ['F-150', 'Raptor&#xAE;', 'Raptor'], ['F-150', 'Raptor&amp;reg;', 'Raptor'],
+      ['Ranger', 'Tremor®', 'Tremor'], ['Expedition', 'Tremor&trade;', 'Tremor'], ['Expedition', 'King Ranch®', 'King Ranch'], ['F-150', 'King Ranch&reg; 4WD SuperCrew', 'King Ranch'],
+      ['F-150', 'Platinum®', 'Platinum'], ['F-150', 'XLT 4WD Supercrew 5.5 Box', 'XLT'], ['F-150', 'XLT® 4WD SuperCrew 5.5&#39; Box', 'XLT'], ['Bronco', 'Big Bend™', 'Big Bend'],
+    ]) {
+      const r = fix(model, input);
+      assert.equal(r.trim, want, input); assert.equal(r.status, 'fix', input);
+    }
+  });
+  it('rewrites an exact official trim that only differs by the mark, and keeps the dealer text in trimRaw', () => {
+    assert.deepEqual(normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: 'Raptor®' }), { trim: 'Raptor', trimRaw: 'Raptor®', status: 'fix' });
+    assert.deepEqual(normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: 'Platinum&reg;' }), { trim: 'Platinum', trimRaw: 'Platinum&reg;', status: 'fix' });
+    assert.deepEqual(normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: 'Platinum' }), { trim: 'Platinum', trimRaw: null, status: 'clean' });
+  });
+  it('"Truck SuperCrew" stays unreadable and is returned exactly as it came, marks and all', () => {
+    assert.deepEqual(fix('F-150', 'Truck SuperCrew'), { trim: 'Truck SuperCrew', status: 'leftover' });
+    assert.deepEqual(fix('F-150', 'Truck SuperCrew®'), { trim: 'Truck SuperCrew®', status: 'leftover' });
+  });
+  it('is idempotent on cleaned output', () => {
+    const once = normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: 'King Ranch®' });
+    const twice = normalizeFordTrimForWrite({ make: 'Ford', model: 'F-150', trim: once.trim });
+    assert.equal(twice.status, 'clean'); assert.equal(twice.trimRaw, null);
+  });
+  it('cleanFordTrimText: unknown entities stay as written, non-strings pass through, and it agrees with ingestSanitize', () => {
+    assert.equal(cleanFordTrimText('A &bogus; B'), 'A &bogus; B');
+    assert.equal(cleanFordTrimText(null), null);
+    assert.equal(cleanFordTrimText('  Lariat™   4x4 '), 'Lariat 4x4');
+    for (const t of ['Raptor&reg;', 'King Ranch®', 'XLT &amp; Co', 'A&#174;B&#xAE;', 'Tremor&trade; 4WD', "Big&nbsp;Bend", 'L&rsquo;x', 'x &zzzz; y']) {
+      assert.equal(cleanFordTrimText(t), cleanTrim(t), t);
+    }
+    assert.equal(decodeHtmlEntities('a&rsquo;b&ldquo;c&rdquo;'), 'a’b“c”');
   });
 });

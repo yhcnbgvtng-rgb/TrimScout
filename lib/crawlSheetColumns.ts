@@ -3,6 +3,20 @@
  * (server) builds rows from directory data; the admin page imports only this file, so no server module
  * (dealershipsApi → server secrets) lands in the browser bundle.
  */
+// Stored trims can still hold dealer-page HTML entities and ®/™ ("Raptor&reg;", "King Ranch®"); the Trim cell and the CSV show them decoded and stripped.
+// Display only (the DB text is untouched). Kept import-free for the browser bundle: same rule as cleanFordTrimText in scrapers/lightsail-crawler/src/fordTrim.js,
+// and lib/crawlSheet.test.ts pins the two together.
+const TRIM_ENTITIES: Record<string, string> = { reg: "®", trade: "™", amp: "&", quot: '"', apos: "'", nbsp: " ", lt: "<", gt: ">", copy: "©", ndash: "–", mdash: "—", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", prime: "′", Prime: "″" };
+const decodeTrimEntities = (s: string): string => s.replace(/&(?:#(\d{1,6})|#[xX]([0-9a-fA-F]{1,5})|([a-zA-Z]{2,8}));/g, (m, dec, hex, name) => {
+  if (name) return TRIM_ENTITIES[name] ?? TRIM_ENTITIES[name.toLowerCase()] ?? m;
+  const code = dec ? parseInt(dec, 10) : parseInt(hex, 16);
+  return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : m;
+});
+export function cleanTrimText(text: string): string {
+  const decoded = text.includes("&") ? decodeTrimEntities(decodeTrimEntities(text)) : text;
+  return decoded.replace(/[®™℠]/g, "").replace(/\s+/g, " ").trim();
+}
+
 export type EmailKind = "named" | "generic" | "none";
 export type StaffPageStatus = "captured" | "blocked" | "no_staff_page" | "no_website" | "unknown";
 
@@ -182,6 +196,7 @@ export function vehicleRowCell(row: VehicleRow, key: keyof VehicleRow): string {
   if ((key === "removedAt" || key === "crawlFirstSeen") && typeof v === "string") return v.slice(0, 10);
   if (key === "options" && Array.isArray(v)) return v.map((o) => (o as { name: string | null }).name || (o as { code: string | null }).code || "").filter(Boolean).join("; ");
   if (key === "priceHistory" && Array.isArray(v)) return v.map((h) => `${(h as { date: string }).date}:${(h as { price: number }).price}`).join("; ");
+  if (key === "trim" && typeof v === "string") return cleanTrimText(v) || v;
   if (key === "changeType" && typeof v === "string") return ({ NEW_ARRIVAL: "New arrival", SOLD: "Sold", PRICE_CHANGE: "Price change", UNCHANGED: "" } as Record<string, string>)[v] ?? v;
   return String(v);
 }
