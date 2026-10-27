@@ -111,4 +111,17 @@ describe("/search grid, through the real page", () => {
     assert.ok(!document.querySelector('[data-testid="col-year"]'));
     assert.match(window.location.search, /cols=-year/);
   });
+
+  it("Days on market and Vehicle ID are off by default and come back from the Columns menu", async () => {
+    const t = await mount();
+    assert.ok(!document.querySelector('[data-testid="col-days"]'));
+    assert.ok(!document.querySelector('[data-testid="col-vehicleId"]'));
+    await t.click([...document.querySelectorAll("button")].find((b) => b.textContent?.startsWith("Columns"))!);
+    const box = (name: string) => [...document.querySelectorAll("label")].find((l) => l.textContent === name)!.querySelector("input")!;
+    await t.click(box("Days on market"));
+    await t.click(box("Vehicle ID"));
+    assert.ok(document.querySelector('[data-testid="col-days"]'));
+    assert.ok(document.querySelector('[data-testid="col-vehicleId"]'));
+    assert.match(window.location.search, /cols=[^&]*%2Bdays|cols=[^&]*\+days|cols=\+days/);
+  });
 });

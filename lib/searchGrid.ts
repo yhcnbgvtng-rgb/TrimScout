@@ -10,7 +10,7 @@ import { classifyDrivetrain, classifyFuel, classifyTransmission } from "../scrap
 
 export type GridColumnKey =
   | "year" | "make" | "model" | "trim" | "condition" | "ext" | "int" | "mileage" | "price" | "paid"
-  | "body" | "fuel" | "drive" | "trans" | "dealer" | "state" | "days" | "vin";
+  | "body" | "fuel" | "drive" | "trans" | "dealer" | "state" | "days" | "vehicleId" | "vin";
 
 /** How a column filters. `list` = checkbox list (`single`: one value at a time), `range` = min/max + slider, `pattern` = a VIN pattern box. */
 export type ColumnFilter =
@@ -25,7 +25,8 @@ export interface GridColumn {
   right?: boolean;
   /** Header sort toggle: the sort key the box understands (lib/buyerSort.ts). Absent = the box cannot order by this column. */
   sort?: SortableColumn;
-  filter: ColumnFilter;
+  /** Absent = the box has nothing to filter this column by (no filter button). */
+  filter?: ColumnFilter;
   /** Off until the shopper adds it from the Columns menu. */
   defaultHidden?: boolean;
 }
@@ -47,7 +48,8 @@ export const GRID_COLUMNS: GridColumn[] = [
   { key: "trans", label: "Transmission", width: 136, filter: { kind: "list" } },
   { key: "dealer", label: "Dealer", width: 260, sort: "dealer", filter: { kind: "list" } },
   { key: "state", label: "State", width: 84, sort: "state", filter: { kind: "list", single: true } },
-  { key: "days", label: "Days on market", width: 150, right: true, sort: "days", filter: { kind: "range", min: "daysMin", max: "daysMax", label: "Days on market", step: 5, unit: "days" } },
+  { key: "days", label: "Days on market", width: 150, right: true, sort: "days", defaultHidden: true, filter: { kind: "range", min: "daysMin", max: "daysMax", label: "Days on market", step: 5, unit: "days" } },
+  { key: "vehicleId", label: "Vehicle ID", width: 110, right: true, sort: "vehicleId", defaultHidden: true },
   { key: "vin", label: "VIN", width: 170, sort: "vin", defaultHidden: true, filter: { kind: "pattern" } },
 ];
 
@@ -83,7 +85,7 @@ export interface GridRow {
   exteriorColor?: string | null; interiorColor?: string | null; mileage?: number | null; price?: number | null;
   options?: Array<{ code?: string | null; name?: string | null; price?: number | null; kind?: string | null }> | null;
   bodyStyle?: string | null; engine?: string | null; transmission?: string | null; dealerName?: string; dealerState?: string | null;
-  dealerCity?: string | null; daysOnLot?: number | null; vin?: string;
+  dealerCity?: string | null; daysOnLot?: number | null; vehicleId?: number | null; vin?: string;
 }
 
 export const money = (n: number | null | undefined) => (n == null ? "" : `$${n.toLocaleString("en-US")}`);
@@ -116,6 +118,7 @@ export function cellText(key: GridColumnKey, r: GridRow): string {
     case "dealer": return r.dealerName ?? "";
     case "state": return r.dealerState ?? "";
     case "days": return r.daysOnLot == null ? "" : String(r.daysOnLot);
+    case "vehicleId": return r.vehicleId == null ? "" : String(r.vehicleId);
     case "vin": return r.vin ?? "";
   }
 }
@@ -125,7 +128,7 @@ const FIELD: Record<GridColumnKey, (r: GridRow) => unknown> = {
   year: (r) => r.year, make: (r) => r.make, model: (r) => r.model, trim: (r) => r.trim, condition: (r) => r.condition,
   ext: (r) => r.exteriorColor, int: (r) => r.interiorColor, mileage: (r) => r.mileage, price: (r) => r.price,
   paid: (r) => r.options, body: (r) => r.bodyStyle, fuel: (r) => r.engine, drive: (r) => r.engine, trans: (r) => r.transmission,
-  dealer: (r) => r.dealerName, state: (r) => r.dealerState, days: (r) => r.daysOnLot, vin: (r) => r.vin,
+  dealer: (r) => r.dealerName, state: (r) => r.dealerState, days: (r) => r.daysOnLot, vehicleId: (r) => r.vehicleId, vin: (r) => r.vin,
 };
 /** A column is shown only if the box sent its field on at least one loaded row (a field that is present but empty counts: the box does send it). With no rows yet every column is offered. */
 export function columnSent(key: GridColumnKey, rows: readonly GridRow[]): boolean {
@@ -153,6 +156,7 @@ export function columnActive(key: GridColumnKey, f: UrlFilters): boolean {
     case "dealer": return f.dealerIds.length > 0;
     case "state": return Boolean(f.state);
     case "days": return Boolean(f.daysMin || f.daysMax);
+    case "vehicleId": return false;
     case "vin": return Boolean(f.vinPattern);
   }
 }
@@ -177,6 +181,7 @@ export function clearColumn(key: GridColumnKey, f: UrlFilters): UrlFilters {
     case "dealer": return { ...f, dealerIds: [] };
     case "state": return { ...f, state: "" };
     case "days": return { ...f, daysMin: "", daysMax: "" };
+    case "vehicleId": return f;
     case "vin": return { ...f, vinPattern: "" };
   }
 }

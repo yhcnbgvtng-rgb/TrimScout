@@ -92,10 +92,10 @@ const grid = fs.readFileSync(new URL("../components/search/ResultsGrid.tsx", imp
 const gridLib = fs.readFileSync(new URL("./searchGrid.ts", import.meta.url), "utf8");
 describe("results layout", () => {
   const table = grid.slice(grid.indexOf("export function ResultsGrid"), grid.indexOf("function GridFooter"));
-  it("LOCKED column order: year, make, model, trim, condition, ext, int, mileage, price, paid options, body, fuel, drivetrain, transmission, dealer, state, days, then the opt-in VIN", () => {
+  it("LOCKED column order: year, make, model, trim, condition, ext, int, mileage, price, paid options, body, fuel, drivetrain, transmission, dealer, state, days, then Vehicle ID and VIN (Days on market, Vehicle ID and VIN are off by default)", () => {
     const block = gridLib.slice(gridLib.indexOf("export const GRID_COLUMNS"), gridLib.indexOf("export const COLUMN_KEYS"));
     const keys = [...block.matchAll(/\{ key: "(\w+)"/g)].map((m) => m[1]);
-    assert.deepEqual(keys, ["year", "make", "model", "trim", "condition", "ext", "int", "mileage", "price", "paid", "body", "fuel", "drive", "trans", "dealer", "state", "days", "vin"]);
+    assert.deepEqual(keys, ["year", "make", "model", "trim", "condition", "ext", "int", "mileage", "price", "paid", "body", "fuel", "drive", "trans", "dealer", "state", "days", "vehicleId", "vin"]);
   });
   it("Last seen and First seen are not columns anywhere in the public grid", () => {
     assert.doesNotMatch(gridLib + grid, /last ?seen|first ?seen|lastSeen|firstSeen/i);

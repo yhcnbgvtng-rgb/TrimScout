@@ -236,7 +236,7 @@ describe("/search column filters, through the real page", () => {
     assert.equal(h.filterButton("Fuel"), null);
     assert.equal(h.filterButton("Drivetrain"), null);
     assert.equal(h.filterButton("Body style"), null);
-    assert.ok(h.filterButton("Days on market")); // an old param the box already honours
+    assert.ok(h.filterButton("Price")); // a param the old box already honours
     const note = document.querySelector('[data-testid="unapplied-note"]');
     assert.ok(note, "the page says the filters were not applied");
     assert.match(note!.textContent!, /Body style/);

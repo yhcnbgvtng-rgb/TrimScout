@@ -22,10 +22,11 @@ Screenshots (mock box): `desktop-grid-trim-filter.jpg`, `desktop-paid-options-fi
 | Body style | yes | list with counts | #585 install |
 | Fuel, Drivetrain, Transmission | yes, worked out from engine / trim / transmission text with the box's own classifier | list with counts | #585 install |
 | Dealer | yes | searchable list with counts (top 20 dealers in the set) | #585 install |
-| Days on market | yes | min/max + slider (works today, via minDays/maxDays) | nothing |
+| Days on market (off by default, Columns menu) | yes | min/max + slider (works today, via minDays/maxDays) | nothing |
+| Vehicle ID (off by default, Columns menu) | yes | none (the box has nothing to filter it by); sorts | nothing |
 | VIN (off by default, from the Columns menu) | yes | pattern box | #585 install |
 
-Sort toggles work today on Year, Make, Model, Trim, Exterior, Interior, Mileage, Price, Dealer, State, Days on market and VIN. The box cannot order by Condition, Paid options, Body style, Fuel, Drivetrain or Transmission, so those headers have a filter but no sort toggle. As before, most sorts need a model picked (a whole make is too slow to sort).
+Sort toggles work today on Year, Make, Model, Trim, Exterior, Interior, Mileage, Price, Dealer, State, Days on market, Vehicle ID and VIN. The box cannot order by Condition, Paid options, Body style, Fuel, Drivetrain or Transmission, so those headers have a filter but no sort toggle. As before, most sorts need a model picked (a whole make is too slow to sort).
 
 A column whose field no loaded row carries is hidden, and the Columns menu lists only columns the box sends.
 

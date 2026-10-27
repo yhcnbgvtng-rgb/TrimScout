@@ -12,24 +12,24 @@ const empty: UrlFilters = {
 };
 
 describe("columns", () => {
-  it("are the 17 asked for, in that order, with the VIN as an opt-in extra", () => {
-    assert.deepEqual(GRID_COLUMNS.map((c) => c.key), ["year", "make", "model", "trim", "condition", "ext", "int", "mileage", "price", "paid", "body", "fuel", "drive", "trans", "dealer", "state", "days", "vin"]);
-    assert.deepEqual(GRID_COLUMNS.filter((c) => c.defaultHidden).map((c) => c.key), ["vin"]);
+  it("are the 17 asked for, in that order, with Days on market, Vehicle ID and VIN off until added from the Columns menu", () => {
+    assert.deepEqual(GRID_COLUMNS.map((c) => c.key), ["year", "make", "model", "trim", "condition", "ext", "int", "mileage", "price", "paid", "body", "fuel", "drive", "trans", "dealer", "state", "days", "vehicleId", "vin"]);
+    assert.deepEqual(GRID_COLUMNS.filter((c) => c.defaultHidden).map((c) => c.key), ["days", "vehicleId", "vin"]);
   });
   it("only columns the box can order by have a sort toggle", () => {
     assert.deepEqual(GRID_COLUMNS.filter((c) => !c.sort).map((c) => c.key), ["condition", "paid", "body", "fuel", "drive", "trans"]);
   });
-  it("every column has a filter", () => {
-    assert.ok(GRID_COLUMNS.every((c) => c.filter));
+  it("every column has a filter except Vehicle ID (the box has nothing to filter it by)", () => {
+    assert.deepEqual(GRID_COLUMNS.filter((c) => !c.filter).map((c) => c.key), ["vehicleId"]);
   });
 });
 
 describe("the cols= param", () => {
   it("is empty for the defaults and round-trips what the shopper changed", () => {
     assert.equal(visibleColumnsToParam(visibleColumnsFromParam(null)), "");
-    const v = visibleColumnsFromParam("-year,-days,+vin");
-    assert.ok(!v.includes("year") && !v.includes("days") && v.includes("vin"));
-    assert.equal(visibleColumnsToParam(v), "-year,-days,+vin");
+    const v = visibleColumnsFromParam("-year,+days,+vin");
+    assert.ok(!v.includes("year") && v.includes("days") && v.includes("vin") && !v.includes("vehicleId"));
+    assert.equal(visibleColumnsToParam(v), "-year,+days,+vin");
   });
   it("drops unknown names and keeps the fixed order", () => {
     assert.deepEqual(visibleColumnsFromParam("-nope,+alsono,*make"), visibleColumnsFromParam(null));
