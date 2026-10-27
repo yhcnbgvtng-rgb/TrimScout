@@ -49,6 +49,29 @@ export function parseBackup(text) {
   return text.split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
 }
 
+/**
+ * Pure apply loop: for each change group, read an exact-text batch, back it up, update it, repeat until the group is drained or `limit` rows have been updated.
+ * `limit` is a hard cap: a batch is never larger than what is left of it, so the run never changes more than `limit` rows. A batch the UPDATE could not move
+ * (affectedRows 0) ends its group instead of spinning. fetchBatch(change, n) must return at most n rows whose trim is exactly change.before.
+ */
+export async function applyChanges({ changes, limit = Infinity, batchSize = 200, fetchBatch, writeBackup, updateBatch, sleep = async () => {} }) {
+  let updated = 0, skipped = 0;
+  outer: for (const c of changes) {
+    for (;;) {
+      const room = limit - updated;
+      if (room <= 0) break outer;
+      const batch = (await fetchBatch(c, Math.min(batchSize, room))).slice(0, Math.min(batchSize, room));
+      if (!batch.length) break;
+      writeBackup(batch, c); // before-state first, then the UPDATE
+      const n = await updateBatch(batch, c);
+      updated += n; skipped += batch.length - n;
+      if (n === 0) break; // nothing moved: do not spin on rows we cannot change
+      await sleep();
+    }
+  }
+  return { updated, skipped };
+}
+
 async function loadNormalizer() {
   const candidates = [path.resolve(process.cwd(), "src/fordTrim.js"), new URL("../../scrapers/lightsail-crawler/src/fordTrim.js", import.meta.url).pathname];
   const found = candidates.find((p) => fs.existsSync(p));
@@ -148,7 +171,9 @@ async function main() {
   // -------------------------------------------------------------- normalize
   const normalize = await loadNormalizer();
   console.log(`${APPLY ? "LIVE (--apply)" : "DRY RUN"}  ${new Date().toISOString()}  ${ACTIVE_ONLY ? "active rows" : "all rows incl. removed"}`);
-  const readGroups = async () => (await q(`SELECT model, trim, COUNT(*) AS n FROM dealer_inventory WHERE make = 'Ford'${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} GROUP BY model, trim`)).map((r) => ({ model: r.model, trim: r.trim, count: Number(r.n) }));
+  // trim is utf8mb4_general_ci: `GROUP BY trim` would merge "ST Line" / "St Line" / "ST LINE" under one representative (and hide a "LARIAT" inside a "Lariat" group),
+  // so groups are by the exact bytes of the text. Still index-only on the make prefix (idx_inv_make_model_trim).
+  const readGroups = async () => (await q(`SELECT model, CONVERT(BINARY trim USING utf8mb4) AS trim, COUNT(*) AS n FROM dealer_inventory WHERE make = 'Ford'${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} GROUP BY model, BINARY trim`)).map((r) => ({ model: r.model, trim: r.trim, count: Number(r.n) }));
   const plan = planFromGroups(await readGroups(), normalize);
   const total = Object.values(plan.byStatus).reduce((s, n) => s + n, 0);
   console.log(`  Ford rows read: ${total.toLocaleString()}   by status: ${JSON.stringify(plan.byStatus)}`);
@@ -166,24 +191,17 @@ async function main() {
     const backupFile = path.resolve(process.cwd(), `ford-trim-normalize-${new Date().toISOString().replace(/[:.]/g, "-")}.rollback.jsonl`);
     const fd = fs.openSync(backupFile, "a");
     console.log(`  backup of every changed row (before-state) -> ${backupFile}`);
-    let updated = 0, skipped = 0, read = 0;
+    let result;
     try {
-      outer: for (const c of fresh.changes) {
-        for (;;) {
-          if (read >= LIMIT) break outer;
-          // Index prefix (make, model, trim) -> a bounded read; rows already rewritten no longer match `trim = before`, so this drains the group.
-          const rows = await q(`SELECT vin, dealer_id, model, trim, trim_raw FROM dealer_inventory WHERE make = 'Ford' AND model = ? AND trim = ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} LIMIT ${BATCH}`, [c.model, c.before]);
-          const batch = rows.filter((r) => r.trim === c.before); // exact text only (guards against any case/accent folding in the comparison)
-          if (!batch.length) break;
-          fs.writeSync(fd, batch.map((r) => backupLine(r, c.after)).join("\n") + "\n");
-          fs.fsyncSync(fd); // the before-state is on disk before the first row of this batch changes
-          const res = await pool.query(`SET STATEMENT max_statement_time=${STATEMENT_CAP_S} FOR UPDATE dealer_inventory SET trim = ?, trim_raw = ? WHERE trim = ? AND (${batch.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [c.after, c.before, c.before, ...batch.flatMap((r) => [r.vin, r.dealer_id])]);
-          const n = res[0].affectedRows; updated += n; skipped += batch.length - n; read += batch.length;
-          if (n === 0) break; // nothing moved: do not spin on rows we cannot change
-          await sleep(PAUSE_MS);
-        }
-      }
+      result = await applyChanges({
+        changes: fresh.changes, limit: LIMIT, batchSize: BATCH, sleep: () => sleep(PAUSE_MS),
+        // The ci index range finds every case variant; BINARY keeps only the exact text, so a batch is never padded with rows we would skip and LIMIT counts real rows.
+        fetchBatch: (c, n) => q(`SELECT vin, dealer_id, model, trim, trim_raw FROM dealer_inventory WHERE make = 'Ford' AND model = ? AND trim = ? AND BINARY trim = BINARY ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} LIMIT ${n}`, [c.model, c.before, c.before]),
+        writeBackup: (batch, c) => { fs.writeSync(fd, batch.map((r) => backupLine(r, c.after)).join("\n") + "\n"); fs.fsyncSync(fd); }, // the before-state is on disk before the first row of this batch changes
+        updateBatch: async (batch, c) => (await pool.query(`SET STATEMENT max_statement_time=${STATEMENT_CAP_S} FOR UPDATE dealer_inventory SET trim = ?, trim_raw = ? WHERE BINARY trim = BINARY ? AND (${batch.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [c.after, c.before, c.before, ...batch.flatMap((r) => [r.vin, r.dealer_id])]))[0].affectedRows,
+      });
     } finally { fs.closeSync(fd); }
+    const { updated, skipped } = result;
     const after = planFromGroups(await readGroups(), normalize);
     console.log(`rewritten: ${updated.toLocaleString()} rows; skipped (trim changed under us): ${skipped}. Still fixable after the run: ${after.rowsToChange.toLocaleString()} (nonzero only if --limit stopped it, or new rows arrived).`);
     console.log(`Rollback: node 2026-10-27-ford-trim-normalize.mjs --rollback=${backupFile} [--apply --fleet-idle]`);
