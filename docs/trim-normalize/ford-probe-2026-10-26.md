@@ -135,3 +135,14 @@ Proposed rule: for blank, leftover and ambiguous rows only, take the key (model 
 - `S` for Escape and `Base` are the weakest word matches; review the Escape `S` rows (347 clean already) before enabling.
 - `Tremor` and `STX` are trims on F-150 but packages on other lines, hence the model-specific rules.
 - Rows whose model is NULL (35) and the unprofiled models were not mapped.
+
+## Implementation (follow-up PR on this branch)
+
+The mapping above is implemented in `scrapers/lightsail-crawler/src/fordTrim.js` and used in three places: the crawler (`standalone.js`, after the sticker step), the deals-API write path (`handleInventoryBulk`, next to `normalizeMakeForWrite`), and the box2 clean-up `scripts/box/2026-10-27-ford-trim-normalize.mjs` (`--dry-run` by default, `--apply --fleet-idle`, `--rollback=FILE`).
+
+Differences from the probe's trial numbers, by decision:
+
+- **"Base" and the Escape "S" are not matched inside longer text**, so a row is never moved to them (e.g. Bronco `Base 4 Door 4x4` stays as it is). An exact `Base` / `S` is left alone. Replaying the probe's 358,539 active rows through the module gives 36,080 rewrites (probe table: 36,134), 7,647 leftovers (7,553) and 14 ambiguous.
+- **Tremor** is dropped only when another trim is in the same string on Super Duty, Ranger and Maverick; a bare `Tremor` stays, and on F-150, Explorer and Expedition it is a trim.
+- **No VIN tie-break**; blank and unreadable trims are never touched.
+- **The dealer's original text is kept** in a new column `dealer_inventory.trim_raw` (no raw trim column existed). It is set only when the trim is rewritten; `NULL` means the stored trim is exactly what the dealer sent.
