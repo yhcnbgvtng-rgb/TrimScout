@@ -15,7 +15,7 @@ import { classifyFetchResult, isBotProtected, isUncrawlable, decideProbeNext, BO
 import { vdpSkipReason } from './vdpResponseGate.js';
 import { vehicleUrlLimits, planVehicleUrlPages, describeVehicleUrlPlan } from './vehicleUrlPaging.js';
 import { applyParsedPriceGuard, describePriceRejection } from './priceGuard.js';
-import { withProbeRetry } from './probeRetry.js';
+import { DomainGate, politeRequest, pMapStoppable, spreadSchedule } from './politeness.js';
 import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
 import {
@@ -131,6 +131,35 @@ async function readBrandSnapshot() {
 const checkpointSlug = `${state}_${brand.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const startedAt = new Date().toISOString();
 const PAGE_WORKERS = Number(process.env.CRAWLER_CONCURRENCY) || 8;
+
+// Politeness (src/politeness.js). Every plain-HTTP request to a dealer site goes through one gate keyed by the site's registrable domain:
+// at most CRAWLER_DOMAIN_CONCURRENCY in flight, CRAWLER_DOMAIN_MIN_GAP_MS between starts, a 429 waits out Retry-After (or a jittered
+// exponential backoff) and halves that domain's concurrency, and a 403 / Cloudflare / Vercel challenge HALTS the domain for the rest
+// of this run: logged as a SKIP line, nothing further sent to that site, no browser fallback. Nothing here works around a WAF.
+const DOMAIN_CONCURRENCY = Number(process.env.CRAWLER_DOMAIN_CONCURRENCY) || 6;
+const DOMAIN_MIN_GAP_MS = process.env.CRAWLER_DOMAIN_MIN_GAP_MS != null ? Number(process.env.CRAWLER_DOMAIN_MIN_GAP_MS) || 0 : 100;
+const domainGate = new DomainGate({ maxConcurrent: DOMAIN_CONCURRENCY, minGapMs: DOMAIN_MIN_GAP_MS });
+// The store being crawled right now (stores run one at a time), so wait/halt lines carry its name: the sweep guard matches
+// "⏳ <name>: <CLASS> — waiting" and "🛡️ SKIP <name>: <CLASS> (<code>) — ... [url]" per store.
+let politeStoreName = '';
+let politeWall = null; // { cls, status, url } once the current store's site halted
+function politeLog(msg, evt) {
+    if (!evt) { console.log(`   ${msg}`); return; }
+    if (evt.kind === 'wait') {
+        console.log(`   ⏳ ${politeStoreName || evt.domain}: ${evt.cls} — waiting ${Math.round(evt.waitMs / 1000)}s${evt.retryAfterMs != null ? ` (Retry-After ${Math.round(evt.retryAfterMs / 1000)}s)` : ' (backoff)'}, then retrying [${evt.domain}]`);
+    } else if (evt.kind === 'halt') {
+        politeWall = politeWall || { cls: evt.cls, status: evt.status, url: evt.url };
+        console.log(`   🛡️ SKIP ${politeStoreName || evt.domain}: ${evt.cls}${evt.status ? ` (${evt.status})` : ''} — halted for the night, no bypass, no retry [${evt.url}]`);
+    }
+}
+const wallClassOf = (r) => classifyFetchResult({ statusCode: r.statusCode, headers: r.headers, body: r.body }).classification;
+// One plain GET through the gate. Resolves with the got response (any status); rejects DomainHaltedError for a halted site.
+function politeGot(url, { responseType = 'text', timeoutMs = 8000, headers } = {}) {
+    return politeRequest({
+        gate: domainGate, url, log: politeLog, classify: wallClassOf,
+        doFetch: () => gotScraping({ url, responseType, headers, timeout: { request: timeoutMs }, retry: { limit: 0 } }),
+    });
+}
 
 console.log('====================================================');
 console.log(`🏎️ ${brand.name.toUpperCase()} ALL-DEALERSHIP NATIONWIDE TRACKER`);
@@ -522,18 +551,21 @@ async function safeFetch(url, timeoutMs = 7000, patchrightPage = null) {
         const body = res ? await res.text() : '';
         return { body, statusCode: res ? res.status() : 0 };
     }
-    return Promise.race([
-        gotScraping({
-            url,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            },
-            timeout: { request: timeoutMs },
-            retry: { limit: 1 },
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Fetch timeout')), timeoutMs + 500)),
-    ]);
+    return politeRequest({
+        gate: domainGate, url, log: politeLog, classify: wallClassOf,
+        doFetch: () => Promise.race([
+            gotScraping({
+                url,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                },
+                timeout: { request: timeoutMs },
+                retry: { limit: 0 },
+            }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Fetch timeout')), timeoutMs + 500)),
+        ]),
+    });
 }
 
 // Detect-only probe. Uses the same HTTP client as the crawl so we classify
@@ -554,7 +586,10 @@ async function probeDealerBotProtection(dealer) {
                 url,
             };
         } catch (error) {
-            cls = { ...classifyFetchResult({ error }), url };
+            // A site that already hit a wall tonight (an earlier store on the same domain): nothing was sent; report the wall again.
+            cls = error && error.code === 'DOMAIN_HALTED'
+                ? { classification: error.reason, httpStatus: politeWall?.status ?? null, notes: `${error.domain} halted earlier this run (${error.reason}); no request sent`, wafVendor: null, url }
+                : { ...classifyFetchResult({ error }), url };
         }
         const action = decideProbeNext(cls);
         if (action === 'accept' || action === 'stop') return cls;
@@ -563,29 +598,12 @@ async function probeDealerBotProtection(dealer) {
     return soft || { classification: 'NONE', httpStatus: 200, notes: '', url: null };
 }
 
-// HTTP_429 specifically means "you're going too fast, try again later" — the
-// textbook retry-after-backoff case, and the one production evidence
-// actually supports: a real-night audit (box2 core, 2026-09-22) found only
-// 23 dealers fleet-wide skipped for HTTP_429 specifically, out of ~1,900
-// skipped total (versus 1,095 Cloudflare + 665 HTTP_403 — deterministic WAF
-// blocks a retry can't help with). One retry after a real wait costs this
-// box roughly 20 minutes total across a whole night's run — trivial against
-// the 23-24h SLA — while a blanket slowdown of every dealer's page-fetch
-// concurrency to reduce 429s in the first place was estimated at 4-5 HOURS
-// added for a box this size, which the fleet's SLA margin (see
-// docs/CAPACITY_SLA.md) can't absorb. Deliberately does NOT retry
-// CONN_RESET/TIMEOUT/DNS_DEAD/TLS here — see INFRA_NO_HOMEPAGE_RETRY's own
-// comment in bot_protection.js for why those don't benefit from retrying
-// the same target.
-const PROBE_RETRY_CLASSES = new Set([BOT_CLASSES.HTTP_429]);
-const PROBE_RETRY_DELAY_MS = 45_000;
-
+// A 429 on the probe is now handled where every request is: politeRequest() waits max(Retry-After, jittered exponential backoff), up to
+// three times, and only then reports HTTP_429 (and halts the site for the night). The old single fixed 45s retry lived here; its
+// real-night evidence (box2 core 2026-09-22: 23 of ~1,900 skips were 429) is why a 429 is retried at all while a 403 / Cloudflare
+// challenge never is. Kept as a function so the dealer loop reads the same.
 async function probeDealerBotProtectionWithRetry(dealer) {
-    return withProbeRetry(() => probeDealerBotProtection(dealer), {
-        retryClasses: PROBE_RETRY_CLASSES,
-        delayMs: PROBE_RETRY_DELAY_MS,
-        onRetry: (first) => console.log(`  ⏳ ${dealer.name}: ${first.classification} — waiting ${Math.round(PROBE_RETRY_DELAY_MS / 1000)}s and retrying once before giving up`),
-    });
+    return probeDealerBotProtection(dealer);
 }
 
 async function flushRunProgress(extra = {}) {
@@ -649,12 +667,7 @@ async function fetchSitemapXmlUrls(sitemapUrl, depth = 0, brand, patchrightPage 
             if (!res) attempt.error = 'NO_RESPONSE';
             xml = res ? await res.text() : '';
         } else {
-            const res = await gotScraping({
-                url: sitemapUrl,
-                responseType: 'buffer',
-                timeout: { request: 8000 },
-                retry: { limit: 1 },
-            });
+            const res = await politeGot(sitemapUrl, { responseType: 'buffer', timeoutMs: 8000 });
             attempt.status = res.statusCode;
             if (sitemapUrl.endsWith('.gz') || (res.rawBody[0] === 0x1f && res.rawBody[1] === 0x8b)) {
                 try { xml = zlib.gunzipSync(res.rawBody).toString('utf-8'); } catch { xml = res.rawBody.toString('utf-8'); }
@@ -705,7 +718,7 @@ async function resolveSitemapDiscovery(dealer, brand, patchrightPage = null, { a
         const host = dealer.domain || (() => { try { return new URL(dealer.sitemapUrl).hostname; } catch { return ''; } })();
         if (host) {
             try {
-                const res = await gotScraping({ url: `https://${host.replace(/^www\./i, '')}/robots.txt`, responseType: 'text', timeout: { request: 8000 }, retry: { limit: 0 } });
+                const res = await politeGot(`https://${host.replace(/^www\./i, '')}/robots.txt`, { responseType: 'text', timeoutMs: 8000 });
                 const declared = robotsSitemapUrls(res.body, host, attempts.map((a) => a.url));
                 if (declared.length) console.log(`   ↳ robots.txt declares ${declared.length} sitemap(s) not tried yet`);
                 for (const url of declared) {
@@ -725,20 +738,7 @@ async function resolveSitemapUrls(dealer, brand, patchrightPage = null) {
     return (await resolveSitemapDiscovery(dealer, brand, patchrightPage)).urls;
 }
 
-async function pMap(items, mapper, concurrency = 8) {
-    let cursor = 0;
-    const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
-        while (cursor < items.length) {
-            const idx = cursor++;
-            try {
-                await mapper(items[idx], idx);
-            } catch {}
-        }
-    });
-    await Promise.allSettled(workers);
-}
-
-// Same worker-pool shape as pMap, but each of the `pages.length` workers
+// Worker-pool map (see pMapStoppable in politeness.js), but each of the `pages.length` workers
 // gets its own dedicated patchright Page (all sharing one context, so the
 // Cloudflare clearance cookie from the homepage visit applies to every
 // page) instead of firing independent gotScraping requests. Concurrency is
@@ -884,12 +884,17 @@ const DEALER_TIMEOUT_MS = 60 * 60 * 1000; // 1 hour
 // Second pass: a dealer whose sitemap discovery FAILED (not "answered but empty") is queued here and retried once after every other dealer,
 // apex host first, when the box is least busy. Appending to `work` while iterating is deliberate. CRAWLER_SITEMAP_RETRY_PASS=false turns it off.
 const SITEMAP_RETRY_PASS = process.env.CRAWLER_SITEMAP_RETRY_PASS !== 'false';
-const work = dealers.map((d) => ({ dealer: d, retry: false }));
+// Stores of one operator (same group, site or distinctive name) are spread through the night's order instead of crawled back to back.
+// CRAWLER_SPREAD_SCHEDULE=false keeps the file order.
+const scheduled = process.env.CRAWLER_SPREAD_SCHEDULE === 'false' ? dealers : spreadSchedule(dealers, { minGap: Number(process.env.CRAWLER_SPREAD_MIN_GAP) || 3 });
+const work = scheduled.map((d) => ({ dealer: d, retry: false }));
 for (let i = 0; i < work.length; i++) {
     const { dealer, retry } = work[i];
     const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
     console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
     runProgress.currentDealer = dealer.name;
+    politeStoreName = dealer.name;
+    politeWall = null;
     await flushRunProgress();
 
     // The retry pass already passed the bot-protection probe once; it never re-probes (and never retries a refusal).
@@ -954,6 +959,18 @@ for (let i = 0; i < work.length; i++) {
         let vehicleUrls = discovery.urls;
         // One line per candidate sitemap: HTTP status or error, <loc> count, VDP count, and whether it counts as ok / empty / failed.
         for (const a of discovery.attempts) console.log(describeAttempt(a));
+        if (politeWall) {
+            // The site answered 403 / a challenge / 429-after-backoff while we looked for its sitemap: a wall. Logged (SKIP line above), this
+            // store is done for the night. No browser fallback, no retry pass, no second look.
+            skippedBotProtection++;
+            botSkippedNames.add(dealer.name);
+            failedDealerNames.add(dealer.name);
+            dealerStats[dealer.name] = 0;
+            runProgress.skippedForBotProtection = skippedBotProtection;
+            runProgress.lastError = `${dealer.name}: ${politeWall.cls}${politeWall.status ? ` HTTP ${politeWall.status}` : ''} — stopped for the night, no bypass`;
+            console.log(`${progress} 🛑 ${dealer.name}: ${politeWall.cls} while reading its sitemap — store stopped for the night.`);
+            continue;
+        }
         if (vehicleUrls.length === 0 && process.env.CRAWLER_PATCHRIGHT_FALLBACK !== 'false') {
             // Challenge / WAF pages were already skipped above. This fallback
             // is only for a sitemap that came back empty without a detected
@@ -1342,10 +1359,20 @@ for (let i = 0; i < work.length; i++) {
             if (patchrightFallback) {
                 await pMapWithPages(pageUrls, extractOne, patchrightFallback.pages);
             } else {
-                await pMap(pageUrls, extractOne, PAGE_WORKERS);
+                await pMapStoppable(pageUrls, extractOne, PAGE_WORKERS, () => politeWall !== null || dealerTimedOut);
             }
         }
 
+        if (politeWall) {
+            // The site walled us partway through its pages: remaining URLs were not requested. Keep what was read, flag the store as
+            // blocked tonight (it is then excluded from the sold-diff and the sweep like any other partial crawl).
+            skippedBotProtection++;
+            botSkippedNames.add(dealer.name);
+            failedDealerNames.add(dealer.name);
+            runProgress.skippedForBotProtection = skippedBotProtection;
+            runProgress.lastError = `${dealer.name}: ${politeWall.cls}${politeWall.status ? ` HTTP ${politeWall.status}` : ''} — stopped mid-crawl, no bypass`;
+            console.log(`${progress} 🛑 ${dealer.name}: ${politeWall.cls} mid-crawl — stopped this store for the night after ${dealerCount} vehicle(s); the rest were not requested.`);
+        }
         dealerStats[dealer.name] = dealerCount;
         if (dealerCount > 0) {
             if (retry) {
