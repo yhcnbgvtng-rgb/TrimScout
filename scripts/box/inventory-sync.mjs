@@ -51,6 +51,23 @@ import { SweepAbortError, LockLostError } from "./syncSweep.js";
 import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts } from "./syncSweepGuard.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
+// Trim normalizer (oemTrim.js, with fordTrim.js beside it): Ford / Chevrolet / GMC / Toyota / Ram trims are rewritten to the official trim and the dealer text goes in trimRaw.
+// Copied to boxes without the repo, so it is looked up beside this script, in a sibling src/, then in the repo layout. If none is found the sync sends trims as they are
+// (the deals API applies the same rule on write, so nothing is lost); the line printed below says which happened.
+let normalizeTrimForWrite = null;
+for (const rel of ["./oemTrim.js", "../src/oemTrim.js", "../../scrapers/lightsail-crawler/src/oemTrim.js"]) {
+  try { ({ normalizeTrimForWrite } = await import(rel)); break; } catch { /* try the next location */ }
+}
+console.log(normalizeTrimForWrite ? "trim normalizer: loaded" : "trim normalizer: not found next to this script, trims go as the crawler wrote them (the deals API normalizes on write)");
+/** The trim and trimRaw to send for one shard record: the crawler's own trimRaw wins, else the original text when this call rewrites it. Never throws. */
+function trimFields(v) {
+  const sent = typeof v.trimRaw === "string" && v.trimRaw.trim() ? v.trimRaw : null;
+  if (!normalizeTrimForWrite || !v.trim) return { trim: v.trim, trimRaw: sent };
+  try {
+    const r = normalizeTrimForWrite({ make: v.make, model: v.model, trim: v.trim });
+    return r.status === "fix" ? { trim: r.trim, trimRaw: sent || r.trimRaw } : { trim: v.trim, trimRaw: sent };
+  } catch { return { trim: v.trim, trimRaw: sent }; }
+}
 
 // The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
 // TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
@@ -242,7 +259,7 @@ for (const shardFile of files) {
     freshUploaded++;
     if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
-      vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim, trimRaw: v.trimRaw || null,
+      vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, ...trimFields(v),
       bodyStyle: v.bodyStyle, exteriorColor: v.exteriorColor, interiorColor: v.interiorColor, mileage: shardMileage(v.mileage, cond(v.inventoryType)), price: v.price, msrp: v.msrp, stockNumber: v.stockNumber, vdpUrl: v.url, imageUrl: v.imageUrl, source: "nightly",
       windowStickerUrl: v.windowStickerUrl || null, engine: v.engine || null, transmission: v.transmission || null, daysOnLot: num(v.daysOnLot), oldPrice: num(v.oldPrice), priceDiff: num(v.priceDiff),
       priceChangeType: v.priceChangeType || null, changeType: v.changeType || null, priceHistory: Array.isArray(v.priceHistory) && v.priceHistory.length ? v.priceHistory.slice(-60) : null,

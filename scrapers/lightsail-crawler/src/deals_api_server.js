@@ -46,7 +46,7 @@ import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFa
 import { loadSyncAllowlist, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
 import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from "./syncOptionClean.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
-import { normalizeFordTrimForWrite } from "./fordTrim.js";
+import { normalizeTrimForWrite } from "./oemTrim.js"; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
 import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
@@ -2451,11 +2451,11 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).
     const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));
-    // Ford trim (fordTrim.js), applied here too so a stale shard or a not-yet-updated box cannot bring "4X4 CREWCAB XLT" back. The raw text is the crawler's
+    // Trim (fordTrim.js for Ford, oemTrim.js for Chevrolet / GMC / Toyota / Ram), applied here too so a stale shard or a not-yet-updated box cannot bring "4X4 CREWCAB XLT" back. The raw text is the crawler's
     // trimRaw when it already rewrote the trim, else this call's own original. Option policy below keeps seeing the trim exactly as sent.
     const fordTrims = new Map(chunk.map((v) => {
       const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
-      const r = normalizeFordTrimForWrite({ make, model: v.model, trim: INV_STR(v.trim, 160) });
+      const r = normalizeTrimForWrite({ make, model: v.model, trim: INV_STR(v.trim, 160) });
       const sent = typeof v.trimRaw === "string" ? v.trimRaw.trim() : "";
       return [v, { trim: r.trim, trimRaw: r.trimRaw || (sent && sent !== r.trim ? sent.slice(0, 160) : null) }];
     }));

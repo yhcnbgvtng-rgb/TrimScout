@@ -21,7 +21,7 @@ describe("displayTrim", () => {
   it("leaves blanks, other makes, and unprofiled Ford models alone", () => {
     assert.equal(displayTrim("Ford", "F-150", null), null);
     assert.equal(displayTrim("Ford", "F-150", ""), "");
-    assert.equal(displayTrim("Toyota", "Camry", "8 FOOT BED"), "8 FOOT BED");
+    assert.equal(displayTrim("Honda", "Civic", "8 FOOT BED"), "8 FOOT BED");
     assert.equal(displayTrim("Ford", "Transit", "Cargo Van Weird"), "Cargo Van Weird");
     assert.equal(displayTrim(null, null, "XYZ"), "XYZ");
   });
@@ -37,7 +37,7 @@ describe("officialTrimOptions", () => {
     assert.deepEqual(officialTrimOptions("Ford", "F-150", opts).map((o) => o.value), ["XLT", "Lariat"]);
   });
   it("leaves other makes and an unset model untouched", () => {
-    assert.equal(officialTrimOptions("Toyota", "Tacoma", opts).length, 4);
+    assert.equal(officialTrimOptions("Honda", "Civic", opts).length, 4);
     assert.equal(officialTrimOptions("Ford", "", opts).length, 4);
   });
   it("isUnofficialFordTrim is false for blank", () => assert.equal(isUnofficialFordTrim("Ford", "F-150", "  "), false));
