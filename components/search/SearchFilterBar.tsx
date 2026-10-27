@@ -12,6 +12,7 @@ import { parseExclude } from "@/lib/searchLive";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
 import type { CatalogOption, Filters } from "../BuyerSearchView";
 import type { Chip } from "./FacetChips";
+import { fitWidth } from "./fitWidth";
 import SearchableDropdown, { type DropdownOption as SearchableOption } from "./SearchableDropdown";
 import { LiveCount, type LiveCountProps } from "./LiveCount";
 import { PriceRange } from "./PriceRange";
@@ -164,8 +165,8 @@ function NumField({ id, label, value, onChange }: { id: string; label: string; v
 }
 
 /** A dropdown-shaped trigger (same look as SearchableDropdown) that opens a small popover of controls: Year, Price. With `button` it is only the trigger (More). */
-function RangeMenu({ label, summary, count, onClear, children, button }: {
-  label: string; summary: string; count?: number; onClear: () => void; children?: ReactNode;
+function RangeMenu({ label, summary, count, children, button, fit }: {
+  label: string; summary: string; count?: number; onClear?: () => void; children?: ReactNode; fit?: boolean;
   button?: { ref: RefObject<HTMLButtonElement | null>; open: boolean; onToggle: () => void; controls?: string };
 }) {
   const [open, setOpen] = useState(false);
@@ -180,14 +181,13 @@ function RangeMenu({ label, summary, count, onClear, children, button }: {
   const isOpen = button ? button.open : open;
   const text = summary ? `${summary}${count == null ? "" : ` · ${count.toLocaleString()}`}` : "";
   return (
-    <div ref={own} className="relative flex flex-col gap-1">
+    <div ref={own} className="relative flex flex-col gap-1" style={fit ? { width: fitWidth(text || (button ? "More filters" : `Any ${label.toLowerCase()}`)) } : undefined}>
       <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">{label}</span>
       <div className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 ${summary ? "border-sky-500/50 bg-sky-950/20" : "border-border bg-surface-elevated"}`}>
         <button type="button" ref={button?.ref} aria-haspopup={button ? "dialog" : "true"} aria-expanded={isOpen} aria-controls={button?.controls} aria-label={`${label}${text ? `: ${text}` : ""}`}
           onClick={() => (button ? button.onToggle() : setOpen((o) => !o))} className={`min-w-0 flex-1 truncate text-left text-sm font-semibold ${summary ? "text-white" : "font-normal text-ink-light"} ${RING}`}>
           {text || (button ? "More filters" : `Any ${label.toLowerCase()}`)}
         </button>
-        {summary && <button type="button" onClick={onClear} aria-label={`Clear ${label}`} className="shrink-0 text-ink-faint hover:text-white"><svg aria-hidden width="10" height="10" viewBox="0 0 8 8" stroke="currentColor" strokeWidth="1.5"><path d="m1 1 6 6M7 1 1 7" /></svg></button>}
         <svg aria-hidden width="10" height="10" viewBox="0 0 10 10" className={`shrink-0 text-ink-faint transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m2 3.5 3 3 3-3" /></svg>
       </div>
       {!button && open && <div role="dialog" aria-label={label} className="absolute left-0 top-full z-30 mt-1.5 w-72 max-w-[90vw] rounded-xl border border-border-strong bg-surface-elevated p-4 shadow-2xl">{children}</div>}
@@ -264,27 +264,27 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   const priceSummary = filters.priceMin || filters.priceMax ? `${filters.priceMin ? money(filters.priceMin) : "any"} – ${filters.priceMax ? money(filters.priceMax) : "any"}` : "";
   const controls = (
     <>
-      <SearchableDropdown label="Location" placeholder="Any state" options={asOpts(p.stateOptions)} value={filters.state} loading={p.facetsLoading} countsLoading={countsOff}
+      <SearchableDropdown fit={!mobile} label="Location" placeholder="Any state" options={asOpts(p.stateOptions)} value={filters.state} loading={p.facetsLoading} countsLoading={countsOff}
         onChange={(state) => setFilters((f) => ({ ...f, state }))} />
-      <SearchableDropdown label="Make" placeholder="Any make" options={asOpts(p.makeOptions)} value={filters.make} loading={p.facetsLoading} countsLoading={countsOff}
+      <SearchableDropdown fit={!mobile} label="Make" placeholder="Any make" options={asOpts(p.makeOptions)} value={filters.make} loading={p.facetsLoading} countsLoading={countsOff}
         onChange={(v) => p.setMake(v)} />
-      <SearchableDropdown label="Model" placeholder="Any model" options={asOpts(p.modelOptions)} value={filters.model} loading={p.facetsLoading} countsLoading={countsOff}
+      <SearchableDropdown fit={!mobile} label="Model" placeholder="Any model" options={asOpts(p.modelOptions)} value={filters.model} loading={p.facetsLoading} countsLoading={countsOff}
         disabledHint={filters.make ? undefined : "Pick a make"} onChange={(v) => p.setModel(v)} />
-      <SearchableDropdown label="Trim" placeholder="Any trim" options={asOpts(p.trimOptions)} value={filters.trim} loading={p.facetsLoading} countsLoading={countsOff}
+      <SearchableDropdown fit={!mobile} label="Trim" placeholder="Any trim" options={asOpts(p.trimOptions)} value={filters.trim} loading={p.facetsLoading} countsLoading={countsOff}
         disabledHint={filters.make ? undefined : "Pick a make"} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} />
-      <RangeMenu label="Year" summary={yearSummary} count={yearSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, yearMin: "", yearMax: "" }))}>
+      <RangeMenu fit={!mobile} label="Year" summary={yearSummary} count={yearSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, yearMin: "", yearMax: "" }))}>
         <div className="grid grid-cols-2 gap-3">
           <NumField id={`${listId}-ymin`} label="From" value={filters.yearMin} onChange={(yearMin) => setFilters((f) => ({ ...f, yearMin }))} />
           <NumField id={`${listId}-ymax`} label="To" value={filters.yearMax} onChange={(yearMax) => setFilters((f) => ({ ...f, yearMax }))} />
         </div>
       </RangeMenu>
-      <RangeMenu label="Price" summary={priceSummary} count={priceSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, priceMin: "", priceMax: "" }))}>
+      <RangeMenu fit={!mobile} label="Price" summary={priceSummary} count={priceSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, priceMin: "", priceMax: "" }))}>
         <PriceRange min={filters.priceMin} max={filters.priceMax} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
       </RangeMenu>
-      <SearchableDropdown multi label={paidOnly ? "Paid factory options" : "Factory options"} placeholder="Any option" options={optionChips.map(withDetail)} value={filters.optionKeys}
+      <SearchableDropdown fit={!mobile} multi label={paidOnly ? "Paid factory options" : "Factory options"} placeholder="Any option" options={optionChips.map(withDetail)} value={filters.optionKeys}
         loading={p.catalogOptionsLoading} emptyMessage={p.optionsEmptyMessage} disabledHint={filters.make ? undefined : "Pick a make"}
         onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} />
-      <RangeMenu label="More" summary={p.moreCount > 0 ? `${p.moreCount} filter${p.moreCount === 1 ? "" : "s"}` : ""} count={p.moreCount > 0 ? activeCount : undefined} onClear={p.clearMore}
+      <RangeMenu fit={!mobile} label="More" summary={p.moreCount > 0 ? `${p.moreCount} filter${p.moreCount === 1 ? "" : "s"}` : ""} count={p.moreCount > 0 ? activeCount : undefined} onClear={p.clearMore}
         button={{ ref: moreAnchor, open: p.moreOpen, onToggle: () => p.setMoreOpen(!p.moreOpen), controls: p.moreOpen ? morePanelId : undefined }} />
     </>
   );
@@ -355,7 +355,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             <span className="text-xs font-normal text-ink-muted">{p.live.value == null ? "" : `${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicles`}</span>
           </button>
         ) : (
-          <div role="group" aria-label="Filters" className="grid grid-cols-8 gap-2">{controls}</div>
+          <div role="group" aria-label="Filters" className="flex flex-wrap items-start gap-2">{controls}</div>
         )}
       </div>
 

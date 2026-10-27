@@ -23,7 +23,8 @@
 // the input sidesteps both: focus already IS the gesture, and Tab lands somewhere typeable.
 
 import { useId, useMemo, useRef, useState } from "react";
-import { ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
+import { fitWidth } from "./fitWidth";
 
 export interface DropdownOption {
   value: string;
@@ -61,6 +62,8 @@ interface BaseProps {
   accent?: "sky" | "brand";
   /** Fires each time the menu opens — lets a caller load this dropdown's options lazily instead of on page load. */
   onOpen?: () => void;
+  /** Size the box to its content (clamped) instead of filling its parent — for a wrapping filter row. */
+  fit?: boolean;
 }
 
 interface SingleProps extends BaseProps {
@@ -131,13 +134,14 @@ export default function SearchableDropdown(props: Props) {
     // option's own count — showing that minimum is an honest upper bound on the real combined
     // result, not a sum that would overstate it.
     const picked = options.filter((o) => selectedSet!.has(o.value));
-    const noun = props.selectedNoun || "option";
+    const first = picked[0]?.label ?? props.value[0];
+    const name = props.value.length > 1 ? `${first} +${props.value.length - 1}` : first;
     if (props.multiMode === "any") {
       const sum = picked.reduce((t, o) => t + o.count, 0);
-      return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${picked.length && !countsLoading ? ` · ${sum.toLocaleString()}` : ""}`;
+      return `${name}${picked.length && !countsLoading ? ` · ${sum.toLocaleString()}` : ""}`;
     }
     const minCount = picked.length ? Math.min(...picked.map((o) => o.count)) : 0;
-    return `${props.value.length} ${noun}${props.value.length === 1 ? "" : "s"}${countsLoading ? "" : ` · ${minCount.toLocaleString()}`}`;
+    return `${name}${countsLoading ? "" : ` · ${minCount.toLocaleString()}`}`;
   }, [props.multi, props.value, options, selectedSet, props.multi ? props.multiMode : undefined, props.multi ? props.selectedNoun : undefined, countsLoading]);
 
   const hasValue = props.multi ? props.value.length > 0 : Boolean(props.value);
@@ -189,12 +193,6 @@ export default function SearchableDropdown(props: Props) {
     props.multi ? toggleMulti(o.value) : selectSingle(o.value);
   };
 
-  const clear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    props.multi ? props.onChange([]) : props.onChange("");
-    inputRef.current?.focus();
-  };
-
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -219,7 +217,7 @@ export default function SearchableDropdown(props: Props) {
   };
 
   return (
-    <div className="relative flex flex-col gap-1">
+    <div className="relative flex flex-col gap-1" style={props.fit ? { width: fitWidth(triggerText || placeholder) } : undefined}>
       <label htmlFor={listboxId} className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">
         {label}
       </label>
@@ -228,7 +226,7 @@ export default function SearchableDropdown(props: Props) {
           hasValue ? colors.triggerActive : "border-border bg-surface-elevated focus-within:border-border-strong"
         }`}
       >
-        <Search className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
+        {!hasValue && <Search className="h-3.5 w-3.5 shrink-0 text-ink-faint" />}
         <input
           ref={inputRef}
           id={listboxId}
@@ -249,13 +247,9 @@ export default function SearchableDropdown(props: Props) {
           }}
           onKeyDown={onKeyDown}
           onBlur={closeMenu}
+          title={triggerText || undefined}
           className="w-full min-w-0 truncate bg-transparent text-sm font-semibold text-white placeholder:font-normal placeholder:text-ink-light focus:outline-none"
         />
-        {hasValue && !open && (
-          <button type="button" tabIndex={-1} onMouseDown={(e) => e.preventDefault()} onClick={clear} aria-label={`Clear ${label}`} className="shrink-0 text-ink-faint hover:text-white">
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
         <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform ${open ? "rotate-180" : ""}`} />
       </div>
 
