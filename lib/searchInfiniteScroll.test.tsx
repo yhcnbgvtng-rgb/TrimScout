@@ -80,9 +80,11 @@ describe("/search infinite scroll", () => {
     await act(async () => { root.render(React.createElement(AppRouterContext.Provider, { value: router as never }, React.createElement(SessionProvider as never, { session: null } as never, React.createElement(BuyerSearchView)))); await tick(); });
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
-    // Pick the Toyota make (a chip in the Make group), then press the green "Show N vehicles" button.
-    const makeChip = [...document.querySelectorAll('[role="group"][aria-label="Make"] button')].find((e) => e.textContent?.startsWith("Toyota")) as HTMLButtonElement;
-    await click(makeChip);
+    // Pick the Toyota make (an option in the Make dropdown), then press the green "Show N vehicles" button.
+    const makeLabel = [...document.querySelectorAll("label")].find((l) => l.textContent?.trim() === "Make") as HTMLLabelElement;
+    await click(document.getElementById(makeLabel.htmlFor)!);
+    const makeOption = [...document.querySelectorAll('[role="option"]')].find((e) => e.textContent?.startsWith("Toyota")) as HTMLButtonElement;
+    await click(makeOption);
     await click(btn("Show"));
     const hitSentinel = async () => {
       const live = observers.filter((o) => o.live && o.el);

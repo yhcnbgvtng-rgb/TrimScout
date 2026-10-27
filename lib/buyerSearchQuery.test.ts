@@ -101,7 +101,7 @@ describe("parseBuyerSearchParams — query gates", () => {
   });
 
   it("always asks the box for a capped count, never an exact one", () => {
-    assert.equal(parseBuyerSearchParams(sp({ make: "Ford" })).query.countCap, 1000);
+    assert.equal(parseBuyerSearchParams(sp({ make: "Ford" })).query.countCap, 10000);
   });
 });
 

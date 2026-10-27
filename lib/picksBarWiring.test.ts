@@ -97,7 +97,7 @@ describe("results layout", () => {
   });
   it("the header row and every body row render the same filtered column list, in that order", () => {
     assert.equal((table.match(/\{cols\.map\(\(c\) =>/g) || []).length, 2, "header and body both map the same cols");
-    assert.match(table, /const cols = TABLE_COLUMNS\.filter\(\(c\) => c\.key !== "distance" \|\|/);
+    assert.match(table, /const cols = TABLE_COLUMNS\.filter\(\(c\) => shownKeys\.has\(c\.key\) && \(c\.key !== "distance" \|\|/);
   });
   it("the page pads its bottom by the picks bar's measured height (no fixed pb-28 guess)", () => {
     assert.match(view, /style=\{\{ paddingBottom: "calc\(var\(--picks-bar-h, 7rem\) \+ 1\.5rem\)" \}\}/);
