@@ -17,7 +17,7 @@ import {
 } from '../src/inventorySweep.js';
 import { runSweep, SweepAbortError } from '../../../scripts/box/syncSweep.js';
 import { runWritePhase, configFromEnv } from '../../../scripts/box/syncRun.js';
-import { parseHostileLines, latestCrawlLogs, collectHostileStores, guardConfigFromEnv, isHostileClass, describeSkips } from '../../../scripts/box/syncSweepGuard.js';
+import { parseHostileLines, latestCrawlLogs, collectHostileStores, guardConfigFromEnv, isHostileClass, describeSkips, describeGuardCounts } from '../../../scripts/box/syncSweepGuard.js';
 
 const toInt = (v) => (Number.isFinite(Number(v)) && v !== null && v !== '' ? Math.round(Number(v)) : null);
 const toStr = (v, n) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, n) : null);
@@ -316,6 +316,14 @@ describe('client: reading the crawl logs', () => {
     const off = guardConfigFromEnv({ SWEEP_MIN_MISSES: '1', SWEEP_PROTECT_ELSEWHERE: '0', SWEEP_MIN_FRESH_RATIO: '0', SWEEP_SKIP_HOSTILE: '0' });
     assert.deepEqual([off.fields, off.skipHostile, off.requireGuards], [{}, false, false]);
     assert.equal(guardConfigFromEnv({ SWEEP_MIN_MISSES: '9' }).fields.minMisses, 2, 'out of range falls back to the default');
+  });
+
+  it('describeGuardCounts counts only walled stores that were crawled and are swept', () => {
+    const hostile = { entries: [{ dealerId: 5100 }, { dealerId: 1122 }, { dealerId: 777 }], unmatched: 2 };
+    // 5100 has rows tonight; 1122 has rows but is a noSweep store (left out of sweepableIds); 777 has no rows at all.
+    const line = describeGuardCounts({ logs: 9, hostile, sweepableIds: new Set([5100, 42]) });
+    assert.equal(line, '[sync] sweep guard: 9 crawl log(s) read, 1 crawled and swept store(s) hit a 403/429/5xx wall (2 more in the logs had no rows tonight or are never swept; 2 not matched to the directory)');
+    assert.match(describeGuardCounts({ logs: 0, hostile: { entries: [], unmatched: 0 }, sweepableIds: new Set() }), /0 crawled and swept store\(s\).*\(0 more/);
   });
 
   it('describeSkips names every skipped store (capped) so the log explains why a store was not swept', () => {

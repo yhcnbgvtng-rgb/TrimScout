@@ -48,7 +48,7 @@ import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { runSupersede, runDuplicateVins } from "./syncSuperseded.js";
 import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
-import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv } from "./syncSweepGuard.js";
+import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts } from "./syncSweepGuard.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
 
@@ -271,7 +271,7 @@ if (guardCfg.skipHostile) {
     const logDir = process.env.CRAWL_LOG_DIR || path.join(os.homedir(), "nj-scraper/scrapers/lightsail-crawler/logs");
     const logs = latestCrawlLogs(logDir, RUN_NOW_MS, guardCfg.logMaxAgeMs);
     hostile = collectHostileStores({ files: logs, dealerIdFor: (e) => dealerIdFor({ dealerName: e.name, url: e.url, state: "" }) });
-    log(`[sync] sweep guard: ${logs.length} crawl log(s) read, ${hostile.entries.length} store(s) hit a 403/429/5xx wall (${hostile.unmatched} not matched to the directory)`);
+    log(describeGuardCounts({ logs: logs.length, hostile, sweepableIds: new Set(rows.map((r) => r.dealerId).filter((id) => id && !noSweepStores.has(id)).map(Number)) }));
   } catch (err) {
     log(`[sync] sweep guard: could not read the crawl logs (${err.message}) — no store excluded by log; the deals API's own guards still apply`);
   }

@@ -107,6 +107,17 @@ export function guardConfigFromEnv(env = process.env) {
   };
 }
 
+/**
+ * The "[sync] sweep guard:" summary line. The crawl logs name every store that hit a wall, but only a store with rows in tonight's upload that is also swept
+ * (not in noSweepStores) is actually protected by the guard; the rest were not crawled into this sync or are never swept, so counting them overstated the effect.
+ * @param {{ logs: number, hostile: { entries: { dealerId: number }[], unmatched: number }, sweepableIds: Set<number> }} p
+ */
+export function describeGuardCounts({ logs, hostile, sweepableIds }) {
+  const swept = hostile.entries.filter((e) => sweepableIds.has(Number(e.dealerId))).length;
+  const other = hostile.entries.length - swept;
+  return `[sync] sweep guard: ${logs} crawl log(s) read, ${swept} crawled and swept store(s) hit a 403/429/5xx wall (${other} more in the logs had no rows tonight or are never swept; ${hostile.unmatched} not matched to the directory)`;
+}
+
 /** One log line per skipped store, capped, plus a total — the audit trail for "why was this store not swept tonight". */
 export function describeSkips({ hostile = [], partial = [], nameOf = () => "?", max = 40 }) {
   const lines = [];
