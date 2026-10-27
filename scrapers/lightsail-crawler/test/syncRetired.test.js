@@ -94,7 +94,7 @@ describe('wiring in inventory-sync.mjs', () => {
     const src = fs.readFileSync(new URL('../../../scripts/box/inventory-sync.mjs', import.meta.url), 'utf8');
     assert.match(src, /dropped\.push/);
     assert.ok(src.indexOf('formatCameBack(') < src.indexOf('await acquireSyncLock()'), 'comparison logged before the lock wait');
-    assert.match(src, /writeRetired\(r\.failedStores \|\| \[\]\);/);
+    assert.match(src, /writeRetired\(\[\.\.\.\(r\.failedStores \|\| \[\]\), \.\.\.\(r\.guardSkippedStores \|\| \[\]\)\]\);/);
     assert.match(src, /--dry-run --write-retired/);
     assert.doesNotMatch(fs.readFileSync(new URL('../../../scripts/box/syncRetired.js', import.meta.url), 'utf8'), /fetch\(|node:http|mysql|SELECT /i, 'no network, no database');
   });

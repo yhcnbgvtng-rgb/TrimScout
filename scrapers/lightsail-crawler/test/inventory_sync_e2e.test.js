@@ -88,6 +88,9 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
       return send(200, { upserted: body.vehicles.length, optionSetsReplaced: 0, optionSetsKept: body.vehicles.length, optionSetsUnchanged: 0, optionRowsWritten: 0, optionJunkDropped: 0, timings: { upsertMs: 10, optionsMs: 2, optionsReadMs: 1, daysMs: 3, totalMs: 16 } });
     }
     if (url === '/api/inventory/sweep') {
+      // The client's sweep-guard probe (a store id no row has) is answered like a guard-aware API would and kept out of the recorded sweeps. This fake keeps the
+      // OLD retire-on-first-miss semantics on purpose: the guard rules themselves are tested in sweepGuards.test.js, this file tests the client's plumbing.
+      if (body.dealerId === -1) return send(200, { removed: 0, counted: 0, skipped: [] });
       f.sweeps.push(body);
       const attempt = f.sweeps.filter((s) => JSON.stringify(s.dealerIds ?? s.dealerId) === JSON.stringify(body.dealerIds ?? body.dealerId)).length;
       if (f.sweepDelay) { const ms = f.sweepDelay(body, attempt); if (ms) await new Promise((r) => setTimeout(r, ms)); }
@@ -101,7 +104,7 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
         if (body.sourceBox && !(r.sourceBox === body.sourceBox || r.sourceBox == null || r.lastSeen < Date.parse(body.foreignBefore))) continue;
         r.removed = true; removed++;
       }
-      return send(200, body.dealerIds ? { removed, stores: body.dealerIds.length } : { removed });
+      return send(200, { removed, ...(body.dealerIds ? { stores: body.dealerIds.length } : {}), ...(body.minMisses || body.protectElsewhere || body.minFreshRatio ? { counted: 0, skipped: [] } : {}) });
     }
     if (url === '/api/inventory/stats') { f.stats++; return send(200, { total: db.size, vins: db.size, inStock: f.active().length, dealers: stores.length, byState: [{ state: 'NJ', n: 1 }] }); }
     return send(404, { error: 'not found' });

@@ -20,12 +20,19 @@
 //   - `concurrency` > 1 runs that many batches at once. Still ONE sync holding the lock (never a second
 //     writer); the only new exposure is two UPDATEs contending inside the database, so it defaults to 1.
 //
+// Sweep guards (inventorySweep.js on the deals API, syncSweepGuard.js here): `guards` is a bag of extra request fields — minMisses, protectElsewhere,
+// minFreshRatio, minLiveForRatio — sent with every sweep call. A deals API that predates them ignores the fields and retires as it always did, so with
+// `requireGuards` the sweep first sends one harmless probe (a store id that exists nowhere) and stops with a SweepAbortError, before retiring anything, if
+// the answer does not carry the guard fields. The API's answer also lists the stores its partial-crawl guard skipped, which land in `guardSkipped`.
+//
 // Sweeping is idempotent: re-running a batch (retries, a resume that redoes the one in-flight batch) only
 // retires rows that are still stale, so none of the above can remove a row that shouldn't be.
 
 import { ApiError, withRetry, isTimeout, heavyCallShouldRetry } from "./syncHttp.js";
 
 export const SWEEP_PATH = "/api/inventory/sweep";
+/** A store id no row has: the probe sweeps nothing, but a guard-aware API answers it with `counted` and `skipped`. */
+export const PROBE_DEALER_ID = -1;
 
 export class SweepAbortError extends Error {
   constructor(message, { nextIndex = 0 } = {}) {
@@ -75,11 +82,21 @@ export async function runSweep({
   sleep,
   retry = { batch: { retries: 3, delayMs: 5000, factor: 2, maxDelayMs: 60_000 }, store: { retries: 1, delayMs: 3000 } },
   maxConsecutiveStoreFailures = 5,
+  guards = {},
+  requireGuards = false,
 }) {
   // The dealership directory API returns ids as strings ("123"), and Number.isFinite("123") is false — without this
   // coercion every store was dropped, so the sweep made no calls and reported mode "none" (seen on box2, 2026-10-05).
   const asStoreId = (id) => (typeof id === "string" && /^\d+$/.test(id.trim()) ? Number(id) : id);
-  const ownership = sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {};
+  const ownership = { ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...guards };
+  const guarded = Object.keys(guards).length > 0;
+  const guardSkipped = [];
+  let counted = 0;
+  const takeGuardResult = (r) => {
+    if (!guarded || !r) return;
+    counted += Number(r.counted) || 0;
+    if (Array.isArray(r.skipped)) guardSkipped.push(...r.skipped);
+  };
   const sorted = [...new Set(stores.map(asStoreId))].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
   const batches = [];
   for (let i = Math.min(startIndex, sorted.length); i < sorted.length; i += batchStores) batches.push({ start: i, ids: sorted.slice(i, i + batchStores) });
@@ -102,6 +119,7 @@ export async function runSweep({
     try {
       const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources, ...ownership }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
       if (counts) consecutiveStoreFailures = 0;
+      takeGuardResult(r);
       return { removed: r?.removed ?? 0, ok: true };
     } catch (err) {
       if (err instanceof LockLostError) throw err;
@@ -130,6 +148,7 @@ export async function runSweep({
         supportsBatch = true;
         usedBatch = true;
         consecutiveStoreFailures = 0;
+        takeGuardResult(r);
         return { removed: r?.removed ?? 0, failedIds: [] };
       } catch (err) {
         if (err instanceof LockLostError) throw err;
@@ -153,6 +172,16 @@ export async function runSweep({
     }
     return { removed: removedHere, failedIds };
   };
+
+  if (guarded && requireGuards && (batches.length || failed.size)) {
+    assertLock();
+    const probe = await withRetry(() => api(SWEEP_PATH, { dealerId: PROBE_DEALER_ID, seenAfter: new Date(0).toISOString(), sources, ...ownership }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() })
+      .catch((err) => { if (err instanceof LockLostError) throw err; throw new SweepAbortError(`the sweep-guard probe failed (${err.message}) — nothing was swept, so no car was retired unguarded`); });
+    if (!probe || probe.counted === undefined || !Array.isArray(probe.skipped)) {
+      throw new SweepAbortError("the deals API does not acknowledge the sweep guards (it predates inventorySweep.js with guards) — nothing was swept. Install the server half first (docs/box-patches/2026-10-27-sweep-guards/STEPS.md), or set SWEEP_REQUIRE_GUARDS=0 to sweep unguarded on purpose.");
+    }
+    log("[sync] sweep guards acknowledged by the deals API: " + JSON.stringify(guards));
+  }
 
   // Stores an earlier attempt had to skip are tried again first — a resume after the API recovered is exactly
   // when they will work. Whatever still fails stays in the skipped list.
@@ -222,6 +251,8 @@ export async function runSweep({
     failedStores: [...failed],
     batchCalls,
     storeCalls,
+    guardSkipped,
+    counted,
     mode: usedBatch && usedPerStore ? "mixed" : usedBatch ? "batch" : usedPerStore ? "per-store" : "none",
   };
 }
