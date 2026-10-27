@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { NO_PAID_FACTORY_OPTIONS, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { DropdownOption } from "./search/SearchableDropdown";
-import { SearchFilterBar } from "./search/SearchFilterBar";
+import { SearchFilterBar, useIsMobile } from "./search/SearchFilterBar";
+import { toggleColumn, visibleColumnKeys } from "@/lib/searchColumns";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
@@ -555,7 +556,20 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
   sort: string; onSort: (column: SortableColumn) => void; sortBusy: boolean;
 }) {
-  const cols = TABLE_COLUMNS.filter((c) => c.key !== "distance" || vehicles.some((v) => v.distanceMiles != null));
+  const [hiddenCols, setHiddenCols] = useState<string[] | null>(null); // null = the defaults (Days on market and Vehicle ID off)
+  const [colsOpen, setColsOpen] = useState(false);
+  useEffect(() => {
+    try { const raw = window.localStorage.getItem("trimscout.search.hiddenColumns"); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) setHiddenCols(v.filter((k) => typeof k === "string")); } } catch { /* storage blocked: the defaults */ }
+  }, []);
+  const changeHidden = (key: string) => setHiddenCols((cur) => {
+    const next = toggleColumn(cur, key);
+    try { window.localStorage.setItem("trimscout.search.hiddenColumns", JSON.stringify(next)); } catch { /* not saved; still applied */ }
+    return next;
+  });
+  const shownKeys = new Set(visibleColumnKeys(TABLE_COLUMNS, hiddenCols));
+  const hasDistance = vehicles.some((v) => v.distanceMiles != null);
+  const cols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance));
+  const mobile = useIsMobile();
   const totalW = cols.reduce((s, c) => s + c.w, 0);
   const picked = new Set(picks.map((p) => p.key));
   // The scroller's own bottom edge — and with it the horizontal scrollbar and the last rows — must stay above the fixed picks bar.
@@ -585,8 +599,53 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
     io.observe(el);
     return () => io.disconnect();
   }, [hasMore, moreError, loadingMore, vehicles.length]);
+  if (mobile) {
+    return (
+      <div data-testid="results-cards" className={`space-y-2 transition-opacity ${dimmed ? "opacity-60" : ""}`}>
+        {vehicles.map((v) => {
+          const key = vehicleKey(v);
+          const title = [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin;
+          const blocked = v.rfqEligible === false && !picked.has(key);
+          return (
+            <article key={key} onClick={() => onView(key)} className="rounded-xl border border-border bg-surface p-3 text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className={`font-semibold ${viewed.has(key) ? "text-ink-faint" : "text-white"}`}>{title}</h3>
+                <span className="shrink-0 font-semibold tabular-nums text-white">{money(v.price)}</span>
+              </div>
+              <p className="mt-1 text-xs text-ink-muted">{[v.mileage == null ? "" : `${v.mileage.toLocaleString()} mi`, v.exteriorColor, v.interiorColor].filter(Boolean).join(" · ")}</p>
+              <p className="mt-0.5 text-xs text-ink-faint">{[v.dealerName, v.dealerState].filter(Boolean).join(" · ")}</p>
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <label className="flex items-center gap-2 text-xs text-ink-light" title={blocked ? "Not available for a quote request right now" : undefined}>
+                  <input type="checkbox" checked={picked.has(key)} disabled={blocked} onClick={(e) => e.stopPropagation()} onChange={() => onTogglePick(toPick(v))} aria-label={`Pick ${title} for a quote`} className="h-4 w-4 accent-brand-500" />
+                  Get a quote
+                </label>
+                {v.vdpUrl ? <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="text-xs text-brand-400 hover:underline">View at dealer ↗</Link> : <span className="text-xs text-ink-faint">No link</span>}
+              </div>
+            </article>
+          );
+        })}
+        {hasMore && !moreError && <div ref={sentinel} data-testid="results-sentinel" aria-hidden style={{ height: 1 }} />}
+        {hasMore && loadingMore && !moreError && <div role="status" className="py-3 text-center text-[11px] text-ink-faint">Loading more vehicles…</div>}
+        {moreError && <div role="alert" className="py-3 text-center text-[11px] text-amber-300">Couldn&apos;t load more — <button type="button" onClick={onLoadMore} className="font-bold underline">retry</button></div>}
+        {hasMore && !moreError && !loadingMore && <button type="button" onClick={onLoadMore} className="w-full rounded-lg border border-border py-2 text-xs text-ink-light">Load more vehicles</button>}
+      </div>
+    );
+  }
   return (
     <div className={`overflow-hidden rounded-2xl border border-border bg-surface transition-opacity ${dimmed ? "opacity-60" : ""}`}>
+      <div className="relative flex justify-end border-b border-border px-2 py-1.5">
+        <button type="button" aria-haspopup="menu" aria-expanded={colsOpen} onClick={() => setColsOpen((o) => !o)} className="rounded-md border border-border-strong px-2.5 py-1 text-xs text-ink-light hover:text-white">Columns</button>
+        {colsOpen && (
+          <div role="menu" aria-label="Columns" onKeyDown={(e) => { if (e.key === "Escape") setColsOpen(false); }} className="absolute right-2 top-full z-30 mt-1 max-h-72 w-52 overflow-y-auto rounded-lg border border-border-strong bg-surface-elevated py-1 shadow-2xl">
+            {TABLE_COLUMNS.filter((c) => c.key !== "pick" && (c.key !== "distance" || hasDistance)).map((c) => (
+              <label key={c.key} role="menuitemcheckbox" aria-checked={shownKeys.has(c.key)} className="flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs text-ink-light hover:bg-surface">
+                <input type="checkbox" checked={shownKeys.has(c.key)} onChange={() => changeHidden(c.key)} className="h-3.5 w-3.5 accent-brand-500" />
+                {c.label}
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
       <div ref={scroller} data-testid="results-scroller" className="overflow-x-auto overflow-y-auto overscroll-x-contain" style={{ maxHeight: "max(240px, calc(100dvh - var(--table-top, 260px) - var(--picks-bar-h, 7rem) - 1.25rem))", minHeight: 120 }}>
         <div style={{ width: totalW, minWidth: "100%" }}>
           <div className="sticky top-0 z-20 flex border-b border-gray-300 bg-gray-100" style={{ height: ROW_H }}>

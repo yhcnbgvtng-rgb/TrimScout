@@ -11,7 +11,8 @@ import { optionPriceText, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { parseExclude } from "@/lib/searchLive";
 import type { PillOption as DropdownOption } from "../admin/FilterPill";
 import type { CatalogOption, Filters } from "../BuyerSearchView";
-import { FacetChips, type Chip } from "./FacetChips";
+import type { Chip } from "./FacetChips";
+import SearchableDropdown, { type DropdownOption as SearchableOption } from "./SearchableDropdown";
 import { LiveCount, type LiveCountProps } from "./LiveCount";
 import { PriceRange } from "./PriceRange";
 
@@ -55,7 +56,7 @@ export interface SearchFilterBarProps {
 const money = (n: string) => `$${Number(n).toLocaleString()}`;
 const COND_LABEL: Record<string, string> = { new: "New", used: "Used", cpo: "Certified" };
 
-function useIsMobile(): boolean {
+export function useIsMobile(): boolean {
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return; // no media queries (an old browser, or a test DOM): the desktop popover
@@ -162,6 +163,38 @@ function NumField({ id, label, value, onChange }: { id: string; label: string; v
   );
 }
 
+/** A dropdown-shaped trigger (same look as SearchableDropdown) that opens a small popover of controls: Year, Price. With `button` it is only the trigger (More). */
+function RangeMenu({ label, summary, count, onClear, children, button }: {
+  label: string; summary: string; count?: number; onClear: () => void; children?: ReactNode;
+  button?: { ref: RefObject<HTMLButtonElement | null>; open: boolean; onToggle: () => void; controls?: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const own = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const down = (e: MouseEvent) => { if (own.current && !own.current.contains(e.target as Node)) setOpen(false); };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", down); document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("mousedown", down); document.removeEventListener("keydown", key); };
+  }, [open]);
+  const isOpen = button ? button.open : open;
+  const text = summary ? `${summary}${count == null ? "" : ` · ${count.toLocaleString()}`}` : "";
+  return (
+    <div ref={own} className="relative flex flex-col gap-1">
+      <span className="text-[10.5px] font-bold uppercase tracking-wide text-ink-faint">{label}</span>
+      <div className={`flex w-full items-center gap-2 rounded-xl border px-3 py-2.5 ${summary ? "border-sky-500/50 bg-sky-950/20" : "border-border bg-surface-elevated"}`}>
+        <button type="button" ref={button?.ref} aria-haspopup={button ? "dialog" : "true"} aria-expanded={isOpen} aria-controls={button?.controls} aria-label={`${label}${text ? `: ${text}` : ""}`}
+          onClick={() => (button ? button.onToggle() : setOpen((o) => !o))} className={`min-w-0 flex-1 truncate text-left text-sm font-semibold ${summary ? "text-white" : "font-normal text-ink-light"} ${RING}`}>
+          {text || (button ? "More filters" : `Any ${label.toLowerCase()}`)}
+        </button>
+        {summary && <button type="button" onClick={onClear} aria-label={`Clear ${label}`} className="shrink-0 text-ink-faint hover:text-white"><svg aria-hidden width="10" height="10" viewBox="0 0 8 8" stroke="currentColor" strokeWidth="1.5"><path d="m1 1 6 6M7 1 1 7" /></svg></button>}
+        <svg aria-hidden width="10" height="10" viewBox="0 0 10 10" className={`shrink-0 text-ink-faint transition-transform ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m2 3.5 3 3 3-3" /></svg>
+      </div>
+      {!button && open && <div role="dialog" aria-label={label} className="absolute left-0 top-full z-30 mt-1.5 w-72 max-w-[90vw] rounded-xl border border-border-strong bg-surface-elevated p-4 shadow-2xl">{children}</div>}
+    </div>
+  );
+}
+
 export function SearchFilterBar(p: SearchFilterBarProps) {
   const { filters, setFilters } = p;
   const moreAnchor = useRef<HTMLButtonElement>(null);
@@ -218,6 +251,43 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
   }));
   const showResults = (close: () => void) => () => { close(); p.submitSearch(); };
   const countLabel = p.live.value == null ? "Search" : `Show ${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicle${p.live.value === 1 && !p.live.capped ? "" : "s"}`;
+
+  // ---- the dropdown row: one control per filter, equal width; counts are the live facet counts ----
+  const mobile = useIsMobile();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const sheetAnchor = useRef<HTMLButtonElement>(null);
+  const countsOff = p.facetsLoading || p.facetsFailed;
+  const asOpts = (o: Array<{ value: string; label: string; count?: number }>): SearchableOption[] => o.map((x) => ({ value: x.value, label: x.label, count: x.count ?? 0 }));
+  const withDetail = (o: Chip): SearchableOption => ({ value: o.value, label: o.detail ? `${o.label} · ${o.detail}` : o.label, count: o.count ?? 0 });
+  const activeCount = p.live.value == null ? undefined : p.live.value;
+  const yearSummary = filters.yearMin || filters.yearMax ? `${filters.yearMin || "any"} – ${filters.yearMax || "any"}` : "";
+  const priceSummary = filters.priceMin || filters.priceMax ? `${filters.priceMin ? money(filters.priceMin) : "any"} – ${filters.priceMax ? money(filters.priceMax) : "any"}` : "";
+  const controls = (
+    <>
+      <SearchableDropdown label="Location" placeholder="Any state" options={asOpts(p.stateOptions)} value={filters.state} loading={p.facetsLoading} countsLoading={countsOff}
+        onChange={(state) => setFilters((f) => ({ ...f, state }))} />
+      <SearchableDropdown label="Make" placeholder="Any make" options={asOpts(p.makeOptions)} value={filters.make} loading={p.facetsLoading} countsLoading={countsOff}
+        onChange={(v) => p.setMake(v)} />
+      <SearchableDropdown label="Model" placeholder="Any model" options={asOpts(p.modelOptions)} value={filters.model} loading={p.facetsLoading} countsLoading={countsOff}
+        disabledHint={filters.make ? undefined : "Pick a make"} onChange={(v) => p.setModel(v)} />
+      <SearchableDropdown label="Trim" placeholder="Any trim" options={asOpts(p.trimOptions)} value={filters.trim} loading={p.facetsLoading} countsLoading={countsOff}
+        disabledHint={filters.make ? undefined : "Pick a make"} onChange={(trim) => setFilters((f) => ({ ...f, trim }))} />
+      <RangeMenu label="Year" summary={yearSummary} count={yearSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, yearMin: "", yearMax: "" }))}>
+        <div className="grid grid-cols-2 gap-3">
+          <NumField id={`${listId}-ymin`} label="From" value={filters.yearMin} onChange={(yearMin) => setFilters((f) => ({ ...f, yearMin }))} />
+          <NumField id={`${listId}-ymax`} label="To" value={filters.yearMax} onChange={(yearMax) => setFilters((f) => ({ ...f, yearMax }))} />
+        </div>
+      </RangeMenu>
+      <RangeMenu label="Price" summary={priceSummary} count={priceSummary ? activeCount : undefined} onClear={() => setFilters((f) => ({ ...f, priceMin: "", priceMax: "" }))}>
+        <PriceRange min={filters.priceMin} max={filters.priceMax} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
+      </RangeMenu>
+      <SearchableDropdown multi label={paidOnly ? "Paid factory options" : "Factory options"} placeholder="Any option" options={optionChips.map(withDetail)} value={filters.optionKeys}
+        loading={p.catalogOptionsLoading} emptyMessage={p.optionsEmptyMessage} disabledHint={filters.make ? undefined : "Pick a make"}
+        onChange={(optionKeys) => setFilters((f) => ({ ...f, optionKeys }))} />
+      <RangeMenu label="More" summary={p.moreCount > 0 ? `${p.moreCount} filter${p.moreCount === 1 ? "" : "s"}` : ""} count={p.moreCount > 0 ? activeCount : undefined} onClear={p.clearMore}
+        button={{ ref: moreAnchor, open: p.moreOpen, onToggle: () => p.setMoreOpen(!p.moreOpen), controls: p.moreOpen ? morePanelId : undefined }} />
+    </>
+  );
 
   return (
     <section aria-label="Search filters" className="mx-auto mb-6 w-full max-w-[960px] px-1 pt-6 text-white sm:pt-10" style={{ fontFamily: FONT }}>
@@ -277,36 +347,21 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
         </div>
       )}
 
-      <div role="group" aria-label="Filters" className="mt-3 divide-y divide-border/40">
-        <FacetChips label="Condition" selected={filters.cond ? [filters.cond] : []} onToggle={(v) => toggleOne("cond", v)}
-          chips={[{ value: "new", label: "New" }, { value: "used", label: "Used" }, { value: "cpo", label: "Certified" }]} />
-        <FacetChips label="Location" selected={filters.state ? [filters.state] : []} onToggle={(v) => toggleOne("state", v)} chips={toChips(p.stateOptions)} limit={10} loading={p.facetsLoading} />
-        <FacetChips label="Make" selected={filters.make ? [filters.make] : []} onToggle={(v) => p.setMake(filters.make === v ? "" : v)} chips={toChips(p.makeOptions)} limit={14} loading={p.facetsLoading} emptyText="No makes to show right now." />
-        {filters.make && <FacetChips label="Model" selected={filters.model ? [filters.model] : []} onToggle={(v) => p.setModel(filters.model === v ? "" : v)} chips={toChips(p.modelOptions)} limit={14} loading={p.facetsLoading} />}
-        {filters.model && <FacetChips label="Trim" selected={filters.trim ? [filters.trim] : []} onToggle={(v) => setFilters((f) => ({ ...f, trim: f.trim === v ? "" : v }))} chips={toChips(p.trimOptions)} limit={14} loading={p.facetsLoading} />}
-        {filters.make && (p.exteriorColors.length > 0 || p.catalogOptionsLoading) && (
-          <FacetChips label="Exterior colour" selected={filters.exteriorColor ? [filters.exteriorColor] : []} onToggle={(v) => toggleOne("exteriorColor", v)}
-            chips={p.exteriorColors.map((c) => ({ value: c, label: c }))} limit={12} loading={p.catalogOptionsLoading} />
-        )}
-        {filters.model && (
-          <FacetChips label={paidOnly ? "Paid factory options" : "Factory options"} selected={filters.optionKeys}
-            onToggle={(k) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(k) ? f.optionKeys.filter((x) => x !== k) : [...f.optionKeys, k] }))}
-            chips={optionChips} limit={12} loading={p.catalogOptionsLoading} emptyText={p.optionsEmptyMessage} />
-        )}
-        <PriceRange min={filters.priceMin} max={filters.priceMax} onChange={(priceMin, priceMax) => setFilters((f) => ({ ...f, priceMin, priceMax }))} />
-        <div className="py-2">
-          <label htmlFor={`${listId}-exclude`} className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-muted">Leave out</label>
-          <input id={`${listId}-exclude`} type="text" value={filters.exclude} onChange={(e) => setFilters((f) => ({ ...f, exclude: e.target.value }))}
-            placeholder="Words to hide, e.g. black, sport" autoComplete="off" className={`${fieldBox} sm:max-w-sm ${RING}`} />
-          <p className="mt-1 text-xs text-ink-faint">Hides cars whose year, model, trim or colour contains any of these words.</p>
-        </div>
-        <div className="flex items-center justify-between py-2">
-          <button ref={moreAnchor} type="button" aria-haspopup="dialog" aria-expanded={p.moreOpen} aria-controls={p.moreOpen ? morePanelId : undefined}
-            onClick={() => p.setMoreOpen(!p.moreOpen)} className={`text-sm text-ink-light underline underline-offset-2 hover:text-white ${RING}`}>
-            More filters{p.moreCount > 0 ? ` (${p.moreCount})` : ""}
+      <div className="mt-4">
+        {mobile ? (
+          <button type="button" aria-haspopup="dialog" aria-expanded={sheetOpen} onClick={() => setSheetOpen(true)} ref={sheetAnchor}
+            className={`flex h-11 w-full items-center justify-between rounded-xl border border-border bg-surface-elevated px-4 text-sm font-semibold text-white ${RING}`}>
+            <span>Filters{chips.length > 0 ? ` (${chips.length})` : ""}</span>
+            <span className="text-xs font-normal text-ink-muted">{p.live.value == null ? "" : `${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicles`}</span>
           </button>
-        </div>
+        ) : (
+          <div role="group" aria-label="Filters" className="grid grid-cols-8 gap-2">{controls}</div>
+        )}
       </div>
+
+      <Panel open={mobile && sheetOpen} onClose={() => setSheetOpen(false)} anchorRef={sheetAnchor} title="Filters" onShowResults={showResults(() => setSheetOpen(false))}>
+        <div role="group" aria-label="Filters" className="space-y-4">{controls}</div>
+      </Panel>
 
       <Panel open={p.moreOpen} onClose={closeMore} anchorRef={moreAnchor} title="More filters" width={360} onShowResults={showResults(closeMore)}>
         <div
@@ -319,6 +374,24 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
           <div className="grid grid-cols-2 gap-3">
             <NumField id={`${morePanelId}-ymin`} label="Year min" value={filters.yearMin} onChange={(yearMin) => setFilters((f) => ({ ...f, yearMin }))} />
             <NumField id={`${morePanelId}-ymax`} label="Year max" value={filters.yearMax} onChange={(yearMax) => setFilters((f) => ({ ...f, yearMax }))} />
+          </div>
+          <div>
+            <label htmlFor={`${morePanelId}-cond`} className={fieldLabel}>Condition</label>
+            <select id={`${morePanelId}-cond`} value={filters.cond} onChange={(e) => setFilters((f) => ({ ...f, cond: e.target.value }))} className={`${fieldBox} ${RING}`}>
+              <option value="">Any</option><option value="new">New</option><option value="used">Used</option><option value="cpo">Certified</option>
+            </select>
+          </div>
+          {p.exteriorColors.length > 0 && (
+            <div>
+              <label htmlFor={`${morePanelId}-ext`} className={fieldLabel}>Exterior color</label>
+              <select id={`${morePanelId}-ext`} value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className={`${fieldBox} ${RING}`}>
+                <option value="">Any</option>{p.exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          )}
+          <div>
+            <label htmlFor={`${morePanelId}-excl`} className={fieldLabel}>Leave out</label>
+            <input id={`${morePanelId}-excl`} type="text" value={filters.exclude} onChange={(e) => setFilters((f) => ({ ...f, exclude: e.target.value }))} placeholder="Words to hide, e.g. black, sport" autoComplete="off" className={`${fieldBox} ${RING}`} />
           </div>
           <NumField id={`${morePanelId}-odo`} label="Max odometer" value={filters.odometerMax} onChange={(odometerMax) => setFilters((f) => ({ ...f, odometerMax }))} />
           <div>
