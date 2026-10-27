@@ -6,7 +6,7 @@
 # apply/restore copy files and run the test; they do NOT restart. The running server keeps the old code until:   pm2 restart deals-api   (as ubuntu; see STEPS.md for when).
 D=${DEALS_DIR:-/opt/trimscout-deals/src}; HERE=$(cd "$(dirname "$0")" && pwd); BACKUP=${BACKUP:-$HOME/backups/make-wmi-deals-20261026}; MODE=${1:-check}
 md() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
-SM_BEFORE=4f384997f7107b66b9521bb561b7a10e; SM_AFTER=4017f1f9e24dc14d1b2cc530737e1e00; VW_AFTER=365a9b0dd148dcd115b442601f7c47af
+SM_BEFORE=4f384997f7107b66b9521bb561b7a10e; SM_AFTER=4017f1f9e24dc14d1b2cc530737e1e00; VW_AFTER=422bd7190ee821d33449d28489e22d17
 VT=2bb0902516fe1279adec20291096ac7b; IG=0ba41bc0c45b07ad75a2fd32571937da
 fail() { echo "FAIL: $*"; exit 1; }
 sm=$(md "$D/stellantisMake.js"); vw=$(md "$D/vinWmi.js"); vt=$(md "$D/stellantisVinTable.js"); ig=$(md "$D/ingestGuards.js")

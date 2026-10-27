@@ -21,5 +21,6 @@ for (const [vin, model, want] of FIVE) {
 }
 for (const [vin, model, want] of REAL_GMC) check(`${model} (real GMC) stays GMC`, fn({ make: "GMC", vin, model }), want);
 check("unknown WMI keeps the stored make", fn({ make: "GMC", vin: "XZZCJ1DH0NUL16894", model: "X" }), "GMC");
+if (mode === "crawler") check("unknown WMI, no page make: kept under the roster brand (make_source=fallback), not dropped", fn({ make: null, vin: "XZZCJ1DH0NUL16894", model: "X" }), "GMC");
 console.log(fails ? `FAILED ${fails} check(s)` : "FIVE-VIN TEST PASS");
 process.exit(fails ? 1 : 0);
