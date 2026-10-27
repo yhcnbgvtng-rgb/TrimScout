@@ -63,7 +63,7 @@ describe('multi-brand dealer: the fallback only ever fills a car nothing else ca
   });
 });
 
-// 20 VINs from box4's 2026-10-27 crawl logs ("make unresolvable ... car skipped"), each of a prefix the table did not know.
+// VINs from box4's 2026-10-27 crawl logs ("make unresolvable ... car skipped"), each of a prefix the table did not know.
 const FROM_BOX4_LOGS = [
   ['1G2MG35XX7Y117329', 'Pontiac'], ['1G8ZV57757F265961', 'Saturn'], ['2G4GS5ER4C9215657', 'Buick'], ['2G61M5S3XE9321976', 'Cadillac'],
   ['3GYFNAE32CS508014', 'Cadillac'], ['1NXBU4EE1AZ317347', 'Toyota'], ['1YVHZ8BH3C5M07273', 'Mazda'], ['2CNBE18C426921660', 'Chevrolet'],
@@ -71,6 +71,12 @@ const FROM_BOX4_LOGS = [
   ['5NTJADDE3VH184702', 'Hyundai'], ['5XXG14J21MG028963', 'Kia'], ['7G2CEHED8RA009711', 'Tesla'], ['7JDDA3VL5TG060703', 'Volvo'],
   ['7MMVAABW1TN191543', 'Mazda'], ['7MUAAAAG0VV45B401', 'Toyota'], ['7SVAAAAAXTX005092', 'Toyota'], ['7FARS3H27TE007711', 'Honda'],
 ];
+
+// Six more clear prefixes from the same logs (added after the first twenty).
+FROM_BOX4_LOGS.push(
+  ['2G2FS32K922108501', 'Pontiac'], ['7PDSGBBA6RN031476', 'Rivian'], ['7YAKMDDC2TY070915', 'Hyundai'],
+  ['JS2YA5A53B6301004', 'Suzuki'], ['JHLRD78936C044284', 'Honda'], ['3MYDLBYV2HY191802', 'Toyota'],
+);
 
 describe('WMI prefixes added from box4 2026-10-27 skipped VINs', () => {
   for (const [vin, make] of FROM_BOX4_LOGS) {
