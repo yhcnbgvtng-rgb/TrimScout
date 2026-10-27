@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOptionRows.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
+import { normalizeFordTrimForWrite } from '../src/fordTrim.js';
 import { normalizeModelForWrite, prepareMazdaVehicle } from '../src/mazdaPaidOptions.js';
 import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, policyFacetRows, policyApiOptions } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
@@ -69,7 +70,7 @@ function makeDb() {
         for (const v of params[0]) {
           assert.equal(v.length, cols.length, 'every row carries one value per listed column');
           const prev = db.inv.get(`${v[0]}|${v[1]}`);
-          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1], state: v[v.length - 2] });
+          db.inv.set(`${v[0]}|${v[1]}`, { dealerId: v[1], source: v[17], lastSeen: db.clock, removed: false, vehicleId: prev?.vehicleId ?? v[v.length - 1], state: v[cols.indexOf("state")], trimRaw: v[cols.indexOf("trim_raw")], trim: v[cols.indexOf("trim")] });
         }
         for (const v of params[0]) db.json.set(`${v[0]}|${v[1]}`, v[cols.indexOf('options_json')]);
         db.n.upserts += params[0].length;
@@ -132,7 +133,7 @@ function loadHandlers(db) {
     badRequest: (res, message) => { res.status = 400; res.json = { error: message }; },
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
-    normalizeMakeForWrite, normalizeModelForWrite, prepareMazdaVehicle, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
+    normalizeMakeForWrite, normalizeFordTrimForWrite, normalizeModelForWrite, prepareMazdaVehicle, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
     cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true, PAID_ONLY: false,
@@ -259,6 +260,37 @@ describe('handleInventoryBulk — options diff-write (the real handler, in-memor
       assert.equal(worldA.db.pool.optionTable(), worldB.db.pool.optionTable(), `facet tables diverged on night ${night}`);
     }
     assert.ok(writesDiff < writesAll * 0.6, `diff-write should have written far less (${writesDiff} vs ${writesAll} rows)`);
+  });
+});
+
+describe('handleInventoryBulk — Ford trim (fordTrim.js) on the write path', () => {
+  // A Ford VIN: the write path checks the make against the VIN (vinWmi.js), so a Honda VIN would turn "Ford" into Honda.
+  const fvin = (i) => `1FTFW1E50NFA${String(i).padStart(5, '0')}`;
+  const fordVeh = (i, trim, extra = {}) => veh(i, null, { vin: fvin(i), make: 'Ford', model: 'F-150', trim, ...extra });
+  const stored = (db, i) => [...db.inv.entries()].find(([k]) => k.startsWith(i >= 100 ? vin(i) : fvin(i)))[1];
+  it('rewrites a sentence trim to the official trim and keeps the dealer text in trim_raw', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([fordVeh(1, '4X4 CREWCAB XLT'), fordVeh(2, 'XLT'), fordVeh(3, 'Preferred', { model: 'F-250' }), fordVeh(4, null)]);
+    assert.deepEqual([stored(db, 1).trim, stored(db, 1).trimRaw], ['XLT', '4X4 CREWCAB XLT']);
+    assert.deepEqual([stored(db, 2).trim, stored(db, 2).trimRaw], ['XLT', null], 'an official trim is stored as sent, no raw copy');
+    assert.deepEqual([stored(db, 3).trim, stored(db, 3).trimRaw], ['Preferred', null], 'an unreadable trim is left alone');
+    assert.deepEqual([stored(db, 4).trim, stored(db, 4).trimRaw], [null, null]);
+  });
+  it('is per model: Tremor is dropped on a Super Duty "Lariat Tremor", kept on an F-150', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([fordVeh(1, 'Lariat Tremor', { model: 'F-250' }), fordVeh(2, 'Tremor 4WD SuperCrew')]);
+    assert.equal(stored(db, 1).trim, 'Lariat');
+    assert.equal(stored(db, 2).trim, 'Tremor');
+  });
+  it('keeps the crawler\'s own raw text when it already rewrote the trim, and never touches another make', async () => {
+    const db = makeDb(); const h = loadHandlers(db);
+    await h.bulk([fordVeh(1, 'XLT', { trimRaw: '4X4 CREWCAB XLT' }), veh(102, null, { make: 'Toyota', model: 'Tacoma', trim: 'TRD Sport 4WD' })]);
+    assert.deepEqual([stored(db, 1).trim, stored(db, 1).trimRaw], ['XLT', '4X4 CREWCAB XLT']);
+    assert.deepEqual([stored(db, 102).trim, stored(db, 102).trimRaw], ['TRD Sport 4WD', null]);
+  });
+  it('the upsert lists trim_raw, and a blank incoming trim leaves the stored trim_raw alone', () => {
+    assert.match(SRC, /source_box, state, trim_raw, vehicle_id\)/);
+    assert.match(SRC, /trim_raw = IF\(VALUES\(trim\) IS NULL, trim_raw, VALUES\(trim_raw\)\)/);
   });
 });
 

@@ -46,6 +46,7 @@ import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFa
 import { loadSyncAllowlist, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
 import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from "./syncOptionClean.js";
 import { normalizeMakeForWrite } from "./stellantisMake.js";
+import { normalizeFordTrimForWrite } from "./fordTrim.js";
 import { guardPrice } from "./ingestGuards.js";
 import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
@@ -2021,6 +2022,8 @@ async function ensureInventoryTableOnce(pool) {
     // Hidden from buyer search, never removed; any upsert of the car clears it again.
     "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
+    // The dealer's own trim text, kept whenever the trim above was rewritten by fordTrim.js (null = the trim is exactly what the dealer sent). Nothing is lost.
+    "ADD COLUMN IF NOT EXISTS trim_raw VARCHAR(160) NULL",
     // state was never its own column — every state= filter had to JOIN dealership_contacts,
     // which has no index on state either, forcing a full scan of it plus a temp table +
     // filesort to satisfy the default dealer_name sort (confirmed live 2026-09-25 on box2:
@@ -2444,10 +2447,18 @@ async function handleInventoryBulk(req, res) {
     if (!chunk.length) continue;
     // The same decision the re-clean tool makes, once per car: options_json is the policy / junk-cleaned list (OPTIONS_JSON_CLEAN=full|off to change it).
     const cleaned = new Map(chunk.map((v) => [v, cleanOptionsForWrite(OPTION_ALLOWLIST, { make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model, year: INV_INT(v.year), trim: INV_STR(v.trim, 160) }, v.options, { jsonMode: OPTIONS_JSON_CLEAN })]));
-    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(normalizeModelForWrite({ make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model }), 96), INV_STR(v.trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
+    // Ford trim (fordTrim.js), applied here too so a stale shard or a not-yet-updated box cannot bring "4X4 CREWCAB XLT" back. The raw text is the crawler's
+    // trimRaw when it already rewrote the trim, else this call's own original. Option policy below keeps seeing the trim exactly as sent.
+    const fordTrims = new Map(chunk.map((v) => {
+      const make = normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model });
+      const r = normalizeFordTrimForWrite({ make, model: v.model, trim: INV_STR(v.trim, 160) });
+      const sent = typeof v.trimRaw === "string" ? v.trimRaw.trim() : "";
+      return [v, { trim: r.trim, trimRaw: r.trimRaw || (sent && sent !== r.trim ? sent.slice(0, 160) : null) }];
+    }));
+    const values = chunk.map((v) => [v.vin.trim().toUpperCase(), INV_DEALER(v.dealerId), INV_STR(v.dealerName, 255), INV_STR(v.condition, 12), INV_INT(v.year), INV_STR(normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), 64), INV_STR(normalizeModelForWrite({ make: normalizeMakeForWrite({ make: v.make, vin: v.vin, model: v.model }), model: v.model }), 96), INV_STR(fordTrims.get(v).trim, 160), INV_STR(v.bodyStyle, 64), INV_STR(v.exteriorColor, 96), INV_STR(v.interiorColor, 96), INV_INT(v.mileage), INV_INT(v.price), INV_INT(v.msrp), INV_STR(v.stockNumber, 64), INV_STR(v.vdpUrl, 700), INV_STR(v.imageUrl, 700), INV_STR(v.source, 16),
       INV_STR(v.windowStickerUrl, 700), INV_STR(v.engine, 160), INV_STR(normalizeTransmission(v.transmission), 160), INV_INT(v.daysOnLot), INV_INT(v.oldPrice), INV_INT(v.priceDiff), INV_STR(v.priceChangeType, 16), INV_STR(v.changeType, 16), INV_JSON_STR(v.priceHistory, 60000), INV_JSON_STR(cleaned.get(v).optionsJson, 200000), INV_INT(v.optionsTotal), INV_INT(v.baseMsrp), INV_DATE(v.crawlFirstSeen), INV_STR(v.sourceBox, 16),
       // The crawl's own state: only used when the directory has no store for the row (trg_inv_rev_*), so store-0 cars still have a state.
-      normalizeState(v.state)]);
+      normalizeState(v.state), INV_STR(fordTrims.get(v).trimRaw, 160)]);
     // Ingest guard (ingestGuards.js): a price that is plainly a parse error (> $300k and unsupported by its own MSRP, or ~10x the
     // row's MSRP) is written as null, and an MSRP that is the corrupt half of a ~10x pair is written as null instead of the price;
     // the upsert's COALESCE turns a null into "keep the stored value". Column order is the INSERT's below: year [4], make [5],
@@ -2475,11 +2486,11 @@ async function handleInventoryBulk(req, res) {
     const tUpsert = performance.now();
     await pool.query(
       `INSERT INTO dealer_inventory (vin, dealer_id, dealer_name, cond, year, make, model, trim, body_style, exterior_color, interior_color, mileage, price, msrp, stock_number, vdp_url, image_url, source,
-        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, state, vehicle_id)
+        window_sticker_url, engine, transmission, days_on_lot, old_price, price_diff, price_change_type, change_type, price_history_json, options_json, options_total, base_msrp, crawl_first_seen, source_box, state, trim_raw, vehicle_id)
        VALUES ? ON DUPLICATE KEY UPDATE dealer_id = VALUES(dealer_id), dealer_name = VALUES(dealer_name), cond = COALESCE(VALUES(cond), cond), year = COALESCE(VALUES(year), year), make = COALESCE(VALUES(make), make), model = COALESCE(VALUES(model), model), trim = COALESCE(VALUES(trim), trim), body_style = COALESCE(VALUES(body_style), body_style), exterior_color = COALESCE(VALUES(exterior_color), exterior_color), interior_color = COALESCE(VALUES(interior_color), interior_color), mileage = COALESCE(VALUES(mileage), mileage),
         price_change_count = price_change_count + IF(VALUES(price) IS NOT NULL AND price IS NOT NULL AND VALUES(price) <> price, 1, 0),
         price = COALESCE(VALUES(price), price), msrp = COALESCE(VALUES(msrp), msrp), stock_number = COALESCE(VALUES(stock_number), stock_number), vdp_url = VALUES(vdp_url), image_url = COALESCE(VALUES(image_url), image_url), source = VALUES(source), last_seen_at = CURRENT_TIMESTAMP, removed_at = NULL, stale_at = NULL,
-        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), state = COALESCE(VALUES(state), state), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
+        window_sticker_url = COALESCE(VALUES(window_sticker_url), window_sticker_url), engine = COALESCE(VALUES(engine), engine), transmission = COALESCE(VALUES(transmission), transmission), days_on_lot = COALESCE(VALUES(days_on_lot), days_on_lot), old_price = VALUES(old_price), price_diff = VALUES(price_diff), price_change_type = VALUES(price_change_type), change_type = VALUES(change_type), price_history_json = COALESCE(VALUES(price_history_json), price_history_json), options_json = COALESCE(VALUES(options_json), options_json), options_total = COALESCE(VALUES(options_total), options_total), base_msrp = COALESCE(VALUES(base_msrp), base_msrp), crawl_first_seen = COALESCE(VALUES(crawl_first_seen), crawl_first_seen), source_box = COALESCE(VALUES(source_box), source_box), state = COALESCE(VALUES(state), state), trim_raw = IF(VALUES(trim) IS NULL, trim_raw, VALUES(trim_raw)), vehicle_id = COALESCE(vehicle_id, VALUES(vehicle_id))`,
       [values]
     );
     timings.upsertMs += performance.now() - tUpsert;

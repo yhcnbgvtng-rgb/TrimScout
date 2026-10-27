@@ -23,7 +23,7 @@ describe('the shipped SQL', () => {
     assert.match(SRC, /SET NEW\.state = COALESCE\(\(SELECT state FROM dealership_contacts WHERE id = NEW\.dealer_id LIMIT 1\), NEW\.state\);/);
   });
   it('the bulk upsert writes state and never blanks one with a null', () => {
-    assert.match(SRC, /crawl_first_seen, source_box, state, vehicle_id\)/);
+    assert.match(SRC, /crawl_first_seen, source_box, state, trim_raw, vehicle_id\)/);
     assert.match(SRC, /state = COALESCE\(VALUES\(state\), state\)/);
   });
 });
