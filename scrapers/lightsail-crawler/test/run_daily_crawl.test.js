@@ -158,7 +158,7 @@ describe('run-daily-crawl driver', () => {
       assert.equal(env.CRAWLER_STATE, 'TX');
       assert.equal(env.CRAWLER_BRAND, 'Toyota');
       assert.equal(env.CRAWLER_DEALERS_FILE, 'dealers/tx/toyota.json');
-      assert.equal(env.CRAWLER_PATCHRIGHT_FALLBACK, 'false');
+      assert.equal('CRAWLER_PATCHRIGHT_FALLBACK' in env, false, 'the browser fallback code is gone; there is nothing to switch off');
     });
 
     it('caps the subprocess heap so 2 concurrent brand-runs can never jointly exceed the box\'s RAM', () => {
