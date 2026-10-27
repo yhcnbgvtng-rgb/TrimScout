@@ -2,5 +2,5 @@
 94a1811ccf4064b7d96f8fca011b52c1  BOXBASE  deals_api_server.js
 9af97c8145d9d2293772af0e4c6b8206  BOXFINAL  deals_api_server.js
 a490c3731d2cb44953016d6620863615  BOXBASE  inventory-sync.mjs
-64467d725c559ea1fd3e1c16c9a37596  BOXFINAL  inventory-sync.mjs
-# STALE (PR #603): the BOXFINAL md5 for inventory-sync.mjs above predates the log-line change in this patch and cannot be recomputed without box2's file. Re-derive it from a read-only dry run on a /tmp copy before install; do not trust it.
+e41f34ff8d9acd2efb025323b7f5bb80  BOXFINAL  inventory-sync.mjs
+# BOXFINAL inventory-sync.mjs re-pinned for PR #603: box2's file (md5 64467d725c559ea1fd3e1c16c9a37596, read-only 2026-10-27) = BOXBASE + the earlier refit; reverse-applied to BOXBASE, then the new refit patch applied with -F0 in a scratch copy. box2 already runs the earlier install, so apply only the delta (new syncSweepGuard.js + the two changed lines).
