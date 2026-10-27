@@ -42,7 +42,7 @@ process.on('exit', () => {
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { resolveKeptMake } from './brand_match.js';
-import { normalizeFordTrimForWrite } from './fordTrim.js';
+import { normalizeTrimForWrite } from './oemTrim.js'; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
 import { fillFromFacebookPixelViewContent } from './facebookPixelFields.js';
@@ -1170,10 +1170,10 @@ for (let i = 0; i < work.length; i++) {
                             const priceVerdict = applyParsedPriceGuard(vehicle, previousSnapshot[vehicle.vin]);
                             if (priceVerdict.reject) console.log(describePriceRejection(vehicle, priceVerdict));
                         }
-                        // Ford trim (fordTrim.js): "4X4 CREWCAB XLT" -> "XLT", per model; the dealer's own text is kept in trimRaw (-> dealer_inventory.trim_raw).
+                        // Trim (fordTrim.js for Ford, oemTrim.js for Chevrolet / GMC / Toyota / Ram): "4X4 CREWCAB XLT" -> "XLT", per model; the dealer's own text is kept in trimRaw (-> dealer_inventory.trim_raw).
                         // After the sticker step on purpose: nothing above sees a changed trim. The deals API applies the same rule again on write.
                         if (vehicle.trim) {
-                            const ft = normalizeFordTrimForWrite({ make: vehicle.make, model: vehicle.model, trim: vehicle.trim });
+                            const ft = normalizeTrimForWrite({ make: vehicle.make, model: vehicle.model, trim: vehicle.trim });
                             if (ft.status === 'fix' && ft.trimRaw) { vehicle.trimRaw = ft.trimRaw; vehicle.trim = ft.trim; }
                         }
                         currentInventory.set(vehicle.vin, vehicle);
