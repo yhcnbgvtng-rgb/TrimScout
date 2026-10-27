@@ -91,8 +91,9 @@ describe('resolveKeptMake on a GMC-roster crawl (the bug path)', () => {
   it('a real GMC with no page make is GMC via the brand VIN prefix', () => {
     for (const vin of GMC) assert.equal(resolveKeptMake(gmc, { make: null, vin }), 'GMC');
   });
-  it('a car no table can place and with no page make is dropped (null), never given the roster brand', () => {
-    assert.equal(resolveKeptMake(gmc, { make: null, vin: 'XZZCJ1DH0NUL16894' }), null);
+  it('a car no table can place and with no page make is kept under the dealer / shard brand (make_source=fallback, make_fallback.test.js)', () => {
+    assert.equal(resolveKeptMake(gmc, { make: null, vin: 'XZZCJ1DH0NUL16894' }), 'GMC');
+    assert.equal(resolveKeptMake(gmc, { make: null, vin: 'XZZCJ1DH0NUL16894' }, { make: 'Buick' }), 'Buick');
   });
   it('a page make with a WMI the table does not know is kept as the page said it', () => {
     assert.equal(resolveKeptMake(gmc, { make: 'Isuzu', vin: 'JAABCDEF1N1234567' }), 'Isuzu');

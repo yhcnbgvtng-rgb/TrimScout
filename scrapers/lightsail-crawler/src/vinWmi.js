@@ -31,28 +31,30 @@ const FAMILIES = [
   [['Plymouth'], '1P3 1P4 2P3'], // Plymouth shared these Chrysler-group WMIs until 2001 (the Stellantis set adds its nameplates below)
   [['Lincoln'], '5LM 2LM 3LN 5L1 1LN 1L1'],
   [['Mercury'], '1ME 2ME 3ME'],
-  [['Chevrolet'], '1G1 1GA 1GB 1GC 1GN 2G1 2GC 2GN 3G1 3GB 3GC 3GN KL1 KL7 KL8'],
+  [['Pontiac'], '1G2'],
+  [['Saturn'], '1G8'],
+  [['Chevrolet'], '1G1 1GA 1GB 1GC 1GN 2CN 2G1 2GC 2GN 3G1 3GB 3GC 3GN KL1 KL7 KL8'],
   [['GMC'], '1GD 1GK 1GT 2GK 2GT 3GK 3GT'],
-  [['Cadillac'], '1G6 1GY'],
-  [['Buick'], '1G4 5GA KL4 LRB W04'],
-  [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3'],
+  [['Cadillac'], '1G6 1GY 2G6 3GY'],
+  [['Buick'], '1G4 2G4 5GA KL4 LRB W04'],
+  [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3 1NX 7MU 7SV'],
   [['Lexus'], 'JTH JTJ JT8 2T2 58A'],
   [['Toyota', 'Lexus'], '5TD'], // Indiana builds the Highlander and the Lexus TX
   [['Toyota', 'Subaru'], 'JTM'], // Toyota-built Subaru EVs: Solterra, Trailseeker, Uncharted
   [['Subaru', 'Toyota', 'Scion'], 'JF1 JF2'], // the Subaru-built BRZ / Toyota GR86 / Scion FR-S share this range
   [['Subaru'], '4S3 4S4'],
-  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X JHM SHH'],
-  [['Acura'], '19U 19V JH4 5J8 2HN'],
-  [['Hyundai'], 'KM8 KMH 5NP'],
+  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHM SHH'],
+  [['Acura'], '19U 19V JH4 5FR 5J8 2HN'],
+  [['Hyundai'], 'KM8 KMH 5NP 5NT'],
   [['Hyundai', 'Genesis'], '5NM KMH'], // Alabama builds both; KMH also covers the Genesis G80 / G90 sedans
   [['Genesis'], 'KMT KMU KMG'],
-  [['Kia'], 'KND KNA 3KP'],
+  [['Kia'], 'KND KNA 3KP 5XX'],
   [['Kia', 'Hyundai'], '5XY 3KP KND'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
   [['Nissan'], 'KNM'], // Renault Samsung Busan, builds the Nissan Rogue (NOT a Kia range)
-  [['Nissan'], '1N4 1N6 3N1 3N6'], // Nissan-only sedans/trucks/Mexico builds
+  [['Nissan'], '1N4 1N6 3N1 3N6 3N8 5BZ'], // Nissan-only sedans/trucks/Mexico builds
   [['Nissan', 'Infiniti'], '5N1 5N3 JN1 JN8'], // shared Nissan/Infiniti ranges
   [['Infiniti'], 'JNK JNR 3PC'],
-  [['Mazda'], 'JM1 JM3 JM7 3MD 3MZ'],
+  [['Mazda'], 'JM1 JM3 JM7 1YV 3MD 3MV 3MZ 7MM'],
   [['Mitsubishi'], 'JA3 JA4 JA7 4A3 4A4 ML3'],
   [['Mitsubishi', 'Nissan'], 'JA4'], // the Mitsubishi-built Nissan Rogue Plug-In Hybrid
   [['Volkswagen'], '1VW 3VW 3VV WVW WVG WV1 WV2 1V2'],
@@ -61,9 +63,9 @@ const FAMILIES = [
   [['BMW'], 'WBA WBS WBX WBY 5UX 5YM 5UM 4US'],
   [['Mini'], 'WMW WMZ'],
   [['Mercedes-Benz'], 'W1K W1N W1Y WDB WDC WDD 4JG 55S'],
-  [['Volvo'], 'YV1 YV4 7JR'],
+  [['Volvo'], 'YV1 YV4 7JD 7JR'],
   [['Polestar'], 'YSM LPS'],
-  [['Tesla'], '5YJ 7SA LRW XP7'],
+  [['Tesla'], '5YJ 7G2 7SA LRW XP7'],
   [['Rivian'], '7FC'],
   [['Lucid'], '50E'],
   [['Jaguar'], 'SAJ'],

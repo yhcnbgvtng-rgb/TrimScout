@@ -22,7 +22,8 @@
 // brands never set `nameplates`, so they fall back to `[brand.name]` and
 // behave exactly as before this existed.
 import { canonicalNameplate, isUmbrellaMake, resolveUmbrellaMake, normalizeMakeForWrite } from './stellantisMake.js';
-import { reconcileMake } from './vinWmi.js';
+import { reconcileMake, makesForWmi } from './vinWmi.js';
+import { canonicalMake } from './ingestGuards.js';
 
 export function resolveVehicleBrandMatch(brand, vehicle) {
   const nameplates = brand.nameplates && brand.nameplates.length ? brand.nameplates : [brand.name];
@@ -62,11 +63,38 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
 // make blank, no VIN-prefix match either) still can't be identified and is
 // still dropped; this only recovers the case where the vehicle plainly says
 // what it is.
-export function resolveKeptMake(brand, vehicle) {
+export function resolveKeptMake(brand, vehicle, dealer = null) {
+  return resolveKeptMakeDetailed(brand, vehicle, dealer).make;
+}
+
+// The make plus where it came from, for the crawl log: 'page' (the page's own label, or the roster brand the VIN agrees with),
+// 'vin' (filled or corrected from the VIN's WMI), 'fallback' (see below), or null make when nothing can name the car.
+//
+// Fallback: a car with NO make on the page whose VIN prefix is not in the WMI table used to be dropped (the first VIN-make patch
+// skipped ~every such car). It is now kept under the dealer's roster brand, else this shard's brand — the pre-VIN behaviour, but only
+// for the cars the VIN cannot place, and logged as make_source=fallback so the count and the VINs are visible. It is never used when
+// the page gave a make, or when the VIN names one: a VIN can prove a make wrong, so the fallback never overrides it. On a multi-brand
+// dealer this can still label an unknown-WMI car of another brand with the roster brand (the old bug, now limited to unknown WMIs);
+// the logged VINs are the list to add to the WMI table. A WMI shared by several makes only accepts a fallback inside its family.
+export function resolveKeptMakeDetailed(brand, vehicle, dealer = null) {
   const { isTargetBrand, resolvedMake } = resolveVehicleBrandMatch(brand, vehicle);
   // Either way the make is then checked against the VIN (vinWmi.js): a page label the VIN contradicts, or a make that only came from
   // the roster brand, is replaced by the VIN's make. A Challenger on a GMC-roster dealer's page used to be stored as "GMC".
-  if (isTargetBrand) return reconcileMake({ make: resolvedMake, vin: vehicle.vin, model: vehicle.model }).make;
-  // An off-brand vehicle's raw make may itself be the umbrella (roster `dealer.make`); resolve it too.
-  return normalizeMakeForWrite({ make: vehicle.make, vin: vehicle.vin, model: vehicle.model });
+  // An off-brand vehicle's raw make may itself be the umbrella (roster `dealer.make`); normalizeMakeForWrite resolves it too.
+  const make = isTargetBrand
+    ? reconcileMake({ make: resolvedMake, vin: vehicle.vin, model: vehicle.model }).make
+    : normalizeMakeForWrite({ make: vehicle.make, vin: vehicle.vin, model: vehicle.model });
+  const pageMake = canonicalMake(vehicle.make);
+  if (make) return { make, makeSource: pageMake && pageMake === make ? 'page' : 'vin' };
+
+  // Only a car with no page make at all: a page make the VIN contradicted but could not replace stays unresolved (dropped).
+  if (!pageMake) {
+    const family = makesForWmi(vehicle.vin);
+    const fallback = [dealer && dealer.make, brand && brand.name]
+      .filter((m) => m && !isUmbrellaMake(m))
+      .map((m) => canonicalMake(m))
+      .find((m) => m && (!family || family.includes(m)));
+    if (fallback) return { make: fallback, makeSource: 'fallback' };
+  }
+  return { make: null, makeSource: null };
 }

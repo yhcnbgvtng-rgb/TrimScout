@@ -90,10 +90,10 @@ describe('resolveKeptMake — off-brand trade-ins are kept under their own real 
     assert.equal(result, 'Porsche');
   });
 
-  it('an off-brand vehicle with no make label is named by its VIN (WMI), or dropped when no table can place the VIN', () => {
+  it('an off-brand vehicle with no make label is named by its VIN (WMI); an unplaceable VIN with no dealer is kept under the shard brand', () => {
     const brand = { name: 'Volkswagen', vinPrefixes: ['3VW', '1VW', 'WVW'] };
     assert.equal(resolveKeptMake(brand, { make: null, vin: 'WP0AD2Y1XPSA47099' }), 'Porsche');
-    assert.equal(resolveKeptMake(brand, { make: null, vin: 'XZZAD2Y1XPSA47099' }), null);
+    assert.equal(resolveKeptMake(brand, { make: null, vin: 'XZZAD2Y1XPSA47099' }), 'Volkswagen'); // fallback, see make_fallback.test.js
   });
 
   it('a multi-nameplate brand (Stellantis) still keeps the real nameplate, not the umbrella name', () => {
