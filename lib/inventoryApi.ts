@@ -138,6 +138,8 @@ export interface InventoryQuery {
   retailOnly?: boolean;
   /** Buyer search only: leave out cars whose last_seen_at is older than this many days (STALE_HIDE_DAYS). The admin sheet never sets it. */
   seenWithinDays?: number;
+  /** Buyer search only: one listing per VIN — the store that saw it most recently ("1": ties to lowest price; "latest": ties kept, the web app breaks them by distance). Needs inStock. Not sent by admin or dealer views. */
+  onePerVin?: "1" | "latest";
 }
 
 /** Filters the buyer-facing /search page exposes — a subset of InventoryQuery, no admin-only fields (dealerId, changeType, hasSticker). */
@@ -234,7 +236,11 @@ export function inventoryQueryString(q: InventoryQuery): string {
 }
 
 /** `total` is exact unless `totalCapped` — then it is a floor ("at least this many"), counted only up to the request's countCap. */
-export interface InventoryPage { total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[] }
+export interface InventoryPage {
+  total: number; totalCapped?: boolean; limit: number; offset: number; vehicles: InventoryVehicle[];
+  /** Echoed by a box that applied onePerVin; absent from one that ignored it. */
+  onePerVin?: boolean;
+}
 
 export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPage> {
   return request("GET", `/api/inventory${inventoryQueryString(q)}`);
@@ -249,7 +255,8 @@ export async function listInventory(q: InventoryQuery = {}): Promise<InventoryPa
  */
 export async function searchInventory(q: BuyerSearchQuery = {}, contact?: { dealerIds: string[] }): Promise<InventoryPage> {
   const { zip, radiusMiles, ...rest } = q;
-  const full: InventoryQuery = { ...rest, inStock: true, retailOnly: true, seenWithinDays: buyerHideDays() };
+  // One listing per VIN: with the buyer's location known the box keeps tied stores and the web app picks the nearest (lib/onePerVin.ts).
+  const full: InventoryQuery = { ...rest, inStock: true, retailOnly: true, seenWithinDays: buyerHideDays(), onePerVin: zip ? "latest" : "1" };
   if (!contact) return listInventory(full);
   // "Dealer contact on file": ~8k dealer ids do not fit a query string, so the box takes them in a POST body (deals-api /api/inventory/contact-search).
   const page: InventoryPage & { contactFilter?: { dealers: number } } = await contactRequest("/api/inventory/contact-search", { query: inventoryQueryString(full).replace(/^\?/, ""), dealerIds: contact.dealerIds }, contact.dealerIds.length);
@@ -290,6 +297,8 @@ export async function catalogOptions(f: { make?: string; model?: string; trim?: 
 }
 
 export interface InventoryFacets {
+  /** Echoed by a box that took onePerVin into account (false: it tried and could not, counts are unadjusted). */
+  onePerVin?: boolean;
   states: Array<{ state: string; n: number }>;
   makes: Array<{ make: string; n: number }>;
   /** Only ever populated when `make` was passed — mirrors the /search page's own unlock rule (a model list with no make has nothing selective to scope it by). */
@@ -310,13 +319,14 @@ export interface InventoryFacets {
 export async function inventoryFacets(f: { state?: string; make?: string; model?: string } = {}, contact?: { dealerIds: string[] }): Promise<InventoryFacets> {
   if (contact) {
     // Same counts, restricted to the contact-on-file dealers: exactly the cars searchInventory(…, contact) lists.
-    return contactRequest("/api/inventory/contact-facets", { state: f.state, make: f.make, model: f.model, seenWithinDays: buyerHideDays(), dealerIds: contact.dealerIds }, contact.dealerIds.length);
+    return contactRequest("/api/inventory/contact-facets", { state: f.state, make: f.make, model: f.model, seenWithinDays: buyerHideDays(), onePerVin: "1", dealerIds: contact.dealerIds }, contact.dealerIds.length);
   }
   const qs = new URLSearchParams();
   if (f.state) qs.set("state", f.state);
   if (f.make) qs.set("make", f.make);
   if (f.model) qs.set("model", f.model);
   qs.set("seenWithinDays", String(buyerHideDays()));
+  qs.set("onePerVin", "1");
   const suffix = qs.toString();
   return request("GET", `/api/inventory/facets${suffix ? `?${suffix}` : ""}`);
 }

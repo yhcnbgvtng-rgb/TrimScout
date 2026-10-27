@@ -10,6 +10,7 @@
 // production six times across two days (five combinations on 2026-09-22, one more on 2026-09-25),
 // always the same shape — a filter combination the hand-tuned index hints didn't cover, found live
 // during an outage.
+import { onePerVinModeOf, onePerVinPredicate } from "./onePerVin.js";
 /** `seenWithinDays` from a request: a whole number of days 1-365, else null (absent or junk -> no age filter). Lives here so the list query stays a single-file box patch. */
 export function seenWithinDaysOf(raw) {
   const s = String(raw ?? "").trim();
@@ -337,6 +338,12 @@ export function inventoryListQuery(params, opts = {}) {
       : p("inStock") === "1" ? "FORCE INDEX (idx_inv_stock_make_dealer)" : "FORCE INDEX (idx_inv_make_dealer)";
   // Zero-scrape stale cars (zeroScrape.js) are still in stock as far as the table goes but hidden from buyers; the admin sheet asks for them with includeStale=1.
   if (p("inStock") === "1" && p("includeStale") !== "1") where.push("i.stale_at IS NULL");
+  // onePerVin=1|latest (buyer search only): one listing per VIN, the store that saw it most recently (onePerVin.js). In stock only; absent = no change.
+  const oneMode = p("inStock") === "1" && p("includeStale") !== "1" ? onePerVinModeOf(p("onePerVin")) : null;
+  if (oneMode) {
+    const pred = onePerVinPredicate({ mode: oneMode, retailOnly: p("retailOnly") === "1", seenDays });
+    where.push(pred.sql); args.push(...pred.args);
+  }
   const whereSql = where.length ? "WHERE " + where.join(" AND ") : "";
   // optionJoin's own placeholders appear in the SQL text before whereSql's, so its args must come
   // first in the flat array mysql2 binds positionally against.
