@@ -15,6 +15,7 @@ import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
+import { displayTrim, officialTrimOptions } from "@/lib/fordTrimDisplay";
 import type { LiveCountProps } from "./search/LiveCount";
 
 interface BuyerVehicle {
@@ -231,7 +232,7 @@ export function BuyerSearchView() {
         setStateOptions(toOptions(json?.states || [], "state", "n"));
         setMakeOptions(toOptions(json?.makes || [], "make", "n"));
         setModelOptions(toOptions(json?.models || [], "model", "n"));
-        setTrimOptions(toOptions(json?.trims || [], "trim", "n"));
+        setTrimOptions(officialTrimOptions(filters.make, filters.model, toOptions(json?.trims || [], "trim", "n")));
       })
       .catch((e) => {
         if (e?.name === "AbortError") return;
@@ -534,7 +535,7 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
   { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
   { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
-  { key: "trim", label: "Trim", w: 190, show: (v) => v.trim ?? "" },
+  { key: "trim", label: "Trim", w: 190, show: (v) => displayTrim(v.make, v.model, v.trim) ?? "" },
   { key: "ext", label: "Exterior color", w: 170, show: (v) => v.exteriorColor ?? "" },
   { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
   { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
@@ -604,7 +605,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
       <div data-testid="results-cards" className={`space-y-2 transition-opacity ${dimmed ? "opacity-60" : ""}`}>
         {vehicles.map((v) => {
           const key = vehicleKey(v);
-          const title = [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin;
+          const title = [v.year, v.make, v.model, displayTrim(v.make, v.model, v.trim)].filter(Boolean).join(" ") || v.vin;
           const blocked = v.rfqEligible === false && !picked.has(key);
           return (
             <article key={key} onClick={() => onView(key)} className="rounded-xl border border-border bg-surface p-3 text-sm">
@@ -693,7 +694,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                           title={v.rfqEligible === false && !picked.has(key) ? "Not available for a quote request right now" : undefined}
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
-                          aria-label={`Pick ${[v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") || v.vin} for a quote`}
+                          aria-label={`Pick ${[v.year, v.make, v.model, displayTrim(v.make, v.model, v.trim)].filter(Boolean).join(" ") || v.vin} for a quote`}
                           className="h-3.5 w-3.5 accent-brand-500"
                         />
                       ) : c.key === "listing" ? (
@@ -740,7 +741,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   );
 }
 
-const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, p.trim].filter(Boolean).join(" ") || p.vin;
+const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, displayTrim(p.make, p.model, p.trim)].filter(Boolean).join(" ") || p.vin;
 
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {
