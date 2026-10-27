@@ -1,0 +1,5 @@
+# md5  role  file   (box2 text as read 2026-10-27 11:45 ET; FINAL = box file after the refit patch, equal to the PR patch result with fuzz 3)
+94a1811ccf4064b7d96f8fca011b52c1  BOXBASE  deals_api_server.js
+9af97c8145d9d2293772af0e4c6b8206  BOXFINAL  deals_api_server.js
+a490c3731d2cb44953016d6620863615  BOXBASE  inventory-sync.mjs
+64467d725c559ea1fd3e1c16c9a37596  BOXFINAL  inventory-sync.mjs
