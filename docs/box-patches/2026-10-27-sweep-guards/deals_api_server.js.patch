@@ -1,0 +1,43 @@
+diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
+index 40408cc..0269b36 100644
+--- scrapers/lightsail-crawler/src/deals_api_server.js
++++ scrapers/lightsail-crawler/src/deals_api_server.js
+@@ -50,7 +50,7 @@ import { normalizeFordTrimForWrite } from "./fordTrim.js";
+ import { guardPrice } from "./ingestGuards.js";
+ import { normalizeTransmission } from "./transmission.js";
+ import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
+-import { parseSweepRequest, buildSweepStatement } from "./inventorySweep.js";
++import { parseSweepRequest, runSweepRequest } from "./inventorySweep.js";
+ import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
+ import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement } from "./vinKeeper.js";
+ import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
+@@ -2021,6 +2021,10 @@ async function ensureInventoryTableOnce(pool) {
+     // Set by the zero-scrape rule (zeroScrape.js): the store scraped nothing for several nights while its platform was healthy.
+     // Hidden from buyer search, never removed; any upsert of the car clears it again.
+     "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
++    // Sweep miss counter (inventorySweep.js): a missing car is retired only on its Nth sweep in distinct runs. sweep_miss_at is the run cutoff that
++    // counted the latest miss; the count only means something while last_seen_at is still older than it, so an upsert needs no change to reset it.
++    "ADD COLUMN IF NOT EXISTS sweep_miss_count TINYINT UNSIGNED NOT NULL DEFAULT 0",
++    "ADD COLUMN IF NOT EXISTS sweep_miss_at DATETIME NULL",
+     "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
+     // The dealer's own trim text, kept whenever the trim above was rewritten by fordTrim.js (null = the trim is exactly what the dealer sent). Nothing is lost.
+     "ADD COLUMN IF NOT EXISTS trim_raw VARCHAR(160) NULL",
+@@ -2665,10 +2669,14 @@ async function handleInventorySweep(req, res) {
+   const body = await readBody(req);
+   const parsed = parseSweepRequest(body, { toInt: INV_INT, toStr: INV_STR });
+   if (!parsed.ok) return badRequest(res, parsed.error);
+-  const { sql, args } = buildSweepStatement(parsed);
+-  const [result] = await pool.query(sql, args);
+-  if (result.affectedRows) { invInvalidate(); scheduleCatalogFacetRebuild(); }
+-  sendJson(res, 200, parsed.batch ? { removed: result.affectedRows, stores: parsed.dealerIds.length } : { removed: result.affectedRows });
++  const out = await runSweepRequest((sql, args) => pool.query(sql, args), parsed);
++  if (out.removed) { invInvalidate(); scheduleCatalogFacetRebuild(); }
++  // A request without guard fields gets exactly the response it always did; guarded ones also learn which stores were skipped and how many absences were only counted.
++  sendJson(res, 200, {
++    removed: out.removed,
++    ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}),
++    ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}),
++  });
+ }
+ 
+ // POST /api/inventory/superseded { pairs: [[vin, storeId], ...], seenAfter, dryRun?, sourceBox?, foreignBefore? } — retires (removed_at) the

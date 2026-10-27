@@ -20,7 +20,7 @@ import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/invento
 import { cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows } from '../src/syncOptionClean.js';
 import { installJunkRulesFromEnv } from '../src/factoryOptionAllowlist.js';
 import { setJunkRules } from '../src/inventoryOptionRows.js';
-import { parseSweepRequest, buildSweepStatement } from '../src/inventorySweep.js';
+import { parseSweepRequest, buildSweepStatement, runSweepRequest } from '../src/inventorySweep.js';
 import { resolveVehicleIds } from '../src/vehicleId.js';
 import { guardPrice } from '../src/ingestGuards.js';
 import { normalizeTransmission } from '../src/transmission.js';
@@ -137,7 +137,7 @@ function loadHandlers(db) {
     cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true, PAID_ONLY: false,
-    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
+    pairKey, diffOptionSets, groupExistingOptionRows, parseSweepRequest, buildSweepStatement, runSweepRequest, resolveVehicleIds, guardPrice, normalizeTransmission, normalizeState,
     performance,
   };
   vm.createContext(ctx);
