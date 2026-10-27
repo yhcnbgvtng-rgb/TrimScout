@@ -63,7 +63,6 @@ import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOpt
 import { paidCatalogRows } from "./paidCatalogFilter.js";
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
 import { staleSlices } from "./staleFacets.js";
-import { onePerVinModeOf, planVinLosers, loserBuckets } from "./onePerVin.js";
 import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
 
 const PORT = process.env.DEALS_API_PORT || 3004;
@@ -2403,34 +2402,6 @@ async function staleBuckets(pool, days) {
     return buckets;
   });
 }
-// The rows that LOSE the one-listing-per-VIN rule (onePerVin.js): live, visible rows of a VIN that another store outranks. Found as VINs held
-// by 2+ visible rows (a GROUP BY over the primary key, one first-character slice at a time so each statement stays small), then ranked in JS
-// from the VINs' rows by primary-key prefix. Own stale-while-revalidate cache key per window; a failure is NOT cached and the caller leaves
-// the counts unadjusted. Display-only: nothing is written.
-async function vinLoserRows(pool, days) {
-  return stableCached(`vin-losers:${days || 0}`, async () => {
-    const run = async (sql, args) => (await withPoolTimeout(
-      pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args),
-      waitMs(),
-      "Timed out waiting for an available database connection or a slow query"
-    ))[0];
-    const visible = `removed_at IS NULL AND stale_at IS NULL${RETAIL_ONLY_FACETS ? " AND (cond IS NULL OR cond <> 'wholesale')" : ""}${days ? " AND last_seen_at >= DATE_SUB(NOW(), INTERVAL ? DAY)" : ""}`;
-    const vArgs = days ? [days] : [];
-    const losers = [];
-    for (const c of "0123456789ABCDEFGHJKLMNPRSTUVWXYZ") {
-      const dupVins = (await run(`SELECT vin FROM dealer_inventory WHERE vin >= ? AND vin < ? AND ${visible} GROUP BY vin HAVING COUNT(*) > 1`, [c, String.fromCharCode(c.charCodeAt(0) + 1), ...vArgs])).map((r) => r.vin);
-      for (let i = 0; i < dupVins.length; i += 500) {
-        const rows = await run(`SELECT vin, dealer_id, last_seen_at, price, make, state, model, trim FROM dealer_inventory WHERE vin IN (?) AND ${visible}`, [dupVins.slice(i, i + 500), ...vArgs]);
-        losers.push(...planVinLosers(rows.map((r) => ({ vin: r.vin, dealerId: r.dealer_id, lastSeenAt: r.last_seen_at, price: r.price, make: r.make, state: r.state, model: r.model, trim: r.trim }))));
-      }
-    }
-    return losers;
-  });
-}
-// Loser buckets for the facet subtraction (optionally only the contact set's stores); null when the read failed (counts stay unadjusted, never an error).
-const vinLoserBucketsOrNull = async (pool, days, dealerIds = null) => {
-  try { return loserBuckets(await vinLoserRows(pool, days), dealerIds); } catch (err) { console.error(`${new Date().toISOString()} duplicate-VIN buckets unavailable, facet counts left unadjusted: ${err.message}`); return null; }
-};
 // Wholesale + stale buckets for the buyer facet subtraction; null when neither can apply (or a read failed: counts stay unadjusted, never an error).
 const hiddenBucketsOrNull = async (pool, days) => {
   const wb = await wholesaleBucketsOrNull(pool);
@@ -2866,8 +2837,6 @@ async function handleListInventory(req, res, params, extra = {}) {
   if (result.totalCapped) body.totalCapped = true;
   // Echoed so the web app can tell a box that applied the contact filter from an older one that would silently ignore it.
   if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
-  // Echoed so the web app can tell a box that applied onePerVin from an older one that ignored it (the web then collapses the page itself).
-  if (onePerVinModeOf(params.get("onePerVin")) && params.get("inStock") === "1" && params.get("includeStale") !== "1") body.onePerVin = true;
   sendJson(res, 200, body);
 }
 
@@ -2901,17 +2870,10 @@ async function handleContactFacets(req, res) {
   const results = await Promise.all(queries.map((c) =>
     withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${c.sql}`, c.args), waitMs(), "Timed out waiting for an available database connection or a slow query")
   ));
-  let lists = { states: [], makes: [], models: [], trims: [] };
+  const lists = { states: [], makes: [], models: [], trims: [] };
   const field = { states: "state", makes: "make", models: "model", trims: "trim" };
   queries.forEach((c, i) => { lists[c.key] = results[i][0].map((r) => ({ [field[c.key]]: r.v, n: Number(r.n) })); });
-  // onePerVin: the contact set's stores that LOSE the rule (to any store, in the set or not — same as the list) are not counted.
-  let onePerVinApplied;
-  if (onePerVinModeOf(body.onePerVin) !== null) {
-    const lb = await vinLoserBucketsOrNull(pool, seenWithinDaysOf(body.seenWithinDays == null ? null : String(body.seenWithinDays)), new Set(ids));
-    if (lb) lists = adjustFacetLists(lists, lb, { state: String(body.state || "").trim().toUpperCase().slice(0, 2), make: String(body.make || "").trim(), model: String(body.model || "").trim() });
-    onePerVinApplied = lb !== null;
-  }
-  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length }, ...(onePerVinApplied === undefined ? {} : { onePerVin: onePerVinApplied }) });
+  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length } });
 }
 
 // GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
@@ -3267,8 +3229,7 @@ async function handleInventoryFacets(req, res, params) {
   const make = (params.get("make") || "").trim();
   const model = (params.get("model") || "").trim();
   const seenDays = seenWithinDaysOf(params.get("seenWithinDays"));
-  const onePerVin = onePerVinModeOf(params.get("onePerVin")) !== null;
-  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}${onePerVin ? "|one" : ""}`;
+  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}`;
   sendJson(res, 200, await stableCached(cacheKey, async () => {
     const q = (sql, args) =>
       withPoolTimeout(
@@ -3325,10 +3286,7 @@ async function handleInventoryFacets(req, res, params) {
       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
     };
     const wb = await hiddenBucketsOrNull(pool, seenDays);
-    const lb = onePerVin ? await vinLoserBucketsOrNull(pool, seenDays) : null;
-    const hidden = wb || lb ? [...(wb || []), ...(lb || [])] : null;
-    const adjusted = hidden ? adjustFacetLists(lists, hidden, { state, make, model }) : lists;
-    return onePerVin ? { ...adjusted, onePerVin: lb !== null } : adjusted;
+    return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
   }));
 }
 

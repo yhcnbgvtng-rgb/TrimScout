@@ -62,3 +62,67 @@ describe('onePerVin in inventoryListQuery', () => {
     assert.equal(p.sql.split('?').length - 1, p.args.length);
   });
 });
+
+import { facetsOnePerVin } from '../src/onePerVinServer.js';
+import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const LISTS = () => ({ states: [{ state: 'NJ', n: 10 }, { state: 'FL', n: 5 }], makes: [{ make: 'Ford', n: 15 }], models: [], trims: [] });
+// Two VINs held by two stores each: dealer 2 beats 1 (fresher), dealer 3 beats 4 (cheaper tie).
+const DB = [
+  { vin: '1FTFW1E50NFA00001', dealer_id: 1, last_seen_at: '2026-10-26 22:00:00', price: 1, make: 'Ford', state: 'NJ', model: 'F-150', trim: 'XLT' },
+  { vin: '1FTFW1E50NFA00001', dealer_id: 2, last_seen_at: '2026-10-27 02:00:00', price: 2, make: 'Ford', state: 'NJ', model: 'F-150', trim: 'XLT' },
+  { vin: '1FTFW1E50NFA00002', dealer_id: 3, last_seen_at: '2026-10-27 02:00:00', price: 5, make: 'Ford', state: 'FL', model: 'F-150', trim: 'XLT' },
+  { vin: '1FTFW1E50NFA00002', dealer_id: 4, last_seen_at: '2026-10-27 02:00:00', price: 9, make: 'Ford', state: 'FL', model: 'F-150', trim: 'XLT' },
+];
+const deps = (fail = false) => {
+  const cache = new Map();
+  return {
+    pool: { async query(sql, args) {
+      if (fail) throw new Error('boom');
+      const s = sql.replace(/^SET STATEMENT max_statement_time=\d+ FOR /, '');
+      if (/GROUP BY vin HAVING/.test(s)) return [args[0] === '1' ? [{ vin: '1FTFW1E50NFA00001' }, { vin: '1FTFW1E50NFA00002' }] : []];
+      return [DB];
+    } },
+    stableCached: async (k, fn) => { if (!cache.has(k)) cache.set(k, await fn()); return cache.get(k); },
+    withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 1000, retailOnlyFacets: true,
+  };
+};
+
+describe('facetsOnePerVin', () => {
+  it('subtracts one count per losing store row', async () => {
+    const r = await facetsOnePerVin(deps(), LISTS(), {}, { days: 7 });
+    assert.equal(r.applied, true);
+    assert.equal(r.lists.states.find((s) => s.state === 'NJ').n, 9);
+    assert.equal(r.lists.states.find((s) => s.state === 'FL').n, 4);
+    assert.equal(r.lists.makes[0].n, 13);
+  });
+  it('only counts the contact set\'s losing stores', async () => {
+    const r = await facetsOnePerVin(deps(), LISTS(), {}, { days: 7, dealerIds: new Set([4]) });
+    assert.equal(r.lists.makes[0].n, 14);
+  });
+  it('a failed read leaves the counts unadjusted and says so', async () => {
+    const r = await facetsOnePerVin(deps(true), LISTS(), {}, { days: 7 });
+    assert.equal(r.applied, false);
+    assert.deepEqual(r.lists, LISTS());
+  });
+});
+
+describe('the box patch for deals_api_server.js', () => {
+  it('applies cleanly to the repo file and the result still parses', { skip: spawnSync('patch', ['--version']).status !== 0 }, () => {
+    const src = path.join(HERE, '../src/deals_api_server.js');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'opv-'));
+    const file = path.join(dir, 'deals_api_server.js');
+    fs.copyFileSync(src, file);
+    const patchFile = path.join(HERE, '../../../docs/box-patches/2026-10-28-one-per-vin/deals_api_server.js.patch');
+    const r = spawnSync('patch', ['-F0', '--no-backup-if-mismatch', file, patchFile], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    const out = fs.readFileSync(file, 'utf8');
+    assert.match(out, /facetsOnePerVin/);
+    assert.equal(spawnSync(process.execPath, ['--check', file]).status, 0);
+  });
+});
