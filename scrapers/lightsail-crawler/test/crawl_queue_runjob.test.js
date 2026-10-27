@@ -12,7 +12,7 @@ import { makeRunJob, jobEnv, missingDriverExports, brandSetOf } from '../scripts
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const job = (state, brand, o = {}) => ({ jobKey: `${state}|${brand}`, state, brand, brandSet: brandSetOf(brand), dealers: 10, ...o });
 
-function fixture({ ready = true, count = 10, status = 'ok', sharded = false } = {}) {
+function fixture({ ready = true, count = 10, status = 'ok', sharded = false, notReady = undefined } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rj-'));
   const calls = [];
   const deps = {
@@ -22,7 +22,7 @@ function fixture({ ready = true, count = 10, status = 'ok', sharded = false } = 
         const st = args[1].split('=')[1].toLowerCase(); const brand = args[2].split('=')[1];
         const label = opts.env.CRAWLER_RUN_LABEL; const slug = brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         fs.mkdirSync(path.join(root, 'data', 'reports'), { recursive: true });
-        fs.writeFileSync(path.join(root, 'data', 'reports', `dealer-bot-report-${st}-${label}-${slug}-${opts.env.CRAWLER_RUN_DATE}.json`), JSON.stringify({ runLabel: label, readyToCrawl: ready ? [{ brand }] : [] }));
+        fs.writeFileSync(path.join(root, 'data', 'reports', `dealer-bot-report-${st}-${label}-${slug}-${opts.env.CRAWLER_RUN_DATE}.json`), JSON.stringify({ runLabel: label, readyToCrawl: ready ? [{ brand }] : [], ...(notReady ? { notReady } : {}) }));
         return { exitCode: 0 };
       }
       if (args[0] === 'src/standalone.js') return { exitCode: status === 'ok' ? 0 : status === 'timeout' ? null : 1, timedOut: status === 'timeout', durationMs: 5 };
@@ -98,6 +98,24 @@ describe('a job runs the same steps as the fixed driver, in the same order', () 
     const run = makeRunJob({ date: '2026-10-14', root: f.root, log: () => {}, deps: f.deps });
     assert.equal((await run(job('TX', 'Ford'))).ok, true);
   });
+  it('a bot-report skip is logged with every store\'s answer (it used to be silent: OK Mazda vanished with no log line)', async () => {
+    const lines = [];
+    const f = fixture({ ready: false, notReady: [
+      { brand: 'Mazda', dealerName: 'NELSON MAZDA', classification: 'HTTP_429', httpStatus: 429 },
+      { brand: 'Mazda', dealerName: 'BOB MOORE MAZDA', classification: 'HTTP_5XX', httpStatus: 503 },
+      { brand: 'Toyota', dealerName: 'Other', classification: 'HTTP_403', httpStatus: 403 },
+    ] });
+    const run = makeRunJob({ date: '2026-10-14', root: f.root, log: (m) => lines.push(m), deps: f.deps });
+    const r = await run(job('TX', 'Mazda')); // the fixture only knows TX/DE write-dealers scripts; the logic is state-independent
+    assert.equal(r.exit, 'skipped-bot-report');
+    const line = lines.find((l) => /SKIPPED TONIGHT/.test(l));
+    assert.ok(line, `no skip line in ${JSON.stringify(lines)}`);
+    assert.match(line, /TX Mazda/);
+    assert.match(line, /NELSON MAZDA: HTTP_429 429/);
+    assert.match(line, /BOB MOORE MAZDA: HTTP_5XX 503/);
+    assert.doesNotMatch(line, /Other/, 'only this brand\'s stores');
+  });
+
   it('no dealers on disk: skipped as a coverage gap, not failed', async () => {
     const f = fixture({ count: 0 });
     const run = makeRunJob({ date: '2026-10-14', root: f.root, log: () => {}, deps: f.deps });

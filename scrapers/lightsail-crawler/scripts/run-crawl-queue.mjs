@@ -89,7 +89,13 @@ export function makeRunJob({ date, vinCache, log = console.log, root = ROOT, dep
       const file = path.join(root, 'data', 'reports', `dealer-bot-report-${state.toLowerCase()}-${brandSet}-${slugify(brand)}-${date}.json`);
       const report = JSON.parse(await fs.readFile(file, 'utf-8'));
       if (report.runLabel !== brandSet) throw new Error(`report written under runLabel ${report.runLabel}`);
-      return (report.readyToCrawl || []).some((x) => x.brand === brand);
+      const ready = (report.readyToCrawl || []).some((x) => x.brand === brand);
+      if (!ready) {
+        // This used to be silent: the shard just never ran ("skipped-bot-report") and nothing in the log said so. Name every store's answer.
+        const why = (report.notReady || []).filter((x) => x.brand === brand).map((x) => `${x.dealerName}: ${x.classification}${x.httpStatus ? ` ${x.httpStatus}` : ''}`);
+        log(`[queue] ${state} ${brand}: SKIPPED TONIGHT — bot-report found no ready store (${why.length ? why.join('; ') : `${report.dealerCount ?? '?'} store(s) probed, reasons not in this report`})`);
+      }
+      return ready;
     } catch (e) {
       // Same fallback as the driver: if the report can't be read, attempt the brand rather than silently skip it.
       log(`[queue] ${state} ${brand}: bot-report unreadable (${e.message}; step ${statusOfStep(r)}) — attempting the brand`);
@@ -206,7 +212,7 @@ export async function queueModeMain({ env = process.env, flagOverride = null, st
       client, flag, night, runJob, deadlineMs: Math.max(0, budgetMs - (Date.now() - startedAt)),
       onFinished: async (job, res) => {
         const sv = (summary.states[job.state] ||= { state: job.state, brands: {} });
-        sv.brands[job.brand] = { status: res.skipped ? 'skipped' : 'ok', dealerCount: job.dealers, durationMs: res.durationSeconds * 1000, stats: res.vehicles != null ? { totalActiveInventory: res.vehicles } : null };
+        sv.brands[job.brand] = { status: res.skipped ? 'skipped' : 'ok', ...(res.skipped ? { reason: res.exit } : {}), dealerCount: job.dealers, durationMs: res.durationSeconds * 1000, stats: res.vehicles != null ? { totalActiveInventory: res.vehicles } : null };
         if (!res.skipped) await manifest.add({ jobKey: jobKey(job.state, job.brand), file: shardFileName(job.state, job.brand), startedAt: res.startedAt, finishedAt: Date.now(), durationSeconds: res.durationSeconds, vehicles: res.vehicles ?? null });
       },
     });

@@ -5,6 +5,7 @@
 
 import http from 'node:http';
 import https from 'node:https';
+import { parseRetryAfter } from './politeness.js';
 import { classifyFetchResult, classifyFetchError, pickProbeResult, decideProbeNext, BOT_CLASSES } from './bot_protection.js';
 
 const DEFAULT_TIMEOUT_MS = 12000;
@@ -71,7 +72,8 @@ export async function probeUrl(url, { timeoutMs = DEFAULT_TIMEOUT_MS, redirects 
     // own block-page guard), and there's no reason to hold onto bodies for
     // 404/5xx/etc. probes that nothing downstream reads.
     const body = classified.classification === BOT_CLASSES.NONE ? res.body : undefined;
-    return { ...classified, url, fetchedUrl: url, body };
+    const retryAfterMs = parseRetryAfter(res.headers && res.headers['retry-after']);
+    return { ...classified, url, fetchedUrl: url, body, ...(retryAfterMs != null ? { retryAfterMs } : {}) };
   } catch (error) {
     return { ...classifyFetchError(error), url, fetchedUrl: url };
   }

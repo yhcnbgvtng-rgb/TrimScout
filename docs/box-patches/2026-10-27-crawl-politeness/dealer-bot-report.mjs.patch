@@ -1,0 +1,69 @@
+diff --git a/scrapers/lightsail-crawler/scripts/dealer-bot-report.mjs b/scrapers/lightsail-crawler/scripts/dealer-bot-report.mjs
+index 42ea282..8aedde3 100644
+--- a/scrapers/lightsail-crawler/scripts/dealer-bot-report.mjs
++++ b/scrapers/lightsail-crawler/scripts/dealer-bot-report.mjs
+@@ -73,6 +73,7 @@ import { loadAkDealers } from '../src/ak_policy.js';
+ import { loadDeDealers } from '../src/de_policy.js';
+ import { loadWyDealers } from '../src/wy_policy.js';
+ import { probeDealer } from '../src/http_probe.js';
++import { spreadSchedule, backoffDelayMs } from '../src/politeness.js';
+ import { buildTablePdf, buildSummaryBlocks } from '../src/pdf_table.js';
+ import { CLASSIFICATION_ORDER, summarizeBotRows } from '../src/bot_protection.js';
+ import { SUPPORTED_STATES } from '../src/states.js';
+@@ -197,13 +198,44 @@ if (dealers.length === 0) {
+   process.exit(1);
+ }
+ 
++// Stores of one operator are probed apart from each other, not back to back (same rule as the crawl: src/politeness.js).
++const probeOrder = process.env.CRAWLER_SPREAD_SCHEDULE === 'false' ? dealers : spreadSchedule(dealers);
++dealers.splice(0, dealers.length, ...probeOrder);
++
++// One probe per store used to be final: a single 429 or 5xx made the store "not ready", and a brand whose few stores all had a bad
++// minute (OK Mazda: 4 stores) was dropped from the night's schedule with no log line. A 429 now waits out Retry-After (or a jittered
++// exponential backoff, capped) and a 5xx gets one jittered retry. A 403 / challenge is never retried: it is reported and the store is not ready.
++const PROBE_MAX_429_RETRIES = Number(process.env.CRAWLER_PROBE_429_RETRIES ?? 2);
++const PROBE_MAX_WAIT_MS = Number(process.env.CRAWLER_PROBE_MAX_WAIT_MS ?? 60_000);
++const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
++async function probeWithPoliteRetry(d) {
++  let result = await probeDealer(d);
++  let n429 = 0;
++  let did5xx = false;
++  for (;;) {
++    if (result.classification === 'HTTP_429' && n429 < PROBE_MAX_429_RETRIES) {
++      const wait = Math.min(PROBE_MAX_WAIT_MS, Math.max(result.retryAfterMs ?? 0, backoffDelayMs(n429, { baseMs: 5000, capMs: PROBE_MAX_WAIT_MS })));
++      n429++;
++      process.stdout.write(`HTTP_429 — waiting ${Math.round(wait / 1000)}s${result.retryAfterMs != null ? ` (Retry-After ${Math.round(result.retryAfterMs / 1000)}s)` : ''}, retry ${n429}/${PROBE_MAX_429_RETRIES}... `);
++      await sleep(wait);
++      result = await probeDealer(d);
++    } else if (result.classification === 'HTTP_5XX' && !did5xx) {
++      did5xx = true;
++      await sleep(backoffDelayMs(0, { baseMs: 3000 }));
++      result = await probeDealer(d);
++    } else {
++      return result;
++    }
++  }
++}
++
+ console.log(`Probing ${dealers.length} ${stateFilter} rooftop(s)${brandFilter ? ` for ${brandFilter}` : ''} with a normal HTTP client (no bypass)...`);
+ 
+ const rows = [];
+ for (let i = 0; i < dealers.length; i++) {
+   const d = dealers[i];
+   process.stdout.write(`  [${i + 1}/${dealers.length}] ${d.make} · ${d.name} (${d.domain})... `);
+-  const result = await probeDealer(d);
++  const result = await probeWithPoliteRetry(d);
+   const resolvedUrl = result.url || result.fetchedUrl || null;
+   // Detect-only: the identity extraction never fetches anything itself —
+   // it just reads the body http_probe.js already pulled down for
+@@ -254,6 +286,10 @@ const report = {
+     domain: r.domain,
+     httpStatus: r.httpStatus,
+   })),
++  // Why a store was not ready, so a brand dropped for "no ready store" can be explained from the report alone.
++  notReady: rows.filter((r) => r.ready !== 'Y').map((r) => ({
++    brand: r.brand, dealerName: r.dealerName, domain: r.domain, classification: r.classification, httpStatus: r.httpStatus,
++  })),
+   driftFlagged: rows
+     .filter((r) => r.domainDrift || r.nameDrift)
+     .map((r) => ({
