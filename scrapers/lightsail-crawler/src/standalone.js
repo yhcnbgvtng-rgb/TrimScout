@@ -42,7 +42,7 @@ process.on('exit', () => {
     } catch { /* never fail an exit over a log line */ }
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
-import { resolveKeptMakeDetailed } from './brand_match.js';
+import { resolveKeptMake } from './brand_match.js';
 import { normalizeFordTrimForWrite } from './fordTrim.js';
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
 import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
@@ -1224,11 +1224,10 @@ for (let i = 0; i < work.length; i++) {
                     // single-franchise VW store's own site) is still kept,
                     // tagged with its own real make, rather than discarded —
                     // see resolveKeptMake's own header for why.
-                    const { make: keptMake, makeSource } = resolveKeptMakeDetailed(brand, vehicle, dealer);
-                    // No make label and a VIN no table can place: kept under the dealer's / shard's brand (make_source=fallback) so the car is
-                    // not lost; the VIN is logged so its prefix can be added to the WMI table. Dropped only when no real brand is available.
-                    if (makeSource === 'fallback') console.log(`⚠️ make_source=fallback make=${keptMake} (no page make, VIN not in the WMI table): ${vehicle.vin} ${url}`);
-                    else if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table, no brand to fall back on), car skipped: ${vehicle.vin} ${url}`);
+                    const keptMake = resolveKeptMake(brand, vehicle, dealer);
+                    // No page make, VIN not in the WMI table: kept under the dealer's / shard's brand (resolveKeptMake logs make_source=fallback).
+                    // Dropped, and logged here, only when no real brand is available either.
+                    if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table, no brand to fall back on), car skipped: ${vehicle.vin} ${url}`);
 
                     if (keptMake) {
                         // Collapse to the canonical nameplate. keptMake is

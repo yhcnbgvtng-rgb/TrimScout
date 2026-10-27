@@ -64,7 +64,10 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
 // still dropped; this only recovers the case where the vehicle plainly says
 // what it is.
 export function resolveKeptMake(brand, vehicle, dealer = null) {
-  return resolveKeptMakeDetailed(brand, vehicle, dealer).make;
+  const { make, makeSource } = resolveKeptMakeDetailed(brand, vehicle, dealer);
+  // Logged here so the one call site (standalone.js) stays a one-line change: the VIN is what gets added to the WMI table.
+  if (makeSource === 'fallback') console.log(`⚠️ make_source=fallback make=${make} (no page make, VIN not in the WMI table): ${vehicle.vin}`);
+  return make;
 }
 
 // The make plus where it came from, for the crawl log: 'page' (the page's own label, or the roster brand the VIN agrees with),
