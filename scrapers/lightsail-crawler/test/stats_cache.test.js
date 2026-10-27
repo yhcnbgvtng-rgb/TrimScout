@@ -67,15 +67,16 @@ describe('deals_api_server.js wiring', () => {
 describe('GET /api/inventory/stats', () => {
   const src = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
   it('is served from statsCached under the "stats" key, not the write-invalidated invCached', () => {
-    assert.match(src, /statsCached\("stats", \(\) => computeInventoryStats\(pool\)\)/);
+    assert.match(src, /statsCached\("stats", \(\) => inventoryStats\.compute\(\)\)/);
     assert.doesNotMatch(src, /invCached\("stats"/);
   });
-  it('runs all five aggregate queries under SET STATEMENT + withPoolTimeout', () => {
-    const body = src.match(/async function computeInventoryStats\(pool\) \{[\s\S]*?\n\}\n/)[0];
-    assert.equal((body.match(/await q\(/g) || []).length, 5);
+  it('runs every stats query under SET STATEMENT + withPoolTimeout (the injected query function)', () => {
+    const body = src.match(/async function handleInventoryStats\(req, res\) \{[\s\S]*?\n\}\n/)[0];
+    assert.match(body, /createInventoryStats\(\{/);
     assert.doesNotMatch(body, /pool\.query\("/);
-    assert.match(body, /SET STATEMENT max_statement_time=\$\{statementSeconds\(\)\} FOR/);
+    assert.match(body, /SET STATEMENT max_statement_time=\$\{statementSeconds\(\)\} FOR \$\{sql\}/);
     assert.match(body, /withPoolTimeout\(/);
+    assert.match(body, /runBackground,/, 'the sticker scan gets the background budget');
   });
   it('a write (invInvalidate) does not clear the stats entry', async () => {
     // invInvalidate only bumps a generation and clears invCache; statsCached is a separate cache object it never touches.
