@@ -17,8 +17,8 @@ export interface ParsedBuyerSearch {
 
 const MAX_LIMIT = 100;
 const MAX_OPTION_KEYS = 8;
-/** Buyer searches never pay for an exact COUNT(*) past this — the UI shows an exact count below it and "10,000+ vehicles" at it. */
-export const BUYER_COUNT_CAP = 10000;
+/** Buyer searches never pay for an exact COUNT(*) past this — the UI shows "1,000+ vehicles". */
+export const BUYER_COUNT_CAP = 1000;
 
 /**
  * Pure param parsing + validation for GET /api/vehicles/search, pulled out of the route so the

@@ -1,5 +1,5 @@
 // The redesigned /search: Vehicle ID and Days on market start hidden (back via the Columns menu), buyers never get a first/last-seen
-// column, the top row is eight dropdowns with Trim and Factory options locked until a make is picked, and counts under 10,000 are exact.
+// column, the top row is eight dropdowns with Trim and Factory options locked until a make is picked, and counts under 1,000 are exact.
 import assert from "node:assert/strict";
 import { after, afterEach, before, beforeEach, describe, it } from "node:test";
 import { createRequire } from "node:module";
@@ -22,7 +22,7 @@ describe("column defaults", () => {
 });
 
 describe("count cap", () => {
-  it("counts exactly below 10,000", () => assert.equal(BUYER_COUNT_CAP, 10000));
+  it("counts exactly below 1,000", () => assert.equal(BUYER_COUNT_CAP, 1000));
 });
 
 const TOTAL = 3;
