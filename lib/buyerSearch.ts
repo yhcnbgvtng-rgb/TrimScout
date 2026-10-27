@@ -5,6 +5,7 @@ import { contactStatus, loadContactIndex, type ContactIndex } from "./dealerCont
 import { contactOnFileDealerIds } from "./contactFilter";
 import { sortByDistance } from "./buyerSort";
 import { isRfqEligible } from "./lastConfirmed";
+import { collapseByVin } from "./onePerVin";
 
 /** Fields a buyer has no reason to see — crawl-pipeline provenance, not vehicle or deal facts. */
 export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen" | "firstSeenAt" | "lastSeenAt"> & {
@@ -27,7 +28,12 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total
   // No directory = no way to say who has a contact: refuse, never fall back to the unfiltered list under a checked box.
   if (contactOnFile && !contacts) throw new InventoryApiError("Dealer contacts are unavailable right now, so the contact filter cannot run.", 503);
   const result = await searchInventory(query, contactOnFile && contacts ? { dealerIds: contactOnFileDealerIds(contacts) } : undefined);
-  let vehicles: BuyerVehicle[] = result.vehicles.map((v) =>
+  // One listing per VIN. A patched box already did it (rows, total, facets); this breaks the ties it leaves for a known location, and
+  // collapses the page itself for a box that has not been patched yet (its total is then lowered by what this page dropped).
+  const distanceOf = zip ? (v: InventoryVehicle) => calculateDistanceMiles(zip, { city: v.dealerCity || "", state: v.dealerState || "" }) : null;
+  const collapsed = collapseByVin(result.vehicles, distanceOf);
+  const total = result.total - collapsed.dropped;
+  let vehicles: BuyerVehicle[] = collapsed.rows.map((v) =>
     toBuyerVehicle(v, zip ? calculateDistanceMiles(zip, { city: v.dealerCity || "", state: v.dealerState || "" }) : null, contacts)
   );
   if (zip && radiusMiles !== undefined) {
@@ -36,5 +42,5 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<{ total
   if (zip && sortDistance) {
     vehicles = sortByDistance(vehicles, distanceDir);
   }
-  return { total: result.total, totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles };
+  return { total: Math.max(total, vehicles.length), totalCapped: Boolean(result.totalCapped), limit: result.limit, offset: result.offset, vehicles };
 }
