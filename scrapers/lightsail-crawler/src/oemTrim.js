@@ -11,8 +11,8 @@
 // two trims it cannot choose between) comes back unchanged. The caller keeps the original text in trim_raw whenever a row is rewritten.
 // "Base" / "L" / "Grade" are official where listed but never a target: they are not matched inside longer text.
 //
-// Used where fordTrim.js is: the crawler (standalone.js), the sync client (scripts/box/inventory-sync.mjs), the deals-API write path
-// (handleInventoryBulk) and the box2 clean-up script. `normalizeTrimForWrite` is the one entry point those use: Ford first, then these makes.
+// Used where fordTrim.js is: the crawler (standalone.js) and the box2 clean-up script; the sync client (scripts/box/inventory-sync.mjs) and the deals-API write path
+// (handleInventoryBulk) follow in a separate PR (docs/box-patches/2026-10-28-oem-trim-sync-api-wiring). `normalizeTrimForWrite` is the one entry point: Ford first, then these makes.
 import { cleanFordTrimText, normalizeFordTrimForWrite } from './fordTrim.js';
 
 export const cleanOemTrimText = cleanFordTrimText;

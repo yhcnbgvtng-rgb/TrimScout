@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { optionRowsFromOptions, payloadHasOptions } from '../src/inventoryOptionRows.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
-import { normalizeTrimForWrite } from '../src/oemTrim.js';
+import { normalizeFordTrimForWrite } from '../src/fordTrim.js';
 import { normalizeModelForWrite, prepareMazdaVehicle } from '../src/mazdaPaidOptions.js';
 import { buildAllowlist, resolveAllowlisted, EMPTY_ALLOWLIST, loadBundledModelPoliciesRaw, policyFacetRows, policyApiOptions } from '../src/factoryOptionAllowlist.js';
 import { pairKey, diffOptionSets, groupExistingOptionRows } from '../src/inventoryOptionsDiff.js';
@@ -133,7 +133,7 @@ function loadHandlers(db) {
     badRequest: (res, message) => { res.status = 400; res.json = { error: message }; },
     invInvalidate: () => { out.invalidations++; },
     scheduleCatalogFacetRebuild: () => { out.rebuilds++; },
-    normalizeMakeForWrite, normalizeTrimForWrite, normalizeModelForWrite, prepareMazdaVehicle, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
+    normalizeMakeForWrite, normalizeFordTrimForWrite, normalizeModelForWrite, prepareMazdaVehicle, optionRowsFromOptions, payloadHasOptions, resolveAllowlisted, policyFacetRows,
     cleanOptionsForWrite, staleExactJunkKeys, keepPaidStoredRows, OPTIONS_JSON_CLEAN: 'junk',
     OPTION_ALLOWLIST: EMPTY_ALLOWLIST,
     OPTIONS_DIFF_WRITE: true, PAID_ONLY: false,
@@ -284,36 +284,13 @@ describe('handleInventoryBulk — Ford trim (fordTrim.js) on the write path', ()
   });
   it('keeps the crawler\'s own raw text when it already rewrote the trim, and never touches another make', async () => {
     const db = makeDb(); const h = loadHandlers(db);
-    await h.bulk([fordVeh(1, 'XLT', { trimRaw: '4X4 CREWCAB XLT' }), veh(102, null, { make: 'Honda', model: 'Civic', trim: 'EX-L 4WD' })]);
+    await h.bulk([fordVeh(1, 'XLT', { trimRaw: '4X4 CREWCAB XLT' }), veh(102, null, { make: 'Toyota', model: 'Tacoma', trim: 'TRD Sport 4WD' })]);
     assert.deepEqual([stored(db, 1).trim, stored(db, 1).trimRaw], ['XLT', '4X4 CREWCAB XLT']);
-    assert.deepEqual([stored(db, 102).trim, stored(db, 102).trimRaw], ['EX-L 4WD', null]);
+    assert.deepEqual([stored(db, 102).trim, stored(db, 102).trimRaw], ['TRD Sport 4WD', null]);
   });
   it('the upsert lists trim_raw, and a blank incoming trim leaves the stored trim_raw alone', () => {
     assert.match(SRC, /source_box, state, trim_raw, vehicle_id\)/);
     assert.match(SRC, /trim_raw = IF\(VALUES\(trim\) IS NULL, trim_raw, VALUES\(trim_raw\)\)/);
-  });
-});
-
-describe('handleInventoryBulk — Chevrolet / GMC / Toyota / Ram trim (oemTrim.js) on the write path', () => {
-  // VINs whose WMI matches the make, so the make-vs-VIN check keeps the make as sent.
-  const wmi = { Chevrolet: '1GCPYBEK0NZ', GMC: '1GTP9EEL0NZ', Toyota: '5TFAZ5CN0NX', Ram: '1C6SRFFT0NN' };
-  const v = (make, i, model, trim, extra = {}) => veh(i, null, { vin: `${wmi[make]}${String(i).padStart(6, '0')}`, make, model, trim, ...extra });
-  const stored = (db, make, i) => [...db.inv.entries()].find(([k]) => k.startsWith(`${wmi[make]}${String(i).padStart(6, '0')}`))[1];
-  it('rewrites a sentence trim per make and keeps the dealer text in trim_raw', async () => {
-    const db = makeDb(); const h = loadHandlers(db);
-    await h.bulk([v('Chevrolet', 1, 'Silverado 1500', 'LT 2FL'), v('GMC', 2, 'Sierra 1500', '4WD Crew Cab Denali'), v('Toyota', 3, 'Tacoma', 'TRD Off Road V6'), v('Ram', 4, '1500', "BIG HORN CREW CAB 4X4 5'7 BOX")]);
-    assert.deepEqual([stored(db, 'Chevrolet', 1).trim, stored(db, 'Chevrolet', 1).trimRaw], ['LT', 'LT 2FL']);
-    assert.deepEqual([stored(db, 'GMC', 2).trim, stored(db, 'GMC', 2).trimRaw], ['Denali', '4WD Crew Cab Denali']);
-    assert.deepEqual([stored(db, 'Toyota', 3).trim, stored(db, 'Toyota', 3).trimRaw], ['TRD Off-Road', 'TRD Off Road V6']);
-    assert.deepEqual([stored(db, 'Ram', 4).trim, stored(db, 'Ram', 4).trimRaw], ['Big Horn', "BIG HORN CREW CAB 4X4 5'7 BOX"]);
-  });
-  it('leaves official, unreadable and unprofiled-model trims alone, and keeps the crawler\'s own raw text', async () => {
-    const db = makeDb(); const h = loadHandlers(db);
-    await h.bulk([v('Chevrolet', 1, 'Silverado 1500', 'RST'), v('Chevrolet', 2, 'Silverado 1500', 'Crew Cab Short Box'), v('Toyota', 3, 'Corolla', 'LE Plus Weird'), v('Toyota', 4, 'Camry', 'SE', { trimRaw: 'SE Nightshade Edition' })]);
-    assert.deepEqual([stored(db, 'Chevrolet', 1).trim, stored(db, 'Chevrolet', 1).trimRaw], ['RST', null]);
-    assert.deepEqual([stored(db, 'Chevrolet', 2).trim, stored(db, 'Chevrolet', 2).trimRaw], ['Crew Cab Short Box', null]);
-    assert.deepEqual([stored(db, 'Toyota', 3).trim, stored(db, 'Toyota', 3).trimRaw], ['LE Plus Weird', null]);
-    assert.deepEqual([stored(db, 'Toyota', 4).trim, stored(db, 'Toyota', 4).trimRaw], ['SE', 'SE Nightshade Edition']);
   });
 });
 

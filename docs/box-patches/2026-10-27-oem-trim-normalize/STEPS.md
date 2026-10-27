@@ -6,24 +6,24 @@
 
 | File | md5 (repo, this PR) | Where | Picked up by |
 |---|---|---|---|
-| `scrapers/lightsail-crawler/src/oemTrim.js` (new) | `bf9f41fa0827894ccf69980795c3b3be` | every box `src/` | needs `src/fordTrim.js` beside it (md5 `1224e1ae9aae5528a8af39ad5da3a2f3`, the Ford entity-decode version) |
+| `scrapers/lightsail-crawler/src/oemTrim.js` (new) | `0f9bb8163921b82ff9f54748e1a64cee` | every box `src/` | needs `src/fordTrim.js` beside it (md5 `1224e1ae9aae5528a8af39ad5da3a2f3`, the Ford entity-decode version) |
 | `scrapers/lightsail-crawler/src/standalone.js` | `028ab103b2c71ac0fde58809d1cb6519` (main: `a39fc06e13e52e43d371ca504f65989e`) | crawl boxes | next crawl (fresh Node process) |
-| `scrapers/lightsail-crawler/src/deals_api_server.js` | `8df86d11c54dfad14cd1a6f6eb23903b` (main: `6512f25c22306a6ac506b8ba1426ac1b`) | box2 | **API restart** |
-| `scripts/box/inventory-sync.mjs` | `051c1a4f227a81a21b400dc7e25c2614` (main: `9a872876ec7c407e03c1f1c24e7a623a`) | each box's sync | next sync run |
 | `scripts/box/2026-10-27-oem-trim-normalize.mjs` (new) | `6477dd4bc3380e4acbb292c84c98c3b9` | box2 only | run by hand |
 
-**The live box files drift from the repo** (`project_trimscout_deals_api_live_drift`): do not copy `deals_api_server.js` / `standalone.js` / `inventory-sync.mjs` over the box. Patch the box's own text with the three edits below, anchored on the box's actual lines, and test each on a copy first. The repo files above are only the reference for what the edit should produce.
+**Scope of this PR.** It wires the crawler (`standalone.js`) only. The sync client (`inventory-sync.mjs`) and the deals-API write path (`deals_api_server.js`) are NOT edited here: the sweep-guards install package (`docs/box-patches/2026-10-27-sweep-guards/`) pins both files' md5s and patches, so they are wired in a follow-up PR with patches cut against box2's own files at install time. Until that is installed, rows written through the sync / API are stored as the crawler sent them (new crawls arrive normalized; the box2 clean-up script in step 5 fixes the rest).
 
-The edit in each of the three files is the same two things: the import line `import { normalizeFordTrimForWrite } from "./fordTrim.js"` becomes `import { normalizeTrimForWrite } from "./oemTrim.js"`, and the one call `normalizeFordTrimForWrite(` becomes `normalizeTrimForWrite(` (`standalone.js` uses single quotes; `inventory-sync.mjs` instead gains the fail-open loader block, copy it from the repo file, it is self-contained). `normalizeTrimForWrite` runs the Ford normalizer first and returns its result unless Ford skipped the row, so Ford behaviour is byte-for-byte what it is today.
+**The live box files drift from the repo** (`project_trimscout_deals_api_live_drift`): do not copy `standalone.js` over a box. Patch the box's own text with the edit below, anchored on the box's actual lines, and test each on a copy first. The repo files above are only the reference for what the edit should produce.
 
-Safe order: `oemTrim.js` first (nothing imports it yet), then the scripts, then `standalone.js` / `inventory-sync.mjs`, the API last. Until the API has it, rows written by a sync still arrive already normalized (the sync client does it) and the API just stores them.
+The `standalone.js` edit is two things: the import line `import { normalizeFordTrimForWrite } from './fordTrim.js'` becomes `import { normalizeTrimForWrite } from './oemTrim.js'` and the one call `normalizeFordTrimForWrite(` becomes `normalizeTrimForWrite(`. `normalizeTrimForWrite` runs the Ford normalizer first and returns its result unless Ford skipped the row, so Ford behaviour is byte-for-byte what it is today.
+
+Safe order: `oemTrim.js` first (nothing imports it yet), then the script, then `standalone.js` on each crawl box. The sync client and the API (follow-up PR) come after, API last.
 
 ## Steps (box2 = `ssh box2`, `/opt/trimscout-deals`; other boxes: `ssh box1|box3|box4`, crawler dir per `docs/BOXES.md`)
 
 0. **Preconditions** on each box before touching it: no `run-daily-crawl|run_nightly_chain|run_sync|standalone` process, sync lock free (`scripts/box/sync-lock-probe.mjs`). Stop if any is running. Confirm `docs/BOXES.md` IPs again; never trust IPs in old comments.
 1. **Backup + drift check (read-only)**, per file you will touch:
 ```bash
-ssh box2 'cd /opt/trimscout-deals && mkdir -p ~/backups/oem-trim-20261027 && for f in src/fordTrim.js src/deals_api_server.js; do md5sum $f; cp -p $f ~/backups/oem-trim-20261027/; done; ls src/oemTrim.js 2>&1 | head -1'
+ssh box2 'cd /opt/trimscout-deals && mkdir -p ~/backups/oem-trim-20261027 && for f in src/fordTrim.js src/standalone.js; do md5sum $f; cp -p $f ~/backups/oem-trim-20261027/; done; ls src/oemTrim.js 2>&1 | head -1'
 ```
    `src/fordTrim.js` must be `1224e1ae9aae5528a8af39ad5da3a2f3`. If it is not, install the Ford entity-decode patch first (`docs/box-patches/2026-10-27-ford-trim-entity-decode/STEPS.md`): `oemTrim.js` re-uses its `cleanFordTrimText`.
 2. **Install the new files** (nothing loads them yet) and check them:
@@ -38,13 +38,13 @@ ssh box2 'md5sum /tmp/oemTrim.js.new /tmp/2026-10-27-oem-trim-normalize.mjs && c
 ssh box2 'cd /opt/trimscout-deals && node scripts/box/2026-10-27-oem-trim-normalize.mjs --dry-run | tee ~/backups/oem-trim-20261027/dryrun.txt | tail -60'
 ```
    Compare against the probe doc's table (about 50,000 rewrites). Read the top-40 change list line by line; anything that looks wrong goes back to the repo, not onto the box. `ambiguous` and `leftover` counts are rows that will stay as they are.
-4. **Patch the three callers** (each on a copy first; the anchors are the box's own text):
+4. **Patch `standalone.js` on each crawl box** (on a copy first; the anchors are the box's own text):
 ```bash
-ssh box2 'cd /opt/trimscout-deals && cp src/deals_api_server.js /tmp/das.test.js && grep -n "normalizeFordTrimForWrite" /tmp/das.test.js'
+ssh box3 'cd <crawler dir per docs/BOXES.md> && cp src/standalone.js /tmp/sa.test.js && grep -n "normalizeFordTrimForWrite" /tmp/sa.test.js'
 # expect exactly 2 hits (the import and one call). If the count differs the live file has drifted: stop and send it back.
-ssh box2 'cd /tmp && sed -i "s#import { normalizeFordTrimForWrite } from \"./fordTrim.js\";#import { normalizeTrimForWrite } from \"./oemTrim.js\";#; s#normalizeFordTrimForWrite(#normalizeTrimForWrite(#" das.test.js && node --check das.test.js && grep -n "normalizeTrimForWrite\|normalizeFordTrimForWrite" das.test.js'
+ssh box3 'cd /tmp && sed -i "s#import { normalizeFordTrimForWrite } from .\./fordTrim.js.;#import { normalizeTrimForWrite } from \x27./oemTrim.js\x27;#; s#normalizeFordTrimForWrite(#normalizeTrimForWrite(#" sa.test.js && node --check sa.test.js && grep -n "normalizeTrimForWrite\|normalizeFordTrimForWrite" sa.test.js'
 ```
-   When the copy checks clean, apply the same `sed` to the real file (backup from step 1 exists), `node --check src/deals_api_server.js`, then **restart the API** the way box2 normally does it (not while a sync runs) and confirm it answers. Do `standalone.js` on each crawl box and add the loader block to each box's `inventory-sync.mjs` the same way (copy first, `node --check`, then the real file).
+   When the copy checks clean, apply the same `sed` to the real file (backup from step 1 exists) and `node --check` it. A crawl is a fresh Node process, so there is no restart. The sync client and the API wiring: see the follow-up PR's `STEPS.md`.
 5. **Small apply first, then the rest** (each takes the sync lock and needs `--fleet-idle`, so confirm all four boxes are idle):
 ```bash
 ssh box2 'cd /opt/trimscout-deals && node scripts/box/2026-10-27-oem-trim-normalize.mjs --apply --fleet-idle --limit=5000'
