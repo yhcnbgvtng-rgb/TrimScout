@@ -138,9 +138,17 @@ describe('print-explain-sql.mjs', () => {
 describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
   const REFIT = path.join(PKG, 'box2-refit');
   const changed = (file) => fs.readFileSync(file, 'utf8').split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
+  // The reviewed patch is a diff against the pre-#601 file, so it also carries every later change to the same repo file. Later install packages (each
+  // cut against box2's text at its own time) list theirs here; their changed lines are taken out of the expectation, one for one.
+  const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch'] };
+  const withoutLater = (name, lines) => {
+    const rest = [...lines];
+    for (const rel of LATER[name] || []) for (const l of changed(path.join(ROOT, rel))) { const i = rest.indexOf(l); assert.ok(i >= 0, `${rel} changes a line the reviewed patch does not carry: ${l}`); rest.splice(i, 1); }
+    return rest;
+  };
   for (const name of ['deals_api_server.js', 'inventory-sync.mjs']) {
     it(`${name}: changes exactly the lines the reviewed patch changes, nothing else (only the surrounding context differs)`, () => {
-      assert.deepEqual(changed(path.join(REFIT, `${name}.patch`)), changed(path.join(PKG, `${name}.patch`)));
+      assert.deepEqual(changed(path.join(REFIT, `${name}.patch`)), withoutLater(name, changed(path.join(PKG, `${name}.patch`))));
     });
   }
 

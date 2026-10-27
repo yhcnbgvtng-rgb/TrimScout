@@ -185,7 +185,9 @@ export interface InventoryStats {
   byMake: Array<{ make: string; n: number }>;
   byState: Array<{ state: string; n: number }>;
   byCond: Array<{ cond: string | null; n: number }>;
-  movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number; removedToday: number };
+  movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number | null; removedToday: number };
+  /** Parts whose query failed this time and are served from their last good value (inventoryStats.js). */
+  stale?: string[];
 }
 
 export class InventoryApiError extends Error {
