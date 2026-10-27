@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { planFromGroups, backupLine, parseBackup } from './2026-10-27-ford-trim-normalize.mjs';
+import { planFromGroups, backupLine, parseBackup, applyChanges } from './2026-10-27-ford-trim-normalize.mjs';
 import { normalizeFordTrimForWrite } from '../../scrapers/lightsail-crawler/src/fordTrim.js';
 
 const SRC = fs.readFileSync(new URL('./2026-10-27-ford-trim-normalize.mjs', import.meta.url), 'utf8');
@@ -47,21 +47,72 @@ describe('safety rails (source checks)', () => {
     assert.match(SRC, /finally \{ await release\(\)/);
     assert.equal((SRC.match(/await withLock\(/g) || []).length, 2, 'both the rewrite and the rollback go through the lock');
   });
-  it('writes the backup (fsync) before the UPDATE of the same batch, and guards the UPDATE on the trim it read', () => {
-    assert.ok(SRC.indexOf('fs.fsyncSync(fd)') > 0 && SRC.indexOf('fs.fsyncSync(fd)') < SRC.indexOf('FOR UPDATE dealer_inventory SET trim = ?, trim_raw = ? WHERE trim = ?'));
-    assert.match(SRC, /WHERE trim = \? AND \(\$\{batch\.map\(\(\) => "\(vin = \? AND dealer_id = \?\)"\)/);
+  it('writes the backup (fsync) before the UPDATE of the same batch, and guards the UPDATE on the exact trim it read', () => {
+    assert.ok(SRC.indexOf('fs.fsyncSync(fd)') > 0);
+    assert.match(SRC, /writeBackup\(batch, c\); \/\/ before-state first, then the UPDATE\n\s+const n = await updateBatch\(batch, c\)/);
+    assert.match(SRC, /FOR UPDATE dealer_inventory SET trim = \?, trim_raw = \? WHERE BINARY trim = BINARY \? AND \(\$\{batch\.map/);
   });
   it('rollback only restores rows that still carry the trim this script wrote', () => {
     assert.match(SRC, /WHERE vin = \? AND dealer_id = \? AND trim = \?`, \[r\.trim_before, r\.trim_raw_before, r\.vin, r\.dealer_id, r\.trim_after\]/);
   });
   it('reads are index-bounded on make (and model, trim) and capped at 20 s; any error stops the run', () => {
-    assert.match(SRC, /WHERE make = 'Ford'\$\{ACTIVE_ONLY \? " AND removed_at IS NULL" : ""\} GROUP BY model, trim/);
-    assert.match(SRC, /WHERE make = 'Ford' AND model = \? AND trim = \?/);
+    assert.match(SRC, /WHERE make = 'Ford'\$\{ACTIVE_ONLY \? " AND removed_at IS NULL" : ""\} GROUP BY model, BINARY trim/, 'groups by the exact text: trim is a case-insensitive collation');
+    assert.match(SRC, /WHERE make = 'Ford' AND model = \? AND trim = \? AND BINARY trim = BINARY \?/, 'index range on (make, model, trim), then the exact-text filter');
     assert.match(SRC, /SET STATEMENT max_statement_time=\$\{STATEMENT_CAP_S\} FOR/);
     assert.match(SRC, /no retry/);
   });
   it('has no VIN tie-break and refuses a retired box IP', () => {
     assert.doesNotMatch(SRC, /SUBSTRING\(vin|vinWmi|tie-break\)\s*\{/);
     assert.match(SRC, /pointsAtDeadIp/);
+  });
+});
+
+describe('applyChanges: --limit is a hard cap', () => {
+  // An in-memory table of exact-text rows per (model, trim); fetch honours n like SQL LIMIT, update moves the rows it is given.
+  const makeTable = (groups) => {
+    const rows = new Map(groups.map((g) => [`${g.model}|${g.before}`, Array.from({ length: g.count }, (_, i) => ({ vin: `${g.model}-${g.before}-${i}`, dealer_id: 1, model: g.model, trim: g.before, trim_raw: null }))]));
+    const log = [];
+    return {
+      rows, log,
+      fetchBatch: async (c, n) => { log.push(['fetch', n]); return (rows.get(`${c.model}|${c.before}`) || []).slice(0, n); },
+      writeBackup: (batch) => log.push(['backup', batch.length]),
+      updateBatch: async (batch, c) => { log.push(['update', batch.length]); const k = `${c.model}|${c.before}`; rows.set(k, rows.get(k).filter((r) => !batch.includes(r))); return batch.length; },
+    };
+  };
+  const change = (model, before, count) => ({ model, before, after: 'X', count });
+
+  it('the 2026-10-27 case: limit 200 changes exactly 200 rows, never 393', async () => {
+    const t = makeTable([{ model: 'Explorer', before: 'ST Line', count: 3367 }]);
+    const r = await applyChanges({ changes: [change('Explorer', 'ST Line', 3367)], limit: 200, batchSize: 200, ...t });
+    assert.deepEqual(r, { updated: 200, skipped: 0 });
+    assert.equal(t.rows.get('Explorer|ST Line').length, 3167);
+  });
+  it('a limit that is not a multiple of the batch size shrinks the last batch and spans groups', async () => {
+    const t = makeTable([{ model: 'A', before: 'a', count: 120 }, { model: 'B', before: 'b', count: 500 }]);
+    const r = await applyChanges({ changes: [change('A', 'a', 120), change('B', 'b', 500)], limit: 250, batchSize: 100, ...t });
+    assert.equal(r.updated, 250);
+    assert.deepEqual(t.log.filter((e) => e[0] === 'update').map((e) => e[1]), [100, 20, 100, 30]);
+    assert.equal(t.rows.get('A|a').length, 0);
+    assert.equal(t.rows.get('B|b').length, 370);
+  });
+  it('no limit drains every group, in batches no larger than batchSize', async () => {
+    const t = makeTable([{ model: 'A', before: 'a', count: 450 }]);
+    const r = await applyChanges({ changes: [change('A', 'a', 450)], batchSize: 200, ...t });
+    assert.equal(r.updated, 450);
+    assert.deepEqual(t.log.filter((e) => e[0] === 'update').map((e) => e[1]), [200, 200, 50]);
+  });
+  it('every batch is backed up before it is updated', async () => {
+    const t = makeTable([{ model: 'A', before: 'a', count: 5 }]);
+    await applyChanges({ changes: [change('A', 'a', 5)], batchSize: 2, ...t });
+    const seq = t.log.filter((e) => e[0] !== 'fetch').map((e) => e[0]);
+    assert.deepEqual(seq, ['backup', 'update', 'backup', 'update', 'backup', 'update']);
+  });
+  it('a fetch that over-returns is still capped to the room left, and an update that moves nothing ends its group', async () => {
+    const rows = Array.from({ length: 50 }, (_, i) => ({ vin: `V${i}`, dealer_id: 1, model: 'A', trim: 'a' }));
+    const r = await applyChanges({ changes: [change('A', 'a', 50), change('B', 'b', 50)], limit: 10, batchSize: 200, fetchBatch: async () => rows, writeBackup() {}, updateBatch: async (b) => b.length });
+    assert.equal(r.updated, 10);
+    let calls = 0;
+    const stuck = await applyChanges({ changes: [change('A', 'a', 50)], batchSize: 20, fetchBatch: async () => { calls++; return rows.slice(0, 20); }, writeBackup() {}, updateBatch: async () => 0 });
+    assert.deepEqual([stuck.updated, stuck.skipped, calls], [0, 20, 1]);
   });
 });
