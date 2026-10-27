@@ -1,0 +1,2 @@
+d2b48dc73da2511b659638c60a349cd0  deals_api_server.js
+17ab02860a39824165e54cdffecd3845  inventoryListQuery.js

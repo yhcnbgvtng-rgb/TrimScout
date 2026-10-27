@@ -1,17 +1,14 @@
-diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
-index 0269b36..080131e 100644
---- scrapers/lightsail-crawler/src/deals_api_server.js
-+++ scrapers/lightsail-crawler/src/deals_api_server.js
-@@ -63,6 +63,8 @@ import { groupExistingOptionRows, diffOptionSets, pairKey } from "./inventoryOpt
+--- scrapers/lightsail-crawler/src/deals_api_server.js	2026-10-27 17:31:37
++++ scrapers/lightsail-crawler/src/deals_api_server.js	2026-10-27 17:31:37
+@@ -63,6 +63,7 @@
  import { paidCatalogRows } from "./paidCatalogFilter.js";
  import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
  import { staleSlices } from "./staleFacets.js";
 +import { onePerVinModeOf } from "./onePerVin.js";
-+import { facetsOnePerVin } from "./onePerVinServer.js";
  import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
  
  const PORT = process.env.DEALS_API_PORT || 3004;
-@@ -2837,6 +2839,8 @@ async function handleListInventory(req, res, params, extra = {}) {
+@@ -2837,6 +2838,8 @@
    if (result.totalCapped) body.totalCapped = true;
    // Echoed so the web app can tell a box that applied the contact filter from an older one that would silently ignore it.
    if (extra.contactDealerIds) body.contactFilter = { dealers: extra.contactDealerIds.length };
@@ -20,45 +17,3 @@ index 0269b36..080131e 100644
    sendJson(res, 200, body);
  }
  
-@@ -2870,10 +2874,18 @@ async function handleContactFacets(req, res) {
-   const results = await Promise.all(queries.map((c) =>
-     withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${c.sql}`, c.args), waitMs(), "Timed out waiting for an available database connection or a slow query")
-   ));
--  const lists = { states: [], makes: [], models: [], trims: [] };
-+  let lists = { states: [], makes: [], models: [], trims: [] };
-   const field = { states: "state", makes: "make", models: "model", trims: "trim" };
-   queries.forEach((c, i) => { lists[c.key] = results[i][0].map((r) => ({ [field[c.key]]: r.v, n: Number(r.n) })); });
--  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length } });
-+  // onePerVin: the contact set's stores that LOSE the rule (to any store, in the set or not — same as the list) are not counted.
-+  let onePerVinApplied;
-+  if (onePerVinModeOf(body.onePerVin) !== null) {
-+    const r = await facetsOnePerVin({ pool, stableCached, withPoolTimeout, statementSeconds, waitMs, retailOnlyFacets: RETAIL_ONLY_FACETS }, lists,
-+      { state: String(body.state || "").trim().toUpperCase().slice(0, 2), make: String(body.make || "").trim(), model: String(body.model || "").trim() },
-+      { days: seenWithinDaysOf(body.seenWithinDays == null ? null : String(body.seenWithinDays)), dealerIds: new Set(ids) });
-+    lists = r.lists; onePerVinApplied = r.applied;
-+  }
-+  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length }, ...(onePerVinApplied === undefined ? {} : { onePerVin: onePerVinApplied }) });
- }
- 
- // GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
-@@ -3229,7 +3241,8 @@ async function handleInventoryFacets(req, res, params) {
-   const make = (params.get("make") || "").trim();
-   const model = (params.get("model") || "").trim();
-   const seenDays = seenWithinDaysOf(params.get("seenWithinDays"));
--  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}`;
-+  const onePerVin = onePerVinModeOf(params.get("onePerVin")) !== null;
-+  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}${onePerVin ? "|one" : ""}`;
-   sendJson(res, 200, await stableCached(cacheKey, async () => {
-     const q = (sql, args) =>
-       withPoolTimeout(
-@@ -3286,6 +3299,10 @@ async function handleInventoryFacets(req, res, params) {
-       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
-     };
-     const wb = await hiddenBucketsOrNull(pool, seenDays);
-+    if (onePerVin) {
-+      const r = await facetsOnePerVin({ pool, stableCached, withPoolTimeout, statementSeconds, waitMs, retailOnlyFacets: RETAIL_ONLY_FACETS }, lists, { state, make, model }, { days: seenDays, hidden: wb });
-+      return { ...r.lists, onePerVin: r.applied };
-+    }
-     return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
-   }));
- }
