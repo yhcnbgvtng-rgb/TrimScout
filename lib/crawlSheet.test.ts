@@ -218,3 +218,23 @@ describe("Last seen column — Eastern date and time", () => {
     assert.equal(lastSeenET("junk"), "junk");
   });
 });
+
+describe("admin Vehicles page: trim display", () => {
+  it("decodes HTML entities and drops ®/™ in the Trim cell and the CSV, and leaves other columns alone", async () => {
+    const { vehicleRowCell, vehicleCsvLine } = await import("./crawlSheetColumns");
+    const row = { trim: "Raptor&reg;", model: "F-150 &amp; Co" } as never;
+    assert.equal(vehicleRowCell(row, "trim"), "Raptor");
+    assert.equal(vehicleRowCell({ trim: "King Ranch®" } as never, "trim"), "King Ranch");
+    assert.equal(vehicleRowCell({ trim: "XLT" } as never, "trim"), "XLT");
+    assert.equal(vehicleRowCell({ trim: null } as never, "trim"), "");
+    assert.equal(vehicleRowCell(row, "model"), "F-150 &amp; Co");
+    assert.match(vehicleCsvLine({ trim: "Tremor&trade;" } as never, ["trim"]), /^Tremor\r\n$/);
+  });
+  it("the display cleaner agrees with the Ford normalizer's cleaner", async () => {
+    const { cleanTrimText } = await import("./crawlSheetColumns");
+    const { cleanFordTrimText } = await import("../scrapers/lightsail-crawler/src/fordTrim.js");
+    for (const t of ["Raptor&reg;", "King Ranch®", "XLT &amp; Co", "A&#174;B&#xAE;", "Tremor&trade; 4WD", "Big&nbsp;Bend", "L&rsquo;x", "x &zzzz; y", "&amp;reg;", "  Lariat™   4x4 "]) {
+      assert.equal(cleanTrimText(t), cleanFordTrimText(t), t);
+    }
+  });
+});

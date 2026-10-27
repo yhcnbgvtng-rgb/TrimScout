@@ -125,6 +125,7 @@ const skip = !bundle && 'esbuild is not installed here';
 
 describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
 
+  // --deadline-et=24:00 (a later flag wins): the script's real default hard-stops at 21:40 ET, which made this suite fail on any CI run after that time.
   async function setup({ lock = true } = {}) {
     const dir = fs.mkdtempSync(path.join(process.env.TMPDIR || os.tmpdir(), 'trc-'));
     fs.mkdirSync(path.join(dir, 'node_modules/mysql2'), { recursive: true });
@@ -135,7 +136,7 @@ describe('trim re-clean flow (emitted bundle, fake DB, stub lock)', () => {
     fs.writeFileSync(path.join(dir, 'env'), `DB_READER_USER=reader\nDB_READER_PASSWORD=r\nDB_WRITER_USER=writer\nDB_WRITER_PASSWORD=w\nTRIMSCOUT_API_KEY=k\nDEALS_API_PORT=${stub.port}\n`);
     fs.writeFileSync(path.join(dir, 'lock.log'), '[sync-lock] 2026-10-21T00:00:00Z release by x\n');
     const env = { ...process.env, FAKE_DB_FILE: db, FAKE_LOG: path.join(dir, 'sql.log'), FAKE_WRITE_LOG: path.join(dir, 'writes.log') };
-    const run = (...a) => new Promise((resolve) => { const c = execFile('node', ['--input-type=module', '-', `--env=${path.join(dir, 'env')}`, `--lock-log=${path.join(dir, 'lock.log')}`, `--out=${path.join(dir, 'out')}`, ...a], { cwd: dir, env, maxBuffer: 64 << 20 }, (err, stdout, stderr) => resolve({ code: err ? err.code : 0, stdout, stderr })); c.stdin.end(bundle); });
+    const run = (...a) => new Promise((resolve) => { const c = execFile('node', ['--input-type=module', '-', `--env=${path.join(dir, 'env')}`, `--lock-log=${path.join(dir, 'lock.log')}`, `--out=${path.join(dir, 'out')}`, '--deadline-et=24:00', ...a], { cwd: dir, env, maxBuffer: 64 << 20 }, (err, stdout, stderr) => resolve({ code: err ? err.code : 0, stdout, stderr })); c.stdin.end(bundle); });
     return { dir, db, stub, run, table: () => JSON.parse(fs.readFileSync(db, 'utf8')).rows, sql: () => fs.readFileSync(path.join(dir, 'sql.log'), 'utf8') };
   }
 

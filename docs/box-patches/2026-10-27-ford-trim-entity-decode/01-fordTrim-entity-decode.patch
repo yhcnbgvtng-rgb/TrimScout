@@ -1,0 +1,45 @@
+diff --git a/scrapers/lightsail-crawler/src/fordTrim.js b/scrapers/lightsail-crawler/src/fordTrim.js
+index 0894e94..149a8a0 100644
+--- a/scrapers/lightsail-crawler/src/fordTrim.js
++++ b/scrapers/lightsail-crawler/src/fordTrim.js
+@@ -27,6 +27,25 @@ const NOT_A_TARGET = new Set(['Base', 'S']);
+ // Where a dealer's spelling is a known alias for another official trim.
+ const ALIAS = { 'DARK HORSE SC': 'Dark Horse', 'DARK HORSE PREMIUM': 'Dark Horse', 'HERITAGE EDITION': 'Heritage', 'HERITAGE LIMITED EDITION': 'Heritage Limited', 'LOBO STANDARD': 'Lobo', 'LOBO HIGH': 'Lobo' };
+ 
++// Dealer pages hand the trim over HTML-escaped ("Raptor&reg;", "King Ranch&#174;", "XLT &amp; ..."), and many keep the ®/™ mark itself ("Raptor®").
++// Decoded and stripped before any matching. Self-contained on purpose (this file is copied to box2 on its own); it matches decodeHtmlEntities / cleanTrim
++// in ingestSanitize.js, and test/ford_trim.test.js pins the two together.
++const ENTITIES = { reg: '®', trade: '™', amp: '&', quot: '"', apos: "'", nbsp: ' ', lt: '<', gt: '>', copy: '©', ndash: '–', mdash: '—', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', prime: '′', Prime: '″' };
++const ENTITY_RE = /&(?:#(\d{1,6})|#[xX]([0-9a-fA-F]{1,5})|([a-zA-Z]{2,8}));/g;
++function decodeOnce(s) {
++  return s.replace(ENTITY_RE, (m, dec, hex, name) => {
++    if (name) return Object.prototype.hasOwnProperty.call(ENTITIES, name) ? ENTITIES[name] : Object.prototype.hasOwnProperty.call(ENTITIES, name.toLowerCase()) ? ENTITIES[name.toLowerCase()] : m;
++    const code = dec ? parseInt(dec, 10) : parseInt(hex, 16);
++    return code > 0 && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff) ? String.fromCodePoint(code) : m;
++  });
++}
++/** Entities decoded (twice, for a double-escaped "&amp;reg;"), ®/™/℠ dropped, whitespace collapsed. Unknown entities stay as written. */
++export function cleanFordTrimText(text) {
++  if (typeof text !== 'string') return text;
++  const decoded = text.includes('&') ? decodeOnce(decodeOnce(text)) : text;
++  return decoded.replace(/[®™℠]/g, '').replace(/\s+/g, ' ').trim();
++}
++
+ // Upper-case, every run of non-alphanumerics becomes one space: "ST-Line", "ST Line", "St_Line" compare equal.
+ const squash = (s) => ` ${String(s).toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim()} `;
+ 
+@@ -67,9 +86,11 @@ function hitsIn(group, text) {
+ export function normalizeFordTrim({ make, model, trim } = {}) {
+   const group = /^ford$/i.test(String(make || '').trim()) ? fordModelGroup(model) : null;
+   if (!group) return { trim: trim ?? null, status: 'skipped' };
+-  const raw = trim == null ? '' : String(trim).trim();
+-  if (!raw) return { trim: trim ?? null, status: 'blank' };
+-  if (OFFICIAL[group].includes(raw)) return { trim: raw, status: 'clean' };
++  const original = trim == null ? '' : String(trim).trim();
++  if (!original) return { trim: trim ?? null, status: 'blank' };
++  const raw = cleanFordTrimText(original);
++  // "Raptor®" / "Raptor&reg;" is the official trim once cleaned, but the stored text still has to be rewritten, so it is a 'fix', not 'clean'.
++  if (OFFICIAL[group].includes(raw)) return raw === original ? { trim: raw, status: 'clean' } : { trim: raw, status: 'fix', hits: [raw] };
+   const alias = ALIAS[squash(raw).trim()];
+   if (alias && OFFICIAL[group].includes(alias)) return { trim: alias, status: 'fix', hits: [alias] };
+   let hits = hitsIn(group, raw);
