@@ -116,7 +116,7 @@ describe('standalone.js wiring (source guards: the script is not importable)', (
     assert.match(src, /work\.push\(\{ dealer, retry: true \}\)/);
     assert.match(src, /retry \? \{ classification: 'NONE' \} : await probeDealerBotProtectionWithRetry/);
     assert.match(src, /if \(!retry\) try \{\s+const contact = await collectSalesEmail/);
-    assert.match(src, /resolveSitemapDiscovery\(dealer, brand, null, \{ apexFirst: retry \}\)/);
+    assert.match(src, /resolveSitemapDiscovery\(dealer, brand, \{ apexFirst: retry \}\)/);
   });
   it('a recovered retry clears the failed flag so the sold-diff sees real evidence', () => {
     assert.match(src, /if \(retry\) \{\s+failedDealerNames\.delete\(dealer\.name\)/);
