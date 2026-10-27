@@ -7,6 +7,7 @@ import vm from 'node:vm';
 import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from '../src/retailFacets.js';
 import { staleSlices } from '../src/staleFacets.js';
 import { seenWithinDaysOf } from '../src/inventoryListQuery.js';
+import { onePerVinModeOf } from '../src/onePerVin.js';
 
 const W = [
   { make: 'Mercedes-Benz', state: 'FL', model: 'GLC', trim: 'GLC 300', n: 40 },
@@ -75,7 +76,7 @@ const extractConst = (name) => {
   return SRC.slice(start, SRC.indexOf('\n};\n', start) + 4);
 };
 
-function load({ retailOnly = true, failWholesale = false, staleRows = [] } = {}) {
+function load({ retailOnly = true, failWholesale = false, staleRows = [], losers = null } = {}) {
   const calls = { wholesaleDealerQueries: 0, wholesaleBucketQueries: 0, staleQueries: 0, sql: [] };
   const wholesaleDealers = [11, 12, 13];
   const byDealer = { 11: [W[0], W[1]], 12: [W[2]], 13: [W[3]] };
@@ -110,7 +111,7 @@ function load({ retailOnly = true, failWholesale = false, staleRows = [] } = {})
     sendJson: (res, status, obj) => { out.json = JSON.parse(JSON.stringify(obj)); },
     withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 1000,
     stableCached: async (key, fn) => { if (!cache.has(key)) cache.set(key, await fn()); return cache.get(key); },
-    adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY, staleSlices, seenWithinDaysOf, RETAIL_ONLY_FACETS: retailOnly, console, Date, Promise, URLSearchParams,
+    adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY, staleSlices, seenWithinDaysOf, onePerVinModeOf, vinLoserBucketsOrNull: async () => losers, RETAIL_ONLY_FACETS: retailOnly, console, Date, Promise, URLSearchParams,
   };
   vm.createContext(ctx);
   vm.runInContext(['wholesaleBuckets', 'staleBuckets', 'handleInventoryMakes', 'handleInventoryFacets'].map(extractFunction).join('\n') +
@@ -203,5 +204,19 @@ describe('handleInventoryFacets / handleInventoryMakes — seenWithinDays also s
     h.ctx.stableCached = async (key, fn) => { if (String(key).startsWith('stale-buckets')) throw new Error('boom'); return orig(key, fn); };
     await h.facets({ make: 'Mercedes-Benz', state: 'FL', seenWithinDays: '7' });
     assert.equal(h.out.json.states.find((s) => s.state === 'FL').n, 500 - 65);
+  });
+});
+
+describe('handleInventoryFacets — onePerVin', () => {
+  it('subtracts the duplicate-VIN losers from the counts and says it did; without the flag nothing changes', async () => {
+    const losers = [{ make: 'Ford', state: 'FL', model: 'GLC', trim: 'GLC 300', n: 7 }];
+    const plain = load({ losers }); await plain.facets({ make: 'Ford' });
+    assert.equal(plain.out.json.onePerVin, undefined);
+    const one = load({ losers, retailOnly: false }); await one.facets({ make: 'Ford', onePerVin: '1' });
+    assert.equal(one.out.json.onePerVin, true);
+    assert.equal(one.out.json.states.find((s) => s.state === 'FL').n, 493);
+    const down = load({ losers: null, retailOnly: false }); await down.facets({ onePerVin: '1' });
+    assert.equal(down.out.json.onePerVin, false, 'a failed read leaves counts unadjusted and says so');
+    assert.equal(down.out.json.states.find((s) => s.state === 'FL').n, 500);
   });
 });
