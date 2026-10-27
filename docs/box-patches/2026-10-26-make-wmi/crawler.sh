@@ -15,7 +15,7 @@ SA_BOX1=02f73e161e29dde0fe0633759328c9a8; SA_OTHER=2e69d8748b9addbff93dac618bb71
 SA_OLD_BOX1=82fa1a602d6229fc5eb17114fb347e6a; SA_OLD_OTHER=6465d05d2377da81293897292e895776   # standalone.js after the FIRST version of this patch (no fallback)
 # md5 of the NEW patched standalone.js cannot be computed off the box (the box copies are not in the repo). Empty = not pinned yet: the script then verifies the
 # patched file by content (new call present, old fallbacks gone, syntax) and PRINTS the md5. After the first `check` on box4, put the printed values here.
-SA_NEW_BOX1=""; SA_NEW_OTHER=""
+SA_NEW_BOX1=""; SA_NEW_OTHER="a1f4e0bf9228bedb4ca8e2a567b2fb54"   # SA_NEW_OTHER pinned from box4 check+apply 2026-10-27
 fail() { echo "FAIL: $*"; exit 1; }
 sa=$(md "$S/standalone.js"); bm=$(md "$S/brand_match.js")
 is_new_sa() { grep -q "resolveKeptMake(brand, vehicle, dealer)" "$1" && ! grep -q "|| dealer.make || null\||| dealer.make || brand.name" "$1"; }
