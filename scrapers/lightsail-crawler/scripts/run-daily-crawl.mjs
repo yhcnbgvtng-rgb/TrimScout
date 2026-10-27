@@ -530,7 +530,6 @@ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
     CRAWLER_DEALERS_FILE: dealersFile,
     CRAWLER_BRAND: brand,
     CRAWLER_STATE: state,
-    CRAWLER_PATCHRIGHT_FALLBACK: 'false',
     CRAWLER_RUN_DATE: date,
     // Safety margin on top of the enricher.js memory fix (see its
     // ensureEnrichmentShape/persist-block comments): that fix removes the

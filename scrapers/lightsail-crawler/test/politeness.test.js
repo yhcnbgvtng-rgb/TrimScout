@@ -314,9 +314,15 @@ describe('standalone.js wiring (source pins)', () => {
     assert.match(src, /politeGot\(sitemapUrl/);
     assert.match(src, /politeGot\(`https:\/\/\$\{host/);
   });
-  it('a wall stops the store: no patchright fallback and no further URL fetches once politeWall is set', () => {
-    assert.match(src, /if \(politeWall\) \{[\s\S]*?continue;\s*\}\s*if \(vehicleUrls\.length === 0 && process\.env\.CRAWLER_PATCHRIGHT_FALLBACK/);
+  it('a wall stops the store: no further URL fetches once politeWall is set, and the sitemap-wall branch skips the store', () => {
+    assert.match(src, /if \(politeWall\) \{[\s\S]*?continue;\s*\}/);
     assert.match(src, /pMapStoppable\(pageUrls, extractOne, PAGE_WORKERS, \(\) => politeWall !== null/);
+  });
+  it('there is no browser path: nothing in standalone.js can drive a browser through a Cloudflare interstitial, and no env var turns one on', () => {
+    assert.doesNotMatch(src, /patchright|chromium|puppeteer|playwright/i);
+    assert.doesNotMatch(src, /CRAWLER_PATCHRIGHT/);
+    assert.doesNotMatch(src, /tryPatchrightFallback|pMapWithPages|\.goto\(/);
+    assert.match(src, /No browser fallback/);
   });
   it('the wall/backoff log lines keep the formats the sweep guard parses', () => {
     const guard = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'scripts', 'box', 'syncSweepGuard.js'), 'utf-8');
