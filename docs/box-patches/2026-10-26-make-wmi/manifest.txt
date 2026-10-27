@@ -1,9 +1,10 @@
-91d723fe2cf8440c1da6e719e3c5b871  files/brand_match.js
+2b421d128ce20aab0644820bb0702271  files/brand_match.js
 88ec75c5d81a19dd484de0dea62add28  files/ingestGuards.js
 4017f1f9e24dc14d1b2cc530737e1e00  files/stellantisMake.js
 2bb0902516fe1279adec20291096ac7b  files/stellantisVinTable.js
-365a9b0dd148dcd115b442601f7c47af  files/vinWmi.js
-a722dbe8b6428d3c0d16d3240f6aaef4  02-standalone.patch
-42501b19f54dc081d35458220bc11825  test-five-vins.mjs
-63f766141cedfe78d270945b51b369c5  crawler.sh
-bf93f8028400b921a1a8e7fdcf213613  deals-api.sh
+422bd7190ee821d33449d28489e22d17  files/vinWmi.js
+47d66cd27da48dd87d583f3e37a71dfa  02-standalone.patch
+7a27bdc2472527f41952adb47f874af9  03-standalone-upgrade.patch
+e6fcef35fc34a0265a0a10248de45d2a  test-five-vins.mjs
+8e528e1e439f7d4d2949024aeea9cbf7  crawler.sh
+0b356582d67fd97c104355e8601c1a61  deals-api.sh

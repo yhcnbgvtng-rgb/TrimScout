@@ -1,30 +1,30 @@
-# Box patch: take the make from the VIN (PR #580, merged as `368b794`)
+# Box patch: take the make from the VIN (PR #580, merged as `368b794`) + dealer/shard-brand fallback (PR #597)
 
-Code only. **Nothing here has been installed or run on a box.** Every script below was tested on copies of the real box files (box1's and box2's `standalone.js`, box2's deals-api `stellantisMake.js` / `ingestGuards.js` / `stellantisVinTable.js`, copied read-only), never on a live checkout. One box at a time, no-crawl window, only on Paul's own typed GO. Do NOT `git pull` / `merge` / `commit` on a box.
+Code only. **Nothing here has been installed by this PR.** The first revision of this directory (PR #582) was tested on copies of the real box files; **this revision (regenerated from #597) was tested only on repo blobs and a simulated box directory** (`check`, `apply` and `restore` against fake `src/` dirs, both from the pre-patch and from the first-patch state), because the box `standalone.js` files are not in the repo. The first real test is `crawler.sh check` on box4, which is read-only and patches a copy. One box at a time, no-crawl window, only on Paul's own typed GO. Do NOT `git pull` / `merge` / `commit` on a box.
 
 ## What this changes
-Before: a car whose page has no make was stored with the roster brand (`dealer.make || brand.name`), so a Dodge Challenger, Subaru Impreza, Lincoln Corsair, Honda Fit and Buick Encore were all stored as **GMC** at a GMC-roster dealer. After: the make comes from the VIN's first 3 characters (Stellantis: 5-character line code), a stored make that the VIN contradicts is replaced, and a VIN no table knows keeps whatever the page said (blank stays blank; such a car with no page make is skipped and logged). Rule and numbers: PR #580.
+Before: a car whose page has no make was stored with the roster brand (`dealer.make || brand.name`), so a Dodge Challenger, Subaru Impreza, Lincoln Corsair, Honda Fit and Buick Encore were all stored as **GMC** at a GMC-roster dealer. After: the make comes from the VIN's first 3 characters (Stellantis: 5-character line code), a stored make that the VIN contradicts is replaced, and a VIN no table knows keeps whatever the page said. **New in this revision (#597):** a car with no page make whose VIN no table knows is no longer skipped: it is kept under the dealer's roster brand, else the shard's brand (never the Stellantis umbrella; a shared WMI only accepts a brand from its own family), and logged as `make_source=fallback` with the VIN. It is skipped (and logged `make unresolvable`) only when no real brand is available. Rule and numbers: PR #580. #597 also adds 26 WMI prefixes taken from box4's 2026-10-27 skipped VINs.
 
 Two places, two installs:
 1. **Crawler boxes** (box1, box2, box3, box4: `~/nj-scraper/scrapers/lightsail-crawler/src`): stops the roster fallback at ingest. `crawler.sh`.
 2. **box2 deals-api** (`/opt/trimscout-deals/src`, pm2 `deals-api`): corrects the make at the write choke point (`normalizeMakeForWrite`) for every upload from every box. `deals-api.sh`. `deals_api_server.js` itself is **not** edited: it already imports `normalizeMakeForWrite` from `./stellantisMake.js`.
 
-Order (Paul's plan): **box4 crawler files first**, then **box1, box2 (crawler dir), box3**, then **box2 deals-api**. The deals-api change corrects makes on write whatever the crawler sends, so it does not depend on the crawler step.
+Order (Paul's plan): **box4 crawler files first** (one nightly crawl, then check), then **box1, box2 (crawler dir), box3**, then **box2 deals-api**. The deals-api change corrects makes on write whatever the crawler sends, so it does not depend on the crawler step.
 
 ## Files and md5s
 Crawler boxes (`src/`; the box copies of `brand_match.js` are identical everywhere):
 
 | File | before | after (`files/`) |
 |---|---|---|
-| `vinWmi.js` | absent | `365a9b0dd148dcd115b442601f7c47af` (new) |
+| `vinWmi.js` | absent (or `365a9b0dd148dcd115b442601f7c47af`, the first revision) | `422bd7190ee821d33449d28489e22d17` (new / replaced) |
 | `stellantisMake.js` | absent | `4017f1f9e24dc14d1b2cc530737e1e00` (new) |
 | `stellantisVinTable.js` | absent | `2bb0902516fe1279adec20291096ac7b` (new) |
 | `ingestGuards.js` | absent | `88ec75c5d81a19dd484de0dea62add28` (new; nothing on the crawler imports it except the new files) |
-| `brand_match.js` | `8b4d8c1fe29731cccae7c0d96c36aaad` (all four boxes) | `91d723fe2cf8440c1da6e719e3c5b871` (replaced) |
-| `standalone.js` box1 | `02f73e161e29dde0fe0633759328c9a8` | `82fa1a602d6229fc5eb17114fb347e6a` (patched) |
-| `standalone.js` box2, box3, box4 | `2e69d8748b9addbff93dac618bb71f1e` | `6465d05d2377da81293897292e895776` (patched) |
+| `brand_match.js` | `8b4d8c1fe29731cccae7c0d96c36aaad` (all four boxes; `91d723fe2cf8440c1da6e719e3c5b871` if the first revision was installed) | `2b421d128ce20aab0644820bb0702271` (replaced) |
+| `standalone.js` box1 | `02f73e161e29dde0fe0633759328c9a8` (first revision installed: `82fa1a602d6229fc5eb17114fb347e6a`) | **not pinned yet** (see below) |
+| `standalone.js` box2, box3, box4 | `2e69d8748b9addbff93dac618bb71f1e` (first revision installed: `6465d05d2377da81293897292e895776`) | **not pinned yet** (see below) |
 
-`standalone.js` is patched, not replaced: the boxes' copy is far behind `main`, so `02-standalone.patch` (md5 `a722dbe8b6428d3c0d16d3240f6aaef4`, the PR's three hunks cut against the box file; it applies exactly, no offset or fuzz, to both variants) only removes the two `dealer.make` / `brand.name` fallbacks and adds the "make unresolvable" log line. The other files are the exact files from `368b794`.
+`standalone.js` is patched, not replaced: the boxes' copy is far behind `main`. Two patches, same end result: `02-standalone.patch` (md5 `47d66cd27da48dd87d583f3e37a71dfa`) for a box still on the pre-patch file, and `03-standalone-upgrade.patch` (md5 `7a27bdc2472527f41952adb47f874af9`) for a box that already has the first revision. Hunks 1-2 are unchanged from the first revision (they remove the two `dealer.make` / `brand.name` fallbacks); the change is hunk 3, one line: the call becomes `resolveKeptMake(brand, vehicle, dealer)` and the "make unresolvable" log is reworded. The import line is not touched (`resolveKeptMake` logs `make_source=fallback` itself). On repo blobs both patches give the same file (md5 `5ad71401850fb90d4407c96045a2d489` on the repo's old base); the box files differ from the repo, so **the md5 of the patched box file is unknown until `check` runs on a box**. `crawler.sh` therefore verifies the patched file by content (new call present, both old fallbacks gone, log line present, `node --check`) and **prints its md5**; `SA_NEW_BOX1` / `SA_NEW_OTHER` at the top of `crawler.sh` are empty on purpose. After box4's `check`, box2/box3 (same variant) must print the same md5; pin it in `crawler.sh` before box1-3 if you want the md5 enforced. The other files are the exact files from #597.
 
 box2 deals-api (`/opt/trimscout-deals/src`):
 
@@ -61,7 +61,7 @@ TZ=America/New_York date +%H:%M; pgrep -fa "run-daily-crawl|run_nightly_chain|ru
 ```bash
 bash /tmp/mw/crawler.sh check
 ```
-It prints which `standalone.js` variant the box has and refuses on any md5 that is not in the table above.
+It prints which `standalone.js` state the box has (not patched / first revision installed, will be upgraded / already new) and refuses on any md5 that is not in the table above, then prints the md5 the patched file would have. **box4's logs of 2026-10-27 already contain `make unresolvable` lines, so box4 may already carry the first revision (or another build of it): `check` tells; an unknown md5 means stop and report.**
 3. Apply (does the backup itself: `~/backups/make-wmi-20261026/` holds `brand_match.js`, `standalone.js`, `md5s.txt`, `absent.txt`; then copies the 4 new files, patches `standalone.js`, replaces `brand_match.js` last; verifies every md5 and syntax and runs the five-VIN test on the live files; on any failure it restores by itself):
 ```bash
 bash /tmp/mw/crawler.sh apply      # ends: APPLIED. No restart needed
@@ -77,7 +77,7 @@ node /tmp/mw/test-five-vins.mjs crawler ~/nj-scraper/scrapers/lightsail-crawler/
 ```
 The five VINs (`2B3LJ54T19H594202` Challenger, `4S3GTAV69P3713237` Impreza, `5LMCJ1DH0NUL16894` Corsair, `JHMGK5H76HS000056` Fit, `KL4CJCSB4JB582999` Encore), each stored as "GMC" on a GMC-roster crawl, must come out Dodge / Subaru / Lincoln / Honda / Buick, with a page make of "GMC" and with none; two real GMC VINs must stay GMC; an unknown-WMI VIN keeps its stored make.
 
-After box4: leave it through one nightly crawl and check (below) before box1-3.
+**Box order: box4 first.** Apply on box4, leave it through one nightly crawl and run the checks below, then box1, box2 (crawler dir), box3, one at a time, each only after its own `check` passes and on Paul's typed GO. `restore` also puts back an older `vinWmi.js` if the first revision had installed one.
 
 ## Steps: box2 deals-api (last)
 0. From the Mac: `scp -r $P/. ubuntu@52.202.234.65:/tmp/mw/` (the whole directory, so `manifest.txt` checks out).
@@ -91,6 +91,6 @@ node /tmp/mw/test-five-vins.mjs deals /opt/trimscout-deals/src                  
 4. Restore: `bash /tmp/mw/deals-api.sh restore` (puts `stellantisMake.js` back, removes `vinWmi.js`), then `pm2 restart deals-api`.
 
 ## After install: what to check
-- Crawler, after the first crawl on a patched box: `grep -c "make unresolvable" ~/nj-scraper/scrapers/lightsail-crawler/logs/*-$(date +%F).log` (cars skipped because neither the page nor the VIN gave a make; expect a small number) and no `SyntaxError` / `Cannot find module` in the run log.
+- Crawler, after the first crawl on a patched box: `grep -c "make unresolvable" ~/nj-scraper/scrapers/lightsail-crawler/logs/*-$(date +%F).log` (cars skipped because no page make, no WMI and no brand to fall back on; expect ~0) and `grep -h "make_source=fallback" ~/nj-scraper/scrapers/lightsail-crawler/logs/*-$(date +%F).log | awk '{print substr($NF,1,3)}' | sort | uniq -c | sort -rn` (the VIN prefixes that still miss the WMI table: add the clear ones in a follow-up PR) and no `SyntaxError` / `Cannot find module` in the run log.
 - Rows: from box2's reader account, index-bounded, the read-only dry run `scripts/box/2026-10-24-make-wmi-reclean.mjs --vpic` (see PR #580) shows how many rows the VIN still contradicts. Only rows a patched crawl or a patched write path has touched change; the other ~19k rows stay as they are until their store is re-crawled. **There is no apply phase**: rewriting the existing rows is a separate step and is not part of this patch.
 - Not part of this patch: the dry-run script, the vPIC step and the tests (repo-side tools, run from the Mac with `--emit`).
