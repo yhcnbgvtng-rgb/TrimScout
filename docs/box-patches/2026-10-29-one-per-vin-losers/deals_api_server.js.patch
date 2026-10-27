@@ -1,0 +1,80 @@
+--- deals_api_server.js
++++ deals_api_server.js
+@@ -63,6 +63,7 @@
+ import { adjustFacetLists, adjustMakeList, WHOLESALE_DEALERS_PER_QUERY } from "./retailFacets.js";
+ import { staleSlices } from "./staleFacets.js";
+ import { onePerVinModeOf } from "./onePerVin.js";
++import { createLoserMaintenance, facetsOnePerVin } from "./onePerVinLosers.js";
+ import { VEHICLE_IDS_DDL, VEHICLE_ID_COLUMN_DDL, resolveVehicleIds } from "./vehicleId.js";
+ 
+ const PORT = process.env.DEALS_API_PORT || 3004;
+@@ -89,6 +90,11 @@
+ // The buyer search leaves wholesale lots out (inventoryListQuery retailOnly=1); the buyer dropdown / facet counts follow it so a count never
+ // promises cars the list will not show (retailFacets.js). RETAIL_ONLY_FACETS=0 puts the old counts back without a code change.
+ const RETAIL_ONLY_FACETS = process.env.RETAIL_ONLY_FACETS !== "0";
++// One listing per VIN, facet side (onePerVinLosers.js). Both are OFF unless set: ONE_PER_VIN_LOSERS=maintain keeps dealer_inventory_vin_losers current
++// (upsert + post-sweep reconcile); ONE_PER_VIN_FACETS=1 makes the facet counts subtract it. Turn maintain on first, run the backfill, then facets.
++const ONE_PER_VIN_FACETS = process.env.ONE_PER_VIN_FACETS === "1";
++const loserMaint = createLoserMaintenance({ getPool: () => getPool(), mode: process.env.ONE_PER_VIN_LOSERS, retailOnly: RETAIL_ONLY_FACETS });
++const onePerVinDeps = () => ({ pool: getPool(), stableCached, withPoolTimeout, statementSeconds, waitMs, retailOnlyFacets: RETAIL_ONLY_FACETS, enabled: ONE_PER_VIN_FACETS });
+ // OPTIONS_PAID_ONLY (default off): dealer_inventory_options stores each car's own price per option row, and the catalog facets count a row only
+ // where that row's price is above 0 (per row, never per label), with the min/max paid price per option. Off = no column, no writes, same queries.
+ // Needs the price backfill (scripts/box/2026-10-19-backfill-option-prices.mjs) before the counts are complete; docs/OPTIONS_PAID_ONLY_CATALOG_NOTE.md.
+@@ -2593,6 +2599,7 @@
+       [values]
+     );
+     timings.upsertMs += performance.now() - tUpsert;
++    await loserMaint.afterUpsert(chunk.map((v) => v.vin.trim().toUpperCase())); // never throws; no-op unless ONE_PER_VIN_LOSERS=maintain
+     upserted += chunk.length;
+     // Replace each vehicle's canonicalized option set (dealer_inventory_options) in the same
+     // chunk as its main upsert, so a chunk that fails partway never leaves a live VIN updated but
+@@ -2930,10 +2937,18 @@
+   const results = await Promise.all(queries.map((c) =>
+     withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${c.sql}`, c.args), waitMs(), "Timed out waiting for an available database connection or a slow query")
+   ));
+-  const lists = { states: [], makes: [], models: [], trims: [] };
++  let lists = { states: [], makes: [], models: [], trims: [] };
+   const field = { states: "state", makes: "make", models: "model", trims: "trim" };
+   queries.forEach((c, i) => { lists[c.key] = results[i][0].map((r) => ({ [field[c.key]]: r.v, n: Number(r.n) })); });
+-  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length } });
++  // onePerVin: the contact set's stores that LOSE the rule (to any store, in the set or not — same as the list) are not counted.
++  let onePerVinApplied;
++  if (onePerVinModeOf(body.onePerVin) !== null) {
++    const r = await facetsOnePerVin(onePerVinDeps(), lists,
++      { state: String(body.state || "").trim().toUpperCase().slice(0, 2), make: String(body.make || "").trim(), model: String(body.model || "").trim() },
++      { days: seenWithinDaysOf(body.seenWithinDays == null ? null : String(body.seenWithinDays)), dealerIds: new Set(ids) });
++    lists = r.lists; onePerVinApplied = r.applied;
++  }
++  sendJson(res, 200, { ...lists, contactFilter: { dealers: ids.length }, ...(onePerVinApplied === undefined ? {} : { onePerVin: onePerVinApplied }) });
+ }
+ 
+ // GET /api/inventory/export?<same filters as /api/inventory> — the admin sheet's CSV source. No row maximum:
+@@ -3290,7 +3305,8 @@
+   const make = (params.get("make") || "").trim();
+   const model = (params.get("model") || "").trim();
+   const seenDays = seenWithinDaysOf(params.get("seenWithinDays"));
+-  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}`;
++  const onePerVin = onePerVinModeOf(params.get("onePerVin")) !== null;
++  const cacheKey = `facets:${state}|${make}|${model}${seenDays ? `|seen${seenDays}` : ""}${onePerVin ? "|one" : ""}`;
+   sendJson(res, 200, await stableCached(cacheKey, async () => {
+     const q = (sql, args) =>
+       withPoolTimeout(
+@@ -3347,6 +3363,10 @@
+       trims: trimRows.map((r) => ({ trim: r.trim, n: Number(r.n) })),
+     };
+     const wb = await hiddenBucketsOrNull(pool, seenDays);
++    if (onePerVin) {
++      const r = await facetsOnePerVin(onePerVinDeps(), lists, { state, make, model }, { days: seenDays, hidden: wb });
++      return { ...r.lists, onePerVin: r.applied };
++    }
+     return wb ? adjustFacetLists(lists, wb, { state, make, model }) : lists;
+   }));
+ }
+@@ -3441,6 +3461,7 @@
+ 
+ function scheduleCatalogFacetRebuild(delayMs = FACET_REBUILD_DEBOUNCE_MS) {
+   clearTimeout(catalogFacets.timer);
++  loserMaint.scheduleReconcile(); // every sweep / retire / bulk write already calls this; the losers reconcile rides the same debounce
+   catalogFacets.timer = setTimeout(() => { void rebuildCatalogFacets(getPool()); }, delayMs);
+ }
+ 
