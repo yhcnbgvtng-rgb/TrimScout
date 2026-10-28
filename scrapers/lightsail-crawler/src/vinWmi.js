@@ -37,6 +37,9 @@ const FAMILIES = [
   [['GMC'], '1GD 1GK 1GT 2GK 2GT 3GK 3GT'],
   [['Cadillac'], '1G6 1GY 2G6 3GY'],
   [['Buick'], '1G4 2G4 5GA KL4 LRB W04'],
+  [['Toyota', 'Scion'], '3MY'], // the Mazda2-based iA: Scion iA (2016), Toyota Yaris iA (2017-18)
+  [['Nissan', 'Chevrolet'], '3N6'], // Nissan Mexico also builds the Chevrolet City Express (a rebadged NV200)
+  [['Nissan', 'Infiniti', 'Mitsubishi'], 'JN1'], // Nissan-built Mitsubishi Eclipse Sportback
   [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3 1NX 3MY 7MU 7SV'],
   [['Lexus'], 'JTH JTJ JT8 2T2 58A'],
   [['Toyota', 'Lexus'], '5TD'], // Indiana builds the Highlander and the Lexus TX
@@ -45,8 +48,9 @@ const FAMILIES = [
   [['Subaru'], '4S3 4S4'],
   [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH'],
   [['Acura'], '19U 19V JH4 5FR 5J8 2HN'],
-  [['Hyundai'], 'KM8 KMH 5NP 5NT 7YA'],
+  [['Hyundai'], 'KM8 KMH 5NP 5NT'],
   [['Hyundai', 'Genesis'], '5NM KMH'], // Alabama builds both; KMH also covers the Genesis G80 / G90 sedans
+  [['Hyundai', 'Kia', 'Genesis'], '7YA'], // Georgia metaplant (HMGMA): IONIQ 5 / 9, Genesis GV70 EV AND the 2027 Kia Sportage Hybrid (1,413 live Kia rows, 2026-10-27)
   [['Genesis'], 'KMT KMU KMG'],
   [['Kia'], 'KND KNA 3KP 5XX'],
   [['Kia', 'Hyundai'], '5XY 3KP KND'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
@@ -90,8 +94,19 @@ const add = (wmi, makes) => {
 for (const [makes, list] of FAMILIES) for (const wmi of list.split(' ')) add(wmi, makes);
 for (const wmi of STELLANTIS_WMI) add(wmi, STELLANTIS_NAMEPLATES);
 
+/** Every WMI the table knows, sorted: what the stored-make scripts walk (scripts/box/2026-10-28-make-from-vin-fix.mjs). */
+export const WMI_LIST = [...MAKES_BY_WMI.keys()].sort();
+
 const VIN5 = new Map();
 for (const [nameplate, list] of Object.entries(VIN5_NAMEPLATE)) for (const p of list.split(' ')) VIN5.set(p, nameplate);
+
+// Shared-plant WMIs that carry more than one make: the model (when the caller passes one) picks the make for a car whose stored make is OUTSIDE the family.
+// A stored make that is inside the family is never second-guessed (reconcileMake keeps it), so these rules only ever decide a conflict or a blank.
+const SHARED_MODEL_RULES = {
+  '7YA': [[/\b(sportage|sorento|telluride|ev9|ev6|k5|seltos|niro|carnival)\b/i, 'Kia'], [/\b(ioniq|tucson|santa fe|palisade|kona|santa cruz)\b/i, 'Hyundai'], [/^(g\d|gv\d)|\bgenesis\b/i, 'Genesis']],
+  '3N6': [[/city express/i, 'Chevrolet'], [/\b(nv\d*|frontier|titan|versa|kicks)\b/i, 'Nissan']],
+  'JN1': [[/\b(eclipse|outlander)\b/i, 'Mitsubishi']],
+};
 
 // Model -> nameplate for Stellantis rows whose VIN prefix isn't in the learned table (a new platform year).
 // Full-word patterns only; ambiguous bare numerics (300, 500) are left to the VIN.
@@ -114,12 +129,14 @@ export function makesForWmi(vin) {
   return wmi ? MAKES_BY_WMI.get(wmi) ?? null : null;
 }
 
-/** The make a VIN names on its own: a single-make WMI, or a Stellantis VIN resolved by line code. Null when ambiguous or unknown. */
+/** The make a VIN names on its own: a single-make WMI, a Stellantis VIN resolved by line code, or a shared-plant WMI resolved by model (SHARED_MODEL_RULES). Null when ambiguous or unknown. */
 export function makeFromVin(vin, { model } = {}) {
   const makes = makesForWmi(vin);
   if (!makes) return null;
   if (makes.length === 1) return makes[0];
   if (STELLANTIS_WMI.has(wmiOf(vin))) return resolveUmbrellaMake({ vin, model }).make;
+  const rules = SHARED_MODEL_RULES[wmiOf(vin)];
+  if (rules && model) for (const [re, make] of rules) if (makes.includes(make) && re.test(String(model))) return make;
   return null;
 }
 

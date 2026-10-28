@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { wmiOf, makesForWmi, makeFromVin, reconcileMake } from '../src/vinWmi.js';
+import { wmiOf, makesForWmi, makeFromVin, reconcileMake, WMI_LIST } from '../src/vinWmi.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
 import { resolveKeptMake } from '../src/brand_match.js';
 import { getBrand } from '../src/brands.js';
@@ -181,5 +181,51 @@ describe('legacy Plymouth', () => {
     assert.equal(reconcileMake({ make: 'Plymouth', vin }).via, 'kept');
     assert.deepEqual(makesForWmi(vin).slice(0, 1), ['Plymouth']);
     assert.equal(reconcileMake({ make: 'GMC', vin, model: 'Voyager' }).make, 'Chrysler');
+  });
+});
+
+// Shared-plant WMIs found by the 2026-10-27 box2 audit (238 sizeable (WMI, stored make) conflicts checked against the model each make owns): 7YA, 3MY, 3N6, JN1.
+describe('shared-plant WMIs: 7YA (Hyundai / Kia / Genesis), 3MY, 3N6, JN1', () => {
+  const pad = (k) => k + '0'.repeat(12);
+  it('7YA carries all three Hyundai Motor Group makes, Hyundai first', () => {
+    assert.deepEqual(makesForWmi(pad('7YAKM')), ['Hyundai', 'Kia', 'Genesis']);
+  });
+  it('the 2027 Kia Sportage Hybrid (1,413 live rows) stays Kia; the IONIQ 5 / 9 stay Hyundai', () => {
+    assert.deepEqual(reconcileMake({ make: 'Kia', vin: pad('7YAPB'), model: 'Sportage Hybrid' }), { make: 'Kia', via: 'kept', from: 'Kia' });
+    assert.equal(reconcileMake({ make: 'Hyundai', vin: pad('7YAKM'), model: 'IONIQ 5' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Hyundai', vin: pad('7YAMS'), model: 'IONIQ 9' }).via, 'kept');
+  });
+  it('a foreign or blank make on a 7YA VIN is decided by the model (brand context), else left unresolved', () => {
+    assert.deepEqual(reconcileMake({ make: 'Nissan', vin: pad('7YAPB'), model: 'Sportage Hybrid' }), { make: 'Kia', via: 'wmi-conflict', from: 'Nissan' });
+    assert.deepEqual(reconcileMake({ make: 'Chevrolet', vin: pad('7YAKM'), model: 'IONIQ 5' }), { make: 'Hyundai', via: 'wmi-conflict', from: 'Chevrolet' });
+    assert.equal(reconcileMake({ make: null, vin: pad('7YAKM'), model: 'Sportage Hybrid' }).make, 'Kia');
+    assert.equal(reconcileMake({ make: 'Chevrolet', vin: pad('7YAKM'), model: 'Mystery' }).via, 'conflict-unresolved');
+    assert.equal(reconcileMake({ make: 'Chevrolet', vin: pad('7YAKM') }).via, 'conflict-unresolved');
+  });
+  it('a model rule never overrides a make the family already holds', () => {
+    assert.equal(reconcileMake({ make: 'Kia', vin: pad('7YAKM'), model: 'IONIQ 5' }).via, 'kept'); // not second-guessed
+  });
+  it('3MY: Scion iA and Toyota Yaris iA; 3N6: Nissan and the Chevrolet City Express; JN1: the Nissan-built Mitsubishi', () => {
+    assert.equal(reconcileMake({ make: 'Scion', vin: pad('3MYDL'), model: 'iA' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Toyota', vin: pad('3MYDL'), model: 'Yaris iA' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Chevrolet', vin: pad('3N63D'), model: 'City Express' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Nissan', vin: pad('3N63D'), model: 'NV200' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Mitsubishi', vin: pad('JN1BJ'), model: 'Eclipse Sportback' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Ford', vin: pad('3N63D'), model: 'City Express' }).make, 'Chevrolet');
+  });
+  it('the single-make GM, Stellantis and Nissan/Infiniti ranges that the audit cleared are unchanged', () => {
+    assert.equal(reconcileMake({ make: 'Nissan', vin: pad('1GCUY'), model: 'Silverado 1500' }).make, 'Chevrolet'); // 1GC: Chevrolet only
+    assert.equal(reconcileMake({ make: 'Nissan', vin: pad('1GTUY'), model: 'Sierra 1500' }).make, 'GMC');
+    assert.deepEqual(makesForWmi(pad('5N1AZ')), ['Nissan', 'Infiniti']);
+    assert.equal(reconcileMake({ make: 'Infiniti', vin: pad('3N1AB'), model: 'Sentra' }).make, 'Nissan'); // 3N1 is Nissan only: a real mislabel
+    assert.equal(reconcileMake({ make: 'Nissan', vin: pad('1C4RJ'), model: 'Grand Cherokee' }).make, 'Jeep');
+  });
+});
+
+describe('WMI_LIST', () => {
+  it('lists every WMI the table knows, sorted, each resolving to at least one make', () => {
+    assert.ok(WMI_LIST.length > 200); assert.deepEqual([...WMI_LIST].sort(), WMI_LIST);
+    for (const w of WMI_LIST) assert.ok(makesForWmi(w + '0'.repeat(14)), w);
+    assert.ok(WMI_LIST.includes('7YA'));
   });
 });
