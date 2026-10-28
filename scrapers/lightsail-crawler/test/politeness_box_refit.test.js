@@ -84,3 +84,42 @@ describe('politeness refit: each patch produces the pinned file', () => {
     assert.ok(syntaxOk(path.join(t, 'src/standalone.js')));
   });
 });
+
+// make-wmi on a box whose standalone.js already has the politeness refit (box1, 2026-10-28): crawler.sh must know that md5 and the
+// 04 patch must take it to a pinned result. Without this, `crawler.sh check` stops with "not a known version".
+describe('make-wmi after politeness on box1 (04-standalone-box1-politeness.patch)', () => {
+  const MW = path.join(HERE, '../../../docs/box-patches/2026-10-26-make-wmi');
+  const POL_BOX1 = PINS.box1['standalone.js'][1];
+  const AFTER = '8c39cf86d3017210d586ff3afeb33969';
+  const patched = () => {
+    const t = stage('box1'); assert.equal(applyPatch(t, 'box1', 'standalone.js').status, 0);
+    assert.equal(md5(path.join(t, 'src/standalone.js')), POL_BOX1);
+    const r = spawnSync('patch', ['-p1', '-s'], { cwd: t, input: fs.readFileSync(path.join(MW, '04-standalone-box1-politeness.patch')), encoding: 'utf8' });
+    return { t, r };
+  };
+  it('applies cleanly to 627a49f3... and gives the pinned md5', () => {
+    const { t, r } = patched(); assert.equal(r.status, 0, r.stdout + r.stderr);
+    assert.equal(md5(path.join(t, 'src/standalone.js')), AFTER);
+  });
+  it('the result has the new call, no roster-brand fallback, no patchright, and passes node --check', () => {
+    const { t } = patched(); const s = fs.readFileSync(path.join(t, 'src/standalone.js'), 'utf8');
+    assert.match(s, /resolveKeptMake\(brand, vehicle, dealer\)/);
+    assert.doesNotMatch(s, /\|\| dealer\.make \|\| null|\|\| dealer\.make \|\| brand\.name/);
+    assert.doesNotMatch(s, /patchright/);
+    assert.ok(syntaxOk(path.join(t, 'src/standalone.js')));
+  });
+  it('is not applied twice', () => {
+    const { t } = patched();
+    assert.notEqual(spawnSync('patch', ['-p1', '-s', '--dry-run', '-N'], { cwd: t, input: fs.readFileSync(path.join(MW, '04-standalone-box1-politeness.patch')) }).status, 0);
+  });
+  it('crawler.sh knows the box1 post-politeness md5, the new patch and the pinned result', () => {
+    const sh = fs.readFileSync(path.join(MW, 'crawler.sh'), 'utf8');
+    assert.match(sh, new RegExp(`SA_POL_BOX1=${POL_BOX1}`));
+    assert.match(sh, new RegExp(`SA_NEW_POL_BOX1=${AFTER}`));
+    assert.match(sh, /\$SA_POL_BOX1\) SA_PATCH=04-standalone-box1-politeness\.patch; SA_PIN=\$SA_NEW_POL_BOX1/);
+  });
+  it('manifest.txt lists the new patch with its md5', () => {
+    const line = fs.readFileSync(path.join(MW, 'manifest.txt'), 'utf8').split('\n').find((l) => l.endsWith('04-standalone-box1-politeness.patch'));
+    assert.ok(line, 'manifest has the 04 patch'); assert.equal(line.split(/\s+/)[0], md5(path.join(MW, '04-standalone-box1-politeness.patch')));
+  });
+});

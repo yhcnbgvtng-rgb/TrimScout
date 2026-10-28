@@ -6,5 +6,6 @@
 47d66cd27da48dd87d583f3e37a71dfa  02-standalone.patch
 7a27bdc2472527f41952adb47f874af9  03-standalone-upgrade.patch
 e6fcef35fc34a0265a0a10248de45d2a  test-five-vins.mjs
-7fc324ed3f6d76b08595b382b2113bca  crawler.sh
 4152052de7d2565e18d182684a75faa7  deals-api.sh
+6e0710a5cdd18e381f9f1b10caec9cc8  04-standalone-box1-politeness.patch
+6b4feb2eb0134dff41c9b6171a384702  crawler.sh
