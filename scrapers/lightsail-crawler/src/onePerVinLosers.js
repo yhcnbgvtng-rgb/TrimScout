@@ -13,6 +13,7 @@
 // Everything that touches the database takes its pool / helpers as arguments so the tests drive it with an in-memory fake. Pure parts are exported.
 import { planVinLosers } from "./onePerVin.js";
 import { adjustFacetLists } from "./retailFacets.js";
+import { BACKGROUND_STATEMENT_SECONDS, BACKGROUND_WAIT_MS } from "./refreshTimeouts.js";
 
 export const LOSERS_TABLE = "dealer_inventory_vin_losers";
 // Same column types as dealer_inventory's primary key (vin CHAR(17), dealer_id INT) and no explicit charset, so the PK-to-PK join uses the index.
@@ -192,28 +193,52 @@ export function loserBucketsSql({ days = null, dealerIds = null, retailOnly = tr
 const failedAt = new Map();
 export const _resetCooldown = () => failedAt.clear();
 export const FAIL_COOLDOWN_MS = 60_000;
+// A caller that finds the all-stores buckets neither cached nor persisted (first ever run, or a restart before the cache file has the key) waits at most
+// this long for the one in-flight read. Past it the caller gets the unadjusted lists NOW (no cooldown: the read is still running and will fill the cache).
+export const COLD_WAIT_MS = 15_000;
 
 /**
  * Facet lists with the duplicate-VIN losers subtracted. `hidden` are the buckets the caller already subtracts (wholesale / stale), or null.
+ * The all-stores read is the big GROUP BY over the losers table. It ALWAYS runs on the background budget (120 s statement, 150 s connection wait),
+ * whether stableCached calls it as a warm-entry refresh (already the background budget) or as a cold miss (which used to get the 20 s buyer budget and
+ * hit max_statement_time on every attempt after a restart, so the buckets never landed). A cold caller waits at most COLD_WAIT_MS and is not blocked
+ * on the read finishing. A contact-set read is its own small query and keeps the interactive budget.
  * Off (`enabled` false), failed, or in a failure cooldown: the lists come back as they were with `applied: false` — and a failed read is not
  * retried for FAIL_COOLDOWN_MS, so a missing table can never turn every facet cache miss into a slow query.
  * @param {{ pool: any, stableCached: Function, withPoolTimeout: Function, statementSeconds: () => number, waitMs: () => number, retailOnlyFacets: boolean, enabled?: boolean, now?: () => number }} deps
  */
 export async function facetsOnePerVin(deps, lists, f, { days = null, dealerIds = null, hidden = null } = {}) {
   const { pool, stableCached, withPoolTimeout, statementSeconds, waitMs, retailOnlyFacets, enabled = false } = deps;
+  const { backgroundSeconds = BACKGROUND_STATEMENT_SECONDS, backgroundWaitMs = BACKGROUND_WAIT_MS, coldWaitMs = COLD_WAIT_MS } = deps;
   const now = deps.now || Date.now;
   const none = { lists: hidden ? adjustFacetLists(lists, hidden, f) : lists, applied: false };
   if (!enabled) return none;
   const key = `${days || 0}|${dealerIds ? "set" : "all"}`;
   if (failedAt.has(key) && now() - failedAt.get(key) < FAIL_COOLDOWN_MS) return none;
   try {
-    const read = async () => {
+    const read = async (seconds, waitFor) => {
       const q = loserBucketsSql({ days, dealerIds, retailOnly: retailOnlyFacets });
-      const [rows] = await withPoolTimeout(pool.query(capped(q.sql, statementSeconds()), q.args), waitMs(), "Timed out waiting for an available database connection or a slow query");
+      const [rows] = await withPoolTimeout(pool.query(capped(q.sql, seconds), q.args), waitFor, "Timed out waiting for an available database connection or a slow query");
       return rows.map((r) => ({ make: r.make, state: r.state, model: r.model, trim: r.trim, n: Number(r.n) }));
     };
-    // The all-stores buckets are shared by every facet request in the window (stale-while-revalidate); a contact set is its own query.
-    const buckets = dealerIds ? await read() : await stableCached(`vin-losers-table:${days || 0}`, read);
+    let buckets;
+    if (dealerIds) buckets = await read(statementSeconds(), waitMs());
+    else {
+      // The all-stores buckets are shared by every facet request in the window (stale-while-revalidate): one read, the background budget, bounded wait.
+      const shared = stableCached(`vin-losers-table:${days || 0}`, () => read(backgroundSeconds, backgroundWaitMs));
+      let timer;
+      const pending = Symbol("pending");
+      const first = await Promise.race([shared, new Promise((r) => { timer = setTimeout(() => r(pending), coldWaitMs); })]).finally(() => clearTimeout(timer));
+      if (first === pending) {
+        // Still reading: answer unadjusted now and let the read finish into the cache. A late failure starts the cooldown, a late success clears it.
+        shared.then(() => failedAt.delete(key), (err) => {
+          failedAt.set(key, now());
+          console.error(`${new Date().toISOString()} duplicate-VIN buckets read failed after ${coldWaitMs}ms, facet counts left unadjusted for ${FAIL_COOLDOWN_MS / 1000}s: ${err.message}`);
+        });
+        return none;
+      }
+      buckets = first;
+    }
     failedAt.delete(key);
     return { lists: adjustFacetLists(lists, [...(hidden || []), ...buckets], f), applied: true };
   } catch (err) {
