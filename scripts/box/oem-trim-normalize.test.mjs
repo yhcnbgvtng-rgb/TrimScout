@@ -48,15 +48,36 @@ describe('backup and rollback records', () => {
 });
 
 describe('applyChanges', () => {
+  const rows = (n, trim = 'a') => Array.from({ length: n }, (_, i) => ({ vin: `V${i}`, dealer_id: i, trim }));
   it('stops at the limit and never changes more rows than asked', async () => {
-    const changes = [{ make: 'Ram', model: '1500', before: 'a', after: 'b', count: 10 }];
-    let left = 10; const backups = [];
-    const r = await applyChanges({ changes, limit: 4, batchSize: 3, fetchBatch: async (c, n) => Array.from({ length: Math.min(n, left) }, (_, i) => ({ vin: `V${i}` })), writeBackup: (b) => backups.push(b.length), updateBatch: async (b) => { left -= b.length; return b.length; } });
+    const backups = [];
+    const r = await applyChanges({ changes: [{ before: 'a', after: 'b' }], limit: 4, txSize: 3, fetchTargets: async () => rows(10), writeBackup: (b) => backups.push(b.length), updateChunk: async (b) => b.length });
     assert.equal(r.updated, 4); assert.deepEqual(backups, [3, 1]);
   });
-  it('does not spin on a batch the UPDATE could not move', async () => {
-    const r = await applyChanges({ changes: [{ before: 'a', after: 'b' }], fetchBatch: async () => [{ vin: 'X' }], writeBackup: () => {}, updateBatch: async () => 0 });
+  it('chunks never exceed txSize (100 by default)', async () => {
+    const sizes = [];
+    await applyChanges({ changes: [{ before: 'a', after: 'b' }], fetchTargets: async () => rows(250), writeBackup: () => {}, updateChunk: async (b) => { sizes.push(b.length); return b.length; } });
+    assert.deepEqual(sizes, [100, 100, 50]);
+  });
+  it('compares the trim text exactly in JS: case variants the ci index range returns are left alone', async () => {
+    const seen = [];
+    const targets = [{ vin: 'A', dealer_id: 1, trim: 'ACTIV' }, { vin: 'B', dealer_id: 1, trim: 'Activ' }, { vin: 'C', dealer_id: 1, trim: 'ACTIV ' }];
+    await applyChanges({ changes: [{ before: 'ACTIV', after: 'Activ' }], fetchTargets: async () => targets, writeBackup: (b) => seen.push(...b.map((r) => r.vin)), updateChunk: async (b) => b.length });
+    assert.deepEqual(seen, ['A']);
+  });
+  it('writes each chunk\'s backup before that chunk\'s update, and reads each group once', async () => {
+    const log = []; let reads = 0;
+    await applyChanges({ changes: [{ before: 'a', after: 'b' }], txSize: 2, fetchTargets: async () => { reads++; return rows(4); }, writeBackup: () => log.push('backup'), updateChunk: async (b) => { log.push('update'); return b.length; } });
+    assert.deepEqual(log, ['backup', 'update', 'backup', 'update']); assert.equal(reads, 1);
+  });
+  it('does not spin on a chunk the UPDATE could not move', async () => {
+    const r = await applyChanges({ changes: [{ before: 'a', after: 'b' }], fetchTargets: async () => rows(1), writeBackup: () => {}, updateChunk: async () => 0 });
     assert.deepEqual(r, { updated: 0, skipped: 1 });
+  });
+  it('an error from the update propagates (the run stops, nothing is retried)', async () => {
+    let calls = 0;
+    await assert.rejects(applyChanges({ changes: [{ before: 'a', after: 'b' }], txSize: 1, fetchTargets: async () => rows(3), writeBackup: () => {}, updateChunk: async () => { calls++; throw new Error('boom'); } }), /boom/);
+    assert.equal(calls, 1);
   });
 });
 
@@ -72,17 +93,21 @@ describe('safety rails (source checks)', () => {
     assert.match(SRC, /finally \{ await release\(\)/);
     assert.equal((SRC.match(/await withLock\(/g) || []).length, 2, 'both the rewrite and the rollback go through the lock');
   });
-  it('writes the backup (fsync) before the UPDATE of the same batch, and guards the UPDATE on the exact trim it read', () => {
+  it('writes the backup (fsync) before the UPDATE of the same chunk, and updates by primary key in transactions of <= 100', () => {
     assert.ok(SRC.indexOf('fs.fsyncSync(fd)') > 0);
-    assert.match(SRC, /writeBackup\(batch, c\); \/\/ before-state first, then the UPDATE\n\s+const n = await updateBatch\(batch, c\)/);
-    assert.match(SRC, /FOR UPDATE dealer_inventory SET trim = \?, trim_raw = \? WHERE BINARY trim = BINARY \? AND \(\$\{batch\.map/);
+    assert.match(SRC, /writeBackup\(chunk, c\); \/\/ before-state first, then the UPDATE\n\s+const n = await updateChunk\(chunk, c\)/);
+    assert.match(SRC, /FOR UPDATE dealer_inventory SET trim = \?, trim_raw = \? WHERE vin = \? AND dealer_id = \?`/);
+    assert.doesNotMatch(SRC.slice(SRC.indexOf('fetchTargets:'), SRC.indexOf('writeBackup:')), /BINARY/, 'no BINARY in the apply read');
+    assert.match(SRC, /beginTransaction\(\)[\s\S]*commit\(\)[\s\S]*rollback\(\)/);
+    assert.match(SRC, /const TX_SIZE = 100;/);
+    assert.match(SRC, /SLOW_STATEMENT_MS/);
   });
   it('rollback only restores rows that still carry the trim this script wrote', () => {
     assert.match(SRC, /WHERE vin = \? AND dealer_id = \? AND trim = \?`, \[r\.trim_before, r\.trim_raw_before, r\.vin, r\.dealer_id, r\.trim_after\]/);
   });
   it('reads are bounded by make + model prefix, grouped by exact text, and capped at 20 s; the dry run uses the reader account', () => {
     assert.match(SRC, /WHERE make = \? AND model LIKE \?\$\{ACTIVE_ONLY \? " AND removed_at IS NULL" : ""\} GROUP BY model, BINARY trim/);
-    assert.match(SRC, /WHERE make = \? AND model = \? AND trim = \? AND BINARY trim = BINARY \?/);
+    assert.match(SRC, /WHERE make = \? AND model = \? AND trim = \?\$\{ACTIVE_ONLY/);
     assert.match(SRC, /const STATEMENT_CAP_S = 20/);
     assert.match(SRC, /DB_READER_USER/);
   });

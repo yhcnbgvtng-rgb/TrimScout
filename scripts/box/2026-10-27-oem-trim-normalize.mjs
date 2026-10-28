@@ -21,7 +21,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const BATCH = 200;
+const BATCH = 200; // rollback chunking
+const TX_SIZE = 100; // rows per apply transaction
+const SLOW_STATEMENT_MS = 10_000; // any single statement slower than this stops the run (the cap is 20 s)
 const PAUSE_MS = 150;
 const STATEMENT_CAP_S = 20;
 export const MODEL_QUERIES = [["Chevrolet", ["Silverado%", "Tahoe", "Equinox%"]], ["GMC", ["Sierra%", "Yukon%"]], ["Toyota", ["Tacoma", "Tundra", "RAV4%", "Camry", "Highlander%"]], ["Ram", ["1500%", "2500%"]]];
@@ -48,21 +50,24 @@ export function parseBackup(text) {
 }
 
 /**
- * Pure apply loop: for each change group, read an exact-text batch, back it up, update it, repeat until the group is drained or `limit` rows have been updated.
- * `limit` is a hard cap: a batch is never larger than what is left of it, so the run never changes more than `limit` rows. A batch the UPDATE could not move
- * (affectedRows 0) ends its group instead of spinning. fetchBatch(change, n) must return at most n rows whose trim is exactly change.before.
+ * Pure apply loop. For each change group: read the group's rows once (fetchTargets, an index-bounded range that may also return case variants, because the
+ * trim column is case-insensitive), keep only the rows whose trim is EXACTLY change.before (compared here, in JS, never in SQL), then work through them in
+ * chunks of at most `txSize` rows: write the chunk's before-state first, then update that chunk (updateChunk: one transaction, one primary-key UPDATE per row).
+ * `limit` is a hard cap on rows updated: a chunk is never larger than what is left of it. A chunk the UPDATE could not move at all (0 rows) ends its group.
  */
-export async function applyChanges({ changes, limit = Infinity, batchSize = 200, fetchBatch, writeBackup, updateBatch, sleep = async () => {} }) {
+export async function applyChanges({ changes, limit = Infinity, txSize = 100, fetchTargets, writeBackup, updateChunk, sleep = async () => {} }) {
   let updated = 0, skipped = 0;
   outer: for (const c of changes) {
-    for (;;) {
+    if (limit - updated <= 0) break;
+    const targets = (await fetchTargets(c)).filter((r) => r.trim === c.before);
+    for (let i = 0; i < targets.length;) {
       const room = limit - updated;
       if (room <= 0) break outer;
-      const batch = (await fetchBatch(c, Math.min(batchSize, room))).slice(0, Math.min(batchSize, room));
-      if (!batch.length) break;
-      writeBackup(batch, c); // before-state first, then the UPDATE
-      const n = await updateBatch(batch, c);
-      updated += n; skipped += batch.length - n;
+      const chunk = targets.slice(i, i + Math.min(txSize, room));
+      i += chunk.length;
+      writeBackup(chunk, c); // before-state first, then the UPDATE
+      const n = await updateChunk(chunk, c);
+      updated += n; skipped += chunk.length - n;
       if (n === 0) break; // nothing moved: do not spin on rows we cannot change
       await sleep();
     }
@@ -114,6 +119,14 @@ async function main() {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // Every read and write: capped at 20 s; a timeout or any error throws and stops the run (no retry).
   const q = async (sql, params) => (await pool.query(`SET STATEMENT max_statement_time=${STATEMENT_CAP_S} FOR ${sql}`, params))[0];
+  // Every statement of the apply is timed: one slower than SLOW_STATEMENT_MS stops the run (before the 20 s cap does).
+  const timed = async (what, fn) => {
+    const t0 = Date.now();
+    const out = await fn();
+    const ms = Date.now() - t0;
+    if (ms > SLOW_STATEMENT_MS) throw new Error(`${what} took ${ms} ms (> ${SLOW_STATEMENT_MS} ms): stopping`);
+    return out;
+  };
   const lockCall = async (action, owner, extra = {}) => {
     const r = await fetch(`${DEALS}/api/ops/sync-lock/${action}`, { method: "POST", headers: { "X-Trimscout-Api-Key": API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ owner, ...extra }) });
     if (!r.ok) throw new Error(`sync-lock ${action} -> HTTP ${r.status}`);
@@ -202,11 +215,21 @@ async function main() {
     let result;
     try {
       result = await applyChanges({
-        changes: fresh.changes, limit: LIMIT, batchSize: BATCH, sleep: () => sleep(PAUSE_MS),
-        // The ci index range finds every case variant; BINARY keeps only the exact text, so a batch is never padded with rows we would skip and LIMIT counts real rows.
-        fetchBatch: (c, n) => q(`SELECT vin, dealer_id, make, model, trim, trim_raw FROM dealer_inventory WHERE make = ? AND model = ? AND trim = ? AND BINARY trim = BINARY ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} LIMIT ${n}`, [c.make, c.model, c.before, c.before]),
-        writeBackup: (batch, c) => { fs.writeSync(fd, batch.map((r) => backupLine(r, c.after)).join("\n") + "\n"); fs.fsyncSync(fd); }, // the before-state is on disk before the first row of this batch changes
-        updateBatch: async (batch, c) => (await pool.query(`SET STATEMENT max_statement_time=${STATEMENT_CAP_S} FOR UPDATE dealer_inventory SET trim = ?, trim_raw = ? WHERE BINARY trim = BINARY ? AND (${batch.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [c.after, c.before, c.before, ...batch.flatMap((r) => [r.vin, r.dealer_id])]))[0].affectedRows,
+        changes: fresh.changes, limit: LIMIT, txSize: TX_SIZE, sleep: () => sleep(PAUSE_MS),
+        // Index-bounded range on (make, model, trim) with NO BINARY in the WHERE (BINARY defeats the index). The ci range also returns case variants; applyChanges keeps only the exact text.
+        fetchTargets: (c) => timed(`read ${c.make} ${c.model} ${JSON.stringify(c.before)}`, () => q(`SELECT vin, dealer_id, make, model, trim, trim_raw FROM dealer_inventory WHERE make = ? AND model = ? AND trim = ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""}`, [c.make, c.model, c.before])),
+        writeBackup: (batch, c) => { fs.writeSync(fd, batch.map((r) => backupLine(r, c.after)).join("\n") + "\n"); fs.fsyncSync(fd); }, // the before-state is on disk before the first row of this chunk changes
+        // One transaction per chunk (<= TX_SIZE rows), one UPDATE per row by primary key alone (vin, dealer_id). Any error rolls the chunk back and stops the run.
+        updateChunk: async (chunk, c) => {
+          const conn = await pool.getConnection();
+          try {
+            await conn.beginTransaction();
+            let n = 0;
+            for (const r of chunk) n += (await timed(`update ${r.vin}/${r.dealer_id}`, () => conn.query(`SET STATEMENT max_statement_time=${STATEMENT_CAP_S} FOR UPDATE dealer_inventory SET trim = ?, trim_raw = ? WHERE vin = ? AND dealer_id = ?`, [c.after, c.before, r.vin, r.dealer_id])))[0].affectedRows;
+            await conn.commit();
+            return n;
+          } catch (e) { await conn.rollback().catch(() => {}); throw e; } finally { conn.release(); }
+        },
       });
     } finally { fs.closeSync(fd); }
     const { updated, skipped } = result;
