@@ -1,3 +1,5 @@
+> **SUPERSEDED for `onePerVinLosers.js` by `docs/box-patches/2026-10-31-loser-buckets/STEPS.md`** (the 120 s GROUP BY does not finish on box2, measured 2026-10-27; the bucket counts replace it). Do not install this version's FINAL md5 below.
+
 # One-per-VIN facet buckets: 120 s background budget for the losers GROUP BY (box2) — code only, NOTHING IS INSTALLED
 
 Install only on Paul's typed GO, in an idle window (gate below). Box2 only (`ssh box2`; `docs/BOXES.md`). **One file replaced**: `onePerVinLosers.js` in `/opt/trimscout-deals/src`; `deals_api_server.js` is NOT touched (the budget is read from `refreshTimeouts.js`, which is already on the box). One plain `pm2 restart deals-api`. No schema, no env change. Written without box access: nothing below was re-measured on the box.
