@@ -27,7 +27,7 @@ import type { DropdownOption } from "@/components/search/SearchableDropdown";
 import { MultiPill, PillShell } from "@/components/admin/FilterPill";
 import VinHistory from "./VinHistory";
 
-type Stats = { total: number; inStock: number; dealers: number; vins?: number; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number | null; removedToday: number } };
+type Stats = { total: number; inStock: number; dealers: number | null; vins?: number | null; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number | null; removedToday: number } };
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
 const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vehicleId: 90, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 140, lastSeenAt: 140, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
@@ -295,7 +295,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
       <div className="flex justify-end">
           <div className="ml-auto flex items-center gap-2">
             <span className="rounded-xl border border-border bg-surface-elevated px-3 py-2 text-[11px] font-bold text-ink-light tabular-nums">
-              <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock across {stats.dealers.toLocaleString()} stores{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
+              <span className="text-white">{applied ? totalLabel : "—"}</span> vehicles{stats ? <span className="text-ink-faint"> · {stats.inStock.toLocaleString()} in stock{stats.dealers != null ? ` across ${stats.dealers.toLocaleString()} stores` : ""}{stats.lastSeenAt ? ` · crawled ${new Date(stats.lastSeenAt).toLocaleDateString()}` : ""}</span> : null}
             </span>
             <button type="button" onClick={() => { void loadStats(); if (query) void load(query, 0, false); }} disabled={loading || !query} className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-2 text-xs font-bold text-ink-light hover:text-white disabled:opacity-50"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Reload</button>
             <button type="button" onClick={() => void download()} disabled={exporting || !query || total === 0} className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 hover:bg-brand-400 px-3.5 py-2 text-xs font-black text-black shadow-md shadow-brand-500/20 disabled:opacity-50"><Download className="h-3.5 w-3.5" /> {exporting ? "Preparing…" : `Download CSV (${totalLabel})`}</button>

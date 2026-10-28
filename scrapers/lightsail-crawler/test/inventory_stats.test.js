@@ -6,7 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { createInventoryStats, STATS_SQL, STICKER_REFRESH_MS, STICKER_RETRY_MS } from '../src/inventoryStats.js';
+import { createInventoryStats, STATS_SQL, STICKER_REFRESH_MS, STICKER_RETRY_MS, DISTINCT_REFRESH_MS, DISTINCT_RETRY_MS } from '../src/inventoryStats.js';
 
 const HERE_SRC = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src');
 const quiet = { log() {}, error() {} };
@@ -15,7 +15,9 @@ const quiet = { log() {}, error() {} };
 function fakeDb(overrides = {}) {
   const calls = [];
   const rows = {
-    [STATS_SQL.totals]: [{ total: '4900000', inStock: '2730000', dealers: '9000', vins: '2400000', lastSeenAt: '2026-10-27T22:00:00Z' }],
+    [STATS_SQL.totals]: [{ total: '4900000', inStock: '2730000' }],
+    [STATS_SQL.lastSeen]: [{ lastSeenAt: '2026-10-27T22:00:00Z' }],
+    [STATS_SQL.distinct]: [{ dealers: '9000', vins: '2400000' }],
     [STATS_SQL.byMake]: [{ make: 'Ford', n: 100 }],
     [STATS_SQL.byState]: [{ state: 'TX', n: 50 }],
     [STATS_SQL.byCond]: [{ cond: 'new', n: 70 }],
@@ -56,6 +58,16 @@ describe('movement queries are index-bounded', () => {
     }
   });
 
+  it('the request-path totals never use COUNT(DISTINCT ...) (21.6 s on box2 against a 20 s cap)', () => {
+    for (const name of ['totals', 'lastSeen']) assert.doesNotMatch(STATS_SQL[name], /DISTINCT/i, name);
+    assert.match(STATS_SQL.distinct, /COUNT\(DISTINCT dealer_id\).*COUNT\(DISTINCT vin\)/);
+  });
+
+  it('totals touch only removed_at (idx_inv_removed covers it) and lastSeen is a bare MAX (idx_inv_last_seen)', () => {
+    assert.equal(STATS_SQL.totals, 'SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock FROM dealer_inventory');
+    assert.equal(STATS_SQL.lastSeen, 'SELECT MAX(last_seen_at) AS lastSeenAt FROM dealer_inventory');
+  });
+
   it('only withSticker reads the unindexed column', () => {
     for (const [name, sql] of Object.entries(STATS_SQL)) assert.equal(/window_sticker_url/.test(sql), name === 'withSticker', name);
   });
@@ -68,8 +80,13 @@ describe('compute()', () => {
     const out = await s.compute();
     assert.equal(out.total, 4900000);
     assert.equal(out.inStock, 2730000);
-    assert.equal(out.dealers, 9000);
-    assert.equal(out.vins, 2400000);
+    assert.equal(out.lastSeenAt, '2026-10-27T22:00:00Z');
+    assert.equal(out.dealers, null, 'distinct counts come from the background, null until it lands');
+    assert.equal(out.vins, null);
+    await settle();
+    const again = await s.compute();
+    assert.equal(again.dealers, 9000);
+    assert.equal(again.vins, 2400000);
     assert.deepEqual(out.byMake, [{ make: 'Ford', n: 100 }]);
     assert.deepEqual(out.movement, { arrivals: 449319, priceDrops: 195171, priceIncreases: 37887, withSticker: null, removedToday: 324889 });
     assert.equal(out.stale, undefined);
@@ -89,14 +106,15 @@ describe('compute()', () => {
     assert.equal(second.movement.withSticker, 1800000);
   });
 
-  it('runs the sticker scan through the background runner (the 120 s budget), nothing else', async () => {
+  it('runs the sticker scan and the distinct counts through the background runner (the 120 s budget), nothing else', async () => {
     const db = fakeDb();
     const bg = [];
     const s = createInventoryStats({ query: db.query, log: quiet, runBackground: (fn) => { bg.push(true); return fn(); } });
     await s.compute();
     await settle();
-    assert.equal(bg.length, 1);
+    assert.equal(bg.length, 2);
     assert.equal(db.calls.filter((c) => c === STATS_SQL.withSticker).length, 1);
+    assert.equal(db.calls.filter((c) => c === STATS_SQL.distinct).length, 1);
   });
 
   it('single flight and a refresh interval: the scan is not restarted while running or inside 6 h', async () => {
@@ -145,13 +163,69 @@ describe('compute()', () => {
   });
 });
 
+describe('dealers / vins distinct counts (background, last good)', () => {
+  it('a slow distinct scan never delays the response, and fills in once it lands', async () => {
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    const db = fakeDb({ [STATS_SQL.distinct]: () => gate.then(() => [{ dealers: '9100', vins: '2500000' }]) });
+    const s = createInventoryStats({ query: db.query, log: quiet });
+    const first = await s.compute();
+    assert.equal(first.total, 4900000, 'the request-path parts answered');
+    assert.equal(first.dealers, null);
+    assert.equal(s.peekDistinct().running, true);
+    release();
+    await settle(); await settle();
+    const second = await s.compute();
+    assert.equal(second.dealers, 9100);
+    assert.equal(second.vins, 2500000);
+  });
+
+  it('single flight, refreshed at most every 30 min', async () => {
+    let t = 0;
+    const db = fakeDb();
+    const s = createInventoryStats({ query: db.query, log: quiet, now: () => t });
+    await s.compute(); await s.compute(); await settle();
+    t = DISTINCT_REFRESH_MS - 1; await s.compute(); await settle();
+    assert.equal(db.calls.filter((c) => c === STATS_SQL.distinct).length, 1);
+    t = DISTINCT_REFRESH_MS + 1; await s.compute(); await settle();
+    assert.equal(db.calls.filter((c) => c === STATS_SQL.distinct).length, 2);
+  });
+
+  it('a failed scan keeps the last good counts and is not retried inside 15 min', async () => {
+    let t = 0, mode = 'ok';
+    const db = fakeDb({ [STATS_SQL.distinct]: () => (mode === 'ok' ? [{ dealers: '7', vins: '8' }] : Promise.reject(new Error('Query execution was interrupted'))) });
+    const s = createInventoryStats({ query: db.query, log: quiet, now: () => t });
+    await s.compute(); await settle();
+    mode = 'fail';
+    t = DISTINCT_REFRESH_MS + 1; await s.compute(); await settle();
+    const n = db.calls.filter((c) => c === STATS_SQL.distinct).length;
+    const out = await s.compute();
+    assert.equal(out.dealers, 7);
+    assert.equal(out.vins, 8);
+    assert.equal(out.stale, undefined, 'a background part is not reported as a stale request-path part');
+    t += DISTINCT_RETRY_MS - 1; await s.compute(); await settle();
+    assert.equal(db.calls.filter((c) => c === STATS_SQL.distinct).length, n);
+    t += 2; await s.compute(); await settle();
+    assert.equal(db.calls.filter((c) => c === STATS_SQL.distinct).length, n + 1);
+  });
+
+  it('a distinct scan that never succeeds does not fail the request', async () => {
+    const db = fakeDb({ [STATS_SQL.distinct]: new Error('Query execution was interrupted') });
+    const s = createInventoryStats({ query: db.query, log: quiet });
+    const out = await s.compute(); await settle();
+    assert.equal(out.dealers, null);
+    assert.equal(out.total, 4900000);
+    assert.equal((await s.compute()).inStock, 2730000);
+  });
+});
+
 describe('one failed query does not wipe the stats', () => {
   it('serves the last good value for the failed part and names it in `stale`', async () => {
     const db = fakeDb();
     const s = createInventoryStats({ query: db.query, log: quiet });
     const good = await s.compute();
     db.rows[STATS_SQL.arrivals] = new Error('Query execution was interrupted (max_statement_time exceeded)');
-    db.rows[STATS_SQL.totals] = [{ total: '4900100', inStock: '2730100', dealers: '9000', vins: '2400000', lastSeenAt: 'later' }];
+    db.rows[STATS_SQL.totals] = [{ total: '4900100', inStock: '2730100' }];
     const out = await s.compute();
     assert.equal(out.movement.arrivals, good.movement.arrivals, 'last good arrivals');
     assert.equal(out.total, 4900100, 'the parts that worked are fresh');
@@ -162,12 +236,13 @@ describe('one failed query does not wipe the stats', () => {
     const db = fakeDb();
     const s = createInventoryStats({ query: db.query, log: quiet });
     const good = await s.compute();
-    for (const k of ['totals', 'byMake', 'byState', 'byCond', 'arrivals', 'priceDrops', 'priceIncreases', 'removedToday']) db.rows[STATS_SQL[k]] = new Error('boom');
+    for (const k of ['totals', 'lastSeen', 'byMake', 'byState', 'byCond', 'arrivals', 'priceDrops', 'priceIncreases', 'removedToday']) db.rows[STATS_SQL[k]] = new Error('boom');
     const out = await s.compute();
     const { stale, ...rest } = out;
-    rest.movement = { ...rest.movement, withSticker: null }; // the background scan may have landed in between; it is not one of the eight parts
-    assert.deepEqual(rest, { ...good, movement: { ...good.movement, withSticker: null } });
-    assert.equal(stale.length, 8);
+    // the background scans may have landed in between; they are not among the nine request-path parts
+    for (const o of [rest, good]) { o.movement = { ...o.movement, withSticker: null }; o.dealers = null; o.vins = null; }
+    assert.deepEqual(rest, good);
+    assert.equal(stale.length, 9);
   });
 
   it('with no good value yet (cold) a failing part fails the request, as before', async () => {
@@ -214,8 +289,13 @@ describe('the box patch', () => {
 
   it('STEPS.md pins the md5 of the module it tells the installer to copy', () => {
     const steps = fs.readFileSync(path.join(PATCHES, '2026-10-28-stats-movement-split/STEPS.md'), 'utf8');
-    assert.ok(steps.includes(md5(path.join(HERE_SRC, 'inventoryStats.js'))), 'inventoryStats.js md5 in STEPS.md is stale');
+    // the inventoryStats.js md5 is no longer pinned here: 2026-10-30-stats-totals-bounded supersedes the module (see the next test)
     assert.ok(steps.includes('31d527ba8e277ff58e39f73ad1d00295'));
     assert.ok(steps.includes('6e35309faa02b5d8c24f6f66101055f3'), 'the BASE md5 (box2 after #607)');
+  });
+
+  it('the totals-bounded STEPS.md pins the md5 of the module it tells the installer to copy', () => {
+    const steps = fs.readFileSync(path.join(PATCHES, '2026-10-30-stats-totals-bounded/STEPS.md'), 'utf8');
+    assert.ok(steps.includes(md5(path.join(HERE_SRC, 'inventoryStats.js'))), 'inventoryStats.js md5 in the totals-bounded STEPS.md is stale');
   });
 });
