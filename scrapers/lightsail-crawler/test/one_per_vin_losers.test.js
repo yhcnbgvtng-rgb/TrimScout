@@ -389,9 +389,11 @@ describe('the box patch and the box2 snapshot', () => {
     assert.ok(steps.includes(`${md5(path.join(SNAP, 'deals_api_server.js'))}  BASE`));
     for (const must of ['NOTHING IS INSTALLED', 'Gate', 'Rollback', 'DROP TABLE dealer_inventory_vin_losers', 'FORCE INDEX (PRIMARY)', 'pm2 restart deals-api', 'Never restart while the lock is held', 'bak.opvl', '--phase=explain', 'ONE_PER_VIN_FACETS=1']) assert.ok(steps.includes(must), must);
   });
-  it('the refresh-budget STEPS.md pins the md5 of the module and names the BASE it replaces', () => {
-    const steps = fs.readFileSync(path.join(ROOT, 'docs/box-patches/2026-10-30-losers-refresh-budget/STEPS.md'), 'utf8');
-    assert.ok(steps.includes(`${md5(path.join(ROOT, 'scrapers/lightsail-crawler/src/onePerVinLosers.js'))}  FINAL  onePerVinLosers.js`), 'onePerVinLosers.js md5 in the refresh-budget STEPS.md is stale');
-    assert.ok(steps.includes('65db034542a7b50e36714ab88db42123  BASE  onePerVinLosers.js'));
+  it('the refresh-budget STEPS.md is marked superseded by the loser-buckets package, which pins the current module md5', () => {
+    const old = fs.readFileSync(path.join(ROOT, 'docs/box-patches/2026-10-30-losers-refresh-budget/STEPS.md'), 'utf8');
+    assert.match(old, /SUPERSEDED for `onePerVinLosers\.js` by `docs\/box-patches\/2026-10-31-loser-buckets\/STEPS\.md`/);
+    assert.ok(old.includes('65db034542a7b50e36714ab88db42123  BASE  onePerVinLosers.js'));
+    const steps = fs.readFileSync(path.join(ROOT, 'docs/box-patches/2026-10-31-loser-buckets/STEPS.md'), 'utf8');
+    assert.ok(steps.includes(`${md5(path.join(ROOT, 'scrapers/lightsail-crawler/src/onePerVinLosers.js'))}  FINAL  onePerVinLosers.js`), 'onePerVinLosers.js md5 in the loser-buckets STEPS.md is stale');
   });
 });
