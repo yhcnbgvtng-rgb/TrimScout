@@ -1,5 +1,5 @@
 #!/bin/bash
-# Make-from-VIN patch (with the dealer/shard-brand fallback, #597), CRAWLER side (box1-box4: ~/nj-scraper/scrapers/lightsail-crawler/src). Run ON the box, from the directory holding this script, files/, 02-standalone.patch and test-five-vins.mjs
+# Make-from-VIN patch (with the dealer/shard-brand fallback, #597), CRAWLER side (box1-box4: ~/nj-scraper/scrapers/lightsail-crawler/src). Run ON the box, from the directory holding this script, files/, 02-standalone.patch, 03-standalone-upgrade.patch, 04-standalone-box1-politeness.patch and test-five-vins.mjs
 # (the steps copy them to /tmp/mw).      usage:  bash crawler.sh check|apply|restore        env: CRAWLER_DIR (default ~/nj-scraper/scrapers/lightsail-crawler)  BACKUP (default ~/backups/make-wmi-20261026)
 #   check    READ-ONLY. Verifies every file's md5 against a known state, applies the patch to a COPY in a temp dir, syntax-checks and runs the five-VIN test there. Never writes in the checkout.
 #            Known standalone.js states: BEFORE (02-standalone.patch), OLD-PATCHED = the first version of this patch, 82fa.../6465... (03-standalone-upgrade.patch), NEW (nothing to do). Any other md5 -> stop and report.
@@ -15,16 +15,18 @@ SA_BOX1=02f73e161e29dde0fe0633759328c9a8; SA_OTHER=2e69d8748b9addbff93dac618bb71
 SA_OLD_BOX1=82fa1a602d6229fc5eb17114fb347e6a; SA_OLD_OTHER=6465d05d2377da81293897292e895776   # standalone.js after the FIRST version of this patch (no fallback)
 # md5 of the NEW patched standalone.js cannot be computed off the box (the box copies are not in the repo). Empty = not pinned yet: the script then verifies the
 # patched file by content (new call present, old fallbacks gone, syntax) and PRINTS the md5. After the first `check` on box4, put the printed values here.
-SA_NEW_BOX1=""; SA_NEW_OTHER="a1f4e0bf9228bedb4ca8e2a567b2fb54"   # SA_NEW_OTHER pinned from box4 check+apply 2026-10-27
+SA_POL_BOX1=627a49f3fe9c470469dd203d95de1bf6   # box1 standalone.js after the #614 politeness refit (installed 2026-10-28), before this patch: 04-standalone-box1-politeness.patch
+SA_NEW_BOX1=""; SA_NEW_POL_BOX1=8c39cf86d3017210d586ff3afeb33969; SA_NEW_OTHER="a1f4e0bf9228bedb4ca8e2a567b2fb54"   # SA_NEW_OTHER pinned from box4 check+apply 2026-10-27
 fail() { echo "FAIL: $*"; exit 1; }
 sa=$(md "$S/standalone.js"); bm=$(md "$S/brand_match.js")
 is_new_sa() { grep -q "resolveKeptMake(brand, vehicle, dealer)" "$1" && ! grep -q "|| dealer.make || null\||| dealer.make || brand.name" "$1"; }
 case "$sa" in
   $SA_BOX1) SA_PATCH=02-standalone.patch; SA_PIN=$SA_NEW_BOX1; echo "standalone.js = box1 variant, not patched";;
   $SA_OTHER) SA_PATCH=02-standalone.patch; SA_PIN=$SA_NEW_OTHER; echo "standalone.js = box2/3/4 variant, not patched";;
+  $SA_POL_BOX1) SA_PATCH=04-standalone-box1-politeness.patch; SA_PIN=$SA_NEW_POL_BOX1; echo "standalone.js = box1 variant with the #614 politeness refit, not patched";;
   $SA_OLD_BOX1) SA_PATCH=03-standalone-upgrade.patch; SA_PIN=$SA_NEW_BOX1; echo "standalone.js = box1 variant with the FIRST version of this patch: will be upgraded";;
   $SA_OLD_OTHER) SA_PATCH=03-standalone-upgrade.patch; SA_PIN=$SA_NEW_OTHER; echo "standalone.js = box2/3/4 variant with the FIRST version of this patch: will be upgraded";;
-  *) if is_new_sa "$S/standalone.js"; then SA_PATCH=""; echo "standalone.js already has the new patch (md5 $sa)"; else fail "src/standalone.js md5 $sa is not a known version (box1 $SA_BOX1, others $SA_OTHER, first patch $SA_OLD_BOX1 / $SA_OLD_OTHER); stop and report"; fi;;
+  *) if is_new_sa "$S/standalone.js"; then SA_PATCH=""; echo "standalone.js already has the new patch (md5 $sa)"; else fail "src/standalone.js md5 $sa is not a known version (box1 $SA_BOX1, others $SA_OTHER, first patch $SA_OLD_BOX1 / $SA_OLD_OTHER, box1 + politeness $SA_POL_BOX1); stop and report"; fi;;
 esac
 already=1
 [ -z "$SA_PATCH" ] || already=0
