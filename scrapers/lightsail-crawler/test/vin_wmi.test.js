@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { wmiOf, makesForWmi, makeFromVin, reconcileMake } from '../src/vinWmi.js';
+import { wmiOf, makesForWmi, makeFromVin, reconcileMake, WMI_LIST } from '../src/vinWmi.js';
 import { normalizeMakeForWrite } from '../src/stellantisMake.js';
 import { resolveKeptMake } from '../src/brand_match.js';
 import { getBrand } from '../src/brands.js';
