@@ -7,13 +7,8 @@ import { reconcileMake } from "../../scrapers/lightsail-crawler/src/vinWmi.js";
 
 export const padVin = (key) => String(key ?? "").toUpperCase() + "0".repeat(Math.max(0, 17 - String(key ?? "").length)); // only characters 1-5 are ever read
 
-// WMIs this script never rewrites, even when vinWmi.js says the stored make is wrong. 7YA is listed there as Hyundai only, but the Georgia metaplant also builds
-// the Kia Sportage Hybrid (read-only check 2026-10-27: 1,413 active "Kia Sportage Hybrid" rows on 7YA VINs, the largest "conflict" by far). Fix the table, then drop this.
-export const EXCLUDE_WMI = new Set(["7YA"]);
-
 /** One row (or one 5-character prefix group) -> the make to write, or null when this script leaves it alone. */
 export function makeChange({ make, vin, model }) {
-  if (EXCLUDE_WMI.has(String(vin).slice(0, 3).toUpperCase())) return null;
   const r = reconcileMake({ make: make ?? null, vin, model });
   return r.via === "wmi-conflict" && r.make && r.make !== make ? { to: r.make, via: r.via } : null;
 }
@@ -29,7 +24,6 @@ export function planFromGroups(groups) {
     out.total += n;
     const r = reconcileMake({ make: g.make ?? null, vin: padVin(g.p5), model: g.model ?? null });
     if (r.via === "kept") { out.kept += n; continue; }
-    if (EXCLUDE_WMI.has(String(g.p5).slice(0, 3).toUpperCase())) { out.counted["excluded-wmi"] = (out.counted["excluded-wmi"] || 0) + n; continue; }
     if (r.via !== "wmi-conflict") { out.counted[r.via] = (out.counted[r.via] || 0) + n; continue; }
     out.conflicts.push({ p5: g.p5, make: g.make, to: r.make, model: g.model ?? null, n });
     out.rowsToChange += n;

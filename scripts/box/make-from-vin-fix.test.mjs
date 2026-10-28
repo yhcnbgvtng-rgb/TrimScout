@@ -12,7 +12,7 @@ describe('makeChange / planFromGroups', () => {
   it('rewrites only wmi-conflict rows', () => {
     assert.equal(makeChange({ make: 'GMC', vin: vin('2B3LJ', 1), model: 'Challenger' })?.to, 'Dodge');
     assert.equal(makeChange({ make: 'Nissan', vin: vin('KM8UB', 1), model: 'Palisade' })?.to, 'Hyundai');
-    assert.equal(makeChange({ make: 'Kia', vin: vin('7YAPB', 1), model: 'Sportage Hybrid' }), null); // 7YA is also built Kia: excluded until vinWmi.js lists it
+    assert.equal(makeChange({ make: 'Kia', vin: vin('7YAPB', 1), model: 'Sportage Hybrid' }), null); // 7YA is Hyundai/Kia/Genesis in vinWmi.js: kept
     assert.equal(makeChange({ make: 'GMC', vin: vin('1GKB0', 1), model: 'Yukon' }), null); // agrees
     assert.equal(makeChange({ make: 'GMC', vin: vin('XZZCJ', 1), model: 'X' }), null); // unknown WMI
     assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'QX80' }), null); // shared WMI: conflict-unresolved, needs vPIC
@@ -20,9 +20,9 @@ describe('makeChange / planFromGroups', () => {
   });
   it('counts, pairs and the not-touched buckets', () => {
     const p = planFromGroups([{ p5: '7YAPB', make: 'Kia', model: null, n: 9 }, { p5: '2B3LJ', make: 'GMC', model: 'Challenger', n: 3 }, { p5: '1GKB0', make: 'GMC', model: 'Yukon', n: 40 }, { p5: 'JN8AZ', make: 'Ford', model: 'QX80', n: 2 }, { p5: '4S3GT', make: 'GMC', model: null, n: 2 }]);
-    assert.equal(p.total, 56); assert.equal(p.kept, 40); assert.equal(p.rowsToChange, 5);
+    assert.equal(p.total, 56); assert.equal(p.kept, 49); assert.equal(p.rowsToChange, 5);
     assert.deepEqual(p.pairs, { 'GMC -> Dodge': 3, 'GMC -> Subaru': 2 });
-    assert.deepEqual(p.counted, { 'excluded-wmi': 9, 'conflict-unresolved': 2 });
+    assert.deepEqual(p.counted, { 'conflict-unresolved': 2 });
     assert.equal(walkGroups(p.conflicts).length, 2);
   });
 });
