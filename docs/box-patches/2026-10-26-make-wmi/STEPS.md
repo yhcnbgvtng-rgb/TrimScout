@@ -16,7 +16,7 @@ Crawler boxes (`src/`; the box copies of `brand_match.js` are identical everywhe
 
 | File | before | after (`files/`) |
 |---|---|---|
-| `vinWmi.js` | absent (or `365a9b0dd148dcd115b442601f7c47af`, the first revision, or `422bd7190ee821d33449d28489e22d17`, the #597 revision) | `d80c26201747ff1e2ef196e6ca9dceaf` (new / replaced) |
+| `vinWmi.js` | absent (or `365a9b0dd148dcd115b442601f7c47af`, the first revision, or `422bd7190ee821d33449d28489e22d17`, the #597 revision) | `7371d7d9bd40bd9586b4ef8a848a4969` (new / replaced) |
 | `stellantisMake.js` | absent | `4017f1f9e24dc14d1b2cc530737e1e00` (new) |
 | `stellantisVinTable.js` | absent | `2bb0902516fe1279adec20291096ac7b` (new) |
 | `ingestGuards.js` | absent | `88ec75c5d81a19dd484de0dea62add28` (new; nothing on the crawler imports it except the new files) |
@@ -30,7 +30,7 @@ box2 deals-api (`/opt/trimscout-deals/src`):
 
 | File | before | after |
 |---|---|---|
-| `vinWmi.js` | absent | `d80c26201747ff1e2ef196e6ca9dceaf` (new; the STEPS table used to show the first revision's md5 here, `deals-api.sh` already checked the #597 one) |
+| `vinWmi.js` | absent | `7371d7d9bd40bd9586b4ef8a848a4969` (new; the STEPS table used to show the first revision's md5 here, `deals-api.sh` already checked the #597 one) |
 | `stellantisMake.js` | `4f384997f7107b66b9521bb561b7a10e` (= the repo's pre-#580 file) | `4017f1f9e24dc14d1b2cc530737e1e00` |
 | `stellantisVinTable.js` | `2bb0902516fe1279adec20291096ac7b` | unchanged |
 | `ingestGuards.js` | `0ba41bc0c45b07ad75a2fd32571937da` (the Oct 7 version: older than `main`'s price-guard update, which is not needed here) | unchanged: vinWmi only uses its `canonicalMake` |
@@ -97,4 +97,4 @@ node /tmp/mw/test-five-vins.mjs deals /opt/trimscout-deals/src                  
 
 
 ## Revision 2026-10-28: `vinWmi.js` shared-plant fix
-`vinWmi.js` changed (md5 `d80c26201747ff1e2ef196e6ca9dceaf`, was `422bd7190ee821d33449d28489e22d17`): `7YA` (Georgia metaplant) is now Hyundai/Kia/Genesis instead of Hyundai only, so a 2027 Kia Sportage Hybrid is no longer rewritten to Hyundai (1,413 live rows would have been); `3MY` also Scion, `3N6` also Chevrolet (City Express), `JN1` also Mitsubishi; a model rule decides a foreign or blank make on those shared WMIs. `crawler.sh` and `deals-api.sh` now expect the new md5 and accept the old #597 file as an upgradeable state (`crawler.sh`), `manifest.txt` is regenerated with `md5`. **`standalone.js` is unaffected**: it only imports `resolveKeptMake` from `brand_match.js`, so `02-standalone.patch`, `03-standalone-upgrade.patch` and the #614 politeness md5s (`a1f4e0bf…`, `d05cd479…`, `3523e736…`, `627a49f3…`) do not change. Nothing was installed.
+`vinWmi.js` changed (md5 `7371d7d9bd40bd9586b4ef8a848a4969`, was `422bd7190ee821d33449d28489e22d17`; it also exports `WMI_LIST` for the stored-make scripts): `7YA` (Georgia metaplant) is now Hyundai/Kia/Genesis instead of Hyundai only, so a 2027 Kia Sportage Hybrid is no longer rewritten to Hyundai (1,413 live rows would have been); `3MY` also Scion, `3N6` also Chevrolet (City Express), `JN1` also Mitsubishi; a model rule decides a foreign or blank make on those shared WMIs. `crawler.sh` and `deals-api.sh` now expect the new md5 and accept the old #597 file as an upgradeable state (`crawler.sh`), `manifest.txt` is regenerated with `md5`. **`standalone.js` is unaffected**: it only imports `resolveKeptMake` from `brand_match.js`, so `02-standalone.patch`, `03-standalone-upgrade.patch` and the #614 politeness md5s (`a1f4e0bf…`, `d05cd479…`, `3523e736…`, `627a49f3…`) do not change. Nothing was installed.

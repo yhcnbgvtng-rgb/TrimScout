@@ -221,3 +221,11 @@ describe('shared-plant WMIs: 7YA (Hyundai / Kia / Genesis), 3MY, 3N6, JN1', () =
     assert.equal(reconcileMake({ make: 'Nissan', vin: pad('1C4RJ'), model: 'Grand Cherokee' }).make, 'Jeep');
   });
 });
+
+describe('WMI_LIST', () => {
+  it('lists every WMI the table knows, sorted, each resolving to at least one make', () => {
+    assert.ok(WMI_LIST.length > 200); assert.deepEqual([...WMI_LIST].sort(), WMI_LIST);
+    for (const w of WMI_LIST) assert.ok(makesForWmi(w + '0'.repeat(14)), w);
+    assert.ok(WMI_LIST.includes('7YA'));
+  });
+});

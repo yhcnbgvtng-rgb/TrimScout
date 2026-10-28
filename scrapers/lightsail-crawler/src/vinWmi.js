@@ -94,6 +94,9 @@ const add = (wmi, makes) => {
 for (const [makes, list] of FAMILIES) for (const wmi of list.split(' ')) add(wmi, makes);
 for (const wmi of STELLANTIS_WMI) add(wmi, STELLANTIS_NAMEPLATES);
 
+/** Every WMI the table knows, sorted: what the stored-make scripts walk (scripts/box/2026-10-28-make-from-vin-fix.mjs). */
+export const WMI_LIST = [...MAKES_BY_WMI.keys()].sort();
+
 const VIN5 = new Map();
 for (const [nameplate, list] of Object.entries(VIN5_NAMEPLATE)) for (const p of list.split(' ')) VIN5.set(p, nameplate);
 
