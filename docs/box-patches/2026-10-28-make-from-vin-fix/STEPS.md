@@ -5,45 +5,42 @@ Apply only on Paul's typed **GO**, in a daytime idle window, one numbered step a
 ## What it does
 `make := reconcileMake(make, vin, model).make` (the rule `vinWmi.js` gives the crawler and the deals-API write path) for **`wmi-conflict` rows only**: the stored make is outside the family the VIN's WMI can carry and the VIN names the right one (a Nissan stored on an F-150 VIN becomes Ford). Blank makes (`wmi-fill`) and shared-WMI conflicts that need a vPIC decode (`conflict-unresolved`, `unresolved`) are only counted. Nothing but `make` is written.
 
-The box has no checkout and the deals-api patch that ships `vinWmi.js` is not installed, so the script is emitted as ONE bundle (vinWmi + tables inside) and piped over ssh: nothing is installed on the box except the rollback file it writes into the directory you run it from.
+The box has no checkout and the deals-api patch that ships `vinWmi.js` is not installed, so the script is emitted as ONE bundle (vinWmi + tables inside; **needs #618 merged first**: it imports `WMI_LIST` from `vinWmi.js`) and piped over ssh: nothing is installed on the box except the rollback file it writes into the directory you run it from.
 
-## Measured on box2, 2026-10-27 20:35-20:55 ET (read-only, reader account, 10-20 s caps, index-bounded: `vin LIKE 'WMI%'` grouped by `LEFT(vin,5)`; 252 WMIs; only `1FM`, `1FT` needed a deeper split)
+## Measured on box2 (read-only, reader account, 10-20 s caps, index-bounded: `vin LIKE 'WMI%'` grouped by `LEFT(vin,5)`, 252 WMIs)
 
-| | rows read | named make (fixable) | needs vPIC (`conflict-unresolved`+`unresolved`) | blank (`wmi-fill`) | **7YA false positives** |
-|---|---:|---:|---:|---:|---:|
-| active (`removed_at IS NULL`) | 2,700,631 | 6,765 | 1,010 | 22 | 1,415 |
-| removed | 2,359,978 | 9,057 | 2,173 | 457 | 1,076 |
+**Re-measured 2026-10-27 21:05-21:15 ET with this script's emitted bundle on the fixed table (#618), active rows:** 2,700,631 rows read, **6,738 to rewrite**, 979 `conflict-unresolved` + 26 `unresolved` (need a vPIC decode, not touched), 22 blank (`wmi-fill`, not touched), no `Kia -> Hyundai` pair. Removed rows (`--include-removed`) were measured before the table fix: 2,359,978 read, 9,057 named conflicts (of which 1,076 were the 7YA false positives, counted separately, so ~9,057 on the old table less the few dozen the fix reclassifies), 2,173 needing vPIC, 457 blank. Step 1 below re-measures them on the fixed table.
 
-The "roughly 18.9k" is active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479). **About 2,491 of them are not mislabelled** (below), so the real fixable set is **15,822 rows (6,765 active, 9,057 removed)**; a further ~3,200 shared-WMI rows need a vPIC decode and are not touched here.
+The "roughly 18.9k" was active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479): about 2.5k of it was the Kia Sportage Hybrid false positive. The real fixable set is about **15.8k rows (6,738 active + ~9k removed)**.
 
-### Top 20 pairs, stored make -> make the VIN names (7YA excluded)
-| # | total | active | removed | stored -> VIN |
-|--:|--:|--:|--:|---|
-| 1 | 1,071 | 512 | 559 | Nissan -> Chevrolet |
-| 2 | 952 | 453 | 499 | Nissan -> Ford |
-| 3 | 719 | 284 | 435 | Nissan -> Jeep |
-| 4 | 705 | 317 | 388 | Infiniti -> Nissan |
-| 5 | 614 | 348 | 266 | Nissan -> Toyota |
-| 6 | 581 | 273 | 308 | Acura -> Honda |
-| 7 | 424 | 197 | 227 | Nissan -> Honda |
-| 8 | 389 | 209 | 180 | Nissan -> GMC |
-| 9 | 337 | 121 | 216 | Nissan -> Hyundai |
-| 10 | 316 | 58 | 258 | GMC -> Chevrolet |
-| 11 | 311 | 163 | 148 | Nissan -> Ram |
-| 12 | 279 | 86 | 193 | Nissan -> Mazda |
-| 13 | 272 | 95 | 177 | Nissan -> Volkswagen |
-| 14 | 265 | 115 | 150 | Mitsubishi -> Chevrolet |
-| 15 | 253 | 102 | 151 | Acura -> Toyota |
-| 16 | 244 | 116 | 128 | Honda -> Toyota |
-| 17 | 179 | 38 | 141 | Ford -> Chevrolet |
-| 18 | 178 | 69 | 109 | Mitsubishi -> Ford |
-| 19 | 175 | 98 | 77 | Honda -> Chevrolet |
-| 20 | 166 | 61 | 105 | Mitsubishi -> Jeep |
+### Top 20 pairs, stored make -> make the VIN names (active, fixed table)
+| # | rows | stored -> VIN |
+|--:|--:|---|
+| 1 | 512 | Nissan -> Chevrolet |
+| 2 | 453 | Nissan -> Ford |
+| 3 | 348 | Nissan -> Toyota |
+| 4 | 317 | Infiniti -> Nissan |
+| 5 | 284 | Nissan -> Jeep |
+| 6 | 273 | Acura -> Honda |
+| 7 | 209 | Nissan -> GMC |
+| 8 | 197 | Nissan -> Honda |
+| 9 | 163 | Nissan -> Ram |
+| 10 | 121 | Nissan -> Hyundai |
+| 11 | 116 | Honda -> Toyota |
+| 12 | 115 | Mitsubishi -> Chevrolet |
+| 13 | 102 | Acura -> Toyota |
+| 14 | 98 | Honda -> Chevrolet |
+| 15 | 95 | Honda -> Acura |
+| 16 | 95 | Nissan -> Volkswagen |
+| 17 | 86 | Nissan -> Mazda |
+| 18 | 81 | Honda -> Ford |
+| 19 | 74 | Kia -> Chevrolet |
+| 20 | 69 | Mitsubishi -> Ford |
 
-Spot check of the biggest WMI/stored-make groups by model (active rows): `3N1`+Infiniti = Sentra/Kicks/Versa; `5FN`+Acura = Pilot/Odyssey/Passport; `5J8`+Honda = MDX/RDX; `1HG`+Acura = Accord; `KM8`+Nissan = Palisade/Kona/IONIQ 5; `1FT`+Nissan = F-150/Super Duty/Ranger; `1C4`+Nissan = Wrangler/Grand Cherokee/Durango; `4S4`+Honda = Outback/Ascent/Forester; `1G1`+Nissan = Malibu/Corvette/Camaro. The model agrees with the VIN every time: these are real mislabels (roster-brand fallback on a multi-franchise lot), not table errors.
+Spot check of the biggest WMI/stored-make groups by model (active rows): `3N1`+Infiniti = Sentra/Kicks/Versa; `5FN`+Acura = Pilot/Odyssey/Passport; `5J8`+Honda = MDX/RDX; `1HG`+Acura = Accord; `KM8`+Nissan = Palisade/Kona/IONIQ 5; `1FT`+Nissan = F-150/Super Duty/Ranger; `1C4`+Nissan = Wrangler/Grand Cherokee/Durango; `4S4`+Honda = Outback/Ascent/Forester; `1G1`+Nissan = Malibu/Corvette/Camaro. The model agrees with the VIN every time: real mislabels (roster-brand fallback on a multi-franchise lot), not table errors.
 
-### The one table error found: `7YA` (Kia Sportage Hybrid)
-The old #1 pair, **Kia -> Hyundai, 1,413 active rows (1,415 with two others), was wrong**: every one is a **2027 Kia Sportage Hybrid** built at the Georgia metaplant, whose WMI `7YA` `vinWmi.js` lists as Hyundai only (it also builds the IONIQ 5/9). Applying the rule as written would have turned them into Hyundais. The script therefore excludes `7YA` (`EXCLUDE_WMI`, reported as `excluded-wmi`). **Separate, bigger point:** `vinWmi.js` is the file in the not-yet-installed make-wmi crawler/deals-api patch (`docs/box-patches/2026-10-26-make-wmi/`); installed as is, the crawler and the write path would do the same to new Sportage Hybrids every night. Fix the table (`7YA` -> Hyundai, Kia, Genesis) in its own PR before that patch goes on a box; that changes the pinned md5s there, so it is deliberately not done here.
+### The table error this dry run found, and its fix (#618)
+The old #1 pair, **Kia -> Hyundai, 1,413 active rows, was wrong**: every one is a **2027 Kia Sportage Hybrid** built at the Georgia metaplant, whose WMI `7YA` `vinWmi.js` listed as Hyundai only (it also builds the IONIQ 5/9 and the Genesis GV70 EV). **#618 fixes the table** (`7YA` = Hyundai/Kia/Genesis; model rules decide a foreign or blank make on shared WMIs) and, from a model-ownership audit of 238 sizeable (WMI, stored make) conflicts on box2, also `3MY` (+Scion, the iA), `3N6` (+Chevrolet, City Express) and `JN1` (+Mitsubishi, Eclipse Sportback). This script runs on the fixed table, so it no longer needs, or has, a `7YA` exclusion. The counts above are from the dry run on that table.
 
 ## Gate (before every write)
 1. Sync lock free (read the log, never acquire it by hand): `grep '\[sync-lock\]' ~/.pm2/logs/*deals*out*.log | tail -2` ends with a release.
@@ -56,7 +53,7 @@ The old #1 pair, **Kia -> Hyundai, 1,413 active rows (1,415 with two others), wa
 node scripts/box/2026-10-28-make-from-vin-fix.mjs --emit > /tmp/make-fix.bundle.mjs && md5 /tmp/make-fix.bundle.mjs
 node --test scripts/box/make-from-vin-fix.test.mjs          # 7 pass
 ```
-1. **Dry run** (reader account, no lock, writes nothing; ~10-15 min with removed rows). Read the pairs: they must match the table above (plus whatever arrived overnight) and `excluded-wmi` must be about 1.4k active; **STOP if any pair you do not recognise has a large count**:
+1. **Dry run** (reader account, no lock, writes nothing; ~10-15 min with removed rows). Read the pairs: they must match the table above (plus whatever arrived overnight) and no `Kia -> Hyundai` pair may appear; **STOP if any pair you do not recognise has a large count**:
 ```bash
 ssh box2 'cd /opt/trimscout-deals && node --input-type=module - --include-removed' < /tmp/make-fix.bundle.mjs | tee /tmp/make-fix-dryrun.txt
 ```
@@ -80,4 +77,4 @@ Restores `make` only where it is still the value the script wrote. Then rebuild 
 ## Rails and what it costs
 Every statement runs under `max_statement_time=10`; reads and writes are bounded by the primary key (`vin LIKE 'p5%'` + `(vin, dealer_id)` keyset, 100 rows per chunk); each chunk's before-state is appended and fsync'd to the rollback file before its UPDATE; the UPDATE requires `make` to still be the value read; sync lock with heartbeat; refuses retired IPs and refuses to `--apply` unbundled. The UPDATE touches ~12 secondary indexes carrying `make`, so expect it to be slower than the trim apply: use the 200-row run in step 2 to time it before the full run.
 ## Not done / not verified
-Nothing was written on box2; the apply path was tested only against an in-memory table, never against MariaDB. A dry run of the emitted bundle was executed on box2 for four WMIs (read-only) and matched the full count. Out of scope: the ~3,200 shared-WMI rows (vPIC step), the 479 blank makes, and the `7YA` table fix.
+Nothing was written on box2; the apply path was tested only against an in-memory table, never against MariaDB. A dry run of the emitted bundle was executed on box2 for four WMIs (read-only) and matched the full count. Out of scope: the shared-WMI rows that need a vPIC decode (`conflict-unresolved`/`unresolved`) and the blank makes.
