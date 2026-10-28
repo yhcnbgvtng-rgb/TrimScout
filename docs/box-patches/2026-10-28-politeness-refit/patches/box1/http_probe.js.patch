@@ -1,0 +1,20 @@
+--- a/src/http_probe.js
++++ b/src/http_probe.js
+@@ -5,6 +5,7 @@
+ 
+ import http from 'node:http';
+ import https from 'node:https';
++import { parseRetryAfter } from './politeness.js';
+ import { classifyFetchResult, classifyFetchError, pickProbeResult, decideProbeNext } from './bot_protection.js';
+ 
+ const DEFAULT_TIMEOUT_MS = 12000;
+@@ -64,7 +65,8 @@
+       const next = new URL(loc, url).toString();
+       return probeUrl(next, { timeoutMs, redirects: redirects + 1 });
+     }
+-    return { ...classifyFetchResult(res), url, fetchedUrl: url };
++    const retryAfterMs = parseRetryAfter(res.headers && res.headers['retry-after']);
++    return { ...classifyFetchResult(res), url, fetchedUrl: url, ...(retryAfterMs != null ? { retryAfterMs } : {}) };
+   } catch (error) {
+     return { ...classifyFetchError(error), url, fetchedUrl: url };
+   }
