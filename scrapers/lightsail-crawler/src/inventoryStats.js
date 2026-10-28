@@ -17,12 +17,21 @@
 //   - One failed query never wipes the cache: a part that fails reuses its own last good value and the payload says so in `stale`. Only a part that has
 //     never succeeded since the process started (a cold, broken database) fails the request, as before.
 //
+// 2026-10-28 (box2, 20 s cap): the `totals` query took 21.6 s. It is COUNT(DISTINCT dealer_id), COUNT(DISTINCT vin) and MAX over all ~4.4M rows, and the
+// distinct counts have no index to ride. It is split the same way:
+//   - total / inStock   one index-only pass over idx_inv_removed (`COUNT(*), SUM(removed_at IS NULL)`), no row lookups, in the request path
+//   - lastSeenAt        `MAX(last_seen_at)` is a one-row read of idx_inv_last_seen, in the request path
+//   - dealers / vins    the distinct counts run in the BACKGROUND budget (120 s), single flight, every 30 min, last good value kept (null until the first
+//                       success). They move slowly. Admin sheet and the sync summary tolerate null.
+//
 // Pure of the server: the query function, the background runner and the clock are injected, so it is unit-testable.
 
 const T = "dealer_inventory";
 
 export const STATS_SQL = {
-  totals: `SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock, COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins, MAX(last_seen_at) AS lastSeenAt FROM ${T}`,
+  totals: `SELECT COUNT(*) AS total, SUM(removed_at IS NULL) AS inStock FROM ${T}`,
+  lastSeen: `SELECT MAX(last_seen_at) AS lastSeenAt FROM ${T}`,
+  distinct: `SELECT COUNT(DISTINCT dealer_id) AS dealers, COUNT(DISTINCT vin) AS vins FROM ${T}`,
   byMake: `SELECT make, COUNT(*) AS n FROM ${T} WHERE removed_at IS NULL AND make IS NOT NULL GROUP BY make ORDER BY n DESC LIMIT 100`,
   // Reads state directly (denormalized onto dealer_inventory in PR #296), not a JOIN into dealership_contacts.
   byState: `SELECT state, COUNT(*) AS n FROM ${T} WHERE removed_at IS NULL AND state IS NOT NULL GROUP BY state ORDER BY n DESC`,
@@ -36,16 +45,19 @@ export const STATS_SQL = {
 
 export const STICKER_REFRESH_MS = 6 * 60 * 60_000; // the sticker coverage figure moves slowly
 export const STICKER_RETRY_MS = 60 * 60_000; // after a failed scan, do not start another for an hour (it is the one table scan)
+export const DISTINCT_REFRESH_MS = 30 * 60_000;
+export const DISTINCT_RETRY_MS = 15 * 60_000;
 
 const count = (rows) => Number(rows?.[0]?.n ?? 0);
 
 /**
  * @param {{ query: (sql: string) => Promise<any[]>, runBackground?: (fn: () => Promise<any>) => Promise<any>, now?: () => number, log?: { log: Function, error: Function },
- *           stickerRefreshMs?: number, stickerRetryMs?: number }} deps  query resolves to the rows of the statement (not mysql2's [rows, fields] pair).
+ *           stickerRefreshMs?: number, stickerRetryMs?: number, distinctRefreshMs?: number, distinctRetryMs?: number }} deps  query resolves to the rows of the statement (not mysql2's [rows, fields] pair).
  */
-export function createInventoryStats({ query, runBackground = (fn) => fn(), now = Date.now, log = console, stickerRefreshMs = STICKER_REFRESH_MS, stickerRetryMs = STICKER_RETRY_MS }) {
+export function createInventoryStats({ query, runBackground = (fn) => fn(), now = Date.now, log = console, stickerRefreshMs = STICKER_REFRESH_MS, stickerRetryMs = STICKER_RETRY_MS, distinctRefreshMs = DISTINCT_REFRESH_MS, distinctRetryMs = DISTINCT_RETRY_MS }) {
   const good = new Map(); // part name -> last good value
   let sticker = { value: null, at: null, failedAt: null, running: null };
+  let distinct = { value: null, at: null, failedAt: null, running: null }; // value: { dealers, vins }
 
   /** Run one part. A failure reuses that part's last good value and records it in `stale`; with no last good value the failure propagates. */
   async function part(name, stale, fn) {
@@ -78,10 +90,28 @@ export function createInventoryStats({ query, runBackground = (fn) => fn(), now 
     sticker.running.catch(() => {});
   }
 
+  function refreshDistinct() {
+    if (distinct.running) return;
+    const t = now();
+    if (distinct.at != null && t - distinct.at < distinctRefreshMs) return;
+    if (distinct.failedAt != null && t - distinct.failedAt < distinctRetryMs) return;
+    distinct.running = (async () => {
+      try {
+        const rows = await runBackground(() => query(STATS_SQL.distinct));
+        distinct = { ...distinct, value: { dealers: Number(rows?.[0]?.dealers ?? 0), vins: Number(rows?.[0]?.vins ?? 0) }, at: now(), failedAt: null };
+      } catch (err) {
+        distinct = { ...distinct, failedAt: now() };
+        log.error(`inventory stats: dealers/vins distinct scan failed (${err.message}); retry in ${Math.round(distinctRetryMs / 60000)} min, last good value kept`);
+      } finally { distinct.running = null; }
+    })();
+    distinct.running.catch(() => {});
+  }
+
   async function compute() {
     const stale = [];
     const one = async (name) => (await query(STATS_SQL[name]))[0];
     const tot = await part("totals", stale, () => one("totals"));
+    const seen = await part("lastSeen", stale, () => one("lastSeen"));
     const byMake = await part("byMake", stale, () => query(STATS_SQL.byMake));
     const byState = await part("byState", stale, () => query(STATS_SQL.byState));
     const byCond = await part("byCond", stale, () => query(STATS_SQL.byCond));
@@ -90,14 +120,15 @@ export function createInventoryStats({ query, runBackground = (fn) => fn(), now 
     const priceDrops = await n("priceDrops");
     const priceIncreases = await n("priceIncreases");
     const removedToday = await n("removedToday");
-    refreshSticker(); // fire and forget: never part of the response time
+    refreshDistinct(); // fire and forget: never part of the response time
+    refreshSticker();
     const out = {
-      total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: Number(tot.dealers), vins: Number(tot.vins), lastSeenAt: tot.lastSeenAt, byMake, byState, byCond,
+      total: Number(tot.total), inStock: Number(tot.inStock || 0), dealers: distinct.value?.dealers ?? null, vins: distinct.value?.vins ?? null, lastSeenAt: seen.lastSeenAt, byMake, byState, byCond,
       movement: { arrivals, priceDrops, priceIncreases, withSticker: sticker.value, removedToday },
     };
     if (stale.length) out.stale = stale;
     return out;
   }
 
-  return { compute, peekSticker: () => ({ value: sticker.value, at: sticker.at, failedAt: sticker.failedAt, running: Boolean(sticker.running) }) };
+  return { compute, peekDistinct: () => ({ value: distinct.value, at: distinct.at, failedAt: distinct.failedAt, running: Boolean(distinct.running) }), peekSticker: () => ({ value: sticker.value, at: sticker.at, failedAt: sticker.failedAt, running: Boolean(sticker.running) }) };
 }
