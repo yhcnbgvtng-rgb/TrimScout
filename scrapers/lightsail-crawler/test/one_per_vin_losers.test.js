@@ -8,8 +8,10 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   LOSERS_DDL, LOSERS_TABLE, diffLosers, losersOf, visibleSql, applyDiff, refreshVinLosers, backfillLosers, reconcileLosers,
-  createLoserMaintenance, loserBucketsSql, facetsOnePerVin, _resetCooldown, FAIL_COOLDOWN_MS,
+  createLoserMaintenance, loserBucketsSql, facetsOnePerVin, _resetCooldown, FAIL_COOLDOWN_MS, COLD_WAIT_MS,
 } from '../src/onePerVinLosers.js';
+import { createStableCache } from '../src/stableCache.js';
+import { BACKGROUND_STATEMENT_SECONDS, BACKGROUND_WAIT_MS } from '../src/refreshTimeouts.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '../../..');
@@ -247,6 +249,82 @@ describe('facet read side', () => {
   });
 });
 
+describe('the all-stores buckets read gets the background budget', () => {
+  const LISTS = () => ({ states: [{ state: 'NJ', n: 10 }], makes: [{ make: 'Ford', n: 10 }], models: [], trims: [] });
+  const stmtSeconds = (sql) => Number(/^SET STATEMENT max_statement_time=(\d+) FOR /.exec(sql)?.[1]);
+  const rowsDb = () => fakeDb([inv(V1, 1, OLD, 5), inv(V1, 2, NEW, 5)], [[V1, 1]]);
+  // A database that records the budget each statement was sent with, on top of the in-memory tables.
+  const recording = (db) => { const seconds = []; return { seconds, query: (sql, args) => { if (/GROUP BY i\.make/.test(sql)) seconds.push([stmtSeconds(sql)]); return db.query(sql, args); } }; };
+  beforeEach(() => _resetCooldown());
+
+  it('a COLD miss uses 120 s / 150 s, not the 20 s buyer budget (the cause: it hit max_statement_time on every attempt after a restart)', async () => {
+    const db = rowsDb(); const rec = recording(db); const waits = [];
+    const cache = createStableCache({ ttlMs: 60_000, log: { log() {}, error() {} } }); // no runBackground wired: a cold key never gets the background budget from the cache
+    const deps = { pool: rec, stableCached: cache.get, withPoolTimeout: (p, ms) => { waits.push(ms); return p; }, statementSeconds: () => 20, waitMs: () => 45_000, retailOnlyFacets: true, enabled: true };
+    const r = await facetsOnePerVin(deps, LISTS(), {});
+    assert.equal(r.applied, true);
+    assert.deepEqual(rec.seconds, [[BACKGROUND_STATEMENT_SECONDS]]);
+    assert.deepEqual(waits, [BACKGROUND_WAIT_MS]);
+    assert.ok(BACKGROUND_WAIT_MS > BACKGROUND_STATEMENT_SECONDS * 1000, 'the JS wait must outlast the statement');
+  });
+
+  it('a contact-set read keeps the interactive budget', async () => {
+    const rec = recording(rowsDb());
+    const deps = { pool: rec, stableCached: async (k, fn) => fn(), withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 45_000, retailOnlyFacets: true, enabled: true };
+    await facetsOnePerVin(deps, LISTS(), {}, { dealerIds: new Set([1]) });
+    assert.deepEqual(rec.seconds, [[20]]);
+  });
+
+  it('a slow cold read: the caller gets unadjusted lists after the bounded wait, no cooldown, and the NEXT call is adjusted from the cache', async () => {
+    const db = rowsDb(); let release;
+    const gate = new Promise((r) => { release = r; });
+    const pool = { query: async (sql, args) => { if (/GROUP BY i\.make/.test(sql)) await gate; return db.query(sql, args); } };
+    const cache = createStableCache({ ttlMs: 60_000, log: { log() {}, error() {} } });
+    const deps = { pool, stableCached: cache.get, withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 45_000, retailOnlyFacets: true, enabled: true, coldWaitMs: 20 };
+    const a = await facetsOnePerVin(deps, LISTS(), {});
+    assert.deepEqual([a.applied, a.lists.makes[0].n], [false, 10]);
+    const b = await facetsOnePerVin(deps, LISTS(), {}); // joins the same single flight; still waiting, still no cooldown
+    assert.equal(b.applied, false);
+    release();
+    await new Promise((r) => setTimeout(r, 10));
+    const c = await facetsOnePerVin(deps, LISTS(), {});
+    assert.deepEqual([c.applied, c.lists.makes[0].n], [true, 9]);
+  });
+
+  it('a slow cold read that then FAILS starts the failure cooldown (no retry storm)', async () => {
+    let t = 1_000_000, reads = 0;
+    const pool = { query: async () => { reads++; await new Promise((r) => setTimeout(r, 30)); throw new Error('max_statement_time exceeded'); } };
+    const cache = createStableCache({ ttlMs: 60_000, log: { log() {}, error() {} } });
+    const deps = { pool, stableCached: cache.get, withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 45_000, retailOnlyFacets: true, enabled: true, coldWaitMs: 5, now: () => t };
+    const origErr = console.error; console.error = () => {};
+    try {
+      const a = await facetsOnePerVin(deps, LISTS(), {});
+      assert.equal(a.applied, false);
+      await new Promise((r) => setTimeout(r, 60));
+      await facetsOnePerVin(deps, LISTS(), {});
+      assert.equal(reads, 1, 'inside the cooldown the read is not started again');
+      t += FAIL_COOLDOWN_MS + 1;
+      await facetsOnePerVin(deps, LISTS(), {});
+      assert.equal(reads, 2);
+    } finally { console.error = origErr; }
+  });
+
+  it('after a restart the persisted cache entry serves the buckets at once; the refresh runs behind it on the background budget', async () => {
+    const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'opvl-cache-')), 'cache.json');
+    const key = 'vin-losers-table:0';
+    fs.writeFileSync(file, JSON.stringify({ [key]: { at: 1, value: [{ make: 'Ford', state: 'NJ', model: 'F-150', trim: 'XLT', n: 4 }] } }));
+    let release; const gate = new Promise((r) => { release = r; });
+    const pool = { query: async () => { await gate; return [[]]; } }; // the refresh is slower than the request
+    const cache = createStableCache({ ttlMs: 60_000, filePath: file, now: () => 10 * 60_000, log: { log() {}, error() {} }, runBackground: (fn) => fn() });
+    const deps = { pool, stableCached: cache.get, withPoolTimeout: (p) => p, statementSeconds: () => 20, waitMs: () => 45_000, retailOnlyFacets: true, enabled: true };
+    const r = await facetsOnePerVin(deps, LISTS(), {});
+    assert.deepEqual([r.applied, r.lists.makes[0].n], [true, 6], 'the persisted buckets (4) are subtracted without waiting for the refresh');
+    release();
+  });
+
+  it('COLD_WAIT_MS stays well under the buyer connection wait', () => { assert.ok(COLD_WAIT_MS < 45_000); });
+});
+
 describe('SQL shapes', () => {
   it('every statement balances its placeholders', () => {
     for (const o of [{}, { days: 7 }, { dealerIds: new Set([1, 2]) }, { days: 7, dealerIds: new Set([1]), retailOnly: false }]) {
@@ -305,9 +383,15 @@ describe('the box patch and the box2 snapshot', () => {
   });
   it('STEPS.md: md5 table matches the files, and it carries backup, rollback, restart gate, EXPLAINs and says nothing is installed', () => {
     const steps = fs.readFileSync(path.join(ROOT, 'docs/box-patches/2026-10-29-one-per-vin-losers/STEPS.md'), 'utf8');
-    const want = { 'onePerVinLosers.js': 'scrapers/lightsail-crawler/src/onePerVinLosers.js', '2026-10-29-one-per-vin-losers-backfill.mjs': 'scripts/box/2026-10-29-one-per-vin-losers-backfill.mjs' };
+    // onePerVinLosers.js is no longer pinned here: 2026-10-30-losers-refresh-budget supersedes the module (pinned in its own STEPS.md, checked below)
+    const want = { '2026-10-29-one-per-vin-losers-backfill.mjs': 'scripts/box/2026-10-29-one-per-vin-losers-backfill.mjs' };
     for (const [name, rel] of Object.entries(want)) assert.ok(steps.includes(`${md5(path.join(ROOT, rel))}  FINAL  ${name}`), `${name} md5 in STEPS.md is stale`);
     assert.ok(steps.includes(`${md5(path.join(SNAP, 'deals_api_server.js'))}  BASE`));
     for (const must of ['NOTHING IS INSTALLED', 'Gate', 'Rollback', 'DROP TABLE dealer_inventory_vin_losers', 'FORCE INDEX (PRIMARY)', 'pm2 restart deals-api', 'Never restart while the lock is held', 'bak.opvl', '--phase=explain', 'ONE_PER_VIN_FACETS=1']) assert.ok(steps.includes(must), must);
+  });
+  it('the refresh-budget STEPS.md pins the md5 of the module and names the BASE it replaces', () => {
+    const steps = fs.readFileSync(path.join(ROOT, 'docs/box-patches/2026-10-30-losers-refresh-budget/STEPS.md'), 'utf8');
+    assert.ok(steps.includes(`${md5(path.join(ROOT, 'scrapers/lightsail-crawler/src/onePerVinLosers.js'))}  FINAL  onePerVinLosers.js`), 'onePerVinLosers.js md5 in the refresh-budget STEPS.md is stale');
+    assert.ok(steps.includes('65db034542a7b50e36714ab88db42123  BASE  onePerVinLosers.js'));
   });
 });
