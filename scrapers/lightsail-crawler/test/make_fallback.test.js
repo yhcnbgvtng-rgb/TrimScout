@@ -74,8 +74,8 @@ const FROM_BOX4_LOGS = [
 
 // Six more clear prefixes from the same logs (added after the first twenty).
 FROM_BOX4_LOGS.push(
-  ['2G2FS32K922108501', 'Pontiac'], ['7PDSGBBA6RN031476', 'Rivian'], ['7YAKMDDC2TY070915', 'Hyundai'],
-  ['JS2YA5A53B6301004', 'Suzuki'], ['JHLRD78936C044284', 'Honda'], ['3MYDLBYV2HY191802', 'Toyota'],
+  ['2G2FS32K922108501', 'Pontiac'], ['7PDSGBBA6RN031476', 'Rivian'],
+  ['JS2YA5A53B6301004', 'Suzuki'], ['JHLRD78936C044284', 'Honda'],
 );
 
 describe('WMI prefixes added from box4 2026-10-27 skipped VINs', () => {

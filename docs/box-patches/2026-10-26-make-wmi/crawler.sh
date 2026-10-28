@@ -9,8 +9,8 @@
 C=${CRAWLER_DIR:-$HOME/nj-scraper/scrapers/lightsail-crawler}; S=$C/src; HERE=$(cd "$(dirname "$0")" && pwd); BACKUP=${BACKUP:-$HOME/backups/make-wmi-20261026}; MODE=${1:-check}
 md() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
 NEW="vinWmi.js stellantisMake.js stellantisVinTable.js ingestGuards.js"     # absent on the crawler boxes today
-after() { case "$1" in vinWmi.js) echo 422bd7190ee821d33449d28489e22d17;; stellantisMake.js) echo 4017f1f9e24dc14d1b2cc530737e1e00;; stellantisVinTable.js) echo 2bb0902516fe1279adec20291096ac7b;; ingestGuards.js) echo 88ec75c5d81a19dd484de0dea62add28;; brand_match.js) echo 2b421d128ce20aab0644820bb0702271;; esac; }   # md5 AFTER (the files in files/)
-BM_BEFORE=8b4d8c1fe29731cccae7c0d96c36aaad; BM_OLD=91d723fe2cf8440c1da6e719e3c5b871; VW_OLD=365a9b0dd148dcd115b442601f7c47af                                   # brand_match.js, identical on all four boxes
+after() { case "$1" in vinWmi.js) echo d80c26201747ff1e2ef196e6ca9dceaf;; stellantisMake.js) echo 4017f1f9e24dc14d1b2cc530737e1e00;; stellantisVinTable.js) echo 2bb0902516fe1279adec20291096ac7b;; ingestGuards.js) echo 88ec75c5d81a19dd484de0dea62add28;; brand_match.js) echo 2b421d128ce20aab0644820bb0702271;; esac; }   # md5 AFTER (the files in files/)
+BM_BEFORE=8b4d8c1fe29731cccae7c0d96c36aaad; BM_OLD=91d723fe2cf8440c1da6e719e3c5b871; VW_OLD="365a9b0dd148dcd115b442601f7c47af 422bd7190ee821d33449d28489e22d17"                                   # brand_match.js, identical on all four boxes
 SA_BOX1=02f73e161e29dde0fe0633759328c9a8; SA_OTHER=2e69d8748b9addbff93dac618bb71f1e   # standalone.js before: box1 / box2,3,4
 SA_OLD_BOX1=82fa1a602d6229fc5eb17114fb347e6a; SA_OLD_OTHER=6465d05d2377da81293897292e895776   # standalone.js after the FIRST version of this patch (no fallback)
 # md5 of the NEW patched standalone.js cannot be computed off the box (the box copies are not in the repo). Empty = not pinned yet: the script then verifies the
@@ -29,7 +29,7 @@ esac
 already=1
 [ -z "$SA_PATCH" ] || already=0
 [ "$bm" = "$(after brand_match.js)" ] || { { [ "$bm" = "$BM_BEFORE" ] || [ "$bm" = "$BM_OLD" ]; } && already=0 || fail "src/brand_match.js md5 $bm is neither a known box version ($BM_BEFORE / $BM_OLD) nor the patched one; stop and report"; }
-for f in $NEW; do m=$(md "$S/$f"); [ -z "$m" ] && { already=0; continue; }; [ "$m" = "$(after $f)" ] && continue; { [ "$f" = vinWmi.js ] && [ "$m" = "$VW_OLD" ]; } && { already=0; continue; }; fail "src/$f already exists with md5 $m (expected absent or $(after $f)); stop and report"; done
+for f in $NEW; do m=$(md "$S/$f"); [ -z "$m" ] && { already=0; continue; }; [ "$m" = "$(after $f)" ] && continue; { [ "$f" = vinWmi.js ] && case " $VW_OLD " in *" $m "*) true;; *) false;; esac; } && { already=0; continue; }; fail "src/$f already exists with md5 $m (expected absent or $(after $f)); stop and report"; done
 [ "$MODE" = restore ] || { [ $already = 1 ] && { echo "ALREADY PATCHED - nothing to do."; exit 0; }; }
 verify_sa() {   # $1 = patched standalone.js: by content always, by md5 once pinned
   is_new_sa "$1" || fail "patched standalone.js still has a roster-brand fallback or lacks the new call"
