@@ -3,11 +3,12 @@
 // when, then every queued invite is sent through the normal outbox (which
 // only ever sends approved requests). "rejected" needs a reason; the buyer
 // sees it in their tracker and may fix and resubmit. Admin session only.
-import { NextResponse } from "next/server";
+import { NextResponse, after as afterResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { getRfq, setRfqApproval, RfqApiError } from "@/lib/rfqApi";
 import { drainQueuedInvites } from "@/lib/inviteOutbox";
 import { bump } from "@/lib/opsMetrics";
+import { notifyRequestRejected } from "@/lib/noticeOutbox";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireAdminSession();
@@ -22,7 +23,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   try {
     const rfq = await setRfqApproval(id, { decision, by, reason: decision === "rejected" ? reason : null });
     bump(decision === "approved" ? "rfq_approved" : "rfq_rejected");
-    if (decision === "rejected") return NextResponse.json({ rfq, released: null });
+    if (decision === "rejected") {
+      // The buyer is told it wasn't released (the reason stays on their tracker, not in the email).
+      afterResponse(() => notifyRequestRejected(rfq));
+      return NextResponse.json({ rfq, released: null });
+    }
     // Release: send everything queued on this request now, synchronously,
     // so the admin sees the outcome per dealer. The outbox re-checks the
     // approval itself and marks each invite sent only once Resend accepts.

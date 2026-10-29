@@ -25,6 +25,10 @@ export type OpsCounter =
   | "email_mark_failed"
   | "email_counter_sent"
   | "email_counter_failed"
+  /** Thread notices (quote in, declined, rejected, buyer closed, new message): sent, failed, or skipped by a gate / the debounce. */
+  | "notice_sent"
+  | "notice_failed"
+  | "notice_skipped"
   /** The "approval needed" alert to the admin did not go out. */
   | "admin_alert_failed"
   | "notselected_sent"
