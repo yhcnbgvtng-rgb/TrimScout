@@ -4,13 +4,14 @@
 // (lib/dealThread.ts), so one dealer never sees another's words. Nothing identifying goes through: the deals server refuses names, phone
 // numbers in any form, emails, handles, other links and files, logs the attempt (a warning on the first, a pause on the third in 30 days)
 // and the blocked text is never shown to the buyer.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { getChatPaused, getRfq, getRfqInviteByViewToken, RfqApiError } from "@/lib/rfqApi";
 import { buildThread, canPostToThread, isFinallyAccepted, MAX_CHAT_LENGTH } from "@/lib/dealThread";
 import { hasAttachment } from "@/lib/identityFilter";
 import { PAUSED_NOTE } from "@/lib/chatGuard";
 import { sendWithGuard } from "@/lib/chatSend";
+import { notifyNewMessage } from "@/lib/noticeOutbox";
 
 const TOKEN = /^[A-Za-z0-9_-]{8,80}$/;
 
@@ -68,6 +69,8 @@ export async function POST(req: Request) {
     const outcome = await sendWithGuard({ rfqId: row.rfqId, inviteId: row.invite.id, from: "dealer", text, dealerName: row.invite.dealerName });
     const fresh = await getRfq(row.rfqId);
     const invite = fresh?.invites.find((i) => i.id === row.invite.id) ?? row.invite;
+    // Only a delivered message earns an email, and the email never carries its text.
+    if (outcome.status === "delivered") after(() => notifyNewMessage(fresh ?? row.rfq, invite, "buyer"));
     return NextResponse.json({ ...(await payload({ rfq: fresh ?? row.rfq, invite, rfqId: row.rfqId }, null)), outcome });
   } catch (err) {
     const status = err instanceof RfqApiError ? err.status : 502;

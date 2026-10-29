@@ -230,6 +230,64 @@ describe('WMI_LIST', () => {
   });
 });
 
+// 2026-10-29: prefixes the 2026-10-28 crawl logged as `make_source=fallback` (VIN not resolvable) on boxes 1, 3 and 4, plus the Ford Super Duty / Transit
+// WMIs seen on active Ford rows. Every make below is what NHTSA vPIC DecodeWMI returns for the WMI (checked 2026-10-29).
+describe('WMIs added after the 2026-10-28 fallback audit', () => {
+  const pad = (w) => w + '0'.repeat(14);
+  const ADDED = {
+    Ford: ['2FD', '3FR', '3FC', 'NM0', 'WF0'],
+    BMW: ['3MW', '3MF', 'WB5'],
+    Toyota: ['SB1', 'NMT', '5TB', 'VNK', 'WZ1'],
+    Honda: ['SHS'], Acura: ['4W5'],
+    'Alfa Romeo': ['ZAS'], Maserati: ['ZN6'], Jaguar: ['SAD'], Volvo: ['LVY', 'LYV'],
+    'Mercedes-Benz': ['W1W', 'W1X', 'W1Z', 'WDA'],
+    Pontiac: ['5Y2'], Saturn: ['5GZ', '3GS'], GMC: ['1GJ', '2CT'], Chevrolet: ['6G3'], Cadillac: ['LRE'],
+    Polestar: ['7SY'], Audi: ['WU1'], 'Aston Martin': ['SD7'], Bentley: ['SJA'], Lamborghini: ['ZPB'], Volkswagen: ['2V4'],
+  };
+  for (const [make, list] of Object.entries(ADDED)) for (const w of list) {
+    it(`${w} names ${make}, and a roster-brand fallback is corrected to it`, () => {
+      assert.deepEqual(makesForWmi(pad(w)), [make]);
+      assert.equal(makeFromVin(pad(w)), make);
+      const roster = make === 'Ford' ? 'Honda' : 'Ford';
+      assert.deepEqual(reconcileMake({ make: roster, vin: pad(w) }), { make, via: 'wmi-conflict', from: roster }); // a Ford-roster lot's Alfa Tonale is an Alfa
+      assert.equal(reconcileMake({ make, vin: pad(w) }).via, 'kept');
+      assert.equal(reconcileMake({ make: null, vin: pad(w) }).via, 'wmi-fill');
+    });
+  }
+  it('shared WMIs accept each make they can carry and name none on their own', () => {
+    for (const [w, makes] of [['3HD', ['Honda', 'Acura']], ['3GP', ['Honda', 'Acura']], ['1HT', ['International', 'Chevrolet']], ['3KM', ['Kia', 'Hyundai']], ['SJK', ['Nissan', 'Infiniti']], ['JTK', ['Toyota', 'Scion']], ['JTL', ['Toyota', 'Scion']], ['JTN', ['Toyota', 'Scion']], ['WD4', ['Mercedes-Benz', 'Freightliner']]]) {
+      assert.deepEqual(makesForWmi(pad(w)), makes, w);
+      assert.equal(makeFromVin(pad(w)), null, w);
+      for (const m of makes) assert.equal(reconcileMake({ make: m, vin: pad(w) }).via, 'kept', `${w} ${m}`);
+    }
+    assert.deepEqual(reconcileMake({ make: 'Ford', vin: pad('3HD') }), { make: null, via: 'conflict-unresolved', from: 'Ford' }); // outside the family, nothing to name: left for vPIC
+    assert.equal(reconcileMake({ make: 'Ford', vin: pad('3HD'), vpicMake: 'Acura' }).make, 'Acura');
+  });
+  it('commercial, motorcycle, trailer, unknown-make and junk prefixes stay out of the table (stored make kept, blank stays blank)', () => {
+    for (const w of ['1HA', '1HD', '54D', '7GZ', '1FV', '3AK', '3AL', 'W2X', 'WDY', '1M2', 'JHH', 'SC6', 'RLL', '2G5', '3C8', 'WB1', '3JB', 'WD3', '000', '821', '82H', 'DPS']) {
+      assert.equal(makesForWmi(pad(w)), null, w);
+      assert.deepEqual(reconcileMake({ make: 'Ford', vin: pad(w) }), { make: 'Ford', via: 'kept', from: 'Ford' }, w);
+      assert.deepEqual(reconcileMake({ make: null, vin: pad(w) }), { make: null, via: 'kept', from: null }, w);
+    }
+  });
+  it('Scion-badged cars on JTN / JTL keep their make, other makes on them become Toyota', () => {
+    for (const w of ['JTN', 'JTL']) {
+      assert.equal(reconcileMake({ make: 'Scion', vin: pad(w) }).via, 'kept');
+      assert.equal(reconcileMake({ make: 'Toyota', vin: pad(w) }).via, 'kept');
+      assert.deepEqual(reconcileMake({ make: 'Honda', vin: pad(w) }), { make: null, via: 'conflict-unresolved', from: 'Honda' }); // shared with Scion and no model: left for vPIC
+      assert.equal(reconcileMake({ make: 'Honda', vin: pad(w), model: 'Corolla' }).make, 'Toyota'); // the model names it: any non-Scion model is a Toyota
+      assert.equal(reconcileMake({ make: 'Honda', vin: pad(w), model: 'tC' }).make, 'Scion');
+      assert.equal(reconcileMake({ make: null, vin: pad(w), model: 'FR-S' }).make, 'Scion');
+    }
+  });
+  it('1FV is Freightliner, not Ford: it must not join the Ford range just because it sits next to 1FT', () => {
+    assert.equal(makeFromVin(pad('1FV')), null);
+  });
+  it('the Ford WMIs that were already in the table are unchanged', () => {
+    for (const w of ['1FA', '1FB', '1FC', '1FD', '1F6', '1F9', '1FM', '1FT', '2FM', '2FT', '3FA', '3FM', '3FT', '1ZV', '2FA', '3FD', 'MAJ']) assert.deepEqual(makesForWmi(pad(w)), ['Ford'], w);
+  });
+});
+
 // 2026-10-29 fallback audit of the 10-28 crawl logs (boxes 1/3/4): these prefixes carried most of the make_source=fallback lines because they were not in the table.
 // Makes per NHTSA vPIC DecodeWMI; the VINs below are shaped like the live ones (no real customer data).
 describe('prefixes added after the 10-28 fallback audit (3MW 3HD 3GP ZAS 1HT)', () => {
