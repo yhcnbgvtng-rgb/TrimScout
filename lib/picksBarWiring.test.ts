@@ -31,6 +31,12 @@ describe("the picks bar", () => {
     assert.match(bar, /<ul className="flex min-w-\[16rem\] flex-1 flex-wrap/);
     assert.doesNotMatch(bar, /<ul className="flex min-w-0 flex-1/);
   });
+  it("warns about picks the wizard will leave out, and hands the seed over through the durable store", () => {
+    assert.match(bar, /pickWarnings\(picks\)\.map\(\(w\) => \(\s*<p key=\{w\} role="status" data-testid="picks-warning"/);
+    assert.match(bar, /writeQuoteSeed\(durableSeedStore\(window\), state\.picks\)/);
+    assert.doesNotMatch(bar, /writeQuoteSeed\(window\.sessionStorage/);
+    assert.match(fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8"), /takeQuoteSeed\(durableSeedStore\(window\)\)/);
+  });
   it("only the Request a quote button opens a quote; the new controls never write a quote seed or navigate", () => {
     assert.equal((bar.match(/writeQuoteSeed\(/g) || []).length, 1);
     assert.equal((bar.match(/router\.push\(/g) || []).length, 1);

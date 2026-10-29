@@ -74,7 +74,7 @@ import {
 } from "../lib/linkImport";
 import { shopperDealStructurePayload, mapDealRequestJson } from "../lib/shopperDeal";
 import { defaultTermsForVehicles } from "../lib/dealTerms";
-import { seedDealersFrom } from "../lib/quoteSeed";
+import { seedDealersFrom, seedStoreKey } from "../lib/quoteSeed";
 import { useRequireBuyerLogin } from "./BuyerAccessProvider";
 import { saveGuestToken } from "../lib/guestToken";
 import {
@@ -1960,6 +1960,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [seedBusy, setSeedBusy] = useState(false);
   /** How many picked cars weren't added because used requests are one car. */
   const [seedSkipped, setSeedSkipped] = useState(0);
+  /** How many picked cars weren't added because their store already has a car on this request (one car per store). */
+  const [seedSameStore, setSeedSameStore] = useState(0);
+  const seedStoresRef = React.useRef<Set<string>>(new Set());
   // Each index starts exactly once. Without this the effect can run twice on the same render (React's dev double-invoke),
   // advance the index twice and silently skip the next car.
   const seedStartedRef = React.useRef(-1);
@@ -2022,6 +2025,14 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
         setSeedIdx(seedIdx + 1);
         return;
       }
+      // One car per store: an invite carries one car, so a second car at a store already seated would be silently dropped.
+      const store = seedStoreKey(car);
+      if (store && seedStoresRef.current.has(store)) {
+        setSeedSameStore((n) => n + 1);
+        setSeedIdx(seedIdx + 1);
+        return;
+      }
+      if (store) seedStoresRef.current.add(store);
       setSeedIdx(seedIdx + 1);
       setSeedSlotIdx(seedSlotIdx + 1);
       setSeedBusy(true);
@@ -3118,6 +3129,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 {seedSkipped > 0 ? (
                   <p className="text-[11px] text-amber-300" data-testid="seed-used-note">
                     A request is all new or all used, so {seedSkipped} other car{seedSkipped === 1 ? "" : "s"} you picked {seedSkipped === 1 ? "wasn't" : "weren't"} added. Request {seedSkipped === 1 ? "it" : "them"} separately.
+                  </p>
+                ) : null}
+                {seedSameStore > 0 ? (
+                  <p className="text-[11px] text-amber-300" data-testid="seed-store-note">
+                    A dealership gets one car per request, so {seedSameStore} other car{seedSameStore === 1 ? "" : "s"} you picked at a dealership already on this request {seedSameStore === 1 ? "wasn't" : "weren't"} added. Request {seedSameStore === 1 ? "it" : "them"} separately.
                   </p>
                 ) : null}
                 <div className="space-y-2" data-testid="alternate-vehicles">

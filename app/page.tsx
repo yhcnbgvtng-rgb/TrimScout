@@ -17,7 +17,7 @@ import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from ".
 import { Navbar } from "../components/Navbar";
 import { BidProgramIntro } from "../components/BidProgramIntro";
 import { FactoryMatchFlow } from "../components/FactoryMatchFlow";
-import { QUOTE_SEED_LANE, takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
+import { QUOTE_SEED_LANE, durableSeedStore, takeQuoteSeed, type QuoteSeedVehicle } from "../lib/quoteSeed";
 import { BiddingWizard } from "../components/BiddingWizard";
 import { LiveDealRoom } from "../components/LiveDealRoom";
 import { DealerPortal } from "../components/DealerPortal";
@@ -119,7 +119,7 @@ export default function Home() {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
     if (url.searchParams.get("quote") !== "1") return;
-    const seed = takeQuoteSeed(window.sessionStorage);
+    const seed = takeQuoteSeed(durableSeedStore(window));
     url.searchParams.delete("quote");
     window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     // Even with no usable cars (a row without a valid VIN), the buyer asked for a quote: open the wizard plain.
