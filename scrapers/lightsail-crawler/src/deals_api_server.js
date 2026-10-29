@@ -3153,23 +3153,20 @@ async function computeMarketPulse(pool, state) {
 
 // Each part is its own index-bounded query with its own last good value, and the one table scan (withSticker) runs in the background — see inventoryStats.js.
 let inventoryStats = null;
-function getInventoryStats(pool) {
-  // Same guard as handleInventoryMakes: SET STATEMENT max_statement_time plus withPoolTimeout.
-  return (inventoryStats ||= createInventoryStats({
+async function handleInventoryStats(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  inventoryStats ||= createInventoryStats({
+    // Same guard as handleInventoryMakes: SET STATEMENT max_statement_time plus withPoolTimeout.
     query: async (sql) => (await withPoolTimeout(
       pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`),
       waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     ))[0],
     runBackground,
-  }));
-}
-async function handleInventoryStats(req, res) {
-  const pool = getPool();
-  await ensureInventoryTable(pool);
-  const stats = getInventoryStats(pool);
+  });
   // statsCached, not invCached: every bulk upsert/sweep clears invCached, so after the nightly sync this re-ran cold and timed out.
-  sendJson(res, 200, await statsCached("stats", () => stats.compute()));
+  sendJson(res, 200, await statsCached("stats", () => inventoryStats.compute()));
 }
 
 // GET /api/inventory/makes — just the make list, for the buyer /search page's make picker
@@ -4236,17 +4233,10 @@ server.listen(PORT, () => {
       console.error("startup catalog facet check failed:", err.message);
     }
   }, 30_000);
-  // Warm stats-cache.json in the background (dealers/VINs were null after a restart until the first admin page load paid for the scan).
-  // Not awaited and delayed, so startup and the listening socket never wait on it; errors are logged inside warmStatsCache.
-  setTimeout(async () => {
-    try {
-      const pool = getPool();
-      await ensureInventoryTable(pool);
-      const stats = getInventoryStats(pool);
-      await warmStatsCache(statsCached, [{ key: "stats", compute: () => stats.compute() }]);
-    } catch (err) {
-      console.error("startup stats cache warm failed:", err.message);
-    }
+  // Warm stats-cache.json in the background (dealers/VINs were null after a restart until the first admin page load paid for the scan). Runs the
+  // real handler against a throwaway response, so it fills the same "stats" entry. Not awaited: startup and the listening socket never wait on it.
+  setTimeout(() => {
+    void warmStatsCache(() => handleInventoryStats(null, { writeHead() {}, end() {} }));
   }, STATS_WARM_DELAY_MS);
   console.log(`  POST /api/deals`);
   console.log(`  GET  /api/deals/:id`);

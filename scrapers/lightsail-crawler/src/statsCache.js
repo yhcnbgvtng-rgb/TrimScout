@@ -13,13 +13,11 @@ export function createStatsCache(opts = {}) {
 }
 
 /**
- * Fire-and-forget: ask the cache for each key once so a restart never leaves it cold. A fresh persisted entry returns at once, an expired one
- * is served while its background refresh runs, and a missing one computes now. Never throws and never blocks the caller (returns the promise
- * for tests only); one failing key does not stop the others.
+ * Run `warm` once and never let it throw: used at startup to fill the cache by calling the same code a request would (so a restart never leaves
+ * dealers/VINs null). A fresh persisted entry returns at once, an expired one is served while its refresh runs, a missing one computes now.
+ * The caller does not await it; the promise is returned for tests only.
  */
-export function warmStatsCache(get, jobs, { log = console } = {}) {
-  return Promise.all(jobs.map(async ({ key, compute }) => {
-    try { await get(key, compute); log.log(`stats cache: warmed ${key}`); }
-    catch (err) { log.error(`stats cache: warm of ${key} failed: ${err.message}`); }
-  }));
+export async function warmStatsCache(warm, { label = "stats", log = console } = {}) {
+  try { await warm(); log.log(`stats cache: warmed ${label}`); }
+  catch (err) { log.error(`stats cache: warm of ${label} failed: ${err.message}`); }
 }

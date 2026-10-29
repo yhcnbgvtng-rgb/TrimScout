@@ -67,11 +67,11 @@ describe('deals_api_server.js wiring', () => {
 describe('GET /api/inventory/stats', () => {
   const src = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
   it('is served from statsCached under the "stats" key, not the write-invalidated invCached', () => {
-    assert.match(src, /statsCached\("stats", \(\) => stats\.compute\(\)\)/);
+    assert.match(src, /statsCached\("stats", \(\) => inventoryStats\.compute\(\)\)/);
     assert.doesNotMatch(src, /invCached\("stats"/);
   });
   it('runs every stats query under SET STATEMENT + withPoolTimeout (the injected query function)', () => {
-    const body = src.match(/function getInventoryStats\(pool\) \{[\s\S]*?\n\}\n/)[0];
+    const body = src.match(/async function handleInventoryStats\(req, res\) \{[\s\S]*?\n\}\n/)[0];
     assert.match(body, /createInventoryStats\(\{/);
     assert.doesNotMatch(body, /pool\.query\("/);
     assert.match(body, /SET STATEMENT max_statement_time=\$\{statementSeconds\(\)\} FOR \$\{sql\}/);
@@ -98,38 +98,33 @@ describe('GET /api/inventory/stats', () => {
 describe('startup warm', () => {
   const src = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
 
-  it('computes a cold key, so dealers/VINs are not null after a restart', async () => {
+  it('fills a cold key through the same get() a request uses, so dealers/VINs are not null after a restart', async () => {
     const get = createStatsCache({ log: quiet });
-    await warmStatsCache(get, [{ key: 'stats', compute: async () => ({ dealers: 3, vins: 9 }) }], { log: quiet });
+    await warmStatsCache(() => get('stats', async () => ({ dealers: 3, vins: 9 })), { log: quiet });
     let runs = 0;
     assert.deepEqual(await get('stats', async () => { runs++; return null; }), { dealers: 3, vins: 9 });
     assert.equal(runs, 0, 'the warmed value is served, not recomputed');
   });
 
-  it('does not recompute a fresh persisted entry', async () => {
+  it('does not recompute a fresh entry', async () => {
     let runs = 0;
     const get = createStatsCache({ log: quiet, now: () => 0 });
     await get('stats', async () => ++runs);
-    await warmStatsCache(get, [{ key: 'stats', compute: async () => ++runs }], { log: quiet });
+    await warmStatsCache(() => get('stats', async () => ++runs), { log: quiet });
     assert.equal(runs, 1);
   });
 
-  it('swallows a failing compute and still warms the other keys', async () => {
+  it('swallows a failure and logs it', async () => {
     const errors = [];
-    const get = createStatsCache({ log: quiet });
-    await warmStatsCache(get, [
-      { key: 'a', compute: async () => { throw new Error('boom'); } },
-      { key: 'b', compute: async () => 'ok' },
-    ], { log: { log() {}, error: (m) => errors.push(m) } });
+    await warmStatsCache(async () => { throw new Error('boom'); }, { log: { log() {}, error: (m) => errors.push(m) } });
     assert.equal(errors.length, 1);
-    assert.match(errors[0], /warm of a failed: boom/);
-    assert.equal(await get('b', async () => 'never'), 'ok');
+    assert.match(errors[0], /warm of stats failed: boom/);
   });
 
-  it('is scheduled from the listen callback, not awaited before it, and shares the handler\'s stats object', () => {
+  it('is scheduled from the listen callback, not awaited, and runs the real stats handler against a throwaway response', () => {
     const listen = src.match(/server\.listen\(PORT, \(\) => \{[\s\S]*?\n\}\);/)[0];
-    assert.match(listen, /setTimeout\(async \(\) => \{[\s\S]*?warmStatsCache\(statsCached, \[\{ key: "stats"[\s\S]*?\}, STATS_WARM_DELAY_MS\)/);
+    assert.match(listen, /setTimeout\(\(\) => \{\n\s*void warmStatsCache\(\(\) => handleInventoryStats\(null, \{ writeHead\(\) \{\}, end\(\) \{\} \}\)\);\n\s*\}, STATS_WARM_DELAY_MS\)/);
     assert.doesNotMatch(listen, /^\s{2}await /m, 'nothing in the listen callback body is awaited');
-    assert.match(src, /const stats = getInventoryStats\(pool\);\n  \/\/ statsCached/);
+    assert.match(src, /statsCached\("stats", \(\) => inventoryStats\.compute\(\)\)/, 'the handler the warm runs is the one that fills the "stats" key');
   });
 });

@@ -1,0 +1,18 @@
+diff --git scrapers/lightsail-crawler/src/statsCache.js scrapers/lightsail-crawler/src/statsCache.js
+index 33cfc86..9d9b364 100644
+--- scrapers/lightsail-crawler/src/statsCache.js
++++ scrapers/lightsail-crawler/src/statsCache.js
+@@ -11,3 +11,13 @@ export const STATS_CACHE_MAX_ENTRIES = 40;
+ export function createStatsCache(opts = {}) {
+   return createStableCache({ ttlMs: STATS_CACHE_MS, maxEntries: STATS_CACHE_MAX_ENTRIES, ...opts }).get;
+ }
++
++/**
++ * Run `warm` once and never let it throw: used at startup to fill the cache by calling the same code a request would (so a restart never leaves
++ * dealers/VINs null). A fresh persisted entry returns at once, an expired one is served while its refresh runs, a missing one computes now.
++ * The caller does not await it; the promise is returned for tests only.
++ */
++export async function warmStatsCache(warm, { label = "stats", log = console } = {}) {
++  try { await warm(); log.log(`stats cache: warmed ${label}`); }
++  catch (err) { log.error(`stats cache: warm of ${label} failed: ${err.message}`); }
++}
