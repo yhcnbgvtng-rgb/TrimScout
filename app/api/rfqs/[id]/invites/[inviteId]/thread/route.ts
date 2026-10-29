@@ -2,13 +2,14 @@
 // POST /api/rfqs/:id/invites/:inviteId/thread { text } — the buyer posts a message to that dealer (screened: lib/chatSend.ts).
 // One thread per dealer, never merged (lib/dealThread.ts builds it from that invite only). Buyer-authenticated like the stage route; the
 // other desks' quotes, notes and messages are not reachable from here. Nothing identifying goes through, in either direction.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError } from "@/lib/rfqApi";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { buildThread, canPostToThread, isFinallyAccepted, MAX_CHAT_LENGTH } from "@/lib/dealThread";
 import { hasAttachment } from "@/lib/identityFilter";
 import { sendWithGuard } from "@/lib/chatSend";
+import { notifyNewMessage } from "@/lib/noticeOutbox";
 
 async function authorize(req: Request, id: string, inviteId: string) {
   const session = await auth();
@@ -61,6 +62,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const outcome = await sendWithGuard({ rfqId: id, inviteId, from: "buyer", text, dealerName: a.invite.dealerName });
     const fresh = await getRfq(id);
     const invite = fresh?.invites.find((i) => i.id === inviteId) ?? a.invite;
+    // Only a delivered message earns an email, and the email never carries its text.
+    if (outcome.status === "delivered") after(() => notifyNewMessage(fresh ?? a.rfq, invite, "dealer"));
     return NextResponse.json({ ...payload(fresh ?? a.rfq, invite), outcome });
   } catch (err) {
     const status = err instanceof RfqApiError ? err.status : 502;

@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { auth } from "@/auth";
 import { getRfq, RfqApiError, walkAwayFromRfq } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
+import { notifyBuyerClosed } from "@/lib/noticeOutbox";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -20,6 +21,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const rfq = await walkAwayFromRfq(id);
+    // Tell each dealer who had the request that it is closed (the request as it was before the walk says who that is).
+    if (existing.status === "collecting") after(() => notifyBuyerClosed(existing));
     return NextResponse.json({ rfq: publicRfqForBuyer(rfq) });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not record that you walked away.";
