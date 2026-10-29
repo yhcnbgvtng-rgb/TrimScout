@@ -47,8 +47,9 @@ const FAMILIES = [
   [['Toyota', 'Subaru'], 'JTM'], // Toyota-built Subaru EVs: Solterra, Trailseeker, Uncharted
   [['Subaru', 'Toyota', 'Scion'], 'JF1 JF2'], // the Subaru-built BRZ / Toyota GR86 / Scion FR-S share this range
   [['Subaru'], '4S3 4S4'],
-  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH 3GP SHS'], // 3GP Prologue (GM Ramos Arizpe)
+  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH SHS'],
   [['Honda', 'Acura'], '3HD'], // Honda de Mexico: HR-V / Acura ADX
+  [['Honda', 'Acura'], '3GP'], // built by GM for Honda: Prologue (Honda) and ZDX (Acura)
   [['Acura'], '19U 19V JH4 5FR 5J8 2HN 4W5'], // 4W5 ZDX (GM Spring Hill)
   [['Hyundai'], 'KM8 KMH 5NP 5NT'],
   [['Hyundai', 'Genesis'], '5NM KMH'], // Alabama builds both; KMH also covers the Genesis G80 / G90 sedans
@@ -70,6 +71,7 @@ const FAMILIES = [
   [['Mini'], 'WMW WMZ'],
   [['Mercedes-Benz'], 'W1K W1N W1Y WDB WDC WDD 4JG 55S W1W W1X W1Z WDA'], // Sprinter and Metris vans (WD3, a motorhome chassis, stays out: Winnebago-badged rows sit on it)
   [['Mercedes-Benz', 'Freightliner'], 'WD4'],
+  [['International', 'Chevrolet'], '1HT'], // International Motors medium-duty trucks (also sold as the Chevrolet Silverado 4500HD-6500HD): a shared commercial family
   [['Volvo'], 'YV1 YV4 7JD 7JR LVY LYV'], // LVY / LYV Daqing (S90, XC60)
   [['Polestar'], 'YSM LPS 7SY'],
   [['Suzuki'], 'JS2'],
@@ -107,6 +109,9 @@ for (const [nameplate, list] of Object.entries(VIN5_NAMEPLATE)) for (const p of 
 // A stored make that is inside the family is never second-guessed (reconcileMake keeps it), so these rules only ever decide a conflict or a blank.
 const SCION_OR_TOYOTA = [[/^(tc|xb|xa|xd|ia|im|iq|fr-?s)\b/i, 'Scion'], [/./, 'Toyota']];
 const SHARED_MODEL_RULES = {
+  '3HD': [[/\b(adx|rdx|mdx|zdx|integra|tlx|rlx)\b/i, 'Acura'], [/\b(hr-?v|fit|civic|cr-?v|prologue|pilot|accord|passport|odyssey|ridgeline)\b/i, 'Honda']],
+  '3GP': [[/\bzdx\b/i, 'Acura'], [/\bprologue\b/i, 'Honda']],
+  '1HT': [[/\b(silverado|4500|5500|6500)\b/i, 'Chevrolet']],
   '7YA': [[/\b(sportage|sorento|telluride|ev9|ev6|k5|seltos|niro|carnival)\b/i, 'Kia'], [/\b(ioniq|tucson|santa fe|palisade|kona|santa cruz)\b/i, 'Hyundai'], [/^(g\d|gv\d)|\bgenesis\b/i, 'Genesis']],
   '3N6': [[/city express/i, 'Chevrolet'], [/\b(nv\d*|frontier|titan|versa|kicks)\b/i, 'Nissan']],
   'JN1': [[/\b(eclipse|outlander)\b/i, 'Mitsubishi']],

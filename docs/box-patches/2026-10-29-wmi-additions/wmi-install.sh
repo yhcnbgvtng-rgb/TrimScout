@@ -6,7 +6,7 @@
 # Run from the directory that holds this script and files/ (scp the whole directory to /tmp/wa first). Do NOT git pull/merge/commit on a box.
 C=${CRAWLER_DIR:-$HOME/nj-scraper/scrapers/lightsail-crawler}; S=$C/src; HERE=$(cd "$(dirname "$0")" && pwd); BACKUP=${BACKUP:-$HOME/backups/wmi-additions-20261030}; MODE=${1:-check}
 BEFORE=7371d7d9bd40bd9586b4ef8a848a4969      # the #597 table, installed on boxes 1/3/4 (make-wmi patch)
-AFTER=63d371977608d0d8a6c1e758f6ae31c3
+AFTER=274e60473eb1d83fe6b01def4e5f68dc
 md() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
 fail() { echo "FAIL: $*"; exit 1; }
 cur=$(md "$S/vinWmi.js")
@@ -18,11 +18,11 @@ samples() {   # $1 = a src dir: new WMIs resolve, old ones unchanged, excluded o
     const m = await import(process.argv[1] + "/vinWmi.js");
     const eq = (a, b, w) => { if (JSON.stringify(a) !== JSON.stringify(b)) { console.error("SAMPLE FAIL " + w + " " + JSON.stringify(a) + " != " + JSON.stringify(b)); process.exit(1); } };
     const pad = (w) => w + "0".repeat(14);
-    for (const [w, mk] of [["2FD","Ford"],["3FR","Ford"],["NM0","Ford"],["3MW","BMW"],["ZAS","Alfa Romeo"],["ZN6","Maserati"],["3GP","Honda"],["SAD","Jaguar"],["W1Z","Mercedes-Benz"],["LVY","Volvo"],["SB1","Toyota"]]) eq(m.makeFromVin(pad(w)), mk, w);
-    eq(m.makesForWmi(pad("3HD")), ["Honda","Acura"], "3HD"); eq(m.makeFromVin(pad("JTN"), { model: "Corolla" }), "Toyota", "JTN"); eq(m.makeFromVin(pad("JTN"), { model: "tC" }), "Scion", "JTN tC");
+    for (const [w, mk] of [["2FD","Ford"],["3FR","Ford"],["NM0","Ford"],["3MW","BMW"],["ZAS","Alfa Romeo"],["ZN6","Maserati"],["SAD","Jaguar"],["W1Z","Mercedes-Benz"],["LVY","Volvo"],["SB1","Toyota"]]) eq(m.makeFromVin(pad(w)), mk, w);
+    eq(m.makesForWmi(pad("3HD")), ["Honda","Acura"], "3HD"); eq(m.makesForWmi(pad("3GP")), ["Honda","Acura"], "3GP"); eq(m.makeFromVin(pad("3GP"), { model: "Prologue" }), "Honda", "3GP Prologue"); eq(m.makeFromVin(pad("3GP"), { model: "ZDX" }), "Acura", "3GP ZDX"); eq(m.makeFromVin(pad("1HT"), { model: "Silverado 5500HD" }), "Chevrolet", "1HT"); eq(m.makeFromVin(pad("JTN"), { model: "Corolla" }), "Toyota", "JTN"); eq(m.makeFromVin(pad("JTN"), { model: "tC" }), "Scion", "JTN tC");
     for (const w of ["1FT","1FM","5N1","7YA","JTM","WBA"]) if (!m.makesForWmi(pad(w))) { console.error("SAMPLE FAIL old WMI lost " + w); process.exit(1); }
-    for (const w of ["1FV","1HT","WD3","SC6","000"]) eq(m.makesForWmi(pad(w)), null, w + " must stay unknown");
-    eq(m.WMI_LIST.length, 297, "table size");
+    for (const w of ["1FV","1HA","WD3","SC6","000"]) eq(m.makesForWmi(pad(w)), null, w + " must stay unknown");
+    eq(m.WMI_LIST.length, 298, "table size");
     console.log("sample VINs ok");' "$1"
 }
 check_copy() {
