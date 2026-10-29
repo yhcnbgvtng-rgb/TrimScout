@@ -71,10 +71,13 @@ const isTimeout = (e) => /max_statement_time|interrupted|timeout/i.test(String(e
 // ---- discovery: (VIN chars 1-5, stored make[, model for Stellantis]) groups, one WMI at a time, split a character deeper on a timeout
 async function readPrefix(prefix, out) {
   const withModel = STELLANTIS_WMI.has(prefix.slice(0, 3));
+  const t0 = Date.now(), tag = `[${new Date().toISOString().slice(11, 19)}Z] ${prefix}`;
   try {
     const rows = await q(`SELECT LEFT(vin,5) AS p5, CONVERT(BINARY make USING utf8mb4) AS make, ${withModel ? "model" : "NULL AS model"}, COUNT(*) AS n FROM dealer_inventory WHERE vin LIKE ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} GROUP BY LEFT(vin,5), BINARY make${withModel ? ", model" : ""}`, [prefix + "%"]);
     for (const r of rows) out.push({ p5: r.p5, make: r.make, model: r.model, n: Number(r.n) });
+    console.log(`  ${tag} ok ${((Date.now() - t0) / 1000).toFixed(2)}s groups=${rows.length} rows=${rows.reduce((a, r) => a + Number(r.n), 0)}`);
   } catch (e) {
+    console.log(`  ${tag} ${isTimeout(e) ? "TIMEOUT" : "ERROR"} after ${((Date.now() - t0) / 1000).toFixed(2)}s${isTimeout(e) && prefix.length < 5 ? " - splitting deeper" : ""}`);
     if (!isTimeout(e) || prefix.length >= 5) throw e;
     for (const c of CH) { if (pastDeadline()) throw new Error("deadline reached during discovery"); await readPrefix(prefix + c, out); await sleep(50); }
   }
