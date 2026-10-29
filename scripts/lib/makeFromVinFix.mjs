@@ -34,6 +34,38 @@ export function planFromGroups(groups) {
   return out;
 }
 
+/**
+ * Discovery for one VIN prefix as a primary-key walk instead of a GROUP BY: read (vin, dealer_id) in order, `chunk` rows at a time, and group in Node.
+ * Every statement is bounded by the chunk size (LIMIT counts scanned rows because nothing but the key range filters them), so none can run long.
+ * fetchChunk(prefix, cursor|null, n) -> rows [{ vin, dealer_id, make, model, active }] ordered by (vin, dealer_id) strictly after the cursor.
+ * Returns { groups: [{ p5, make, model, n }] (the planFromGroups input), scanned, active, chunks }.
+ */
+export async function readPrefixByWalk({ prefix, withModel, activeOnly, chunk = 5000, fetchChunk, shouldStop = () => false, onChunk = () => {} }) {
+  const tally = new Map();
+  let cur = null, scanned = 0, active = 0, chunks = 0;
+  for (;;) {
+    if (shouldStop()) throw new Error("deadline reached during discovery");
+    const t = Date.now();
+    const rows = await fetchChunk(prefix, cur, chunk);
+    chunks++; scanned += rows.length;
+    for (const r of rows) {
+      const isActive = Number(r.active) === 1;
+      if (isActive) active++;
+      if (activeOnly && !isActive) continue;
+      const make = r.make ?? null, model = withModel ? (r.model ?? null) : null, p5 = String(r.vin).slice(0, 5);
+      const key = `${p5}\u0000${make}\u0000${model}`;
+      let g = tally.get(key);
+      if (!g) tally.set(key, (g = { p5, make, model, n: 0 }));
+      g.n++;
+    }
+    onChunk({ chunks, scanned, rows: rows.length, ms: Date.now() - t });
+    if (rows.length < chunk) break;
+    const last = rows[rows.length - 1];
+    cur = { vin: last.vin, dealer_id: last.dealer_id };
+  }
+  return { groups: [...tally.values()], scanned, active, chunks };
+}
+
 /** The (p5, stored make) groups to walk: one entry per pair, so a prefix that appears under several models is read once. */
 export function walkGroups(conflicts) {
   const seen = new Map();

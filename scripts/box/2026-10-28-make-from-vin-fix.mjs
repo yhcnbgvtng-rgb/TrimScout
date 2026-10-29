@@ -16,8 +16,8 @@
 // Other flags: --wmi=2B3,1GK (only these WMIs)  --include-removed (default: active rows only)  --deadline-et=HH:MM (default 21:30, graceful stop)  --out=DIR (backup dir, default cwd)  --pause-ms=N
 //
 // Rails (same as #609):
-//  - Every statement runs under SET STATEMENT max_statement_time=10. In the DRY RUN / discovery a timeout splits the prefix one VIN character deeper (read only);
-//    in --apply, ANY error or timeout stops the run (no retry). Reads and writes are bounded by the primary key: `vin LIKE 'p5%'` plus a (vin, dealer_id) keyset cursor.
+//  - Every statement runs under SET STATEMENT max_statement_time=10. Discovery (dry run and the re-read under the lock) is a primary-key walk, 5000 rows per chunk, grouped in Node, so no statement scans more than a chunk;
+//    ANY error or timeout stops the run (no retry). Reads and writes are bounded by the primary key: `vin LIKE 'p5%'` plus a (vin, dealer_id) keyset cursor.
 //  - --apply needs --fleet-idle, takes the deals-API sync lock (own owner id, heartbeated, released in finally; exit 4 and no change if held), refuses a retired box IP.
 //  - Each chunk's before-state (vin, dealer_id, make_before, make_after, model) is APPENDED TO THE ROLLBACK JSONL AND fsync'd BEFORE its UPDATE. The UPDATE is by
 //    (vin, dealer_id) and also requires make to still be the value that was read, so a make a crawl wrote in between is never overwritten.
@@ -26,7 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts } from "../lib/makeFromVinFix.mjs";
+import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk } from "../lib/makeFromVinFix.mjs";
 import { STELLANTIS_WMI } from "../../scrapers/lightsail-crawler/src/vinWmi.js";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, ...v] = a.replace(/^--/, "").split("="); return [k, v.length ? v.join("=") : true]; }));
@@ -68,18 +68,24 @@ const pool = mysql.createPool({ host: env.DB_HOST, port: Number(env.DB_PORT || 3
 const q = async (sql, params) => (await pool.query(`SET STATEMENT max_statement_time=${CAP} FOR ${sql}`, params))[0];
 const isTimeout = (e) => /max_statement_time|interrupted|timeout/i.test(String(e?.message));
 
-// ---- discovery: (VIN chars 1-5, stored make[, model for Stellantis]) groups, one WMI at a time, split a character deeper on a timeout
+// ---- discovery: (VIN chars 1-5, stored make[, model for Stellantis]) groups, one WMI at a time, as a primary-key walk (vin, dealer_id) in DISC_CHUNK-row chunks,
+// grouped in Node: no GROUP BY, and every statement is bounded by the chunk size, so none can approach the 10 s cap. Any error or timeout stops the run.
+const DISC_CHUNK = 5000;
 async function readPrefix(prefix, out) {
   const withModel = STELLANTIS_WMI.has(prefix.slice(0, 3));
   const t0 = Date.now(), tag = `[${new Date().toISOString().slice(11, 19)}Z] ${prefix}`;
+  let slowest = 0;
   try {
-    const rows = await q(`SELECT LEFT(vin,5) AS p5, CONVERT(BINARY make USING utf8mb4) AS make, ${withModel ? "model" : "NULL AS model"}, COUNT(*) AS n FROM dealer_inventory WHERE vin LIKE ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""} GROUP BY LEFT(vin,5), BINARY make${withModel ? ", model" : ""}`, [prefix + "%"]);
-    for (const r of rows) out.push({ p5: r.p5, make: r.make, model: r.model, n: Number(r.n) });
-    console.log(`  ${tag} ok ${((Date.now() - t0) / 1000).toFixed(2)}s groups=${rows.length} rows=${rows.reduce((a, r) => a + Number(r.n), 0)}`);
+    const r = await readPrefixByWalk({
+      prefix, withModel, activeOnly: ACTIVE_ONLY, chunk: DISC_CHUNK, shouldStop: pastDeadline,
+      fetchChunk: (p, cur, n) => q(`SELECT vin, dealer_id, CONVERT(BINARY make USING utf8mb4) AS make, model, (removed_at IS NULL) AS active FROM dealer_inventory WHERE vin LIKE ?${cur ? " AND (vin > ? OR (vin = ? AND dealer_id > ?))" : ""} ORDER BY vin, dealer_id LIMIT ${Number(n)}`, [p + "%", ...(cur ? [cur.vin, cur.vin, cur.dealer_id] : [])]),
+      onChunk: (c) => { slowest = Math.max(slowest, c.ms); },
+    });
+    out.push(...r.groups);
+    console.log(`  ${tag} ok ${((Date.now() - t0) / 1000).toFixed(2)}s chunks=${r.chunks} scanned=${r.scanned} active=${r.active} groups=${r.groups.length} slowest-chunk=${slowest}ms`);
   } catch (e) {
-    console.log(`  ${tag} ${isTimeout(e) ? "TIMEOUT" : "ERROR"} after ${((Date.now() - t0) / 1000).toFixed(2)}s${isTimeout(e) && prefix.length < 5 ? " - splitting deeper" : ""}`);
-    if (!isTimeout(e) || prefix.length >= 5) throw e;
-    for (const c of CH) { if (pastDeadline()) throw new Error("deadline reached during discovery"); await readPrefix(prefix + c, out); await sleep(50); }
+    console.log(`  ${tag} ${isTimeout(e) ? "TIMEOUT" : "ERROR"} after ${((Date.now() - t0) / 1000).toFixed(2)}s (slowest chunk so far ${slowest}ms): ${e.message}`);
+    throw e;
   }
 }
 async function discover() {
