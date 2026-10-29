@@ -1,0 +1,34 @@
+diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
+index 4c52cd4..35da16b 100644
+--- scrapers/lightsail-crawler/src/deals_api_server.js
++++ scrapers/lightsail-crawler/src/deals_api_server.js
+@@ -40,7 +40,7 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
+ import { createChatAdminHandlers } from "./rfqChatAdmin.js";
+ import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
+ import { createStableCache, builtForOtherBuild } from "./stableCache.js";
+-import { createStatsCache } from "./statsCache.js";
++import { createStatsCache, warmStatsCache } from "./statsCache.js";
+ import { createInventoryStats } from "./inventoryStats.js";
+ import { createRefreshTimeouts } from "./refreshTimeouts.js";
+ import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
+@@ -4217,6 +4217,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
+   sendJson(res, 404, { error: "Not found" });
+ });
+ 
++// Short, so the numbers are back quickly, but after the listen callback and the DB pool have settled.
++const STATS_WARM_DELAY_MS = 5_000;
+ server.listen(PORT, () => {
+   console.log(`Deals API server listening on port ${PORT}`);
+   // First deploy (or a box whose facet tables were never built): build once shortly after start.
+@@ -4231,6 +4233,11 @@ server.listen(PORT, () => {
+       console.error("startup catalog facet check failed:", err.message);
+     }
+   }, 30_000);
++  // Warm stats-cache.json in the background (dealers/VINs were null after a restart until the first admin page load paid for the scan). Runs the
++  // real handler against a throwaway response, so it fills the same "stats" entry. Not awaited: startup and the listening socket never wait on it.
++  setTimeout(() => {
++    void warmStatsCache(() => handleInventoryStats(null, { writeHead() {}, end() {} }));
++  }, STATS_WARM_DELAY_MS);
+   console.log(`  POST /api/deals`);
+   console.log(`  GET  /api/deals/:id`);
+   console.log(`  POST /api/deals/:id/mark-paid`);

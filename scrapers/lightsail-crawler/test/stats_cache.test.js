@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createStatsCache, STATS_CACHE_MS } from '../src/statsCache.js';
+import { createStatsCache, warmStatsCache, STATS_CACHE_MS } from '../src/statsCache.js';
 
 const quiet = { log() {}, error() {} };
 
@@ -92,5 +92,39 @@ describe('GET /api/inventory/stats', () => {
     invInvalidate();
     assert.equal(await stats('stats', async () => ++runs), 1, 'cached entry survives the write');
     assert.equal(runs, 1);
+  });
+});
+
+describe('startup warm', () => {
+  const src = fs.readFileSync(new URL('../src/deals_api_server.js', import.meta.url), 'utf8');
+
+  it('fills a cold key through the same get() a request uses, so dealers/VINs are not null after a restart', async () => {
+    const get = createStatsCache({ log: quiet });
+    await warmStatsCache(() => get('stats', async () => ({ dealers: 3, vins: 9 })), { log: quiet });
+    let runs = 0;
+    assert.deepEqual(await get('stats', async () => { runs++; return null; }), { dealers: 3, vins: 9 });
+    assert.equal(runs, 0, 'the warmed value is served, not recomputed');
+  });
+
+  it('does not recompute a fresh entry', async () => {
+    let runs = 0;
+    const get = createStatsCache({ log: quiet, now: () => 0 });
+    await get('stats', async () => ++runs);
+    await warmStatsCache(() => get('stats', async () => ++runs), { log: quiet });
+    assert.equal(runs, 1);
+  });
+
+  it('swallows a failure and logs it', async () => {
+    const errors = [];
+    await warmStatsCache(async () => { throw new Error('boom'); }, { log: { log() {}, error: (m) => errors.push(m) } });
+    assert.equal(errors.length, 1);
+    assert.match(errors[0], /warm of stats failed: boom/);
+  });
+
+  it('is scheduled from the listen callback, not awaited, and runs the real stats handler against a throwaway response', () => {
+    const listen = src.match(/server\.listen\(PORT, \(\) => \{[\s\S]*?\n\}\);/)[0];
+    assert.match(listen, /setTimeout\(\(\) => \{\n\s*void warmStatsCache\(\(\) => handleInventoryStats\(null, \{ writeHead\(\) \{\}, end\(\) \{\} \}\)\);\n\s*\}, STATS_WARM_DELAY_MS\)/);
+    assert.doesNotMatch(listen, /^\s{2}await /m, 'nothing in the listen callback body is awaited');
+    assert.match(src, /statsCached\("stats", \(\) => inventoryStats\.compute\(\)\)/, 'the handler the warm runs is the one that fills the "stats" key');
   });
 });

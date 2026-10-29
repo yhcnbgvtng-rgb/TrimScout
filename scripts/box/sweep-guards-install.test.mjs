@@ -140,7 +140,7 @@ describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
   const changed = (file) => fs.readFileSync(file, 'utf8').split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
   // The reviewed patch is a diff against the pre-#601 file, so it also carries every later change to the same repo file. Later install packages (each
   // cut against box2's text at its own time) list theirs here; their changed lines are taken out of the expectation, one for one.
-  const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch'] };
+  const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch', 'docs/box-patches/2026-10-29-stats-cache-warm/deals_api_server.js.patch'] };
   const withoutLater = (name, lines) => {
     const rest = [...lines];
     for (const rel of LATER[name] || []) for (const l of changed(path.join(ROOT, rel))) { const i = rest.indexOf(l); assert.ok(i >= 0, `${rel} changes a line the reviewed patch does not carry: ${l}`); rest.splice(i, 1); }
