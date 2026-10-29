@@ -262,3 +262,46 @@ describe('prefixes added after the 10-28 fallback audit (3MW 3HD 3GP ZAS 1HT)', 
     assert.equal(reconcileMake({ make: 'Chevrolet', vin: V('1HT') }).via, 'kept');
   });
 });
+
+// 2026-10-29: ~4.3k cars on the 10-28 crawl were SKIPPED ("make unresolvable") because the page gave no make and the VIN prefix is shared (5N1 5NM KND KMH JF2 5TD ...)
+// with a roster brand outside the family. The model names the make among the makes that prefix can carry; nothing outside the family is ever considered.
+import { makeFromModelInFamily } from '../src/vinWmi.js';
+describe('model name picks the make inside a shared-plant family (makeFromModelInFamily)', () => {
+  const CASES = [
+    // [vin, model, make]   the six prefixes that carried the skipped cars
+    ['5N1AT2MT8KC702673', 'Rogue', 'Nissan'], ['5N1DL0MM1HC501234', 'QX60', 'Infiniti'], ['5N1AZ2MH0JN123456', 'Murano', 'Nissan'],
+    ['5NMS3CAD9KH012345', 'Santa Fe', 'Hyundai'], ['5NMJECAE7NH123456', 'Tucson', 'Hyundai'],
+    ['KNDPM3AC8L7807729', 'Sportage', 'Kia'], ['KNDJ23AU4N7123456', 'Seltos', 'Kia'], ['KNDEUCA39R7123456', 'EV9', 'Kia'],
+    ['KMHL64JA5NA123456', 'Sonata', 'Hyundai'], ['KMTG34LE2MU123456', 'G70', 'Genesis'],
+    ['JF2SKAEC5KH123456', 'Forester', 'Subaru'], ['JF1GPAA67G8123456', 'Impreza', 'Subaru'], ['JF1ZNBA10N8701234', 'GR86', 'Toyota'],
+    ['5TDBSKFC4NS062179', 'Sienna', 'Toyota'], ['5TDKDRBH1PS123456', 'Highlander', 'Toyota'], ['5TDAAAB55RS123456', 'TX 350', 'Lexus'],
+    ['JN8AZ2NE0K9123456', 'QX80', 'Infiniti'], ['JTMABABA7MD123456', 'Solterra', 'Subaru'],
+  ];
+  for (const [vin, model, make] of CASES) {
+    it(`${vin.slice(0, 3)} ${model} -> ${make}, for a blank make and for a make from outside the family`, () => {
+      const fam = makesForWmi(vin);
+      assert.ok(fam.includes(make), `${make} is in the ${vin.slice(0, 3)} family ${fam}`);
+      assert.equal(makeFromModelInFamily(model, fam), make);
+      assert.equal(reconcileMake({ make: null, vin, model }).make, make);
+      assert.equal(reconcileMake({ make: 'Honda', vin, model }).make, make); // the roster-fallback case: Honda stored on a Nissan VIN
+      assert.equal(reconcileMake({ make: 'Honda', vin, model }).via, 'wmi-conflict');
+    });
+  }
+  it('JTM Solterra: a stored Toyota is inside the family and is kept (a model is never proof against a stored make in the family)', () => {
+    assert.equal(reconcileMake({ make: 'Toyota', vin: 'JTMABABA7MD123456', model: 'Solterra' }).via, 'kept');
+  });
+  it('a blank, unknown, ambiguous or foreign model says nothing', () => {
+    const fam = makesForWmi('5N1AT2MT8KC702673');
+    for (const model of [null, undefined, '', '  ', 'Mystery', 'Crossover', 'Civic', 'Sierra 1500']) assert.equal(makeFromModelInFamily(model, fam), null, String(model));
+    assert.deepEqual(reconcileMake({ make: 'Honda', vin: '5N1AT2MT8KC702673', model: 'Civic' }), { make: null, via: 'conflict-unresolved', from: 'Honda' }, 'a Civic on a Nissan/Infiniti VIN is NOT turned into a Honda by the model');
+    assert.deepEqual(reconcileMake({ make: null, vin: '5N1AT2MT8KC702673', model: null }), { make: null, via: 'unresolved', from: null });
+  });
+  it('a model that matches two makes of the family is ambiguous (Yaris iA: Toyota only; a bare "Genesis" matches nobody)', () => {
+    assert.equal(makeFromModelInFamily('Yaris iA', ['Toyota', 'Scion']), 'Toyota');
+    assert.equal(makeFromModelInFamily('Genesis', ['Hyundai', 'Genesis']), null);
+    assert.equal(makeFromModelInFamily('Rogue', ['Nissan', 'Nissan']), null, 'duplicates of one make never count as one');
+  });
+  it('single-make prefixes are untouched: the model is not consulted', () => {
+    assert.equal(reconcileMake({ make: 'GMC', vin: '1GCUYEED5NZ123456', model: 'Rogue' }).make, 'Chevrolet');
+  });
+});

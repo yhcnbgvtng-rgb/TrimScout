@@ -21,6 +21,9 @@ SRC=$C/src
 # standalone.js: box1 / box3+box4 as read 2026-10-29 16:37 ET (after the politeness + make-wmi installs), and what the patch must produce.
 SA_BOX1=8c39cf86d3017210d586ff3afeb33969;   SA_BOX1_AFTER=980769d114cba511aef4bc5ff033e0ae
 SA_BOX34=d05cd479b8f8d22a77d4d9fb1ef2e31a;  SA_BOX34_AFTER=6f4c4f2a4b4db2ab2830e11074723dba
+# The same files after the keep-unresolved-make patch (docs/box-patches/2026-10-29-keep-unresolved-make-boxes-134) is already on them, and what this patch must then produce (both orders reach the same file).
+SA_BOX1_KEEP=ede2990ec93118428f0854be09006699;  SA_BOX1_BOTH=84a36177398ab6408b5302d1a585cb41
+SA_BOX34_KEEP=1e3766e5d0a5b3042f766c8ea205332d; SA_BOX34_BOTH=d948a134a70ea055c4a2dac235e8d474
 # inventory-sync.mjs on all three: the sweep-guarded file (box2's). The result is not pinned: its text is not in the repo, so the script proves "exactly one line changed" instead.
 SYNC_BEFORE=${TRIMWIRE_SYNC_BEFORE_MD5:-e41f34ff8d9acd2efb025323b7f5bb80}
 # Staged files.
@@ -63,8 +66,10 @@ SA_DONE=0; SY_DONE=0
 case $sa in
   "$SA_BOX1")  SA_PATCH=standalone.js.box1.patch;      SA_PATCH_MD5=$PATCH_BOX1_MD5;  SA_AFTER=$SA_BOX1_AFTER;  echo "standalone.js $sa = box1 variant";;
   "$SA_BOX34") SA_PATCH=standalone.js.box3-box4.patch; SA_PATCH_MD5=$PATCH_BOX34_MD5; SA_AFTER=$SA_BOX34_AFTER; echo "standalone.js $sa = box3/box4 variant";;
-  "$SA_BOX1_AFTER"|"$SA_BOX34_AFTER") SA_DONE=1; echo "standalone.js $sa = already wired";;
-  *) fail "standalone.js md5 $sa is not a known state (box1 $SA_BOX1, box3/4 $SA_BOX34). Send the file back; do not improvise.";;
+  "$SA_BOX1_KEEP")  SA_PATCH=standalone.js.box1.patch;      SA_PATCH_MD5=$PATCH_BOX1_MD5;  SA_AFTER=$SA_BOX1_BOTH;  echo "standalone.js $sa = box1 variant with the keep-unresolved-make patch";;
+  "$SA_BOX34_KEEP") SA_PATCH=standalone.js.box3-box4.patch; SA_PATCH_MD5=$PATCH_BOX34_MD5; SA_AFTER=$SA_BOX34_BOTH; echo "standalone.js $sa = box3/box4 variant with the keep-unresolved-make patch";;
+  "$SA_BOX1_AFTER"|"$SA_BOX34_AFTER"|"$SA_BOX1_BOTH"|"$SA_BOX34_BOTH") SA_DONE=1; echo "standalone.js $sa = already wired";;
+  *) fail "standalone.js md5 $sa is not a known state (box1 $SA_BOX1 / $SA_BOX1_KEEP, box3/4 $SA_BOX34 / $SA_BOX34_KEEP). Send the file back; do not improvise.";;
 esac
 if [ "$sy" = "$SYNC_BEFORE" ]; then echo "inventory-sync.mjs $sy = sweep-guarded, no trimRaw"
 elif [ "$(grep -c 'trimRaw: v.trimRaw' "$SYNC")" -ge 1 ]; then SY_DONE=1; echo "inventory-sync.mjs $sy = already sends trimRaw"
@@ -126,7 +131,7 @@ if [ "$SA_DONE" = 0 ]; then cp -p "$W/src/standalone.js" "$SRC/standalone.js.new
 if [ "$SY_DONE" = 0 ]; then cp -p "$W/inventory-sync.mjs" "$SYNC.new" && mv -f "$SYNC.new" "$SYNC" || bad "installing inventory-sync.mjs"; fi
 # verify the real files
 [ "$(md5of "$SRC/oemTrim.js")" = "$ORM5" ] && [ "$(md5of "$SRC/fordTrim.js")" = "$FORD5" ] || bad "oemTrim.js / fordTrim.js md5 after install"
-case $(md5of "$SRC/standalone.js") in "$SA_BOX1_AFTER"|"$SA_BOX34_AFTER") ;; *) bad "standalone.js md5 after install is $(md5of "$SRC/standalone.js")";; esac
+case $(md5of "$SRC/standalone.js") in "$SA_BOX1_AFTER"|"$SA_BOX34_AFTER"|"$SA_BOX1_BOTH"|"$SA_BOX34_BOTH") ;; *) bad "standalone.js md5 after install is $(md5of "$SRC/standalone.js")";; esac
 cp "$SRC/standalone.js" "$W/final.mjs"; node --check "$W/final.mjs" || bad "installed standalone.js does not parse"
 node --check "$SYNC" || bad "installed inventory-sync.mjs does not parse"
 [ "$(grep -c 'trimRaw: v.trimRaw' "$SYNC")" -ge 1 ] || bad "installed sync client has no trimRaw"

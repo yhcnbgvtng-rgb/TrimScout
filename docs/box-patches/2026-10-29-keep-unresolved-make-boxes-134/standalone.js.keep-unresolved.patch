@@ -1,0 +1,16 @@
+--- a/src/standalone.js
++++ b/src/standalone.js
+@@ -1084,10 +1084,9 @@
+                     // see resolveKeptMake's own header for why.
+                     const keptMake = resolveKeptMake(brand, vehicle, dealer);
+                     // No page make, VIN not in the WMI table: kept under the dealer's / shard's brand (resolveKeptMake logs make_source=fallback).
+-                    // Dropped, and logged here, only when no real brand is available either.
+-                    if (!keptMake) console.log(`⚠️ make unresolvable (no page make, VIN not in the WMI table, no brand to fall back on), car skipped: ${vehicle.vin} ${url}`);
+-
+-                    if (keptMake) {
++                    // A car nothing can name (a shared-plant VIN whose model is not decisive, or a page make the VIN contradicts) is KEPT with a blank make
++                    // (resolveKeptMake logs make_source=unresolved), never skipped: a skipped car is missing from the shard and the sweep retires it.
++                    {
+                         // Collapse to the canonical nameplate. keptMake is
+                         // either the crawl's own resolved nameplate (any raw
+                         // label variant a source site used — "FORD TRUCK",

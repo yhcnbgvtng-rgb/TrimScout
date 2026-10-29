@@ -114,6 +114,34 @@ const SHARED_MODEL_RULES = {
   '1HT': [[/\b(silverado|4500|5500|6500)\b/i, 'Chevrolet']],
 };
 
+// Model names that belong to ONE make of a shared-plant family (Nissan/Infiniti, Hyundai/Genesis/Kia, Toyota/Lexus/Subaru/Scion, Honda/Acura, Mitsubishi/Nissan, Chevrolet/Nissan).
+// Used ONLY to choose between the makes the VIN's WMI can carry (makeFromModelInFamily): a model that matches exactly one of them names the make, a model that matches
+// none or several of them (a Yaris iA, a bare "Genesis") says nothing. A model of a make outside the family is never looked at, so a wrong pattern can only pick
+// a wrong member of a family the VIN already restricted the car to. Whole words only; model text, never trim.
+const MODEL_NAMES = {
+  Nissan: /\b(rogue|murano|pathfinder|armada|titan|altima|sentra|versa|frontier|kicks|leaf|ariya|maxima|juke|370z|350z|gt-?r|nv\d{0,4}|quest|xterra|cube|z)\b/i,
+  Infiniti: /\b(qx?\d{2}[a-z]*|[gm]\d{2}[a-z]*|[fej]x\d{2}[a-z]*|i3[05])\b/i,
+  Mitsubishi: /\b(eclipse( cross)?|outlander|mirage|lancer|galant|endeavor|montero|i-miev|rvr)\b/i,
+  Hyundai: /\b(elantra|sonata|tucson|santa fe|santa cruz|palisade|kona|venue|ioniq|accent|veloster|azera|entourage|tiburon|veracruz|nexo)\b/i,
+  Genesis: /\b(gv?\d{2}[a-z]*)\b/i,
+  Kia: /\b(sportage|sorento|telluride|carnival|sedona|seltos|soul|forte|k\d{1,3}|optima|stinger|niro|rio|ev[3469]|cadenza|borrego|rondo|amanti|spectra|sephia)\b/i,
+  Toyota: /\b(highlander|grand highlander|sienna|camry|corolla|rav4|tacoma|tundra|4runner|sequoia|land cruiser|prius|venza|avalon|supra|gr ?86|86|yaris|c-hr|bz4x|crown|mirai|matrix|fj cruiser|gr corolla|capstone)\b/i,
+  Lexus: /\b(tx|rx|nx|gx|lx|es|is|gs|ls|ux|rc|lc|lfa|ct|hs|rz|lm|sc)(\s?\d{2,3}[a-z]*)?\b/i,
+  Subaru: /\b(outback|forester|crosstrek|impreza|legacy|ascent|wrx|brz|solterra|trailseeker|uncharted|baja|tribeca|xv)\b/i,
+  Scion: /\b(fr-?s|xb|xd|tc|iq)\b/i,
+  Honda: /\b(civic|accord|cr-?v|hr-?v|pilot|passport|odyssey|ridgeline|fit|insight|element|s2000|crosstour|prologue|clarity|cr-?z)\b/i,
+  Acura: /\b(mdx|rdx|tlx|ilx|tsx|tl|rl|rlx|zdx|adx|integra|nsx|rsx|cl)\b/i,
+  Chevrolet: /\bcity express\b/i,
+};
+
+/** The one make of `family` whose model names `model` matches, or null (blank model, no match, or more than one match). */
+export function makeFromModelInFamily(model, family) {
+  const m = String(model ?? '').trim();
+  if (!m || !Array.isArray(family)) return null;
+  const hits = family.filter((make) => MODEL_NAMES[make] && MODEL_NAMES[make].test(m));
+  return hits.length === 1 ? hits[0] : null;
+}
+
 // Model -> nameplate for Stellantis rows whose VIN prefix isn't in the learned table (a new platform year).
 // Full-word patterns only; ambiguous bare numerics (300, 500) are left to the VIN.
 const MODEL_RULES = [
@@ -135,7 +163,7 @@ export function makesForWmi(vin) {
   return wmi ? MAKES_BY_WMI.get(wmi) ?? null : null;
 }
 
-/** The make a VIN names on its own: a single-make WMI, a Stellantis VIN resolved by line code, or a shared-plant WMI resolved by model (SHARED_MODEL_RULES). Null when ambiguous or unknown. */
+/** The make a VIN names on its own: a single-make WMI, a Stellantis VIN resolved by line code, or a shared-plant WMI resolved by model (SHARED_MODEL_RULES, then MODEL_NAMES within the WMI's family). Null when ambiguous or unknown. */
 export function makeFromVin(vin, { model } = {}) {
   const makes = makesForWmi(vin);
   if (!makes) return null;
@@ -143,7 +171,7 @@ export function makeFromVin(vin, { model } = {}) {
   if (STELLANTIS_WMI.has(wmiOf(vin))) return resolveUmbrellaMake({ vin, model }).make;
   const rules = SHARED_MODEL_RULES[wmiOf(vin)];
   if (rules && model) for (const [re, make] of rules) if (makes.includes(make) && re.test(String(model))) return make;
-  return null;
+  return makeFromModelInFamily(model, makes);
 }
 
 // Resolve the real make for a Stellantis-umbrella vehicle (make = "Stellantis"). Returns { make, via } or { make: null, via: null }.
