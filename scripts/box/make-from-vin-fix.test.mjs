@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts } from '../lib/makeFromVinFix.mjs';
+import { makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk } from '../lib/makeFromVinFix.mjs';
 
 const SRC = fs.readFileSync(new URL('./2026-10-28-make-from-vin-fix.mjs', import.meta.url), 'utf8');
 const vin = (p5, i) => p5 + String(i).padStart(12, '0');
@@ -77,5 +77,46 @@ describe('safety rails in the script source', () => {
     assert.ok(SRC.indexOf('fsyncSync') < SRC.indexOf('UPDATE dealer_inventory SET make = ? WHERE BINARY'));
     assert.match(SRC, /writing \? env\.DB_WRITER_USER : \(env\.DB_READER_USER/);
     assert.doesNotMatch(SRC, /DELETE |INSERT |ALTER |DROP /);
+  });
+});
+
+describe('readPrefixByWalk (in-memory table)', () => {
+  const mk = () => {
+    const t = [];
+    for (let d = 1; d <= 3; d++) for (let i = 0; i < 40; i++) t.push({ vin: vin(i % 2 ? '1FTEW' : '1FMCU', i), dealer_id: d, make: i % 5 === 0 ? 'GMC' : 'Ford', model: i % 3 ? 'F-150' : 'Escape', active: i % 7 === 0 ? 0 : 1 });
+    t.push({ vin: vin('1GCUY', 1), dealer_id: 1, make: 'Chevrolet', model: 'Silverado 1500', active: 1 }); // outside the prefix
+    return t.sort((a, b) => (a.vin < b.vin ? -1 : a.vin > b.vin ? 1 : a.dealer_id - b.dealer_id));
+  };
+  const fetcher = (t, calls) => (prefix, cur, n) => {
+    const rows = t.filter((r) => r.vin.startsWith(prefix) && (!cur || r.vin > cur.vin || (r.vin === cur.vin && r.dealer_id > cur.dealer_id))).slice(0, n);
+    calls.push(rows.length);
+    return rows;
+  };
+  const groupBy = (t, prefix, activeOnly, withModel) => {
+    const m = new Map();
+    for (const r of t.filter((r) => r.vin.startsWith(prefix) && (!activeOnly || r.active))) { const k = [r.vin.slice(0, 5), r.make, withModel ? r.model : null].join('|'); m.set(k, (m.get(k) || 0) + 1); }
+    return m;
+  };
+  const asMap = (groups) => new Map(groups.map((g) => [[g.p5, g.make, g.model].join('|'), g.n]));
+  it('matches a GROUP BY for any chunk size, active only or not, with and without model', async () => {
+    const t = mk();
+    for (const chunk of [1, 7, 50, 119, 120, 5000]) for (const activeOnly of [true, false]) for (const withModel of [true, false]) {
+      const calls = [];
+      const r = await readPrefixByWalk({ prefix: '1F', withModel, activeOnly, chunk, fetchChunk: fetcher(t, calls) });
+      assert.deepEqual([...asMap(r.groups)].sort(), [...groupBy(t, '1F', activeOnly, withModel)].sort(), `chunk=${chunk} active=${activeOnly} model=${withModel}`);
+      assert.equal(r.scanned, 120);
+      assert.ok(calls.every((n) => n <= chunk), 'no chunk exceeds its limit');
+    }
+  });
+  it('stops at the deadline and propagates a fetch error (no retry)', async () => {
+    const t = mk();
+    await assert.rejects(readPrefixByWalk({ prefix: '1F', withModel: false, activeOnly: true, chunk: 10, fetchChunk: fetcher(t, []), shouldStop: () => true }), /deadline/);
+    let n = 0;
+    await assert.rejects(readPrefixByWalk({ prefix: '1F', withModel: false, activeOnly: true, chunk: 10, fetchChunk: async () => { n++; throw new Error('max_statement_time exceeded'); } }), /max_statement_time/);
+    assert.equal(n, 1);
+  });
+  it('discovery in the script is the walk, with no GROUP BY left in it', () => {
+    assert.match(SRC, /readPrefixByWalk\(/);
+    assert.doesNotMatch(SRC, /GROUP BY LEFT\(vin,5\)/);
   });
 });

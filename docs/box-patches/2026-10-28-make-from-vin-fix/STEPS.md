@@ -9,33 +9,38 @@ The box has no checkout and the deals-api patch that ships `vinWmi.js` is not in
 
 ## Measured on box2 (read-only, reader account, 10-20 s caps, index-bounded: `vin LIKE 'WMI%'` grouped by `LEFT(vin,5)`, 252 WMIs)
 
-**Re-measured 2026-10-27 21:05-21:15 ET with this script's emitted bundle on the fixed table (#618), active rows:** 2,700,631 rows read, **6,738 to rewrite**, 979 `conflict-unresolved` + 26 `unresolved` (need a vPIC decode, not touched), 22 blank (`wmi-fill`, not touched), no `Kia -> Hyundai` pair. Removed rows (`--include-removed`) were measured before the table fix: 2,359,978 read, 9,057 named conflicts (of which 1,076 were the 7YA false positives, counted separately, so ~9,057 on the old table less the few dozen the fix reclassifies), 2,173 needing vPIC, 457 blank. Step 1 below re-measures them on the fixed table.
+**Re-measured 2026-10-28 19:53-20:00 ET (box2, active rows, bundle md5 9a70eaf7..., the logging build; same discovery query as below):** 2,820,674 rows read, **7,629 to rewrite**, 1,182 `conflict-unresolved` + 26 `unresolved` (need a vPIC decode, not touched), 27 blank (`wmi-fill`, not touched), no `Kia -> Hyundai` pair. The run took about 6 minutes (252 WMIs, 370 s of query time, no timeouts, slowest prefix `3GN` 9.99 s, then `1GT` 9.5 s, `1GC` 9.4 s, `5NM` 8.8 s, `1C4` 8.4 s). The 2026-10-27 run (6,738 rewrites over 2,700,631 rows) was earlier, so the difference is a day of crawl: about 120k more rows and +891 rewrites, mostly **GMC -> Chevrolet (218) and GMC -> Ford (108), all from one dealer** (see "GMC -> Chevrolet / Ford" below). Removed rows (`--include-removed`) were last measured before the table fix: 2,359,978 read, 9,057 named conflicts (of which 1,076 were the 7YA false positives, counted separately), 2,173 needing vPIC, 457 blank. Step 1 below re-measures them on the fixed table.
 
-The "roughly 18.9k" was active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479): about 2.5k of it was the Kia Sportage Hybrid false positive. The real fixable set is about **15.8k rows (6,738 active + ~9k removed)**.
+**The discovery query is now a primary-key walk (this PR), not a GROUP BY.** The old per-WMI `GROUP BY LEFT(vin,5), BINARY make` is range-bounded by the primary key but still reads and groups every row in the range: on box2 the EXPLAIN for `1FT` is `type: range, key: PRIMARY, rows: 572160, Using where; Using temporary; Using filesort` (ANALYZE: 305,987 rows read, 52% active, 0.32 s) and for a small WMI (`ZFF`) `ref idx_inv_removed, rows 342` (0.45 s). Big WMIs ran 8-10 s against the 10 s cap with a deeper split as the only escape, and one earlier run (2026-10-28 19:22 ET) stalled for 23 minutes with no output for a reason that was not reproduced. The walk reads (vin, dealer_id) in 5000-row chunks (`LIMIT` counts scanned rows, removed rows included, because only the key range filters), groups in Node, logs every prefix (time, chunks, rows scanned, slowest chunk), and stops on any error or timeout. **Timing estimate, not yet measured:** about 5.2M rows read (active + removed) in about 1,050 chunks at an expected 20-100 ms each, so roughly 1-3 minutes of query time plus the 100 ms pause per WMI, i.e. about 2-5 minutes in total; replace this with the number from the first post-merge dry run.
 
-### Top 20 pairs, stored make -> make the VIN names (active, fixed table)
+### GMC -> Chevrolet / Ford (checked read-only 2026-10-28)
+All 218 GMC -> Chevrolet and 108 GMC -> Ford rows are one dealer (id 10229, Gregg Young Buick GMC, IA: 839 of its 865 active rows are stored GMC), so it is a roster-brand fallback on that dealer, not a table error. WMIs (all agree with NHTSA vPIC DecodeWMI): Chevrolet `1GC` 66, `3GN` 49, `1GN` 33, `1G1` 23, `3GC` 20, `KL7` 12, `2GC` 8, `2GN` 5, `1GA` 1, `2G1` 1; Ford `1FM` 46, `1FT` 39, `2FM` 10, `1FA` 4, `3FM` 4, `3FT` 2, `1ZV` 1, `3FA` 1, `MAJ` 1. The models are Silverado, Colorado, Equinox, Blazer, Tahoe, Traverse, Trax, TrailBlazer, Malibu, Corvette, F-150, Escape, Explorer, Edge, Mustang, Bronco Sport, Maverick, Ranger...; no GMC nameplate (Sierra, Canyon, Yukon, Terrain, Acadia, Savana) sits on a Chevrolet or Ford WMI, and `1GT`/`3GT` (GMC) rows are untouched.
+
+The "roughly 18.9k" was active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479): about 2.5k of it was the Kia Sportage Hybrid false positive. The real fixable set is about **16.6k rows (7,629 active as of 2026-10-28 + ~9k removed)**.
+
+### Top 20 pairs, stored make -> make the VIN names (active, fixed table, 2026-10-28 dry run)
 | # | rows | stored -> VIN |
 |--:|--:|---|
-| 1 | 512 | Nissan -> Chevrolet |
-| 2 | 453 | Nissan -> Ford |
-| 3 | 348 | Nissan -> Toyota |
-| 4 | 317 | Infiniti -> Nissan |
-| 5 | 284 | Nissan -> Jeep |
-| 6 | 273 | Acura -> Honda |
-| 7 | 209 | Nissan -> GMC |
-| 8 | 197 | Nissan -> Honda |
-| 9 | 163 | Nissan -> Ram |
-| 10 | 121 | Nissan -> Hyundai |
-| 11 | 116 | Honda -> Toyota |
-| 12 | 115 | Mitsubishi -> Chevrolet |
-| 13 | 102 | Acura -> Toyota |
-| 14 | 98 | Honda -> Chevrolet |
-| 15 | 95 | Honda -> Acura |
-| 16 | 95 | Nissan -> Volkswagen |
-| 17 | 86 | Nissan -> Mazda |
-| 18 | 81 | Honda -> Ford |
-| 19 | 74 | Kia -> Chevrolet |
-| 20 | 69 | Mitsubishi -> Ford |
+| 1 | 590 | Nissan -> Chevrolet |
+| 2 | 494 | Nissan -> Ford |
+| 3 | 377 | Nissan -> Toyota |
+| 4 | 357 | Acura -> Honda |
+| 5 | 345 | Nissan -> Jeep |
+| 6 | 321 | Infiniti -> Nissan |
+| 7 | 218 | GMC -> Chevrolet |
+| 8 | 216 | Nissan -> GMC |
+| 9 | 213 | Nissan -> Honda |
+| 10 | 169 | Nissan -> Ram |
+| 11 | 159 | Nissan -> Hyundai |
+| 12 | 131 | Nissan -> Mazda |
+| 13 | 121 | Acura -> Toyota |
+| 14 | 116 | Mitsubishi -> Chevrolet |
+| 15 | 111 | Honda -> Toyota |
+| 16 | 108 | GMC -> Ford |
+| 17 | 107 | Nissan -> Volkswagen |
+| 18 | 98 | Honda -> Chevrolet |
+| 19 | 92 | Honda -> Acura |
+| 20 | 81 | Honda -> Ford |
 
 Spot check of the biggest WMI/stored-make groups by model (active rows): `3N1`+Infiniti = Sentra/Kicks/Versa; `5FN`+Acura = Pilot/Odyssey/Passport; `5J8`+Honda = MDX/RDX; `1HG`+Acura = Accord; `KM8`+Nissan = Palisade/Kona/IONIQ 5; `1FT`+Nissan = F-150/Super Duty/Ranger; `1C4`+Nissan = Wrangler/Grand Cherokee/Durango; `4S4`+Honda = Outback/Ascent/Forester; `1G1`+Nissan = Malibu/Corvette/Camaro. The model agrees with the VIN every time: real mislabels (roster-brand fallback on a multi-franchise lot), not table errors.
 
@@ -53,7 +58,7 @@ The old #1 pair, **Kia -> Hyundai, 1,413 active rows, was wrong**: every one is 
 node scripts/box/2026-10-28-make-from-vin-fix.mjs --emit > /tmp/make-fix.bundle.mjs && md5 /tmp/make-fix.bundle.mjs
 node --test scripts/box/make-from-vin-fix.test.mjs          # 7 pass
 ```
-1. **Dry run** (reader account, no lock, writes nothing; ~10-15 min with removed rows). Read the pairs: they must match the table above (plus whatever arrived overnight) and no `Kia -> Hyundai` pair may appear; **STOP if any pair you do not recognise has a large count**:
+1. **Dry run** (reader account, no lock, writes nothing; the 2026-10-28 GROUP BY build took ~6 min active-only, the walk is estimated at 2-5 min, see above). Read the pairs: they must match the table above (plus whatever arrived since; tonight 7,629 rewrites) and no `Kia -> Hyundai` pair may appear; **STOP if any pair you do not recognise has a large count**:
 ```bash
 ssh box2 'cd /opt/trimscout-deals && node --input-type=module - --include-removed' < /tmp/make-fix.bundle.mjs | tee /tmp/make-fix-dryrun.txt
 ```
