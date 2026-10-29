@@ -48,7 +48,7 @@ import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { runSupersede, runDuplicateVins } from "./syncSuperseded.js";
 import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
-import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts } from "./syncSweepGuard.js";
+import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts, noteCrawlStamp, crawlStampsToIso } from "./syncSweepGuard.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
 
@@ -211,6 +211,7 @@ const noSweepStores = new Set();       // dealer ids that came from an over-size
 const skippedShards = [];              // { file, reason } — unreadable/truncated: nothing uploaded from them
 let staleSkipped = 0, freshUploaded = 0;
 const staleByStore = new Map();        // store name -> stale records skipped
+const crawlStampMs = new Map();        // store id -> newest crawl record time among its uploaded rows (sweep crawl stamps)
 const dropped = [];                    // records read but not uploaded (sold, or stale) — see syncRetired.js
 let newestShardMs = 0;
 for (const shardFile of files) {
@@ -240,6 +241,7 @@ for (const shardFile of files) {
       continue;
     }
     freshUploaded++;
+    noteCrawlStamp(crawlStampMs, dealerIdFor(v), v.updatedAt);
     if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
       vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim, trimRaw: v.trimRaw || null,
@@ -328,7 +330,7 @@ lockHeartbeat = startSyncLockHeartbeat({
 });
 let failed = false;
 try {
-  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs, hostileStores: hostile.entries, guards: guardCfg.fields, requireGuards: guardCfg.requireGuards });
+  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs, hostileStores: hostile.entries, guards: guardCfg.fields, requireGuards: guardCfg.requireGuards, crawlStamps: guardCfg.crawlStamps ? crawlStampsToIso(crawlStampMs) : null });
   writeRetired([...(r.failedStores || []), ...(r.guardSkippedStores || [])]);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));

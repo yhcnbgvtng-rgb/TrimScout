@@ -25,6 +25,11 @@
 // `requireGuards` the sweep first sends one harmless probe (a store id that exists nowhere) and stops with a SweepAbortError, before retiring anything, if
 // the answer does not carry the guard fields. The API's answer also lists the stores its partial-crawl guard skipped, which land in `guardSkipped`.
 //
+// Crawl stamps (`crawlStamps`: store id -> ISO time of the newest crawl record among the store's uploaded rows, with minMisses >= 2): the deals API counts a
+// miss for a store only when its stamp is newer than the one stored at its last counted sweep, so a crawl that two syncs in a row both see is one
+// observation, not two (audit 2026-10-29). With `requireGuards` the probe must come back carrying `stamps`, or an API that predates them would silently
+// keep double counting. The per-store decisions land in `stampStats`.
+//
 // Sweeping is idempotent: re-running a batch (retries, a resume that redoes the one in-flight batch) only
 // retires rows that are still stale, so none of the above can remove a row that shouldn't be.
 
@@ -84,6 +89,7 @@ export async function runSweep({
   maxConsecutiveStoreFailures = 5,
   guards = {},
   requireGuards = false,
+  crawlStamps = null,
 }) {
   // The dealership directory API returns ids as strings ("123"), and Number.isFinite("123") is false — without this
   // coercion every store was dropped, so the sweep made no calls and reported mode "none" (seen on box2, 2026-10-05).
@@ -92,10 +98,15 @@ export async function runSweep({
   const guarded = Object.keys(guards).length > 0;
   const guardSkipped = [];
   let counted = 0;
+  // Stamps only mean something next to a miss counter; without minMisses >= 2 the API ignores them, so they are not sent.
+  const useStamps = Boolean(crawlStamps) && guards.minMisses > 1;
+  const stampStats = { swept: [], countOnly: [], unchanged: [], noStamp: [] };
+  const stampsFor = (ids) => (useStamps ? { crawlStamps: Object.fromEntries(ids.filter((id) => crawlStamps.has(id)).map((id) => [id, crawlStamps.get(id)])) } : {});
   const takeGuardResult = (r) => {
     if (!guarded || !r) return;
     counted += Number(r.counted) || 0;
     if (Array.isArray(r.skipped)) guardSkipped.push(...r.skipped);
+    if (r.stamps) for (const k of Object.keys(stampStats)) if (Array.isArray(r.stamps[k])) stampStats[k].push(...r.stamps[k]);
   };
   const sorted = [...new Set(stores.map(asStoreId))].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
   const batches = [];
@@ -117,7 +128,7 @@ export async function runSweep({
     storeCalls++;
     usedPerStore = true;
     try {
-      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources, ...ownership }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
+      const r = await withRetry(() => api(SWEEP_PATH, { dealerId: id, seenAfter: startedAt, sources, ...ownership, ...stampsFor([id]) }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() });
       if (counts) consecutiveStoreFailures = 0;
       takeGuardResult(r);
       return { removed: r?.removed ?? 0, ok: true };
@@ -139,7 +150,7 @@ export async function runSweep({
       assertLock();
       batchCalls++;
       try {
-        const r = await withRetry(() => api(SWEEP_PATH, { dealerIds: batch.ids, seenAfter: startedAt, sources, ...ownership }), {
+        const r = await withRetry(() => api(SWEEP_PATH, { dealerIds: batch.ids, seenAfter: startedAt, sources, ...ownership, ...stampsFor(batch.ids) }), {
           ...retry.batch,
           sleep,
           shouldRetry: heavyCallShouldRetry(),
@@ -175,12 +186,15 @@ export async function runSweep({
 
   if (guarded && requireGuards && (batches.length || failed.size)) {
     assertLock();
-    const probe = await withRetry(() => api(SWEEP_PATH, { dealerId: PROBE_DEALER_ID, seenAfter: new Date(0).toISOString(), sources, ...ownership }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() })
+    const probe = await withRetry(() => api(SWEEP_PATH, { dealerId: PROBE_DEALER_ID, seenAfter: new Date(0).toISOString(), sources, ...ownership, ...(useStamps ? { crawlStamps: {} } : {}) }), { ...retry.store, sleep, shouldRetry: heavyCallShouldRetry() })
       .catch((err) => { if (err instanceof LockLostError) throw err; throw new SweepAbortError(`the sweep-guard probe failed (${err.message}) — nothing was swept, so no car was retired unguarded`); });
     if (!probe || probe.counted === undefined || !Array.isArray(probe.skipped)) {
       throw new SweepAbortError("the deals API does not acknowledge the sweep guards (it predates inventorySweep.js with guards) — nothing was swept. Install the server half first (docs/box-patches/2026-10-27-sweep-guards/STEPS.md), or set SWEEP_REQUIRE_GUARDS=0 to sweep unguarded on purpose.");
     }
-    log("[sync] sweep guards acknowledged by the deals API: " + JSON.stringify(guards));
+    if (useStamps && (!probe.stamps || typeof probe.stamps !== "object")) {
+      throw new SweepAbortError("the deals API does not acknowledge crawl stamps (it predates the crawl-stamp sweep) — nothing was swept, so no car was counted missing twice from one crawl. Install the server half first, or set SWEEP_CRAWL_STAMPS=0 to sweep without stamps on purpose.");
+    }
+    log("[sync] sweep guards acknowledged by the deals API: " + JSON.stringify(guards) + (useStamps ? " (+ crawl stamps)" : ""));
   }
 
   // Stores an earlier attempt had to skip are tried again first — a resume after the API recovered is exactly
@@ -253,6 +267,7 @@ export async function runSweep({
     storeCalls,
     guardSkipped,
     counted,
+    stampStats,
     mode: usedBatch && usedPerStore ? "mixed" : usedBatch ? "batch" : usedPerStore ? "per-store" : "none",
   };
 }

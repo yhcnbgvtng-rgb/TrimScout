@@ -2677,6 +2677,8 @@ async function handleInventorySweep(req, res) {
     removed: out.removed,
     ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}),
     ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}),
+    // Which stores the crawl stamps let through (see inventorySweep.js); present only when the request carried crawlStamps, which is also the client's acknowledgement.
+    ...(out.stamps ? { stamps: out.stamps } : {}),
   });
 }
 

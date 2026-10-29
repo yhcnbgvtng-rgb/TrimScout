@@ -60,7 +60,8 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   // Sweep guards (syncSweepGuard.js): stores whose crawl hit a 403/429/5xx tonight ({ dealerId, name, cls, kind }) are left out of the sweep entirely,
   // `guards` are the extra request fields the deals API understands (minMisses, protectElsewhere, minFreshRatio, minLiveForRatio), and with
   // `requireGuards` the sweep refuses to start against an API that does not acknowledge them.
-  hostileStores = [], guards = {}, requireGuards = false }) {
+  // `crawlStamps`: Map(store id -> ISO time of the newest crawl record among the store's uploaded rows; key 0 = the unmatched bucket). See syncSweep.js.
+  hostileStores = [], guards = {}, requireGuards = false, crawlStamps = null }) {
   const assertLock = () => {
     if (isLockLost()) throw new LockLostError();
   };
@@ -180,6 +181,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
     concurrency: config.sweepConcurrency,
     guards,
     requireGuards,
+    crawlStamps,
     startIndex: state.sweep.nextIndex,
     removed: state.sweep.removed,
     failedStores: state.sweep.failedStores,
@@ -196,12 +198,13 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   });
   let removed = sweep.removed;
   const { minFreshRatio: _r, minLiveForRatio: _l, ...store0Guards } = guards;
+  const store0Stamps = crawlStamps && guards.minMisses > 1 ? { crawlStamps: crawlStamps.has(0) ? { 0: crawlStamps.get(0) } : {} } : {};
   // The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
   // they re-file under it, and the stale bucket rows are retired here.
   if (!state.sweep.store0Done) {
     try {
       assertLock();
-      removed += (await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"], ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...store0Guards }), { retries: 1, delayMs: 3000 * config.retryScale, sleep }))?.removed ?? 0;
+      removed += (await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"], ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...store0Guards, ...store0Stamps }), { retries: 1, delayMs: 3000 * config.retryScale, sleep }))?.removed ?? 0;
     } catch (err) {
       if (err instanceof LockLostError) throw err;
       /* box predates store-0 sweeps, or this one failed too — not fatal either way */
@@ -214,6 +217,12 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   if (Object.keys(guards).length) {
     for (const line of describeSkips({ hostile: hostileSkipped, partial: sweep.guardSkipped, nameOf: (id) => nameByStore.get(Number(id)) || "?" })) log(line);
     log(`[sync] sweep guards: ${hostileSkipped.length} store(s) skipped for a 403/429/5xx crawl, ${sweep.guardSkipped.length} skipped as partial crawls, ${sweep.counted} missing car(s) counted but not retired yet`);
+    const st = sweep.stampStats;
+    if (st && (st.swept.length || st.countOnly.length || st.unchanged.length || st.noStamp.length)) {
+      log(`[sync] crawl stamps: ${st.swept.length} store(s) had a newer crawl than their last sweep (counted/retired), ${st.countOnly.length} seen for the first time (counted, nothing retired), ${st.unchanged.length} had no new crawl since their last sweep (kept, no miss counted), ${st.noStamp.length} had no crawl time (kept)`);
+      for (const id of st.unchanged.slice(0, 20)) log(`[sync]   no new crawl: ${nameByStore.get(Number(id)) || "?"} (#${id})`);
+      if (st.unchanged.length > 20) log(`[sync]   ... and ${st.unchanged.length - 20} more`);
+    }
   }
   log(`[sync] sweep phase: ${sweep.sweptStores}/${stores.length} stores in ${fmtDur(sweepMs)} (${sweep.batchCalls} batch calls, ${sweep.storeCalls} single-store calls, mode ${sweep.mode}), ${removed} vehicles retired${sweep.failedStores.length ? `, ${sweep.failedStores.length} stores skipped (first: ${sweep.failedStores.slice(0, 10).join(", ")})` : ""}`);
 
@@ -242,6 +251,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
     // Stores the guards left unswept this run (ids): their cars were neither retired nor counted as missing.
     guardSkippedStores: [...hostileSkipped.map((h) => Number(h.dealerId)), ...sweep.guardSkipped.map((g) => Number(g.dealerId))],
     missesCounted: sweep.counted,
+    stampStats: sweep.stampStats,
     removed,
     live,
     optionStats,

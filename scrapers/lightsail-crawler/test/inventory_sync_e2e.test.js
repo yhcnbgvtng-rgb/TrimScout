@@ -90,7 +90,7 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
     if (url === '/api/inventory/sweep') {
       // The client's sweep-guard probe (a store id no row has) is answered like a guard-aware API would and kept out of the recorded sweeps. This fake keeps the
       // OLD retire-on-first-miss semantics on purpose: the guard rules themselves are tested in sweepGuards.test.js, this file tests the client's plumbing.
-      if (body.dealerId === -1) return send(200, { removed: 0, counted: 0, skipped: [] });
+      if (body.dealerId === -1) return send(200, { removed: 0, counted: 0, skipped: [], ...(body.crawlStamps ? { stamps: { swept: [], countOnly: [], unchanged: [], noStamp: [] } } : {}) });
       f.sweeps.push(body);
       const attempt = f.sweeps.filter((s) => JSON.stringify(s.dealerIds ?? s.dealerId) === JSON.stringify(body.dealerIds ?? body.dealerId)).length;
       if (f.sweepDelay) { const ms = f.sweepDelay(body, attempt); if (ms) await new Promise((r) => setTimeout(r, ms)); }
@@ -104,7 +104,7 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
         if (body.sourceBox && !(r.sourceBox === body.sourceBox || r.sourceBox == null || r.lastSeen < Date.parse(body.foreignBefore))) continue;
         r.removed = true; removed++;
       }
-      return send(200, { removed, ...(body.dealerIds ? { stores: body.dealerIds.length } : {}), ...(body.minMisses || body.protectElsewhere || body.minFreshRatio ? { counted: 0, skipped: [] } : {}) });
+      return send(200, { removed, ...(body.dealerIds ? { stores: body.dealerIds.length } : {}), ...(body.minMisses || body.protectElsewhere || body.minFreshRatio ? { counted: 0, skipped: [] } : {}), ...(body.crawlStamps ? { stamps: { swept: [...ids], countOnly: [], unchanged: [], noStamp: [] } } : {}) });
     }
     if (url === '/api/inventory/stats') { f.stats++; return send(200, { total: db.size, vins: db.size, inStock: f.active().length, dealers: stores.length, byState: [{ state: 'NJ', n: 1 }] }); }
     return send(404, { error: 'not found' });
@@ -151,6 +151,10 @@ describe('inventory-sync.mjs against a fake deals API', () => {
     assert.equal(new Set(f.bulkBodies.flat().map((v) => v.vin)).size, total, 'each vehicle exactly once');
     assert.deepEqual(f.sweeps.filter((s) => s.dealerIds).map((s) => s.dealerIds), [[101, 102], [103, 104]]);
     assert.ok(f.sweeps.some((s) => s.dealerId === 0), 'the no-store bucket is swept too');
+    // Crawl stamps (inventorySweep.js): each batch carries the newest shard updatedAt of exactly its own stores, as an ISO time.
+    const stamped = f.sweeps.filter((s) => s.dealerIds);
+    assert.deepEqual(stamped.map((s) => Object.keys(s.crawlStamps).map(Number)), [[101, 102], [103, 104]]);
+    assert.ok(stamped.every((s) => Object.values(s.crawlStamps).every((t) => Number.isFinite(Date.parse(t)))), 'ISO times from updatedAt');
     assert.equal(f.stats, 1);
     assert.equal(f.lock.released, 1);
     const j = finalJson(r);
