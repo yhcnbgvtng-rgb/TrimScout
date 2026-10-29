@@ -40,7 +40,7 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
 import { createChatAdminHandlers } from "./rfqChatAdmin.js";
 import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
-import { createStatsCache } from "./statsCache.js";
+import { createStatsCache, warmStatsCache } from "./statsCache.js";
 import { createInventoryStats } from "./inventoryStats.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
 import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
@@ -3153,20 +3153,23 @@ async function computeMarketPulse(pool, state) {
 
 // Each part is its own index-bounded query with its own last good value, and the one table scan (withSticker) runs in the background — see inventoryStats.js.
 let inventoryStats = null;
-async function handleInventoryStats(req, res) {
-  const pool = getPool();
-  await ensureInventoryTable(pool);
-  inventoryStats ||= createInventoryStats({
-    // Same guard as handleInventoryMakes: SET STATEMENT max_statement_time plus withPoolTimeout.
+function getInventoryStats(pool) {
+  // Same guard as handleInventoryMakes: SET STATEMENT max_statement_time plus withPoolTimeout.
+  return (inventoryStats ||= createInventoryStats({
     query: async (sql) => (await withPoolTimeout(
       pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`),
       waitMs(),
       "Timed out waiting for an available database connection or a slow query"
     ))[0],
     runBackground,
-  });
+  }));
+}
+async function handleInventoryStats(req, res) {
+  const pool = getPool();
+  await ensureInventoryTable(pool);
+  const stats = getInventoryStats(pool);
   // statsCached, not invCached: every bulk upsert/sweep clears invCached, so after the nightly sync this re-ran cold and timed out.
-  sendJson(res, 200, await statsCached("stats", () => inventoryStats.compute()));
+  sendJson(res, 200, await statsCached("stats", () => stats.compute()));
 }
 
 // GET /api/inventory/makes — just the make list, for the buyer /search page's make picker
@@ -4217,6 +4220,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   sendJson(res, 404, { error: "Not found" });
 });
 
+// Short, so the numbers are back quickly, but after the listen callback and the DB pool have settled.
+const STATS_WARM_DELAY_MS = 5_000;
 server.listen(PORT, () => {
   console.log(`Deals API server listening on port ${PORT}`);
   // First deploy (or a box whose facet tables were never built): build once shortly after start.
@@ -4231,6 +4236,18 @@ server.listen(PORT, () => {
       console.error("startup catalog facet check failed:", err.message);
     }
   }, 30_000);
+  // Warm stats-cache.json in the background (dealers/VINs were null after a restart until the first admin page load paid for the scan).
+  // Not awaited and delayed, so startup and the listening socket never wait on it; errors are logged inside warmStatsCache.
+  setTimeout(async () => {
+    try {
+      const pool = getPool();
+      await ensureInventoryTable(pool);
+      const stats = getInventoryStats(pool);
+      await warmStatsCache(statsCached, [{ key: "stats", compute: () => stats.compute() }]);
+    } catch (err) {
+      console.error("startup stats cache warm failed:", err.message);
+    }
+  }, STATS_WARM_DELAY_MS);
   console.log(`  POST /api/deals`);
   console.log(`  GET  /api/deals/:id`);
   console.log(`  POST /api/deals/:id/mark-paid`);

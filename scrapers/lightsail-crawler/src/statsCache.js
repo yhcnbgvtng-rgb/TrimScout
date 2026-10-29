@@ -11,3 +11,15 @@ export const STATS_CACHE_MAX_ENTRIES = 40;
 export function createStatsCache(opts = {}) {
   return createStableCache({ ttlMs: STATS_CACHE_MS, maxEntries: STATS_CACHE_MAX_ENTRIES, ...opts }).get;
 }
+
+/**
+ * Fire-and-forget: ask the cache for each key once so a restart never leaves it cold. A fresh persisted entry returns at once, an expired one
+ * is served while its background refresh runs, and a missing one computes now. Never throws and never blocks the caller (returns the promise
+ * for tests only); one failing key does not stop the others.
+ */
+export function warmStatsCache(get, jobs, { log = console } = {}) {
+  return Promise.all(jobs.map(async ({ key, compute }) => {
+    try { await get(key, compute); log.log(`stats cache: warmed ${key}`); }
+    catch (err) { log.error(`stats cache: warm of ${key} failed: ${err.message}`); }
+  }));
+}
