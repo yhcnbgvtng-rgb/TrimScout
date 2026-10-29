@@ -144,7 +144,7 @@ export function mustHaveHeadline(report: MustHaveReport): string {
     case "none_selected":
       return "No must-haves selected";
     case "unverifiable":
-      return `Can't check must-haves — no factory record for this VIN`;
+      return "Not verified";
     case "scored":
       if (report.total === 1) {
         if (report.present.length === 1) return `Has: ${report.present[0]}`;

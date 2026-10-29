@@ -24,6 +24,7 @@ import {
   getGmSticker,
   gmFactoryOptionBreakout,
   gmStickerPdfUrl,
+  gmStickerRefused,
   gmStickerToVehicle,
   isMultiFlexLine,
   isSuperCruiseLine,
@@ -907,5 +908,28 @@ describe("sticker routes — a sticker failure falls back instead of dead-ending
     // The wizard never surfaces the failure: no badge, no warning, no retry — the car just imports.
     const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
     assert.doesNotMatch(wizard, /temporarily unavailable|Unconfirmed build|0 bytes/);
+  });
+});
+
+describe("GM sticker fetch respects a refusal (2026-10-29)", () => {
+  for (const status of [403, 429]) {
+    it(`HTTP ${status} stops after one request — no header-profile retries — and reads as refused`, async () => {
+      clearGmStickerMemoryCache();
+      const orig = globalThis.fetch;
+      let calls = 0;
+      globalThis.fetch = (async () => {
+        calls++;
+        return new Response("<html>Access Denied errors.edgesuite.net</html>", { status, headers: { "content-type": "text/html" } });
+      }) as typeof fetch;
+      try {
+        await assert.rejects(getGmSticker(PAUL_CHEVY_VIN), (err: unknown) => gmStickerRefused(err));
+        assert.equal(calls, 1);
+      } finally {
+        globalThis.fetch = orig;
+      }
+    });
+  }
+  it("a network failure is not a refusal", () => {
+    assert.equal(gmStickerRefused(new Error("offline")), false);
   });
 });

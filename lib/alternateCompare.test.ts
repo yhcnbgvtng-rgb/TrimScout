@@ -83,7 +83,7 @@ describe("mustHaveReport — must-haves, not sticker similarity", () => {
     const alt = car({ buildConfidence: "dealer_listing_only", options: [], packages: [] });
     const r = mustHaveReport(MUST, alt);
     assert.equal(r.kind, "unverifiable");
-    assert.match(mustHaveHeadline(r), /Can't check/);
+    assert.match(mustHaveHeadline(r), /Not verified/);
   });
 
   it("says so when nothing was selected", () => {

@@ -73,4 +73,10 @@ describe("durable quote seed", () => {
     assert.equal(seedStoreKey({ dealerId: null, dealerName: " A Ford ", dealerState: "oh" }), "n:a ford|OH");
     assert.equal(seedStoreKey({ dealerId: "9", dealerName: " ", dealerState: null }), null);
   });
+
+  it("keeps the search row's trim so the wizard can show it instead of the VIN decoder's spelling", () => {
+    const [car] = sanitizeQuoteSeed([{ vin: "3GCUKFE80TG438076", vdpUrl: null, trim: " LT Trail Boss " }]);
+    assert.equal(car.trim, "LT Trail Boss");
+    assert.equal(sanitizeQuoteSeed([{ vin: "3GCUKFE80TG438076", vdpUrl: null }])[0].trim, null);
+  });
 });
