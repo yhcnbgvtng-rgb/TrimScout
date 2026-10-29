@@ -26,7 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching } from "../lib/makeFromVinFix.mjs";
+import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching, auditGroups, RULES, storedMakeGuard } from "../lib/makeFromVinFix.mjs";
 import { STELLANTIS_WMI } from "../../scrapers/lightsail-crawler/src/vinWmi.js";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, ...v] = a.replace(/^--/, "").split("="); return [k, v.length ? v.join("=") : true]; }));
@@ -42,6 +42,9 @@ if (args.emit) { // bundle this script with the engine into one ESM file on stdo
 
 const APPLY = Boolean(args.apply), FLEET_IDLE = Boolean(args["fleet-idle"]), ROLLBACK = args.rollback && args.rollback !== true ? String(args.rollback) : null;
 const LIMIT = args.limit ? Number(args.limit) : Infinity, ACTIVE_ONLY = !args["include-removed"], PAUSE = Number(args["pause-ms"] ?? 150);
+const AUDIT = Boolean(args.audit); // read-only: print the groups NO rule rewrites (model + active split) as JSON lines
+const RULESET = args.rules && args.rules !== true ? String(args.rules).split(",").map((x) => x.trim()).filter(Boolean) : RULES; // --rules=wmi-conflict reproduces the first version
+if (RULESET.some((x) => !RULES.includes(x))) { console.error(`--rules: unknown rule; known: ${RULES.join(",")}`); process.exit(1); }
 const BATCH = 100, CAP = 10, OUT = String(args.out || process.cwd());
 const ONLY = args.wmi ? String(args.wmi).split(",").map((s) => s.trim().toUpperCase()).filter(Boolean) : null;
 const [DL_H, DL_M] = String(args["deadline-et"] || "21:30").split(":").map(Number);
@@ -72,12 +75,12 @@ const isTimeout = (e) => /max_statement_time|interrupted|timeout/i.test(String(e
 // grouped in Node: no GROUP BY, and every statement is bounded by the chunk size, so none can approach the 10 s cap. Any error or timeout stops the run.
 const DISC_CHUNK = 5000, APPLY_CHUNK = 2000; // rows scanned per statement (discovery / apply-path read)
 async function readPrefix(prefix, out) {
-  const withModel = STELLANTIS_WMI.has(prefix.slice(0, 3));
+  const withModel = true; // the model decides Stellantis lines and the shared WMIs (model-conflict / model-fill), and keeps the dry-run count equal to what the per-row apply decides
   const t0 = Date.now(), tag = `[${new Date().toISOString().slice(11, 19)}Z] ${prefix}`;
   let slowest = 0;
   try {
     const r = await readPrefixByWalk({
-      prefix, withModel, activeOnly: ACTIVE_ONLY, chunk: DISC_CHUNK, shouldStop: pastDeadline,
+      prefix, withModel, activeOnly: ACTIVE_ONLY, splitActive: AUDIT, chunk: DISC_CHUNK, shouldStop: pastDeadline,
       fetchChunk: (p, cur, n) => q(`SELECT vin, dealer_id, CONVERT(BINARY make USING utf8mb4) AS make, model, (removed_at IS NULL) AS active FROM dealer_inventory WHERE vin LIKE ?${cur ? " AND (vin > ? OR (vin = ? AND dealer_id > ?))" : ""} ORDER BY vin, dealer_id LIMIT ${Number(n)}`, [p + "%", ...(cur ? [cur.vin, cur.vin, cur.dealer_id] : [])]),
       onChunk: (c) => { slowest = Math.max(slowest, c.ms); },
     });
@@ -97,6 +100,11 @@ async function discover() {
 
 function report(plan) {
   console.log(`  rows read: ${plan.total.toLocaleString()}   agree/unknown WMI: ${plan.kept.toLocaleString()}   to rewrite: ${plan.rowsToChange.toLocaleString()}   counted only (not touched): ${JSON.stringify(plan.counted)}`);
+  console.log(`  rules: ${RULESET.join(",")}`);
+  for (const [rule, b] of Object.entries(plan.byRule)) {
+    console.log(`  RULE ${rule}: ${b.rows.toLocaleString()} rows`);
+    for (const [k, n] of Object.entries(b.groups).sort((a, b2) => b2[1] - a[1])) console.log(`    GROUP ${rule} | ${k} | ${n}`);
+  }
   console.log("  top pairs (stored -> VIN make):");
   for (const [k, n] of Object.entries(plan.pairs).sort((a, b) => b[1] - a[1]).slice(0, 20)) console.log(`    ${String(n).padStart(7)}  ${k}`);
 }
@@ -152,14 +160,16 @@ if (ROLLBACK) {
 // ---------------------------------------------------------------- dry run / apply
 console.log(`${APPLY ? "LIVE (--apply)" : "DRY RUN"}  ${new Date().toISOString()}  ${ACTIVE_ONLY ? "active rows" : "all rows incl. removed"}${ONLY ? `  WMIs ${ONLY.join(",")}` : ""}  deadline ${DL_H}:${String(DL_M).padStart(2, "0")} ET`);
 if (!APPLY) {
-  report(planFromGroups(await discover()));
+  const found = await discover();
+  report(planFromGroups(found, RULESET));
+  if (AUDIT) for (const a of auditGroups(found, RULESET)) console.log(`AUDIT ${JSON.stringify(a)}`);
   console.log("DRY RUN - nothing was changed.");
   await pool.end();
   process.exit(0);
 }
 
 await withLock("make-from-vin-fix", async () => {
-  const plan = planFromGroups(await discover()); // re-read under the lock: nothing else is writing now
+  const plan = planFromGroups(await discover(), RULESET); // re-read under the lock: nothing else is writing now
   report(plan);
   const groups = walkGroups(plan.conflicts);
   fs.mkdirSync(OUT, { recursive: true });
@@ -169,17 +179,17 @@ await withLock("make-from-vin-fix", async () => {
   let result;
   try {
     result = await applyConflicts({
-      groups, limit: LIMIT, batchSize: BATCH, sleep: () => sleep(PAUSE), shouldStop: pastDeadline,
+      groups, rules: RULESET, limit: LIMIT, batchSize: BATCH, sleep: () => sleep(PAUSE), shouldStop: pastDeadline,
       fetchBatch: (g, cur, n) => fetchMatching({
         group: g, cursor: cur, n, activeOnly: ACTIVE_ONLY, chunk: APPLY_CHUNK,
         fetchChunk: (p5, c, k) => q(`SELECT vin, dealer_id, make, model, (removed_at IS NULL) AS active FROM dealer_inventory WHERE vin LIKE ?${c ? " AND (vin > ? OR (vin = ? AND dealer_id > ?))" : ""} ORDER BY vin, dealer_id LIMIT ${Number(k)}`, [p5 + "%", ...(c ? [c.vin, c.vin, c.dealer_id] : [])]),
       }),
       writeBackup: (rows, to) => { fs.writeSync(fd, rows.map((r) => backupLine(r, to)).join("\n") + "\n"); fs.fsyncSync(fd); },
-      updateBatch: async (rows, to) => (await pool.query(`SET STATEMENT max_statement_time=${CAP} FOR UPDATE dealer_inventory SET make = ? WHERE BINARY make = BINARY ? AND (${rows.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [to, rows[0].make, ...rows.flatMap((r) => [r.vin, r.dealer_id])]))[0].affectedRows,
+      updateBatch: async (rows, to) => (await pool.query(`SET STATEMENT max_statement_time=${CAP} FOR UPDATE dealer_inventory SET make = ? WHERE ${storedMakeGuard(rows[0].make).sql} AND (${rows.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [to, ...storedMakeGuard(rows[0].make).params, ...rows.flatMap((r) => [r.vin, r.dealer_id])]))[0].affectedRows,
     });
   } finally { fs.closeSync(fd); }
   console.log(`rewritten: ${result.updated.toLocaleString()} rows; skipped (make changed under us): ${result.skipped}; read: ${result.read.toLocaleString()}; left alone by the per-row recheck: ${result.left}; stopped by: ${result.stopped || "finished"}`);
-  const after = planFromGroups(await discover());
+  const after = planFromGroups(await discover(), RULESET);
   console.log(`still to fix after the run: ${after.rowsToChange.toLocaleString()} (nonzero only if --limit or the deadline stopped it, or new rows arrived)`);
   console.log(`Rollback: node --input-type=module - --rollback=${backupFile} [--apply --fleet-idle] < bundle`);
 });
