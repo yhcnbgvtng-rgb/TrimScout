@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { MAX_PICKS, MAX_VIEWED, markViewed, parseStored, sanitizeState, togglePick, toPick, vehicleKey } from "./buyerPicks";
+import { MAX_PICKS, MAX_VIEWED, PICK_WARNING_COPY, markViewed, parseStored, pickWarnings, sanitizeState, togglePick, toPick, vehicleKey } from "./buyerPicks";
 
 const car = (vin: string, dealerName = "A Motors") => toPick({ vin, dealerId: null, dealerName, dealerState: "NJ", year: 2025, make: "Ford", model: "F-150", trim: null, mileage: null, price: 50000, vdpUrl: null });
 
@@ -155,5 +155,27 @@ describe("listingFor — a car the crawl has not seen for over 3 days is no long
   });
   it("is gone once last seen more than 3 days ago", () => {
     assert.equal(listingFor(here, [{ dealerId: "11", dealerName: "A Motors", removedAt: null, lastSeenAt: "2026-10-22T06:28:19Z" }], now), "gone");
+  });
+});
+
+describe("pickWarnings", () => {
+  const withCond = (vin: string, condition: "new" | "used" | "cpo" | null, dealerId: string | null = vin) => ({ ...toPick({ vin, dealerId, dealerName: `Store ${dealerId ?? vin}`, dealerState: "NJ", year: 2025, make: "Ford", model: "F-150", trim: null, mileage: null, price: 1, vdpUrl: null }), condition });
+  it("no warning for all-new, all-used, or a single pick", () => {
+    assert.deepEqual(pickWarnings([]), []);
+    assert.deepEqual(pickWarnings([withCond("1", "new"), withCond("2", "new")]), []);
+    assert.deepEqual(pickWarnings([withCond("1", "used"), withCond("2", "cpo")]), []);
+  });
+  it("new beside used (cpo counts as used) warns once, in the wizard's terms", () => {
+    assert.deepEqual(pickWarnings([withCond("1", "new"), withCond("2", "cpo")]), [PICK_WARNING_COPY.mixedCondition]);
+  });
+  it("an unknown condition never triggers the new/used warning", () => {
+    assert.deepEqual(pickWarnings([withCond("1", "used"), withCond("2", null)]), []);
+  });
+  it("two picks at one store warn; the same name in a different id does not collide", () => {
+    assert.deepEqual(pickWarnings([withCond("1", "new", "7"), withCond("2", "new", "7")]), [PICK_WARNING_COPY.sameDealer]);
+    assert.deepEqual(pickWarnings([withCond("1", "new", "7"), withCond("2", "new", "8")]), []);
+  });
+  it("both problems at once give both warnings", () => {
+    assert.equal(pickWarnings([withCond("1", "new", "7"), withCond("2", "used", "7")]).length, 2);
   });
 });
