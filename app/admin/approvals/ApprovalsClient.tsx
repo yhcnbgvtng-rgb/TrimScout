@@ -99,7 +99,7 @@ export default function ApprovalsClient() {
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Could not record the decision.");
       const released = json.released as Record<string, number> | null;
-      setNotice((n) => ({ ...n, [rfq.id]: decision === "approved" ? `Released — sent ${released?.sent ?? 0}, unassigned ${released?.no_desk ?? 0}, parked ${released?.parked_switch_off ?? 0}, failed ${released?.failed ?? 0}` : "Rejected — the buyer sees your reason in their tracker." }));
+      setNotice((n) => ({ ...n, [rfq.id]: decision === "approved" ? `Released — redirected to the safe inbox ${released?.sent ?? 0} (not delivered to dealers), unassigned ${released?.no_desk ?? 0}, parked ${released?.parked_switch_off ?? 0}, opted out ${released?.opted_out ?? 0}, failed ${released?.failed ?? 0}` : "Rejected — the buyer sees your reason in their tracker." }));
       replace(json.rfq as AdminRfq);
       setRejecting((r) => ({ ...r, [rfq.id]: "" }));
     } catch (e) {

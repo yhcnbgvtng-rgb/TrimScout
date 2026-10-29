@@ -29,7 +29,7 @@ describe("quote-request email — one template for Cash / Lease / Finance", () =
     assert.equal(quoteInviteTitle(base), "OTD quote request — 2026 X3 30 xDrive · Cash · Butler, NJ (07405)");
     assert.equal(quoteInviteTitle(lease), "Lease quote request — 2026 X3 30 xDrive · Lease · Butler, NJ (07405)");
     assert.equal(quoteInviteTitle(finance), "Finance quote request — 2026 X3 30 xDrive · Finance · Butler, NJ (07405)");
-    assert.equal(quoteInviteSubject(base), "OTD quote request — 2026 X3 30 xDrive · Cash · Butler, NJ (07405) · VIN …190742");
+    assert.equal(quoteInviteSubject(base), "[SAFE MODE · Bachrodt BMW] OTD quote request — 2026 X3 30 xDrive · Cash · Butler, NJ (07405) · VIN …190742");
   });
 
   it("area: exact ZIP → 'City, ST (ZIP)'; unknown ZIP → 'ST (ZIP)'; no ZIP → omitted", () => {

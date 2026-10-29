@@ -143,7 +143,7 @@ describe("lifecycle strip — Draft → In progress → Sent, awaiting dealer re
     assert.equal(rfqLifecycleStage(rfq({ status: "picked", invites: [inv({ status: "quoted", quote: { id: "q" } })] })), "successful");
   });
   it("detail line names what's happening", () => {
-    assert.match(rfqLifecycleDetail(rfq({ invites: [inv({}), inv({ id: "2" })] })), /2 dealers have it — none has replied yet/);
+    assert.match(rfqLifecycleDetail(rfq({ invites: [inv({}), inv({ id: "2" })] })), /^Held for review — not yet delivered to the dealer\.$/, "SAFE MODE holds dealer mail back, so the line never says dealers have it");
     assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ status: "quoted", quote: { id: "q" } }), inv({ id: "2" })] })), /1 of 2 dealers replied — compare and pick one, or walk away/);
     assert.match(rfqLifecycleDetail(rfq({ tradeInExpected: true, invites: [inv({ status: "quoted", quote: { id: "q" } }), inv({ id: "2" })] })), /your trade-in is sized up against the out-the-door price/);
     assert.match(rfqLifecycleDetail(rfq({ invites: [inv({ deliveryStatus: "queued" })] })), /Sending to 1 dealer…/);

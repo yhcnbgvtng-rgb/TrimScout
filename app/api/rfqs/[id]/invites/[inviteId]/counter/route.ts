@@ -11,7 +11,7 @@ import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { buildCounterFromEdits, counterSummary, parseCounterEdits } from "@/lib/buyerCounter";
 import { counterDiff, counterKindOf } from "@/lib/counterSheet";
 import { cashOutTheDoor } from "@/lib/usedQuote";
-import { sendQuoteInviteEmail } from "@/lib/dealerEmail";
+import { sendCounterNotice } from "@/lib/inviteOutbox";
 import { buyerCounterHtml, buyerCounterSubject } from "@/lib/quoteInviteEmail";
 import { dealerReference } from "@/lib/dealerReference";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
@@ -47,7 +47,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const updated = await submitBuyerCounter(id, inviteId, counter);
 
-    // Tell the desk. Best effort: a missed email leaves the counter in place
+    // Tell the desk (release, email switch and opt-out apply). Best effort: a missed email leaves the counter in place
     // on their page; SAFE MODE routes this to the safe recipient.
     if (invite.viewToken && invite.desk) {
       const input = {
@@ -62,7 +62,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         rows: counter.sheet ? counterDiff(counter.sheet).map(({ label, before, after, delta, locked, total, format }) => ({ label, before, after, delta, locked, total, format })) : null,
         viewUrl: `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken)}`,
       };
-      await sendQuoteInviteEmail(buyerCounterSubject(input), buyerCounterHtml(input)).catch(() => false);
+      await sendCounterNotice(rfq, invite, { subject: buyerCounterSubject(input), html: buyerCounterHtml(input) });
     }
     return NextResponse.json({ rfq: publicRfqForBuyer(updated) });
   } catch (err) {

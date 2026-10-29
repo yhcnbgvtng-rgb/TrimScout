@@ -16,6 +16,7 @@ import type { LeaseRequestPrefs } from "./leaseQuote";
 import { DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
 import { EXACT_ZIP_LOOKUP } from "./zipCoordinates";
 import { getZipCoordinates } from "./otdCalculator";
+import { safeModeSubject } from "./safeMode";
 import { vehicleTitle } from "./vehicleTitle";
 
 export type QuoteEmailType = "cash" | "lease" | "finance";
@@ -119,7 +120,7 @@ export function quoteInviteTitle(input: QuoteInviteEmailInput): string {
 }
 
 export function quoteInviteSubject(input: QuoteInviteEmailInput): string {
-  return input.alternateAsk ? quoteInviteTitle(input) : `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`;
+  return safeModeSubject(input.dealerName, input.alternateAsk ? quoteInviteTitle(input) : `${quoteInviteTitle(input)} · VIN …${input.vehicle.vin.slice(-6)}`);
 }
 
 /** "Jane Doe" → "Jane"; a rooftop's shared inbox ("Sales desk") is greeted as the team. */
@@ -226,7 +227,7 @@ export function counterComparisonTableHtml(rows: NonNullable<BuyerCounterEmailIn
 
 export function buyerCounterSubject(input: BuyerCounterEmailInput): string {
   const car = vehicleTitle(input.vehicle);
-  return `Buyer counter on your ${input.kind || "lease"} quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
+  return safeModeSubject(input.dealerName, `Buyer counter on your ${input.kind || "lease"} quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`);
 }
 
 export function buyerCounterHtml(input: BuyerCounterEmailInput): string {

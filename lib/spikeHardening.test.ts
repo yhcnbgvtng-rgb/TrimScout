@@ -76,7 +76,7 @@ describe("dealer email is a queue — built from stored state, sent after the re
   it("the email needs nothing from the original HTTP body: cash type, ZIP, timeline, note, trade-in, TQ ref, rooftop state all come from the stored request", async () => {
     const mail = await buildInviteEmailFromStored(rfq([invite()]), invite(), []);
     assert.ok(mail);
-    assert.match(mail!.subject, /^OTD quote request — 2026 Tahoe LS · Cash · Butler, NJ \(07405\)/);
+    assert.match(mail!.subject, /^\[SAFE MODE · Smoke Chevrolet of Butler\] OTD quote request — 2026 Tahoe LS · Cash · Butler, NJ \(07405\)/);
     assert.match(mail!.html, /Within the month/);
     assert.match(mail!.html, /Need it by the 30th/);
     assert.match(mail!.html, />Trade-in<\/td>/);
