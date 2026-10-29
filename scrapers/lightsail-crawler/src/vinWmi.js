@@ -46,6 +46,8 @@ const FAMILIES = [
   [['Toyota', 'Subaru'], 'JTM'], // Toyota-built Subaru EVs: Solterra, Trailseeker, Uncharted
   [['Subaru', 'Toyota', 'Scion'], 'JF1 JF2'], // the Subaru-built BRZ / Toyota GR86 / Scion FR-S share this range
   [['Subaru'], '4S3 4S4'],
+  [['Honda', 'Acura'], '3HD'], // Honda de Mexico (NHTSA: HONDA, ACURA)
+  [['Honda', 'Acura'], '3GP'], // built by GM for Honda: Prologue (Honda) and ZDX (Acura)
   [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH'],
   [['Acura'], '19U 19V JH4 5FR 5J8 2HN'],
   [['Hyundai'], 'KM8 KMH 5NP 5NT'],
@@ -64,8 +66,9 @@ const FAMILIES = [
   [['Volkswagen'], '1VW 3VW 3VV WVW WVG WV1 WV2 1V2'],
   [['Audi'], 'WAU WA1 WUA TRU'],
   [['Porsche'], 'WP0 WP1'],
-  [['BMW'], 'WBA WBS WBX WBY 5UX 5YM 5UM 4US'],
+  [['BMW'], 'WBA WBS WBX WBY 5UX 5YM 5UM 4US 3MW'], // 3MW: BMW Mexico (San Luis Potosi)
   [['Mini'], 'WMW WMZ'],
+  [['International', 'Chevrolet'], '1HT'], // International Motors medium-duty trucks (also sold as the Chevrolet Silverado 4500HD-6500HD)
   [['Mercedes-Benz'], 'W1K W1N W1Y WDB WDC WDD 4JG 55S'],
   [['Volvo'], 'YV1 YV4 7JD 7JR'],
   [['Polestar'], 'YSM LPS'],
@@ -76,7 +79,7 @@ const FAMILIES = [
   [['Jaguar'], 'SAJ'],
   [['Land Rover'], 'SAL'],
   [['Maserati'], 'ZAM'],
-  [['Alfa Romeo'], 'ZAR'],
+  [['Alfa Romeo'], 'ZAR ZAS'], // ZAS: Alfa Romeo SUVs built at Cassino (Stelvio / Tonale)
   [['Ferrari'], 'ZFF'],
   [['McLaren'], 'SBM'],
   [['Aston Martin'], 'SCF'],
@@ -106,6 +109,9 @@ const SHARED_MODEL_RULES = {
   '7YA': [[/\b(sportage|sorento|telluride|ev9|ev6|k5|seltos|niro|carnival)\b/i, 'Kia'], [/\b(ioniq|tucson|santa fe|palisade|kona|santa cruz)\b/i, 'Hyundai'], [/^(g\d|gv\d)|\bgenesis\b/i, 'Genesis']],
   '3N6': [[/city express/i, 'Chevrolet'], [/\b(nv\d*|frontier|titan|versa|kicks)\b/i, 'Nissan']],
   'JN1': [[/\b(eclipse|outlander)\b/i, 'Mitsubishi']],
+  '3HD': [[/\b(adx|rdx|mdx|zdx|integra|tlx|rlx)\b/i, 'Acura'], [/\b(hr-?v|fit|civic|cr-?v|prologue|pilot|accord|passport|odyssey|ridgeline)\b/i, 'Honda']],
+  '3GP': [[/\bzdx\b/i, 'Acura'], [/\bprologue\b/i, 'Honda']],
+  '1HT': [[/\b(silverado|4500|5500|6500)\b/i, 'Chevrolet']],
 };
 
 // Model -> nameplate for Stellantis rows whose VIN prefix isn't in the learned table (a new platform year).

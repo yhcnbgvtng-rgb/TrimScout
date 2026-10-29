@@ -229,3 +229,36 @@ describe('WMI_LIST', () => {
     assert.ok(WMI_LIST.includes('7YA'));
   });
 });
+
+// 2026-10-29 fallback audit of the 10-28 crawl logs (boxes 1/3/4): these prefixes carried most of the make_source=fallback lines because they were not in the table.
+// Makes per NHTSA vPIC DecodeWMI; the VINs below are shaped like the live ones (no real customer data).
+describe('prefixes added after the 10-28 fallback audit (3MW 3HD 3GP ZAS 1HT)', () => {
+  const V = (wmi) => `${wmi}AB1CD2EF3456789`.slice(0, 17).padEnd(17, '1');
+  it('are in the table and WMI_LIST', () => {
+    for (const w of ['3MW', '3HD', '3GP', 'ZAS', '1HT']) { assert.ok(WMI_LIST.includes(w), w); assert.ok(makesForWmi(V(w)), w); }
+  });
+  it('3MW is BMW and 3HD / 3GP are Honda or Acura; ZAS is Alfa Romeo', () => {
+    assert.equal(makeFromVin(V('3MW')), 'BMW');
+    assert.equal(makeFromVin(V('ZAS')), 'Alfa Romeo');
+    assert.deepEqual(makesForWmi(V('3HD')), ['Honda', 'Acura']);
+    assert.deepEqual(makesForWmi(V('3GP')), ['Honda', 'Acura']);
+  });
+  it('a roster brand inside the family is kept (the old fallback case), outside it is contradicted', () => {
+    assert.equal(reconcileMake({ make: 'Acura', vin: V('3HD'), model: 'ADX' }).via, 'kept');
+    assert.equal(reconcileMake({ make: 'Honda', vin: V('3GP'), model: 'Prologue' }).via, 'kept');
+    assert.deepEqual(reconcileMake({ make: 'GMC', vin: V('3MW'), model: '330i' }), { make: 'BMW', via: 'wmi-conflict', from: 'GMC' });
+    assert.deepEqual(reconcileMake({ make: 'Chevrolet', vin: V('ZAS'), model: 'Stelvio' }), { make: 'Alfa Romeo', via: 'wmi-conflict', from: 'Chevrolet' });
+  });
+  it('shared 3HD / 3GP / 1HT: the model names the make for a blank or contradicted one, otherwise the VIN says nothing', () => {
+    assert.equal(reconcileMake({ make: null, vin: V('3GP'), model: 'Prologue' }).make, 'Honda');
+    assert.equal(reconcileMake({ make: 'Chevrolet', vin: V('3GP'), model: 'ZDX' }).make, 'Acura');
+    assert.equal(reconcileMake({ make: 'Ford', vin: V('3HD'), model: 'HR-V' }).make, 'Honda');
+    assert.equal(reconcileMake({ make: 'Ford', vin: V('1HT'), model: 'Silverado 5500HD' }).make, 'Chevrolet');
+    assert.equal(reconcileMake({ make: 'Ford', vin: V('3HD'), model: 'Mystery' }).via, 'conflict-unresolved');
+    assert.equal(reconcileMake({ make: null, vin: V('1HT'), model: 'MV607' }).via, 'unresolved');
+  });
+  it('a make the page gave and the table did not know before is unchanged: Honda on 3GP, International on 1HT', () => {
+    assert.equal(reconcileMake({ make: 'Honda', vin: V('3GP') }).make, 'Honda');
+    assert.equal(reconcileMake({ make: 'Chevrolet', vin: V('1HT') }).via, 'kept');
+  });
+});
