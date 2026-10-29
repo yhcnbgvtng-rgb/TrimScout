@@ -15,7 +15,7 @@ The 10-28 crawl logs on boxes 1/3/4 show **~4,300 unique cars skipped** with `ma
 ## md5 table (all pinned in `install-keep-unresolved.sh`, which refuses on any other value)
 | File | Before | After |
 |---|---|---|
-| `src/vinWmi.js` | `7371d7d9bd40bd9586b4ef8a848a4969` (make-wmi; `274e6047…` also accepted, the box2 package's table) | `f24cba455c2216bdd781920fc86a38e4` |
+| `src/vinWmi.js` | `7371d7d9bd40bd9586b4ef8a848a4969` (make-wmi; `274e6047…` also accepted, the box2 package's table) | `ca01f12109ab5eb40901d68b022486db` |
 | `src/brand_match.js` | `2b421d128ce20aab0644820bb0702271` | `255cfe545bc30d8e41d45edf4cb33180` |
 | `src/standalone.js` box3, box4 | `d05cd479b8f8d22a77d4d9fb1ef2e31a` | `1e3766e5d0a5b3042f766c8ea205332d` |
 | `src/standalone.js` box3, box4, **after the trim wiring (#630)** | `6f4c4f2a4b4db2ab2830e11074723dba` | `d948a134a70ea055c4a2dac235e8d474` |
@@ -55,7 +55,7 @@ Restores all three files from the backup after checking each against its recorde
 ## Known limits
 - Cars the model cannot place (no model on the page, or a model that matches nothing) are kept with a **blank make**, not guessed.
 - A stored make that is inside the prefix's family stays: a Solterra stored as Toyota on `JTM` (224 box1 fallback lines) is not corrected, because the rule never second-guesses a nameplate inside a family. Fixing that needs a different rule (model as proof) and was left out on purpose.
-- `box2`'s VIN-guard package now ships the same table (`c64be00f`, model inference included) (one file; not needed for this install). The stored-row repair (`scripts/box/2026-10-28-make-from-vin-fix.mjs`) bundles the repo's `vinWmi.js`, so its next dry run will count the model-resolvable shared-prefix rows as rewrites where it used to count them as `conflict-unresolved`: re-run the dry run before any apply.
+- `box2`'s VIN-guard package now ships the same table (`ca01f121`, model inference included, `inferModel` opt-out) (one file; not needed for this install). The stored-row repair (`scripts/box/2026-10-28-make-from-vin-fix.mjs`) bundles the repo's `vinWmi.js` but passes `inferModel:false`, so its audited #633 rules and counts are unchanged by the model fallback (it stages model inference as its own `model-*` rules); the crawler and the deals-API write path keep `inferModel` on (the default).
 
 ## What was tested (no box access)
 `scripts/box/keep-unresolved-make-boxes-134.test.mjs` (13): the patch on the rebuilt box1 and box3/4 files, with and without the trim wiring, both orders; `install-keep-unresolved.sh` on a fake box in all four states (check writes nothing, apply lands on the pinned md5s, rollback is byte for byte, second apply says ALREADY INSTALLED); refusal on time, running crawl, md5 drift of any of six files, tampered or missing staged files, mixed states. `vin_wmi.test.js`, `make_fallback.test.js` cover the inference and the kept car. **Not tested:** the real boxes' files (md5s are reproduced from the repo's box-src, not read live), and a real crawl.

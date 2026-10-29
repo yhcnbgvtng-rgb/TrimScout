@@ -6,7 +6,7 @@
 # Run from the directory that holds this script and files/ (scp the whole directory to /tmp/wa first). Do NOT git pull/merge/commit on a box.
 C=${CRAWLER_DIR:-$HOME/nj-scraper/scrapers/lightsail-crawler}; S=$C/src; HERE=$(cd "$(dirname "$0")" && pwd); BACKUP=${BACKUP:-$HOME/backups/wmi-additions-20261030}; MODE=${1:-check}
 BEFORE=7371d7d9bd40bd9586b4ef8a848a4969      # the #597 table, installed on boxes 1/3/4 (make-wmi patch)
-AFTER=f24cba455c2216bdd781920fc86a38e4
+AFTER=ca01f12109ab5eb40901d68b022486db
 md() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
 fail() { echo "FAIL: $*"; exit 1; }
 cur=$(md "$S/vinWmi.js")

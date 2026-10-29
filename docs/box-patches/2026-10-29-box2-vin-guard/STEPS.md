@@ -8,7 +8,7 @@ Install only on Paul's typed **GO**, on **box2** (`ssh box2`; `docs/BOXES.md`), 
 ## What it changes (three files in `/opt/trimscout-deals/src`, replaced whole, so there is no patch to drift)
 | File | before (box2 live) | after |
 |---|---|---|
-| `vinWmi.js` | absent | `f24cba455c2216bdd781920fc86a38e4` (new: main's table from #632, `63d37197`, plus the `3GP` / `3HD` / `1HT` rules and #636's `MODEL_NAMES` family fallback; copy it from `docs/box-patches/2026-10-29-wmi-additions/files/vinWmi.js`, never from the old `7371d7d9`) |
+| `vinWmi.js` | absent | `ca01f12109ab5eb40901d68b022486db` (new: main's table from #632, `63d37197`, plus the `3GP` / `3HD` / `1HT` rules and #636's `MODEL_NAMES` family fallback; copy it from `docs/box-patches/2026-10-29-wmi-additions/files/vinWmi.js`, never from the old `7371d7d9`) |
 | `stellantisMake.js` | `4f384997f7107b66b9521bb561b7a10e` | `4017f1f9e24dc14d1b2cc530737e1e00` (`normalizeMakeForWrite` ends with `reconcileMake`) |
 | `ingestGuards.js` | `0ba41bc0c45b07ad75a2fd32571937da` (2026-10-07) | `88ec75c5d81a19dd484de0dea62add28` (the repo's; the only difference is three `export` keywords, so no behaviour change; a test pins that) |
 | `stellantisVinTable.js` | `2bb0902516fe1279adec20291096ac7b` | unchanged (checked, not copied) |

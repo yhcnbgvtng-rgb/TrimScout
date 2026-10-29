@@ -169,14 +169,14 @@ export function makesForWmi(vin) {
 }
 
 /** The make a VIN names on its own: a single-make WMI, a Stellantis VIN resolved by line code, or a shared-plant WMI resolved by model (SHARED_MODEL_RULES, then MODEL_NAMES within the WMI's family). Null when ambiguous or unknown. */
-export function makeFromVin(vin, { model, familyModel = true } = {}) {
+export function makeFromVin(vin, { model, inferModel = true } = {}) {
   const makes = makesForWmi(vin);
   if (!makes) return null;
   if (makes.length === 1) return makes[0];
   if (STELLANTIS_WMI.has(wmiOf(vin))) return resolveUmbrellaMake({ vin, model }).make;
   const rules = SHARED_MODEL_RULES[wmiOf(vin)];
   if (rules && model) for (const [re, make] of rules) if (makes.includes(make) && re.test(String(model))) return make;
-  return familyModel ? makeFromModelInFamily(model, makes) : null;
+  return inferModel ? makeFromModelInFamily(model, makes) : null;
 }
 
 // Resolve the real make for a Stellantis-umbrella vehicle (make = "Stellantis"). Returns { make, via } or { make: null, via: null }.
@@ -204,14 +204,14 @@ export function resolveUmbrellaMake({ vin, model } = {}) {
  *   via 'vpic-fill' / 'vpic-conflict'  same, but the WMI is shared and the caller's vPIC decode picked the make (`vpicMake`)
  *   via 'unresolved'          blank make and the VIN cannot name one -> null
  *   via 'conflict-unresolved' stored make contradicted the VIN but the VIN cannot name one (shared WMI, no vPIC) -> null
- * familyModel:false skips the MODEL_NAMES family fallback (SHARED_MODEL_RULES still apply): the stored-row repair script stages that model inference as its own rules.
+ * inferModel (default true, the crawler and the deals-API write path) lets the model pick the make inside a shared-plant family via MODEL_NAMES; inferModel:false skips only that fallback (SHARED_MODEL_RULES and the Stellantis model rules still apply): the stored-row repair (make-from-vin-fix, #633 rules) stages that inference as its own model-* rules so its audited counts stay the same.
  */
-export function reconcileMake({ make, vin, model, vpicMake, familyModel = true } = {}) {
+export function reconcileMake({ make, vin, model, vpicMake, inferModel = true } = {}) {
   const stored = canonicalMake(make);
   const family = makesForWmi(vin);
   if (!family) return { make: stored, via: 'kept', from: stored };
   if (stored && family.includes(stored)) return { make: stored, via: 'kept', from: stored };
-  const named = makeFromVin(vin, { model, familyModel });
+  const named = makeFromVin(vin, { model, inferModel });
   if (named) return { make: named, via: stored ? 'wmi-conflict' : 'wmi-fill', from: stored };
   const decoded = canonicalMake(vpicMake);
   if (decoded && family.includes(decoded)) return { make: decoded, via: stored ? 'vpic-conflict' : 'vpic-fill', from: stored };

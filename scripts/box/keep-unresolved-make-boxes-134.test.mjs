@@ -30,7 +30,7 @@ const PIN = {
   box1:  { before: '8c39cf86d3017210d586ff3afeb33969', out: 'ede2990ec93118428f0854be09006699', wired: '980769d114cba511aef4bc5ff033e0ae', wiredOut: '84a36177398ab6408b5302d1a585cb41', tw: 'standalone.js.box1.patch' },
   box34: { before: 'd05cd479b8f8d22a77d4d9fb1ef2e31a', out: '1e3766e5d0a5b3042f766c8ea205332d', wired: '6f4c4f2a4b4db2ab2830e11074723dba', wiredOut: 'd948a134a70ea055c4a2dac235e8d474', tw: 'standalone.js.box3-box4.patch' },
 };
-const NEW = { 'vinWmi.js': 'f24cba455c2216bdd781920fc86a38e4', 'brand_match.js': '255cfe545bc30d8e41d45edf4cb33180' };
+const NEW = { 'vinWmi.js': 'ca01f12109ab5eb40901d68b022486db', 'brand_match.js': '255cfe545bc30d8e41d45edf4cb33180' };
 const OLD = { 'vinWmi.js': '7371d7d9bd40bd9586b4ef8a848a4969', 'brand_match.js': '2b421d128ce20aab0644820bb0702271' };
 
 function applyTo(file, patchFile) {

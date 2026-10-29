@@ -359,9 +359,15 @@ describe('model name picks the make inside a shared-plant family (makeFromModelI
     assert.equal(makeFromModelInFamily('Genesis', ['Hyundai', 'Genesis']), null);
     assert.equal(makeFromModelInFamily('Rogue', ['Nissan', 'Nissan']), null, 'duplicates of one make never count as one');
   });
-  it('familyModel:false switches the family fallback off (the stored-row repair stages it as its own rules); SHARED_MODEL_RULES still apply', () => {
-    assert.equal(reconcileMake({ make: null, vin: '5N1AT2MT8KC702673', model: 'Rogue', familyModel: false }).via, 'unresolved');
-    assert.equal(reconcileMake({ make: 'Ford', vin: '3HDAB1CD2EF345678', model: 'HR-V', familyModel: false }).make, 'Honda');
+  it('inferModel defaults to on: the model picks the make inside the family unless the caller opts out', () => {
+    assert.equal(reconcileMake({ make: null, vin: '5N1AT2MT8KC702673', model: 'Rogue' }).make, 'Nissan');
+    assert.equal(reconcileMake({ make: null, vin: '5N1AT2MT8KC702673', model: 'Rogue', inferModel: true }).make, 'Nissan');
+    assert.equal(makeFromVin('5N1AT2MT8KC702673', { model: 'Rogue' }), 'Nissan');
+    assert.equal(makeFromVin('5N1AT2MT8KC702673', { model: 'Rogue', inferModel: false }), null);
+  });
+  it('inferModel:false switches the family fallback off (the stored-row repair stages it as its own rules); SHARED_MODEL_RULES still apply', () => {
+    assert.equal(reconcileMake({ make: null, vin: '5N1AT2MT8KC702673', model: 'Rogue', inferModel: false }).via, 'unresolved');
+    assert.equal(reconcileMake({ make: 'Ford', vin: '3HDAB1CD2EF345678', model: 'HR-V', inferModel: false }).make, 'Honda');
   });
   it('single-make prefixes are untouched: the model is not consulted', () => {
     assert.equal(reconcileMake({ make: 'GMC', vin: '1GCUYEED5NZ123456', model: 'Rogue' }).make, 'Chevrolet');
