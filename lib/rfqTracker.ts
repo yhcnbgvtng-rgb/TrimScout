@@ -8,6 +8,7 @@ import { LEASE_DAS_INTENT_LABELS, type LeaseRequestPrefs } from "./leaseQuote";
 import { CREDIT_BAND_LABELS } from "./creditBand";
 import type { RfqRequest } from "./rfq";
 import { alternateAskSummary } from "./alternateAsk";
+import { SAFE_MODE_ACTIVE, SAFE_MODE_HELD_COPY } from "./safeMode";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -148,6 +149,8 @@ export function rfqLifecycleDetail(rfq: LifecycleRfq): string {
         ? `Not released — ${rfq.rejectionReason || "TrimScout couldn't send this as submitted"}. Fix it and resubmit.`
         : UNDER_REVIEW_COPY;
     case "awaiting":
+      // While SAFE MODE holds dealer mail back, "they have it" would be false.
+      if (SAFE_MODE_ACTIVE) return SAFE_MODE_HELD_COPY;
       return `${sent} dealer${sent === 1 ? "" : "s"} have it — none has replied yet. They answer on their own time.`;
     case "responses_received":
       return `${quotes} of ${sent} dealer${sent === 1 ? "" : "s"} replied — compare and pick one, or walk away.`;

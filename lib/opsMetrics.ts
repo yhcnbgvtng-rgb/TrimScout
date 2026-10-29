@@ -19,6 +19,14 @@ export type OpsCounter =
   | "email_sent"
   | "email_failed"
   | "email_parked_switch_off"
+  /** An invite or counter the outbox did not send because the rooftop opted out or unsubscribed. */
+  | "email_opted_out"
+  /** Resend accepted the email but marking the invite sent failed (it may be re-sent on the next drain). */
+  | "email_mark_failed"
+  | "email_counter_sent"
+  | "email_counter_failed"
+  /** The "approval needed" alert to the admin did not go out. */
+  | "admin_alert_failed"
   | "notselected_sent"
   | "buyerdetails_sent"
   | "buyerdetails_failed"
