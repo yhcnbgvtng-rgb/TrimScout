@@ -61,7 +61,8 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   // `guards` are the extra request fields the deals API understands (minMisses, protectElsewhere, minFreshRatio, minLiveForRatio), and with
   // `requireGuards` the sweep refuses to start against an API that does not acknowledge them.
   // `crawlStamps`: Map(store id -> ISO time of the newest crawl record among the store's uploaded rows; key 0 = the unmatched bucket). See syncSweep.js.
-  hostileStores = [], guards = {}, requireGuards = false, crawlStamps = null }) {
+  // `returnRetired`: ask the deals API to list the rows each sweep call retired (returned as retiredRows).
+  hostileStores = [], guards = {}, requireGuards = false, crawlStamps = null, returnRetired = false }) {
   const assertLock = () => {
     if (isLockLost()) throw new LockLostError();
   };
@@ -182,6 +183,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
     guards,
     requireGuards,
     crawlStamps,
+    returnRetired,
     startIndex: state.sweep.nextIndex,
     removed: state.sweep.removed,
     failedStores: state.sweep.failedStores,
@@ -201,10 +203,15 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   const store0Stamps = crawlStamps && guards.minMisses > 1 ? { crawlStamps: crawlStamps.has(0) ? { 0: crawlStamps.get(0) } : {} } : {};
   // The store-0 bucket holds vehicles whose store wasn't in the directory at sync time; once a rooftop is added
   // they re-file under it, and the stale bucket rows are retired here.
+  const retiredRows = [...sweep.retiredRows];
+  let retiredReported = sweep.retiredReported;
+  let retiredIncomplete = sweep.retiredIncomplete;
   if (!state.sweep.store0Done) {
     try {
       assertLock();
-      removed += (await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"], ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...store0Guards, ...store0Stamps }), { retries: 1, delayMs: 3000 * config.retryScale, sleep }))?.removed ?? 0;
+      const r0 = await withRetry(() => api(SWEEP_PATH, { dealerId: 0, seenAfter: state.startedAt, sources: ["nightly"], ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...store0Guards, ...store0Stamps, ...(returnRetired ? { returnRetired: true } : {}) }), { retries: 1, delayMs: 3000 * config.retryScale, sleep });
+      removed += r0?.removed ?? 0;
+      if (Array.isArray(r0?.retired)) { retiredRows.push(...r0.retired); retiredReported = true; }
     } catch (err) {
       if (err instanceof LockLostError) throw err;
       /* box predates store-0 sweeps, or this one failed too — not fatal either way */
@@ -212,6 +219,8 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
     state.sweep.store0Done = true;
     state.sweep.removed = removed;
     persist();
+  } else {
+    retiredIncomplete = true; // an earlier attempt already swept store 0; its rows are not in this attempt's list
   }
   const sweepMs = now() - tSweep;
   if (Object.keys(guards).length) {
@@ -252,6 +261,10 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
     guardSkippedStores: [...hostileSkipped.map((h) => Number(h.dealerId)), ...sweep.guardSkipped.map((g) => Number(g.dealerId))],
     missesCounted: sweep.counted,
     stampStats: sweep.stampStats,
+    // What the sweep really retired (only when the deals API reported it): [{ vin, dealerId, dealerName, state, lastSeenAt, missCount }].
+    retiredRows: retiredReported ? retiredRows : null,
+    retiredTruncated: sweep.retiredTruncated,
+    retiredIncomplete,
     removed,
     live,
     optionStats,

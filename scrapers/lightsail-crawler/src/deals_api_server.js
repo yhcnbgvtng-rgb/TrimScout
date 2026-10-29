@@ -2679,6 +2679,8 @@ async function handleInventorySweep(req, res) {
     ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}),
     // Which stores the crawl stamps let through (see inventorySweep.js); present only when the request carried crawlStamps, which is also the client's acknowledgement.
     ...(out.stamps ? { stamps: out.stamps } : {}),
+    // returnRetired: the rows this call retired, for the sync's retired file (inventorySweep.js).
+    ...(out.retired ? { retired: out.retired, ...(out.retiredTruncated ? { retiredTruncated: true } : {}) } : {}),
   });
 }
 

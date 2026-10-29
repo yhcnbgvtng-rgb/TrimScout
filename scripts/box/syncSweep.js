@@ -90,22 +90,30 @@ export async function runSweep({
   guards = {},
   requireGuards = false,
   crawlStamps = null,
+  returnRetired = false,
 }) {
   // The dealership directory API returns ids as strings ("123"), and Number.isFinite("123") is false — without this
   // coercion every store was dropped, so the sweep made no calls and reported mode "none" (seen on box2, 2026-10-05).
   const asStoreId = (id) => (typeof id === "string" && /^\d+$/.test(id.trim()) ? Number(id) : id);
-  const ownership = { ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...guards };
-  const guarded = Object.keys(guards).length > 0;
+  const ownership = { ...(sourceBox && foreignBefore ? { sourceBox, foreignBefore } : {}), ...guards, ...(returnRetired ? { returnRetired: true } : {}) };
+  const guarded = Object.keys(guards).length > 0 || returnRetired;
   const guardSkipped = [];
   let counted = 0;
   // Stamps only mean something next to a miss counter; without minMisses >= 2 the API ignores them, so they are not sent.
   const useStamps = Boolean(crawlStamps) && guards.minMisses > 1;
   const stampStats = { swept: [], countOnly: [], unchanged: [], noStamp: [] };
+  // returnRetired: the API lists the rows each call retired, so the retired file shows what the sweep did. `retiredReported` stays false against an API that
+  // predates it (it ignores the field), and `retiredIncomplete` marks a resumed sweep whose earlier batches' rows this attempt never saw.
+  const retiredRows = [];
+  let retiredReported = false;
+  let retiredTruncated = false;
+  const retiredIncomplete = startIndex > 0 || removed > 0 || failedStores.length > 0;
   const stampsFor = (ids) => (useStamps ? { crawlStamps: Object.fromEntries(ids.filter((id) => crawlStamps.has(id)).map((id) => [id, crawlStamps.get(id)])) } : {});
   const takeGuardResult = (r) => {
     if (!guarded || !r) return;
     counted += Number(r.counted) || 0;
     if (Array.isArray(r.skipped)) guardSkipped.push(...r.skipped);
+    if (Array.isArray(r.retired)) { retiredReported = true; retiredRows.push(...r.retired); if (r.retiredTruncated) retiredTruncated = true; }
     if (r.stamps) for (const k of Object.keys(stampStats)) if (Array.isArray(r.stamps[k])) stampStats[k].push(...r.stamps[k]);
   };
   const sorted = [...new Set(stores.map(asStoreId))].filter((id) => Number.isFinite(id)).sort((a, b) => a - b);
@@ -268,6 +276,10 @@ export async function runSweep({
     guardSkipped,
     counted,
     stampStats,
+    retiredRows,
+    retiredReported,
+    retiredTruncated,
+    retiredIncomplete,
     mode: usedBatch && usedPerStore ? "mixed" : usedBatch ? "batch" : usedPerStore ? "per-store" : "none",
   };
 }

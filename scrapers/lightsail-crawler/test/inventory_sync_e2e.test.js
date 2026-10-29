@@ -7,6 +7,7 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import fs from 'node:fs';
+import zlib from 'node:zlib';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -97,14 +98,14 @@ function makeFake({ stores, legacySweep = false, preexisting = [] } = {}) {
       if (body.dealerIds && f.legacySweep) return send(400, { error: 'dealerId and seenAfter (ISO) are required' });
       if (f.fail.sweep && f.fail.sweep(body)) return send(500, { error: 'Internal server error' });
       const ids = new Set(body.dealerIds || [body.dealerId]);
-      let removed = 0;
-      for (const r of db.values()) {
+      let removed = 0; const retiredRows = [];
+      for (const [key, r] of db.entries()) {
         if (!ids.has(r.dealerId) || r.removed || !(r.lastSeen < Date.parse(body.seenAfter))) continue;
         // inventorySweep.js: AND (source_box = ? OR source_box IS NULL OR last_seen_at < foreignBefore)
         if (body.sourceBox && !(r.sourceBox === body.sourceBox || r.sourceBox == null || r.lastSeen < Date.parse(body.foreignBefore))) continue;
-        r.removed = true; removed++;
+        r.removed = true; removed++; retiredRows.push({ vin: key.split('|')[0], dealerId: r.dealerId, dealerName: `Store ${r.dealerId}`, state: 'NJ', lastSeenAt: new Date(r.lastSeen).toISOString(), missCount: 0 });
       }
-      return send(200, { removed, ...(body.dealerIds ? { stores: body.dealerIds.length } : {}), ...(body.minMisses || body.protectElsewhere || body.minFreshRatio ? { counted: 0, skipped: [] } : {}), ...(body.crawlStamps ? { stamps: { swept: [...ids], countOnly: [], unchanged: [], noStamp: [] } } : {}) });
+      return send(200, { removed, ...(body.dealerIds ? { stores: body.dealerIds.length } : {}), ...(body.minMisses || body.protectElsewhere || body.minFreshRatio ? { counted: 0, skipped: [] } : {}), ...(body.crawlStamps ? { stamps: { swept: [...ids], countOnly: [], unchanged: [], noStamp: [] } } : {}), ...(body.returnRetired && !f.noReturnRetired ? { retired: retiredRows } : {}) });
     }
     if (url === '/api/inventory/stats') { f.stats++; return send(200, { total: db.size, vins: db.size, inStock: f.active().length, dealers: stores.length, byState: [{ state: 'NJ', n: 1 }] }); }
     return send(404, { error: 'not found' });
@@ -167,6 +168,34 @@ describe('inventory-sync.mjs against a fake deals API', () => {
     const active = new Set(f.active());
     for (let i = 0; i < total; i++) assert.ok(active.has(vin(i)), `${vin(i)} was retired`);
     assert.ok(!active.has(vin(900)) && !active.has(vin(901)));
+  });
+
+  it('writes retired-* from the rows the API reported retiring, and the prediction as candidates-*', async () => {
+    const dir = workdir(); const retiredDir = path.join(dir, 'retired');
+    const { shardDir, stores } = writeShards(dir, { n: 4, perStore: 20 });
+    const stale = [{ vin: vin(900), dealerId: 101, lastSeen: Date.now() - 86_400_000 }, { vin: vin(901), dealerId: 103, lastSeen: Date.now() - 86_400_000 }];
+    const f = await newFake({ stores, preexisting: stale });
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json'), env: { SWEEP_RETIRED_DIR: retiredDir } });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.ok(f.sweeps.filter((x) => x.dealerIds).every((x) => x.returnRetired === true), 'the sweep asks for the retired rows');
+    const names = fs.readdirSync(retiredDir);
+    const real = names.find((n) => n.startsWith('retired-')); const cand = names.find((n) => n.startsWith('candidates-'));
+    assert.ok(real && cand, names.join(','));
+    const csv = zlib.gunzipSync(fs.readFileSync(path.join(retiredDir, real))).toString('utf8').trim().split('\n');
+    assert.equal(csv[0], 'vin,dealer,state,sourceBox,dealerId,lastSeenAt,missCount');
+    assert.deepEqual(csv.slice(1).map((l) => l.split(',')[0]).sort(), [vin(900), vin(901)].sort(), 'exactly the two cars the fake retired');
+    assert.match(r.stdout + r.stderr, /retired list: 2 VIN\(s\) retired by the sweep \(2 reported removed\)/);
+  });
+
+  it('against an API that does not report retired rows, no retired-* is written (only the candidates file)', async () => {
+    const dir = workdir(); const retiredDir = path.join(dir, 'retired');
+    const { shardDir, stores } = writeShards(dir, { n: 2, perStore: 10 });
+    const f = await newFake({ stores, preexisting: [{ vin: vin(900), dealerId: 101, lastSeen: Date.now() - 86_400_000 }] });
+    f.noReturnRetired = true;
+    const r = await runSync(f, shardDir, { ckpt: path.join(dir, 'ckpt.json'), env: { SWEEP_RETIRED_DIR: retiredDir } });
+    assert.equal(r.code, 0, r.stdout + r.stderr);
+    assert.deepEqual(fs.readdirSync(retiredDir).map((n) => n.split('-')[0]), ['candidates']);
+    assert.match(r.stdout + r.stderr, /did not report which rows it retired/);
   });
 
   it('reads a directory mixing a pretty-printed state-wide file with compact per-brand files: every vehicle once', async () => {

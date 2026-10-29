@@ -5,7 +5,14 @@
 // on the 8th and was back on the 9th". These files are that record. Pure functions + two small file helpers, no
 // network and no database: the sync client already knows, from its own shard files, which records it did not upload.
 //
-// What "retired" means here: a record in this box's shard files for a store that WAS swept this run (it uploaded at least
+// Two files per run (audit 2026-10-29: the old retired-*.csv.gz was a prediction made BEFORE the sweep, listing cars the deals API then kept):
+//   retired-<stamp>-<box>.csv.gz     the rows the deals API REPORTED retiring (inventorySweep.js returnRetired): exactly what the sweep did, with the dealer id and
+//                                    last_seen_at needed to roll it back. Written only when the API reports them.
+//   candidates-<stamp>-<box>.csv.gz  the prediction below: records this client did not upload. Not what was retired — first misses, protected and
+//                                    partial-crawl cars are in it too, and so are cars retired on earlier nights.
+// The "came back" check reads retired-* only.
+//
+// What a CANDIDATE means here: a record in this box's shard files for a store that WAS swept this run (it uploaded at least
 // one fresh row, its shard was complete) whose (VIN, store) was not uploaded — the crawl marked it SOLD_OR_REMOVED, or
 // it is ACTIVE but stale. The sweep retires those rows when they are still in stock in the database. It is the part of the
 // retired set this client can know; rows the database holds that are in no shard file are not listed.
@@ -15,11 +22,14 @@ import path from "node:path";
 import zlib from "node:zlib";
 
 export const COLUMNS = ["vin", "dealer", "state", "sourceBox"];
+/** The actual retired file keeps the four columns above first (readers take them by position) and adds what a rollback needs. */
+export const RETIRED_COLUMNS = [...COLUMNS, "dealerId", "lastSeenAt", "missCount"];
 export const DEFAULT_DIR = path.join(os.homedir(), "sweep-retired");
 export const WINDOW_DAYS = 7;
 export const KEEP_DAYS = 14;
 const DAY = 86_400_000;
 const FILE_RE = /^retired-(\d{8}T\d{6}Z)-.+\.csv\.gz$/;
+const PRUNE_RE = /^(?:retired|candidates)-(\d{8}T\d{6}Z)-.+\.csv\.gz$/;
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -61,23 +71,34 @@ export function retiredList(dropped, uploaded, swept) {
   return out;
 }
 
-export function toCsv(list, sourceBox) {
-  const lines = [COLUMNS.join(",")];
-  for (const d of list) lines.push([d.vin, d.dealerName, d.state, sourceBox].map(csvCell).join(","));
+export function toCsv(list, sourceBox, { extended = false } = {}) {
+  const lines = [(extended ? RETIRED_COLUMNS : COLUMNS).join(",")];
+  for (const d of list) lines.push([d.vin, d.dealerName, d.state, sourceBox, ...(extended ? [d.dealerId, d.lastSeenAt, d.missCount] : [])].map(csvCell).join(","));
   return lines.join("\n") + "\n";
+}
+
+/** Rows the deals API reported retiring -> the list shape toCsv takes (lastSeenAt as ISO). */
+export function retiredRowsToList(rows) {
+  return rows.map((r) => ({
+    vin: String(r.vin || "").toUpperCase(), dealerId: r.dealerId ?? "", dealerName: r.dealerName || "", state: String(r.state || "").toUpperCase(),
+    lastSeenAt: r.lastSeenAt ? new Date(r.lastSeenAt).toISOString() : "", missCount: r.missCount ?? "",
+  }));
 }
 
 const stamp = (ms) => new Date(ms).toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 
-/** Writes retired-<UTC stamp>-<box>.csv.gz (temp file + rename), prunes files older than KEEP_DAYS. Returns the path. */
-export function writeRetiredFile(dir, list, sourceBox, nowMs = Date.now()) {
+/**
+ * Writes <prefix>-<UTC stamp>-<box>.csv.gz (temp file + rename), prunes retired-* and candidates-* files older than KEEP_DAYS. Returns the path.
+ * prefix "retired" (default) / "candidates"; `extended` adds the rollback columns (RETIRED_COLUMNS).
+ */
+export function writeRetiredFile(dir, list, sourceBox, nowMs = Date.now(), { prefix = "retired", extended = false } = {}) {
   fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, `retired-${stamp(nowMs)}-${String(sourceBox).replace(/[^A-Za-z0-9_-]/g, "")}.csv.gz`);
+  const file = path.join(dir, `${prefix}-${stamp(nowMs)}-${String(sourceBox).replace(/[^A-Za-z0-9_-]/g, "")}.csv.gz`);
   const tmp = `${file}.tmp`;
-  fs.writeFileSync(tmp, zlib.gzipSync(toCsv(list, sourceBox)));
+  fs.writeFileSync(tmp, zlib.gzipSync(toCsv(list, sourceBox, { extended })));
   fs.renameSync(tmp, file);
   for (const f of fs.readdirSync(dir)) {
-    const m = FILE_RE.exec(f);
+    const m = PRUNE_RE.exec(f);
     if (m && nowMs - fs.statSync(path.join(dir, f)).mtimeMs > KEEP_DAYS * DAY) fs.rmSync(path.join(dir, f), { force: true });
   }
   return file;

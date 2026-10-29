@@ -35,6 +35,9 @@ export const DEFAULT_MIN_LIVE_FOR_RATIO = 10;
 // A store the partial-crawl guard skips, or one the client left out, records nothing. Only honoured together with minMisses >= 2; a client that sends no
 // crawlStamps gets exactly the behaviour it had before.
 export const STAMP_TABLE = "sweep_crawl_stamps";
+// returnRetired true -> the response lists the rows THIS call retired (`retired`), so the client can write the real retired file instead of a prediction.
+// The retire statement then stamps removed_at with a request-wide whole-second time instead of CURRENT_TIMESTAMP, and the rows are read back by that time.
+export const MAX_RETURNED_RETIRED = 20000;
 export const CREATE_STAMP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${STAMP_TABLE} (dealer_id INT NOT NULL PRIMARY KEY, crawl_stamp DATETIME NOT NULL, swept_at DATETIME NOT NULL)`;
 
 /**
@@ -57,6 +60,10 @@ export function parseSweepRequest(body, { toInt, toStr }) {
   const g = parseGuards(body, { toInt });
   if (!g.ok) return g;
   const guards = g.guards;
+  if (body?.returnRetired !== undefined && body.returnRetired !== null) {
+    if (typeof body.returnRetired !== "boolean") return { ok: false, error: "returnRetired must be true or false" };
+    if (body.returnRetired) guards.returnRetired = true;
+  }
 
   const hasBatch = body.dealerIds !== undefined && body.dealerIds !== null;
   const hasSingle = body.dealerId !== undefined && body.dealerId !== null;
@@ -161,8 +168,8 @@ function candidateUpdate(parsed, set, setArgs = []) {
  * minMisses >= 2 it only retires a row whose previous absence was counted by an EARLIER run (sweep_miss_at < seenAfter) and whose count has
  * reached minMisses - 1; the miss-count statements (buildMissStatements) is what records the earlier absences.
  */
-export function buildSweepStatement(parsed) {
-  const u = candidateUpdate(parsed, (c) => `${c("removed_at")} = CURRENT_TIMESTAMP`);
+export function buildSweepStatement(parsed, { retiredAt = null } = {}) {
+  const u = retiredAt ? candidateUpdate(parsed, (c) => `${c("removed_at")} = ?`, [retiredAt]) : candidateUpdate(parsed, (c) => `${c("removed_at")} = CURRENT_TIMESTAMP`);
   if (!(parsed.minMisses > 1)) return { sql: u.sql, args: u.args };
   const { c } = u;
   return {
@@ -213,6 +220,14 @@ export function partialCrawlStores(counts, { minFreshRatio, minLiveForRatio = DE
   return out.sort((a, b) => a.dealerId - b.dealerId);
 }
 
+/** The rows a retire statement stamped with `retiredAt`: what the sweep really did, in the columns the retired file and a rollback need. */
+export function buildRetiredSelect({ dealerIds, seenAfter }, retiredAt) {
+  return {
+    sql: `SELECT vin, dealer_id AS dealerId, dealer_name AS dealerName, state, last_seen_at AS lastSeenAt, sweep_miss_count AS missCount FROM dealer_inventory WHERE dealer_id IN (?) AND removed_at = ? AND last_seen_at < ? LIMIT ${MAX_RETURNED_RETIRED + 1}`,
+    args: [dealerIds, retiredAt, seenAfter],
+  };
+}
+
 /** The stored crawl stamp of each store in `dealerIds` (rows read before this call touches anything). */
 export function buildStampSelect(dealerIds) {
   return { sql: `SELECT dealer_id AS dealerId, crawl_stamp AS crawlStamp FROM ${STAMP_TABLE} WHERE dealer_id IN (?)`, args: [dealerIds] };
@@ -249,7 +264,8 @@ export function planByCrawlStamp(dealerIds, stamps, known) {
 /**
  * Runs a parsed sweep request. `query(sql, args)` resolves to `[result]` like mysql2's pool.query. A request without guard fields makes the one
  * statement it always made and returns just `removed`; with guards it also returns `skipped` (stores skipped by the partial-crawl guard, with their
- * live and fresh counts) and `counted` (rows whose absence was recorded but not yet retired). With crawlStamps it also returns `stamps`
+ * live and fresh counts) and `counted` (rows whose absence was recorded but not yet retired). With returnRetired it also returns `retired` (the rows this
+ * call retired; `retiredTruncated` when more than MAX_RETURNED_RETIRED). With crawlStamps it also returns `stamps`
  * ({ swept, countOnly, unchanged, noStamp }: store ids), which is also how a client learns the API honours stamps.
  */
 export async function runSweepRequest(query, parsed) {
@@ -284,12 +300,23 @@ export async function runSweepRequest(query, parsed) {
     retireIds = plan.sweep;
     countIds = [...plan.sweep, ...plan.countOnly];
   }
-  if (countIds.length === 0) return { removed: 0, counted: 0, skipped, guarded, ...(stamps ? { stamps } : {}) };
+  const none = parsed.returnRetired ? { retired: [] } : {};
+  if (countIds.length === 0) return { removed: 0, counted: 0, skipped, guarded, ...none, ...(stamps ? { stamps } : {}) };
   let removed = 0;
+  let retired;
   if (retireIds.length) {
-    const stmt = buildSweepStatement({ ...working, dealerIds: retireIds });
+    const retiredAt = parsed.returnRetired ? new Date(Math.floor(Date.now() / 1000) * 1000) : null;
+    const stmt = buildSweepStatement({ ...working, dealerIds: retireIds }, { retiredAt });
     const [result] = await query(stmt.sql, stmt.args);
     removed = result.affectedRows;
+    if (parsed.returnRetired) {
+      retired = [];
+      if (removed) {
+        const sel = buildRetiredSelect({ dealerIds: retireIds, seenAfter: working.seenAfter }, retiredAt);
+        const [rows] = await query(sel.sql, sel.args);
+        retired = rows || [];
+      }
+    }
   }
   let counted = 0;
   // Stores seen for the first time only START a miss streak (restart); they never advance one (increment), because an advance there could be the same
@@ -308,6 +335,10 @@ export async function runSweepRequest(query, parsed) {
   if (stamps && countIds.length) {
     const up = buildStampUpsert(countIds.map((id) => [id, parsed.crawlStamps.get(id)]), new Date());
     await query(up.sql, up.args);
+  }
+  if (parsed.returnRetired) {
+    const truncated = (retired || []).length > MAX_RETURNED_RETIRED;
+    return { removed, counted, skipped, guarded, retired: (retired || []).slice(0, MAX_RETURNED_RETIRED), ...(truncated ? { retiredTruncated: true } : {}), ...(stamps ? { stamps } : {}) };
   }
   return { removed, counted, skipped, guarded, ...(stamps ? { stamps } : {}) };
 }
