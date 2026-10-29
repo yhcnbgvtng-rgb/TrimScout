@@ -100,6 +100,7 @@ import {
   Car,
 } from "lucide-react";
 import { filterMustHaveOptions, formatOptionPrice, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
+import { vehicleTitle } from "../lib/vehicleTitle";
 
 type FilterableFactoryOption = FactoryFilterableOption;
 
@@ -187,7 +188,7 @@ function QuoteFormatMatrix({
       {primary ? (
         <div data-testid="format-vehicle">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Vehicle</p>
-          <p className="text-xs font-semibold text-white">{[primary.year, primary.make, primary.model, primary.trim].filter(Boolean).join(" ")}</p>
+          <p className="text-xs font-semibold text-white">{vehicleTitle(primary)}</p>
           <p className="text-[10px] text-ink-muted">
             <VinLink vin={primary.vin} />
             {[primary.exteriorColor, primary.drivetrain].filter(Boolean).length ? ` · ${[primary.exteriorColor, primary.drivetrain].filter(Boolean).join(" · ")}` : ""}
@@ -598,7 +599,7 @@ function LinkConfirmPanel({
           <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2">
             <span className="min-w-0">
               <span className="block truncate text-[11px] font-semibold text-white">
-                {[build.vehicle.year, build.vehicle.make, build.vehicle.model, build.vehicle.trim].filter(Boolean).join(" ")}
+                {vehicleTitle(build.vehicle)}
               </span>
               <span className={`block text-[10px] ${build.factoryBuildUnavailable && !isUsedCondition(build.vehicle.condition) ? "text-amber-300" : "truncate text-ink-muted"}`} data-testid="confirm-build-state">
                 {isUsedCondition(build.vehicle.condition)
@@ -792,7 +793,7 @@ function AlternateVinField({
         {/* 1. Header: the car, and a quiet remove control. */}
         <div className="flex items-start justify-between gap-2">
           <p className="min-w-0 truncate text-sm font-bold text-white">
-            {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(" ")}
+            {vehicleTitle(vehicle)}
           </p>
           <button
             type="button"
@@ -962,7 +963,7 @@ function FactoryOptionsCompare({
   const packagesOf = (kind: "missing" | "extra", i: number) =>
     diffs[i].filter((c) => c.kind === kind).map((c) => c.text.replace(/^(missing|adds):\s*/, ""));
 
-  const vehicleLabel = (v: Vehicle) => [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
+  const vehicleLabel = (v: Vehicle) => vehicleTitle(v);
   const chipCell = "flex items-start";
   const valueCell = (text: string, differs: boolean) => (
     <div className={`flex min-h-[24px] items-center text-[12px] ${differs ? "text-amber-300" : "text-ink-light"}`}>{text || "—"}</div>

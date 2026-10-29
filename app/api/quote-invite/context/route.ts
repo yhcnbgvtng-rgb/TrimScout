@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { dealerReference } from "@/lib/dealerReference";
+import { counterDeclinedQuote } from "@/lib/counterDeclined";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { isStagedRfq, stageForDealer, stageOf } from "@/lib/dealStages";
@@ -62,6 +63,9 @@ export async function GET(req: Request) {
     stage: stageForDealer(stageOf(rfq, invite), { notSelected: Boolean(invite.notSelectedAt) }),
     quotedOtd: invite.quote?.used?.kind === "cash" && !invite.quote.supersededAt ? cashOutTheDoor(invite.quote.used) : null,
     inviteStatus: invite.status,
+    // The dealer declined the buyer's counter: their original quote stands, and the buyer can still accept it.
+    counterDeclined: Boolean(counterDeclinedQuote(invite)),
+    acceptedOriginal: Boolean(counterDeclinedQuote(invite) && rfq.status === "picked" && rfq.pickedQuoteId === counterDeclinedQuote(invite)?.id),
     rfqStatus: rfq.status,
     // The dealer's own number for this request — never the buyer's TS- deal number.
     dealReference: dealerReference(found.rfqId, found.invite.id),

@@ -21,6 +21,8 @@ import type { LineItem } from "../lib/leaseQuote";
 import { stageOf } from "../lib/dealStages";
 import { DealerAdjustedFlag } from "./DealerAdjustedFlag";
 import { activeOverrides } from "../lib/feeOverride";
+import { ACCEPT_ORIGINAL_LABEL, COUNTER_DECLINED_NOTE, COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
+import { vehicleTitle } from "../lib/vehicleTitle";
 
 /**
  * Finance / Cash compare — never the lease grid. Every row is the same
@@ -144,6 +146,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
       : expired ? chip("bg-border text-ink-muted", "Expired")
       : picked ? chip("bg-brand-500/15 text-brand-300", "Chosen")
       : unsubscribed ? chip("bg-border text-ink-muted", "Unsubscribed — quote still valid", "unsub-chip")
+      : invite.counterDeclined ? chip("bg-amber-500/15 text-amber-200", COUNTER_DECLINED_STATUS, "counter-declined-chip")
       : <span className="text-[10px] text-ink-muted">Quoted to your locks</span>;
     const fin = used?.kind === "finance" ? used : null;
     const excluded = alternate && lane !== "alternate";
@@ -239,12 +242,13 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestFees.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest fees", "badge-lowest-fees") : null}
           {alternate ? <span className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="alternate-badge">Alternate vehicle{lane !== "alternate" ? " — not ranked" : ""}</span> : null}
         </div>
-        {multiCar && invite.vehicle ? <span className="block text-[11px] font-semibold text-ink-light" data-testid="column-vehicle">{[invite.vehicle.year, invite.vehicle.make, invite.vehicle.model, invite.vehicle.trim].filter(Boolean).join(" ")}</span> : null}
+        {multiCar && invite.vehicle ? <span className="block text-[11px] font-semibold text-ink-light" data-testid="column-vehicle">{vehicleTitle(invite.vehicle)}</span> : null}
         {invite.desk?.contactName ? <span className="block text-[10px] text-ink-muted">{invite.desk.contactName}{invite.desk.emailMasked ? <span className="font-mono"> · {invite.desk.emailMasked}</span> : null}</span> : null}
         {used?.stockNumber ? <span className="block text-[10px] text-ink-faint">stock {used.stockNumber}</span> : null}
         {hasTrade && used && !expired && eq.status !== "quoted" && eq.status !== "expired" ? <span className="block text-[10px] text-amber-200" data-testid="no-best-deal-note">{eq.status === "declined" ? "Not in the best-deal ranking: no trade quote." : "Not in the best-deal ranking: no trade quote yet."}</span> : null}
         <RevisedNote conf={invite.tradeConfirmation} />
         {used?.kind === "cash" && used.counterAccepted ? <span className="block text-[10px] font-bold text-emerald-300" data-testid="counter-accepted-badge">Dealer accepted your counter</span> : null}
+        {invite.counterDeclined && !expired ? <span className="block text-[10px] text-amber-200/90" data-testid="counter-declined-note">{COUNTER_DECLINED_NOTE}</span> : null}
         {invite.buyerCounter && invite.status === "invited" ? <span className="block text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
         <span className={`block text-[10px] ${expired ? "text-rose-300" : "text-ink-faint"}`}>{used ? `Expires ${new Date(used.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
       </div>
@@ -257,9 +261,9 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     ) : null;
     const footer = collecting && used && !expired && invite.quote ? (
       <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
-        {staged ? null : <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>}
+        {staged ? null : <button type="button" onClick={() => onPick(invite.quote!.id)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">{invite.counterDeclined ? ACCEPT_ORIGINAL_LABEL : "Choose this quote"}</button>}
         <div className="grid grid-cols-2 gap-1.5">
-        {onCounter && !unsubscribed && !(staged && stageOf(rfq, invite)?.otd.status === "locked") ? (
+        {onCounter && !unsubscribed && !invite.counterDeclined && !(staged && stageOf(rfq, invite)?.otd.status === "locked") ? (
           <button type="button" onClick={() => setCountering(invite.id)} disabled={busy || countering === invite.id} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
         ) : null}
         {staged ? null : <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>}

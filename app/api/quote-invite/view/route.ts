@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 // The tracked link in a quote-request email. Opening it is the "viewed"
 // event on the invite's audit trail; the dealer then lands on a plain page
@@ -16,7 +17,7 @@ export async function GET(req: Request) {
       if (found) {
         await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
         const v = found.invite.vehicle;
-        if (v) landing.searchParams.set("car", [v.year, v.make, v.model, v.trim].filter(Boolean).join(" "));
+        if (v) landing.searchParams.set("car", vehicleTitle(v));
         // The calculator on the landing page submits against this token.
         landing.searchParams.set("t", token);
       }
