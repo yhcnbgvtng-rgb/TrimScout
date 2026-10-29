@@ -8,7 +8,7 @@ Install only on Paul's typed **GO**, on **box2** (`ssh box2`; `docs/BOXES.md`), 
 ## What it changes (three files in `/opt/trimscout-deals/src`, replaced whole, so there is no patch to drift)
 | File | before (box2 live) | after |
 |---|---|---|
-| `vinWmi.js` | absent | `132e440bce262c00b5f6ee3e68ad2a5a` (new: the table `7371d7d9` plus 5 prefixes, below) |
+| `vinWmi.js` | absent | `f24cba455c2216bdd781920fc86a38e4` (new: main's table from #632, `63d37197`, plus the `3GP` / `3HD` / `1HT` rules and #636's `MODEL_NAMES` family fallback; copy it from `docs/box-patches/2026-10-29-wmi-additions/files/vinWmi.js`, never from the old `7371d7d9`) |
 | `stellantisMake.js` | `4f384997f7107b66b9521bb561b7a10e` | `4017f1f9e24dc14d1b2cc530737e1e00` (`normalizeMakeForWrite` ends with `reconcileMake`) |
 | `ingestGuards.js` | `0ba41bc0c45b07ad75a2fd32571937da` (2026-10-07) | `88ec75c5d81a19dd484de0dea62add28` (the repo's; the only difference is three `export` keywords, so no behaviour change; a test pins that) |
 | `stellantisVinTable.js` | `2bb0902516fe1279adec20291096ac7b` | unchanged (checked, not copied) |
@@ -19,7 +19,9 @@ The task asked for a patch that calls `reconcileMake`. It is not needed: the ser
 
 **Order against #623/#629 (stats-warm):** none. The two touch disjoint files, and `install.sh` does not pin the server's md5 (it prints it). Install either first.
 
-## New prefixes (NHTSA vPIC DecodeWMI, 2026-10-29), from the 10-28 fallback audit
+## What this PR adds on top of #632's 45 prefixes (NHTSA vPIC DecodeWMI, 2026-10-29)
+`3MW` and `ZAS` (BMW, Alfa Romeo) and the `3HD` family are already in #632's table; only the model rules for `3HD` and `3GP` and the `1HT` family are new here. #632's `3GP` was Honda-only; it is now shared Honda/Acura, and its `wmi-install.sh` pin was moved to match.
+
 `3MW` BMW (BMW Mexico) · `ZAS` Alfa Romeo · `3HD` Honda/Acura (Honda de Mexico; model picks the make for a blank or contradicted one) · `3GP` Honda/Acura (GM-built Prologue = Honda, ZDX = Acura) · `1HT` International/Chevrolet (International Motors medium-duty; a Silverado 4500HD–6500HD model picks Chevrolet, anything else stays unresolved). A make the page gave that is inside the family is kept exactly as before.
 
 ## Steps (on box2, as `ubuntu`)

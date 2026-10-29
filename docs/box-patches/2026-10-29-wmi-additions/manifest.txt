@@ -1,0 +1,2 @@
+f24cba455c2216bdd781920fc86a38e4  files/vinWmi.js
+2258c192770945002c38a4fb43f2d992  wmi-install.sh

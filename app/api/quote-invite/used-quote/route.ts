@@ -2,7 +2,7 @@
 // dealer's Finance / Cash sheet (new or used car), submitted from their
 // quote page behind the invite token. Validated here (lib/usedQuote.ts)
 // against the buyer's locks before anything reaches the box.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getRfq, getRfqInviteByViewToken, postRfqMessage, submitRfqQuote } from "@/lib/rfqApi";
 import { normalizeFeeOverrides, type FeeOverride } from "@/lib/feeOverride";
 import { buildFeeOverrideNotice } from "@/lib/feeOverrideNotice";
@@ -12,6 +12,7 @@ import { guestTrackerPath, isGuestBuyerId } from "@/lib/buyerAccess";
 import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
+import { notifyDealerQuoted } from "@/lib/noticeOutbox";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -88,6 +89,8 @@ export async function POST(req: Request) {
     notes: used.notes || null,
     used,
   });
+  // Tell the buyer a quote is in (after the response; SAFE MODE routes it, and a failure never fails the dealer's submit).
+  after(() => notifyDealerQuoted(rfq, found.invite));
   if (fees.overrides.length) await announceOverrides({ rfq, invite: found.invite, rfqId: found.rfqId, vin, overrides: fees.overrides });
   return NextResponse.json({ ok: true, warnings: v.warnings, outTheDoor: used.kind === "cash" ? cashOutTheDoor(used) : null });
 }

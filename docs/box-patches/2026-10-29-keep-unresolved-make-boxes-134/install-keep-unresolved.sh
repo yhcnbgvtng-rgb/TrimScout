@@ -21,8 +21,8 @@ SA_BOX1=8c39cf86d3017210d586ff3afeb33969;   SA_BOX1_OUT=ede2990ec93118428f0854be
 SA_BOX1_W=980769d114cba511aef4bc5ff033e0ae; SA_BOX1_W_OUT=84a36177398ab6408b5302d1a585cb41
 SA_BOX34=d05cd479b8f8d22a77d4d9fb1ef2e31a;   SA_BOX34_OUT=1e3766e5d0a5b3042f766c8ea205332d
 SA_BOX34_W=6f4c4f2a4b4db2ab2830e11074723dba; SA_BOX34_W_OUT=d948a134a70ea055c4a2dac235e8d474
-# vinWmi.js: the make-wmi install (7371d7d9) or the box2 VIN-guard package's table (132e440b); brand_match.js: the make-wmi install.
-VW_BEFORE_1=7371d7d9bd40bd9586b4ef8a848a4969; VW_BEFORE_2=132e440bce262c00b5f6ee3e68ad2a5a; VW_AFTER=671ff8c06cd7f92a55190c0156cb9fde
+# vinWmi.js: the make-wmi install (7371d7d9) or the box2 VIN-guard package's table (274e6047); brand_match.js: the make-wmi install.
+VW_BEFORE_1=7371d7d9bd40bd9586b4ef8a848a4969; VW_BEFORE_2=274e60473eb1d83fe6b01def4e5f68dc; VW_AFTER=f24cba455c2216bdd781920fc86a38e4
 BM_BEFORE=2b421d128ce20aab0644820bb0702271; BM_AFTER=255cfe545bc30d8e41d45edf4cb33180
 # files the new ones import, which must already be the make-wmi versions
 SM=4017f1f9e24dc14d1b2cc530737e1e00; IG=88ec75c5d81a19dd484de0dea62add28; VT=2bb0902516fe1279adec20291096ac7b

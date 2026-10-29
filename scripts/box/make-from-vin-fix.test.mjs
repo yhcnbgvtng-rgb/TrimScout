@@ -3,7 +3,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching } from '../lib/makeFromVinFix.mjs';
+import { ownerMake } from '../lib/makeModelOwner.mjs';
+import { RULES, storedMakeGuard, auditGroups, makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching } from '../lib/makeFromVinFix.mjs';
 
 const SRC = fs.readFileSync(new URL('./2026-10-28-make-from-vin-fix.mjs', import.meta.url), 'utf8');
 const vin = (p5, i) => p5 + String(i).padStart(12, '0');
@@ -15,16 +16,19 @@ describe('makeChange / planFromGroups', () => {
     assert.equal(makeChange({ make: 'Kia', vin: vin('7YAPB', 1), model: 'Sportage Hybrid' }), null); // 7YA is Hyundai/Kia/Genesis in vinWmi.js: kept
     assert.equal(makeChange({ make: 'GMC', vin: vin('1GKB0', 1), model: 'Yukon' }), null); // agrees
     assert.equal(makeChange({ make: 'GMC', vin: vin('XZZCJ', 1), model: 'X' }), null); // unknown WMI
+    assert.deepEqual(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'QX80' }), { to: 'Infiniti', via: 'model-conflict' }); // shared WMI, but the model names one of its makes: the staged model-conflict rule (ownerMake), not wmi-conflict
     assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'Crossover' }), null); // shared WMI, model not decisive: conflict-unresolved, needs vPIC
-    assert.deepEqual(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'QX80' }), { to: 'Infiniti', via: 'wmi-conflict' }); // shared WMI, but the model names one of its makes
-    assert.equal(makeChange({ make: null, vin: vin('1GKB0', 1), model: 'Yukon' }), null); // blank: fill is not this script's job
+    assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: null }), null); // shared WMI, no model: stays counted
+    assert.equal(makeChange({ make: null, vin: vin('1GKB0', 1), model: 'Yukon' }, ['wmi-conflict'])?.to ?? null, null); // blank: not a wmi-conflict
+    assert.deepEqual(makeChange({ make: null, vin: vin('1GKB0', 1), model: 'Yukon' }), { to: 'GMC', via: 'wmi-fill' });
   });
   it('counts, pairs and the not-touched buckets', () => {
-    const p = planFromGroups([{ p5: '7YAPB', make: 'Kia', model: null, n: 9 }, { p5: '2B3LJ', make: 'GMC', model: 'Challenger', n: 3 }, { p5: '1GKB0', make: 'GMC', model: 'Yukon', n: 40 }, { p5: 'JN8AZ', make: 'Ford', model: 'Crossover', n: 2 }, { p5: '4S3GT', make: 'GMC', model: null, n: 2 }]);
+    const p = planFromGroups([{ p5: '7YAPB', make: 'Kia', model: null, n: 9 }, { p5: '2B3LJ', make: 'GMC', model: 'Challenger', n: 3 }, { p5: '1GKB0', make: 'GMC', model: 'Yukon', n: 40 }, { p5: 'JN8AZ', make: 'Ford', model: null, n: 2 }, { p5: '4S3GT', make: 'GMC', model: null, n: 2 }]);
     assert.equal(p.total, 56); assert.equal(p.kept, 49); assert.equal(p.rowsToChange, 5);
     assert.deepEqual(p.pairs, { 'GMC -> Dodge': 3, 'GMC -> Subaru': 2 });
     assert.deepEqual(p.counted, { 'conflict-unresolved': 2 });
     assert.equal(walkGroups(p.conflicts).length, 2);
+    assert.deepEqual(Object.keys(p.byRule), ['wmi-conflict']);
   });
 });
 
@@ -74,8 +78,8 @@ describe('safety rails in the script source', () => {
     assert.match(SRC, /sync-lock\/\$\{action\}/); assert.match(SRC, /process\.exit\(4\)/);
     assert.match(SRC, /BATCH = 100, CAP = 10/);
     assert.match(SRC, /ORDER BY vin, dealer_id LIMIT/); assert.match(SRC, /\(vin > \? OR \(vin = \? AND dealer_id > \?\)\)/);
-    assert.match(SRC, /UPDATE dealer_inventory SET make = \? WHERE BINARY make = BINARY \? AND \(/);
-    assert.ok(SRC.indexOf('fsyncSync') < SRC.indexOf('UPDATE dealer_inventory SET make = ? WHERE BINARY'));
+    assert.match(SRC, /UPDATE dealer_inventory SET make = \? WHERE \$\{storedMakeGuard\(rows\[0\]\.make\)\.sql\} AND \(/);
+    assert.ok(SRC.indexOf('fsyncSync') < SRC.indexOf('SET make = ? WHERE ${storedMakeGuard'));
     assert.match(SRC, /writing \? env\.DB_WRITER_USER : \(env\.DB_READER_USER/);
     assert.doesNotMatch(SRC, /DELETE |INSERT |ALTER |DROP /);
   });
@@ -169,5 +173,71 @@ describe('fetchMatching (apply-path PK walk)', () => {
     assert.deepEqual(writes, expected(t, true)); assert.equal(r.updated, writes.length);
     assert.match(SRC, /fetchMatching\(/);
     assert.doesNotMatch(SRC, /WHERE vin LIKE \? AND BINARY make = BINARY \?\$\{ACTIVE_ONLY/);
+  });
+});
+
+describe('ownerMake (model ownership on shared WMIs)', () => {
+  const own = (p5, model) => ownerMake(vin(p5.padEnd(5, 'A'), 1), model);
+  it('names the one make of the WMI family that owns the model', () => {
+    const cases = [['KMH', 'Elantra', 'Hyundai'], ['KMH', 'G80', 'Genesis'], ['5NM', 'Tucson', 'Hyundai'], ['5NM', 'GV70', 'Genesis'], ['5XY', 'Telluride', 'Kia'], ['5XY', 'Santa Fe Sport', 'Hyundai'],
+      ['KND', 'Soul', 'Kia'], ['3KP', 'K4', 'Kia'], ['3KP', 'Accent', 'Hyundai'], ['5TD', 'Grand Highlander', 'Toyota'], ['5TD', 'TX', 'Lexus'], ['5N1', 'Rogue', 'Nissan'], ['5N1', 'QX60', 'Infiniti'],
+      ['JN8', 'QX80', 'Infiniti'], ['JN1', 'Q50', 'Infiniti'], ['JN1', 'Q70L', 'Infiniti'], ['JN1', 'M37', 'Infiniti'], ['JN1', 'Ariya', 'Nissan'], ['JF2', 'Crosstrek', 'Subaru'], ['JF1', 'GR86', 'Toyota'], ['JF1', 'WRX', 'Subaru'], ['JTM', 'RAV4 Prime', 'Toyota'],
+      ['JTM', 'Solterra', 'Subaru'], ['JA4', 'Outlander Sport', 'Mitsubishi'], ['JA4', 'Rogue Plug-In Hybrid', 'Nissan'], ['5XY', 'TELLURIDE SX&sol;X-', 'Kia'], ['KMH', 'SONATA', 'Hyundai']];
+    for (const [p5, model, want] of cases) assert.equal(own(p5, model), want, `${p5} ${model}`);
+  });
+  it('decides nothing for a blank, unknown, truncated or ambiguous model, or a model owned by a make outside the WMI family', () => {
+    for (const [p5, model] of [['KMH', null], ['KMH', ''], ['KMH', 'Genesis'], ['KMH', 'Genesis Coupe'], ['KMH', 'ELAN'], ['5TD', 'HIGHLN'], ['JF2', 'Forest'], ['1C3', 'Prowler'], ['2C4', 'Routan'], ['3MY', 'iA']]) assert.equal(own(p5, model), null, `${p5} ${model}`);
+    assert.equal(own('5N1', 'G80'), null); // Genesis owns G80, but Genesis is not on a Nissan/Infiniti WMI
+    assert.equal(own('KMH', 'Rogue'), null); // Nissan is not on KMH
+    assert.equal(own('XZZCJ', 'Rogue'), null); // unknown WMI
+    assert.equal(ownerMake('SHORT', 'Rogue'), null); // not a 17-character VIN
+  });
+});
+
+describe('the four rules', () => {
+  const row = (p5, make, model) => ({ make, vin: vin(p5.padEnd(5, 'A'), 1), model });
+  it('model-conflict rewrites a shared-WMI conflict only when the model decides; model-fill fills a blank the same way', () => {
+    assert.deepEqual(makeChange(row('KMH', 'Nissan', 'Elantra')), { to: 'Hyundai', via: 'model-conflict' });
+    assert.deepEqual(makeChange(row('5N1', null, 'Rogue')), { to: 'Nissan', via: 'model-fill' });
+    assert.equal(makeChange(row('KMH', 'Nissan', 'Genesis')), null);
+    assert.equal(makeChange(row('KND', null, null)), null);
+    assert.equal(makeChange(row('KMH', 'Hyundai', 'Elantra')), null); // agrees: kept
+    assert.equal(makeChange(row('KMH', 'Genesis', 'Elantra')), null); // inside the family: never second-guessed
+  });
+  it('wmi-fill fills a blank from a single-make WMI', () => {
+    assert.deepEqual(makeChange(row('WP1AE', null, 'E3 II')), { to: 'Porsche', via: 'wmi-fill' });
+    assert.deepEqual(makeChange(row('WP1AE', '', 'E3 II')), { to: 'Porsche', via: 'wmi-fill' });
+    assert.equal(makeChange(row('XZZCJ', null, 'X')), null);
+  });
+  it('--rules limits what is rewritten; the first version is --rules=wmi-conflict', () => {
+    assert.equal(makeChange(row('KMH', 'Nissan', 'Elantra'), ['wmi-conflict']), null);
+    assert.equal(makeChange(row('WP1AE', null, 'E3'), ['wmi-conflict', 'model-conflict']), null);
+    assert.equal(makeChange(row('2B3LJ', 'GMC', 'Challenger'), ['model-fill'])?.to ?? null, null);
+    assert.deepEqual(RULES, ['wmi-conflict', 'model-conflict', 'wmi-fill', 'model-fill']);
+  });
+  it('plan: per-rule, per-group counts and what stays counted', () => {
+    const g = (p5, make, model, n) => ({ p5, make, model, n });
+    const p = planFromGroups([g('KMHLN', 'Nissan', 'Elantra', 30), g('KMHLN', 'Nissan', 'Genesis', 4), g('5N1AT', null, 'Rogue', 6), g('5N1AT', null, null, 1), g('WP1AB', null, 'H1 III', 10), g('1FTEW', 'Nissan', 'F-150', 2), g('1FTEW', 'Ford', 'F-150', 50)]);
+    assert.equal(p.rowsToChange, 48); assert.equal(p.kept, 50);
+    assert.deepEqual(p.counted, { 'conflict-unresolved': 4, unresolved: 1 });
+    assert.deepEqual(p.byRule['model-conflict'], { rows: 30, groups: { 'KMH Nissan -> Hyundai': 30 } });
+    assert.deepEqual(p.byRule['model-fill'], { rows: 6, groups: { '5N1 (blank) -> Nissan': 6 } });
+    assert.deepEqual(p.byRule['wmi-fill'], { rows: 10, groups: { 'WP1 (blank) -> Porsche': 10 } });
+    assert.deepEqual(p.byRule['wmi-conflict'], { rows: 2, groups: { '1FT Nissan -> Ford': 2 } });
+    assert.deepEqual(auditGroups([g('KMHLN', 'Nissan', 'Genesis', 4), g('KMHLN', 'Nissan', 'Elantra', 30), g('1FTEW', 'Ford', 'F-150', 5)]).map((a) => [a.via, a.model, a.n]), [['conflict-unresolved', 'Genesis', 4]]);
+  });
+  it('apply: a blank-make group is read, backed up (make_before null) and updated through a NULL guard', async () => {
+    const t = [{ vin: vin('5N1AT', 1), dealer_id: 1, make: null, model: 'Rogue' }, { vin: vin('5N1AT', 2), dealer_id: 1, make: null, model: 'Murano' }, { vin: vin('5N1AT', 3), dealer_id: 1, make: null, model: null }];
+    const backups = [], wrote = [];
+    const r = await applyConflicts({ groups: [{ p5: '5N1AT', make: null, n: 3 }], batchSize: 100,
+      fetchBatch: async () => (backups.length ? [] : t.map((x) => ({ ...x }))),
+      writeBackup: (rows, to) => backups.push(...rows.map((x) => backupLine(x, to))), updateBatch: async (rows, to) => { wrote.push([rows.length, to]); return rows.length; } });
+    assert.equal(r.updated, 2); assert.equal(r.left, 1); assert.deepEqual(wrote, [[2, 'Nissan']]);
+    assert.deepEqual(parseBackup(backups.join('\n'))[0], { vin: vin('5N1AT', 1), dealer_id: 1, model: 'Rogue', make_before: null, make_after: 'Nissan' });
+    assert.deepEqual(storedMakeGuard(null), { sql: 'make IS NULL', params: [] });
+    assert.deepEqual(storedMakeGuard('Nissan'), { sql: 'BINARY make = BINARY ?', params: ['Nissan'] });
+  });
+  it('the script wires --rules and reads the model for every WMI', () => {
+    assert.match(SRC, /args\.rules/); assert.match(SRC, /rules: RULESET/); assert.match(SRC, /const withModel = true/);
   });
 });

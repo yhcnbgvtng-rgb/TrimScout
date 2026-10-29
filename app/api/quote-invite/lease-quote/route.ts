@@ -2,10 +2,11 @@
 // lease quote, submitted from the calculator behind their invite token.
 // Validated here (lib/leaseQuote.ts) before anything reaches the box, so a
 // monthly-only or lump-sum reply can never become a quote.
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
 import { coerceLeaseQuote, dueAtSigningTotal, validateLeaseQuote, type LeaseQuote } from "@/lib/leaseQuote";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
+import { notifyDealerQuoted } from "@/lib/noticeOutbox";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -49,5 +50,7 @@ export async function POST(req: Request) {
     notes: lease.notes || null,
     lease,
   });
+  // Tell the buyer a quote is in (after the response; SAFE MODE routes it, and a failure never fails the dealer's submit).
+  after(() => notifyDealerQuoted(rfq, found.invite));
   return NextResponse.json({ ok: true, warnings: v.warnings, dueAtSigningTotal: dueAtSigningTotal(d) });
 }

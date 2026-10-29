@@ -13,7 +13,7 @@ PM2=${PM2:-sudo -u ubuntu pm2}; LOCK_LOG=${LOCK_LOG:-/home/ubuntu/.pm2/logs/deal
 md() { md5sum "$1" 2>/dev/null | cut -d' ' -f1; }
 # before: stellantisMake = the repo's pre-#580 file, ingestGuards = the 2026-10-07 file (#393), vinWmi absent. after: the files/ copies.
 SM_BEFORE=4f384997f7107b66b9521bb561b7a10e; IG_BEFORE=0ba41bc0c45b07ad75a2fd32571937da
-SM_AFTER=4017f1f9e24dc14d1b2cc530737e1e00; IG_AFTER=88ec75c5d81a19dd484de0dea62add28; VW_AFTER=132e440bce262c00b5f6ee3e68ad2a5a
+SM_AFTER=4017f1f9e24dc14d1b2cc530737e1e00; IG_AFTER=88ec75c5d81a19dd484de0dea62add28; VW_AFTER=f24cba455c2216bdd781920fc86a38e4
 VT=2bb0902516fe1279adec20291096ac7b
 fail() { echo "FAIL: $*"; exit 1; }
 [ -d "$D" ] || fail "$D is not a directory"

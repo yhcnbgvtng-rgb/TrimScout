@@ -27,66 +27,68 @@ export const STELLANTIS_WMI = new Set([
 
 // [makes this WMI can carry (first = primary), WMIs]. A WMI listed under two entries carries the union.
 const FAMILIES = [
-  [['Ford'], '1FA 1FB 1FC 1FD 1F6 1F9 1FM 1FT 2FM 2FT 3FA 3FM 3FT 1ZV 2FA 3FD MAJ'],
+  [['Ford'], '1FA 1FB 1FC 1FD 1F6 1F9 1FM 1FT 2FM 2FT 3FA 3FM 3FT 1ZV 2FA 3FD MAJ 2FD 3FR 3FC NM0 WF0'], // 2FD / 3FC Ford Canada / Mexico Super Duty chassis, 3FR Blue Diamond F-650 / F-750, NM0 Transit Connect (Turkey), WF0 Ford of Europe (NHTSA vPIC DecodeWMI, 2026-10-29)
   [['Plymouth'], '1P3 1P4 2P3'], // Plymouth shared these Chrysler-group WMIs until 2001 (the Stellantis set adds its nameplates below)
   [['Lincoln'], '5LM 2LM 3LN 5L1 1LN 1L1'],
   [['Mercury'], '1ME 2ME 3ME'],
-  [['Pontiac'], '1G2 2G2'],
-  [['Saturn'], '1G8'],
-  [['Chevrolet'], '1G1 1GA 1GB 1GC 1GN 2CN 2G1 2GC 2GN 3G1 3GB 3GC 3GN KL1 KL7 KL8'],
-  [['GMC'], '1GD 1GK 1GT 2GK 2GT 3GK 3GT'],
-  [['Cadillac'], '1G6 1GY 2G6 3GY'],
+  [['Pontiac'], '1G2 2G2 5Y2'], // 5Y2 NUMMI Vibe
+  [['Saturn'], '1G8 5GZ 3GS'],
+  [['Chevrolet'], '1G1 1GA 1GB 1GC 1GN 2CN 2G1 2GC 2GN 3G1 3GB 3GC 3GN KL1 KL7 KL8 6G3'],
+  [['GMC'], '1GD 1GK 1GT 2GK 2GT 3GK 3GT 1GJ 2CT'],
+  [['Cadillac'], '1G6 1GY 2G6 3GY LRE'],
   [['Buick'], '1G4 2G4 5GA KL4 LRB W04'],
   [['Toyota', 'Scion'], '3MY'], // the Mazda2-based iA: Scion iA (2016), Toyota Yaris iA (2017-18)
   [['Nissan', 'Chevrolet'], '3N6'], // Nissan Mexico also builds the Chevrolet City Express (a rebadged NV200)
   [['Nissan', 'Infiniti', 'Mitsubishi'], 'JN1'], // Nissan-built Mitsubishi Eclipse Sportback
-  [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3 1NX 3MY 7MU 7SV'],
+  [['Toyota'], '4T1 4T3 4T4 5TD 5TE 5TF 5YF 3TM 3TY JTD JTE JTM JT2 JT3 2T1 2T3 1NX 3MY 7MU 7SV SB1 NMT 5TB VNK WZ1'], // WZ1 GR Supra (Magna Steyr)
+  [['Toyota', 'Scion'], 'JTK JTL JTN'], // Scion-badged cars carry these Toyota Japan WMIs (50 active Scion rows on JTL / JTN, 2026-10-29): Scion stays Scion
   [['Lexus'], 'JTH JTJ JT8 2T2 58A'],
   [['Toyota', 'Lexus'], '5TD'], // Indiana builds the Highlander and the Lexus TX
   [['Toyota', 'Subaru'], 'JTM'], // Toyota-built Subaru EVs: Solterra, Trailseeker, Uncharted
   [['Subaru', 'Toyota', 'Scion'], 'JF1 JF2'], // the Subaru-built BRZ / Toyota GR86 / Scion FR-S share this range
   [['Subaru'], '4S3 4S4'],
-  [['Honda', 'Acura'], '3HD'], // Honda de Mexico (NHTSA: HONDA, ACURA)
+  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH SHS'],
+  [['Honda', 'Acura'], '3HD'], // Honda de Mexico: HR-V / Acura ADX
   [['Honda', 'Acura'], '3GP'], // built by GM for Honda: Prologue (Honda) and ZDX (Acura)
-  [['Honda'], '1HG 2HG 3HG 2HK 2HJ 3CZ 5FN 5FP 5J6 19X 7FA JHL JHM SHH'],
-  [['Acura'], '19U 19V JH4 5FR 5J8 2HN'],
+  [['Acura'], '19U 19V JH4 5FR 5J8 2HN 4W5'], // 4W5 ZDX (GM Spring Hill)
   [['Hyundai'], 'KM8 KMH 5NP 5NT'],
   [['Hyundai', 'Genesis'], '5NM KMH'], // Alabama builds both; KMH also covers the Genesis G80 / G90 sedans
   [['Hyundai', 'Kia', 'Genesis'], '7YA'], // Georgia metaplant (HMGMA): IONIQ 5 / 9, Genesis GV70 EV AND the 2027 Kia Sportage Hybrid (1,413 live Kia rows, 2026-10-27)
   [['Genesis'], 'KMT KMU KMG'],
   [['Kia'], 'KND KNA 3KP 5XX'],
-  [['Kia', 'Hyundai'], '5XY 3KP KND'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
+  [['Kia', 'Hyundai'], '5XY 3KP KND 3KM'], // 5XY Georgia; 3KP Mexico (Rio / Accent twin); KND (Sedona / Entourage twin)
   [['Nissan'], 'KNM'], // Renault Samsung Busan, builds the Nissan Rogue (NOT a Kia range)
   [['Nissan'], '1N4 1N6 3N1 3N6 3N8 5BZ'], // Nissan-only sedans/trucks/Mexico builds
-  [['Nissan', 'Infiniti'], '5N1 5N3 JN1 JN8'], // shared Nissan/Infiniti ranges
+  [['Nissan', 'Infiniti'], '5N1 5N3 JN1 JN8 SJK'], // shared Nissan/Infiniti ranges
   [['Infiniti'], 'JNK JNR 3PC'],
   [['Mazda'], 'JM1 JM3 JM7 1YV 3MD 3MV 3MZ 7MM'],
   [['Mitsubishi'], 'JA3 JA4 JA7 4A3 4A4 ML3'],
   [['Mitsubishi', 'Nissan'], 'JA4'], // the Mitsubishi-built Nissan Rogue Plug-In Hybrid
-  [['Volkswagen'], '1VW 3VW 3VV WVW WVG WV1 WV2 1V2'],
-  [['Audi'], 'WAU WA1 WUA TRU'],
+  [['Volkswagen'], '1VW 3VW 3VV WVW WVG WV1 WV2 1V2 2V4'], // 2V4 Routan
+  [['Audi'], 'WAU WA1 WUA TRU WU1'],
   [['Porsche'], 'WP0 WP1'],
-  [['BMW'], 'WBA WBS WBX WBY 5UX 5YM 5UM 4US 3MW'], // 3MW: BMW Mexico (San Luis Potosi)
+  [['BMW'], 'WBA WBS WBX WBY 5UX 5YM 5UM 4US 3MW 3MF WB5'], // 3MW / 3MF BMW Mexico (vPIC: BMW only; 3MW was left out of the first table as unconfirmed)
   [['Mini'], 'WMW WMZ'],
-  [['International', 'Chevrolet'], '1HT'], // International Motors medium-duty trucks (also sold as the Chevrolet Silverado 4500HD-6500HD)
-  [['Mercedes-Benz'], 'W1K W1N W1Y WDB WDC WDD 4JG 55S'],
-  [['Volvo'], 'YV1 YV4 7JD 7JR'],
-  [['Polestar'], 'YSM LPS'],
+  [['Mercedes-Benz'], 'W1K W1N W1Y WDB WDC WDD 4JG 55S W1W W1X W1Z WDA'], // Sprinter and Metris vans (WD3, a motorhome chassis, stays out: Winnebago-badged rows sit on it)
+  [['Mercedes-Benz', 'Freightliner'], 'WD4'],
+  [['International', 'Chevrolet'], '1HT'], // International Motors medium-duty trucks (also sold as the Chevrolet Silverado 4500HD-6500HD): a shared commercial family
+  [['Volvo'], 'YV1 YV4 7JD 7JR LVY LYV'], // LVY / LYV Daqing (S90, XC60)
+  [['Polestar'], 'YSM LPS 7SY'],
   [['Suzuki'], 'JS2'],
   [['Tesla'], '5YJ 7G2 7SA LRW XP7'],
   [['Rivian'], '7FC 7PD'],
   [['Lucid'], '50E'],
-  [['Jaguar'], 'SAJ'],
+  [['Jaguar'], 'SAJ SAD'],
   [['Land Rover'], 'SAL'],
-  [['Maserati'], 'ZAM'],
-  [['Alfa Romeo'], 'ZAR ZAS'], // ZAS: Alfa Romeo SUVs built at Cassino (Stelvio / Tonale)
+  [['Maserati'], 'ZAM ZN6'],
+  [['Alfa Romeo'], 'ZAR ZAS'], // ZAS Tonale
   [['Ferrari'], 'ZFF'],
   [['McLaren'], 'SBM'],
-  [['Aston Martin'], 'SCF'],
-  [['Bentley'], 'SCB'],
+  [['Aston Martin'], 'SCF SD7'],
+  [['Bentley'], 'SCB SJA'],
   [['Rolls-Royce'], 'SCA'],
   [['Lotus'], 'SCC'],
-  [['Lamborghini'], 'ZHW'],
+  [['Lamborghini'], 'ZHW ZPB'],
 ];
 
 const MAKES_BY_WMI = new Map();
@@ -105,16 +107,22 @@ for (const [nameplate, list] of Object.entries(VIN5_NAMEPLATE)) for (const p of 
 
 // Shared-plant WMIs that carry more than one make: the model (when the caller passes one) picks the make for a car whose stored make is OUTSIDE the family.
 // A stored make that is inside the family is never second-guessed (reconcileMake keeps it), so these rules only ever decide a conflict or a blank.
+const SCION_OR_TOYOTA = [[/^(tc|xb|xa|xd|ia|im|iq|fr-?s)\b/i, 'Scion'], [/./, 'Toyota']];
 const SHARED_MODEL_RULES = {
-  '7YA': [[/\b(sportage|sorento|telluride|ev9|ev6|k5|seltos|niro|carnival)\b/i, 'Kia'], [/\b(ioniq|tucson|santa fe|palisade|kona|santa cruz)\b/i, 'Hyundai'], [/^(g\d|gv\d)|\bgenesis\b/i, 'Genesis']],
-  '3N6': [[/city express/i, 'Chevrolet'], [/\b(nv\d*|frontier|titan|versa|kicks)\b/i, 'Nissan']],
-  'JN1': [[/\b(eclipse|outlander)\b/i, 'Mitsubishi']],
   '3HD': [[/\b(adx|rdx|mdx|zdx|integra|tlx|rlx)\b/i, 'Acura'], [/\b(hr-?v|fit|civic|cr-?v|prologue|pilot|accord|passport|odyssey|ridgeline)\b/i, 'Honda']],
   '3GP': [[/\bzdx\b/i, 'Acura'], [/\bprologue\b/i, 'Honda']],
   '1HT': [[/\b(silverado|4500|5500|6500)\b/i, 'Chevrolet']],
+  '7YA': [[/\b(sportage|sorento|telluride|ev9|ev6|k5|seltos|niro|carnival)\b/i, 'Kia'], [/\b(ioniq|tucson|santa fe|palisade|kona|santa cruz)\b/i, 'Hyundai'], [/^(g\d|gv\d)|\bgenesis\b/i, 'Genesis']],
+  '3N6': [[/city express/i, 'Chevrolet'], [/\b(nv\d*|frontier|titan|versa|kicks)\b/i, 'Nissan']],
+  'JN1': [[/\b(eclipse|outlander)\b/i, 'Mitsubishi']],
+  // Toyota-built, Toyota or Scion: a Scion model name picks Scion, any other model is a Toyota.
+  'JTK': SCION_OR_TOYOTA,
+  'JTL': SCION_OR_TOYOTA,
+  'JTN': SCION_OR_TOYOTA,
 };
 
-// Model names that belong to ONE make of a shared-plant family (Nissan/Infiniti, Hyundai/Genesis/Kia, Toyota/Lexus/Subaru/Scion, Honda/Acura, Mitsubishi/Nissan, Chevrolet/Nissan).
+// Model names that belong to ONE make of a shared-plant family that SHARED_MODEL_RULES does not already decide (Nissan/Infiniti, Hyundai/Genesis/Kia, Toyota/Lexus/Subaru/Scion, Mitsubishi/Nissan).
+// Honda/Acura (3HD, 3GP) and Chevrolet (1HT, 3N6) are NOT listed: their WMIs have a SHARED_MODEL_RULES entry, which runs first.
 // Used ONLY to choose between the makes the VIN's WMI can carry (makeFromModelInFamily): a model that matches exactly one of them names the make, a model that matches
 // none or several of them (a Yaris iA, a bare "Genesis") says nothing. A model of a make outside the family is never looked at, so a wrong pattern can only pick
 // a wrong member of a family the VIN already restricted the car to. Whole words only; model text, never trim.
@@ -129,9 +137,6 @@ const MODEL_NAMES = {
   Lexus: /\b(tx|rx|nx|gx|lx|es|is|gs|ls|ux|rc|lc|lfa|ct|hs|rz|lm|sc)(\s?\d{2,3}[a-z]*)?\b/i,
   Subaru: /\b(outback|forester|crosstrek|impreza|legacy|ascent|wrx|brz|solterra|trailseeker|uncharted|baja|tribeca|xv)\b/i,
   Scion: /\b(fr-?s|xb|xd|tc|iq)\b/i,
-  Honda: /\b(civic|accord|cr-?v|hr-?v|pilot|passport|odyssey|ridgeline|fit|insight|element|s2000|crosstour|prologue|clarity|cr-?z)\b/i,
-  Acura: /\b(mdx|rdx|tlx|ilx|tsx|tl|rl|rlx|zdx|adx|integra|nsx|rsx|cl)\b/i,
-  Chevrolet: /\bcity express\b/i,
 };
 
 /** The one make of `family` whose model names `model` matches, or null (blank model, no match, or more than one match). */
@@ -164,14 +169,14 @@ export function makesForWmi(vin) {
 }
 
 /** The make a VIN names on its own: a single-make WMI, a Stellantis VIN resolved by line code, or a shared-plant WMI resolved by model (SHARED_MODEL_RULES, then MODEL_NAMES within the WMI's family). Null when ambiguous or unknown. */
-export function makeFromVin(vin, { model } = {}) {
+export function makeFromVin(vin, { model, familyModel = true } = {}) {
   const makes = makesForWmi(vin);
   if (!makes) return null;
   if (makes.length === 1) return makes[0];
   if (STELLANTIS_WMI.has(wmiOf(vin))) return resolveUmbrellaMake({ vin, model }).make;
   const rules = SHARED_MODEL_RULES[wmiOf(vin)];
   if (rules && model) for (const [re, make] of rules) if (makes.includes(make) && re.test(String(model))) return make;
-  return makeFromModelInFamily(model, makes);
+  return familyModel ? makeFromModelInFamily(model, makes) : null;
 }
 
 // Resolve the real make for a Stellantis-umbrella vehicle (make = "Stellantis"). Returns { make, via } or { make: null, via: null }.
@@ -199,13 +204,14 @@ export function resolveUmbrellaMake({ vin, model } = {}) {
  *   via 'vpic-fill' / 'vpic-conflict'  same, but the WMI is shared and the caller's vPIC decode picked the make (`vpicMake`)
  *   via 'unresolved'          blank make and the VIN cannot name one -> null
  *   via 'conflict-unresolved' stored make contradicted the VIN but the VIN cannot name one (shared WMI, no vPIC) -> null
+ * familyModel:false skips the MODEL_NAMES family fallback (SHARED_MODEL_RULES still apply): the stored-row repair script stages that model inference as its own rules.
  */
-export function reconcileMake({ make, vin, model, vpicMake } = {}) {
+export function reconcileMake({ make, vin, model, vpicMake, familyModel = true } = {}) {
   const stored = canonicalMake(make);
   const family = makesForWmi(vin);
   if (!family) return { make: stored, via: 'kept', from: stored };
   if (stored && family.includes(stored)) return { make: stored, via: 'kept', from: stored };
-  const named = makeFromVin(vin, { model });
+  const named = makeFromVin(vin, { model, familyModel });
   if (named) return { make: named, via: stored ? 'wmi-conflict' : 'wmi-fill', from: stored };
   const decoded = canonicalMake(vpicMake);
   if (decoded && family.includes(decoded)) return { make: decoded, via: stored ? 'vpic-conflict' : 'vpic-fill', from: stored };
