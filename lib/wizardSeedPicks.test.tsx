@@ -10,7 +10,7 @@ import { QUOTE_SEED_KEY, QUOTE_SEED_LANE, seedDealersFrom, takeQuoteSeed, writeQ
 const NEW_VINS = ["2T36CRAV0TW113785", "2T36CRAV1TC046311", "2T36CRAV1TC046373"];
 const USED_VINS = ["2T3F1RFV4LC084047", "2T3P1RFV3MC200019", "2T3P1RFV9SW528394"];
 // Real search rows carry the dealer's listing link; a used link says "/used/" in its path.
-const row = (vin: string, condition: "new" | "used" | "cpo", dealer = "a") => toPick({ vin, dealerId: "1", dealerName: `Dealer ${dealer}`, dealerState: "OH", year: 2026, make: "Toyota", model: "RAV4", trim: null, mileage: null, price: 30000, vdpUrl: `https://www.dealer${dealer}.com/viewdetails/${condition === "new" ? "new" : "used"}/${vin.toLowerCase()}/rav4`, condition });
+const row = (vin: string, condition: "new" | "used" | "cpo", dealer = "a") => toPick({ vin, dealerId: dealer, dealerName: `Dealer ${dealer}`, dealerState: "OH", year: 2026, make: "Toyota", model: "RAV4", trim: null, mileage: null, price: 30000, vdpUrl: `https://www.dealer${dealer}.com/viewdetails/${condition === "new" ? "new" : "used"}/${vin.toLowerCase()}/rav4`, condition });
 const desk = (host: string) => { const d = host.replace(/^www\.dealer/, "").replace(/\.com$/, ""); return { deskId: d, dealerName: `Dealer ${d}`, city: "Youngstown", state: "OH", zip: "44503", knownNamed: false, emailOptOut: false }; };
 
 const vehicle = (vin: string, over: Record<string, unknown> = {}) => ({
@@ -131,7 +131,7 @@ describe("buyer search seed -> Step 1", () => {
 
     for (const [label, vins, cond] of [["new", NEW_VINS, "new"], ["used", USED_VINS, "used"]] as const) {
       it(`three ${label} cars reach Step 1`, async () => {
-        const text = await run(vins.map((v) => row(v, cond)));
+        const text = await run(vins.map((v, i) => row(v, cond, "abc"[i])));
         for (const v of vins) assert.ok(text.includes(v), `${label} car ${v} is on Step 1`);
         assert.doesNotMatch(text, /Used requests are one car/);
         assert.doesNotMatch(text, /weren't added|wasn't added/);
@@ -168,10 +168,19 @@ describe("buyer search seed -> Step 1", () => {
     }
 
     it("a new car picked beside used ones is left out and the note says so", async () => {
-      const text = await run([row(USED_VINS[0], "used"), row(NEW_VINS[0], "new"), row(USED_VINS[1], "used")]);
+      const text = await run([row(USED_VINS[0], "used", "a"), row(NEW_VINS[0], "new", "b"), row(USED_VINS[1], "used", "c")]);
       assert.ok(text.includes(USED_VINS[0]) && text.includes(USED_VINS[1]));
       assert.ok(!text.includes(NEW_VINS[0]));
       assert.match(text, /all new or all used, so 1 other car you picked wasn't added/);
+    });
+
+    it("a second car at a store already on the request is left out, and the note says so", async () => {
+      const text = await run([row(NEW_VINS[0], "new", "a"), row(NEW_VINS[1], "new", "a"), row(NEW_VINS[2], "new", "b")]);
+      assert.ok(text.includes(NEW_VINS[0]) && text.includes(NEW_VINS[2]));
+      assert.ok(!text.includes(NEW_VINS[1]), "the same-store car is not seated");
+      assert.match(text, /A dealership gets one car per request, so 1 other car you picked at a dealership already on this request wasn't added/);
+      assert.match(text, /Alternate 1 — added/i, "the skipped car did not use up a slot");
+      assert.doesNotMatch(text, /Alternate 2 — added/i);
     });
 
     it("a car left out does not use up a slot: the next car lands in Alternate 1, not Alternate 2", async () => {

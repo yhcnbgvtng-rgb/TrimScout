@@ -8,9 +8,9 @@ import type { DropdownOption } from "./search/SearchableDropdown";
 import { SearchFilterBar, useIsMobile } from "./search/SearchFilterBar";
 import { toggleColumn, visibleColumnKeys } from "@/lib/searchColumns";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
-import { MAX_PICKS, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
+import { MAX_PICKS, pickWarnings, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
-import { writeQuoteSeed } from "@/lib/quoteSeed";
+import { durableSeedStore, writeQuoteSeed } from "@/lib/quoteSeed";
 import { contactFilterEnabled } from "@/lib/contactFilterFlag";
 import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
@@ -762,7 +762,7 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
   }, []);
   // Explicit click only: hand the picked VINs + listing links to step 1 of Request a quote, then open it. Nothing is sent.
   const requestQuote = () => {
-    writeQuoteSeed(window.sessionStorage, state.picks);
+    writeQuoteSeed(durableSeedStore(window), state.picks);
     router.push("/?quote=1");
   };
   const { picks, limitNotice, saveStatus, dirty, signedIn, atLimit, notice, hasAnyPicks } = state;
@@ -778,6 +778,9 @@ function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) 
         {notice && (
           <p role="status" aria-live="polite" data-testid="picks-notice" className="basis-full text-[11px] font-semibold text-amber-300">{notice}</p>
         )}
+        {pickWarnings(picks).map((w) => (
+          <p key={w} role="status" data-testid="picks-warning" className="basis-full text-[11px] font-semibold text-amber-300">{w}</p>
+        ))}
         <span className="text-xs font-bold text-white tabular-nums">Picked {picks.length} of {MAX_PICKS}</span>
         {picks.length === 0 ? (
           <span className="text-xs text-ink-faint">Tick up to 3 vehicles to use in a quote. They stay here while you search again.</span>

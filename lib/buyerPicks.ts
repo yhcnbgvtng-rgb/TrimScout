@@ -4,6 +4,7 @@
  * Nothing here opens a quote, sends email, or creates a dealer invite.
  */
 import { isRfqEligible } from "./lastConfirmed";
+import { seedStoreKey } from "./quoteSeed";
 
 export const MAX_PICKS = 3;
 export const MAX_VIEWED = 2000;
@@ -53,6 +54,23 @@ export function toPick(v: { vin: string; dealerId?: string | null; dealerName: s
 }
 
 export type ToggleResult = { picks: PickedVehicle[]; outcome: "added" | "removed" | "blocked" };
+
+/** Shown on the picks bar, and mirrored by the wizard, which leaves these cars out of the request. */
+export const PICK_WARNING_COPY = {
+  mixedCondition: "New and used cars can't share one quote request. Only cars of the same kind as your first pick are added; request the others separately.",
+  sameDealer: "Two picks are at the same dealership. A dealership gets one car per quote request, so the later one is left out; request it separately.",
+} as const;
+
+/** Problems the wizard would hit with these picks, so the buyer hears about them before the click. Unknown condition never warns. */
+export function pickWarnings(picks: PickedVehicle[]): string[] {
+  const out: string[] = [];
+  const used = picks.some((p) => p.condition === "used" || p.condition === "cpo");
+  const fresh = picks.some((p) => p.condition === "new");
+  if (used && fresh) out.push(PICK_WARNING_COPY.mixedCondition);
+  const stores = picks.map((p) => seedStoreKey(p)).filter((k): k is string => k !== null);
+  if (new Set(stores).size < stores.length) out.push(PICK_WARNING_COPY.sameDealer);
+  return out;
+}
 
 /** Tick/untick. A fourth tick changes nothing and reports "blocked" so the page can say the limit is 3. */
 export function togglePick(picks: PickedVehicle[], v: PickedVehicle): ToggleResult {
