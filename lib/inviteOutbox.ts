@@ -30,7 +30,7 @@ import { alternateAskSummary } from "./alternateAsk";
 import { dealersOwedNotSelected, invitesToClose } from "./rfqClose";
 import { buildBuyerDetailsEmail } from "./dealStageNotice";
 
-export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "no_desk" | "already_sent" | "failed";
+export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "opted_out" | "no_desk" | "already_sent" | "failed";
 
 /** Build the dealer email from what the box stores — nothing from the original request payload. */
 export async function buildInviteEmailFromStored(
@@ -68,6 +68,17 @@ export async function buildInviteEmailFromStored(
   return { subject: quoteInviteSubject(input), html: quoteInviteHtml(input) };
 }
 
+/** The rooftop opted out or unsubscribed since the invite was queued (a request waits up to a business day for release). */
+export function rooftopOptedOut(
+  invite: Pick<RfqInvite, "dealerName" | "dealerUnsubscribedAt" | "vehicle">,
+  rfq: RfqRequest,
+  directory: Awaited<ReturnType<typeof listDealerships>>
+): boolean {
+  if (invite.dealerUnsubscribedAt) return true;
+  const car = rfqVehicles(rfq).find((v) => v.vin === (invite.vehicle?.vin || rfq.vin)) || rfqVehicles(rfq)[0] || null;
+  return Boolean(matchDirectoryDealership(directory, { dealerName: invite.dealerName, state: car?.dealerState || "" })?.emailOptOut);
+}
+
 /** Send one queued invite. Safe to call repeatedly: sent/viewed invites are skipped. */
 export async function sendQueuedInvite(
   rfq: RfqRequest,
@@ -89,6 +100,10 @@ export async function sendQueuedInvite(
     return "parked_switch_off";
   }
   const directory = deps.directory ?? (await listDealerships().catch(() => []));
+  if (rooftopOptedOut(invite, rfq, directory)) {
+    count("email_opted_out");
+    return "opted_out";
+  }
   const mail = await buildInviteEmailFromStored(rfq, invite, directory);
   if (!mail) return "no_desk";
   try {
@@ -100,13 +115,58 @@ export async function sendQueuedInvite(
       count("email_failed");
       return "failed";
     }
-    await (deps.mark || markRfqInviteDelivery)(rfq.id, invite.id, "sent").catch(() => null);
+    // Resend has the email. If the mark fails the invite stays queued and the next drain sends it again: say so instead of hiding it.
+    await (deps.mark || markRfqInviteDelivery)(rfq.id, invite.id, "sent").catch((err) => {
+      console.error(`inviteOutbox: sent invite ${invite.id} of request ${rfq.id} but could not mark it sent —`, err instanceof Error ? err.message : err);
+      count("email_mark_failed");
+      return null;
+    });
     count("email_sent");
     return "sent";
   } catch {
     count("email_failed");
     return "failed";
   }
+}
+
+export type CounterNoticeResult = "sent" | "held_for_approval" | "parked_switch_off" | "opted_out" | "failed";
+
+/**
+ * Tell a desk the buyer countered its quote. The counter is already saved on the box and waits on the dealer's page, so a skipped or
+ * failed email never fails the buyer's request. Same gates as an invite (release, email switch, opt-out), and a failure is logged and
+ * counted instead of swallowed. SAFE MODE routing is unchanged: the sender has no `to` parameter.
+ */
+export async function sendCounterNotice(
+  rfq: RfqRequest,
+  invite: RfqInvite,
+  mail: { subject: string; html: string },
+  deps: { directory?: Awaited<ReturnType<typeof listDealerships>>; send?: typeof sendQuoteInviteEmail; emailEnabled?: () => boolean } = {}
+): Promise<CounterNoticeResult> {
+  const count = rfqIsTestOrAudit(rfq) ? () => {} : bump;
+  if (!rfqIsReleased(rfq)) {
+    count("email_held_for_approval");
+    return "held_for_approval";
+  }
+  if (!(deps.emailEnabled || (() => featureEnabled("outboundDealerEmail")))()) {
+    count("email_parked_switch_off");
+    return "parked_switch_off";
+  }
+  const directory = deps.directory ?? (await listDealerships().catch(() => []));
+  if (rooftopOptedOut(invite, rfq, directory)) {
+    count("email_opted_out");
+    return "opted_out";
+  }
+  try {
+    if (await (deps.send || sendQuoteInviteEmail)(mail.subject, mail.html)) {
+      count("email_counter_sent");
+      return "sent";
+    }
+  } catch (err) {
+    console.error(`inviteOutbox: counter notice for invite ${invite.id} of request ${rfq.id} threw —`, err instanceof Error ? err.message : err);
+  }
+  console.error(`inviteOutbox: counter notice for invite ${invite.id} of request ${rfq.id} was not sent`);
+  count("email_counter_failed");
+  return "failed";
 }
 
 /** Everything still queued on one request. */
@@ -119,7 +179,7 @@ export async function drainQueuedInvites(
   rfqs: RfqRequest[],
   deps: Parameters<typeof sendQueuedInvite>[2] & { maxSends?: number } = {}
 ): Promise<Record<OutboxResult, number> & { queued: number }> {
-  const out: Record<OutboxResult, number> & { queued: number } = { sent: 0, parked_switch_off: 0, held_for_approval: 0, no_desk: 0, already_sent: 0, failed: 0, queued: 0 };
+  const out: Record<OutboxResult, number> & { queued: number } = { sent: 0, parked_switch_off: 0, held_for_approval: 0, opted_out: 0, no_desk: 0, already_sent: 0, failed: 0, queued: 0 };
   const directory = deps.directory ?? (await listDealerships().catch(() => []));
   let sends = 0;
   for (const rfq of rfqs) {
