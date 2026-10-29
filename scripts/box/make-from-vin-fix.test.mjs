@@ -16,7 +16,8 @@ describe('makeChange / planFromGroups', () => {
     assert.equal(makeChange({ make: 'Kia', vin: vin('7YAPB', 1), model: 'Sportage Hybrid' }), null); // 7YA is Hyundai/Kia/Genesis in vinWmi.js: kept
     assert.equal(makeChange({ make: 'GMC', vin: vin('1GKB0', 1), model: 'Yukon' }), null); // agrees
     assert.equal(makeChange({ make: 'GMC', vin: vin('XZZCJ', 1), model: 'X' }), null); // unknown WMI
-    assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'QX80' }, ['wmi-conflict']), null); // shared WMI: only the model rule can decide it
+    assert.deepEqual(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'QX80' }), { to: 'Infiniti', via: 'model-conflict' }); // shared WMI, but the model names one of its makes: the staged model-conflict rule (ownerMake), not wmi-conflict
+    assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: 'Crossover' }), null); // shared WMI, model not decisive: conflict-unresolved, needs vPIC
     assert.equal(makeChange({ make: 'Ford', vin: vin('JN8AZ', 1), model: null }), null); // shared WMI, no model: stays counted
     assert.equal(makeChange({ make: null, vin: vin('1GKB0', 1), model: 'Yukon' }, ['wmi-conflict'])?.to ?? null, null); // blank: not a wmi-conflict
     assert.deepEqual(makeChange({ make: null, vin: vin('1GKB0', 1), model: 'Yukon' }), { to: 'GMC', via: 'wmi-fill' });

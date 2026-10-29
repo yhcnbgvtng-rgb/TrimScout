@@ -1,0 +1,4 @@
+255cfe545bc30d8e41d45edf4cb33180  files/brand_match.js
+ca01f12109ab5eb40901d68b022486db  files/vinWmi.js
+b06c4d5b2f5cb1c34812c08f81678a41  standalone.js.keep-unresolved.patch
+8cdad21db46716b7672df9348b2fc9f7  install-keep-unresolved.sh

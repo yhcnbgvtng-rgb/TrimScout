@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 import { resolveKeptMake, resolveKeptMakeDetailed } from '../src/brand_match.js';
 import { makeFromVin } from '../src/vinWmi.js';
@@ -28,8 +29,8 @@ describe('no page make and a VIN prefix not in the WMI table: the car is kept, n
     assert.equal(resolveKeptMake(GMC, { make: null, vin: UNKNOWN_WMI_VIN }, { make: 'mercedes-benz' }), 'Mercedes-Benz');
   });
 
-  it('the Stellantis umbrella is never used as a fallback make; with nothing else the car is still dropped', () => {
-    assert.deepEqual(resolveKeptMakeDetailed(STELLANTIS, { make: null, vin: UNKNOWN_WMI_VIN }, { make: 'Stellantis' }), { make: null, makeSource: null });
+  it('the Stellantis umbrella is never used as a fallback make; with nothing else the car is kept with a blank make (unresolved)', () => {
+    assert.deepEqual(resolveKeptMakeDetailed(STELLANTIS, { make: null, vin: UNKNOWN_WMI_VIN }, { make: 'Stellantis' }), { make: null, makeSource: 'unresolved' });
     // ...but a real nameplate on the dealer record is fine
     assert.deepEqual(resolveKeptMakeDetailed(STELLANTIS, { make: null, vin: UNKNOWN_WMI_VIN }, { make: 'Jeep' }), { make: 'Jeep', makeSource: 'fallback' });
   });
@@ -50,14 +51,21 @@ describe('multi-brand dealer: the fallback only ever fills a car nothing else ca
 
   it('a car whose page make the VIN contradicts but cannot replace (shared WMI) is not rescued by the fallback', () => {
     // 5XY is shared Kia/Hyundai; the page says Ford, the VIN says "not Ford", and cannot say which of the two.
-    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Sportage' }, dealer), { make: null, makeSource: null });
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Crossover' }, dealer), { make: null, makeSource: 'unresolved' });
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699' }, dealer), { make: null, makeSource: 'unresolved' });
+  });
+
+  it('...but a model that names exactly one of the two makes does replace it (a Sportage is a Kia)', () => {
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Sportage' }, dealer), { make: 'Kia', makeSource: 'vin' });
   });
 
   it('a shared WMI only accepts a fallback inside its own family', () => {
     const nissan = { name: 'Nissan', vinPrefixes: ['1N4'] }; // 5N1 is not among this shard's own prefixes
     // 5N1 is Nissan/Infiniti: a Nissan roster fills it; a GMC roster must not stamp GMC on it
     assert.deepEqual(resolveKeptMakeDetailed(nissan, { make: null, vin: '5N1AC0EX3VC612423' }, { make: 'Nissan' }), { make: 'Nissan', makeSource: 'fallback' });
-    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: null, vin: '5N1AC0EX3VC612423' }, { make: 'GMC' }), { make: null, makeSource: null });
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: null, vin: '5N1AC0EX3VC612423' }, { make: 'GMC' }), { make: null, makeSource: 'unresolved' });
+    // ...unless the model names the make: a Rogue on a GMC lot is a Nissan, from the model, not from the roster
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: null, vin: '5N1AC0EX3VC612423', model: 'Rogue' }, { make: 'GMC' }), { make: 'Nissan', makeSource: 'vin' });
     // dealer brand outside the family, shard brand inside it: the shard brand is used
     assert.deepEqual(resolveKeptMakeDetailed(nissan, { make: null, vin: '5N1AC0EX3VC612423' }, { make: 'GMC' }), { make: 'Nissan', makeSource: 'fallback' });
   });
@@ -86,4 +94,19 @@ describe('WMI prefixes added from box4 2026-10-27 skipped VINs', () => {
       assert.equal(resolveKeptMakeDetailed(GMC, { make: null, vin }, { make: 'GMC' }).makeSource, 'vin');
     });
   }
+});
+
+describe('standalone.js keeps a car nothing can name (blank make), it does not skip it', () => {
+  const src = fs.readFileSync(new URL('../src/standalone.js', import.meta.url), 'utf8');
+  it('no skip branch and no keptMake gate remain around the kept block', () => {
+    assert.ok(!src.includes('make unresolvable'), 'the misleading "VIN not in the WMI table ... car skipped" line is gone');
+    assert.ok(!/if \(!keptMake\) console\.log/.test(src));
+    assert.ok(!/\n\s+if \(keptMake\) \{/.test(src));
+    assert.match(src, /make_source=unresolved/);
+  });
+  it('the unresolved log line says the car is kept', () => {
+    const logs = []; const orig = console.log; console.log = (m) => logs.push(m);
+    try { resolveKeptMake({ name: 'Honda', vinPrefixes: ['1HG'] }, { make: null, vin: '5N1AT2MT8KC702673', model: 'Mystery' }, { make: 'Honda' }); } finally { console.log = orig; }
+    assert.equal(logs.length, 1); assert.match(logs[0], /make_source=unresolved .*car kept/); assert.ok(!/skipped/.test(logs[0]));
+  });
 });

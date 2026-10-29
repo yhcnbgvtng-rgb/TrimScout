@@ -79,7 +79,7 @@ describe('decodePrefixes', () => {
 
 describe('summarizeVpic (shared-WMI rows)', () => {
   const subs = [
-    { model: 'TX 350', key8: '5TDAA000', n: 10 }, { model: 'Highlander', key8: '5TDKK000', n: 5 },
+    { model: 'Crossover A', key8: '5TDAA000', n: 10 }, { model: 'Crossover B', key8: '5TDKK000', n: 5 },
     { model: 'Rogue', key8: '5TDZZ000', n: 4 }, { model: 'Rogue', key8: '5TDYY000', n: 3 },
   ];
   it('a decoded make inside the WMI family is used; no answer, "" or a make outside the family leaves null', () => {
@@ -91,8 +91,8 @@ describe('summarizeVpic (shared-WMI rows)', () => {
     assert.equal(summarizeVpic('Nissan', [subs[0]], { '5TDAA000': '' }).rowsStillNull, 10);
   });
   it('summarizeGroups hands the null groups to the vPIC step (and only those)', () => {
-    const s = summarizeGroups('Nissan', [{ model: 'TX 350', key: '5TDAA', n: 10 }, { model: 'Rogue', key: '1N4AL', n: 4 }, { model: 'Altima', key: 'JTHBK', n: 2 }]);
-    assert.deepEqual(s.unresolvedGroups, [{ model: 'TX 350', key: '5TDAA', n: 10 }]);
+    const s = summarizeGroups('Nissan', [{ model: 'Crossover A', key: '5TDAA', n: 10 }, { model: 'Rogue', key: '1N4AL', n: 4 }, { model: 'Altima', key: 'JTHBK', n: 2 }]);
+    assert.deepEqual(s.unresolvedGroups, [{ model: 'Crossover A', key: '5TDAA', n: 10 }]);
     assert.equal(s.rowsToNull, 10);
   });
 });

@@ -59,19 +59,23 @@ export function resolveVehicleBrandMatch(brand, vehicle) {
 // match what THIS crawl run is targeting", and Stellantis needs that exact
 // yes/no); the fix belongs at the call site instead — keep an off-brand
 // vehicle too, tagged with its own real make, rather than the umbrella
-// crawl's target brand. A vehicle with no usable make label at all (raw
-// make blank, no VIN-prefix match either) still can't be identified and is
-// still dropped; this only recovers the case where the vehicle plainly says
-// what it is.
+// crawl's target brand. A vehicle that nothing can name (no usable make
+// label, and a VIN prefix that does not decide it) comes back as
+// makeSource 'unresolved' with a null make; standalone.js keeps it with a
+// blank make.
 export function resolveKeptMake(brand, vehicle, dealer = null) {
   const { make, makeSource } = resolveKeptMakeDetailed(brand, vehicle, dealer);
   // Logged here so the one call site (standalone.js) stays a one-line change: the VIN is what gets added to the WMI table.
   if (makeSource === 'fallback') console.log(`⚠️ make_source=fallback make=${make} (no page make, VIN not in the WMI table): ${vehicle.vin}`);
+  // Nothing can name the car (a shared-plant VIN whose model does not pick a make, or a page make the VIN contradicts): standalone.js KEEPS it with a blank make
+  // instead of skipping it. A skipped car is absent from the shard and the sweep retires it after two misses; a blank-make car stays searchable and is repaired later.
+  if (makeSource === 'unresolved') console.log(`⚠️ make_source=unresolved (make left blank, car kept; no page make or the VIN contradicts it, and neither the VIN nor the model names one): ${vehicle.vin}`);
   return make;
 }
 
 // The make plus where it came from, for the crawl log: 'page' (the page's own label, or the roster brand the VIN agrees with),
-// 'vin' (filled or corrected from the VIN's WMI), 'fallback' (see below), or null make when nothing can name the car.
+// 'vin' (filled or corrected from the VIN's WMI, or from the model name among the makes that WMI can carry), 'fallback' (see below), or
+// 'unresolved' with a null make when nothing can name the car (the car is still kept, with a blank make).
 //
 // Fallback: a car with NO make on the page whose VIN prefix is not in the WMI table used to be dropped (the first VIN-make patch
 // skipped ~every such car). It is now kept under the dealer's roster brand, else this shard's brand — the pre-VIN behaviour, but only
@@ -90,7 +94,7 @@ export function resolveKeptMakeDetailed(brand, vehicle, dealer = null) {
   const pageMake = canonicalMake(vehicle.make);
   if (make) return { make, makeSource: pageMake && pageMake === make ? 'page' : 'vin' };
 
-  // Only a car with no page make at all: a page make the VIN contradicted but could not replace stays unresolved (dropped).
+  // Only a car with no page make at all: a page make the VIN contradicted but could not replace stays unresolved (blank make, kept).
   if (!pageMake) {
     const family = makesForWmi(vehicle.vin);
     const fallback = [dealer && dealer.make, brand && brand.name]
@@ -99,5 +103,5 @@ export function resolveKeptMakeDetailed(brand, vehicle, dealer = null) {
       .find((m) => m && (!family || family.includes(m)));
     if (fallback) return { make: fallback, makeSource: 'fallback' };
   }
-  return { make: null, makeSource: null };
+  return { make: null, makeSource: 'unresolved' };
 }

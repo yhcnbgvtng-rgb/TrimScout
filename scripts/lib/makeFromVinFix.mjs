@@ -18,7 +18,7 @@ export const RULES = ["wmi-conflict", "model-conflict", "wmi-fill", "model-fill"
 
 /** One row (or one 5-character prefix group) -> { to, via: rule } when a rule in `rules` rewrites it, else null. */
 export function makeChange({ make, vin, model }, rules = RULES) {
-  const r = reconcileMake({ make: make ?? null, vin, model });
+  const r = reconcileMake({ make: make ?? null, vin, model, inferModel: false }); // model inference is the staged model-* rules (ownerMake), not wmi-*
   if (r.via === "wmi-conflict") return rules.includes("wmi-conflict") && r.make && r.make !== make ? { to: r.make, via: "wmi-conflict" } : null;
   if (r.via === "wmi-fill") return rules.includes("wmi-fill") && r.make ? { to: r.make, via: "wmi-fill" } : null;
   if (r.via === "conflict-unresolved" || r.via === "unresolved") {
@@ -42,7 +42,7 @@ export function planFromGroups(groups, rules = RULES) {
     const vin = padVin(g.p5);
     const c = makeChange({ make: g.make ?? null, vin, model: g.model ?? null }, rules);
     if (!c) {
-      const r = reconcileMake({ make: g.make ?? null, vin, model: g.model ?? null });
+      const r = reconcileMake({ make: g.make ?? null, vin, model: g.model ?? null, inferModel: false });
       if (r.via === "kept") out.kept += n; else out.counted[r.via] = (out.counted[r.via] || 0) + n;
       continue;
     }
@@ -123,7 +123,7 @@ export function auditGroups(groups, rules = RULES) {
   const out = [];
   for (const g of groups) {
     const vin = padVin(g.p5), model = g.model ?? null;
-    const r = reconcileMake({ make: g.make ?? null, vin, model });
+    const r = reconcileMake({ make: g.make ?? null, vin, model, inferModel: false });
     if (r.via === "kept" || r.via === "wmi-conflict" || makeChange({ make: g.make ?? null, vin, model }, rules)) continue;
     out.push({ via: r.via, wmi: String(g.p5).slice(0, 3), p5: g.p5, make: g.make ?? null, model, active: g.active ?? null, n: Number(g.n) });
   }
