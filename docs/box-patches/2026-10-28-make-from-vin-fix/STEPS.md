@@ -16,7 +16,7 @@ The box has no checkout and the deals-api patch that ships `vinWmi.js` is not in
 ### GMC -> Chevrolet / Ford (checked read-only 2026-10-28)
 All 218 GMC -> Chevrolet and 108 GMC -> Ford rows are one dealer (id 10229, Gregg Young Buick GMC, IA: 839 of its 865 active rows are stored GMC), so it is a roster-brand fallback on that dealer, not a table error. WMIs (all agree with NHTSA vPIC DecodeWMI): Chevrolet `1GC` 66, `3GN` 49, `1GN` 33, `1G1` 23, `3GC` 20, `KL7` 12, `2GC` 8, `2GN` 5, `1GA` 1, `2G1` 1; Ford `1FM` 46, `1FT` 39, `2FM` 10, `1FA` 4, `3FM` 4, `3FT` 2, `1ZV` 1, `3FA` 1, `MAJ` 1. The models are Silverado, Colorado, Equinox, Blazer, Tahoe, Traverse, Trax, TrailBlazer, Malibu, Corvette, F-150, Escape, Explorer, Edge, Mustang, Bronco Sport, Maverick, Ranger...; no GMC nameplate (Sierra, Canyon, Yukon, Terrain, Acadia, Savana) sits on a Chevrolet or Ford WMI, and `1GT`/`3GT` (GMC) rows are untouched.
 
-The "roughly 18.9k" was active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479): about 2.5k of it was the Kia Sportage Hybrid false positive. The real fixable set is about **15.8k rows (6,738 active + ~9k removed)**.
+The "roughly 18.9k" was active + removed named conflicts **including** 7YA (6,765 + 1,415 + 9,057 + 1,076 = 18,313) plus the blanks (479): about 2.5k of it was the Kia Sportage Hybrid false positive. The real fixable set is about **16.6k rows (7,629 active as of 2026-10-28 + ~9k removed)**.
 
 ### Top 20 pairs, stored make -> make the VIN names (active, fixed table, 2026-10-28 dry run)
 | # | rows | stored -> VIN |
