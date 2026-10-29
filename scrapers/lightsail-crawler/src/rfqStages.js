@@ -46,15 +46,24 @@ export function createRfqStageHandler(deps) {
     const [inviteRows] = await pool.query("SELECT * FROM rfq_invites WHERE id = ? AND rfq_id = ?", [inviteId, rfqId]);
     const invite = inviteRows[0];
     if (!invite) return sendJson(res, 404, { error: "Invite not found" });
-    if (invite.status === "declined" || invite.status === "expired") return sendJson(res, 409, { error: "This dealer is no longer in the running.", code: "closed" });
+    // A dealer who declined the buyer's COUNTER has not left the deal: the buyer's counter superseded their quote and the decline
+    // closed the invite, but the original offer stands (the website shows it as "Counter declined: original offer stands").
+    // The buyer may accept that original out-the-door price; nothing else moves on a declined desk.
+    let original = null;
+    if (invite.status === "declined" && invite.buyer_counter_json && actor === "buyer" && action.type === "accept_otd") {
+      const [priorRows] = await pool.query("SELECT * FROM rfq_quotes WHERE invite_id = ? AND superseded_at IS NOT NULL ORDER BY id DESC LIMIT 1", [inviteId]);
+      original = priorRows[0] || null;
+    }
+    if (invite.status === "expired" || (invite.status === "declined" && !original)) return sendJson(res, 409, { error: "This dealer is no longer in the running.", code: "closed" });
     if (invite.not_selected_at && action.type !== "walk") return sendJson(res, 409, { error: "The buyer chose another dealer, so this quote is closed.", code: "closed" });
     if (invite.dealer_unsubscribed_at && action.type !== "walk") return sendJson(res, 409, { error: "This dealership is no longer accepting requests on TrimScout.", code: "closed" });
 
     const [quoteRows] = await pool.query("SELECT * FROM rfq_quotes WHERE invite_id = ? AND superseded_at IS NULL ORDER BY id DESC LIMIT 1", [inviteId]);
-    const quote = quoteRows[0] || null;
+    const quote = original || quoteRows[0] || null;
     const used = quote ? parse(quote.used_json) : null;
-    const quoteLive = Boolean(quote) && invite.status === "quoted" && !(quote.expires_at && new Date(quote.expires_at).getTime() < Date.now());
-    if (action.type === "accept_otd" && quote && invite.status === "quoted" && !quoteLive) {
+    const answering = invite.status === "quoted" || Boolean(original);
+    const quoteLive = Boolean(quote) && answering && !(quote.expires_at && new Date(quote.expires_at).getTime() < Date.now());
+    if (action.type === "accept_otd" && quote && answering && !quoteLive) {
       return sendJson(res, 409, { error: "That quote has expired. Ask the dealer to refresh it.", code: "expired" });
     }
 
@@ -84,6 +93,15 @@ export function createRfqStageHandler(deps) {
         await conn.rollback();
         return sendJson(res, 409, { error: "This deal just changed. Reload and try again.", code: "stale" });
       }
+      if (original) {
+        // Accepting the original puts the desk back in the running as an ordinary quoted desk, so every later stage step works as usual.
+        const [back] = await conn.query("UPDATE rfq_invites SET status = 'quoted', responded_at = NOW() WHERE id = ? AND rfq_id = ? AND status = 'declined'", [inviteId, rfqId]);
+        if (back.affectedRows === 0) {
+          await conn.rollback();
+          return sendJson(res, 409, { error: "This deal just changed. Reload and try again.", code: "stale" });
+        }
+        await conn.query("UPDATE rfq_quotes SET superseded_at = NULL WHERE id = ? AND invite_id = ?", [original.id, inviteId]);
+      }
       if (next.stage === "closed" && quote) {
         await conn.query("UPDATE rfq_requests SET status = 'picked', picked_quote_id = ? WHERE id = ? AND status = 'collecting'", [quote.id, rfqId]);
       }
@@ -97,6 +115,7 @@ export function createRfqStageHandler(deps) {
 
     await logRfqEvent(pool, rfqId, next.stage === "closed" ? "buyer_picked" : "deal_stage", {
       inviteId, dealerName: invite.dealer_name, actor, action: action.type, stage: next.stage, vin: null, stockNumber: null, mustHaves: [],
+      ...(original ? { counterDeclinedOriginal: true } : {}),
       ...(next.stage === "closed" ? { pickedQuoteId: quote ? quote.id : null, method: next.payment.method } : {}),
     });
     // The release of the buyer's details is its own stage event. It records THAT it happened and to which dealer; the details

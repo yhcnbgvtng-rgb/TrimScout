@@ -172,7 +172,10 @@ describe("accepting the original goes through the ordinary pick", () => {
     const staged = publicRfqForBuyer(rfqOf([counterDeclinedInvite(original)], { quotePrefs: { quoteType: "cash", cash: { zip: "07981" }, staged: true } as never }));
     const src = fs.readFileSync("components/StagedDeals.tsx", "utf8");
     assert.match(src, /counter-declined-staged/);
-    assert.match(src, /!invite\.counterDeclined && !isExpired/);
+    // The accept stays off until the box patch is installed (docs/STAGED_ACCEPT_ORIGINAL.md); then NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL=on.
+    assert.match(src, /process\.env\.NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL === "on"/);
+    assert.match(src, /\(!invite\.counterDeclined \|\| ACCEPT_ORIGINAL_ON\) && !isExpired/);
+    assert.match(fs.readFileSync(".env.example", "utf8"), /NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL/);
     const h = renderToStaticMarkup(<UsedCompare rfq={staged} prefs={staged.quotePrefs!} staged onPick={() => {}} onWalk={() => {}} onCounter={async () => {}} busy={false} />);
     assert.match(h, new RegExp(COUNTER_DECLINED_STATUS));
     assert.doesNotMatch(h, /data-testid="choose-quote"/);
