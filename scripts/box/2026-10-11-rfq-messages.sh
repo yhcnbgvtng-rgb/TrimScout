@@ -70,7 +70,7 @@ const handleRfqMessages = createRfqMessagesHandler({
     return run(handleRfqMessages, Number(rfqInviteMessagesMatch[1]), Number(rfqInviteMessagesMatch[2]));
   }
   const rfqInviteStageMatch = pathname.match(''', "route")
-open(p, "w").write(s)
+if changed: open(p, "w").write(s)  # a no-change run must not rewrite the file: it truncates it under concurrent readers
 print("patched:", p, "| applied:", ", ".join(changed) or "nothing (already present)")
 PY
 

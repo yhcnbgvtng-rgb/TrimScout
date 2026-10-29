@@ -8,6 +8,7 @@ import { useSearchParams } from "next/navigation";
 import { LEASE_NON_BINDING_COPY, type LeaseQuote, type LeaseRequestPrefs } from "../../../lib/leaseQuote";
 import { LeaseCalculatorForm } from "../../../components/LeaseCalculatorForm";
 import { counterSummary } from "../../../lib/buyerCounter";
+import { offerSummary } from "../../../lib/counterDeclined";
 import { acceptableCashCounter, COUNTER_ACCEPTED_HEADLINE } from "../../../lib/acceptCounter";
 import { AcceptCounterPanel } from "../../../components/AcceptCounterPanel";
 import { CounterComparison } from "../../../components/CounterComparison";
@@ -21,6 +22,7 @@ import { useDealerTradeFeed, useTradeQuoteForm } from "../../../components/trade
 import { SiteFooter } from "../../../components/SiteFooter";
 import { DealThreadPanel } from "../../../components/DealThreadPanel";
 import type { QuotePrefs } from "../../../lib/usedQuote";
+import { vehicleTitle } from "../../../lib/vehicleTitle";
 
 // Where a dealer lands from the tracked link in a lease-quote-request
 // email. The calculator is the only reply path — a free-text "monthly"
@@ -33,6 +35,9 @@ type Context = {
   leasePrefs: LeaseRequestPrefs | null;
   quotePrefs: QuotePrefs | null;
   inviteStatus: string;
+  /** The dealer declined the buyer's counter, so their original quote stands (and may since have been accepted). */
+  counterDeclined?: boolean;
+  acceptedOriginal?: boolean;
   rfqStatus: string;
   dealReference: string | null;
   /** Set when the buyer countered this desk's last quote — the invite is open again for a revised one. */
@@ -127,7 +132,7 @@ function ReceivedBody() {
   const stagePanel = ctx?.staged && ctx.stage ? (
     <DealerStagePanel token={token} stage={ctx.stage} quotedOtd={ctx.quotedOtd ?? null} hasTrade={Boolean(ctx.hasTrade)} rfqOpen={ctx.rfqStatus === "collecting" && !ctx.preview} onChanged={loadContext} />
   ) : null;
-  const title = ctx?.vehicle ? [ctx.vehicle.year, ctx.vehicle.make, ctx.vehicle.model, ctx.vehicle.trim].filter(Boolean).join(" ") : car;
+  const title = ctx?.vehicle ? vehicleTitle(ctx.vehicle) : car;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -173,11 +178,18 @@ function ReceivedBody() {
             <p className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 text-sm text-amber-200">{error}</p>
           ) : !ctx ? (
             <p className="text-sm text-ink-muted">Loading the request…</p>
-          ) : declined ? (
-            <div className="rounded-2xl border border-border bg-surface p-5 space-y-1 text-sm text-ink-light">
-              <p className="font-bold text-white">Recorded — the buyer will see you couldn&apos;t go further on this one.</p>
-              <p className="text-xs text-ink-muted">Your earlier quote stays on their compare for reference. Thanks for looking.</p>
-            </div>
+          ) : declined || (ctx.counterDeclined && ctx.rfqStatus === "collecting") ? (
+            ctx.buyerCounter || ctx.counterDeclined ? (
+              <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-5 space-y-1 text-sm text-amber-100" data-testid="counter-declined-dealer">
+                <p className="font-bold text-white">Counter declined: your original offer stands.</p>
+                <p className="text-xs text-amber-200/90">{ctx.priorLease || ctx.priorUsed ? <>Your quote of <strong>{offerSummary({ lease: ctx.priorLease, used: ctx.priorUsed ?? null, price: 0, totalOtdPrice: 0 })}</strong> stays on the buyer&apos;s compare and they can still accept it. </> : "Your original quote stays on the buyer's compare and they can still accept it. "}Nothing more to do.</p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-surface p-5 space-y-1 text-sm text-ink-light">
+                <p className="font-bold text-white">Recorded — the buyer will see you couldn&apos;t go further on this one.</p>
+                <p className="text-xs text-ink-muted">Thanks for looking.</p>
+              </div>
+            )
           ) : acceptedOtd != null ? (
             <>
             <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 space-y-1 text-sm text-ink-light" data-testid="counter-accepted-done">
@@ -214,9 +226,10 @@ function ReceivedBody() {
           ) : ctx.rfqStatus !== "collecting" ? (
             <>
               {stagePanel}
+              {ctx.acceptedOriginal ? <p className="rounded-2xl border border-emerald-500/40 bg-emerald-500/5 p-5 text-sm text-ink-light" data-testid="original-accepted-dealer">The buyer accepted your original offer.</p> : null}
               {tradeFeed.data?.confirmation ? (
                 <p className="rounded-2xl border border-brand-500/40 bg-brand-500/5 p-5 text-sm text-ink-light" data-testid="selected-banner">The buyer selected your quote. One step is left: confirm or revise your trade value below.</p>
-              ) : (
+              ) : ctx.acceptedOriginal ? null : (
                 <p className="rounded-2xl border border-border bg-surface p-5 text-sm text-ink-light">
                   The buyer has closed this request{stagePanel ? " (see the progress above for how this deal ended)" : " — no quote is needed"}. Thanks for looking.
                 </p>

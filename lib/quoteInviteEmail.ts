@@ -17,6 +17,7 @@ import { DEALER_EMAIL_BASE_URL } from "./dealerUnsubscribe";
 import { EXACT_ZIP_LOOKUP } from "./zipCoordinates";
 import { getZipCoordinates } from "./otdCalculator";
 import { safeModeSubject } from "./safeMode";
+import { vehicleTitle } from "./vehicleTitle";
 
 export type QuoteEmailType = "cash" | "lease" | "finance";
 
@@ -108,7 +109,7 @@ export function dealerAuthLinks(): { loginUrl: string; signupUrl: string } {
 }
 
 function carName(v: QuoteInviteEmailInput["vehicle"]): string {
-  return [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
+  return vehicleTitle(v);
 }
 
 export function quoteInviteTitle(input: QuoteInviteEmailInput): string {
@@ -225,12 +226,12 @@ export function counterComparisonTableHtml(rows: NonNullable<BuyerCounterEmailIn
 }
 
 export function buyerCounterSubject(input: BuyerCounterEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   return safeModeSubject(input.dealerName, `Buyer counter on your ${input.kind || "lease"} quote: ${car} (VIN …${input.vehicle.vin.slice(-6)})`);
 }
 
 export function buyerCounterHtml(input: BuyerCounterEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   const firstName = greetingName(input.contactName);
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
@@ -262,12 +263,12 @@ export interface TradePhotosUpdatedEmailInput {
 }
 
 export function tradePhotosUpdatedSubject(input: TradePhotosUpdatedEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   return `Buyer updated the trade-in photos: ${car} (VIN …${input.vehicle.vin.slice(-6)})`;
 }
 
 export function tradePhotosUpdatedHtml(input: TradePhotosUpdatedEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
     ${emailHeader()}
@@ -292,12 +293,12 @@ export interface NotSelectedEmailInput {
 }
 
 export function notSelectedSubject(input: NotSelectedEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   return `Not selected this time${input.dealReference ? ` (${input.dealReference})` : ""}: ${car}`;
 }
 
 export function notSelectedHtml(input: NotSelectedEmailInput): string {
-  const car = [input.vehicle.year, input.vehicle.make, input.vehicle.model, input.vehicle.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(input.vehicle);
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
     ${emailHeader()}

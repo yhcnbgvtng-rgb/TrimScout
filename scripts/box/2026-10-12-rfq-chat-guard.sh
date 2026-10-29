@@ -63,7 +63,7 @@ const chatAdmin = createChatAdminHandlers({ getPool, readBody, sendJson, ensureC
   if (req.method === "GET" && pathname === "/api/admin/chat-pauses") return run(chatAdmin.pauses);
   if (req.method === "POST" && pathname === "/api/admin/chat-pauses/lift") return run(chatAdmin.lift);
   const rfqInviteMessagesMatch = pathname.match(''', "routes")
-open(p, "w").write(s)
+if changed: open(p, "w").write(s)  # a no-change run must not rewrite the file: it truncates it under concurrent readers
 print("patched:", p, "| applied:", ", ".join(changed) or "nothing (already present)")
 PY
 

@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import type { RfqInvite, RfqRequest } from "../lib/rfq";
 import { CREDIT_RANGES, CREDIT_RANGE_LABELS, FINANCE_TERM_OPTIONS, finalSummary, liveTrueOtd, PAYMENT_METHOD_LABELS, stageOf, stageSummary, type CreditRange, type DealStageState, type StageAction } from "../lib/dealStages";
 import { cashOutTheDoor } from "../lib/usedQuote";
+import { COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 import { isExpired } from "../lib/leaseQuote";
 import { DealStageBar } from "./DealStageBar";
+
+/** Off until the box patch is installed; read at build time. */
+const ACCEPT_ORIGINAL_ON = process.env.NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL === "on";
 
 const usd = (n: number | null | undefined) => (typeof n === "number" ? `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—");
 const NO_BINDING = "A request, not a bid: nothing here binds you, and you can walk away at any stage.";
@@ -59,7 +63,9 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
   const [confirmWalk, setConfirmWalk] = useState(false);
   const open = rfq.status === "collecting" && stage.stage !== "closed" && stage.stage !== "walked" && !invite.dealerUnsubscribedAt && !invite.notSelectedAt;
   const used = invite.quote?.used?.kind === "cash" ? invite.quote.used : null;
-  const quoteLive = Boolean(used) && invite.status === "quoted" && !isExpired({ expiresAt: used!.expiresAt });
+  // A declined counter leaves the original standing. The staged accept runs on the box, which only takes it once scripts/box/2026-10-29-rfq-staged-accept-original.sh is
+  // installed (docs/STAGED_ACCEPT_ORIGINAL.md); set NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL=on after that. Until then the state shows without an accept button.
+  const quoteLive = Boolean(used) && invite.status === "quoted" && (!invite.counterDeclined || ACCEPT_ORIGINAL_ON) && !isExpired({ expiresAt: used!.expiresAt });
 
   const act = async (action: StageAction) => {
     setBusy(true); setError(null);
@@ -107,9 +113,11 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
         <div className="space-y-2" data-testid="stage-otd-actions">
           {quoteLive ? (
             <>
-              <p className="text-[11px] text-ink-muted">Accept this out-the-door price to lock it, or counter below. Finance terms come after your trade-in.</p>
+              <p className="text-[11px] text-ink-muted">{invite.counterDeclined ? `${COUNTER_DECLINED_STATUS}. Accept it to lock it.` : "Accept this out-the-door price to lock it, or counter below."} Finance terms come after your trade-in.</p>
               <button type="button" disabled={busy} onClick={() => act({ type: "accept_otd" })} className={primary} data-testid="accept-otd">Accept {usd(cashOutTheDoor(used!))} out the door</button>
             </>
+          ) : invite.counterDeclined && used ? (
+            <p className="text-[11px] text-amber-200" data-testid="counter-declined-staged">{COUNTER_DECLINED_STATUS}: {usd(cashOutTheDoor(used))} out the door.</p>
           ) : invite.buyerCounter && invite.status === "invited" ? (
             <p className="text-[11px] text-ink-muted">Your counter is with the dealer. If they accept it, the price locks.</p>
           ) : (

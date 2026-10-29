@@ -9,6 +9,7 @@ import { CREDIT_BAND_LABELS } from "./creditBand";
 import type { RfqRequest } from "./rfq";
 import { alternateAskSummary } from "./alternateAsk";
 import { SAFE_MODE_ACTIVE, SAFE_MODE_HELD_COPY } from "./safeMode";
+import { vehicleTitle } from "./vehicleTitle";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -75,7 +76,7 @@ export function rfqVehicles(rfq: Pick<RfqRequest, "linkPastes" | "vin" | "vehicl
 }
 
 export function vehicleLine(v: Pick<RfqPasteVehicle, "year" | "make" | "model" | "trim">): string {
-  return [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ");
+  return vehicleTitle(v);
 }
 
 /** "2026 Chevrolet Tahoe LS", "2026 Chevrolet Tahoe LS + 2 more", or on the alternate lane the ask. */

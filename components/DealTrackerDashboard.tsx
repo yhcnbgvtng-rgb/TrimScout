@@ -17,6 +17,7 @@ import { offerPathLabel } from "../lib/shopperDeal";
 import { evaluateOfferClock } from "../lib/offerCloseClock";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
+import { vehicleTitle } from "../lib/vehicleTitle";
 import {
   Zap,
   Building2,
@@ -121,7 +122,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
       const d = readQuoteDraft();
       if (!d) return;
       const v = (d.state as { selectedVehicle?: { year?: number; make?: string; model?: string; trim?: string } | null }).selectedVehicle;
-      setDraftSummary(v ? [v.year, v.make, v.model, v.trim].filter(Boolean).join(" ") : "Quote request");
+      setDraftSummary(v ? vehicleTitle(v) : "Quote request");
     } catch {
       /* no storage — no draft */
     }

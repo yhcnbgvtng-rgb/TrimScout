@@ -59,6 +59,7 @@ import type { ShopperListingSheet } from "../lib/listingSheet";
 import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/types";
 import { formatCurrency } from "../lib/otdCalculator";
 import { NO_PAID_FACTORY_OPTIONS, STANDARD_FEATURES_HEADING, optionsPaidOnlyEnabled, paidOptionView } from "@/lib/optionsPaidOnly";
+import { vehicleTitle } from "../lib/vehicleTitle";
 
 function unavailableSheet(vin: string, note: string): ShopperListingSheet {
   return {
@@ -750,7 +751,7 @@ function CompetingVehiclesPanel({
               </thead>
               <tbody>
                 {vehicles.map((match) => {
-                  const title = [match.year, match.make, match.model, match.trim].filter(Boolean).join(" ");
+                  const title = vehicleTitle(match);
                   const vdp = listingVdpHref(match.dealerUrl);
                   const checked = selectedVins.includes(match.vin.toUpperCase());
                   const disabled = !checked && full;
