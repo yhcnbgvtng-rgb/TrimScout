@@ -16,7 +16,7 @@
 // Other flags: --wmi=2B3,1GK (only these WMIs)  --include-removed (default: active rows only)  --deadline-et=HH:MM (default 21:30, graceful stop)  --out=DIR (backup dir, default cwd)  --pause-ms=N
 //
 // Rails (same as #609):
-//  - Every statement runs under SET STATEMENT max_statement_time=10. Discovery (dry run and the re-read under the lock) is a primary-key walk, 5000 rows per chunk, grouped in Node, so no statement scans more than a chunk;
+//  - Every statement runs under SET STATEMENT max_statement_time=10. Discovery (dry run and the re-read under the lock) is a primary-key walk, 5000 rows per chunk, grouped in Node, and the apply-path read is the same walk, 2000 rows per chunk, with the make filtered in Node, so no SELECT scans more than a chunk;
 //    ANY error or timeout stops the run (no retry). Reads and writes are bounded by the primary key: `vin LIKE 'p5%'` plus a (vin, dealer_id) keyset cursor.
 //  - --apply needs --fleet-idle, takes the deals-API sync lock (own owner id, heartbeated, released in finally; exit 4 and no change if held), refuses a retired box IP.
 //  - Each chunk's before-state (vin, dealer_id, make_before, make_after, model) is APPENDED TO THE ROLLBACK JSONL AND fsync'd BEFORE its UPDATE. The UPDATE is by
@@ -26,7 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk } from "../lib/makeFromVinFix.mjs";
+import { planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching } from "../lib/makeFromVinFix.mjs";
 import { STELLANTIS_WMI } from "../../scrapers/lightsail-crawler/src/vinWmi.js";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, ...v] = a.replace(/^--/, "").split("="); return [k, v.length ? v.join("=") : true]; }));
@@ -70,7 +70,7 @@ const isTimeout = (e) => /max_statement_time|interrupted|timeout/i.test(String(e
 
 // ---- discovery: (VIN chars 1-5, stored make[, model for Stellantis]) groups, one WMI at a time, as a primary-key walk (vin, dealer_id) in DISC_CHUNK-row chunks,
 // grouped in Node: no GROUP BY, and every statement is bounded by the chunk size, so none can approach the 10 s cap. Any error or timeout stops the run.
-const DISC_CHUNK = 5000;
+const DISC_CHUNK = 5000, APPLY_CHUNK = 2000; // rows scanned per statement (discovery / apply-path read)
 async function readPrefix(prefix, out) {
   const withModel = STELLANTIS_WMI.has(prefix.slice(0, 3));
   const t0 = Date.now(), tag = `[${new Date().toISOString().slice(11, 19)}Z] ${prefix}`;
@@ -170,7 +170,10 @@ await withLock("make-from-vin-fix", async () => {
   try {
     result = await applyConflicts({
       groups, limit: LIMIT, batchSize: BATCH, sleep: () => sleep(PAUSE), shouldStop: pastDeadline,
-      fetchBatch: (g, cur, n) => q(`SELECT vin, dealer_id, make, model FROM dealer_inventory WHERE vin LIKE ? AND BINARY make = BINARY ?${ACTIVE_ONLY ? " AND removed_at IS NULL" : ""}${cur ? " AND (vin > ? OR (vin = ? AND dealer_id > ?))" : ""} ORDER BY vin, dealer_id LIMIT ${Number(n)}`, [g.p5 + "%", g.make, ...(cur ? [cur.vin, cur.vin, cur.dealer_id] : [])]),
+      fetchBatch: (g, cur, n) => fetchMatching({
+        group: g, cursor: cur, n, activeOnly: ACTIVE_ONLY, chunk: APPLY_CHUNK,
+        fetchChunk: (p5, c, k) => q(`SELECT vin, dealer_id, make, model, (removed_at IS NULL) AS active FROM dealer_inventory WHERE vin LIKE ?${c ? " AND (vin > ? OR (vin = ? AND dealer_id > ?))" : ""} ORDER BY vin, dealer_id LIMIT ${Number(k)}`, [p5 + "%", ...(c ? [c.vin, c.vin, c.dealer_id] : [])]),
+      }),
       writeBackup: (rows, to) => { fs.writeSync(fd, rows.map((r) => backupLine(r, to)).join("\n") + "\n"); fs.fsyncSync(fd); },
       updateBatch: async (rows, to) => (await pool.query(`SET STATEMENT max_statement_time=${CAP} FOR UPDATE dealer_inventory SET make = ? WHERE BINARY make = BINARY ? AND (${rows.map(() => "(vin = ? AND dealer_id = ?)").join(" OR ")})`, [to, rows[0].make, ...rows.flatMap((r) => [r.vin, r.dealer_id])]))[0].affectedRows,
     });

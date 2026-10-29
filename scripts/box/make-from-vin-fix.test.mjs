@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk } from '../lib/makeFromVinFix.mjs';
+import { makeChange, planFromGroups, walkGroups, backupLine, parseBackup, applyConflicts, readPrefixByWalk, fetchMatching } from '../lib/makeFromVinFix.mjs';
 
 const SRC = fs.readFileSync(new URL('./2026-10-28-make-from-vin-fix.mjs', import.meta.url), 'utf8');
 const vin = (p5, i) => p5 + String(i).padStart(12, '0');
@@ -118,5 +118,55 @@ describe('readPrefixByWalk (in-memory table)', () => {
   it('discovery in the script is the walk, with no GROUP BY left in it', () => {
     assert.match(SRC, /readPrefixByWalk\(/);
     assert.doesNotMatch(SRC, /GROUP BY LEFT\(vin,5\)/);
+  });
+});
+
+describe('fetchMatching (apply-path PK walk)', () => {
+  const table = () => {
+    const t = [];
+    for (let i = 1; i <= 90; i++) t.push({ vin: vin('3N1AB', i), dealer_id: 1 + (i % 4), make: i % 3 === 0 ? 'Infiniti' : i % 3 === 1 ? 'Nissan' : 'infiniti', model: 'Sentra', active: i % 10 === 0 ? 0 : 1 });
+    t.push({ vin: vin('3N1AC', 1), dealer_id: 1, make: 'Infiniti', model: 'X', active: 1 }); // other p5
+    return t.sort((a, b) => (a.vin < b.vin ? -1 : a.vin > b.vin ? 1 : a.dealer_id - b.dealer_id));
+  };
+  const fetcher = (t, calls) => async (p5, cur, k) => {
+    const rows = t.filter((r) => r.vin.startsWith(p5) && (!cur || r.vin > cur.vin || (r.vin === cur.vin && r.dealer_id > cur.dealer_id))).slice(0, k);
+    calls.push(rows.length);
+    return rows.map((r) => ({ ...r }));
+  };
+  const group = { p5: '3N1AB', make: 'Infiniti', n: 0 };
+  const expected = (t, activeOnly) => t.filter((r) => r.vin.startsWith('3N1AB') && r.make === 'Infiniti' && (!activeOnly || r.active)).map((r) => `${r.vin}|${r.dealer_id}`);
+  it('returns exactly the rows a "p5% AND BINARY make = ? [AND active]" SELECT would, in key order, whatever the chunk size', async () => {
+    const t = table();
+    for (const chunk of [1, 5, 16, 89, 90, 91, 2000]) for (const activeOnly of [true, false]) {
+      const calls = [], got = [];
+      let cur = null;
+      for (;;) { // drive it the way applyConflicts does: batches of 7 after the last returned row
+        const b = await fetchMatching({ group, cursor: cur, n: 7, activeOnly, chunk, fetchChunk: fetcher(t, calls) });
+        if (!b.length) break;
+        got.push(...b.map((r) => `${r.vin}|${r.dealer_id}`)); cur = { vin: b[b.length - 1].vin, dealer_id: b[b.length - 1].dealer_id };
+      }
+      assert.deepEqual(got, expected(t, activeOnly), `chunk=${chunk} active=${activeOnly}`);
+      assert.ok(calls.every((n) => n <= chunk), 'no statement reads more than its chunk');
+    }
+  });
+  it('make is matched exactly (case-sensitive) and a fetch error propagates without retry', async () => {
+    const t = table();
+    const b = await fetchMatching({ group, cursor: null, n: 1000, activeOnly: false, chunk: 20, fetchChunk: fetcher(t, []) });
+    assert.ok(b.every((r) => r.make === 'Infiniti') && b.length === 30);
+    let n = 0;
+    await assert.rejects(fetchMatching({ group, cursor: null, n: 5, activeOnly: true, chunk: 10, fetchChunk: async () => { n++; throw new Error('max_statement_time exceeded'); } }), /max_statement_time/);
+    assert.equal(n, 1);
+  });
+  it('drives applyConflicts end to end, and the script no longer has the make-filtered SELECT', async () => {
+    const t = table(); const writes = [];
+    const r = await applyConflicts({
+      groups: [group], batchSize: 10,
+      fetchBatch: (g, cur, n) => fetchMatching({ group: g, cursor: cur, n, activeOnly: true, chunk: 8, fetchChunk: fetcher(t, []) }),
+      writeBackup: () => {},
+      updateBatch: async (rows) => { writes.push(...rows.map((x) => `${x.vin}|${x.dealer_id}`)); return rows.length; },
+    });
+    assert.deepEqual(writes, expected(t, true)); assert.equal(r.updated, writes.length);
+    assert.match(SRC, /fetchMatching\(/);
+    assert.doesNotMatch(SRC, /WHERE vin LIKE \? AND BINARY make = BINARY \?\$\{ACTIVE_ONLY/);
   });
 });

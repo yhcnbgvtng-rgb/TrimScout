@@ -66,6 +66,30 @@ export async function readPrefixByWalk({ prefix, withModel, activeOnly, chunk = 
   return { groups: [...tally.values()], scanned, active, chunks };
 }
 
+/**
+ * Apply-path read for one (p5, stored make) group as a primary-key walk: read (vin, dealer_id) in `chunk`-row steps after the cursor, whatever the make,
+ * and keep the rows whose make is exactly group.make (and, with activeOnly, that are not removed) in Node, until `n` are collected or the p5 range ends.
+ * Each statement is bounded by the chunk size (LIMIT counts scanned rows), so a group whose make is rare can no longer make one SELECT scan the whole range.
+ * fetchChunk(p5, cursor|null, k) -> rows [{ vin, dealer_id, make, model, active }] ordered by (vin, dealer_id) strictly after the cursor.
+ * Returns up to n rows [{ vin, dealer_id, make, model }] in key order, the shape applyConflicts' fetchBatch expects.
+ */
+export async function fetchMatching({ group, cursor, n, activeOnly, chunk = 2000, fetchChunk }) {
+  const out = [];
+  let cur = cursor;
+  for (;;) {
+    const rows = await fetchChunk(group.p5, cur, chunk);
+    for (const r of rows) {
+      if (activeOnly && Number(r.active) !== 1) continue;
+      if (r.make !== group.make) continue;
+      out.push({ vin: r.vin, dealer_id: r.dealer_id, make: r.make, model: r.model });
+      if (out.length >= n) return out;
+    }
+    if (rows.length < chunk) return out;
+    const last = rows[rows.length - 1];
+    cur = { vin: last.vin, dealer_id: last.dealer_id };
+  }
+}
+
 /** The (p5, stored make) groups to walk: one entry per pair, so a prefix that appears under several models is read once. */
 export function walkGroups(conflicts) {
   const seen = new Map();
