@@ -3,7 +3,16 @@
 Apply only on Paul's typed **GO**, in a daytime idle window, one numbered step at a time. Box2 only (`ssh box2`, 52.202.234.65; `docs/BOXES.md`). Script: `scripts/box/2026-10-28-make-from-vin-fix.mjs` (pure parts in `scripts/lib/makeFromVinFix.mjs`, tests in `scripts/box/make-from-vin-fix.test.mjs`). Cut from the #609 apply; the read-only counterpart is `scripts/box/2026-10-24-make-wmi-reclean.mjs`.
 
 ## What it does
-`make := reconcileMake(make, vin, model).make` (the rule `vinWmi.js` gives the crawler and the deals-API write path) for **`wmi-conflict` rows only**: the stored make is outside the family the VIN's WMI can carry and the VIN names the right one (a Nissan stored on an F-150 VIN becomes Ford). Blank makes (`wmi-fill`) and shared-WMI conflicts that need a vPIC decode (`conflict-unresolved`, `unresolved`) are only counted. Nothing but `make` is written.
+`make := ` the make one of four rules names (`--rules=a,b` limits them; `--rules=wmi-conflict` is the first version). Nothing but `make` is written.
+
+| rule | acts on (reconcileMake verdict) | writes |
+|---|---|---|
+| `wmi-conflict` | stored make outside the WMI's family, the VIN names one make (a Nissan stored on an F-150 VIN becomes Ford) | that make |
+| `model-conflict` | stored make outside a **shared** WMI's family (`conflict-unresolved`: 5N1, KMH, 5NM, 5XY, KND, 3KP, 5TD, JN1, JN8, JF1, JF2, JTM, JA4) and the model is owned by exactly one make of that family (`scripts/lib/makeModelOwner.mjs`) | that make |
+| `wmi-fill` | blank make on a single-make WMI | that make |
+| `model-fill` | blank make on a shared WMI (`unresolved`) and the same model ownership decides | that make |
+
+Still **counted only**: a shared WMI with no model, a model no table entry claims (`Genesis` / `Genesis Coupe` on a KMH VIN is both the old Hyundai and the Genesis brand; truncated `HIGHLN`, `ELAN`, `OUTLSP`), Stellantis lines the VIN5 table and model rules cannot name (`Prowler`, `Routan`, `Caliber`, null model). The model table is intersected with the WMI's family, so `G80` is Genesis on KMH and decides nothing on 5N1. Blank-make rows are updated through a `make IS NULL` guard; the rollback file records `make_before: null` and restores it.
 
 The box has no checkout and the deals-api patch that ships `vinWmi.js` is not installed, so the script is emitted as ONE bundle (vinWmi + tables inside; **needs #618 merged first**: it imports `WMI_LIST` from `vinWmi.js`) and piped over ssh: nothing is installed on the box except the rollback file it writes into the directory you run it from.
 
@@ -50,6 +59,9 @@ Spot check of the biggest WMI/stored-make groups by model (active rows): `3N1`+I
 ### The table error this dry run found, and its fix (#618)
 The old #1 pair, **Kia -> Hyundai, 1,413 active rows, was wrong**: every one is a **2027 Kia Sportage Hybrid** built at the Georgia metaplant, whose WMI `7YA` `vinWmi.js` listed as Hyundai only (it also builds the IONIQ 5/9 and the Genesis GV70 EV). **#618 fixes the table** (`7YA` = Hyundai/Kia/Genesis; model rules decide a foreign or blank make on shared WMIs) and, from a model-ownership audit of 238 sizeable (WMI, stored make) conflicts on box2, also `3MY` (+Scion, the iA), `3N6` (+Chevrolet, City Express) and `JN1` (+Mitsubishi, Eclipse Sportback). This script runs on the fixed table, so it no longer needs, or has, a `7YA` exclusion. The counts above are from the dry run on that table.
 
+## Dry run with the four rules (box2, read-only, 2026-10-29 ~16:50 ET, bundle from this PR)
+All rows (`--include-removed`): 5,228,448 read, **3,517 to rewrite** = `wmi-conflict` 2 + `model-conflict` 2,970 + `wmi-fill` 438 + `model-fill` 107; **92 left counted** (40 `conflict-unresolved`, 52 `unresolved`). Active only: 2,835,335 read, **790 to rewrite** (2 + 783 + 3 + 2), 2 left. Every statement was a 5000-row PK-walk chunk (slowest well under 2 s); the per-group table is in the PR description. The 7,629 `wmi-conflict` rewrites of the 2026-10-28 dry run no longer show: this run finds only 2 (the Chevrolet -> Hyundai pair on 7YA that the model rule now resolves).
+
 ## Gate (before every write)
 1. Sync lock free (read the log, never acquire it by hand): `grep '\[sync-lock\]' ~/.pm2/logs/*deals*out*.log | tail -2` ends with a release.
 2. No `inventory-sync|run_nightly_chain|run_daily_crawl|standalone|backfill|unretire|facet|apply` process on box1-box4 (`pgrep -fa`; boxes 1/3/4 via `ssh -J box2 ... ubuntu@<private ip>`). The other session's facet rebuild must be finished.
@@ -85,4 +97,4 @@ Restores `make` only where it is still the value the script wrote. Then rebuild 
 ## Rails and what it costs
 Every statement runs under `max_statement_time=10`; reads and writes are bounded by the primary key (`vin LIKE 'p5%'` + `(vin, dealer_id)` keyset, 100 rows per chunk); each chunk's before-state is appended and fsync'd to the rollback file before its UPDATE; the UPDATE requires `make` to still be the value read; sync lock with heartbeat; refuses retired IPs and refuses to `--apply` unbundled. The UPDATE touches ~12 secondary indexes carrying `make`, so expect it to be slower than the trim apply: use the 200-row run in step 2 to time it before the full run.
 ## Not done / not verified
-Nothing was written on box2; the apply path was tested only against an in-memory table, never against MariaDB. A dry run of the emitted bundle was executed on box2 for four WMIs (read-only) and matched the full count. Out of scope: the shared-WMI rows that need a vPIC decode (`conflict-unresolved`/`unresolved`) and the blank makes.
+Nothing was written on box2; the apply path was tested only against an in-memory table, never against MariaDB. A dry run of the emitted bundle was executed on box2 for four WMIs (read-only) and matched the full count. Out of scope: the 92 shared-WMI/Stellantis rows no rule names (a vPIC decode would be needed). The crawler's own `reconcileMake` (`vinWmi.js`) is NOT changed, so a re-crawled shared-WMI row can still come back blank/wrong; the follow-up is to give `SHARED_MODEL_RULES` the same table.
