@@ -16,12 +16,13 @@ describe('classifyGroup / summarizeGroups', () => {
     assert.deepEqual(classifyGroup({ make: 'GMC', key: '2B3LJ', model: 'Challenger' }), { next: 'Dodge', via: 'wmi-conflict' });
     assert.deepEqual(classifyGroup({ make: 'GMC', key: '1GKB0', model: 'Yukon' }), { next: 'GMC', via: 'kept' });
     assert.deepEqual(classifyGroup({ make: 'GMC', key: 'XZZCJ', model: 'X' }), { next: 'GMC', via: 'kept' }); // unknown WMI: never touched
-    assert.deepEqual(classifyGroup({ make: 'Ford', key: 'JN8AZ', model: 'QX80' }), { next: null, via: 'conflict-unresolved' }); // shared WMI, needs vPIC
+    assert.deepEqual(classifyGroup({ make: 'Ford', key: 'JN8AZ', model: 'Crossover' }), { next: null, via: 'conflict-unresolved' }); // shared WMI, model not decisive: needs vPIC
+    assert.deepEqual(classifyGroup({ make: 'Ford', key: 'JN8AZ', model: 'QX80' }), { next: 'Infiniti', via: 'wmi-conflict' }); // shared WMI, but the model names one of its two makes
   });
   it('counts by target make, keeps no VIN, caps the group list', () => {
     const s = summarizeGroups('GMC', [
       { model: 'Challenger', key: '2B3LJ', n: 3 }, { model: 'Impreza', key: '4S3GT', n: 2 }, { model: 'Encore', key: 'KL4CJ', n: 1 },
-      { model: 'Sierra 1500', key: '1GTU9', n: 40 }, { model: 'QX80', key: 'JN8AZ', n: 1 },
+      { model: 'Sierra 1500', key: '1GTU9', n: 40 }, { model: 'Crossover', key: 'JN8AZ', n: 1 },
     ], { top: 2 });
     assert.equal(s.rowsChecked, 47); assert.equal(s.rowsAgree, 40); assert.equal(s.rowsConflict, 7); assert.equal(s.rowsToMake, 6); assert.equal(s.rowsToNull, 1);
     assert.deepEqual(s.byTarget, { Dodge: 3, Subaru: 2, Buick: 1, '(null: shared WMI)': 1 });
@@ -145,9 +146,9 @@ describe('make-vs-VIN dry run (emitted bundle, fake DB)', () => {
   it('--vpic: shared-WMI rows (contradicted and blank) are decoded once per prefix, via the injected endpoint, with index-bounded reads and a cache file', { skip }, async () => {
     const http = await import('node:http');
     const rows = [
-      row('5TDAA0000P0000001', 'Ford', 'TX 350', 'Wrong Roster Ford', 1), row('5TDAA0000P0000002', 'Ford', 'TX 350', 'Wrong Roster Ford', 1), // contradicted, shared 5TD range
-      row('5TDKK0000P0000003', 'Ford', 'Highlander', 'Wrong Roster Ford', 1),
-      row('5TDAA0000P0000004', null, 'TX 350', 'Blank Make Motors', 4), row('5TDZZ0000P0000005', '', 'Mystery', 'Blank Make Motors', 4), // blank, shared range
+      row('5TDAA0000P0000001', 'Ford', 'Crossover A', 'Wrong Roster Ford', 1), row('5TDAA0000P0000002', 'Ford', 'Crossover A', 'Wrong Roster Ford', 1), // contradicted, shared 5TD range
+      row('5TDKK0000P0000003', 'Ford', 'Crossover B', 'Wrong Roster Ford', 1),
+      row('5TDAA0000P0000004', null, 'Crossover A', 'Blank Make Motors', 4), row('5TDZZ0000P0000005', '', 'Mystery', 'Blank Make Motors', 4), // blank, shared range
       row('XZZGK5H76HS000099', '', 'Fit', 'Blank Make Motors', 4), // unknown WMI: stays blank, never sent to vPIC
     ];
     const posted = [];

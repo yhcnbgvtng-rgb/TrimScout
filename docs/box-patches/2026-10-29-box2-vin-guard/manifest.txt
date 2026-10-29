@@ -1,9 +1,9 @@
 88ec75c5d81a19dd484de0dea62add28  files/ingestGuards.js
 4017f1f9e24dc14d1b2cc530737e1e00  files/stellantisMake.js
-274e60473eb1d83fe6b01def4e5f68dc  files/vinWmi.js
+602a229e17c79c280ccca31e732f3999  files/vinWmi.js
 d2b48dc73da2511b659638c60a349cd0  fixtures/deals_api_server.snapshot-2026-10-27.js
 0ba41bc0c45b07ad75a2fd32571937da  fixtures/ingestGuards.box-before.js
 4f384997f7107b66b9521bb561b7a10e  fixtures/stellantisMake.box-before.js
 2bb0902516fe1279adec20291096ac7b  fixtures/stellantisVinTable.js
 30a03c4910043e50e7d26af157877e0f  test-vin-guard.mjs
-8a0b0e9aa6554f63057d9d587e931d84  install.sh
+15f6dd8793905a5c994f65889ea5e3f8  install.sh

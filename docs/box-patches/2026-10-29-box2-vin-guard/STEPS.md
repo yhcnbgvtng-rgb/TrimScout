@@ -8,7 +8,7 @@ Install only on Paul's typed **GO**, on **box2** (`ssh box2`; `docs/BOXES.md`), 
 ## What it changes (three files in `/opt/trimscout-deals/src`, replaced whole, so there is no patch to drift)
 | File | before (box2 live) | after |
 |---|---|---|
-| `vinWmi.js` | absent | `274e60473eb1d83fe6b01def4e5f68dc` (new: main's table from #632, `63d37197`, plus the `3GP` / `3HD` / `1HT` rules below; copy it from `docs/box-patches/2026-10-29-wmi-additions/files/vinWmi.js`, never from the old `7371d7d9`) |
+| `vinWmi.js` | absent | `602a229e17c79c280ccca31e732f3999` (new: main's table from #632, `63d37197`, plus the `3GP` / `3HD` / `1HT` rules below and the model-picks-make inference (`makeFromModelInFamily`: on a shared-plant prefix the model names the make only among the makes that prefix can carry; a stored make inside the family is never second-guessed); copy it from `docs/box-patches/2026-10-29-wmi-additions/files/vinWmi.js`, never from the old `7371d7d9`) |
 | `stellantisMake.js` | `4f384997f7107b66b9521bb561b7a10e` | `4017f1f9e24dc14d1b2cc530737e1e00` (`normalizeMakeForWrite` ends with `reconcileMake`) |
 | `ingestGuards.js` | `0ba41bc0c45b07ad75a2fd32571937da` (2026-10-07) | `88ec75c5d81a19dd484de0dea62add28` (the repo's; the only difference is three `export` keywords, so no behaviour change; a test pins that) |
 | `stellantisVinTable.js` | `2bb0902516fe1279adec20291096ac7b` | unchanged (checked, not copied) |
@@ -51,3 +51,6 @@ bash /tmp/vg/install.sh restore && sudo -u ubuntu pm2 restart deals-api
 
 ## What was tested (no box access)
 `scrapers/lightsail-crawler/test/box2_vin_guard_package.test.js` runs `install.sh` against a simulated `/opt/trimscout-deals/src` built from the committed before-files (box's `stellantisMake.js` `4f384997` from git, `ingestGuards.js` `0ba41bc0` from git, the 2026-10-27 server snapshot) with a fake pm2: check/apply/restore round trip, md5 pins, refusal on drift of any file, refusal when the server no longer routes makes through `normalizeMakeForWrite`, refusal while the sync lock is held or a sync process runs, restart only on the patched state, failure path when pm2 reports the process not online. `vin_wmi.test.js` covers the five new prefixes. **Not tested:** a real `sudo -u ubuntu pm2` on box2, and the live `deals_api_server.js` (31d527ba / 92716d25) itself; the install script greps it for the call-site markers and refuses if they are missing.
+
+## Model-picks-make inference and the stored-row repair
+`reconcileMake` / `makeFromVin` now take `inferModel` (default true). The write path and the crawler use the default, so a Rogue stored as Honda on a `5N1` VIN is written as Nissan. `scripts/lib/makeFromVinFix.mjs` (#633) passes `inferModel: false`: its model-based rewrites keep going through its own audited `ownerMake` table, so the repair's dry-run counts and rules are exactly as audited. The dry-run script `2026-10-24-make-wmi-reclean.mjs` follows the write path (default on).

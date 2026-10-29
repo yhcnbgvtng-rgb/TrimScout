@@ -20,7 +20,7 @@ const SM_AFTER = '4017f1f9e24dc14d1b2cc530737e1e00', IG_AFTER = '88ec75c5d81a19d
 describe('package files are the repo files', () => {
   for (const f of ['stellantisMake.js', 'ingestGuards.js']) it(`files/${f} == src/${f}`, () => assert.equal(md5(path.join(PKG, 'files', f)), md5(path.join(SRC, f))));
   // vinWmi.js is pinned, not compared with src/: the table in src/ may move on after this package is cut (box2 then gets the newer file in a later, separate step).
-  it('files/vinWmi.js is the pinned 274e6047... table (the #632 table on main + 3GP and 3HD model rules + 1HT)', () => assert.equal(md5(path.join(PKG, 'files/vinWmi.js')), '274e60473eb1d83fe6b01def4e5f68dc'));
+  it('files/vinWmi.js is the pinned 602a229e... table (the #632 table on main + 3GP and 3HD model rules + 1HT)', () => assert.equal(md5(path.join(PKG, 'files/vinWmi.js')), '602a229e17c79c280ccca31e732f3999'));
   it('the pinned md5s are the committed ones', () => {
     assert.equal(md5(path.join(PKG, 'fixtures/stellantisMake.box-before.js')), SM_BEFORE);
     assert.equal(md5(path.join(PKG, 'fixtures/ingestGuards.box-before.js')), IG_BEFORE);

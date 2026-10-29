@@ -50,7 +50,12 @@ describe('multi-brand dealer: the fallback only ever fills a car nothing else ca
 
   it('a car whose page make the VIN contradicts but cannot replace (shared WMI) is not rescued by the fallback', () => {
     // 5XY is shared Kia/Hyundai; the page says Ford, the VIN says "not Ford", and cannot say which of the two.
-    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Sportage' }, dealer), { make: null, makeSource: null });
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Crossover' }, dealer), { make: null, makeSource: null });
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699' }, dealer), { make: null, makeSource: null });
+  });
+
+  it('...but a model that names exactly one of the two makes does replace it (a Sportage is a Kia)', () => {
+    assert.deepEqual(resolveKeptMakeDetailed(GMC, { make: 'Ford', vin: '5XYK23DF6SG321699', model: 'Sportage' }, dealer), { make: 'Kia', makeSource: 'vin' });
   });
 
   it('a shared WMI only accepts a fallback inside its own family', () => {
