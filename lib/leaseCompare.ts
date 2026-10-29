@@ -43,6 +43,8 @@ export interface LeaseCompareRow {
   priorQuotes: RfqQuote[];
   /** True when the live quote is a revision after a buyer counter. */
   revised: boolean;
+  /** The dealer declined the buyer's counter, so this live quote is their original offer standing (lib/counterDeclined.ts). */
+  counterDeclined: boolean;
   /**
    * The dealer quoted a different vehicle than asked (or the whole request is the
    * alternate lane). Alternates never rank in the same-spec compare or win its cards.
@@ -103,6 +105,7 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     buyerCounter: invite.buyerCounter ?? null,
     priorQuotes: invite.priorQuotes ?? [],
     revised: Boolean(invite.quote?.lease && invite.priorQuotes?.length),
+    counterDeclined: invite.counterDeclined === true,
     unsubscribed: Boolean(invite.dealerUnsubscribedAt),
     notSelected: Boolean(invite.notSelectedAt),
     alternate: isAlternateQuote({ lane: rfq.lane, vin: askedVinForInvite(rfq, invite) }, invite.quote?.vin),

@@ -14,6 +14,7 @@ import { bestDeal, leaseAfterTrade, orderDesks, tradeEligible, type TradeSortMod
 import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import type { CounterEditsPayload } from "../lib/buyerCounter";
+import { ACCEPT_ORIGINAL_LABEL, COUNTER_DECLINED_NOTE, COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 
 /**
  * Deal page lease comparison: at a glance → dealers as COLUMNS (one line item read
@@ -101,6 +102,7 @@ export function LeaseCompare({
     const statusNotes = r.chips.filter((c) => c !== monthlyNote && c !== dasNote);
     const status =
       r.notSelected ? badge("bg-border text-ink-muted", "Not selected", "not-selected-chip")
+      : r.counterDeclined && !r.picked && (r.kind === "eligible" || r.kind === "counter") ? badge("bg-amber-500/15 text-amber-200", COUNTER_DECLINED_STATUS, "counter-declined-chip")
       : r.kind === "eligible" ? (r.picked ? badge("bg-brand-500/15 text-brand-300", "Chosen") : <span className="text-[10px] text-ink-muted">{r.alternate && lane !== "alternate" ? "Different vehicle" : "Matches your ask"}</span>)
       : r.unsubscribed && r.kind === "counter" ? badge("bg-border text-ink-muted", "Unsubscribed — quote still valid", "unsub-chip")
       : r.kind === "counter" ? badge("bg-amber-500/15 text-amber-300", "Counter", "counter-badge")
@@ -135,6 +137,7 @@ export function LeaseCompare({
         {trade && r.lease && r.kind === "eligible" && eq0(r).status !== "quoted" && eq0(r).status !== "expired" ? <span className="block text-[10px] text-amber-200" data-testid="no-best-deal-note">{eq0(r).status === "declined" ? "Not in the best-deal ranking: no trade quote." : "Not in the best-deal ranking: no trade quote yet."}</span> : null}
         <RevisedNote conf={trade?.confirmations?.[r.inviteId]} />
         {statusNotes.map((c) => <span key={c} className="block text-[10px] leading-snug text-ink-muted">{c}</span>)}
+        {r.counterDeclined && r.kind !== "expired" ? <span className="block text-[10px] leading-snug text-amber-200/90" data-testid="counter-declined-note">{COUNTER_DECLINED_NOTE}</span> : null}
         {r.kind === "countered" && r.buyerCounter ? <span className="block text-[10px] leading-snug text-sky-200">You asked: {counterSummary(r.buyerCounter)}</span> : null}
         <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
         {inviteActions && !r.lease ? inviteActions(r.inviteId) : null}
@@ -221,9 +224,9 @@ export function LeaseCompare({
     ) : null;
     const footer = canAct(r) ? (
       <div className="flex flex-col items-stretch gap-1.5" data-testid="column-actions">
-        <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">Choose this quote</button>
+        <button type="button" onClick={() => onPick(r.quoteId!)} disabled={busy} className="rounded-lg bg-brand-500 px-3 py-1.5 text-[11px] font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="choose-quote">{r.counterDeclined ? ACCEPT_ORIGINAL_LABEL : "Choose this quote"}</button>
         <div className="grid grid-cols-2 gap-1.5">
-        {onCounter && !r.unsubscribed && !r.notSelected ? (
+        {onCounter && !r.unsubscribed && !r.notSelected && !r.counterDeclined ? (
           <button type="button" onClick={() => setCountering(r.inviteId)} disabled={busy || countering === r.inviteId} className="rounded-lg border border-sky-500/50 px-3 py-1.5 text-[11px] font-bold text-sky-200 hover:bg-sky-500/10 disabled:opacity-50" data-testid="counter-quote">Counter</button>
         ) : null}
         <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>

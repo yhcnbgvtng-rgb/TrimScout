@@ -14,6 +14,7 @@ import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "./trade/types";
 import { publicConfirmation, type TradeConfirmation } from "./trade/confirm";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
+import { withCounterDeclinedOffers } from "./counterDeclined";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { DealStageState } from "./dealStages";
@@ -136,6 +137,11 @@ export interface RfqInvite {
   buyerCounter?: BuyerCounter | null;
   buyerCounterAt?: string | null;
   /**
+   * Derived for the buyer (lib/counterDeclined.ts), never stored: the dealer declined the buyer's counter, so
+   * `quote` is their original offer, live again. Counters are closed; accepting it is the ordinary pick.
+   */
+  counterDeclined?: boolean;
+  /**
    * Set when the dealership opted out of TrimScout while this invite was still
    * open (auth server's opt-out cascade). The app stops waiting on the rooftop
    * and disables counters; a quote submitted before it stays readable/choosable.
@@ -242,7 +248,8 @@ export function rfqIsReleased(rfq: Pick<RfqRequest, "approvalStatus">): boolean 
  * (`desk.emailMasked`) stays. Every buyer-facing RFQ response goes through
  * this — the box returns the raw row for server-to-server use.
  */
-export function publicRfqForBuyer(rfq: RfqRequest): RfqRequest {
+export function publicRfqForBuyer(raw: RfqRequest): RfqRequest {
+  const rfq = withCounterDeclinedOffers(raw);
   return {
     ...rfq,
     invites: rfq.invites.map(({ dealerContactEmail: _email, viewToken: _token, ...rest }) => ({ ...rest, dealerContactEmail: null, ...(rest.tradeConfirmation ? { tradeConfirmation: publicConfirmation(rest.tradeConfirmation) } : {}) })),

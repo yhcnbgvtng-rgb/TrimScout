@@ -6,6 +6,7 @@
  * is wiped on every dismiss; this survives a close, on purpose, because the
  * buyer asked. Holds only what a retry needs. Pure over a Storage-like.
  */
+import { vehicleTitle } from "./vehicleTitle";
 export const PARKED_VEHICLE_KEY = "trimscout.parkedVehicle.v1";
 /** Stickers usually post within a few weeks of listing; a month covers it. */
 export const PARKED_VEHICLE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -81,6 +82,6 @@ export function clearParkedVehicle(store?: StorageLike | null): void {
 
 /** "2026 Acura ADX · Key Acura of Atlantic City" */
 export function parkedVehicleLabel(p: Pick<ParkedVehicle, "year" | "make" | "model" | "trim" | "dealerName">): string {
-  const car = [p.year, p.make, p.model, p.trim].filter(Boolean).join(" ");
+  const car = vehicleTitle(p);
   return p.dealerName ? `${car} · ${p.dealerName}` : car;
 }
