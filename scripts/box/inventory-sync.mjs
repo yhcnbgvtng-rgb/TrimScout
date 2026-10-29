@@ -48,9 +48,11 @@ import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { runSupersede, runDuplicateVins } from "./syncSuperseded.js";
 import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
-import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts, noteCrawlStamp, crawlStampsToIso } from "./syncSweepGuard.js";
+import { noteCrawlStamp, crawlStampsToIso } from "./syncSweepGuard.js";   // crawl stamps (inventorySweep.js)
+import { retiredRowsToList } from "./syncRetired.js";                      // the real retired list
+import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts } from "./syncSweepGuard.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
-import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, retiredRowsToList, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
+import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
 
 // The box-resident default is box2's static IP (the deals API host); every box's inventory-sync/.env sets
 // TRIMSCOUT_DEALS_HOST explicitly, so this only matters if that line is ever missing.
@@ -240,8 +242,8 @@ for (const shardFile of files) {
       staleByStore.set(k, (staleByStore.get(k) || 0) + 1);
       continue;
     }
-    freshUploaded++;
     noteCrawlStamp(crawlStampMs, dealerIdFor(v), v.updatedAt);
+    freshUploaded++;
     if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
       vin: v.vin.toUpperCase(), dealerId: dealerIdFor(v), dealerName: v.dealerName || v.configDealerName, condition: cond(v.inventoryType), year: v.year, make: v.make, model: v.model, trim: v.trim, trimRaw: v.trimRaw || null,
@@ -283,7 +285,7 @@ const sweptStoreIds = (failedStores = []) => new Set([...new Set(rows.map((r) =>
 // With it, the prediction goes to candidates-* and retired-* holds only what the deals API reported retiring (an API that predates returnRetired reports nothing,
 // so no retired file is written rather than a prediction under the old name).
 const writeRetired = (failedStores, result = null) => {
-  try {
+  try { // writing these files never fails the sync
     const list = retiredList(dropped, rows, sweptStoreIds(failedStores));
     if (!result) {
       const file = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now());

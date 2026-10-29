@@ -1,0 +1,15 @@
+# md5  role  file   (BASE/BOXBASE = box2 as read, read-only, 2026-10-29 ~15:00 ET; FINAL = the repo file at this PR's head; BOXFINAL = the box file after the patch)
+3076ea15ddb10a79f545a9ab65ff7d2c  BASE   inventorySweep.js
+4267624cff2c843c97bf0d6cfa47c9d1  FINAL  inventorySweep.js
+57699c150eec297220003d7dd5d93cdf  BASE   syncRun.js
+b67f57bcffeede0cdddb01ba355ef231  FINAL  syncRun.js
+6e0fb48ccd2f3ae9a6076aabdaabbeea  BASE   syncSweep.js
+19fd8e2a40ff72bc3540edc21da2e19a  FINAL  syncSweep.js
+1d38a02b9daeae923d1584bb30d9cfc4  BASE   syncSweepGuard.js
+2591053e4780a7b25626dd83a27a450b  FINAL  syncSweepGuard.js
+74c70a4ee8c084724345911df0c850af  BASE   syncRetired.js
+f8e32aaf73a2c48712a4b595ccb95c05  FINAL  syncRetired.js
+31d527ba8e277ff58e39f73ad1d00295  BOXBASE   deals_api_server.js
+400e943b58e972a00fcce92738ead685  BOXFINAL  deals_api_server.js
+e41f34ff8d9acd2efb025323b7f5bb80  BOXBASE   inventory-sync.mjs
+d08b1328062178f21b08ac8a4cfdcb4c  BOXFINAL  inventory-sync.mjs

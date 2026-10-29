@@ -1,5 +1,5 @@
 diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
-index 40408cc..35da16b 100644
+index 40408cc..535984b 100644
 --- scrapers/lightsail-crawler/src/deals_api_server.js
 +++ scrapers/lightsail-crawler/src/deals_api_server.js
 @@ -40,7 +40,8 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
@@ -32,7 +32,7 @@ index 40408cc..35da16b 100644
      "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
      // The dealer's own trim text, kept whenever the trim above was rewritten by fordTrim.js (null = the trim is exactly what the dealer sent). Nothing is lost.
      "ADD COLUMN IF NOT EXISTS trim_raw VARCHAR(160) NULL",
-@@ -2665,10 +2670,14 @@ async function handleInventorySweep(req, res) {
+@@ -2665,10 +2670,18 @@ async function handleInventorySweep(req, res) {
    const body = await readBody(req);
    const parsed = parseSweepRequest(body, { toInt: INV_INT, toStr: INV_STR });
    if (!parsed.ok) return badRequest(res, parsed.error);
@@ -47,11 +47,15 @@ index 40408cc..35da16b 100644
 +    removed: out.removed,
 +    ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}),
 +    ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}),
++    // Which stores the crawl stamps let through (see inventorySweep.js); present only when the request carried crawlStamps, which is also the client's acknowledgement.
++    ...(out.stamps ? { stamps: out.stamps } : {}),
++    // returnRetired: the rows this call retired, for the sync's retired file (inventorySweep.js).
++    ...(out.retired ? { retired: out.retired, ...(out.retiredTruncated ? { retiredTruncated: true } : {}) } : {}),
 +  });
  }
  
  // POST /api/inventory/superseded { pairs: [[vin, storeId], ...], seenAfter, dryRun?, sourceBox?, foreignBefore? } — retires (removed_at) the
-@@ -3142,30 +3151,22 @@ async function computeMarketPulse(pool, state) {
+@@ -3142,30 +3155,22 @@ async function computeMarketPulse(pool, state) {
    };
  }
  
@@ -95,7 +99,7 @@ index 40408cc..35da16b 100644
  }
  
  // GET /api/inventory/makes — just the make list, for the buyer /search page's make picker
-@@ -4216,6 +4217,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
+@@ -4216,6 +4221,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
    sendJson(res, 404, { error: "Not found" });
  });
  
@@ -104,7 +108,7 @@ index 40408cc..35da16b 100644
  server.listen(PORT, () => {
    console.log(`Deals API server listening on port ${PORT}`);
    // First deploy (or a box whose facet tables were never built): build once shortly after start.
-@@ -4230,6 +4233,11 @@ server.listen(PORT, () => {
+@@ -4230,6 +4237,11 @@ server.listen(PORT, () => {
        console.error("startup catalog facet check failed:", err.message);
      }
    }, 30_000);

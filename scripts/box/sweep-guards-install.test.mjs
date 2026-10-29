@@ -140,7 +140,7 @@ describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
   const changed = (file) => fs.readFileSync(file, 'utf8').split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
   // The reviewed patch is a diff against the pre-#601 file, so it also carries every later change to the same repo file. Later install packages (each
   // cut against box2's text at its own time) list theirs here; their changed lines are taken out of the expectation, one for one.
-  const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch', 'docs/box-patches/2026-10-29-stats-cache-warm/deals_api_server.js.patch'] };
+  const LATER = { 'deals_api_server.js': ['docs/box-patches/2026-10-28-stats-movement-split/deals_api_server.js.patch', 'docs/box-patches/2026-10-29-stats-cache-warm/deals_api_server.js.patch', 'docs/box-patches/2026-10-29-sweep-crawl-stamps/deals_api_server.js.patch'] };
   const withoutLater = (name, lines) => {
     const rest = [...lines];
     for (const rel of LATER[name] || []) for (const l of changed(path.join(ROOT, rel))) { const i = rest.indexOf(l); assert.ok(i >= 0, `${rel} changes a line the reviewed patch does not carry: ${l}`); rest.splice(i, 1); }
@@ -170,3 +170,36 @@ describe('box2-refit: patches cut from box2\'s own text (2026-10-27)', () => {
   });
 });
 
+
+describe('the crawl-stamps package (docs/box-patches/2026-10-29-sweep-crawl-stamps/)', () => {
+  const STAMPS = path.join(ROOT, 'docs/box-patches/2026-10-29-sweep-crawl-stamps');
+  const lines = fs.readFileSync(path.join(STAMPS, 'manifest.txt'), 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).map((l) => { const [sum, role, file] = l.trim().split(/\s+/); return { sum, role, file }; });
+  const pick = (role, file) => lines.find((m) => m.role === role && m.file === file)?.sum;
+  const WHOLE = { 'inventorySweep.js': SOURCES['inventorySweep.js'], 'syncRun.js': SOURCES['syncRun.js'], 'syncSweep.js': SOURCES['syncSweep.js'], 'syncSweepGuard.js': SOURCES['syncSweepGuard.js'], 'syncRetired.js': 'scripts/box/syncRetired.js' };
+
+  it('every FINAL md5 equals the real file (the five files are copied whole to the box)', () => {
+    for (const [name, rel] of Object.entries(WHOLE)) assert.equal(pick('FINAL', name), md5(path.join(ROOT, rel)), `${name} changed since the manifest was written`);
+  });
+
+  it('every row of the manifest is a 32-hex md5 and the roles are the expected ones', () => {
+    assert.deepEqual(lines.map((l) => `${l.role} ${l.file}`).sort(), [
+      'BASE inventorySweep.js', 'BASE syncRetired.js', 'BASE syncRun.js', 'BASE syncSweep.js', 'BASE syncSweepGuard.js', 'BOXBASE deals_api_server.js', 'BOXBASE inventory-sync.mjs',
+      'BOXFINAL deals_api_server.js', 'BOXFINAL inventory-sync.mjs', 'FINAL inventorySweep.js', 'FINAL syncRetired.js', 'FINAL syncRun.js', 'FINAL syncSweep.js', 'FINAL syncSweepGuard.js',
+    ]);
+    for (const l of lines) assert.match(l.sum, /^[0-9a-f]{32}$/, `${l.role} ${l.file}`);
+  });
+
+  it('the deals_api_server.js patch only adds lines (the response fields); the inventory-sync.mjs patch carries the stamp and retired-list wiring', () => {
+    const changed = (f) => fs.readFileSync(path.join(STAMPS, f), 'utf8').split('\n').filter((l) => /^[+-]/.test(l) && !/^(\+\+\+|---) /.test(l));
+    assert.ok(changed('deals_api_server.js.patch').every((l) => l.startsWith('+')));
+    assert.ok(changed('deals_api_server.js.patch').some((l) => l.includes('stamps: out.stamps')) && changed('deals_api_server.js.patch').some((l) => l.includes('retired: out.retired')));
+    const inv = changed('inventory-sync.mjs.patch').join('\n');
+    for (const must of ['noteCrawlStamp(crawlStampMs', 'crawlStamps: guardCfg.crawlStamps', 'returnRetired: true', 'prefix: "candidates"']) assert.ok(inv.includes(must), `inventory-sync.mjs.patch carries ${must}`);
+  });
+
+  it('STEPS.md has the pieces an install needs, and the drift check is valid shell', () => {
+    const steps = fs.readFileSync(path.join(STAMPS, 'STEPS.md'), 'utf8');
+    for (const must of ['Nothing is installed', 'drift-check.sh', 'md5s-before.txt', 'pm2 restart trimscout-deals-api', 'Rollback', 'sweep_crawl_stamps', 'SWEEP_MIN_MISSES=3', 'SWEEP_CRAWL_STAMPS=0', 'Boxes 1, 3 and 4 do not run the sweep guards']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
+    assert.equal(spawnSync('bash', ['-n', path.join(STAMPS, 'drift-check.sh')]).status, 0);
+  });
+});
