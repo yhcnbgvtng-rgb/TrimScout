@@ -1,17 +1,17 @@
 diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
-index 4c52cd4..35da16b 100644
+index 2d7f932..e615e91 100644
 --- scrapers/lightsail-crawler/src/deals_api_server.js
 +++ scrapers/lightsail-crawler/src/deals_api_server.js
-@@ -40,7 +40,7 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
- import { createChatAdminHandlers } from "./rfqChatAdmin.js";
- import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
+@@ -42,7 +42,7 @@ import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
+ import { createRfqTradeConfirmHandlers } from "./rfqTradeConfirm.js";
+ import { tradeAnswerProblem } from "./tradeConfirm.js";
  import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 -import { createStatsCache } from "./statsCache.js";
 +import { createStatsCache, warmStatsCache } from "./statsCache.js";
  import { createInventoryStats } from "./inventoryStats.js";
  import { createRefreshTimeouts } from "./refreshTimeouts.js";
  import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
-@@ -4217,6 +4217,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
+@@ -4310,6 +4310,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
    sendJson(res, 404, { error: "Not found" });
  });
  
@@ -20,7 +20,7 @@ index 4c52cd4..35da16b 100644
  server.listen(PORT, () => {
    console.log(`Deals API server listening on port ${PORT}`);
    // First deploy (or a box whose facet tables were never built): build once shortly after start.
-@@ -4231,6 +4233,11 @@ server.listen(PORT, () => {
+@@ -4324,6 +4326,11 @@ server.listen(PORT, () => {
        console.error("startup catalog facet check failed:", err.message);
      }
    }, 30_000);
