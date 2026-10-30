@@ -301,6 +301,24 @@ export const BRANDS = {
     baseMsrpTable: null,
     plantFallback: null,
   },
+  // Added 2026-10-09 for the isolated daytime job (docs/MEGADEALER_PLAN.md). Not in any nightly brand set,
+  // so the nightly crawl is unaffected; only ~/megadealer/ runs set CRAWLER_BRAND=Genesis.
+  Genesis: {
+    name: "Genesis",
+    // KMT = sedans (G70/G80/G90), KMU = SUVs (GV60/GV70/GV80). Secondary signal only; seen on real listings.
+    vinPrefixes: ["KMT", "KMU"],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
+  // Multi-make used-only / independent stores (J & S Autohaus, CarShop...). No brand-specific data at all.
+  Used: {
+    name: "Used",
+    vinPrefixes: [],
+    hasOfficialRetailerPlatform: false,
+    baseMsrpTable: null,
+    plantFallback: null,
+  },
 };
 
 const BRAND_ALIASES = {
