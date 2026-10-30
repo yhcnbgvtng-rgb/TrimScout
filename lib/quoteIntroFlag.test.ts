@@ -4,15 +4,11 @@ import fs from "node:fs";
 import { quoteIntroEnabled } from "./quoteIntroFlag";
 
 describe("quoteIntroEnabled", () => {
-  it("is off in Production and locally by default", () => {
-    assert.equal(quoteIntroEnabled({ vercelEnv: "production" }), false);
-    assert.equal(quoteIntroEnabled({}), false);
+  it("is on by default, in Production and previews alike", () => {
+    assert.equal(quoteIntroEnabled({}), true);
+    assert.equal(quoteIntroEnabled({ forced: "1" }), true);
   });
-  it("is on in previews", () => assert.equal(quoteIntroEnabled({ vercelEnv: "preview" }), true));
-  it("can be forced on or off", () => {
-    assert.equal(quoteIntroEnabled({ forced: "1", vercelEnv: "production" }), true);
-    assert.equal(quoteIntroEnabled({ forced: "0", vercelEnv: "preview" }), false);
-  });
+  it("can be forced off", () => assert.equal(quoteIntroEnabled({ forced: "0" }), false));
   it("keeps the intro small and library-free", () => {
     const src = fs.readFileSync(new URL("../components/QuoteIntro.tsx", import.meta.url), "utf8");
     assert.ok(src.length < 30 * 1024);
