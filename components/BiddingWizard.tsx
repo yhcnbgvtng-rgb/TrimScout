@@ -4,7 +4,7 @@ import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
 import { getSession } from "next-auth/react";
 import { TestModeBar } from "./TestModeBar";
-import { type TradeStepState } from "./trade/TradeInStep";
+import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -19,7 +19,8 @@ import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
-import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, type MustHaveRef } from "../lib/alternateCompare";
+import { fetchAltSticker, importAndPrime, needsAltSticker, unverifiedLabel, withStickerFacts, type AltStickerState } from "../lib/altSticker";
+import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, sameTrim, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import {
@@ -55,7 +56,6 @@ import { EMPTY_ALTERNATE_DRAFT, LANE_COPY, type AlternateAskDraft, type RfqLane 
 import { clearParkedVehicle, parkVehicle, parkedVehicleLabel, readParkedVehicle, type ParkedVehicle } from "../lib/parkedVehicle";
 import {
   classifyPaste,
-  importPastedFactoryVehicle,
   type FactoryBuildOem,
   type FactoryFilterableOption,
   type PasteImportSuccess,
@@ -324,7 +324,7 @@ interface BiddingWizardProps {
    * Cars picked on buyer search ("Request a quote"): fed into Step 1 through the same paste path as a typed link or
    * VIN — primary first, then the two alternates — one at a time, each still confirmed by the buyer. Nothing is sent.
    */
-  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null }>;
+  seedVehicles?: Array<{ vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null; trim?: string | null }>;
   initialStrategy?: BiddingStrategy;
   onSubmitBidRequest: (request: BiddingRequest) => void;
   // Real reverse-auction flow: the buyer already picked a specific real
@@ -950,11 +950,14 @@ function FactoryOptionsCompare({
   alt1,
   alt2,
   mustHaves,
+  stickerStates,
 }: {
   primary: Vehicle;
   alt1: Vehicle;
   alt2: Vehicle;
   mustHaves: MustHaveRef[];
+  /** Where each alternate's factory-sticker check stands, by upper-case VIN. */
+  stickerStates: Record<string, AltStickerState>;
 }) {
   const vehicles = [primary, alt1, alt2];
   const reports = vehicles.map((v) => mustHaveReport(mustHaves, v));
@@ -1029,7 +1032,7 @@ function FactoryOptionsCompare({
                 {report.present.length} of {report.total}
               </span>
             ) : (
-              <span className="text-[10px] text-ink-faint">Can&apos;t verify — no factory record</span>
+              <span className="text-[10px] text-ink-faint" data-testid="compare-unverified">{unverifiedLabel(stickerStates[vehicles[i].vin.toUpperCase()])}</span>
             )}
           </div>
         ))}
@@ -1037,7 +1040,7 @@ function FactoryOptionsCompare({
         {/* Factory build */}
         <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Factory build</div>
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Trim</div>
-        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.trim, i > 0 && !sameText(v.trim, primary.trim))}</React.Fragment>)}
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.trim, i > 0 && !sameTrim(v.trim, primary.trim))}</React.Fragment>)}
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Drivetrain</div>
         {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.drivetrain, i > 0 && normalizeDrivetrain(v.drivetrain || "") !== normalizeDrivetrain(primary.drivetrain || ""))}</React.Fragment>)}
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Exterior color</div>
@@ -1132,6 +1135,24 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const [altError1, setAltError1] = useState<string | null>(null);
   const [altVin2, setAltVin2] = useState("");
   const [altVehicle2, setAltVehicle2] = useState<Vehicle | null>(null);
+  // Chevrolet/GMC alternates get the same GM sticker read the same-spec lane does; one ask per VIN (lib/altSticker.ts caches the answer).
+  const [altSticker, setAltSticker] = useState<Record<string, AltStickerState>>({});
+  const altStickerAsked = React.useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!isOpen) return;
+    const slots: Array<[Vehicle | null, React.Dispatch<React.SetStateAction<Vehicle | null>>]> = [[altVehicle1, setAltVehicle1], [altVehicle2, setAltVehicle2]];
+    for (const [alt, setAlt] of slots) {
+      if (!needsAltSticker(alt)) continue;
+      const vin = alt.vin.toUpperCase();
+      if (altStickerAsked.current.has(vin)) continue;
+      altStickerAsked.current.add(vin);
+      setAltSticker((s) => ({ ...s, [vin]: { status: "checking" } }));
+      void fetchAltSticker(vin).then(({ state, vehicle }) => {
+        setAltSticker((s) => ({ ...s, [vin]: state }));
+        if (vehicle) setAlt((cur) => (cur && cur.vin.toUpperCase() === vin ? withStickerFacts(cur, vehicle) : cur));
+      });
+    }
+  }, [isOpen, altVehicle1, altVehicle2]);
   const [altParsing2, setAltParsing2] = useState(false);
   const [altError2, setAltError2] = useState<string | null>(null);
   // A pasted link waiting on the buyer's confirmation — one at a time.
@@ -1262,8 +1283,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // only holds if a buyer can't just paste it in here; server-side
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
-  // Asked on Step 3: is a trade-in coming? Handled after the OTD price is agreed — never part of the quote.
-  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(false);
+  // Asked at the end of Step 3 ("Do you have a trade-in?"): null = not answered, false = skipped, true = the trade form is open and its details go with the request.
+  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(null);
   // The trade-in step's own state (draft id, readiness). Toggle off = nothing collected, nothing sent.
   const [tradeStep, setTradeStep] = useState<TradeStepState>({ ready: true, draftId: null, token: null, firstError: null });
   const [tradeAttempted, setTradeAttempted] = useState(false);
@@ -1374,7 +1395,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setQuoteDesks({});
     setConfirmedDesks({});
     setDealComment("");
-    setTradeInExpected(false);
+    setTradeInExpected(null);
     setTradeAttempted(false);
     setCreatedDealId(null);
     setSentPackage(null);
@@ -1831,7 +1852,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // knownVin: a seeded car whose link names no VIN — the buyer picked it on search, so we already have it.
     const vinForBuild = resolution.vinFromUrl || knownVin;
     if (vinForBuild) {
-      const built = await importPastedFactoryVehicle(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
+      const built = await importAndPrime(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
       if (built.ok) prebuilt = built;
       else prebuildError = built.error;
     }
@@ -1882,7 +1903,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const result =
       prebuilt && prebuilt.vehicle.vin === choice.vin
         ? prebuilt
-        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
+        : await importAndPrime(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       setLinkError(result.error);
       setLinkBusy(false);
@@ -1989,7 +2010,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setAltVehicle1(stamp);
     setAltVehicle2(stamp);
   }, [seedDealerByVin, selectedVehicle, altVehicle1, altVehicle2]);
-  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null }) => {
+  const seedOne = async (slot: VehicleSlot, car: { vin: string; vdpUrl: string | null; condition?: "new" | "used" | "cpo" | null; trim?: string | null }) => {
     const listedUsed = (car.condition === "used" || car.condition === "cpo") && USED_VEHICLES_ENABLED;
     // A used primary flips the whole request to used even when its link doesn't say so (parkLink also detects it from the URL).
     if (slot === "primary" && listedUsed) setVehicleCondition(car.condition as UsedCondition);
@@ -1997,7 +2018,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // An alternate is seated as used only when its listing says so (the effect below has already checked it matches the
     // primary's kind).
     const condOpt = slot === "primary" ? (listedUsed ? { condition: car.condition as UsedCondition } : usedOpt) : car.condition === "used" || car.condition === "cpo" ? { condition: car.condition as UsedCondition } : {};
-    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
+    const result = await importAndPrime(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       if (slot === "primary") setParseError(result.error);
       else if (slot === "alt1") setAltError1(result.error);
@@ -2005,6 +2026,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       return;
     }
     const settled = settleBareVinImport(slot, result);
+    // The search row's own trim ("LT Trail Boss") beats the VIN decoder's spelling ("Trail Boss - LT"); a read factory sticker is better still.
+    const trim = (car.trim || "").trim();
+    if (trim && settled.vehicle.buildConfidence !== "verified_factory") settled.vehicle = { ...settled.vehicle, trim, trimSource: "inventory" };
     if (slot === "primary") commitPrimaryImport(settled);
     else if (slot === "alt1") setAltVehicle1(settled.vehicle);
     else setAltVehicle2(settled.vehicle);
@@ -2059,7 +2083,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setMustHavePackages([]);
     setWantsMustHaves(false);
 
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",
@@ -2118,7 +2142,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const current = selectedVehicle;
     setRetryingBuild(true);
     trackEvent("factory_build_retry", factoryBuildPendingProps(current));
-    const result = await importPastedFactoryVehicle(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt, freeDecodeOnly: intent === "alternate" });
+    const result = await importAndPrime(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (result.ok) {
       const location = result.vehicle.location?.dealerName?.trim() && !current.location?.dealerName?.trim() ? result.vehicle.location : current.location;
       commitPrimaryImport({ ...result, vehicle: { ...result.vehicle, location, dealerUrl: current.dealerUrl, buyerConfirmed: current.buyerConfirmed, resolvePath: result.factoryBuildUnavailable ? "factory_pending" : current.resolvePath === "factory_pending" ? "url_only" : current.resolvePath } });
@@ -2173,7 +2197,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (await parkLink("alt1", raw)) return;
     setAltParsing1(true);
     setAltError1(null);
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",
@@ -2219,7 +2243,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (await parkLink("alt2", raw)) return;
     setAltParsing2(true);
     setAltError2(null);
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",
@@ -3185,7 +3209,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </div>
                     )}
                     {selectedVehicle && altVehicle1 && altVehicle2 && mustHavePackages.length > 0 ? (
-                      <FactoryOptionsCompare primary={selectedVehicle} alt1={altVehicle1} alt2={altVehicle2} mustHaves={selectedMustHaveRefs} />
+                      <FactoryOptionsCompare primary={selectedVehicle} alt1={altVehicle1} alt2={altVehicle2} mustHaves={selectedMustHaveRefs} stickerStates={altSticker} />
                     ) : null}
                 </div>
               </WizardSection>
@@ -3555,12 +3579,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              <WizardSection title="Trade-in" className="pt-6">
-                <p className="text-xs text-ink-light" data-testid="trade-in-note">
-                  Trade-ins will be completed once we have aligned on the purchase price of the vehicle.
-                </p>
-              </WizardSection>
-
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
               {/* Buyer note — scrubbed of contact info before it ever leaves the browser */}
               <div className="space-y-1.5" data-testid="dealer-note">
@@ -3592,6 +3610,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </p>
                 )}
               </div>
+              </WizardSection>
+
+              {/* Last question before Review & Send. Yes opens the trade-in form; Skip carries on with nothing collected or sent. */}
+              <WizardSection title="Do you have a trade-in?" hint="Optional. Invited dealers see the vehicle, mileage, condition and photos. You can add or change it later in the deal." className="pt-6">
+                <div className="flex gap-2" role="radiogroup" aria-label="Do you have a trade-in?" data-testid="trade-question">
+                  {([[true, "Yes, add my trade", "trade-yes"], [false, "Skip", "trade-skip"]] as const).map(([val, text, id]) => (
+                    <button key={id} type="button" role="radio" aria-checked={tradeInExpected === val} data-testid={id}
+                      onClick={() => { setTradeInExpected(val); if (!val) setTradeAttempted(false); }}
+                      className={`flex-1 rounded-xl border px-3.5 py-2.5 text-xs font-bold transition-all ${tradeInExpected === val ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}>{text}</button>
+                  ))}
+                </div>
+                {tradeInExpected ? (
+                  <div className="mt-4">
+                    <TradeInStep enabled hideToggle onToggle={setTradeInExpected as (on: boolean) => void} defaultZip={zipOk ? huntZip.trim() : null} attempted={tradeAttempted} onState={setTradeStep} />
+                  </div>
+                ) : null}
               </WizardSection>
             </div>
           )}
@@ -3908,13 +3942,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Trade-in — after the price, never part of it */}
+              {/* Trade-in — attached to the request when the buyer added one; otherwise handled after the price */}
               <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-xs" data-testid="trade-in-after">
                 <Car className="h-5 w-5 text-ink-muted shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <div className="font-bold text-white">Trade-in</div>
                   <p className="text-[11px] leading-relaxed text-ink-light">
-                    Completed after an out-the-door price is agreed. We&apos;ll work with the dealer to calculate any changes in registration fees and sales tax.
+                    {tradeInExpected
+                      ? "Included with this quote request. Invited dealers see the vehicle, mileage, condition and photos. You can edit it later in the deal."
+                      : "No trade-in on this request. You can add one later in the deal. We'll work with the dealer to calculate any changes in registration fees and sales tax."}
                   </p>
                 </div>
               </div>

@@ -1,0 +1,10 @@
+# md5  role  file   (BASE = box2 live text read-only 2026-10-29; RESULT = file after the patch; PATCH = the patch file. deals_api_server.js has two accepted BASEs: before and after the sweep-crawl-stamps install, PR #628)
+44bd409e02e6d8bc03c3ab2f4e29deee  BASE    statsCache.js
+21b399905519efe484b2f1453121602c  RESULT  statsCache.js
+16cbb4758be551708ca516b5604301c5  PATCH   statsCache.js.patch
+31d527ba8e277ff58e39f73ad1d00295  BASE    deals_api_server.js@before-crawl-stamps
+92716d2599883f1011535349217dc154  RESULT  deals_api_server.js@before-crawl-stamps
+53a87dc052bcfafc1171c10d805af76b  PATCH   deals_api_server.js.patch
+400e943b58e972a00fcce92738ead685  BASE    deals_api_server.js@after-crawl-stamps
+60211bdd0317514a09bc938ab1644889  RESULT  deals_api_server.js@after-crawl-stamps
+0ac6af489f02773b3a79cbf87b9ba769  PATCH   deals_api_server.after-crawl-stamps.js.patch

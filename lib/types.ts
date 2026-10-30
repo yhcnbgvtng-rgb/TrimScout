@@ -142,6 +142,8 @@ export interface Vehicle {
   stickerUnavailableReason?: string | null;
   /** The OEM hasn't published this VIN's window sticker yet — a neutral note, never a warning. */
   stickerPendingNote?: string | null;
+  /** Where `trim` came from when it isn't the VIN decoder's: our inventory row, or the factory sticker. */
+  trimSource?: "inventory" | "sticker";
 }
 
 export type BuildConfidence = "verified_factory" | "dealer_listing_only";

@@ -453,6 +453,8 @@ export type PasteImportSuccess = {
    * sticker is temporarily unavailable — never that the VIN has no build.
    */
   stickerUnavailable?: { reason: string } | null;
+  /** The OEM refused the request (403/429). Callers stop asking the OEM for more stickers this session. */
+  stickerBlocked?: boolean;
   /**
    * The OEM hasn't published this VIN's window sticker yet (new inventory
    * often lists first). Not a failure: the car imported on the free decode
@@ -589,6 +591,7 @@ function interpretFactoryBuildJson(
       json.stickerUnavailable && typeof (json.stickerUnavailable as { reason?: unknown }).reason === "string"
         ? { reason: (json.stickerUnavailable as { reason: string }).reason }
         : null,
+    stickerBlocked: json.stickerBlocked === true,
     stickerPending: json.stickerPending === true ? { note: typeof json.stickerPendingNote === "string" ? json.stickerPendingNote : "Factory window sticker not published yet — we'll keep checking." } : null,
     oem,
     pdfUrl: pdfUrl || matched.oemBuildSheetUrl || null,

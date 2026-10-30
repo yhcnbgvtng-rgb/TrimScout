@@ -106,6 +106,8 @@ export interface TradeInFields {
   lenderName: string | null;
   /** Approximate; the dealer verifies the exact payoff. 0 when owned outright. */
   payoffEstimate: number;
+  /** The buyer chose to show dealers the payoff amount + lender. Off (default): dealers only see that a payoff exists. Absent on older records. */
+  sharePayoff?: boolean;
   keys: KeyCount;
   historyFlag: HistoryFlag;
   historyNotes: string | null;

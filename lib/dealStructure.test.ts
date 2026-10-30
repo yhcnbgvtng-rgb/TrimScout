@@ -115,10 +115,10 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
     assert.match(step2, /data-testid="missing-locks"/);
     assert.match(step2, /data-testid="missing-contact"/);
-    // Step 3: trade-ins are a note only (no toggle); nothing is collected until the price is agreed, so the request sends no trade data.
-    assert.match(step2, /data-testid="trade-in-note"/);
-    assert.doesNotMatch(step2, /<TradeInStep/);
-    assert.match(src, /useState<boolean \| null>\(false\);/);
+    // Step 3 ends with "Do you have a trade-in?" (Yes opens the existing TradeInStep, Skip sends no trade data); unanswered = null.
+    assert.match(step2, /data-testid="trade-question"/);
+    assert.match(step2, /<TradeInStep enabled hideToggle/);
+    assert.match(src, /useState<boolean \| null>\(null\);/);
     assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,\s*tradeInExpected,\s*\/\/[^\n]*\n\s*tradeIn: tradeInExpected && tradeStep\.draftId \? \{ enabled: true, draftId: tradeStep\.draftId, token: tradeStep\.token \} : \{ enabled: false \},/);
     assert.match(src, /TOTAL_STEPS = 4/);
   });

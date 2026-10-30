@@ -10,6 +10,7 @@ import {
   defaultNiceToHaveLines,
   filterableFactoryOptions,
   getGmSticker,
+  gmStickerRefused,
   gmStickerToVehicle,
   isGmVin,
   looksLikeGmPaste,
@@ -165,7 +166,7 @@ async function lookup(opts: { vin?: string; paste?: string; pasteUrl: string | n
     const reason = err instanceof Error ? err.message : factoryBuildFailedError(vin);
     console.log(`[gm-sticker] ${vin} sticker unavailable → free import: ${reason}`);
     const free = await buildStickerUnavailableImport({ vin, pasteUrl: opts.pasteUrl, source: resolved, makeLabel: "GM", reason }).catch(() => null);
-    if (free && free.ok) return NextResponse.json(free.payload);
+    if (free && free.ok) return NextResponse.json(gmStickerRefused(err) ? { ...free.payload, stickerBlocked: true } : free.payload);
     return NextResponse.json({ error: reason, handled: true, needsVin: false, vin, stickerUnavailable: { reason } }, { status: 502 });
   }
 }

@@ -53,6 +53,7 @@ export function coerceTradeIn(raw: unknown): TradeInRecord | null {
     ownership: oneOf(OWNERSHIPS, o.ownership) ?? "owned",
     lenderName: strOrNull(o.lenderName, 80),
     payoffEstimate: Math.max(0, Math.round(num(o.payoffEstimate))),
+    sharePayoff: o.sharePayoff === true,
     keys: oneOf(KEYS, o.keys) ?? "1",
     historyFlag: oneOf(HISTORY_FLAGS, o.historyFlag) ?? "no",
     historyNotes: strOrNull(o.historyNotes),

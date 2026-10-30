@@ -738,6 +738,11 @@ export interface GmFetchDiagnostic {
 }
 
 /** Thrown when GM never handed us a usable body; carries what each attempt saw. */
+/** True when GM refused the request (403) or throttled it (429) — callers stop asking for more stickers. */
+export function gmStickerRefused(err: unknown): boolean {
+  return err instanceof GmStickerUnavailableError && err.attempts.some((a) => a.status === 403 || a.status === 429);
+}
+
 export class GmStickerUnavailableError extends Error {
   readonly vin: string;
   readonly kind: GmFetchKind | "network_error";
@@ -844,6 +849,8 @@ async function fetchGmStickerBytesHttp(
       attempts.push(diag);
       console.log(`[gm-sticker] ${vin} attempt ${diag.attempt} (${profile.name}): ${diag.status} ${diag.kind} ${diag.bytes}B ct=${diag.contentType} magic=${JSON.stringify(diag.magic)}`);
       if (kind === "pdf" || kind === "text" || kind === "unreleased_json") return { bytes, contentType, attempts };
+      // GM said no (403) or slow down (429): stop. Trying the next header profile would be probing past a refusal.
+      if (res.status === 403 || res.status === 429) break;
       if (kind === "generating" && i === GM_FETCH_ATTEMPTS - 1 && maxAttempts === GM_FETCH_ATTEMPTS) maxAttempts = GM_FETCH_ATTEMPTS + 1;
       // empty / generating / unknown / html_denied → retry with the next profile
     } catch (err) {

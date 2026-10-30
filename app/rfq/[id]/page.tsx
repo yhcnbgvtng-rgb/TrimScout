@@ -17,6 +17,9 @@ import { rfqVehicles } from "@/lib/rfqTracker";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { CONTACT_SHARED_LINE } from "../../../lib/acceptShare";
+import { useAcceptShare } from "../../../components/AcceptShareConfirm";
+import { inviteOfQuote } from "../../../lib/rfqClose";
 import { useGuestAccess } from "../../../lib/guestToken";
 import {
   CircleCheck as CheckCircle2,
@@ -346,6 +349,7 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
           Choose This Quote
         </button>
       )}
+      {rfq.status === "collecting" && <p className="text-center text-[10px] text-ink-faint" data-testid="contact-shared-line">{CONTACT_SHARED_LINE}</p>}
       {isPicked && <div className="text-center text-[11px] font-bold text-brand-400">You chose this quote</div>}
     </div>
   );
@@ -355,7 +359,7 @@ export default function RfqWorkspacePage() {
   const params = useParams();
   const rfqId = params.id as string;
   const router = useRouter();
-  const { status: sessionStatus } = useSession();
+  const { data: sessionData, status: sessionStatus } = useSession();
   const guest = useGuestAccess(rfqId);
   // A guest link counts as a way in; the API decides whether it is honoured (REQUIRE_BUYER_LOGIN).
   const canLoad = sessionStatus === "authenticated" || Boolean(guest.token);
@@ -388,6 +392,14 @@ export default function RfqWorkspacePage() {
   useEffect(() => {
     if (canLoad) load();
   }, [canLoad, load]);
+
+  // Every "Choose this quote" goes through the confirm dialog first; the pick itself is unchanged and only runs on confirm.
+  const buyerContact = (sessionData?.user ?? null) as { name?: string | null; email?: string | null; phone?: string | null } | null;
+  const acceptShare = useAcceptShare(buyerContact);
+  const requestPick = (quoteId: string) => {
+    const winner = rfq ? inviteOfQuote(rfq, quoteId) : null;
+    acceptShare.request(winner?.dealerName || "this dealer", () => handlePick(quoteId));
+  };
 
   const handlePick = async (quoteId: string) => {
     setPicking(true);
@@ -469,6 +481,7 @@ export default function RfqWorkspacePage() {
 
   return (
     <div className="mx-auto max-w-[96rem] lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-2 lg:pr-8" data-testid="deal-screen">
+    {acceptShare.dialog}
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 space-y-8 animate-fadeIn">
       <div className="space-y-2">
         <h1 className="text-2xl sm:text-3xl font-black text-white">Your Quote Request</h1>
@@ -525,7 +538,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={requestPick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
@@ -542,8 +555,8 @@ export default function RfqWorkspacePage() {
                     ? "Out-the-door = selling price + itemized fees and taxes. Counter here; accept, trade-in and payment are in the steps above."
                     : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} buyerContact={buyerContact} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={requestPick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -612,7 +625,7 @@ export default function RfqWorkspacePage() {
               <p className="text-[11px] text-ink-muted">
                 You asked for {rfq.leasePrefs.termMonths} months · {rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr. Counters on term or miles sit in their own block; expired quotes can&apos;t be chosen.
               </p>
-              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
+              <LeaseCompare data={leaseCompare || analyzeLeaseQuotes(rfq)!} trade={rfq.tradeIn ? { record: rfq.tradeIn, byInvite: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeAppraisal ?? null])), confirmations: Object.fromEntries(rfq.invites.map((i) => [i.id, i.tradeConfirmation ?? null])) } : null} collecting={rfq.status === "collecting"} onPick={requestPick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} inviteActions={(id) => { const inv = rfq.invites.find((i) => i.id === id); return inv ? <InviteActions key={id} invite={inv} rfq={rfq} onAction={load} /> : null; }} />
             </div>
           )}
 
@@ -629,8 +642,8 @@ export default function RfqWorkspacePage() {
                     ? "Out-the-door = selling price + itemized fees and taxes. Counter here; accept, trade-in and payment are in the steps above."
                     : "Out-the-door = selling price + itemized fees and taxes. Expired quotes can't be chosen."}
               </p>
-              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
-              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={handlePick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
+              {isStagedRfq(rfq) ? <StagedDeals rfq={rfq} buyerContact={buyerContact} headers={guest.headers} onRfq={setRfq} onWalkAll={handleWalk} /> : null}
+              <UsedCompare rfq={rfq} prefs={rfq.quotePrefs} staged={isStagedRfq(rfq)} onPick={requestPick} onWalk={handleWalk} onCounter={handleCounter} busy={picking || walking} />
             </div>
           )}
 
@@ -649,7 +662,7 @@ export default function RfqWorkspacePage() {
                 invite={invite}
                 rfq={rfq}
                 picking={picking}
-                onPick={() => invite.quote && handlePick(invite.quote.id)}
+                onPick={() => invite.quote && requestPick(invite.quote.id)}
               />
             ))}
           </div>

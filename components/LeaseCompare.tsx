@@ -14,6 +14,7 @@ import { bestDeal, leaseAfterTrade, orderDesks, tradeEligible, type TradeSortMod
 import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns";
 import type { CounterEditsPayload } from "../lib/buyerCounter";
+import { CONTACT_SHARED_LINE } from "../lib/acceptShare";
 import { ACCEPT_ORIGINAL_LABEL, COUNTER_DECLINED_NOTE, COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 
 /**
@@ -231,6 +232,7 @@ export function LeaseCompare({
         ) : null}
         <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>
           </div>
+        <p className="text-[10px] text-ink-faint" data-testid="contact-shared-line">{CONTACT_SHARED_LINE}</p>
       </div>
     ) : null;
     return {

@@ -1,4 +1,4 @@
-// Dealer surcharges: named lines or an explicit "none", required on a new/revised sheet, never in the sales-tax base, and counted in
+// Dealer surcharges: named lines or an explicit "none", required on a new/revised sheet, never in the sales-tax base or % off MSRP, and counted in
 // the out the door, amount financed and cash due. Separate from "Fees (named)"; a row in the buyer's compare; old quotes show nothing.
 import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
@@ -7,10 +7,11 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { cashOutTheDoor, financeCashDue, parseQuotePrefs, surchargeSummary, validateUsedQuote, type UsedCashQuote, type UsedFinanceQuote } from "./usedQuote";
+import { cashOutTheDoor, COUNTY_TAX_LABEL, financeCashDue, isCountyTaxSurcharge, parseQuotePrefs, surchargeSummary, validateUsedQuote, type UsedCashQuote, type UsedFinanceQuote } from "./usedQuote";
 import { compareCashQuotes, feesTotal, msrpDiscount, otdExcludingAddOns } from "./cashCompare";
 import { applyCashCounter, applyFinanceCounter, counterDiff } from "./counterSheet";
-import { buildAcceptedQuote, verifyAcceptedQuote } from "./acceptCounter";
+import { buildAcceptedQuote, prefillTax, taxBaseChanged, verifyAcceptedQuote } from "./acceptCounter";
+import { computeSalesTax, salesTaxBase } from "./salesTax";
 import { calcSalesTax } from "./feeOverride";
 import { buildCounterAcceptedNotice } from "./dealerEmail";
 import { buildThread } from "./dealThread";
@@ -100,6 +101,47 @@ describe("sales tax stays on price + add-ons", () => {
   });
 });
 
+describe("sales tax is calculated without surcharges (county tax included)", () => {
+  const COUNTY = [{ name: "County tax", amount: 1100, reason: "Required county tax" }];
+  it("the base is price + add-ons only: a county-tax surcharge adds nothing to it or to the tax", () => {
+    const addOns = [{ name: "Nitrogen", amount: 200 }];
+    assert.equal(salesTaxBase(40000, addOns), 40200);
+    assert.equal(computeSalesTax({ rate: 0.06625, sellingPrice: 40000, addOns }), Math.round(40200 * 0.06625 * 100) / 100);
+    assert.equal(salesTaxBase.length, 2, "the base takes no surcharge argument");
+    assert.equal(calcSalesTax(ZIP, 40000, []), 2650, "same tax on $40,000 whatever surcharges the quote carries");
+  });
+  it("adding or changing a county-tax surcharge on a quote does not move the tax the counter prefills", () => {
+    const without = cash({ noSurcharges: true });
+    const withCounty = cash({ surcharges: COUNTY });
+    assert.equal(taxBaseChanged(without, withCounty), false);
+    assert.equal(prefillTax(without, withCounty), prefillTax(without, without));
+    assert.equal(prefillTax(withCounty, { ...withCounty, surcharges: [{ ...COUNTY[0], amount: 5000 }] }), 2650);
+  });
+  it("it still lands in the out the door, so the buyer pays it", () => {
+    assert.equal(cashOutTheDoor(withSurcharges()) - cashOutTheDoor(cash()), 1100);
+    function withSurcharges() { return cash({ surcharges: COUNTY }); }
+  });
+});
+
+describe("a county-tax line reads 'County tax (required)', not 'Dealer-imposed'", () => {
+  const COUNTY = [{ name: "County tax", amount: 1100, reason: "Required county tax" }];
+  it("recognises county-tax names only", () => {
+    for (const n of ["County tax", "county sales tax", "Burdick County Tax", "COUNTY  TAX"]) assert.ok(isCountyTaxSurcharge({ name: n }), n);
+    for (const n of ["Doc surcharge", "Market adjustment", "Tax prep", "Country club fee"]) assert.ok(!isCountyTaxSurcharge({ name: n }), n);
+  });
+  it("the compare shows the required label and no Dealer-imposed tag on that line, but keeps it on others", () => {
+    const only = renderCompare([cash({ surcharges: COUNTY })]);
+    assert.match(only, /County tax \(required\)/);
+    assert.doesNotMatch(only, /Dealer-imposed|data-testid="dealer-imposed"/);
+    const mixed = renderCompare([cash({ surcharges: [...COUNTY, SUR[1]] })]);
+    assert.match(mixed, /County tax \(required\)/);
+    assert.equal((mixed.match(/data-testid="dealer-imposed"/g) || []).length, 1);
+  });
+  it("notes and summaries use the same label", () => {
+    assert.equal(surchargeSummary(cash({ surcharges: COUNTY })), `${COUNTY_TAX_LABEL} $1,100 (Required county tax)`);
+  });
+});
+
 describe("counters carry the surcharges through", () => {
   it("a cash counter keeps them, shows them as locked 'Surcharge' rows, and the out the door still adds up", () => {
     const before = cash({ surcharges: SUR });
@@ -125,7 +167,7 @@ describe("counters carry the surcharges through", () => {
     assert.ok(verifyAcceptedQuote({ ...accepted, surcharges: [{ name: "Doc surcharge", amount: 1, reason: "x" }] }, counter).some((e) => /^Surcharges must match/.test(e)));
     assert.ok(verifyAcceptedQuote({ ...accepted, surcharges: [] }, counter).some((e) => /^Surcharges must match/.test(e)));
     const html = buildCounterAcceptedNotice({ dealerName: "D", vehicle: "CR-V", outTheDoor: 44000, surcharges: surchargeSummary(accepted) }).html;
-    assert.match(html, /including dealer-imposed surcharges: Doc surcharge \$400 \(Dealer-installed lot protection\), Market adjustment \$1,000 \(High-demand model\)/);
+    assert.match(html, /including surcharges: Doc surcharge \$400 \(Dealer-installed lot protection\), Market adjustment \$1,000 \(High-demand model\)/);
     assert.doesNotMatch(buildCounterAcceptedNotice({ dealerName: "D", vehicle: "CR-V", outTheDoor: 44000 }).html, /surcharges/);
   });
 });
@@ -188,7 +230,7 @@ describe("the thread, and the summary text", () => {
     const text = (used: UsedCashQuote) => buildThread(rfq, inv(used), "buyer").find((e) => e.id === "quote-q1")!.text;
     assert.equal(text(cash()), "Dealer sent a quote: $43,805 out the door");
     assert.equal(text(cash({ noSurcharges: true, surcharges: [] })), "Dealer sent a quote: $43,805 out the door");
-    assert.equal(text(cash({ surcharges: SUR })), "Dealer sent a quote: $45,205 out the door (includes dealer-imposed surcharges: Doc surcharge $400 (Dealer-installed lot protection), Market adjustment $1,000 (High-demand model))");
+    assert.equal(text(cash({ surcharges: SUR })), "Dealer sent a quote: $45,205 out the door (includes surcharges: Doc surcharge $400 (Dealer-installed lot protection), Market adjustment $1,000 (High-demand model))");
     assert.equal(surchargeSummary(cash()), null);
   });
   it("the buyer's explainer equation lists Surcharges after Add-ons for cash and finance", () => {
@@ -197,7 +239,7 @@ describe("the thread, and the summary text", () => {
   });
 });
 
-describe("each surcharge needs a short reason, shown to the buyer as dealer-imposed", () => {
+describe("each surcharge needs a short reason, shown to the buyer", () => {
   const errs = (reason: unknown) => validateUsedQuote(cash({ surcharges: [{ name: "Dealer prep", amount: 200, reason: reason as string }] }), prefs, { ...car, requireSurcharges: true }).errors;
   it("is required, 3 to 140 characters, on a new or revised sheet", () => {
     for (const bad of [undefined, "", "  ", "ab", "x".repeat(141)]) assert.ok(errs(bad).some((e) => /^Every surcharge needs a short reason/.test(e)), JSON.stringify(bad));
@@ -214,7 +256,7 @@ describe("each surcharge needs a short reason, shown to the buyer as dealer-impo
     assert.match(renderToStaticMarkup(<UsedQuoteForm token="tok12345678" vin="V" stockNumber={null} prefs={{ quoteType: "cash", cash: { zip: ZIP, timeline: null } }} buyerMiles={null} initial={cash({ surcharges: SUR })} condition="new" onSubmitted={() => {}} />), /value="Dealer-installed lot protection"/);
     assert.match(read("app/api/quote-invite/used-quote/route.ts"), /\.trim\(\)\.replace\(\/\\s\+\/g, " "\)\.slice\(0, 140\)/);
   });
-  it("the buyer's compare labels each line 'Dealer-imposed' with its reason", () => {
+  it("the buyer's compare labels each ordinary line Dealer-imposed with its reason", () => {
     const html = renderCompare([cash({ surcharges: SUR })]);
     assert.equal((html.match(/data-testid="dealer-imposed"/g) || []).length, 2);
     assert.match(html, /Dealer-imposed — Dealer-installed lot protection/);
@@ -240,25 +282,25 @@ describe("a soft warning above 10% of the selling price", () => {
   });
 });
 
-describe("% off MSRP is on the selling price plus surcharges", () => {
-  it("a surcharge can't inflate the discount", () => {
-    assert.deepEqual(msrpDiscount({ sellingPrice: 40000, msrp: 42000 }), { status: "off", msrp: 42000, dollars: 2000, pct: 4.8, ratio: 2000 / 42000 });
-    const withSur = msrpDiscount({ sellingPrice: 40000, msrp: 42000, surcharges: SUR });
-    assert.deepEqual(withSur, { status: "off", msrp: 42000, dollars: 600, pct: 1.4, ratio: 600 / 42000 }, "40,000 + 1,400 = 41,400: the discount shrinks from $2,000 to $600");
+describe("% off MSRP compares the selling price to MSRP only", () => {
+  it("surcharges never change it: a $42,000 MSRP at a $42,000 price is 'At MSRP' with or without a county-tax line", () => {
+    const county = [{ name: "County tax", amount: 1100, reason: "Required county tax" }];
+    assert.equal(msrpDiscount({ sellingPrice: 42000, msrp: 42000 }).status, "at");
+    assert.equal(msrpDiscount({ sellingPrice: 42000, msrp: 42000, surcharges: county } as never).status, "at");
+    assert.deepEqual(msrpDiscount({ sellingPrice: 40000, msrp: 42000, surcharges: SUR } as never), { status: "off", msrp: 42000, dollars: 2000, pct: 4.8, ratio: 2000 / 42000 });
+    const html = renderCompare([cash({ sellingPrice: 42000, surcharges: county })]);
+    assert.match(html, /At MSRP/);
+    assert.doesNotMatch(html, /on price \+ surcharges|above MSRP/);
   });
-  it("moving $1,500 from price into a surcharge leaves the figure unchanged", () => {
-    const a = msrpDiscount({ sellingPrice: 40000, msrp: 42000 });
-    const b = msrpDiscount({ sellingPrice: 38500, msrp: 42000, surcharges: [{ name: "Adjustment", amount: 1500, reason: "Reason" }] });
-    assert.deepEqual(a, b);
+  it("the dealer form's own % of MSRP leaves surcharges out too", () => {
+    const f = read("components/UsedQuoteForm.tsx");
+    assert.match(f, /const dealerAsk = sellingPrice != null \? Math\.round\(\(sellingPrice \+ addOnTotal \+ docFee\) \* 100\) \/ 100 : null;/);
+    assert.doesNotMatch(f, /Price \+ add-ons \+ surcharges/);
   });
-  it("the biggest-discount badge ranks on the same figure", () => {
+  it("the biggest-discount badge ranks on selling price alone", () => {
     const a = { id: "a", otd: 1, quote: cash({ sellingPrice: 38500, surcharges: [{ name: "Adjustment", amount: 1500, reason: "Reason" }] }) };
     const b = { id: "b", otd: 1, quote: cash({ sellingPrice: 39500 }) };
-    assert.deepEqual(compareCashQuotes([a, b]).biggestDiscount, ["b"]);
-  });
-  it("the compare cell says so, and the dealer form's % of MSRP includes them", () => {
-    assert.match(renderCompare([cash({ surcharges: SUR })]), /on price \+ surcharges/);
-    assert.doesNotMatch(renderCompare([cash()]), /on price \+ surcharges/);
-    assert.match(read("components/UsedQuoteForm.tsx"), /sellingPrice \+ addOnTotal \+ surchargeTotal \+ docFee/);
+    assert.deepEqual(compareCashQuotes([a, b]).biggestDiscount, ["a"]);
   });
 });
+

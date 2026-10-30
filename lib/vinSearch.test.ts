@@ -1062,7 +1062,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /MarketCheck/);
     assert.doesNotMatch(src, /Auto\.dev/);
     assert.doesNotMatch(src, /json\.provider/);
-    assert.match(src, /importPastedFactoryVehicle/);
+    assert.match(src, /importPastedFactoryVehicle|importAndPrime/);
     assert.doesNotMatch(src, /applyMockParse/);
     assert.doesNotMatch(src, /vehicles\[0\]/);
     assert.match(FORD_MUST_HAVE_HELP, /Unchecked options are ignored/);
@@ -1326,7 +1326,7 @@ describe("shopper-facing factory option copy", () => {
     assert.doesNotMatch(src, /applyMockParse/);
     assert.doesNotMatch(src, /vehicles\[0\]/);
     assert.doesNotMatch(src, /WP0AB2A98SS160032/);
-    assert.match(src, /importPastedFactoryVehicle/);
+    assert.match(src, /importPastedFactoryVehicle|importAndPrime/);
     assert.match(pasteImport, /acceptImportedVehicle/);
     assert.match(pasteImport, /factoryBuildUnavailableError/);
     assert.match(pasteImport, /preferredFactoryBuildEndpoint/);
@@ -1343,7 +1343,7 @@ describe("shopper-facing factory option copy", () => {
     const parseFn = src.slice(parseStart, parseEnd);
     assert.doesNotMatch(parseFn, /porsche/i);
     assert.doesNotMatch(parseFn, /MOCK_VEHICLES/);
-    assert.match(parseFn, /importPastedFactoryVehicle/);
+    assert.match(parseFn, /importPastedFactoryVehicle|importAndPrime/);
     const helperStart = pasteImport.indexOf("export async function importPastedFactoryVehicle");
     assert.ok(helperStart >= 0);
     const helperFn = pasteImport.slice(helperStart);
