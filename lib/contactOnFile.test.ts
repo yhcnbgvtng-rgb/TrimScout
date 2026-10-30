@@ -98,7 +98,11 @@ describe("Step 3 copy", () => {
 });
 
 describe("real box2 rows (read-only snapshot 2026-10-10)", () => {
-  const rows = JSON.parse(fs.readFileSync(new URL("./fixtures/box2-dealer-rows.json", import.meta.url), "utf8")) as Dealership[];
+  // The box2 snapshot is 4 rows; the live directory stamps group domains from all ~18k (listDealerships → stampGroupDomains). BMW of Roseville's
+  // autonation.com address is shared by dozens of AutoNation rooftops there, which a 4-row sample cannot show — so say so on the row.
+  const rows = (JSON.parse(fs.readFileSync(new URL("./fixtures/box2-dealer-rows.json", import.meta.url), "utf8")) as Dealership[]).map((r) =>
+    /@autonation\.com$/i.test(r.contactEmail || "") ? { ...r, emailInGroupDomain: true } : r
+  );
   const idx = buildContactIndex(rows);
   const both = (dealerName: string, state: string) => ({
     search: toBuyerVehicle({ dealerId: "x", dealerName, dealerCity: "", dealerState: state } as InventoryVehicle, null, idx).dealerHasContact,

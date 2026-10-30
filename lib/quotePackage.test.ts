@@ -204,7 +204,7 @@ describe("planInvites", () => {
     assert.equal(withInbox.dealerState, "NJ");
     assert.equal(inviteRouting(withInbox), "rooftop_inbox");
     // An email-only personal address (no name) is the dealer's contact; it is greeted as the sales team, not hand-routed by ops.
-    const personal = deskFromRooftop({ dealerName: "X", state: "NJ", contactEmail: "eruby@lexusofroute10.com", emailOptOut: false });
+    const personal = deskFromRooftop({ dealerName: "Lexus of Route 10", state: "NJ", contactEmail: "eruby@lexusofroute10.com", emailOptOut: false });
     assert.equal(personal.email, "eruby@lexusofroute10.com");
     assert.equal(personal.knownNamed, false);
     assert.equal(personal.contactName, "Sales desk");

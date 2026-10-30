@@ -1,0 +1,8 @@
+# md5  role  file   (BASE = box2 live text read-only 2026-10-29, the two accepted starting files of deals_api_server.js; RESULT = after the patch; PATCH = the patch file; FILE = copied whole to the box)
+31d527ba8e277ff58e39f73ad1d00295  BASE    deals_api_server.js@before-crawl-stamps
+3609a39f07e8caa2d2a9c551c89a19ec  RESULT  deals_api_server.js@before-crawl-stamps
+b40e93c8c13de575cae0055be64a04d0  PATCH   deals_api_server.js.patch
+400e943b58e972a00fcce92738ead685  BASE    deals_api_server.js@after-crawl-stamps
+4f4d81a822d0106e6a4198a8bf7d7100  RESULT  deals_api_server.js@after-crawl-stamps
+805378b67044e9727b24d37b1b726840  PATCH   deals_api_server.after-crawl-stamps.js.patch
+cff4d09baa921dac3d2cdb23c81d6dea  FILE    quoteReachable.js

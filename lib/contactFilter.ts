@@ -17,7 +17,7 @@ export function contactOnFileDealerIds(index: ContactIndex): string[] {
   for (const rows of index.values()) {
     for (const r of rows) {
       if (isTestDealer(r)) continue;
-      if (contactStatus(index, { dealerName: r.dealerName, dealerState: r.state }) === true) ids.push(r.id);
+      if (contactStatus(index, { dealerId: r.id, dealerName: r.dealerName, dealerState: r.state }) === true) ids.push(r.id);
     }
   }
   return ids.sort((a, b) => Number(a) - Number(b));

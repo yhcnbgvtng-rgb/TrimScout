@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { Dealership } from "@/lib/dealershipsApi";
 import { cachedDealerDirectory } from "@/lib/dealerDirectoryCache";
 import { publicDeskFor, type PublicDesk } from "@/lib/publicDesk";
+import { dealerIdFrom } from "@/lib/dealerContactLookup";
 
 // The confirm step asks: for these dealerships, who would the quote request
 // go to? Answers with the named desk, masked — never the address itself.
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
       return {
         dealerName: typeof o.dealerName === "string" ? o.dealerName.trim() : "",
         state: typeof o.state === "string" ? o.state.trim() : "",
+        dealerId: dealerIdFrom(o.dealerId),
       };
     })
     .filter((d: { dealerName: string }) => d.dealerName)
@@ -35,6 +37,6 @@ export async function POST(req: Request) {
     degraded = true;
   }
 
-  const desks = dealers.map((d: { dealerName: string; state: string }) => publicDeskFor(rows, d));
+  const desks = dealers.map((d: { dealerName: string; state: string; dealerId: string | null }) => publicDeskFor(rows, d));
   return NextResponse.json({ desks, degraded });
 }

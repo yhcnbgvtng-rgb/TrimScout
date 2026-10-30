@@ -1,5 +1,5 @@
 import { listDealerships, type Dealership } from "./dealershipsApi";
-import { dealerMatchKey, hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
+import { dealerIdFrom, dealerMatchKey, hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -18,12 +18,29 @@ export function buildContactIndex(dealers: Dealership[]): ContactIndex {
   return out;
 }
 
+const idMaps = new WeakMap<ContactIndex, Map<string, Dealership>>();
+
+/** Directory rows by id, built once per index. */
+function rowsById(index: ContactIndex): Map<string, Dealership> {
+  let m = idMaps.get(index);
+  if (!m) {
+    m = new Map();
+    for (const rows of index.values()) for (const r of rows) m.set(String(r.id), r);
+    idMaps.set(index, m);
+  }
+  return m;
+}
+
 /**
  * true / false when the directory answered; null when it is unknown (no dealer name, or the directory is down).
- * Resolves the dealership exactly as Step 3 does (name + state, shared tie-break) and applies the shared
+ * Resolves the dealership exactly as Step 3 does (dealer id first; else name + state, shared tie-break) and applies the shared
  * contact-on-file rule, so the Contact column cannot say "Yes" where the quote request would find no one.
  */
-export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null }): boolean | null {
+export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null; dealerId?: string | number | null }): boolean | null {
+  // The car's own dealer_id names its directory row; name + state is only for a car with no id (or one the directory doesn't carry).
+  const id = dealerIdFrom(dealer.dealerId);
+  const byId = index && id ? rowsById(index).get(id) : undefined;
+  if (byId) return hasContactOnFile(byId);
   const key = dealerMatchKey(dealer.dealerName || "");
   if (!index || !key) return null;
   return hasContactOnFile(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));

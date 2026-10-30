@@ -68,7 +68,7 @@ describe("wiring", () => {
     const route = fs.readFileSync("app/api/rfqs/[id]/invites/route.ts", "utf8");
     assert.doesNotMatch(route, /sendQueuedInvite|after\(/, "no automatic send after the buyer's click");
     assert.match(route, /underReview: true, notice: DEGRADE_COPY\.underReview/);
-    assert.match(route, /resolveInviteDesk\(rfq, \{ dealerName, dealerState, providedEmail/);
+    assert.match(route, /resolveInviteDesk\(rfq, \{ dealerName, dealerState, dealerId: dealerIdFrom\(body\?\.dealerId\), providedEmail/);
   });
   it("only the admin approval route releases, and it drains through the gated outbox", () => {
     const route = fs.readFileSync("app/api/admin/rfqs/[id]/approval/route.ts", "utf8");

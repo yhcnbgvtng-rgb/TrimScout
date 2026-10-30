@@ -10,6 +10,6 @@ export const NO_CONTACT_HELPER = "Went on a test drive? Enter the sales advisor'
 export const ADVISOR_EMAIL_PLACEHOLDER = "Sales advisor email (optional)";
 
 /** The label for any desk with no named person — same badge whether or not an unnamed email is on file. */
-export function salesDeskLabel(_contactState?: "named" | "email_only" | "none"): string {
+export function salesDeskLabel(_contactState?: "named" | "email_only" | "unverified" | "none"): string {
   return SALES_DESK_NO_NAME_LABEL;
 }

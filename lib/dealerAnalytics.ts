@@ -44,7 +44,10 @@ export interface DealerDom extends DomGroup {
   missingPrice: number;
   missingPhoto: number;
   stale: number;
+  /** Reachable by quote request (lib/quoteReachable.ts) — not merely "has text in contact_email". */
   hasEmail: boolean;
+  /** "unverified" = an address we can't tie to the store (public mail, unrelated domain). Absent on a box that predates the shared rule. */
+  emailStatus?: "reachable" | "unverified" | "none";
   lastSeenAt: string | null;
 }
 export interface TrimDom extends DomGroup { make: string; model: string; trim: string; avgDiscount?: number | string | null }
@@ -67,7 +70,7 @@ export interface DealerAnalytics {
     cuts: { vehiclesObserved: number; bands: Partial<Record<"lt30" | "d30" | "d60" | "d90", { cuts: number; avgCut: number; avgCutPct: number | null }>> } | null;
   };
   assortment: { brandNorm: Array<{ make: string; model: string; n: number }> };
-  coverage: { byMake: Array<{ make: string; n: number; withSticker: number; withOptions: number; missingPrice: number; missingPhoto: number }>; dealersWithEmail: number; dealers: number };
+  coverage: { byMake: Array<{ make: string; n: number; withSticker: number; withOptions: number; missingPrice: number; missingPhoto: number }>; dealersWithEmail: number; dealersReachable?: number; dealersUnverified?: number; dealers: number };
 }
 
 /** Brands the crawler is scoped to: franchises that don't publish window stickers publicly. */
