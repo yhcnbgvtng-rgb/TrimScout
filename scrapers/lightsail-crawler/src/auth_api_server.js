@@ -24,6 +24,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mysql from "mysql2/promise";
 import bcrypt from "bcryptjs";
+import { contactEmailWriteProblem } from "./quoteReachable.js";
 
 const PORT = process.env.AUTH_API_PORT || 3003;
 
@@ -458,6 +459,7 @@ async function handleBulkUpsertDealerships(req, res) {
   let created = 0;
   let updated = 0;
   let skipped = 0;
+  let emailsRejected = 0;
 
   for (const row of list) {
     const dealerName = (row.dealerName || "").trim();
@@ -465,6 +467,10 @@ async function handleBulkUpsertDealerships(req, res) {
       skipped++;
       continue;
     }
+    // A department mailbox / vendor domain / junk address is never stored (quoteReachable.js); the row still imports without it,
+    // and an existing row keeps the address it already has rather than losing it to a bad one.
+    const emailRejected = Boolean(contactEmailWriteProblem(row.contactEmail));
+    if (emailRejected) emailsRejected++;
     const fields = [
       row.address || null,
       row.city || null,
@@ -472,7 +478,7 @@ async function handleBulkUpsertDealerships(req, res) {
       row.zipCode || null,
       row.phone || null,
       row.contactName || null,
-      row.contactEmail || null,
+      emailRejected ? null : row.contactEmail || null,
       row.notes || null,
       (row.website || "").trim() || websiteFromNotes(row.notes) || null,
       domainsJsonFromBody({ ...row, website: (row.website || "").trim() || websiteFromNotes(row.notes) }),
@@ -483,7 +489,8 @@ async function handleBulkUpsertDealerships(req, res) {
     );
     if (existing.length > 0) {
       // A re-import never shrinks domains: aliases learned since are kept.
-      const [cur] = await pool.query("SELECT domains_json FROM dealership_contacts WHERE id = ?", [existing[0].id]);
+      const [cur] = await pool.query("SELECT domains_json, contact_email FROM dealership_contacts WHERE id = ?", [existing[0].id]);
+      if (emailRejected) fields[6] = (cur[0] && cur[0].contact_email) || null;
       const merged = Array.from(new Set([...parseDomains(fields[9]), ...parseDomains(cur[0] && cur[0].domains_json)]));
       fields[9] = merged.length ? JSON.stringify(merged) : null;
       await pool.query(
@@ -504,7 +511,7 @@ async function handleBulkUpsertDealerships(req, res) {
     }
   }
 
-  sendJson(res, 200, { created, updated, skipped, total: list.length });
+  sendJson(res, 200, { created, updated, skipped, total: list.length, ...(emailsRejected ? { emailsRejected } : {}) });
 }
 
 // POST /api/dealerships — create.
@@ -512,6 +519,8 @@ async function handleCreateDealership(req, res) {
   const body = await readBody(req);
   const dealerName = (body.dealerName || "").trim();
   if (!dealerName) return badRequest(res, "dealerName is required");
+  const emailProblem = contactEmailWriteProblem(body.contactEmail);
+  if (emailProblem) return badRequest(res, `Contact email rejected: ${emailProblem}.`);
 
   const pool = getPool();
   const [result] = await pool.query(
@@ -538,6 +547,8 @@ async function handleCreateDealership(req, res) {
 // PUT /api/dealerships/:id — update.
 async function handleUpdateDealership(req, res, id) {
   const body = await readBody(req);
+  const emailProblem = contactEmailWriteProblem(body.contactEmail);
+  if (emailProblem) return badRequest(res, `Contact email rejected: ${emailProblem}.`);
   const pool = getPool();
   const [existing] = await pool.query("SELECT id FROM dealership_contacts WHERE id = ?", [id]);
   if (existing.length === 0) return sendJson(res, 404, { error: "Dealership not found" });

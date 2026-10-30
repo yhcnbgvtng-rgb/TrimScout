@@ -4,6 +4,7 @@ import { getRfq, listRfqsForBuyer, RfqApiError } from "@/lib/rfqApi";
 import { guardPerDeskCap } from "@/lib/apiSpendGuard";
 import { buyerRfqStrikeCount, canInviteMore, reputationInviteCap } from "@/lib/rfqLogic";
 import { inviteRouting } from "@/lib/quotePackage";
+import { dealerIdFrom } from "@/lib/dealerContactLookup";
 import { queueInvite, resolveInviteDesk } from "@/lib/inviteDesk";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
@@ -66,7 +67,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // --- Desk and vehicle, by the shared rule (lib/inviteDesk.ts); then
     //     queue it. The box enforces the one-open-invite-per-desk cap across
     //     all buyers. Nothing is sent here.
-    const resolved = await resolveInviteDesk(rfq, { dealerName, dealerState, providedEmail: typeof body?.buyerProvidedEmail === "string" ? body.buyerProvidedEmail : null });
+    const resolved = await resolveInviteDesk(rfq, { dealerName, dealerState, dealerId: dealerIdFrom(body?.dealerId), providedEmail: typeof body?.buyerProvidedEmail === "string" ? body.buyerProvidedEmail : null });
     if (!resolved.ok) return NextResponse.json({ error: resolved.error, code: resolved.code }, { status: resolved.status });
     const desk = resolved.desk;
     const queued = await queueInvite(rfq, dealerName, desk, typeof body?.dealerContactEmail === "string" ? body.dealerContactEmail : null);

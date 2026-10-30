@@ -26,12 +26,12 @@ import {
 
 export type InviteDeskOutcome = { ok: true; desk: DealerDesk | null } | { ok: false; code: InviteBlockReason; error: string; status: number };
 
-export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; providedEmail?: string | null }): Promise<InviteDeskOutcome> {
+export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; dealerId?: string | number | null; providedEmail?: string | null }): Promise<InviteDeskOutcome> {
   const dealerName = input.dealerName.trim();
   const dealerState = (input.dealerState || "").trim();
   if (rfq.packageKind !== "links") return { ok: true, desk: null };
   const directory = await listDealerships().catch(() => []);
-  const row = matchDirectoryDealership(directory, { dealerName, state: dealerState });
+  const row = matchDirectoryDealership(directory, { dealerName, state: dealerState, dealerId: input.dealerId });
   let desk: DealerDesk | null = row ? deskFromDealership(row) : null;
   if (!desk?.knownNamed && typeof input.providedEmail === "string" && input.providedEmail.trim()) {
     desk = deskFromBuyerEmail(dealerName, dealerState, input.providedEmail) || desk;
@@ -56,12 +56,12 @@ export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: st
  * use a shared mailbox (shape-checked only). Opt-out, sister-store and
  * already-invited checks still apply. Returns the desk (email may be "").
  */
-export async function resolveAdminInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; providedEmail?: string | null }, directoryOverride?: Awaited<ReturnType<typeof listDealerships>>): Promise<InviteDeskOutcome> {
+export async function resolveAdminInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; dealerId?: string | number | null; providedEmail?: string | null }, directoryOverride?: Awaited<ReturnType<typeof listDealerships>>): Promise<InviteDeskOutcome> {
   const dealerName = input.dealerName.trim();
   const dealerState = (input.dealerState || "").trim().toUpperCase();
   const typed = (input.providedEmail || "").trim().toLowerCase();
   const directory = directoryOverride ?? (await listDealerships().catch(() => []));
-  const row = matchDirectoryDealership(directory, { dealerName, state: dealerState });
+  const row = matchDirectoryDealership(directory, { dealerName, state: dealerState, dealerId: input.dealerId });
   if (row?.emailOptOut) return { ok: false, code: "dealer_opted_out", error: INVITE_BLOCK_MESSAGES.dealer_opted_out, status: 422 };
   const base = row ? deskFromDealership(row) : null;
   let desk: DealerDesk;

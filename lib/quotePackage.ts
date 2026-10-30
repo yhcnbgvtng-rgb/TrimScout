@@ -18,6 +18,7 @@ import type { Dealership } from "./dealershipsApi";
 import { isPlausibleDealerEmail } from "./emailShape";
 import type { BuildConfidence } from "./types";
 import type { RfqRequest, RfqInvite, RfqQuote } from "./rfq";
+import { classifyContactEmail } from "./quoteReachable";
 
 // ---------------------------------------------------------------------
 // DealerDesk — a named person at a rooftop who can quote a car
@@ -116,11 +117,23 @@ function cleanContactName(raw: string | null | undefined): string {
   return (raw || "").replace(/\s*[,(–-]\s*(general|sales|internet|gm|gsm|manager|director).*$/i, "").trim();
 }
 
-/** A directory row → the desk it names, or null when there's no named person. */
-export function deskFromDealership(row: Pick<Dealership, "dealerName" | "state" | "contactName" | "contactEmail" | "notes" | "emailOptOut">): DealerDesk | null {
+/** The directory columns the reachability rule reads, on top of what a desk needs. */
+type DeskRow = Pick<Dealership, "dealerName" | "state" | "contactEmail" | "emailOptOut"> & Partial<Pick<Dealership, "website" | "domains" | "emailInGroupDomain">>;
+
+/**
+ * A directory row → the desk it names, or null when there's no named person.
+ *
+ * `knownNamed` and the desk's address both require the SAME check the admin tile and the wizard badge use
+ * (quoteReachable.ts): a stored address that fails it — a department mailbox, a vendor or OEM domain, a
+ * public-mail or unrelated-domain address nobody has tied to the store — is never put on a desk, so it can
+ * never be a send target. The desk keeps the contact's name; the address is dropped and the invite routes on.
+ */
+export function deskFromDealership(row: DeskRow & Pick<Dealership, "contactName" | "notes">): DealerDesk | null {
   const contactName = cleanContactName(row.contactName);
-  const email = (row.contactEmail || "").trim().toLowerCase();
-  if (!contactName && !email) return null;
+  const stored = (row.contactEmail || "").trim().toLowerCase();
+  if (!contactName && !stored) return null;
+  const usable = classifyContactEmail({ ...row, contactEmail: stored }).status === "valid";
+  const email = usable ? stored : "";
   const knownNamed = looksLikePersonName(contactName) && Boolean(email) && !isGenericMailbox(email);
   return {
     dealerName: (row.dealerName || "").trim(),
@@ -136,16 +149,14 @@ export function deskFromDealership(row: Pick<Dealership, "dealerName" | "state" 
 }
 
 /**
- * The dealership's own sales desk, for a rooftop with no named person on
- * file: the address the directory has (a shared inbox like sales@, or a
- * personal mailbox with no name beside it) when there is one, else no address — the invite queues for ops to route
+ * The dealership's own sales desk, for a rooftop with no named person on file: the rooftop's address when it
+ * passes the reachability check — a shared inbox (sales@, leads@) OR any other valid dealer-domain / group-domain
+ * address that just has no person's name beside it — else no address, and the invite queues for ops to route
  * (draft-then-approve, as every invite). Never "verified", never a person.
  */
-export function deskFromRooftop(row: Pick<Dealership, "dealerName" | "state" | "contactEmail" | "emailOptOut">): DealerDesk {
-  const email = (row.contactEmail || "").trim().toLowerCase();
-  // Any plausible directory address is the desk's contact — a shared inbox or an
-  // unnamed personal mailbox alike. The greeting stays "Sales team" either way.
-  const inbox = isPlausibleDealerEmail(email) ? email : "";
+export function deskFromRooftop(row: DeskRow): DealerDesk {
+  const stored = (row.contactEmail || "").trim().toLowerCase();
+  const inbox = stored && classifyContactEmail({ ...row, contactEmail: stored }).status === "valid" ? stored : "";
   return {
     dealerName: (row.dealerName || "").trim(),
     dealerState: (row.state || "").trim().toUpperCase() || null,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { listDealerships } from "@/lib/dealershipsApi";
-import { dealerContactStatus, type DirectoryDealership } from "@/lib/dealerContactLookup";
+import { dealerContactStatus, dealerIdFrom, type DirectoryDealership } from "@/lib/dealerContactLookup";
 
 // Public (no login) — the wizard asks this while the buyer is still choosing
 // who gets their offer, before it requires signing in. It answers one question
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
     .map((d: any) => ({
       dealerName: typeof d?.dealerName === "string" ? d.dealerName.trim() : "",
       state: typeof d?.state === "string" ? d.state.trim() : "",
+      dealerId: dealerIdFrom(d?.dealerId),
     }))
     .filter((d: { dealerName: string }) => d.dealerName.length > 0)
     .slice(0, MAX_DEALERS_PER_REQUEST);
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
   try {
     const directory = await loadDirectory();
     return NextResponse.json({
-      results: dealers.map((d: { dealerName: string; state: string }) =>
+      results: dealers.map((d: { dealerName: string; state: string; dealerId: string | null }) =>
         dealerContactStatus(directory, d)
       ),
     });
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
         addressLine: null,
         phone: null,
         hasEmail: false,
+        emailStatus: "none",
         emailOptOut: false,
       })),
       degraded: true,

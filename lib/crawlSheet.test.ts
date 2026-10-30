@@ -9,7 +9,7 @@ const base: Dealership = { id: "1", dealerName: "Joyce Honda", address: "1 Route
 
 describe("crawl sheet — notes become columns", () => {
   it("reads brand, title, source, staff-page result and lead inbox out of the crawl notes", () => {
-    const r = crawlRowFromDealership({ ...base, contactName: "Amy Musleh", contactEmail: "amy.musleh@openroad.com", notes: "Title: General Manager | Website: https://www.morristownmini.com/ | Source: https://www.morristownmini.com/staff/ | Lead inbox: leads@morristownmini.com | Brand: MINI" });
+    const r = crawlRowFromDealership({ ...base, contactName: "Amy Musleh", contactEmail: "amy.musleh@openroad.com", emailInGroupDomain: true /* listDealerships stamps Open Road's shared domain */, notes: "Title: General Manager | Website: https://www.morristownmini.com/ | Source: https://www.morristownmini.com/staff/ | Lead inbox: leads@morristownmini.com | Brand: MINI" });
     assert.deepEqual(r.brands, ["MINI"]);
     assert.equal(r.contactTitle, "General Manager");
     assert.equal(r.source, "https://www.morristownmini.com/staff/");
