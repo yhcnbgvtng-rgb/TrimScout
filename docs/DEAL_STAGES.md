@@ -28,11 +28,14 @@ acceptance of the OTD picks the dealer (the others are closed out, see `NOT_SELE
   buyer (name, email, phone from the account; ZIP from the request; guests: their email) **only when the action is `accept_final`**
   and passes them to the box as `buyerContact`; the box ignores them for any other action or any actor but the buyer.
 * They are stored on the **winning invite's** `stage_json.release` and nowhere else. Losing dealers' invites have no release, and
-  `stageForDealer(state, { notSelected })` drops it for a closed-out dealer regardless.
-* The winning dealer sees them on their quote page (block `buyer-details`) and gets one email, **"Deal accepted, here's your buyer"**
-  (`buildBuyerDetailsEmail`), sent by `sendBuyerDetailsRelease` in the invite outbox after the response. It goes through the SAFE MODE
-  sender, which has no `to` parameter: SAFE MODE, `audit=1` and buyer-test-mode deals all send **only to pausmi@outlook.com**
-  (subject tagged `[SAFE MODE · <dealer>]`). It also respects the release gate and the outbound-email switch.
+  `stageForDealer(state, { notSelected })` drops it for a closed-out dealer regardless, and drops `contact` for every dealer (the winner keeps only the marker: `at`, `reveals`).
+* The winning dealer does **not** see them on their quote page and they are **not** in any email. After `accept_final` the winner gets one
+  email, **"Your offer was accepted"** (`buildAcceptedOfferEmail`, sent by `sendBuyerDetailsRelease` in the invite outbox): vehicle, VIN,
+  accepted out-the-door price and a **"View buyer contact info"** button. The button opens `/quote-request/buyer-contact?t=<signed token>`
+  (30 days, one dealer), where **"Reveal buyer contact info"** shows name, email and phone; every press is logged and the buyer's deal
+  page shows "Dealer viewed your contact info" with the time. Full design, limits and the box handler: `docs/BUYER_CONTACT_REVEAL.md`.
+  The email goes through the SAFE MODE sender, which has no `to` parameter: SAFE MODE, `audit=1` and buyer-test-mode deals all send **only
+  to pausmi@outlook.com** (subject tagged `[SAFE MODE · <dealer>]`). It also respects the release gate and the outbound-email switch.
 * Logged as stage events: every `trade_counter`, `trade_hold`, `finance_counter`, `finance_hold`, accept, and the release
   (`buyer_details_released`: that it happened and for which dealer; never the details).
 * A dealer whose quote is closed (not selected) can do nothing but walk away.

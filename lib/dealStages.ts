@@ -17,6 +17,7 @@ import {
   liveTrueOtd as liveOtd,
   MAX_APR,
   monthlyPayment,
+  revealContact as reveal,
   stageForDealer as forDealer,
   stageProgress as progress,
   TRADE_TAX_CREDIT_STATES,
@@ -79,8 +80,8 @@ export interface DealStageState {
     closedAt: string | null;
   };
   final?: { status: "pending" | "accepted"; summary: FinalSummary | null; acceptedAt: string | null };
-  /** The buyer's details, present only on the winning dealer's deal after "Accept final deal". Never on any other deal. */
-  release?: { at: string; contact: BuyerContact } | null;
+  /** The buyer's details are stored only on the winning dealer's deal after "Accept final deal"; every dealer-facing view drops `contact` (stageForDealer). `reveals` is how often the winner opened them. */
+  release?: { at: string; contact?: BuyerContact; reveals?: { count: number; firstAt: string | null; lastAt: string | null } } | null;
   trueOtd: number | null;
   walk: { by: StageActor; atStage: DealStageName; at: string; reason: string | null } | null;
   log: Array<Record<string, unknown>>;
@@ -114,6 +115,7 @@ export const liveTrueOtd = liveOtd as (state: DealStageState | null) => { locked
 export const financeMath = finMath as (i: { trueOtd: number; downPayment: number | null; apr: number; termMonths: number }) => { amountFinanced: number; monthly: number; totalPaid: number; interest: number } | null;
 export const finalSummary = summarize as (state: DealStageState) => FinalSummary;
 /** What a dealer may see of a deal state: the buyer's released details only on the winning, finally accepted deal. */
+export const revealContact = reveal as (state: DealStageState | null, now?: Date) => { ok: true; contact: BuyerContact; state: DealStageState } | { ok: false; code: string; error: string };
 export const stageForDealer = forDealer as (state: DealStageState | null, opts?: { notSelected?: boolean }) => DealStageState | null;
 export interface StageStep { id: StageId; label: string; state: "upcoming" | "current" | "locked" | "skipped" | "walked"; value: number | null }
 export const stageProgress = progress as (state: DealStageState | null) => StageStep[];

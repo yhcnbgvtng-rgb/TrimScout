@@ -1,4 +1,4 @@
-// Final acceptance and the buyer-details release: the summary the buyer accepts, the "Deal accepted, here's your buyer" email,
+// Final acceptance and the buyer-details release: the summary the buyer accepts, the "Your offer was accepted" email (no contact details),
 // SAFE MODE routing of that email (including audit=1 deals), and the privacy rule that no dealer sees the buyer's contact details
 // before acceptance (and losing dealers never do). The state-machine side is in scrapers/lightsail-crawler/test/dealStages.test.js.
 import "./testdata/blockLiveHttp";
@@ -9,7 +9,7 @@ import { describe, it } from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { applyStageAction, initialStageState, stageForDealer, stageOf, type DealStageState, type StageAction } from "./dealStages";
-import { BUYER_DETAILS_SUBJECT, buildBuyerDetailsEmail, buildStageNotice } from "./dealStageNotice";
+import { ACCEPTED_OFFER_SUBJECT, buildAcceptedOfferEmail, buildStageNotice } from "./dealStageNotice";
 import { sendBuyerDetailsRelease } from "./inviteOutbox";
 import { SAFE_MODE_RECIPIENT, sendQuoteInviteEmail } from "./dealerEmail";
 import { finalSummary } from "./dealStages";
@@ -17,6 +17,7 @@ import { StagedDeals } from "../components/StagedDeals";
 import { DealerStagePanel } from "../components/DealerStagePanel";
 import type { RfqInvite, RfqRequest } from "./rfq";
 
+process.env.LIGHTSAIL_API_KEY ||= "test-signing-key";
 const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
 const NOW = new Date("2026-10-11T15:00:00Z");
 const FUTURE = "2099-01-01T00:00:00Z";
@@ -72,7 +73,7 @@ describe("the buyer's final screen", () => {
   it("after acceptance there is no accept button and the buyer is told who has their details", () => {
     const h = html(accepted());
     assert.doesNotMatch(h, /accept-final|change-payment/);
-    assert.match(h, /data-testid="stage-closed"[^>]*>Final deal accepted: paying cash at \$36,749 out the door\. Test Motors now has your name, email, phone and ZIP, and no other dealer does/);
+    assert.match(h, /data-testid="stage-closed"[^>]*>Final deal accepted: paying cash at \$36,749 out the door\. Test Motors can see your contact info once they open the private link we emailed them, and no other dealer can/);
   });
   it("is phone-friendly: inputs go full width below the sm breakpoint and the options stack", () => {
     assert.match(html(atPayment()), /grid gap-2 sm:grid-cols-3/, "the three payment choices stack on a phone");
@@ -92,10 +93,11 @@ describe("the dealer's page", () => {
     }
     assert.match(dealer(atFinalCash()), /You get their contact details the moment they accept it, and not before/);
   });
-  it("after acceptance: name, email, phone and ZIP appear on the winning dealer's page", () => {
+  it("after acceptance: the winning dealer's page does NOT show the details; it points to the emailed reveal button", () => {
     const h = dealer(accepted(), false);
-    assert.match(h, /data-testid="buyer-details"/);
-    for (const v of [CONTACT.name, CONTACT.email, CONTACT.phone, CONTACT.zip]) assert.ok(h.includes(v), v);
+    assert.doesNotMatch(h, /data-testid="buyer-details"/);
+    assert.match(h, /data-testid="buyer-details-by-email"/);
+    for (const secret of [...SECRETS, CONTACT.zip]) assert.ok(!h.includes(secret), secret);
   });
   it("a not-selected dealer never gets the block, even holding an accepted stage", () => {
     const h = renderToStaticMarkup(<DealerStagePanel token="tok12345" stage={stageForDealer(accepted(), { notSelected: true })!} quotedOtd={43749} hasTrade rfqOpen={false} onChanged={() => {}} />);
@@ -132,15 +134,16 @@ describe("privacy: no dealer sees contact details before acceptance; losing deal
       assert.equal(stageForDealer(s)!.release, null);
     }
   });
-  it("only the winning invite's view of the request carries the release", () => {
+  it("no dealer view of the request carries the details; only the winner keeps the release marker", () => {
     const rfq = rfqOf([
       invite("11", "Winner", winnerAccepted),
       invite("12", "Loser A", go(go(initialStageState({ tradeInExpected: true }), { type: "accept_otd" }, "buyer"), { type: "trade_offer", value: 1000 }, "dealer"), { notSelectedAt: "2026-10-11T12:00:00Z" } as never),
       invite("13", "Loser B", null, { notSelectedAt: "2026-10-11T12:00:00Z" } as never),
     ], { status: "picked" });
     const views = rfq.invites.map((i) => JSON.stringify(stageForDealer(stageOf(rfq, i), { notSelected: Boolean(i.notSelectedAt) })));
-    assert.ok(views[0].includes(CONTACT.email));
-    assert.ok(!views[1].includes(CONTACT.email) && !views[2].includes(CONTACT.email));
+    for (const v of views) for (const secret of [...SECRETS, CONTACT.zip + "\"contact"]) assert.ok(!v.includes(secret), secret);
+    assert.ok(JSON.parse(views[0]).release, "the winner keeps the release marker (when it happened, how often it was viewed)");
+    assert.equal(JSON.parse(views[1]).release, null); assert.equal(JSON.parse(views[2]).release, null);
   });
   it("the dealer context route filters every response through stageForDealer, and the dealer stage route does too", () => {
     assert.match(read("app/api/quote-invite/context/route.ts"), /stage: stageForDealer\(stageOf\(rfq, invite\), \{ notSelected: Boolean\(invite\.notSelectedAt\) \}\)/);
@@ -170,45 +173,53 @@ describe("privacy: no dealer sees contact details before acceptance; losing deal
   });
 });
 
-describe("the 'Deal accepted, here's your buyer' email", () => {
-  const input = () => {
-    const s = accepted(atFinalFinance());
-    return { dealerName: "Test Motors", vehicle: "2026 Toyota RAV4 XLE", dealReference: "TS-7A", summary: finalSummary(s), contact: s.release!.contact, url: "https://example.test/view?t=tok" };
-  };
-  it("has the agreed subject and the buyer's name, email, phone and ZIP", () => {
-    const m = buildBuyerDetailsEmail(input());
-    assert.equal(BUYER_DETAILS_SUBJECT, "Deal accepted, here's your buyer");
-    assert.equal(m.subject, "Deal accepted, here's your buyer: 2026 Toyota RAV4 XLE");
-    for (const v of [CONTACT.name, CONTACT.email, CONTACT.phone, CONTACT.zip]) assert.ok(m.html.includes(v), v);
+describe("the 'Your offer was accepted' email", () => {
+  const input = () => ({ vehicle: "2026 Toyota RAV4 XLE", vin: "2T3VINEXAMPLE0001", acceptedOtd: finalSummary(accepted(atFinalFinance())).otd, url: "https://www.trimscout.com/quote-request/buyer-contact?t=abc.def" });
+  it("has the agreed subject, the vehicle, VIN, accepted out-the-door price and the 'View buyer contact info' button", () => {
+    const m = buildAcceptedOfferEmail(input());
+    assert.equal(ACCEPTED_OFFER_SUBJECT, "Your offer was accepted");
+    assert.equal(m.subject, "Your offer was accepted: 2026 Toyota RAV4 XLE");
+    for (const v of ["2026 Toyota RAV4 XLE", "2T3VINEXAMPLE0001", "Accepted out-the-door price", "$43,749", ">View buyer contact info<", 'href="https://www.trimscout.com/quote-request/buyer-contact?t=abc.def"']) assert.ok(m.html.includes(v), v);
   });
-  it("states the deal: OTD, trade, payoff, true OTD, and the financing terms with matching payment math", () => {
-    const m = buildBuyerDetailsEmail(input());
-    for (const v of ["$43,749", "$9,000", "$2,000", "$36,749", "5.9% for 60 months", "Ally", "$4,000", "$32,749"]) assert.ok(m.html.includes(v), v);
-    const sm = input().summary;
-    assert.ok(m.html.includes(`$${sm.monthly!.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`));
-    assert.ok(m.html.includes("not shared with any other dealer"));
+  it("shows the quoted price as 'Accepted out-the-door price' and 'Net after trade-in' only when a trade is attached", () => {
+    const sum = finalSummary(accepted(atFinalFinance()));
+    assert.equal(sum.tradeValue, 9000);
+    const withTrade = buildAcceptedOfferEmail({ ...input(), hasTrade: sum.tradeValue != null, netAfterTrade: sum.trueOtd }).html;
+    assert.ok(withTrade.includes("Accepted out-the-door price") && withTrade.includes("$43,749"));
+    assert.ok(withTrade.includes("Net after trade-in") && withTrade.includes("$36,749"));
+    assert.ok(!withTrade.includes("Accepted out-the-door total"));
+    const noTrade = buildAcceptedOfferEmail({ ...input(), hasTrade: false, netAfterTrade: 43749 }).html;
+    assert.ok(noTrade.includes("Accepted out-the-door price") && !noTrade.includes("Net after trade-in"));
+    assert.ok(!buildAcceptedOfferEmail(input()).html.includes("Net after trade-in"), "default is no trade row");
   });
-  it("escapes the buyer's text so a name cannot inject markup", () => {
-    const m = buildBuyerDetailsEmail({ ...input(), contact: { ...CONTACT, name: "<script>alert(1)</script>" } });
-    assert.ok(!m.html.includes("<script>"));
+  it("contains no buyer name, email, phone or ZIP, and never says 'bid'", () => {
+    const m = buildAcceptedOfferEmail(input());
+    for (const secret of [...SECRETS, CONTACT.zip]) assert.ok(!m.html.includes(secret) && !m.subject.includes(secret), secret);
+    assert.doesNotMatch(m.html + m.subject, /\bbid/i);
+    assert.doesNotMatch(m.html, /mailto:|tel:/);
   });
-  it("cash and own-financing deals say so and omit the dealer-finance rows", () => {
-    const cash = buildBuyerDetailsEmail({ ...input(), summary: finalSummary(accepted(atFinalCash())) });
-    assert.match(cash.html, /Paying cash/); assert.doesNotMatch(cash.html, /Amount financed|APR \/ term/);
+  it("the builder's input type has no contact field at all", () => {
+    const src = read("lib/dealStageNotice.ts");
+    const body = src.slice(src.indexOf("export interface AcceptedOfferEmailInput"), src.indexOf("export const ACCEPTED_OFFER_SUBJECT"));
+    assert.deepEqual([...body.matchAll(/^  (\w+)\??: /gm)].map((m) => m[1]), ["vehicle", "vin", "acceptedOtd", "netAfterTrade", "hasTrade", "url"]);
+  });
+  it("escapes its text", () => {
+    assert.ok(!buildAcceptedOfferEmail({ ...input(), vehicle: "<script>x</script>" }).html.includes("<script>"));
   });
 });
 
 describe("routing: the release goes through the outbox, SAFE MODE only, winner only", () => {
   const winner = (s: DealStageState | null = accepted()) => invite("11", "Test Motors", s);
   const calls = () => { const c: Array<[string, string]> = []; return { c, send: (async (subject: string, html: string) => { c.push([subject, html]); return true; }) as typeof sendQuoteInviteEmail }; };
-  it("sends once to the winner, tagged SAFE MODE with the intended dealer, with the details in the body", async () => {
+  it("sends once to the winner, tagged SAFE MODE with the intended dealer, with a reveal link and no contact details", async () => {
     const r = calls();
     const rfq = rfqOf([winner()], { status: "picked" });
     assert.equal(await sendBuyerDetailsRelease(rfq, rfq.invites[0], { send: r.send, emailEnabled: () => true }), "sent");
     assert.equal(r.c.length, 1);
-    assert.match(r.c[0][0], /^\[SAFE MODE · Test Motors\] Deal accepted, here's your buyer/);
+    assert.match(r.c[0][0], /^\[SAFE MODE · Test Motors\] Your offer was accepted/);
     assert.match(r.c[0][1], /SAFE MODE:<\/strong> redirected here instead of Test Motors/);
-    assert.ok(r.c[0][1].includes(CONTACT.email));
+    for (const secret of [...SECRETS, CONTACT.zip]) assert.ok(!r.c[0][1].includes(secret) && !r.c[0][0].includes(secret), secret);
+    assert.match(r.c[0][1], /href="https:\/\/[^"]+\/quote-request\/buyer-contact\?t=[A-Za-z0-9_.-]+"/);
   });
   it("sends nothing before acceptance, for a closed-out dealer, an unreleased request, or with the email switch off", async () => {
     for (const [label, rfq, inv, enabled, want] of [

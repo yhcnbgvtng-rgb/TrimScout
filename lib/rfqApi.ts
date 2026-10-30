@@ -199,6 +199,21 @@ export async function markRfqInviteNotSelected(
   return { claimed: Boolean(json.claimed), invite: (json.invite as RfqInvite) ?? null };
 }
 
+/**
+ * The winning dealer pressed "Reveal buyer contact info": the box re-checks that this invite is the finally accepted one, stamps
+ * and logs the reveal, and returns the buyer's details. Fails closed: on a box without the patch (404) nothing is revealed.
+ * Needs the box handler src/rfqContactReveal.js (docs/BUYER_CONTACT_REVEAL.md).
+ */
+export async function revealBuyerContact(rfqId: string, inviteId: string): Promise<{ contact: { name: string | null; email: string; phone: string | null; zip: string | null }; reveals: { count: number; firstAt: string | null; lastAt: string | null } }> {
+  try {
+    const json = await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/reveal-contact`, {});
+    return { contact: json.contact as never, reveals: json.reveals as never };
+  } catch (err) {
+    if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") throw new RfqApiError("Contact info isn't available yet.", 503);
+    throw err;
+  }
+}
+
 /** Resolves a tracked-link token to its invite, for the "viewed" event. */
 export async function getRfqInviteByViewToken(token: string): Promise<{ rfqId: string; invite: RfqInvite } | null> {
   try {
