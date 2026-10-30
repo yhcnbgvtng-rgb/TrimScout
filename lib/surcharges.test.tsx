@@ -292,6 +292,11 @@ describe("% off MSRP compares the selling price to MSRP only", () => {
     assert.match(html, /At MSRP/);
     assert.doesNotMatch(html, /on price \+ surcharges|above MSRP/);
   });
+  it("the dealer form's own % of MSRP leaves surcharges out too", () => {
+    const f = read("components/UsedQuoteForm.tsx");
+    assert.match(f, /const dealerAsk = sellingPrice != null \? Math\.round\(\(sellingPrice \+ addOnTotal \+ docFee\) \* 100\) \/ 100 : null;/);
+    assert.doesNotMatch(f, /Price \+ add-ons \+ surcharges/);
+  });
   it("the biggest-discount badge ranks on selling price alone", () => {
     const a = { id: "a", otd: 1, quote: cash({ sellingPrice: 38500, surcharges: [{ name: "Adjustment", amount: 1500, reason: "Reason" }] }) };
     const b = { id: "b", otd: 1, quote: cash({ sellingPrice: 39500 }) };

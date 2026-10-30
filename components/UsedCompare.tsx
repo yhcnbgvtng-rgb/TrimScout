@@ -95,6 +95,13 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const bestDealId = best?.invite.id ?? null;
   const glanceBest = best ?? ranked[0] ?? null;
+  // "Best deal" needs a real comparison: at least two quotes for the same thing. One exact-build quote next to alternates is not one.
+  const comparableCount = badgeRows.length;
+  // The best quote for the buyer's exact build, named separately whenever alternates are in the mix.
+  const exactBest = lane !== "alternate" && sideAlternates.length > 0 ? (hasTrade ? best : best ?? ranked[0]) ?? null : null;
+  const exactBuildId = exactBest?.invite.id ?? null;
+  // The headline is the lowest out the door across every live quote, alternates included, and says so when it is one.
+  const headline = !hasTrade && lane !== "alternate" && sideAlternates.length ? [...live, ...sideAlternates].sort(vehicleOrder)[0] ?? null : glanceBest;
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
@@ -238,7 +245,8 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         <div className="flex flex-wrap items-center gap-1.5">
           {status}
           {invite.tradeConfirmation?.status === "revised" ? chip("bg-sky-500/15 text-sky-300", "Revised", "revised-chip") : null}
-          {bestDealId === invite.id && !excluded && !expired && quoted > 1 ? chip("bg-brand-500/15 text-brand-300", hasTrade && sort === "post_trade" ? "Best deal after trade" : "Best deal", "badge-best-deal") : null}
+          {bestDealId === invite.id && !excluded && !expired && comparableCount > 1 ? chip("bg-brand-500/15 text-brand-300", hasTrade && sort === "post_trade" ? "Best deal after trade" : "Best deal", "badge-best-deal") : null}
+          {exactBuildId === invite.id && !expired ? chip("bg-sky-500/15 text-sky-300", "Best for your exact build", "badge-exact-build") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestOtd.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest out the door", "badge-lowest-otd") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.biggestDiscount.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Biggest discount", "badge-biggest-discount") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestFees.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest fees", "badge-lowest-fees") : null}
@@ -298,13 +306,14 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light" data-testid="used-glance-none">
           Waiting on {rows.length} dealer{rows.length === 1 ? "" : "s"} — quotes appear here as they reply. Nothing you need to do.
         </p>
-      ) : glanceBest ? (
+      ) : headline ? (
         <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-4 py-3" data-testid="used-glance-best">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">{hasTrade && !best ? "Lowest vehicle out the door. No dealer has given a trade quote yet, so none is ranked best" : finance ? (trade && sort === "post_trade" ? "Best on monthly after trade, then cash due at signing" : "Best on monthly, then cash due at signing") : trade && sort === "post_trade" ? "Lowest out the door after trade" : "Lowest out the door"}</p>
           <p className="text-lg font-extrabold text-white tabular-nums">
-            {finance && glanceBest.used!.kind === "finance" ? <>{fmtMoney(glanceBest.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(glanceBest.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(comparedOtd(glanceBest))}
+            {finance && headline.used!.kind === "finance" ? <>{fmtMoney(headline.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(headline.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(comparedOtd(headline))}
           </p>
-          <p className="text-[11px] text-ink-light">{glanceBest.invite.dealerName}</p>
+          <p className="text-[11px] text-ink-light">{headline.invite.dealerName}{headline.alternate && lane !== "alternate" ? <span className="ml-2 rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="glance-alternate">Alternate vehicle — not your exact build</span> : null}</p>
+          {exactBest && exactBest !== headline ? <p className="mt-1 text-[11px] text-sky-200" data-testid="used-glance-exact">Best for your exact build: {exactBest.invite.dealerName} · {fmtMoney(comparedOtd(exactBest))}</p> : null}
         </div>
       ) : (
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>

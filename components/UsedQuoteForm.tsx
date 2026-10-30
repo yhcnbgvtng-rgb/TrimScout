@@ -162,9 +162,9 @@ export function UsedQuoteForm({
     const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
     const mandatoryTotal = dasTotal - taxTotal;
     const docFee = dueAtSigningSum(items.filter((i) => /\bdoc/i.test(i.name)));
-    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges.
+    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges. Surcharges are not in it (nor in the buyer's % off MSRP).
     const msrpNum = num(f.msrp);
-    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + surchargeTotal + docFee) * 100) / 100 : null;
+    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
     const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
     return { sellingPrice, items, addOnLines, surchargeLines, surchargeTotal, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
   }, [f, effFees, addOns, surcharges, rebates, noTaxEstimate, zipRate]);
@@ -606,7 +606,7 @@ export function UsedQuoteForm({
                 {d.rebateTotal ? out("Rebates / credits", `−${money(d.rebateTotal)}`) : null}
               </div>
               <div className="border-t border-border/60 pt-2 space-y-1" data-testid="pct-of-msrp">
-                {out("Price + add-ons + surcharges + doc fee", money(d.dealerAsk))}
+                {out("Price + add-ons + doc fee", money(d.dealerAsk))}
                 {out("as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.dealerAsk != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
               </div>
             </>
