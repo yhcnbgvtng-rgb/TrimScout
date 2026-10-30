@@ -38,5 +38,7 @@ const rfqInviteRevealMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)
 if (req.method === "POST" && rfqInviteRevealMatch) return run(handleRfqContactReveal, Number(rfqInviteRevealMatch[1]), Number(rfqInviteRevealMatch[2]));
 ```
 
+The install package for exactly this wiring (with md5 pins, drift check, sync-lock and crawl gate, backup, restart and restore) is `docs/box-patches/2026-10-30-buyer-contact-reveal/` (STEPS.md). Nothing is installed.
+
 Deploy order: box files + wiring first, then the app. Until the box is patched, the reveal page loads but the button answers
 "couldn't open the contact info just now" (nothing revealed), and the email link works only once it is.

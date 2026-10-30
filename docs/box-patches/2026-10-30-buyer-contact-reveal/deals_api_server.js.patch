@@ -1,0 +1,36 @@
+--- a/deals_api_server.js
++++ b/deals_api_server.js
+@@ -39,6 +39,7 @@
+ import { createRfqMessagesHandler } from "./rfqMessages.js";
+ import { createChatAdminHandlers } from "./rfqChatAdmin.js";
+ import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
++import { createRfqContactRevealHandler } from "./rfqContactReveal.js";
+ import { createRfqTradeConfirmHandlers } from "./rfqTradeConfirm.js";
+ import { tradeAnswerProblem } from "./tradeConfirm.js";
+ import { createStableCache, builtForOtherBuild } from "./stableCache.js";
+@@ -1547,6 +1548,14 @@
+   logRfqEvent,
+ });
+ 
++// POST /api/rfqs/:id/invites/:inviteId/reveal-contact — the winning dealer pressed "Reveal buyer contact info" (logged, rfqContactReveal.js).
++const handleRfqContactReveal = createRfqContactRevealHandler({
++  getPool, sendJson,
++  ensureColumns: ensureQuotePackageColumns,
++  logRfqEvent,
++  auditKind: (req) => req.audit?.kind || null,
++});
++
+ // POST /api/rfqs/:id/invites/:inviteId/stage — one action on the staged Cash / Finance deal (rules: dealStages.js).
+ const handleRfqStage = createRfqStageHandler({
+   getPool, readBody, sendJson,
+@@ -4261,6 +4270,10 @@
+   const rfqInviteMessagesMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/messages$/);
+   if (req.method === "POST" && rfqInviteMessagesMatch) {
+     return run(handleRfqMessages, Number(rfqInviteMessagesMatch[1]), Number(rfqInviteMessagesMatch[2]));
++  }
++  const rfqInviteRevealMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/reveal-contact$/);
++  if (req.method === "POST" && rfqInviteRevealMatch) {
++    return run(handleRfqContactReveal, Number(rfqInviteRevealMatch[1]), Number(rfqInviteRevealMatch[2]));
+   }
+   const rfqInviteStageMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/stage$/);
+   if (req.method === "POST" && rfqInviteStageMatch) {

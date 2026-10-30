@@ -1,0 +1,18 @@
+# md  role  file   (BEFORE = what box2 must hold before install; AFTER = after; BASE/RESULT = deals_api_server.js starting file -> file after the patch; PACKAGE = a file shipped in this directory)
+# dealStages.js BEFORE is the repo's main file at 7663585 (the 2026-10-13 v2 install), NOT read from the box: install.sh check proves it on the box and refuses if it differs.
+# deals_api_server.js BASEs are the box2 text read, read-only, on 2026-10-29 (docs/box-snapshots/2026-10-29-box2-deals-api) plus the same file after the stats-warm patch (derived, not read from the box).
+0e557bfdf59b07894212a47ab47205a9  BEFORE   dealStages.js
+6a3a19443aa0e1d4ecb9a0a8a42169f0  AFTER    dealStages.js
+-                                 BEFORE   rfqContactReveal.js   (absent)
+2a9d11ebeb4322f43df8569c9f9ef119  AFTER    rfqContactReveal.js
+31d527ba8e277ff58e39f73ad1d00295  BASE     deals_api_server.js@live-2026-10-29
+9ddd12a80e9e3c9bffcb23fdc4797e01  RESULT   deals_api_server.js@live-2026-10-29
+400e943b58e972a00fcce92738ead685  BASE     deals_api_server.js@after-crawl-stamps
+a9ca71357ab8abfbedbe13f787cfefac  RESULT   deals_api_server.js@after-crawl-stamps
+92716d2599883f1011535349217dc154  BASE     deals_api_server.js@after-stats-warm
+ce21b599d4834045102159a0bcf66f4d  RESULT   deals_api_server.js@after-stats-warm
+60211bdd0317514a09bc938ab1644889  BASE     deals_api_server.js@after-crawl-stamps-and-stats-warm
+bd11ff778117cd932c2608e1585634d4  RESULT   deals_api_server.js@after-crawl-stamps-and-stats-warm
+fb7aaac9d7d9ea15b2151872f8532fca  PACKAGE  deals_api_server.js.patch
+6a3a19443aa0e1d4ecb9a0a8a42169f0  PACKAGE  files/dealStages.js
+2a9d11ebeb4322f43df8569c9f9ef119  PACKAGE  files/rfqContactReveal.js
