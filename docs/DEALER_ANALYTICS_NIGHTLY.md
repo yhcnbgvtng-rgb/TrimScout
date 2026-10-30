@@ -21,13 +21,15 @@ Caveat that stays: a zero-change day is not proof of a quiet day. 10-25 and 10-3
 | Table | Key | Rows | Purpose |
 |---|---|---|---|
 | `dealer_price_changes` | `(dealer_id, changed_on, vin)` | about 240k/day (about 24 MB/day); backfill about 8M | one row per observed change: `prev_on`, `old_price`, `new_price` |
-| `dealer_daily_summary` | `(dealer_id, day)` | about 9,500/day | units, new/used, avg price, avg DOM, age buckets 0-30/31-60/61-90/90+, added/removed (day and 7d), drop units and average $/% drop (7d, 30d) |
+| `dealer_daily_summary` | `(dealer_id, day)` | about 9,500/day | units, make count, `is_group_bucket`, new/used, avg price, avg DOM, age buckets 0-30/31-60/61-90/90+, added/removed (day and 7d), drop units and average $/% drop (7d, 30d) |
 | `market_price_daily` | `(day, make, model, year, cond)` | about 289 makes; row count is measured by a dry run | units, dealer count and average price per make/model/year/condition |
 | `dealer_analytics_runs` | `(day, started_at)` | 1/day | completion marker (makes the cron idempotent) and "data as of" for the page |
 
 `day` is the UTC date at run time, the same convention as `dealer_inventory_days.seen_on`. Retention is not implemented in this PR (plan: prune `dealer_price_changes` past 400 days).
 
-**Excluded from every table:** dealer id 0 (no store matched) and dealer **16951 (ED MORSE NISSAN)**. 16951 is a real rooftop row, but `edmorse.com` is a multi-brand group site (61 makes, 10,934 units, Harley-Davidson included) attributed to one dealer id. This is a pattern, not a one-off: of 116 dealers with 1,500+ units, the largest hold 40 to 50 makes each (14802 MINI of Charleston, 13567 Hendrick Subaru Southpoint, 13782 Darrell Waltrip Subaru, 7900 BMW of South Austin, 11270 Mercedes-Benz of Pompano...). Only 0 and 16951 are excluded until a decision; `DEALER_ANALYTICS_EXCLUDE` (comma list, default `16951`) changes it. `dealer-analytics-probe.mjs --suspects` lists the rest.
+**Excluded from every table:** only dealer id 0 (no store matched). `DEALER_ANALYTICS_EXCLUDE` (comma list, default empty) can add ids.
+
+**Group buckets are kept and flagged.** Some directory rows are really dealer-group websites attributed to one rooftop: 16951 (ED MORSE NISSAN, `edmorse.com`) lists 61 makes and 10,934 units, Harley-Davidson included. `dealer_daily_summary` carries `make_count` and `is_group_bucket` (1 when the dealer has **40 or more distinct makes in stock, or 1,500 or more units in stock**). The page hides flagged dealers by default with a toggle to show them. Measured on box2 2026-10-30: **117 of 9,488 dealers flagged** (116 by units, 13 by makes, 12 by both, 1 by makes only), holding 299,509 of 2,897,842 active units (10.3%). `dealer-analytics-probe.mjs --suspects` lists them. The make rule is narrow on purpose: 2,528 small dealers list 20 to 39 makes (trade-ins), which a lower threshold would have swept in. Their changes and units are still counted in `dealer_price_changes` and `market_price_daily`.
 
 ## Guards (all enforced in code, covered by tests)
 

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  DDL, DEFAULTS, TABLES, addDays, assertYmd, canStartNow, dealerRanges, deriveEvents, excludedSet, isWriteSql, marketSql, parseExcludedEnv,
+  DDL, DEFAULTS, GROUP_BUCKET_MIN_MAKES, GROUP_BUCKET_MIN_UNITS, SUMMARY_COLUMNS, SUSPECTS_SQL, TABLES, isGroupBucket, addDays, assertYmd, canStartNow, dealerRanges, deriveEvents, excludedSet, isWriteSql, marketSql, parseExcludedEnv,
   parseSyncLogTail, pastStop, priceDiffValidationSql, stratifiedSample, summaryRow, summarySql, dropsSql,
 } from "./dealerAnalyticsCore.js";
 import { StopError, buildSummary, readOnlyQuery, runBackfill, runGuarded, runNightly } from "./dealerAnalyticsRun.js";
@@ -35,14 +35,17 @@ test("deriveEvents keeps stores apart, excludes dealer 0 and the excluded ids, a
     row("Z", 0, "2026-10-01", 100), row("Z", 0, "2026-10-02", 1),
     row("Y", 16951, "2026-10-01", 100), row("Y", 16951, "2026-10-02", 1),
   ];
-  const ev = deriveEvents(rows, { excluded: excludedSet() });
+  const ev = deriveEvents(rows, { excluded: excludedSet([16951]) });
   assert.deepEqual(ev.map((e) => [e[0], e[1], e[2]]), [[3, "2026-10-03", "A"], [9, "2026-10-02", "A"], [9, "2026-10-02", "B"]]);
+  // by default a group-bucket dealer's changes are kept
+  assert.ok(deriveEvents(rows).some((e) => e[0] === 16951));
 });
 
-test("exclusions: dealer 0 is always out; 16951 is out by default and the list is configurable", () => {
-  assert.ok(excludedSet().has(0) && excludedSet().has(16951));
-  assert.ok(excludedSet([]).has(0) && !excludedSet([]).has(16951));
-  assert.deepEqual(parseExcludedEnv(undefined), [16951]);
+test("exclusions: only dealer 0 is out by default; the list is configurable", () => {
+  assert.deepEqual([...excludedSet()], [0]);
+  assert.ok(!excludedSet().has(16951), "group buckets are kept (flagged), not excluded");
+  assert.ok(excludedSet([16951]).has(16951));
+  assert.deepEqual(parseExcludedEnv(undefined), []);
   assert.deepEqual(parseExcludedEnv("16951, 14802"), [16951, 14802]);
   assert.throws(() => excludedSet(["abc"]));
 });
@@ -67,7 +70,8 @@ test("no source file writes to dealer_inventory, dealer_inventory_days or dealer
 test("SQL builders: dates are validated, exclusions are embedded, dealer ranges cover every id once", () => {
   assert.throws(() => summarySql("2026-10-31'; DROP TABLE x;--", excludedSet()));
   assert.throws(() => dropsSql("nope"));
-  assert.match(summarySql("2026-10-31", excludedSet()), /dealer_id NOT IN \(16951\)/);
+  assert.match(summarySql("2026-10-31", excludedSet([16951])), /dealer_id NOT IN \(16951\)/);
+  assert.ok(!/NOT IN/.test(summarySql("2026-10-31", excludedSet())));
   assert.match(marketSql(excludedSet([])), /dealer_id > 0/);
   assert.ok(!/NOT IN/.test(marketSql(excludedSet([]))));
   assert.equal(addDays("2026-03-01", -1), "2026-02-28");
@@ -78,11 +82,27 @@ test("SQL builders: dates are validated, exclusions are embedded, dealer ranges 
   assert.equal(isWriteSql("WITH a AS (SELECT 1) SELECT * FROM a"), false);
 });
 
+test("is_group_bucket: 40+ makes or 1,500+ units, nothing else", () => {
+  assert.equal(GROUP_BUCKET_MIN_MAKES, 40);
+  assert.equal(GROUP_BUCKET_MIN_UNITS, 1500);
+  assert.equal(isGroupBucket(1500, 3), true);
+  assert.equal(isGroupBucket(1499, 39), false);
+  assert.equal(isGroupBucket(200, 40), true);
+  assert.equal(isGroupBucket("10934", "61"), true);
+  assert.equal(isGroupBucket(452, 12), false);
+  const base = { dealer_id: 1, active_units: 10934, make_count: 61 };
+  assert.equal(summaryRow("2026-10-31", base, null, "t")[SUMMARY_COLUMNS.indexOf("is_group_bucket")], 1);
+  assert.equal(summaryRow("2026-10-31", { dealer_id: 2, active_units: 452, make_count: 6 }, null, "t")[SUMMARY_COLUMNS.indexOf("is_group_bucket")], 0);
+  assert.match(DDL[1], /is_group_bucket TINYINT\(1\) NOT NULL DEFAULT 0/);
+  assert.match(SUSPECTS_SQL, /units >= \? OR makes >= \?/);
+});
+
 test("summaryRow fills missing drop stats with zeros/NULLs in column order", () => {
   const r = summaryRow("2026-10-31", { dealer_id: "7", active_units: "10", new_units: "4", used_units: "6", priced_units: "9", avg_price: "30000", avg_dom: "12.5", age_0_30: "8", age_31_60: "1", age_61_90: "1", age_90_plus: "0", added_units: "2", removed_units: "1", added_7d: "5", removed_7d: "3" }, null, "2026-10-31 12:00:00");
-  assert.equal(r.length, 23);
-  assert.deepEqual(r.slice(16, 22), [0, 0, null, null, null, null]);
-  assert.equal(r[22], "2026-10-31 12:00:00");
+  assert.equal(r.length, SUMMARY_COLUMNS.length);
+  assert.equal(r.length, 25);
+  assert.deepEqual(r.slice(18, 24), [0, 0, null, null, null, null]);
+  assert.equal(r[24], "2026-10-31 12:00:00");
 });
 
 // ---- windows ---------------------------------------------------------------------------------------------------------------
@@ -207,7 +227,7 @@ const writes = (log) => log.filter((s) => isWriteSql(s));
 test("nightly: creates tables, writes changes then market then summary, marks the run ok, never touches excluded dealers", async () => {
   const log = [];
   const deps = fakeDeps({ q: scriptedQ(log) });
-  const r = await runNightly({ deps, cfg, excluded: excludedSet() });
+  const r = await runNightly({ deps, cfg, excluded: excludedSet([16951]) });
   assert.equal(r.status, "ok");
   assert.equal(r.changes.events, 1);
   assert.equal(r.changes.drops, 1);
@@ -217,7 +237,7 @@ test("nightly: creates tables, writes changes then market then summary, marks th
   assert.ok(order.indexOf("dealer_price_changes") < order.indexOf("market_price_daily") && order.indexOf("market_price_daily") < order.indexOf("dealer_daily_summary"));
   assert.match(log.at(-1), /SET status = 'ok'/);
   assert.deepEqual(deps.calls.slice(-1), ["release"]);
-  // the excluded dealers' candidates (16951, 0) were dropped before the days lookup
+  // the excluded dealers' candidates (0) were dropped before the days lookup
   assert.deepEqual(log.daysVins, ["V1"]);
 });
 

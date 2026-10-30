@@ -31,6 +31,8 @@ export const DDL = Object.freeze([
     dealer_id INT NOT NULL,
     day DATE NOT NULL,
     active_units INT NOT NULL,
+    make_count INT NOT NULL,
+    is_group_bucket TINYINT(1) NOT NULL DEFAULT 0,
     new_units INT NOT NULL,
     used_units INT NOT NULL,
     priced_units INT NOT NULL,
@@ -77,9 +79,10 @@ export const DDL = Object.freeze([
 ]);
 
 export const DEFAULTS = Object.freeze({
-  // Dealer id 0 ("no store matched") is ALWAYS excluded. 16951 (ED MORSE NISSAN) is a dealer-group website attributed to one
-  // rooftop (61 makes, 10,934 units) — left out of every table until Paul decides how to treat such rows.
-  excludeDealerIds: [16951],
+  // Dealer id 0 ("no store matched") is ALWAYS excluded; DEALER_ANALYTICS_EXCLUDE can add ids. Group-site "buckets" (a dealer-group
+  // website attributed to one rooftop, e.g. 16951 ED MORSE NISSAN: 61 makes, 10,934 units) are NOT excluded: they are kept in every
+  // table and flagged with dealer_daily_summary.is_group_bucket so the page can hide them by default behind a toggle.
+  excludeDealerIds: [],
   windowDays: 2, // nightly job re-derives price changes for this many UTC days (a late box sync is caught next night)
   lookbackDays: 14, // how far before the window to look for the "previous price" row
   startAfter: "06:00", // ET: earliest start
@@ -94,6 +97,11 @@ export const DEFAULTS = Object.freeze({
   gateCheckEvery: 20, // re-check the crawl gate every N checkpoints
   syncMaxAgeMs: 20 * 3600_000,
 });
+
+// Group-bucket rule (same as `dealer-analytics-probe.mjs --suspects`): 40+ distinct makes in stock, or 1,500+ units in stock.
+export const GROUP_BUCKET_MIN_MAKES = 40;
+export const GROUP_BUCKET_MIN_UNITS = 1500;
+export const isGroupBucket = (activeUnits, makeCount) => Number(activeUnits) >= GROUP_BUCKET_MIN_UNITS || Number(makeCount) >= GROUP_BUCKET_MIN_MAKES;
 
 export function excludedSet(ids = DEFAULTS.excludeDealerIds) {
   const s = new Set([0]);
@@ -221,6 +229,7 @@ export function summarySql(day, excluded) {
   const in7 = addDays(d, -6);
   return `SELECT dealer_id,
     SUM(removed_at IS NULL) AS active_units,
+    COUNT(DISTINCT CASE WHEN removed_at IS NULL THEN make END) AS make_count,
     SUM(removed_at IS NULL AND cond = 'new') AS new_units,
     SUM(removed_at IS NULL AND cond = 'used') AS used_units,
     SUM(removed_at IS NULL AND price > 0) AS priced_units,
@@ -252,13 +261,15 @@ export function dropsSql(day) {
   FROM dealer_price_changes WHERE dealer_id BETWEEN ? AND ? AND changed_on > '${d30}' AND changed_on <= '${d}' GROUP BY dealer_id`;
 }
 
-export const SUMMARY_COLUMNS = Object.freeze(["dealer_id", "day", "active_units", "new_units", "used_units", "priced_units", "avg_price", "avg_dom", "age_0_30", "age_31_60", "age_61_90", "age_90_plus", "added_units", "removed_units", "added_7d", "removed_7d", "drop_units_7d", "drop_units_30d", "avg_drop_usd_7d", "avg_drop_pct_7d", "avg_drop_usd_30d", "avg_drop_pct_30d", "computed_at"]);
+export const SUMMARY_COLUMNS = Object.freeze(["dealer_id", "day", "active_units", "make_count", "is_group_bucket", "new_units", "used_units", "priced_units", "avg_price", "avg_dom", "age_0_30", "age_31_60", "age_61_90", "age_90_plus", "added_units", "removed_units", "added_7d", "removed_7d", "drop_units_7d", "drop_units_30d", "avg_drop_usd_7d", "avg_drop_pct_7d", "avg_drop_usd_30d", "avg_drop_pct_30d", "computed_at"]);
 
 const num = (v) => (v == null ? null : Number(v));
 /** Merge one dealer's summary row with its drop stats (absent = no drops) into SUMMARY_COLUMNS order. computedAt is the DB's own NOW() read once per run. */
 export function summaryRow(day, s, drops, computedAt) {
   const d = drops || {};
-  return [Number(s.dealer_id), day, num(s.active_units) ?? 0, num(s.new_units) ?? 0, num(s.used_units) ?? 0, num(s.priced_units) ?? 0, num(s.avg_price), num(s.avg_dom),
+  const active = num(s.active_units) ?? 0;
+  const makes = num(s.make_count) ?? 0;
+  return [Number(s.dealer_id), day, active, makes, isGroupBucket(active, makes) ? 1 : 0, num(s.new_units) ?? 0, num(s.used_units) ?? 0, num(s.priced_units) ?? 0, num(s.avg_price), num(s.avg_dom),
     num(s.age_0_30) ?? 0, num(s.age_31_60) ?? 0, num(s.age_61_90) ?? 0, num(s.age_90_plus) ?? 0,
     num(s.added_units) ?? 0, num(s.removed_units) ?? 0, num(s.added_7d) ?? 0, num(s.removed_7d) ?? 0,
     num(d.drop_units_7d) ?? 0, num(d.drop_units_30d) ?? 0, num(d.avg_drop_usd_7d), num(d.avg_drop_pct_7d), num(d.avg_drop_usd_30d), num(d.avg_drop_pct_30d), computedAt];
@@ -315,7 +326,7 @@ export function priceDiffValidationSql(dealerIds) {
     SUM(i.price_diff <> 0 AND EXISTS (SELECT 1 FROM ev e WHERE e.vin = i.vin AND e.dealer_id = i.dealer_id AND e.seen_on = i.ls AND e.price = i.price AND e.prev = i.old_price)) AS match_same_date
   FROM inv i GROUP BY i.dealer_id ORDER BY units`;
 }
-export const SUSPECTS_SQL = "SELECT dealer_id, COUNT(*) AS units, COUNT(DISTINCT make) AS makes FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id HAVING units >= ? ORDER BY makes DESC, units DESC";
+export const SUSPECTS_SQL = "SELECT dealer_id, COUNT(*) AS units, COUNT(DISTINCT make) AS makes FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id HAVING units >= ? OR makes >= ? ORDER BY makes DESC, units DESC";
 export const SIZES_SQL = "SELECT dealer_id, COUNT(*) AS units FROM dealer_inventory WHERE removed_at IS NULL AND dealer_id > 0 GROUP BY dealer_id";
 export const TABLE_RANGE_SQL = "SELECT DATE_FORMAT(MIN(changed_on), '%Y-%m-%d') AS lo, DATE_FORMAT(MAX(changed_on), '%Y-%m-%d') AS hi FROM dealer_price_changes";
 export const TABLE_EVENTS_SQL = "SELECT dealer_id, DATE_FORMAT(changed_on, '%Y-%m-%d') AS changed_on, vin, old_price, new_price FROM dealer_price_changes WHERE dealer_id IN (?) AND changed_on BETWEEN ? AND ?";

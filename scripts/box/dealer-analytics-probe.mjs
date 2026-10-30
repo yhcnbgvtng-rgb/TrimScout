@@ -8,10 +8,11 @@
  *   --tables [--sample=N] [--min=98]
  *        After the tables exist: re-derives changes from dealer_inventory_days for sampled dealers over the table's date range and
  *        diffs them against dealer_price_changes. Exits 1 when the match rate is under --min (default 98).
- *   --suspects [--min-units=1500]
- *        Dealers with many distinct makes: dealer-group websites attributed to a single rooftop (like 16951). Informational.
+ *   --suspects
+ *        Lists the dealers the nightly job flags as is_group_bucket (40+ distinct makes in stock or 1,500+ units): dealer-group
+ *        websites attributed to a single rooftop (like 16951). They stay in every table; the flag lets the page hide them.
  */
-import { DEALER_VINS_SQL, DEFAULTS, SIZES_SQL, SUSPECTS_SQL, TABLE_EVENTS_SQL, TABLE_RANGE_SQL, chunk, deriveEvents, excludedSet, parseExcludedEnv, priceDiffValidationSql, stratifiedSample, DAYS_FOR_VINS_SQL } from "./dealerAnalyticsCore.js";
+import { DEALER_VINS_SQL, DEFAULTS, GROUP_BUCKET_MIN_MAKES, GROUP_BUCKET_MIN_UNITS, SIZES_SQL, SUSPECTS_SQL, TABLE_EVENTS_SQL, TABLE_RANGE_SQL, chunk, deriveEvents, excludedSet, parseExcludedEnv, priceDiffValidationSql, stratifiedSample, DAYS_FOR_VINS_SQL } from "./dealerAnalyticsCore.js";
 import { log, makePool } from "./dealerAnalyticsBox.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const [k, v] = a.replace(/^--/, "").split("="); return [k, v ?? true]; }));
@@ -53,9 +54,11 @@ try {
     log(`[probe] tables vs days (${lo}..${hi}): ${found}/${derived} derived changes present (${pct(found, derived)}%), ${extra} table rows with no derived match (threshold ${min}%)`);
     if (pct(found, derived) < min) code = 1;
   } else if (args.suspects) {
-    const rows = await db.q(SUSPECTS_SQL, [Number(args["min-units"]) || 1500]);
+    const rows = await db.q(SUSPECTS_SQL, [GROUP_BUCKET_MIN_UNITS, GROUP_BUCKET_MIN_MAKES]);
     console.table(rows.slice(0, 40).map((r) => ({ dealer: r.dealer_id, units: Number(r.units), makes: Number(r.makes) })));
-    log(`[probe] ${rows.length} dealers at or over the unit threshold; ${rows.filter((r) => Number(r.makes) >= 12).length} list 12+ makes`);
+    const byUnits = rows.filter((r) => Number(r.units) >= GROUP_BUCKET_MIN_UNITS).length;
+    const byMakes = rows.filter((r) => Number(r.makes) >= GROUP_BUCKET_MIN_MAKES).length;
+    log(`[probe] ${rows.length} dealers flagged as group buckets (${byUnits} by ${GROUP_BUCKET_MIN_UNITS}+ units, ${byMakes} by ${GROUP_BUCKET_MIN_MAKES}+ makes), ${rows.reduce((a, r) => a + Number(r.units), 0)} units`);
   } else {
     console.error("usage: dealer-analytics-probe.mjs --price-diff | --tables | --suspects (see the file header)");
     code = 2;
