@@ -162,9 +162,9 @@ export function UsedQuoteForm({
     const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
     const mandatoryTotal = dasTotal - taxTotal;
     const docFee = dueAtSigningSum(items.filter((i) => /\bdoc/i.test(i.name)));
-    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges.
+    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges. Surcharges are not in it (nor in the buyer's % off MSRP).
     const msrpNum = num(f.msrp);
-    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + surchargeTotal + docFee) * 100) / 100 : null;
+    const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
     const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
     return { sellingPrice, items, addOnLines, surchargeLines, surchargeTotal, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
   }, [f, effFees, addOns, surcharges, rebates, noTaxEstimate, zipRate]);
@@ -344,11 +344,11 @@ export function UsedQuoteForm({
       {standing ? <span /> : <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${key} line`}><Trash2 className="h-3.5 w-3.5" /></button>}
     </div>
   );
-  /** A surcharge line: name, amount, remove — plus the required short reason the buyer sees under a "Dealer-imposed" label. */
+  /** A surcharge line: name, amount, remove — plus the required short reason the buyer sees. */
   const surchargeRow = (it: Item, i: number) => (
     <div key={i} className="space-y-1" data-testid="surcharge-line">
       {plainFeeRow(it, i, surcharges, setSurcharges, "surcharge", false)}
-      <input type="text" value={it.reason || ""} maxLength={SURCHARGE_REASON_MAX} onChange={(e) => setSurcharges((p) => p.map((x, j) => (j === i ? { ...x, reason: e.target.value } : x)))} placeholder="Reason — shown to the buyer as dealer-imposed, e.g. dealer-installed lot protection" aria-label="Surcharge reason" data-testid="surcharge-reason" className={input} />
+      <input type="text" value={it.reason || ""} maxLength={SURCHARGE_REASON_MAX} onChange={(e) => setSurcharges((p) => p.map((x, j) => (j === i ? { ...x, reason: e.target.value } : x)))} placeholder="Reason — shown to the buyer, e.g. dealer-installed lot protection" aria-label="Surcharge reason" data-testid="surcharge-reason" className={input} />
     </div>
   );
   const out = (title: string, value: string | null, strong = false) => (
@@ -420,7 +420,7 @@ export function UsedQuoteForm({
                       <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
                     </>
                   ) : null}
-                  <p className={hintCls}>Not part of the sales-tax base. Counted in the out-the-door price and in % off MSRP, never folded into the selling price. Each needs a short reason; the buyer sees it as dealer-imposed.</p>
+                  <p className={hintCls}>Not part of the sales-tax base, and not part of % off MSRP (selling price vs. MSRP only). Counted in the out-the-door price, never folded into the selling price. Each needs a short reason the buyer sees. A county tax line shows as "County tax (required)".</p>
                 </>
               ), "$0 or each one named")}
               {eqBlock("+", "Mandatory fees", "eq-mandatory-fees", (
@@ -538,7 +538,7 @@ export function UsedQuoteForm({
                 <button type="button" onClick={() => setSurcharges((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300" data-testid="add-surcharge"><Plus className="h-3 w-3" /> Add a surcharge line</button>
               </>
             ) : null}
-            <p className={hintCls}>Each surcharge is its own named line. Not part of the sales-tax base; it is rolled into the amount financed and cash due and counted in % off MSRP. Each needs a short reason; the buyer sees it as dealer-imposed. Either list them or confirm none.</p>
+            <p className={hintCls}>Each surcharge is its own named line. Not part of the sales-tax base or % off MSRP; it is rolled into the amount financed and cash due. Each needs a short reason the buyer sees. Either list them or confirm none.</p>
           </section>
 
           <section className="space-y-2.5" data-testid="rebates">
@@ -606,7 +606,7 @@ export function UsedQuoteForm({
                 {d.rebateTotal ? out("Rebates / credits", `−${money(d.rebateTotal)}`) : null}
               </div>
               <div className="border-t border-border/60 pt-2 space-y-1" data-testid="pct-of-msrp">
-                {out("Price + add-ons + surcharges + doc fee", money(d.dealerAsk))}
+                {out("Price + add-ons + doc fee", money(d.dealerAsk))}
                 {out("as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.dealerAsk != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
               </div>
             </>

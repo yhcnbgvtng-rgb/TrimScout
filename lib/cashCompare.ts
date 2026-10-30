@@ -14,12 +14,11 @@ export type MsrpDiscount =
   | { status: "none" }
   | { status: "off" | "above" | "at"; msrp: number; dollars: number; pct: number; ratio: number };
 
-/** (MSRP − (selling price + surcharges)) / MSRP — before fees, taxes and add-ons. No usable MSRP (older quotes) → "none". */
-export function msrpDiscount(q: Pick<CashFigures, "sellingPrice" | "msrp"> & Partial<Pick<CashFigures, "surcharges">>): MsrpDiscount {
+/** (MSRP − selling price) / MSRP — selling price only: no surcharges, fees, taxes or add-ons. No usable MSRP (older quotes) → "none". */
+export function msrpDiscount(q: Pick<CashFigures, "sellingPrice" | "msrp">): MsrpDiscount {
   const msrp = q.msrp;
   if (typeof msrp !== "number" || !Number.isFinite(msrp) || msrp <= 0) return { status: "none" };
-  // Surcharges count as part of the price, so a dealer can't move money into one to inflate the discount.
-  const price = q.sellingPrice + dueAtSigningSum(q.surcharges);
+  const price = q.sellingPrice;
   const dollars = r2(msrp - price);
   const ratio = (msrp - price) / msrp;
   const pct = Math.round(Math.abs(ratio) * 1000) / 10;
