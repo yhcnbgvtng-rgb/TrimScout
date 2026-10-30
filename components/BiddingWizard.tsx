@@ -19,8 +19,8 @@ import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
 import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
-import { fetchAltSticker, needsAltSticker, unverifiedLabel, withStickerFacts, type AltStickerState } from "../lib/altSticker";
-import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, type MustHaveRef } from "../lib/alternateCompare";
+import { fetchAltSticker, importAndPrime, needsAltSticker, unverifiedLabel, withStickerFacts, type AltStickerState } from "../lib/altSticker";
+import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, sameTrim, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
 import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import {
@@ -56,7 +56,6 @@ import { EMPTY_ALTERNATE_DRAFT, LANE_COPY, type AlternateAskDraft, type RfqLane 
 import { clearParkedVehicle, parkVehicle, parkedVehicleLabel, readParkedVehicle, type ParkedVehicle } from "../lib/parkedVehicle";
 import {
   classifyPaste,
-  importPastedFactoryVehicle,
   type FactoryBuildOem,
   type FactoryFilterableOption,
   type PasteImportSuccess,
@@ -1041,7 +1040,7 @@ function FactoryOptionsCompare({
         {/* Factory build */}
         <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Factory build</div>
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Trim</div>
-        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.trim, i > 0 && !sameText(v.trim, primary.trim))}</React.Fragment>)}
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.trim, i > 0 && !sameTrim(v.trim, primary.trim))}</React.Fragment>)}
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Drivetrain</div>
         {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.drivetrain, i > 0 && normalizeDrivetrain(v.drivetrain || "") !== normalizeDrivetrain(primary.drivetrain || ""))}</React.Fragment>)}
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Exterior color</div>
@@ -1853,7 +1852,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // knownVin: a seeded car whose link names no VIN — the buyer picked it on search, so we already have it.
     const vinForBuild = resolution.vinFromUrl || knownVin;
     if (vinForBuild) {
-      const built = await importPastedFactoryVehicle(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
+      const built = await importAndPrime(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...importOpt, freeDecodeOnly: intent === "alternate" });
       if (built.ok) prebuilt = built;
       else prebuildError = built.error;
     }
@@ -1904,7 +1903,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const result =
       prebuilt && prebuilt.vehicle.vin === choice.vin
         ? prebuilt
-        : await importPastedFactoryVehicle(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
+        : await importAndPrime(choice.vin, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       setLinkError(result.error);
       setLinkBusy(false);
@@ -2019,7 +2018,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // An alternate is seated as used only when its listing says so (the effect below has already checked it matches the
     // primary's kind).
     const condOpt = slot === "primary" ? (listedUsed ? { condition: car.condition as UsedCondition } : usedOpt) : car.condition === "used" || car.condition === "cpo" ? { condition: car.condition as UsedCondition } : {};
-    const result = await importPastedFactoryVehicle(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
+    const result = await importAndPrime(car.vin, fetch, { existingVehicles: slotVehicles(slot), ...condOpt, freeDecodeOnly: intent === "alternate" });
     if (!result.ok) {
       if (slot === "primary") setParseError(result.error);
       else if (slot === "alt1") setAltError1(result.error);
@@ -2084,7 +2083,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setMustHavePackages([]);
     setWantsMustHaves(false);
 
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [altVehicle1, altVehicle2],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",
@@ -2143,7 +2142,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const current = selectedVehicle;
     setRetryingBuild(true);
     trackEvent("factory_build_retry", factoryBuildPendingProps(current));
-    const result = await importPastedFactoryVehicle(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt, freeDecodeOnly: intent === "alternate" });
+    const result = await importAndPrime(current.vin, fetch, { existingVehicles: [altVehicle1, altVehicle2], ...usedOpt, freeDecodeOnly: intent === "alternate" });
     if (result.ok) {
       const location = result.vehicle.location?.dealerName?.trim() && !current.location?.dealerName?.trim() ? result.vehicle.location : current.location;
       commitPrimaryImport({ ...result, vehicle: { ...result.vehicle, location, dealerUrl: current.dealerUrl, buyerConfirmed: current.buyerConfirmed, resolvePath: result.factoryBuildUnavailable ? "factory_pending" : current.resolvePath === "factory_pending" ? "url_only" : current.resolvePath } });
@@ -2198,7 +2197,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (await parkLink("alt1", raw)) return;
     setAltParsing1(true);
     setAltError1(null);
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle2],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",
@@ -2244,7 +2243,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     if (await parkLink("alt2", raw)) return;
     setAltParsing2(true);
     setAltError2(null);
-    const result = await importPastedFactoryVehicle(raw, fetch, {
+    const result = await importAndPrime(raw, fetch, {
       existingVehicles: [selectedVehicle, altVehicle1],
       ...usedOpt,
       freeDecodeOnly: intent === "alternate",

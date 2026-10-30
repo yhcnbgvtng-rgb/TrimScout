@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { diffLine, diffVsPrimary, leadingCode, mustHaveHeadline, mustHaveReport } from "./alternateCompare";
+import { diffLine, diffVsPrimary, leadingCode, mustHaveHeadline, mustHaveReport, normalizeTrim, sameTrim } from "./alternateCompare";
 import type { Vehicle } from "./types";
 
 const car = (o: Partial<Vehicle>): Vehicle =>
@@ -240,5 +240,24 @@ describe("mustHaveReport — color and engine read the car's own fields", () => 
     assert.equal(wrong.kind === "scored" && wrong.missing.length, 1);
     const blank = mustHaveReport([{ name: "5.0L V8 Engine" }], f150(VINS[1], { engine: "", transmission: "" }));
     assert.equal(blank.kind === "scored" && blank.unknown.length, 1);
+  });
+});
+
+describe("sameTrim — the same trim spelled two ways (2026-10-29)", () => {
+  it("'Trail Boss - LT' and 'LT Trail Boss' are one trim", () => {
+    assert.equal(sameTrim("Trail Boss - LT", "LT Trail Boss"), true);
+    assert.equal(normalizeTrim("Trail Boss - LT"), normalizeTrim("LT Trail Boss"));
+    assert.equal(sameTrim("high country", "High-Country"), true);
+  });
+  it("a real difference still counts: LT is not LTZ, and a trim is not the bare model", () => {
+    assert.equal(sameTrim("LT", "LTZ"), false);
+    assert.equal(sameTrim("LT Trail Boss", "LTZ Trail Boss"), false);
+    assert.equal(sameTrim("LT Trail Boss", "LT"), false);
+    assert.equal(sameTrim("Trail Boss - LT", "Z71 - LT"), false);
+  });
+  it("the diff keeps each card's own spelling and calls the pair the same, but flags LT vs LTZ", () => {
+    const silverado = (trim: string) => car({ make: "Chevrolet", model: "Silverado 1500", trim });
+    assert.equal(diffLine(diffVsPrimary(silverado("Trail Boss - LT"), silverado("LT Trail Boss"))), "Same LT Trail Boss");
+    assert.equal(diffLine(diffVsPrimary(silverado("LT"), silverado("LTZ"))), "LTZ (favorite: LT)");
   });
 });

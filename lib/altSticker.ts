@@ -2,10 +2,10 @@
  * Factory-sticker check for the two alternates in the Configure Quote Request compare.
  *
  * The same /api/gm-sticker import the same-spec lane uses, once per alternate VIN, Chevrolet and GMC only. Answers are
- * cached for the session. GM's answers are respected: an unreleased or unavailable sticker is a final answer (no retry),
+ * cached for the session, and the seat-time import primes the cache (primeAltSticker), so a car is asked about once. GM's answers are respected: an unreleased or unavailable sticker is a final answer (no retry),
  * and a refusal (403/429) stops every further sticker request until the page reloads.
  */
-import { importPastedFactoryVehicle } from "./pasteImport";
+import { importPastedFactoryVehicle, type PasteImportResult } from "./pasteImport";
 import type { Vehicle } from "./types";
 
 export type AltStickerState =
@@ -34,22 +34,42 @@ export function needsAltSticker(v: Vehicle | null): v is Vehicle {
   return GM_ALT_MAKES.has((v.make || "").trim().toLowerCase()) && VIN.test((v.vin || "").toUpperCase());
 }
 
+/** What GM's sticker route said about one car, in the three words the compare uses. */
+function settle(r: PasteImportResult): AltStickerResult {
+  if (!r.ok) return { state: { status: r.unreleased ? "unreleased" : "unverified" } };
+  if (r.stickerBlocked) {
+    refused = true;
+    return { state: { status: "unverified" } };
+  }
+  if (r.buildConfidence === "verified_factory") return { state: { status: "verified" }, vehicle: r.vehicle };
+  if (r.stickerUnavailable) return { state: { status: "unverified" } };
+  return { state: { status: r.factoryBuildUnavailable ? "unreleased" : "unverified" } };
+}
+
+/**
+ * Remember what a seat-time import already learned from /api/gm-sticker, so the compare's check does not ask again.
+ * Only a Chevrolet/GMC car that went through the GM route counts: a free decode (alternate lane) or used import has no sticker answer.
+ */
+export function primeAltSticker(r: PasteImportResult): void {
+  if (!r.ok || r.oem !== "gm" || !GM_ALT_MAKES.has((r.vehicle.make || "").trim().toLowerCase())) return;
+  const key = r.vehicle.vin.trim().toUpperCase();
+  if (!answers.has(key)) answers.set(key, Promise.resolve(settle(r)));
+}
+
+/** importPastedFactoryVehicle, plus priming the alternate check with its answer. */
+export async function importAndPrime(...args: Parameters<typeof importPastedFactoryVehicle>): Promise<PasteImportResult> {
+  const result = await importPastedFactoryVehicle(...args);
+  primeAltSticker(result);
+  return result;
+}
+
 export function fetchAltSticker(vin: string, fetchImpl: typeof fetch = fetch): Promise<AltStickerResult> {
   const key = vin.trim().toUpperCase();
   const cached = answers.get(key);
   if (cached) return cached;
   if (refused) return Promise.resolve({ state: { status: "unverified" } });
   const run = importPastedFactoryVehicle(key, fetchImpl, { vin: key })
-    .then((r): AltStickerResult => {
-      if (!r.ok) return { state: { status: r.unreleased ? "unreleased" : "unverified" } };
-      if (r.stickerBlocked) {
-        refused = true;
-        return { state: { status: "unverified" } };
-      }
-      if (r.buildConfidence === "verified_factory") return { state: { status: "verified" }, vehicle: r.vehicle };
-      if (r.stickerUnavailable) return { state: { status: "unverified" } };
-      return { state: { status: r.factoryBuildUnavailable ? "unreleased" : "unverified" } };
-    })
+    .then(settle)
     .catch((): AltStickerResult => ({ state: { status: "unverified" } }));
   answers.set(key, run);
   return run;

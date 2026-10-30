@@ -2,7 +2,7 @@
 // GM's answers respected (unreleased/unavailable are final, a refusal stops everything), and the labels the compare shows.
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
-import { fetchAltSticker, needsAltSticker, resetAltStickerCache, unverifiedLabel, withStickerFacts } from "./altSticker";
+import { fetchAltSticker, importAndPrime, needsAltSticker, resetAltStickerCache, unverifiedLabel, withStickerFacts } from "./altSticker";
 import type { Vehicle } from "./types";
 
 const VIN_A = "3GCUKFE80TG438076";
@@ -64,6 +64,31 @@ describe("alternate sticker check", () => {
     assert.equal((await fetchAltSticker(VIN_A, impl)).state.status, "unreleased");
     assert.equal((await fetchAltSticker(VIN_A, impl)).state.status, "unreleased");
     assert.equal(calls.length, 1);
+  });
+
+  it("an alternate whose sticker is unreleased is asked about once: the seat import primes the check", async () => {
+    const { impl, calls } = stub((vin) => unreleased(vin));
+    const seated = await importAndPrime(VIN_A, impl, { existingVehicles: [] });
+    assert.equal(seated.ok, true);
+    const check = await fetchAltSticker(VIN_A, impl);
+    await fetchAltSticker(VIN_A, impl);
+    assert.equal(check.state.status, "unreleased");
+    assert.equal(calls.length, 1, "the check reused the seat import's answer");
+  });
+
+  it("a seat import that GM refused stops the next alternate's check too", async () => {
+    const { impl, calls } = stub((vin) => unavailable(vin, { stickerBlocked: true }));
+    await importAndPrime(VIN_A, impl, {});
+    assert.equal((await fetchAltSticker(VIN_A, impl)).state.status, "unverified");
+    assert.equal((await fetchAltSticker(VIN_B, impl)).state.status, "unverified");
+    assert.equal(calls.length, 1);
+  });
+
+  it("a free decode (alternate lane) or another make is not mistaken for a sticker answer", async () => {
+    const free = stub((vin) => unreleased(vin));
+    await importAndPrime(VIN_A, free.impl, { freeDecodeOnly: true });
+    await fetchAltSticker(VIN_A, free.impl);
+    assert.equal(free.calls.filter((c) => c.url === "/api/gm-sticker").length, 1, "the check still asked GM itself");
   });
 
   it("an unavailable sticker or a failed request reads as not verified, also without retry", async () => {

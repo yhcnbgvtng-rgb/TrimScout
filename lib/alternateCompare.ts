@@ -169,6 +169,25 @@ export function normalizeDrivetrain(value: string): string {
   return n;
 }
 
+/** GM trim and package words whose order and separators carry no meaning: "Trail Boss - LT" is "LT Trail Boss". */
+const GM_TRIM_WORDS = new Set([
+  "ls", "lt", "ltz", "rst", "wt", "custom", "premier", "rs", "ss", "sport", "midnight", "redline", "activ", "ultimate", "pro",
+  "trail", "boss", "high", "country", "z71", "zr2", "at4", "at4x", "denali", "sle", "slt", "elevation",
+  "1lt", "2lt", "3lt", "1lz", "2lz", "3lz", "1ss", "2ss",
+]);
+
+/** Lower-cased words with separators dropped; known GM trim words come first in a fixed order, the rest keep theirs. */
+export function normalizeTrim(trim: string | null | undefined): string {
+  const words = (trim || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+  const known = words.filter((w) => GM_TRIM_WORDS.has(w)).sort();
+  return [...known, ...words.filter((w) => !GM_TRIM_WORDS.has(w))].join(" ");
+}
+
+/** Two spellings of the same trim ("Trail Boss - LT" / "LT Trail Boss"); "LT" and "LTZ" stay different. */
+export function sameTrim(a: string | null | undefined, b: string | null | undefined): boolean {
+  return normalizeTrim(a) === normalizeTrim(b);
+}
+
 function labelTrim(v: Vehicle): string {
   return [v.trim].filter(Boolean).join(" ").trim();
 }
@@ -189,7 +208,7 @@ export function diffVsPrimary(primary: Vehicle, alternate: Vehicle, exclude: Mus
     // only mean something between two builds of the same car.
     chips.push({ kind: "different", text: `Different model: ${[alternate.make, alternate.model, aTrim].filter(Boolean).join(" ")} (favorite: ${[primary.make, primary.model, pTrim].filter(Boolean).join(" ")})` });
   } else if (pTrim && aTrim) {
-    chips.push(norm(pTrim) === norm(aTrim) ? { kind: "same", text: `Same ${aTrim}` } : { kind: "different", text: `${aTrim} (favorite: ${pTrim})` });
+    chips.push(sameTrim(pTrim, aTrim) ? { kind: "same", text: `Same ${aTrim}` } : { kind: "different", text: `${aTrim} (favorite: ${pTrim})` });
   }
   if (primary.drivetrain && alternate.drivetrain && normalizeDrivetrain(primary.drivetrain) !== normalizeDrivetrain(alternate.drivetrain)) {
     chips.push({ kind: "different", text: `${alternate.drivetrain} (favorite: ${primary.drivetrain})` });
