@@ -60,12 +60,10 @@ describe('deals_api_server.js patch', { skip: hasPatch ? false : 'no patch(1) on
     execFileSync(process.execPath, ['--check', path.join(dir, 'dealerAnalyticsApi.js')]);
   });
 
-  it('the patched live text and the repo mirror carry the same three insertions', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dealeranalytics-'));
-    const f = path.join(dir, 'deals_api_server.js');
-    fs.copyFileSync(SNAP, f);
-    execFileSync('patch', ['-F0', '-s', '--no-backup-if-mismatch', f], { input: fs.readFileSync(path.join(PKG, 'deals_api_server.js.patch')) });
-    const added = (file) => fs.readFileSync(file, 'utf8').split('\n').filter((l) => /dealerAnalytics|DealerAnalytics|dealer-analytics|Dealer Analytics read endpoints|max_statement_time=8/.test(l));
-    assert.deepEqual(added(path.join(ROOT, 'scrapers/lightsail-crawler/src/deals_api_server.js')), added(f));
+  it('the repo mirror stays untouched: the sweep-guards package pins its md5, the wiring ships only in this box patch', () => {
+    const mirror = fs.readFileSync(path.join(ROOT, 'scrapers/lightsail-crawler/src/deals_api_server.js'), 'utf8');
+    assert.ok(!/dealerAnalytics|DealerAnalytics/.test(mirror));
+    const patch = fs.readFileSync(path.join(PKG, 'deals_api_server.js.patch'), 'utf8');
+    assert.equal((patch.match(/^\+(?!\+\+)/gm) || []).length >= 20, true);
   });
 });

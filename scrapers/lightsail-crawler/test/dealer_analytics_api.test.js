@@ -312,10 +312,11 @@ describe('cache use', () => {
     await dealers(api);
     assert.notEqual(keys[0], keys[1]);
   });
-  it('the module never uses the upsert-cleared invCached and the server wires its own stable cache instance', () => {
+  it('the module never uses the upsert-cleared invCached and the box patch wires its own stable cache instance', () => {
     const mod = fs.readFileSync(path.join(SRC, 'dealerAnalyticsApi.js'), 'utf8');
     assert.ok(!/invCached|invCache|invInvalidate/.test(mod.replace(/\/\/.*$/gm, '')), 'no invCached in code');
-    const srv = fs.readFileSync(path.join(SRC, 'deals_api_server.js'), 'utf8');
+    // The wiring lives in the box patch (cut against box2's live deals_api_server.js), NOT in the repo mirror: sweep-guards-install.test.mjs pins the mirror's md5.
+    const srv = fs.readFileSync(path.join(SRC, '..', '..', '..', 'docs/box-patches/2026-10-30-dealer-analytics-api/deals_api_server.js.patch'), 'utf8');
     assert.match(srv, /import \{ createDealerAnalyticsApi, matchDealerAnalyticsRoute \} from "\.\/dealerAnalyticsApi\.js";/);
     assert.match(srv, /const dealerAnalyticsCached = createStableCache\(\{[\s\S]*?\}\)\.get;/);
     assert.match(srv, /cache: dealerAnalyticsCached,/);
