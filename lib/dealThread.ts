@@ -62,7 +62,7 @@ export function canPostToThread(rfq: Pick<RfqRequest, "status">, invite: Pick<Rf
 }
 
 /** " (includes surcharges: Doc surcharge $400)" — empty for quotes with none, including every quote sent before surcharges existed. */
-const surchargeNote = (u: Parameters<typeof surchargeSummary>[0]) => { const t = surchargeSummary(u); return t ? ` (includes dealer-imposed surcharges: ${t})` : ""; };
+const surchargeNote = (u: Parameters<typeof surchargeSummary>[0]) => { const t = surchargeSummary(u); return t ? ` (includes surcharges: ${t})` : ""; };
 
 function quoteHeadline(q: RfqQuote): string {
   if (q.lease) return `${usd(q.lease.monthlyPaymentPreTax)}/mo lease`;

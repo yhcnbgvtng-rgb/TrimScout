@@ -13,7 +13,7 @@ import { appraisalForCompare } from "../lib/trade/confirm";
 import { bestDeal, financeAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
 import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { compareCashQuotes, msrpDiscount, otdExcludingAddOns } from "../lib/cashCompare";
-import { cashOutTheDoor, compareFinanceQuotes, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
+import { cashOutTheDoor, compareFinanceQuotes, isCountyTaxSurcharge, surchargeLabel, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import { waitingDeliveryLabel } from "../lib/quotePackage";
 import type { RfqRequest } from "../lib/rfq";
@@ -166,7 +166,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           {disc.status === "above" ? <span className="text-amber-200">{fmtMoney(disc.dollars)} · above MSRP</span>
             : disc.status === "at" ? <>At MSRP</>
             : <>{fmtMoney(disc.dollars)} · {disc.pct}% off</>}
-          <span className="block text-[10px] font-normal text-ink-muted">MSRP {fmtMoney(disc.msrp)}{used?.surcharges?.length ? " · on price + surcharges" : ""}</span>
+          <span className="block text-[10px] font-normal text-ink-muted">MSRP {fmtMoney(disc.msrp)}</span>
         </span>;
     const gap = used?.kind === "cash" && !excluded && !expired ? cmp.gapToBest[invite.id] : undefined;
     const vsBest = gap === undefined || cashLive.length < 2 ? null
@@ -208,8 +208,10 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           <ul className="mt-1 space-y-1 text-[10px] text-ink-light tabular-nums">
             {used.surcharges.map((l, i) => (
               <li key={i}>
-                <span className="flex justify-between gap-3"><span className="text-ink-muted">{l.name}</span><span>{fmtMoney(l.amount)}</span></span>
-                <span className="block text-[9px] font-normal text-amber-200/90" data-testid="dealer-imposed">Dealer-imposed{l.reason ? ` — ${l.reason}` : ""}</span>
+                <span className="flex justify-between gap-3"><span className="text-ink-muted">{surchargeLabel(l)}</span><span>{fmtMoney(l.amount)}</span></span>
+                {isCountyTaxSurcharge(l)
+                  ? (l.reason ? <span className="block text-[9px] font-normal text-ink-muted" data-testid="county-tax-reason">{l.reason}</span> : null)
+                  : <span className="block text-[9px] font-normal text-amber-200/90" data-testid="dealer-imposed">Dealer-imposed{l.reason ? ` — ${l.reason}` : ""}</span>}
               </li>
             ))}
           </ul>

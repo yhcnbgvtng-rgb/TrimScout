@@ -223,10 +223,15 @@ export const SURCHARGE_REASON_MAX = 140;
 /** A soft warning (never a block) once surcharges total more than this share of the selling price. */
 export const SURCHARGE_WARN_RATIO = 0.1;
 
+/** A county-tax line entered under Surcharges. It is a required government charge, not something the dealer imposes, so it is labelled "County tax (required)". */
+export const isCountyTaxSurcharge = (l: { name?: string | null } | null | undefined): boolean => /\bcounty\b[^,]{0,30}\btax\b/i.test(String(l?.name || ""));
+export const COUNTY_TAX_LABEL = "County tax (required)";
+export const surchargeLabel = (l: { name?: string | null }): string => (isCountyTaxSurcharge(l) ? COUNTY_TAX_LABEL : String(l.name || "").trim());
+
 /** "Doc surcharge $400 (reason), Market adjustment $1,000 (reason)" — null when the quote has none (older quotes, or "No surcharges"). */
 export function surchargeSummary(q: { surcharges?: LineItem[] | null } | null | undefined): string | null {
   const lines = (q?.surcharges || []).filter((l) => l && String(l.name || "").trim() && Number(l.amount) > 0);
-  return lines.length ? lines.map((l) => `${String(l.name).trim()} $${Number(l.amount).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}${l.reason?.trim() ? ` (${l.reason.trim()})` : ""}`).join(", ") : null;
+  return lines.length ? lines.map((l) => `${surchargeLabel(l)} $${Number(l.amount).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}${l.reason?.trim() ? ` (${l.reason.trim()})` : ""}`).join(", ") : null;
 }
 
 export function lineSum(items: LineItem[] | null | undefined): number {
