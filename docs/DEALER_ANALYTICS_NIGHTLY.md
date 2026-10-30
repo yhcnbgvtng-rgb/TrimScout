@@ -20,9 +20,9 @@ Caveat that stays: a zero-change day is not proof of a quiet day. 10-25 and 10-3
 
 | Table | Key | Rows | Purpose |
 |---|---|---|---|
-| `dealer_price_changes` | `(dealer_id, changed_on, vin)` | about 240k/day (about 24 MB/day); backfill about 8M | one row per observed change: `prev_on`, `old_price`, `new_price` |
+| `dealer_price_changes` | `(dealer_id, changed_on, vin)` | about 80k to 110k/day (measured, about 10 MB/day); backfill about 2.5M | one row per observed change: `prev_on`, `old_price`, `new_price` |
 | `dealer_daily_summary` | `(dealer_id, day)` | about 9,500/day | units, make count, `is_group_bucket`, new/used, avg price, avg DOM, age buckets 0-30/31-60/61-90/90+, added/removed (day and 7d), drop units and average $/% drop (7d, 30d) |
-| `market_price_daily` | `(day, make, model, year, cond)` | about 289 makes; row count is measured by a dry run | units, dealer count and average price per make/model/year/condition |
+| `market_price_daily` | `(day, make, model, year, cond)` | about 22k/day (measured: 289 makes) | units, dealer count and average price per make/model/year/condition |
 | `dealer_analytics_runs` | `(day, started_at)` | 1/day | completion marker (makes the cron idempotent) and "data as of" for the page |
 
 `day` is the UTC date at run time, the same convention as `dealer_inventory_days.seen_on`. Retention is not implemented in this PR (plan: prune `dealer_price_changes` past 400 days).
@@ -42,16 +42,19 @@ Caveat that stays: a zero-change day is not proof of a quiet day. 10-25 and 10-3
 
 Exit codes: 0 ok / already done, 2 not ready (nothing written), 4 stopped at the deadline or because a crawl started, 1 error.
 
-## Cost (measured read-only on box2, 2026-10-30, box idle)
+## Cost (dry run on box2, 2026-10-30 18:13 to 18:49 ET, reader account, read-only)
 
-| Query | Result | Time |
+The first full dry run (`--steps=changes,market` plus the real summary SQL over every dealer range) took **36 minutes 28 seconds**, peak memory 825 MB, load average about 1 on an otherwise idle box2:
+
+| Step | Result | Time |
 |---|---|---|
-| candidates: VINs with `last_seen_at` in the last 2 days (covering index) | 2.02M (carry-forward bumps most stock, so this is nearly everything) | 2.6 s |
-| days rows for 1,000 VINs, 16-day lookback | 10k rows | 0.19 s, so about 2,000 batches, about 7 min |
-| summary for 250 dealer ids | 121 dealers | 0.32 s, so about 73 ranges, about 30 s |
-| market average for Toyota | 1,248 groups | 1.5 s, 289 makes |
+| price changes, window 10-29..10-30 | 1,995,195 VINs checked (carry-forward bumps `last_seen_at`, so this is nearly all stock); **108,512 changes** (90,700 drops, 17,812 increases): 81,124 dated 10-29, 27,388 dated 10-30 (a partial day when it ran) | 14 min 44 s |
+| market averages | 289 makes, **22,019** make/model/year/condition rows | 9 min 22 s |
+| daily summary | **9,630 dealers**, 2,897,842 active units, **117 flagged `is_group_bucket`** (299,509 units) | 12 min 21 s |
 
-Expected total about 10 to 15 minutes, throttled 200 ms between batches, statements capped at 120 s (`max_statement_time`). Candidates are held in memory (about 2M VINs, a few hundred MB); the box has 16 GB. Needs a measured first run (dry run) before the cron goes in.
+The earlier read-only estimate (10 to 15 minutes, about 240k changes a day) was too low on both counts: it ignored the 200 ms throttle between batches and it used the persisted `price_diff` count (which includes carry-over). Real change volume is about 80k a day. 36 minutes finishes comfortably before the 21:30 ET stop for any start time up to 18:00 ET, but it is long enough that the job should start right after the sync (cron hourly from 10:00 ET).
+
+Statements are capped at 120 s (`max_statement_time`). The price-drop columns of the summary were not part of this run (the table does not exist yet): that query is a small range scan on the new table's primary key.
 
 ## Files (PR 1)
 
@@ -63,9 +66,9 @@ Expected total about 10 to 15 minutes, throttled 200 ms between batches, stateme
 
 ## Install (each step needs its own GO)
 
-1. Copy the files above into `~/dealer-analytics/` on box2 and create `~/dealer-analytics/.env` with the deals-api's `DB_*` values (`DB_WRITER_*` and `DB_READER_*`). `TRIMSCOUT_API_KEY` comes from `~/inventory-sync/.env`. Record md5s.
+1. Copy the files above plus `scripts/box/package.json` (`{"type":"module"}`, without it node treats the `.js` files as CommonJS) into `~/dealer-analytics/` on box2 and create `~/dealer-analytics/.env` with the deals-api's `DB_*` values (`DB_WRITER_*` and `DB_READER_*`). `TRIMSCOUT_API_KEY` comes from `~/inventory-sync/.env`. Record md5s.
 2. `node dealer-analytics-probe.mjs --price-diff --sample=20` and `--suspects` (read-only).
-3. `node dealer-analytics-nightly.mjs --dry-run` once: row counts and a timing, no writes.
+3. `node dealer-analytics-nightly.mjs --dry-run` once: row counts and a timing, no writes (works before the tables exist; the price-drop columns then read 0). Only starts between 06:00 and 18:00 ET, after the sync and with no crawl running.
 4. GO: `--create-tables`.
 5. GO: `dealer-analytics-backfill.mjs` dry run, then `--apply` in an idle window (resumable; pauses itself at 21:30 ET), then `dealer-analytics-probe.mjs --tables` (must be 98% or better).
 6. GO: cron, for example `15 10-17 * * * /home/ubuntu/dealer-analytics/run_dealer_analytics.sh` (hourly; finished days are skipped).

@@ -164,11 +164,20 @@ export async function buildSummary({ q, ctx, cfg, excluded, day, dryRun, log, co
   const sSql = summarySql(day, excluded);
   const dSql = dropsSql(day);
   let dealers = 0;
+  let warnedNoChanges = false;
   for (const [from, to] of dealerRanges(maxId, cfg.dealerChunk)) {
     await ctx.checkpoint();
     const sums = await q(sSql, [from, to]);
     if (!sums.length) continue;
-    const drops = new Map((await q(dSql, [from, to])).map((r) => [Number(r.dealer_id), r]));
+    let dropRows = [];
+    try {
+      dropRows = await q(dSql, [from, to]);
+    } catch (err) {
+      // A dry run before the tables exist has no change history yet: drops read as 0 instead of stopping the run.
+      if (!(dryRun && err && (err.code === "ER_NO_SUCH_TABLE" || err.errno === 1146))) throw err;
+      if (!warnedNoChanges) { log("[dealer-analytics] dealer_price_changes does not exist yet: price-drop columns are 0 in this dry run"); warnedNoChanges = true; }
+    }
+    const drops = new Map(dropRows.map((r) => [Number(r.dealer_id), r]));
     const out = sums.map((s) => summaryRow(day, s, drops.get(Number(s.dealer_id)), computedAt));
     dealers += out.length;
     if (!dryRun) await q(upsertSummarySql(), [out]);
