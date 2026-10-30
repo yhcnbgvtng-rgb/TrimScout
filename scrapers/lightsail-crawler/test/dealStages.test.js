@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applyStageAction, initialStageState, stageProgress, monthlyPayment, cashQuoteOtd, quoteTaxRate, tradeTaxSavings, TRADE_TAX_CREDIT_STATES, liveTrueOtd, financeMath, finalSummary, stageForDealer, trueOtdFor,
+  applyStageAction, initialStageState, stageProgress, monthlyPayment, cashQuoteOtd, quoteTaxRate, tradeTaxSavings, TRADE_TAX_CREDIT_STATES, liveTrueOtd, financeMath, finalSummary, stageForDealer, revealContact, trueOtdFor,
 } from '../src/dealStages.js';
 
 const NOW = new Date('2026-10-11T15:00:00Z');
@@ -576,15 +576,29 @@ describe('final acceptance and buyer-details release', () => {
     assert.equal(s.release, null);
     assert.ok(!JSON.stringify(s).includes('pat@example.com'));
   });
-  it('the dealer view hides the release unless this is the winning, finally accepted deal', () => {
+  it('the dealer view never carries the buyer details; the winner keeps only the release marker, a closed-out dealer has no release', () => {
     const accepted = finalAccepted();
-    assert.deepEqual(stageForDealer(accepted).release.contact, CONTACT);
+    assert.equal(stageForDealer(accepted).release.contact, undefined);
+    assert.ok(stageForDealer(accepted).release.at);
+    assert.ok(!JSON.stringify(stageForDealer(accepted)).includes('pat@example.com'));
     assert.equal(stageForDealer(accepted, { notSelected: true }).release, null);
     const before = must(run(atPayment(), { type: 'choose_cash', actor: 'buyer' }));
     assert.equal(stageForDealer(before).release, null);
     const tampered = { ...before, release: { at: 'x', contact: CONTACT } }; // even if a release were somehow attached early
     assert.equal(stageForDealer(tampered).release, null);
     assert.equal(stageForDealer(null), null);
+  });
+  it('revealContact: only on a finally accepted deal; stamps count/first/last and logs the reveal without the details', () => {
+    const accepted = finalAccepted();
+    refuse(revealContact(null), 'not_released');
+    refuse(revealContact(atPayment()), 'not_released');
+    const one = revealContact(accepted, new Date('2026-10-30T12:00:00Z'));
+    assert.equal(one.ok, true);
+    assert.deepEqual(one.contact, CONTACT);
+    const two = revealContact(one.state, new Date('2026-10-30T13:00:00Z'));
+    assert.deepEqual(two.state.release.reveals, { count: 2, firstAt: '2026-10-30T12:00:00.000Z', lastAt: '2026-10-30T13:00:00.000Z' });
+    assert.equal(two.state.log.filter((e) => e.type === 'buyer_contact_revealed').length, 2);
+    assert.ok(!JSON.stringify(two.state.log).includes('pat@example.com'));
   });
   it('progress shows all four steps locked after acceptance', () => {
     assert.deepEqual(stageProgress(finalAccepted()).map((p) => p.state), ['locked', 'locked', 'locked', 'locked']);

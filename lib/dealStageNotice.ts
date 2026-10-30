@@ -3,7 +3,7 @@
  * bid", never auction language, no deadline on anyone. Every email in the app goes through the SAFE MODE sender
  * (lib/dealerEmail.ts), so these land at the safe recipient whether the request is real, an audit or a test deal, and the
  * subject is tagged accordingly. No stage notice ever contains the other party's contact details; the ONE email that does is
- * buildBuyerDetailsEmail below, sent to the winning dealer after the buyer taps "Accept final deal".
+ * buildAcceptedOfferEmail below, sent to the winning dealer after the buyer taps "Accept final deal".
  */
 import type { BuyerContact, DealStageState, FinalSummary, StageAction, StageActor } from "./dealStages";
 import { PAYMENT_METHOD_LABELS } from "./dealStages";
@@ -78,7 +78,7 @@ function body(i: StageNoticeInput): { headline: string; text: string; cta: strin
     }
     case "change_payment":
       return { headline: "Buyer is changing how they pay", text: "The buyer went back to the payment choice before accepting. Nothing else changed.", cta: "Open the quote page" };
-    // accept_final has no stage notice: the dealer gets the "Deal accepted, here's your buyer" email instead (buildBuyerDetailsEmail).
+    // accept_final has no stage notice: the dealer gets the "Your offer was accepted" email instead (buildAcceptedOfferEmail).
     case "walk":
       return { headline: toDealer ? "Buyer walked away" : "Dealer walked away", text: `${toDealer ? "The buyer" : i.dealerName} ended this deal${s.walk ? ` at the ${s.walk.atStage === "otd" ? "out-the-door price" : s.walk.atStage === "trade" ? "trade-in" : s.walk.atStage === "final" ? "final review" : "payment"} stage` : ""}.${s.walk?.reason ? ` Reason given: ${s.walk.reason}` : ""} Nothing was binding.`, cta: toDealer ? "Open the quote page" : "See your request" };
     default:
@@ -97,49 +97,34 @@ export function buildTradeAddedNotice(i: { dealerName: string; vehicle: string; 
   return render({ headline: "Buyer added a trade-in", text, cta: "Offer a trade value" }, "dealer", i.vehicle, i.url);
 }
 
-export interface BuyerDetailsEmailInput {
-  dealerName: string;
+export interface AcceptedOfferEmailInput {
   vehicle: string;
-  dealReference: string;
-  summary: FinalSummary;
-  contact: BuyerContact;
-  /** The dealer's tokened quote page, where the same details are shown. */
+  vin: string;
+  /** What the buyer accepted, out the door (the true out-the-door total on the final summary). */
+  acceptedOtd: number | null;
+  /** The signed, expiring reveal page link (lib/contactRevealToken.ts). */
   url: string;
 }
 
-export const BUYER_DETAILS_SUBJECT = "Deal accepted, here's your buyer";
+export const ACCEPTED_OFFER_SUBJECT = "Your offer was accepted";
+export const REVEAL_BUTTON_LABEL = "View buyer contact info";
 
 /**
- * The email to the WINNING dealer after the buyer taps "Accept final deal": the agreed numbers and, for the first time, the
- * buyer's name, email, phone and ZIP. Sent only through the outbox's SAFE MODE sender (lib/inviteOutbox.ts), so it lands at
- * SAFE_MODE_RECIPIENT whatever the deal; audit=1 and test deals can never route anywhere else.
+ * The email to the WINNING dealer after the buyer taps "Accept final deal". It carries NO buyer name, email or phone, in the body,
+ * the subject or the link text: the button opens a page where the dealer presses "Reveal buyer contact info", which is logged.
+ * Sent only through the outbox's SAFE MODE sender (lib/inviteOutbox.ts), so it lands at SAFE_MODE_RECIPIENT whatever the deal.
  */
-export function buildBuyerDetailsEmail(i: BuyerDetailsEmailInput): { subject: string; html: string } {
-  const sm = i.summary;
-  const rows: Array<[string, string]> = [
-    ["Vehicle", i.vehicle],
-    ["Agreed out-the-door", usd(sm.otd)],
-    ...(sm.tradeValue != null ? ([["Trade-in value", usd(sm.tradeValue)]] as Array<[string, string]>) : []),
-    ...(sm.payoff > 0 ? ([["Payoff", usd(sm.payoff)]] as Array<[string, string]>) : []),
-    ["True out-the-door", usd(sm.trueOtd)],
-    ["Payment", sm.method ? PAYMENT_METHOD_LABELS[sm.method] : ""],
-    ...(sm.method === "own_financing" && sm.lenderName ? ([["Buyer's lender", sm.lenderName]] as Array<[string, string]>) : []),
-    ...(sm.method === "dealer_finance"
-      ? ([["Down payment", usd(sm.downPayment)], ["APR / term", `${sm.apr}% for ${sm.termMonths} months`], ["Monthly payment", usd(sm.monthly)], ["Amount financed", usd(sm.amountFinanced)], ["Lender", sm.lenderName ?? ""]] as Array<[string, string]>)
-      : []),
-  ];
-  const c = i.contact;
-  const who: Array<[string, string]> = [["Name", c.name ?? "Not provided"], ["Email", c.email], ["Phone", c.phone ?? "Not provided"], ["ZIP", c.zip ?? "Not provided"]];
-  const table = (list: Array<[string, string]>) => `<table style="font-size:14px;border-collapse:collapse;width:100%">${list.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b">${esc(k)}</td><td style="padding:4px 0;font-weight:600">${esc(v)}</td></tr>`).join("")}</table>`;
+export function buildAcceptedOfferEmail(i: AcceptedOfferEmailInput): { subject: string; html: string } {
+  const rows: Array<[string, string]> = [["Vehicle", i.vehicle], ["VIN", i.vin], ["Accepted out-the-door total", i.acceptedOtd != null ? usd(i.acceptedOtd) : "As quoted"]];
+  const table = `<table style="font-size:14px;border-collapse:collapse;width:100%">${rows.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b">${esc(k)}</td><td style="padding:4px 0;font-weight:600">${esc(v)}</td></tr>`).join("")}</table>`;
   const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#111;">
-    <h1 style="font-size:18px;margin:0 0 8px;">${esc(BUYER_DETAILS_SUBJECT)}</h1>
-    <p style="font-size:14px;line-height:1.6;color:#374151;">The buyer accepted the final deal with ${esc(i.dealerName)} (reference ${esc(i.dealReference)}). Here is who they are, so you can take it from here.</p>
-    <h2 style="font-size:14px;margin:16px 0 4px;">The buyer</h2>${table(who)}
-    <h2 style="font-size:14px;margin:16px 0 4px;">The deal you agreed</h2>${table(rows)}
-    <p style="font-size:12px;color:#64748b;margin-top:16px;">Please use these details only to complete this purchase. The buyer's details were not shared with any other dealer. Final paperwork and signatures happen with you, in person or by your usual process.</p>
-    <a href="${esc(i.url)}" style="display:inline-block;margin-top:12px;padding:10px 18px;border-radius:10px;background:#22c55e;color:#000;font-weight:800;text-decoration:none;">Open the deal</a>
+    <h1 style="font-size:18px;margin:0 0 8px;">${esc(ACCEPTED_OFFER_SUBJECT)}</h1>
+    <p style="font-size:14px;line-height:1.6;color:#374151;">The buyer accepted your quote request offer.</p>
+    ${table}
+    <a href="${esc(i.url)}" style="display:inline-block;margin-top:16px;padding:10px 18px;border-radius:10px;background:#22c55e;color:#000;font-weight:800;text-decoration:none;">${esc(REVEAL_BUTTON_LABEL)}</a>
+    <p style="font-size:12px;color:#64748b;margin-top:16px;">This link is for you only and expires in 30 days.</p>
   </div>`.trim();
-  return { subject: `${BUYER_DETAILS_SUBJECT}: ${i.vehicle}`, html };
+  return { subject: `${ACCEPTED_OFFER_SUBJECT}: ${i.vehicle}`, html };
 }
 
 export function buildStageNotice(i: StageNoticeInput): StageNotice | null {

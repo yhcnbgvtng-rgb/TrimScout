@@ -243,7 +243,12 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
 
       {stage.stage === "closed" ? (
         <p className="text-[11px] text-emerald-300" data-testid="stage-closed">
-          Final deal accepted: {PAYMENT_METHOD_LABELS[p.method ?? "cash"].toLowerCase()}{p.method === "dealer_finance" ? `, ${usd(p.financeQuote?.monthly)}/mo on ${usd(p.financeQuote?.amountFinanced)}` : ` at ${usd(stage.trueOtd)} out the door`}. {invite.dealerName} now has your name, email, phone and ZIP, and no other dealer does.
+          Final deal accepted: {PAYMENT_METHOD_LABELS[p.method ?? "cash"].toLowerCase()}{p.method === "dealer_finance" ? `, ${usd(p.financeQuote?.monthly)}/mo on ${usd(p.financeQuote?.amountFinanced)}` : ` at ${usd(stage.trueOtd)} out the door`}. {invite.dealerName} can see your contact info once they open the private link we emailed them, and no other dealer can.
+        </p>
+      ) : null}
+      {stage.stage === "closed" && stage.release?.reveals?.lastAt ? (
+        <p className="text-[11px] font-bold text-emerald-300" data-testid="dealer-viewed-contact">
+          Dealer viewed your contact info · {new Date(stage.release.reveals.lastAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
         </p>
       ) : null}
       {stage.stage === "walked" ? (

@@ -158,14 +158,7 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
       {stage.stage === "closed" ? (
         <div className="space-y-2" data-testid="dealer-stage-closed">
           <p className="text-xs text-emerald-300">The buyer accepted the final deal: {stage.payment.method === "dealer_finance" ? `${stage.payment.financeQuote?.apr}% for ${stage.payment.financeQuote?.termMonths} months, ${usd(stage.payment.financeQuote?.monthly)}/mo on ${usd(stage.payment.financeQuote?.amountFinanced)}` : `${PAYMENT_METHOD_LABELS[stage.payment.method ?? "cash"].toLowerCase()} at ${usd(stage.trueOtd)} out the door`}. Nothing is binding until you both sign.</p>
-          {stage.release ? (
-            <dl className="space-y-1 rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-3 text-xs" data-testid="buyer-details">
-              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Name</dt><dd className="font-bold text-white">{stage.release.contact.name ?? "Not provided"}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Email</dt><dd className="break-all font-bold text-white">{stage.release.contact.email}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-ink-faint">Phone</dt><dd className="font-bold text-white">{stage.release.contact.phone ?? "Not provided"}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-ink-faint">ZIP</dt><dd className="font-bold text-white">{stage.release.contact.zip ?? "Not provided"}</dd></div>
-            </dl>
-          ) : null}
+          {stage.release ? <p className="text-xs text-ink-muted" data-testid="buyer-details-by-email">The buyer's contact info is not shown on this page. Use the "View buyer contact info" button in the "Your offer was accepted" email we sent you.</p> : null}
         </div>
       ) : null}
 

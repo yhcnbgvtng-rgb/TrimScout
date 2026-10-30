@@ -154,12 +154,33 @@ export function finalSummary(state) {
   };
 }
 
-/** What a dealer may see of a deal state: the buyer's released details only on the winning, finally accepted deal. */
+/**
+ * What a dealer may see of a deal state. The buyer's name, email and phone are NEVER in it: they reach the winning dealer only
+ * through the signed reveal link (revealContact below), so this keeps the release marker (when, and how often it was viewed)
+ * and drops the details for every dealer, winner included.
+ */
 export function stageForDealer(state, { notSelected = false } = {}) {
   if (!state) return state;
   const accepted = !notSelected && state.stage === "closed" && state.final?.status === "accepted" && state.release;
-  if (accepted) return state;
-  return { ...state, release: null };
+  if (!accepted) return { ...state, release: null };
+  const { contact: _contact, ...marker } = state.release;
+  return { ...state, release: marker };
+}
+
+export const MAX_REVEALS_LOGGED = 50;
+
+/**
+ * The winning dealer pressed "Reveal buyer contact info". Pure: allowed only on a finally accepted deal that carries a release;
+ * stamps release.reveals (count, first and last time, no details) and adds one log entry. Returns the contact to hand back to
+ * that dealer, once per call, and the new state to store.
+ */
+export function revealContact(state, now = new Date()) {
+  const at = now.toISOString();
+  if (!state || state.stage !== "closed" || state.final?.status !== "accepted" || !state.release?.contact) return { ok: false, code: "not_released", error: "There is no buyer contact info to show on this deal." };
+  const prev = state.release.reveals || { count: 0, firstAt: null, lastAt: null };
+  const reveals = { count: prev.count + 1, firstAt: prev.firstAt || at, lastAt: at };
+  const log = [...(state.log || []), { at, actor: "dealer", type: "buyer_contact_revealed", stage: "closed" }].slice(-200);
+  return { ok: true, contact: state.release.contact, state: { ...state, release: { ...state.release, reveals }, log } };
 }
 
 const cleanContact = (c) => {
