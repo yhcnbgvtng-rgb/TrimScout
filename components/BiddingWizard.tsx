@@ -24,7 +24,7 @@ import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../l
 import { fetchAltSticker, importAndPrime, needsAltSticker, unverifiedLabel, withStickerFacts, type AltStickerState } from "../lib/altSticker";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, sameTrim, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
-import { isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
+import { dealerIdFrom, isPlausibleDealerEmail, type DealerContactStatus } from "../lib/dealerContactLookup";
 import {
   NON_BINDING_COPY,
   DESK_ROLE_LABELS,
@@ -1470,7 +1470,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // the buyer guessing. Same formatter as step 3's review, so the name, the
   // location line and the not-confirmed caveat all read identically.
   const importedDealerships = (intent === "alternate"
-    ? altDealers.map((d) => ({ title: null, vin: null, vdpHref: null, dealerName: d.dealerName, locationLine: deskLocationLine(d) || null, dealerConfirmed: true, state: (d.state || "").trim().toUpperCase() }))
+    ? altDealers.map((d) => ({ title: null, vin: null, vdpHref: null, dealerName: d.dealerName, locationLine: deskLocationLine(d) || null, dealerConfirmed: true, state: (d.state || "").trim().toUpperCase(), dealerId: dealerIdFrom(d.deskId) }))
     : [selectedVehicle, altVehicle1, altVehicle2]
     .map((vehicle) => {
       const target = reviewTargetFromVehicle(vehicle);
@@ -1478,7 +1478,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       if (!target || !dealerName) return null;
       // Carry the raw state through too — the contact directory matches on name
       // plus state, since a chain can repeat one name across several of them.
-      return { ...target, dealerName, state: (vehicle?.location?.state || "").trim().toUpperCase() };
+      // The car's own dealer id (the search seed stamps it as deskId) is matched first; name + state is the fallback for a car with none.
+      return { ...target, dealerName, state: (vehicle?.location?.state || "").trim().toUpperCase(), dealerId: dealerIdFrom(vehicle?.location?.deskId) };
     })
     .filter((target): target is NonNullable<typeof target> => Boolean(target))
   ).filter(
@@ -1510,7 +1511,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
 
   // A primitive key, so the effect re-runs when the dealerships actually change
   // rather than on every render that rebuilds the array above.
-  const dealerLookupKey = importedDealerships.map((d) => `${d.dealerName}|${d.state}`).join("~~");
+  const dealerLookupKey = importedDealerships.map((d) => `${d.dealerName}|${d.state}|${d.dealerId ?? ""}`).join("~~");
 
   // With two or more dealerships in the package the direct path *is* the
   // competition — each rooftop bids against the others on the buyer's own
@@ -1552,8 +1553,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   useEffect(() => {
     const dealers = dealerLookupKey
       ? dealerLookupKey.split("~~").map((entry) => {
-          const [dealerName, state] = entry.split("|");
-          return { dealerName, state };
+          const [dealerName, state, dealerId] = entry.split("|");
+          return { dealerName, state, dealerId: dealerId || null };
         })
       : [];
     if (dealers.length === 0) {
@@ -2606,6 +2607,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           body: JSON.stringify({
             dealerName: name,
             dealerState: paste.dealerState,
+            // The car's own dealer id, so the send resolves the same directory row the badge showed.
+            dealerId: importedDealerships.find((d) => d.dealerName === name)?.dealerId ?? undefined,
             buyerProvidedEmail: buyerDealerEmails[name] || undefined,
             requestedStructures,
             purchaseTimelineLabel:
@@ -3345,6 +3348,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
                                   Opted out
                                 </span>
+                              ) : desk.contactState === "unverified" ? (
+                                <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-unverified" title="We have an address but can't tie it to this dealership, so we won't send to it. Add your own sales advisor's address, or we'll route the request for review.">
+                                  Unverified email
+                                </span>
                               ) : (
                                 <span className="shrink-0 rounded-lg bg-sky-500/15 px-2.5 py-1 text-[10px] font-extrabold text-sky-200" data-testid="contact-desk" data-routing={desk.routing}>
                                   → {salesDeskLabel(desk.contactState)}
@@ -3798,6 +3805,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       >
                         {packageVehicles.map(({ vehicle, target, contact, typedEmail, isPrimary }) => {
                           const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
+                          const unverifiedEmail = contact?.emailStatus === "unverified" && !contact?.emailOptOut;
                           const supplied = isPlausibleDealerEmail(typedEmail);
                           return (
                             <div key={vehicle.vin} className="space-y-3 px-5 py-4 text-xs">
@@ -3854,7 +3862,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                             if (row.routing === "named") return "Named contact";
                                             return salesDeskLabel(desk.contactState);
                                           }
-                                          return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : "No email";
+                                          return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : unverifiedEmail ? "Unverified email" : "No email";
                                         })()}
                                       </span>
                                     </div>

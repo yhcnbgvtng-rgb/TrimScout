@@ -144,12 +144,20 @@ export default function DealerAnalyticsSection() {
       {data && data.totals.n > 0 ? (
         <>
           {/* Headline */}
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5" data-testid="analytics-headline">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6" data-testid="analytics-headline">
             <Stat label="On the lot" value={data.totals.n.toLocaleString()} sub={`${data.totals.dealers.toLocaleString()} rooftops · ${data.totals.models.toLocaleString()} models`} />
             <Stat label="Avg DOM" value={fmtDays(data.totals.avgDom)} sub={<span className="inline-flex flex-col gap-1"><BandBar bands={data.totals.bands} /><BandLegend /></span>} testId="stat-dom" />
             <Stat label="Weekly turn" value={fmtPct(data.velocity.turnRate)} sub={`${data.velocity.removed7.toLocaleString()} gone in 7 days · ${data.velocity.arrived7.toLocaleString()} arrived`} testId="stat-turn" />
             <Stat label="List vs MSRP" value={data.pricing.avgDiscount == null ? "—" : `${data.pricing.avgDiscount > 0 ? "−" : "+"}${Math.abs(data.pricing.avgDiscount).toFixed(1)}%`} sub={`${data.pricing.priced.toLocaleString()} priced against a sticker MSRP · ${data.pricing.dropsNow.toLocaleString()} dropped since last crawl${data.pricing.avgDropNow ? ` (avg ${fmtMoney(data.pricing.avgDropNow)})` : ""}`} testId="stat-discount" />
-            <Stat label="Sticker URL coverage" value={fmtPct(pct(data.dom.byDealer.reduce((t, d) => t + d.withSticker, 0), data.totals.n))} sub={`Sales email on file for ${data.coverage.dealersWithEmail} of ${data.coverage.dealers} rooftops`} testId="stat-sticker" />
+            <Stat label="Sticker URL coverage" value={fmtPct(pct(data.dom.byDealer.reduce((t, d) => t + d.withSticker, 0), data.totals.n))} sub={`${data.totals.n.toLocaleString()} cars on the lot`} testId="stat-sticker" />
+            <Stat
+              label="Reachable by quote request"
+              value={data.coverage.dealersReachable != null ? `${data.coverage.dealersReachable.toLocaleString()} of ${data.coverage.dealers.toLocaleString()}` : `${data.coverage.dealersWithEmail.toLocaleString()} of ${data.coverage.dealers.toLocaleString()}`}
+              sub={data.coverage.dealersReachable != null
+                ? `${fmtPct(pct(data.coverage.dealersReachable, data.coverage.dealers), 0)} of rooftops have a valid sales address · ${(data.coverage.dealersUnverified ?? 0).toLocaleString()} more are unverified (public mail or an unrelated domain)`
+                : "Box has not been updated: this is the old any-text-in-the-field count, not a reachability check"}
+              testId="stat-reachable"
+            />
           </div>
 
           {/* Leaderboards */}
@@ -165,7 +173,7 @@ export default function DealerAnalyticsSection() {
           <div className="overflow-x-auto rounded-2xl border border-border bg-background">
             {tab === "dealers" ? (
               <table className="w-full min-w-[960px] text-left text-[11px]" data-testid="dealer-leaderboard">
-                <thead><tr className="border-b border-border text-[10px] font-bold uppercase tracking-wide text-ink-faint"><th className="px-3 py-2">Dealership</th><th className="px-3 py-2 text-right">On lot</th><th className="px-3 py-2 text-right">Avg DOM</th><th className="px-3 py-2 text-right">Median</th><th className="px-3 py-2">Bands</th><th className="px-3 py-2 text-right">Turn / wk</th><th className="px-3 py-2 text-right">vs MSRP</th><th className="px-3 py-2 text-right">Sticker</th><th className="px-3 py-2 text-right">Options</th><th className="px-3 py-2 text-right">No price</th><th className="px-3 py-2 text-right">No photo</th><th className="px-3 py-2 text-right">Stale</th><th className="px-3 py-2">Email</th></tr></thead>
+                <thead><tr className="border-b border-border text-[10px] font-bold uppercase tracking-wide text-ink-faint"><th className="px-3 py-2">Dealership</th><th className="px-3 py-2 text-right">On lot</th><th className="px-3 py-2 text-right">Avg DOM</th><th className="px-3 py-2 text-right">Median</th><th className="px-3 py-2">Bands</th><th className="px-3 py-2 text-right">Turn / wk</th><th className="px-3 py-2 text-right">vs MSRP</th><th className="px-3 py-2 text-right">Sticker</th><th className="px-3 py-2 text-right">Options</th><th className="px-3 py-2 text-right">No price</th><th className="px-3 py-2 text-right">No photo</th><th className="px-3 py-2 text-right">Stale</th><th className="px-3 py-2">Quote reach</th></tr></thead>
                 <tbody className="divide-y divide-border/60 tabular-nums">
                   {[...byDealer].sort((a, b) => (b.avgDom ?? -1) - (a.avgDom ?? -1)).map((d) => {
                     const turn = data.velocity.byDealer.find((v) => v.dealerId === d.dealerId);
@@ -183,7 +191,7 @@ export default function DealerAnalyticsSection() {
                         <td className="px-3 py-2 text-right">{fmtPct(pct(d.missingPrice, d.n), 0)}</td>
                         <td className="px-3 py-2 text-right">{fmtPct(pct(d.missingPhoto, d.n), 0)}</td>
                         <td className={`px-3 py-2 text-right ${d.stale ? "text-amber-300" : ""}`}>{fmtPct(pct(d.stale, d.n), 0)}</td>
-                        <td className="px-3 py-2">{d.hasEmail ? <span className="text-brand-300">on file</span> : <span className="text-ink-faint">—</span>}</td>
+                        <td className="px-3 py-2">{d.hasEmail ? <span className="text-brand-300">reachable</span> : d.emailStatus === "unverified" ? <span className="text-amber-300">unverified</span> : <span className="text-ink-faint">—</span>}</td>
                       </tr>
                     );
                   })}

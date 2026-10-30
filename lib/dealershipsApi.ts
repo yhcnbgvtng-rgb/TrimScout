@@ -8,6 +8,7 @@
 
 import { getLightsailHost } from "./lightsailClient";
 import { serverSecret } from "./serverSecret";
+import { stampGroupDomains, contactEmailWriteProblem } from "./quoteReachable";
 
 const AUTH_API_PORT = 3003;
 const DEFAULT_TIMEOUT_MS = 8000;
@@ -31,6 +32,8 @@ export interface Dealership {
    * host after a redirect). What a pasted vehicle-page link is matched on.
    */
   domains: string[];
+  /** Set by listDealerships: the address is on a mail domain 2+ rooftops share, i.e. a dealer group's own (lib/quoteReachable.ts). */
+  emailInGroupDomain?: boolean;
   /** Set only via the public unsubscribe link — never reset by a CSV/xlsx re-import or a manual edit. */
   emailOptOut: boolean;
   createdAt: string;
@@ -94,17 +97,25 @@ function normalizeDealership(raw: Record<string, unknown>): Dealership {
 
 export async function listDealerships(): Promise<Dealership[]> {
   const json = await request("/api/dealerships");
-  return (json.dealerships as Record<string, unknown>[]).map(normalizeDealership);
+  return stampGroupDomains((json.dealerships as Record<string, unknown>[]).map(normalizeDealership));
 }
 
 export type DealershipInput = Omit<Dealership, "id" | "createdAt" | "updatedAt" | "emailOptOut">;
 
+/** A contact write with an address the quote flow could never use (department mailbox, vendor/OEM domain, junk) is refused, with the reason. */
+function assertContactEmailAllowed(email: string | null | undefined): void {
+  const problem = contactEmailWriteProblem(email);
+  if (problem) throw new DealershipsApiError(`Contact email rejected: ${problem}.`, 400);
+}
+
 export async function createDealership(input: DealershipInput): Promise<Dealership> {
+  assertContactEmailAllowed(input.contactEmail);
   const json = await request("/api/dealerships", { method: "POST", body: JSON.stringify(input) });
   return normalizeDealership(json.dealership);
 }
 
 export async function updateDealership(id: string, input: DealershipInput): Promise<Dealership> {
+  assertContactEmailAllowed(input.contactEmail);
   const json = await request(`/api/dealerships/${id}`, { method: "PUT", body: JSON.stringify(input) });
   return normalizeDealership(json.dealership);
 }
@@ -131,9 +142,19 @@ export interface BulkUpsertResult {
   updated: number;
   skipped: number;
   total: number;
+  /** Rows whose contact email was refused (department mailbox, vendor/OEM domain, junk) and saved without one. */
+  emailsRejected?: number;
 }
 
 /** Upserts many rows at once, matched by dealer name — safe to re-run with an updated spreadsheet. */
 export async function bulkUpsertDealerships(rows: Partial<DealershipInput>[]): Promise<BulkUpsertResult> {
-  return request("/api/dealerships/bulk", { method: "POST", body: JSON.stringify({ dealerships: rows }) });
+  // A bad address must not sink the whole spreadsheet: the row still imports, just without the refused email.
+  let emailsRejected = 0;
+  const clean = rows.map((r) => {
+    if (!contactEmailWriteProblem(r.contactEmail)) return r;
+    emailsRejected++;
+    return { ...r, contactEmail: null };
+  });
+  const result = (await request("/api/dealerships/bulk", { method: "POST", body: JSON.stringify({ dealerships: clean }) })) as BulkUpsertResult;
+  return emailsRejected ? { ...result, emailsRejected } : result;
 }

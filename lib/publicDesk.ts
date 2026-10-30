@@ -20,7 +20,7 @@ export interface PublicDesk {
   routing: InviteRouting;
 }
 
-export function publicDeskFor(rows: Dealership[], d: { dealerName: string; state: string }): PublicDesk {
+export function publicDeskFor(rows: Dealership[], d: { dealerName: string; state: string; dealerId?: string | null }): PublicDesk {
   const row = matchDirectoryDealership(rows, d);
   const named = row ? deskFromDealership(row) : null;
   const desk = named?.knownNamed ? named : row ? deskFromRooftop(row) : null;
