@@ -17,6 +17,7 @@ import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclu
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
 import { displayTrim, officialTrimOptions } from "@/lib/fordTrimDisplay";
 import type { LiveCountProps } from "./search/LiveCount";
+import VinLookup, { type VinLookupResult } from "./search/VinLookup";
 
 interface BuyerVehicle {
   vehicleId?: number | null;
@@ -177,6 +178,8 @@ export function BuyerSearchView() {
     } catch { /* ignore */ }
   }, [filters]);
   const picksState = useBuyerSearchState();
+  // A VIN lookup replaces the filter results on screen until it is cleared; the filters and their results stay untouched underneath.
+  const [vinHit, setVinHit] = useState<VinLookupResult<BuyerVehicle> | null>(null);
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -472,6 +475,8 @@ export function BuyerSearchView() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
+      <VinLookup<BuyerVehicle> active={vinHit !== null} onResult={setVinHit} onClear={() => setVinHit(null)} />
+
       <SearchFilterBar
         filters={filters} setFilters={setFilters} setMake={setMake} setModel={setModel}
         stateOptions={shownCounts(stateOptions)} makeOptions={shownCounts(makeOptions)} modelOptions={shownCounts(modelOptions)} trimOptions={shownCounts(trimOptions)}
@@ -484,6 +489,14 @@ export function BuyerSearchView() {
         live={live} excludedHidden={excludedHidden}
       />
 
+      {vinHit ? (
+        <div data-testid="vin-results">
+          <p className="mb-3 text-xs font-semibold text-ink-muted">
+            {vinHit.vehicles.length === 1 ? "1 vehicle" : `${vinHit.vehicles.length}${vinHit.truncated ? "+" : ""} vehicles`} for VIN {vinHit.vin.length === 17 ? vinHit.vin : `…${vinHit.vin}`}
+          </p>
+          <VehicleTable resetKey={vinHit} hasMore={false} loadingMore={false} moreError={false} onLoadMore={() => {}} sort="" onSort={() => {}} sortBusy vehicles={vinHit.vehicles} dimmed={false} picks={picksState.picks} viewed={viewedSet} onTogglePick={picksState.togglePicked} onView={picksState.markViewed} />
+        </div>
+      ) : (
       <div>
         <p className="mb-3 text-xs font-semibold text-ink-muted">
           {results ? `${results.total.toLocaleString()}${results.totalCapped ? "+" : ""} vehicle${results.total === 1 && !results.totalCapped ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
@@ -517,6 +530,7 @@ export function BuyerSearchView() {
           </>
         )}
       </div>
+      )}
       <PicksBar state={picksState} />
     </div>
   );

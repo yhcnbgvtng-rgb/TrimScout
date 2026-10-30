@@ -1,0 +1,32 @@
+--- a/deals_api_server.js
++++ b/deals_api_server.js
+@@ -2758,6 +2758,21 @@
+     [norm]
+   );
+   sendJson(res, 200, { url: raw, matches: rows.map(inventoryRowFromDb) });
++}
++
++// GET /api/inventory/vin-search?suffix=XXXXXX — cars currently listed whose VIN ENDS with the 6-8 given characters (the buyer /search VIN box).
++// Index-bounded: idx_inv_vin_rev on the reversed VIN turns "ends with" into a range scan, so it reads only the handful of rows it returns, and the
++// statement is capped at 10 s. Removed listings are left out ("current inventory"). Read-only. A full 17-character VIN uses /api/inventory/vin/:vin.
++async function handleInventoryVinSearch(req, res, params) {
++  const suffix = String(params.get("suffix") || "").trim().toUpperCase();
++  if (!/^[A-HJ-NPR-Z0-9]{6,8}$/.test(suffix)) return badRequest(res, "suffix must be 6-8 characters (letters and digits, no I, O or Q)");
++  const pool = getPool();
++  await ensureInventoryTable(pool);
++  const [rows] = await pool.query(
++    "SET STATEMENT max_statement_time=10 FOR SELECT i.*, d.city AS dealer_city, d.state AS dealer_state FROM dealer_inventory i LEFT JOIN dealership_contacts d ON d.id = i.dealer_id WHERE i.vin_rev LIKE ? AND i.removed_at IS NULL LIMIT 26",
++    [`${suffix.split("").reverse().join("")}%`]
++  );
++  sendJson(res, 200, { suffix, truncated: rows.length > 25, vehicles: rows.slice(0, 25).map(inventoryRowFromDb) });
+ }
+ 
+ async function handleInventoryVin(req, res, vin) {
+@@ -4132,6 +4147,7 @@
+   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/heartbeat") return run(handleCrawlClaimsHeartbeat);
+   if (req.method === "POST" && pathname === "/api/ops/crawl-claims/release") return run(handleCrawlClaimsRelease);
+   if (req.method === "GET" && pathname === "/api/ops/crawl-claims/status") return run(handleCrawlClaimsStatus, url.searchParams);
++  if (req.method === "GET" && pathname === "/api/inventory/vin-search") return run(handleInventoryVinSearch, url.searchParams);
+   const inventoryVinMatch = pathname.match(/^\/api\/inventory\/vin\/([A-HJ-NPR-Z0-9]{17})$/i);
+   if (req.method === "GET" && inventoryVinMatch) return run(handleInventoryVin, inventoryVinMatch[1].toUpperCase());
+   if (req.method === "GET" && pathname === "/api/inventory") return run(handleListInventory, url.searchParams);
