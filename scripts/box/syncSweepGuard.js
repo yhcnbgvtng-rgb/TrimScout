@@ -84,12 +84,23 @@ export function collectHostileStores({ files, dealerIdFor, readFile = (f) => fs.
   return { ids: new Set([...byId.keys()].map(Number)), entries: [...byId.values()].sort((a, b) => a.dealerId - b.dealerId), unmatched };
 }
 
+/** Keeps the newest crawl time per store while the shards are read: `stamps` is a Map(store id -> ms); store 0 is the unmatched bucket. */
+export function noteCrawlStamp(stamps, dealerId, updatedAt) {
+  const t = Date.parse(updatedAt);
+  if (!Number.isFinite(t)) return;
+  const id = Number(dealerId) || 0;
+  if (!(stamps.get(id) >= t)) stamps.set(id, t);
+}
+
+/** The same map as ISO strings, the form the sweep request carries. */
+export const crawlStampsToIso = (stamps) => new Map([...stamps].map(([id, t]) => [id, new Date(t).toISOString()]));
+
 const num = (v, def, min, max) => { const n = Number(v); return v !== undefined && v !== "" && Number.isFinite(n) && n >= min && n <= max ? n : def; };
 
 /**
  * Tunables. Defaults are ON: installing this client is the opt-in. Setting SWEEP_MIN_MISSES=1, SWEEP_PROTECT_ELSEWHERE=0, SWEEP_MIN_FRESH_RATIO=0 and
  * SWEEP_SKIP_HOSTILE=0 in inventory-sync/.env gives back the old behaviour without touching the code (the rollback in STEPS.md uses file restores instead).
- * @returns {{ fields: object, skipHostile: boolean, requireGuards: boolean, logMaxAgeMs: number }}
+ * @returns {{ fields: object, skipHostile: boolean, crawlStamps: boolean, requireGuards: boolean, logMaxAgeMs: number }}
  */
 export function guardConfigFromEnv(env = process.env) {
   const minMisses = Math.floor(num(env.SWEEP_MIN_MISSES, 2, 1, 5));
@@ -101,6 +112,8 @@ export function guardConfigFromEnv(env = process.env) {
   return {
     fields,
     skipHostile: env.SWEEP_SKIP_HOSTILE !== "0",
+    // A miss counts only against a crawl newer than the one behind the store's last counted sweep (inventorySweep.js, "crawl stamps"). Needs minMisses >= 2.
+    crawlStamps: minMisses > 1 && env.SWEEP_CRAWL_STAMPS !== "0",
     // Refuse to sweep at all if the deals API does not acknowledge the guards (an API that predates them would silently ignore the fields and retire as before).
     requireGuards: Object.keys(fields).length > 0 && env.SWEEP_REQUIRE_GUARDS !== "0",
     logMaxAgeMs: num(env.SWEEP_LOG_MAX_AGE_H, 36, 1, 24 * 14) * 3600_000,

@@ -48,6 +48,8 @@ import { runWritePhase, configFromEnv } from "./syncRun.js";
 import { runSupersede, runDuplicateVins } from "./syncSuperseded.js";
 import { recentCrawlLogs, collectBlocked, postBlocked } from "./syncBlocked.js";
 import { SweepAbortError, LockLostError } from "./syncSweep.js";
+import { noteCrawlStamp, crawlStampsToIso } from "./syncSweepGuard.js";   // crawl stamps (inventorySweep.js)
+import { retiredRowsToList } from "./syncRetired.js";                      // the real retired list
 import { latestCrawlLogs, collectHostileStores, guardConfigFromEnv, describeGuardCounts } from "./syncSweepGuard.js";
 import { isFreshRecord, freshnessConfig, checkShardStructure, shardPlan } from "./syncFreshness.js";
 import { DEFAULT_DIR as RETIRED_DIR_DEFAULT, isRecentDrop, retiredList, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack } from "./syncRetired.js";
@@ -211,6 +213,7 @@ const noSweepStores = new Set();       // dealer ids that came from an over-size
 const skippedShards = [];              // { file, reason } — unreadable/truncated: nothing uploaded from them
 let staleSkipped = 0, freshUploaded = 0;
 const staleByStore = new Map();        // store name -> stale records skipped
+const crawlStampMs = new Map();        // store id -> newest crawl record time among its uploaded rows (sweep crawl stamps)
 const dropped = [];                    // records read but not uploaded (sold, or stale) — see syncRetired.js
 let newestShardMs = 0;
 for (const shardFile of files) {
@@ -239,6 +242,7 @@ for (const shardFile of files) {
       staleByStore.set(k, (staleByStore.get(k) || 0) + 1);
       continue;
     }
+    noteCrawlStamp(crawlStampMs, dealerIdFor(v), v.updatedAt);
     freshUploaded++;
     if (plan.action === "noSweep") { const id = dealerIdFor(v); if (id) noSweepStores.add(id); }
     rows.push({
@@ -277,11 +281,27 @@ if (guardCfg.skipHostile) {
   }
 }
 const sweptStoreIds = (failedStores = []) => new Set([...new Set(rows.map((r) => r.dealerId).filter(Boolean))].filter((id) => !noSweepStores.has(id) && !hostile.ids.has(Number(id)) && !failedStores.map(Number).includes(Number(id))));
-const writeRetired = (failedStores) => {
-  try {
+// `result` is runWritePhase's return value; without it (--dry-run --write-retired, which sweeps nothing) the prediction is all there is and it seeds retired-*.
+// With it, the prediction goes to candidates-* and retired-* holds only what the deals API reported retiring (an API that predates returnRetired reports nothing,
+// so no retired file is written rather than a prediction under the old name).
+const writeRetired = (failedStores, result = null) => {
+  try { // writing these files never fails the sync
     const list = retiredList(dropped, rows, sweptStoreIds(failedStores));
-    const file = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now());
-    log(`[sync] retired list: ${list.length} VIN(s) from swept stores written to ${file}`);
+    if (!result) {
+      const file = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now());
+      log(`[sync] retired list: ${list.length} VIN(s) from swept stores written to ${file} (a prediction: nothing was swept)`);
+      return;
+    }
+    const cand = writeRetiredFile(RETIRED_DIR, list, BOX_LABEL, Date.now(), { prefix: "candidates" });
+    log(`[sync] candidates list: ${list.length} VIN(s) the crawl no longer lists in swept stores written to ${cand} (a prediction, not what was retired)`);
+    if (!result.retiredRows) {
+      log("[sync] retired list: the deals API did not report which rows it retired (it predates returnRetired) — no retired file written");
+      return;
+    }
+    const actual = retiredRowsToList(result.retiredRows);
+    const file = writeRetiredFile(RETIRED_DIR, actual, BOX_LABEL, Date.now(), { extended: true });
+    const note = [result.retiredIncomplete ? "INCOMPLETE: this run resumed an earlier sweep, so batches finished before the resume are not listed" : "", result.retiredTruncated ? "TRUNCATED: a batch retired more rows than the API returns" : ""].filter(Boolean).join("; ");
+    log(`[sync] retired list: ${actual.length} VIN(s) retired by the sweep (${result.removed} reported removed) written to ${file}${note ? ` — ${note}` : ""}`);
   } catch (err) {
     log(`[sync] could not write the retired list (${err.message}) — the sync itself is unaffected`);
   }
@@ -328,8 +348,8 @@ lockHeartbeat = startSyncLockHeartbeat({
 });
 let failed = false;
 try {
-  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs, hostileStores: hostile.entries, guards: guardCfg.fields, requireGuards: guardCfg.requireGuards });
-  writeRetired([...(r.failedStores || []), ...(r.guardSkippedStores || [])]);
+  const r = await runWritePhase({ rows, fileIdentity, api: dealsApi, store: runStore, isLockLost: () => lockHeartbeat?.isLost() === true, log, config, sweepExclude: noSweepStores, sourceBox: BOX_LABEL, foreignGraceMs: fcfg.foreignGraceMs, hostileStores: hostile.entries, guards: guardCfg.fields, requireGuards: guardCfg.requireGuards, crawlStamps: guardCfg.crawlStamps ? crawlStampsToIso(crawlStampMs) : null, returnRetired: true });
+  writeRetired([...(r.failedStores || []), ...(r.guardSkippedStores || [])], r);
   // Same fields as always (the ops scripts and log reads that parse this line keep working), plus run details.
   log(JSON.stringify({ upserted: r.upserted, sweptStores: r.sweptStores, sweepFailed: r.sweepFailed, removed: r.removed, live: r.live, resumed: r.resumed, skippedRows: r.skippedRows, sweepMode: r.sweepMode, timings: { upsertMs: r.timings.upsertMs, sweepMs: r.timings.sweepMs, totalMs: r.timings.totalMs, requests: r.timings.requests, p50RequestMs: r.timings.p50RequestMs, p95RequestMs: r.timings.p95RequestMs } }));
   // Cars whose VIN this run uploaded under another store are retired from the stores that no longer list them (supersededRetire.js).

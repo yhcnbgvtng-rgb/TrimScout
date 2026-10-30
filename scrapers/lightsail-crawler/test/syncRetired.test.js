@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
-import { isRecentDrop, retiredList, toCsv, parseCsvLine, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack, COLUMNS } from '../../../scripts/box/syncRetired.js';
+import { isRecentDrop, retiredList, toCsv, parseCsvLine, writeRetiredFile, loadRecentRetired, cameBack, formatCameBack, COLUMNS, RETIRED_COLUMNS, retiredRowsToList } from '../../../scripts/box/syncRetired.js';
 
 const DAY = 86_400_000;
 const NOW = Date.parse('2026-10-09T12:00:00Z');
@@ -94,8 +94,47 @@ describe('wiring in inventory-sync.mjs', () => {
     const src = fs.readFileSync(new URL('../../../scripts/box/inventory-sync.mjs', import.meta.url), 'utf8');
     assert.match(src, /dropped\.push/);
     assert.ok(src.indexOf('formatCameBack(') < src.indexOf('await acquireSyncLock()'), 'comparison logged before the lock wait');
-    assert.match(src, /writeRetired\(\[\.\.\.\(r\.failedStores \|\| \[\]\), \.\.\.\(r\.guardSkippedStores \|\| \[\]\)\]\);/);
+    assert.match(src, /writeRetired\(\[\.\.\.\(r\.failedStores \|\| \[\]\), \.\.\.\(r\.guardSkippedStores \|\| \[\]\)\], r\);/);
+    assert.match(src, /returnRetired: true/, 'the sweep asks the API which rows it retired');
+    assert.match(src, /prefix: "candidates"/, 'the prediction is written under its own name');
     assert.match(src, /--dry-run --write-retired/);
     assert.doesNotMatch(fs.readFileSync(new URL('../../../scripts/box/syncRetired.js', import.meta.url), 'utf8'), /fetch\(|node:http|mysql|SELECT /i, 'no network, no database');
+  });
+});
+
+describe('the retired file is what the sweep did; the prediction is a separate candidates file', () => {
+  const rows = [{ vin: V(1).toLowerCase(), dealerId: 14819, dealerName: 'MINI of Burlington', state: 'vt', lastSeenAt: '2026-10-27 08:00:00', missCount: 1 }];
+
+  it('retiredRowsToList normalises the API rows; the extended CSV keeps the four old columns first and adds dealerId, lastSeenAt, missCount', () => {
+    const list = retiredRowsToList(rows);
+    assert.deepEqual(list[0], { vin: V(1), dealerId: 14819, dealerName: 'MINI of Burlington', state: 'VT', lastSeenAt: new Date('2026-10-27 08:00:00').toISOString(), missCount: 1 });
+    assert.deepEqual(RETIRED_COLUMNS, ['vin', 'dealer', 'state', 'sourceBox', 'dealerId', 'lastSeenAt', 'missCount']);
+    const csv = toCsv(list, 'box2', { extended: true });
+    assert.equal(csv.split('\n')[0], RETIRED_COLUMNS.join(','));
+    assert.deepEqual(parseCsvLine(csv.split('\n')[1]).slice(0, 4), [V(1), 'MINI of Burlington', 'VT', 'box2']);
+    assert.equal(toCsv(list, 'box2').split('\n')[0], 'vin,dealer,state,sourceBox', 'the default file is unchanged');
+  });
+
+  it('writes candidates-* under its own prefix; loadRecentRetired reads retired-* only, extended files included', () => {
+    const dir = tmp();
+    const cand = writeRetiredFile(dir, [drop(5)], 'box2', NOW, { prefix: 'candidates' });
+    const real = writeRetiredFile(dir, retiredRowsToList(rows), 'box2', NOW + 1000, { extended: true });
+    assert.match(path.basename(cand), /^candidates-20261009T120000Z-box2\.csv\.gz$/);
+    assert.match(path.basename(real), /^retired-20261009T120001Z-box2\.csv\.gz$/);
+    const { map, files } = loadRecentRetired(dir, NOW + 5000);
+    assert.equal(files, 1);
+    assert.deepEqual([...map.keys()], [V(1)]);
+    assert.deepEqual(map.get(V(1)), [{ dealer: 'MINI of Burlington', state: 'VT', sourceBox: 'box2' }]);
+  });
+
+  it('prunes both kinds of file after 14 days and leaves other files alone', () => {
+    const dir = tmp();
+    const old = writeRetiredFile(dir, [drop(1)], 'box2', NOW - 20 * DAY);
+    const oldCand = writeRetiredFile(dir, [drop(1)], 'box2', NOW - 20 * DAY + 1000, { prefix: 'candidates' });
+    fs.utimesSync(old, new Date(NOW - 20 * DAY), new Date(NOW - 20 * DAY)); fs.utimesSync(oldCand, new Date(NOW - 20 * DAY), new Date(NOW - 20 * DAY));
+    fs.writeFileSync(path.join(dir, 'notes.txt'), 'keep');
+    // Date.now() inside the test run is later than NOW + 14 d, so the next write prunes the two old files.
+    const fresh = writeRetiredFile(dir, [drop(2)], 'box2', Date.now(), { prefix: 'candidates' });
+    assert.deepEqual(fs.readdirSync(dir).sort(), ['notes.txt', path.basename(fresh)].sort());
   });
 });

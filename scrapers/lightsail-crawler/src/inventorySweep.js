@@ -23,6 +23,23 @@ export const MAX_SWEEP_STORES = 200;
 export const MAX_MIN_MISSES = 5;
 export const DEFAULT_MIN_LIVE_FOR_RATIO = 10;
 
+// ---- crawl stamps (audit 2026-10-29: 6,189 of the 10,544 cars minMisses 2 retired came from brands the 10-28 crawl never visited) ----
+// "Distinct runs" is not "distinct crawls": a brand that is crawled every few nights keeps its last output inside the sync's 30 h freshness window, so two
+// syncs in a row sweep the SAME observation and the second one counts as a second miss. With
+//   crawlStamps  { "<dealerId>": ISO }  -> the newest crawl time (shard updatedAt) among the store's rows in THIS upload
+// a store is only counted/retired when its stamp is newer than the stamp of the sweep that last counted it (table sweep_crawl_stamps, one row per store):
+//   stamp newer than the stored one -> normal sweep (count a miss, retire a row whose previous miss was counted)
+//   no stored stamp                 -> count only, never retire (first sight: we cannot tell whether the earlier miss came from this same crawl)
+//   stamp not newer                 -> store untouched: no miss counted, nothing retired (the crawl has told us nothing new)
+//   no stamp for the store          -> same as "not newer" (cannot prove a new crawl, so keep the rows)
+// A store the partial-crawl guard skips, or one the client left out, records nothing. Only honoured together with minMisses >= 2; a client that sends no
+// crawlStamps gets exactly the behaviour it had before.
+export const STAMP_TABLE = "sweep_crawl_stamps";
+// returnRetired true -> the response lists the rows THIS call retired (`retired`), so the client can write the real retired file instead of a prediction.
+// The retire statement then stamps removed_at with a request-wide whole-second time instead of CURRENT_TIMESTAMP, and the rows are read back by that time.
+export const MAX_RETURNED_RETIRED = 20000;
+export const CREATE_STAMP_TABLE_SQL = `CREATE TABLE IF NOT EXISTS ${STAMP_TABLE} (dealer_id INT NOT NULL PRIMARY KEY, crawl_stamp DATETIME NOT NULL, swept_at DATETIME NOT NULL)`;
+
 /**
  * @param {any} body the parsed JSON body
  * @param {{ toInt: (v: any) => number | null, toStr: (v: any, n: number) => string | null }} h conversion helpers from the server
@@ -43,6 +60,10 @@ export function parseSweepRequest(body, { toInt, toStr }) {
   const g = parseGuards(body, { toInt });
   if (!g.ok) return g;
   const guards = g.guards;
+  if (body?.returnRetired !== undefined && body.returnRetired !== null) {
+    if (typeof body.returnRetired !== "boolean") return { ok: false, error: "returnRetired must be true or false" };
+    if (body.returnRetired) guards.returnRetired = true;
+  }
 
   const hasBatch = body.dealerIds !== undefined && body.dealerIds !== null;
   const hasSingle = body.dealerId !== undefined && body.dealerId !== null;
@@ -86,6 +107,20 @@ function parseGuards(body, { toInt }) {
       if (live == null || live < 1) return { ok: false, error: "minLiveForRatio must be a positive integer" };
       guards.minLiveForRatio = live;
     }
+  }
+  if (body?.crawlStamps !== undefined && body.crawlStamps !== null) {
+    if (typeof body.crawlStamps !== "object" || Array.isArray(body.crawlStamps)) return { ok: false, error: "crawlStamps must be an object of store id -> ISO time" };
+    const entries = Object.entries(body.crawlStamps);
+    if (entries.length > MAX_SWEEP_STORES) return { ok: false, error: `crawlStamps is limited to ${MAX_SWEEP_STORES} stores per call` };
+    const stamps = new Map();
+    for (const [k, v] of entries) {
+      const id = toInt(k);
+      const t = typeof v === "string" ? Date.parse(v) : NaN;
+      if (id == null || !Number.isFinite(t)) return { ok: false, error: "crawlStamps must map integer store ids to ISO times" };
+      stamps.set(id, Math.floor(t / 1000) * 1000);
+    }
+    // Acknowledged (and applied) only with a miss counter: without minMisses >= 2 there is no second miss to double-count.
+    if (guards.minMisses) guards.crawlStamps = stamps;
   }
   return { ok: true, guards };
 }
@@ -133,8 +168,8 @@ function candidateUpdate(parsed, set, setArgs = []) {
  * minMisses >= 2 it only retires a row whose previous absence was counted by an EARLIER run (sweep_miss_at < seenAfter) and whose count has
  * reached minMisses - 1; the miss-count statements (buildMissStatements) is what records the earlier absences.
  */
-export function buildSweepStatement(parsed) {
-  const u = candidateUpdate(parsed, (c) => `${c("removed_at")} = CURRENT_TIMESTAMP`);
+export function buildSweepStatement(parsed, { retiredAt = null } = {}) {
+  const u = retiredAt ? candidateUpdate(parsed, (c) => `${c("removed_at")} = ?`, [retiredAt]) : candidateUpdate(parsed, (c) => `${c("removed_at")} = CURRENT_TIMESTAMP`);
   if (!(parsed.minMisses > 1)) return { sql: u.sql, args: u.args };
   const { c } = u;
   return {
@@ -185,10 +220,53 @@ export function partialCrawlStores(counts, { minFreshRatio, minLiveForRatio = DE
   return out.sort((a, b) => a.dealerId - b.dealerId);
 }
 
+/** The rows a retire statement stamped with `retiredAt`: what the sweep really did, in the columns the retired file and a rollback need. */
+export function buildRetiredSelect({ dealerIds, seenAfter }, retiredAt) {
+  return {
+    sql: `SELECT vin, dealer_id AS dealerId, dealer_name AS dealerName, state, last_seen_at AS lastSeenAt, sweep_miss_count AS missCount FROM dealer_inventory WHERE dealer_id IN (?) AND removed_at = ? AND last_seen_at < ? LIMIT ${MAX_RETURNED_RETIRED + 1}`,
+    args: [dealerIds, retiredAt, seenAfter],
+  };
+}
+
+/** The stored crawl stamp of each store in `dealerIds` (rows read before this call touches anything). */
+export function buildStampSelect(dealerIds) {
+  return { sql: `SELECT dealer_id AS dealerId, crawl_stamp AS crawlStamp FROM ${STAMP_TABLE} WHERE dealer_id IN (?)`, args: [dealerIds] };
+}
+
+/** Records the stamps of the stores this call swept; GREATEST keeps a retried older request from moving a stamp backwards. */
+export function buildStampUpsert(entries, sweptAt) {
+  return {
+    sql: `INSERT INTO ${STAMP_TABLE} (dealer_id, crawl_stamp, swept_at) VALUES ? ON DUPLICATE KEY UPDATE crawl_stamp = GREATEST(crawl_stamp, VALUES(crawl_stamp)), swept_at = VALUES(swept_at)`,
+    args: [entries.map(([dealerId, stamp]) => [dealerId, new Date(stamp), sweptAt])],
+  };
+}
+
+/**
+ * Sorts the stores of a request by what their crawl stamp allows (see the crawl-stamps note at the top).
+ * @param {number[]} dealerIds
+ * @param {Map<number, number>} stamps  store id -> crawl stamp (ms) sent by the client
+ * @param {{ dealerId: number|string, crawlStamp: Date|string|number }[]} known  stored stamps
+ * @returns {{ sweep: number[], countOnly: number[], unchanged: {dealerId: number, stamp: number, known: number}[], noStamp: number[] }}
+ */
+export function planByCrawlStamp(dealerIds, stamps, known) {
+  const stored = new Map((known || []).map((k) => [Number(k.dealerId), new Date(k.crawlStamp).getTime()]));
+  const plan = { sweep: [], countOnly: [], unchanged: [], noStamp: [] };
+  for (const id of dealerIds) {
+    const stamp = stamps.get(id);
+    if (!Number.isFinite(stamp)) { plan.noStamp.push(id); continue; }
+    if (!stored.has(id)) { plan.countOnly.push(id); continue; }
+    if (stamp > stored.get(id)) plan.sweep.push(id);
+    else plan.unchanged.push({ dealerId: id, stamp, known: stored.get(id) });
+  }
+  return plan;
+}
+
 /**
  * Runs a parsed sweep request. `query(sql, args)` resolves to `[result]` like mysql2's pool.query. A request without guard fields makes the one
  * statement it always made and returns just `removed`; with guards it also returns `skipped` (stores skipped by the partial-crawl guard, with their
- * live and fresh counts) and `counted` (rows whose absence was recorded but not yet retired).
+ * live and fresh counts) and `counted` (rows whose absence was recorded but not yet retired). With returnRetired it also returns `retired` (the rows this
+ * call retired; `retiredTruncated` when more than MAX_RETURNED_RETIRED). With crawlStamps it also returns `stamps`
+ * ({ swept, countOnly, unchanged, noStamp }: store ids), which is also how a client learns the API honours stamps.
  */
 export async function runSweepRequest(query, parsed) {
   let working = parsed;
@@ -207,13 +285,60 @@ export async function runSweepRequest(query, parsed) {
     }
   }
   const guarded = Boolean(parsed.minFreshRatio || parsed.minMisses > 1 || parsed.protectElsewhere);
-  if (working.dealerIds.length === 0) return { removed: 0, counted: 0, skipped, guarded };
-  const stmt = buildSweepStatement(working);
-  const [result] = await query(stmt.sql, stmt.args);
-  let counted = 0;
-  for (const miss of buildMissStatements(working)) {
-    const [m] = await query(miss.sql, miss.args);
-    counted += m.affectedRows || 0;
+  let stamps = null;
+  let retireIds = working.dealerIds;
+  let countIds = working.dealerIds;
+  if (parsed.crawlStamps) {
+    await query(CREATE_STAMP_TABLE_SQL, []);
+    let plan = { sweep: [], countOnly: [], unchanged: [], noStamp: [] };
+    if (working.dealerIds.length) {
+      const sel = buildStampSelect(working.dealerIds);
+      const [known] = await query(sel.sql, sel.args);
+      plan = planByCrawlStamp(working.dealerIds, parsed.crawlStamps, known);
+    }
+    stamps = { swept: plan.sweep, countOnly: plan.countOnly, unchanged: plan.unchanged.map((u) => u.dealerId), noStamp: plan.noStamp };
+    retireIds = plan.sweep;
+    countIds = [...plan.sweep, ...plan.countOnly];
   }
-  return { removed: result.affectedRows, counted, skipped, guarded };
+  const none = parsed.returnRetired ? { retired: [] } : {};
+  if (countIds.length === 0) return { removed: 0, counted: 0, skipped, guarded, ...none, ...(stamps ? { stamps } : {}) };
+  let removed = 0;
+  let retired;
+  if (retireIds.length) {
+    const retiredAt = parsed.returnRetired ? new Date(Math.floor(Date.now() / 1000) * 1000) : null;
+    const stmt = buildSweepStatement({ ...working, dealerIds: retireIds }, { retiredAt });
+    const [result] = await query(stmt.sql, stmt.args);
+    removed = result.affectedRows;
+    if (parsed.returnRetired) {
+      retired = [];
+      if (removed) {
+        const sel = buildRetiredSelect({ dealerIds: retireIds, seenAfter: working.seenAfter }, retiredAt);
+        const [rows] = await query(sel.sql, sel.args);
+        retired = rows || [];
+      }
+    }
+  }
+  let counted = 0;
+  // Stores seen for the first time only START a miss streak (restart); they never advance one (increment), because an advance there could be the same
+  // crawl that produced the streak's first miss.
+  const runMisses = async (ids, onlyRestart) => {
+    if (!ids.length) return;
+    const statements = buildMissStatements({ ...working, dealerIds: ids });
+    for (const miss of onlyRestart ? statements.slice(0, 1) : statements) {
+      const [m] = await query(miss.sql, miss.args);
+      counted += m.affectedRows || 0;
+    }
+  };
+  await runMisses(stamps ? retireIds : countIds, false);
+  if (stamps) await runMisses(stamps.countOnly, true);
+  // Recorded only after the statements succeeded: a failed call leaves the stamps alone, so its retry is judged against the same state.
+  if (stamps && countIds.length) {
+    const up = buildStampUpsert(countIds.map((id) => [id, parsed.crawlStamps.get(id)]), new Date());
+    await query(up.sql, up.args);
+  }
+  if (parsed.returnRetired) {
+    const truncated = (retired || []).length > MAX_RETURNED_RETIRED;
+    return { removed, counted, skipped, guarded, retired: (retired || []).slice(0, MAX_RETURNED_RETIRED), ...(truncated ? { retiredTruncated: true } : {}), ...(stamps ? { stamps } : {}) };
+  }
+  return { removed, counted, skipped, guarded, ...(stamps ? { stamps } : {}) };
 }

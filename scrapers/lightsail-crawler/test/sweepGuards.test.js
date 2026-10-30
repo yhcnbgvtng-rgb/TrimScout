@@ -14,10 +14,11 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   parseSweepRequest, runSweepRequest, buildSweepStatement, buildMissStatements, buildFreshnessCountsStatement, partialCrawlStores,
+  planByCrawlStamp, buildStampUpsert, buildStampSelect, STAMP_TABLE, buildRetiredSelect, MAX_RETURNED_RETIRED,
 } from '../src/inventorySweep.js';
 import { runSweep, SweepAbortError } from '../../../scripts/box/syncSweep.js';
 import { runWritePhase, configFromEnv } from '../../../scripts/box/syncRun.js';
-import { parseHostileLines, latestCrawlLogs, collectHostileStores, guardConfigFromEnv, isHostileClass, describeSkips, describeGuardCounts } from '../../../scripts/box/syncSweepGuard.js';
+import { parseHostileLines, latestCrawlLogs, collectHostileStores, guardConfigFromEnv, isHostileClass, describeSkips, describeGuardCounts, noteCrawlStamp, crawlStampsToIso } from '../../../scripts/box/syncSweepGuard.js';
 
 const toInt = (v) => (Number.isFinite(Number(v)) && v !== null && v !== '' ? Math.round(Number(v)) : null);
 const toStr = (v, n) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, n) : null);
@@ -33,7 +34,7 @@ const FULL = { minMisses: 2, protectElsewhere: true, minFreshRatio: 0.5, minLive
 
 /** dealer_inventory as far as the sweep cares: (vin, dealerId) rows with last_seen, removed, and the miss counter. */
 class FakeInventory {
-  constructor() { this.rows = new Map(); this.statements = []; }
+  constructor() { this.rows = new Map(); this.statements = []; this.stamps = new Map(); }
   put(vin, dealerId, lastSeen, extra = {}) { this.rows.set(`${vin}|${dealerId}`, { vin, dealerId, lastSeen, removed: false, missCount: 0, missAt: null, source: 'nightly', ...extra }); }
   upsert(vin, dealerId, now) { const r = this.rows.get(`${vin}|${dealerId}`); if (r) Object.assign(r, { lastSeen: now, removed: false }); else this.put(vin, dealerId, now); }
   get(vin, dealerId) { return this.rows.get(`${vin}|${dealerId}`); }
@@ -42,6 +43,18 @@ class FakeInventory {
     this.statements.push(sql);
     assert.equal((sql.match(/\?/g) || []).length, countArgs(args), `placeholders vs args in: ${sql}`);
     const at = (v) => (v instanceof Date ? v.getTime() : v);
+    // sweep_crawl_stamps: one row per store, written with GREATEST so a stamp never moves backwards.
+    if (sql.startsWith('CREATE TABLE IF NOT EXISTS sweep_crawl_stamps')) return [{ affectedRows: 0 }];
+    if (sql.startsWith('SELECT dealer_id AS dealerId, crawl_stamp')) return [(args[0]).filter((id) => this.stamps.has(id)).map((id) => ({ dealerId: id, crawlStamp: new Date(this.stamps.get(id)) }))];
+    if (sql.startsWith('INSERT INTO sweep_crawl_stamps')) {
+      for (const [id, stamp] of args[0]) this.stamps.set(id, Math.max(this.stamps.get(id) ?? 0, at(stamp)));
+      return [{ affectedRows: args[0].length }];
+    }
+    if (sql.startsWith('SELECT vin, dealer_id AS dealerId, dealer_name AS dealerName')) {
+      const [ids, retiredAt, seenAfter] = args;
+      return [[...this.rows.values()].filter((r) => ids.includes(r.dealerId) && r.removed && r.removedAt === at(retiredAt) && r.lastSeen < at(seenAfter))
+        .map((r) => ({ vin: r.vin, dealerId: r.dealerId, dealerName: `Store ${r.dealerId}`, state: 'ME', lastSeenAt: new Date(r.lastSeen), missCount: r.missCount }))];
+    }
     if (sql.startsWith('SELECT dealer_id AS dealerId')) {
       let i = 0; const seenAfter = at(args[i++]); const ids = args[i++]; const out = new Map();
       for (const r of this.rows.values()) {
@@ -54,7 +67,7 @@ class FakeInventory {
     }
     let i = 0;
     const kind = sql.includes('sweep_miss_count = 1') ? 'restart' : sql.includes('sweep_miss_count = a.sweep_miss_count + 1') || sql.includes('sweep_miss_count = sweep_miss_count + 1') ? 'inc' : 'retire';
-    const setAt = kind === 'retire' ? null : at(args[i++]);
+    const setAt = kind === 'retire' ? (sql.includes('removed_at = ?') ? at(args[i++]) : null) : at(args[i++]);
     const idArg = args[i++]; const ids = Array.isArray(idArg) ? idArg : [idArg];
     const seenAfter = at(args[i++]);
     if (sql.includes('source IN (?)')) i++;
@@ -74,7 +87,7 @@ class FakeInventory {
     if (kind === 'restart') hit = candidates.filter((r) => !streak(r));
     if (kind === 'inc') hit = candidates.filter((r) => streak(r) && r.missAt < seenAfter2 && r.missCount < thr);
     for (const r of hit) {
-      if (kind === 'retire') r.removed = true;
+      if (kind === 'retire') { r.removed = true; r.removedAt = setAt ?? 'CURRENT_TIMESTAMP'; }
       if (kind === 'restart') { r.missCount = 1; r.missAt = setAt; }
       if (kind === 'inc') { r.missCount += 1; r.missAt = setAt; }
     }
@@ -88,7 +101,7 @@ const serve = (inv) => async (body) => {
   const parsed = parse(body);
   assert.equal(parsed.ok, true, parsed.error);
   const out = await runSweepRequest((sql, args) => inv.query(sql, args), parsed);
-  return { removed: out.removed, ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}), ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}) };
+  return { removed: out.removed, ...(parsed.batch ? { stores: parsed.dealerIds.length } : {}), ...(out.guarded ? { counted: out.counted, skipped: out.skipped } : {}), ...(out.stamps ? { stamps: out.stamps } : {}), ...(out.retired ? { retired: out.retired, ...(out.retiredTruncated ? { retiredTruncated: true } : {}) } : {}) };
 };
 const sweep = (inv, stores, seenAfter, extra = {}) => serve(inv)({ dealerIds: stores, seenAfter: new Date(seenAfter).toISOString(), sources: ['nightly'], ...extra });
 const legacy = (inv, stores, seenAfter) => sweep(inv, stores, seenAfter);
@@ -388,5 +401,273 @@ describe('client + server together', () => {
     clock.t += 86_400_000;
     const b = await run(row);
     assert.deepEqual([a.removed, b.removed, inv.get('GONE1', 7).removed], [0, 1, true]);
+  });
+});
+
+// ---- crawl stamps (audit 2026-10-29) ---------------------------------------------------------------------------------------------------------------------
+// 10-27 sync: the brand's crawl output X is read, a car is missing -> miss 1. 10-28 sync: the brand was NOT re-crawled, output X is still inside the 30 h
+// freshness window, the same car is missing again -> "miss 2" -> retired. 6,189 of the 10,544 cars retired that night came from brands with no 10-28 crawl.
+describe('crawl stamps: a miss needs a crawl newer than the one behind the previous miss', () => {
+  const g = { minMisses: 2, protectElsewhere: true };
+  const STORE = 13516; // Quirk Subaru of Bangor
+  const W = '2026-10-23T05:00:00Z', X = '2026-10-28T09:14:00Z', Y = '2026-10-31T05:30:00Z';
+  const syncAt = D('2026-10-28T12:52:00Z'), syncNext = D('2026-10-29T12:27:00Z'), syncAfter = D('2026-10-31T12:27:00Z');
+  const withStamp = (iso, store = STORE) => ({ ...g, crawlStamps: { [store]: iso } });
+  /** The store with one car the crawl no longer lists (SOLD) and one it still lists (KEEP). */
+  const quirk = () => { const inv = new FakeInventory(); inv.put('SOLD', STORE, D('2026-10-23T08:00:00Z')); inv.put('KEEP', STORE, syncAt + 1000); return inv; };
+
+  it('REGRESSION 10-28: the same crawl seen by two syncs gives one miss, not two, and nothing is retired', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W));
+    const first = await sweep(inv, [STORE], syncAt, withStamp(X));
+    assert.deepEqual([first.removed, first.counted, inv.get('SOLD', STORE).missCount, first.stamps.swept], [0, 1, 1, [STORE]]);
+    inv.upsert('KEEP', STORE, syncNext + 1000);                                     // the next sync re-uploads the unchanged crawl output
+    const second = await sweep(inv, [STORE], syncNext, withStamp(X));               // same stamp X: no brand job ran in between
+    assert.deepEqual([second.removed, second.counted, second.stamps.unchanged], [0, 0, [STORE]]);
+    assert.deepEqual([inv.get('SOLD', STORE).removed, inv.get('SOLD', STORE).missCount], [false, 1], 'still one miss; the car is kept');
+  });
+
+  it('the same two syncs WITHOUT stamps retire on the second (the bug, kept as a regression marker)', async () => {
+    const inv = quirk();
+    await sweep(inv, [STORE], syncAt, g);
+    inv.upsert('KEEP', STORE, syncNext + 1000);
+    assert.equal((await sweep(inv, [STORE], syncNext, g)).removed, 1);
+  });
+
+  it('a new crawl gives the second miss: stamp Y > X retires the car that was missing in both crawls', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W));
+    await sweep(inv, [STORE], syncAt, withStamp(X));                                // miss 1, from crawl X
+    inv.upsert('KEEP', STORE, syncAfter + 1000);
+    const r = await sweep(inv, [STORE], syncAfter, withStamp(Y));                   // crawl Y, still missing -> miss 2
+    assert.deepEqual([r.removed, r.stamps.swept, inv.get('SOLD', STORE).removed], [1, [STORE], true]);
+    assert.equal(inv.get('KEEP', STORE).removed, false);
+    assert.equal(inv.stamps.get(STORE), D(Y));
+  });
+
+  it('a car the new crawl lists again is not retired: the streak ends with the re-upload', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W));
+    await sweep(inv, [STORE], syncAt, withStamp(X));
+    inv.upsert('SOLD', STORE, syncAfter + 500); inv.upsert('KEEP', STORE, syncAfter + 1000);
+    const r = await sweep(inv, [STORE], syncAfter, withStamp(Y));
+    assert.deepEqual([r.removed, inv.get('SOLD', STORE).removed], [0, false]);
+  });
+
+  it('first-miss cars never retire, however many syncs see the same stamp', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W));
+    for (let night = 0; night < 5; night++) {
+      inv.upsert('KEEP', STORE, syncAt + (night + 1) * 86_400_000 + 1000);
+      await sweep(inv, [STORE], syncAt + (night + 1) * 86_400_000, withStamp(X));
+    }
+    assert.deepEqual([inv.get('SOLD', STORE).removed, inv.get('SOLD', STORE).missCount], [false, 1]);
+  });
+
+  it('protectElsewhere cars never retire or count, with or without a newer stamp', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W));
+    inv.put('SHARED', STORE, D('2026-10-23T08:00:00Z')); inv.put('SHARED', 777, syncAt + 5000);   // live at a sister store, seen more recently
+    for (const [stamp, when] of [[X, syncAt], [Y, syncAfter]]) {
+      inv.upsert('KEEP', STORE, when + 1000);
+      await sweep(inv, [STORE], when, withStamp(stamp));
+    }
+    assert.deepEqual([inv.get('SHARED', STORE).removed, inv.get('SHARED', STORE).missCount], [false, 0], 'untouched by both sweeps');
+    assert.equal(inv.get('SOLD', STORE).removed, true, 'the unprotected car still goes on the second crawl');
+  });
+
+  it('first sight (no stored stamp): counts a new streak but retires nothing, even a car already at miss 1', async () => {
+    const inv = quirk(); inv.put('OLD', STORE, D('2026-10-22T08:00:00Z'), { missCount: 1, missAt: D('2026-10-27T12:00:00Z') }); // counted by the pre-stamp sync
+    const r = await sweep(inv, [STORE], syncAt, withStamp(X));
+    assert.deepEqual([r.removed, r.stamps.countOnly, inv.get('OLD', STORE).removed, inv.get('OLD', STORE).missCount, inv.get('SOLD', STORE).missCount], [0, [STORE], false, 1, 1]);
+    assert.equal(inv.stamps.get(STORE), D(X), 'the stamp is recorded so the next NEW crawl can retire');
+    inv.upsert('KEEP', STORE, syncAfter + 1000);
+    assert.equal((await sweep(inv, [STORE], syncAfter, withStamp(Y))).removed, 2, 'both cars go once crawl Y also misses them');
+  });
+
+  it('first sight with minMisses 3 never advances an existing streak (it could be the same crawl)', async () => {
+    const inv = quirk(); inv.put('OLD', STORE, D('2026-10-22T08:00:00Z'), { missCount: 1, missAt: D('2026-10-27T12:00:00Z') });
+    await sweep(inv, [STORE], syncAt, { minMisses: 3, protectElsewhere: true, crawlStamps: { [STORE]: X } });
+    assert.equal(inv.get('OLD', STORE).missCount, 1);
+  });
+
+  it('a store with no stamp in the request is kept untouched; so is a store the request leaves unstamped among stamped ones', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(W)); inv.put('Z', 5, D('2026-10-20T00:00:00Z')); inv.put('ZK', 5, syncAt + 1000);
+    const r = await sweep(inv, [STORE, 5], syncAt, withStamp(X));
+    assert.deepEqual([r.stamps.noStamp, r.stamps.swept, inv.get('Z', 5).missCount, inv.get('Z', 5).removed], [[5], [STORE], 0, false]);
+    assert.equal(inv.stamps.has(5), false, 'nothing recorded for it');
+  });
+
+  it('a partial-crawl store records no stamp and counts nothing', async () => {
+    const inv = new FakeInventory(); inv.stamps.set(STORE, D(W));
+    for (let i = 0; i < 40; i++) inv.put(`H${i}`, STORE, D('2026-10-23T08:00:00Z'));
+    for (let i = 0; i < 10; i++) inv.put(`F${i}`, STORE, syncAt + 1000);          // 10 fresh of 50 live
+    const r = await sweep(inv, [STORE], syncAt, { ...FULL, crawlStamps: { [STORE]: X } });
+    assert.deepEqual([r.skipped.length, r.removed, r.counted, inv.stamps.get(STORE)], [1, 0, 0, D(W)]);
+  });
+
+  it('a retried older request cannot move a stamp backwards', async () => {
+    const inv = quirk(); inv.stamps.set(STORE, D(Y));
+    const r = await sweep(inv, [STORE], syncAt, withStamp(X));
+    assert.deepEqual([r.stamps.unchanged, inv.stamps.get(STORE)], [[STORE], D(Y)]);
+  });
+
+  it('a client that sends no crawlStamps (or minMisses < 2) gets the behaviour and response it always had', async () => {
+    const inv = quirk();
+    const r = await sweep(inv, [STORE], syncAt, g);
+    assert.equal('stamps' in r, false);
+    assert.equal(inv.statements.some((q) => q.includes(STAMP_TABLE)), false, 'the stamp table is never touched');
+    const p = parse({ dealerId: 1, seenAfter: '2026-10-27T00:00:00Z', minMisses: 1, crawlStamps: { 1: X } });
+    assert.equal('crawlStamps' in p, false, 'ignored without a miss counter');
+  });
+
+  it('request validation: stamps must be an object of integer store id -> ISO time, capped per call', () => {
+    const base = { dealerId: 1, seenAfter: '2026-10-27T00:00:00Z', minMisses: 2 };
+    assert.match(parse({ ...base, crawlStamps: [X] }).error, /crawlStamps/);
+    assert.match(parse({ ...base, crawlStamps: { 1: 'not a date' } }).error, /crawlStamps/);
+    assert.match(parse({ ...base, crawlStamps: { abc: X } }).error, /crawlStamps/);
+    assert.match(parse({ ...base, crawlStamps: Object.fromEntries(Array.from({ length: 201 }, (_, i) => [i, X])) }).error, /limited/);
+    const ok = parse({ ...base, crawlStamps: { 1: '2026-10-28T09:14:00.987Z' } });
+    assert.equal(ok.crawlStamps.get(1), D('2026-10-28T09:14:00Z'), 'truncated to the second, the precision the DATETIME column keeps');
+  });
+
+  it('planByCrawlStamp and the stamp statements keep placeholders and args aligned', () => {
+    const stamps = new Map([[1, 200_000], [2, 100_000], [3, 50_000], [4, 400_000]]);
+    const plan = planByCrawlStamp([1, 2, 3, 4, 5], stamps, [{ dealerId: '1', crawlStamp: new Date(100_000) }, { dealerId: 2, crawlStamp: new Date(100_000) }, { dealerId: 3, crawlStamp: new Date(100_000) }]);
+    assert.deepEqual(plan, { sweep: [1], countOnly: [4], unchanged: [{ dealerId: 2, stamp: 100_000, known: 100_000 }, { dealerId: 3, stamp: 50_000, known: 100_000 }], noStamp: [5] });
+    for (const st of [buildStampSelect([1, 2]), buildStampUpsert([[1, 200_000]], new Date())]) assert.equal((st.sql.match(/\?/g) || []).length, st.args.length, st.sql);
+    assert.match(buildStampUpsert([[1, 200_000]], new Date()).sql, /GREATEST\(crawl_stamp, VALUES\(crawl_stamp\)\)/);
+  });
+});
+
+describe('crawl stamps: the sync client', () => {
+  const g = { minMisses: 2, protectElsewhere: true };
+  const stamps = new Map([[1, '2026-10-28T09:14:00.000Z'], [2, '2026-10-28T09:15:00.000Z'], [3, '2026-10-28T09:16:00.000Z']]);
+
+  it('sends each request only its own stores stamps, and puts the per-store decisions of the API in stampStats', async () => {
+    const calls = [];
+    const api = async (_p, body) => { calls.push(body); return { removed: 0, counted: 0, skipped: [], stamps: { swept: body.dealerIds.slice(0, 1), countOnly: [], unchanged: body.dealerIds.slice(1), noStamp: [] } }; };
+    const r = await runSweep({ api, stores: [1, 2, 3], startedAt: '2026-10-29T12:27:00Z', batchStores: 2, guards: g, crawlStamps: stamps, sleep: async () => {} });
+    assert.deepEqual(calls.map((c) => Object.keys(c.crawlStamps)), [['1', '2'], ['3']]);
+    assert.deepEqual([r.stampStats.swept, r.stampStats.unchanged], [[1, 3], [2]]);
+  });
+
+  it('stamps are not sent without a miss counter', async () => {
+    const calls = [];
+    await runSweep({ api: async (_p, body) => { calls.push(body); return { removed: 0 }; }, stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: {}, crawlStamps: stamps, sleep: async () => {} });
+    assert.equal('crawlStamps' in calls[0], false);
+  });
+
+  it('requireGuards: an API that does not acknowledge stamps stops the sweep before anything is swept', async () => {
+    const calls = [];
+    const api = async (_p, body) => { calls.push(body); return { removed: 0, counted: 0, skipped: [] }; };      // guard-aware but stamp-unaware
+    await assert.rejects(runSweep({ api, stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: g, requireGuards: true, crawlStamps: stamps, sleep: async () => {} }), (e) => e instanceof SweepAbortError && /crawl stamps/.test(e.message));
+    assert.equal(calls.length, 1, 'only the probe went out');
+    assert.deepEqual(calls[0].crawlStamps, {});
+  });
+
+  it('requireGuards: an API that acknowledges stamps lets the sweep run', async () => {
+    const api = async (_p, body) => ({ removed: 0, counted: 0, skipped: [], stamps: { swept: [], countOnly: [], unchanged: [], noStamp: body.dealerIds ? body.dealerIds : [] } });
+    const r = await runSweep({ api, stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: g, requireGuards: true, crawlStamps: stamps, sleep: async () => {}, log: () => {} });
+    assert.equal(r.mode, 'batch');
+  });
+
+  it('noteCrawlStamp keeps the newest record time per store (store 0 = unmatched) and ignores records without one', () => {
+    const m = new Map();
+    noteCrawlStamp(m, 7, '2026-10-28T09:14:00Z'); noteCrawlStamp(m, 7, '2026-10-27T01:00:00Z'); noteCrawlStamp(m, 7, undefined); noteCrawlStamp(m, null, '2026-10-28T03:00:00Z');
+    assert.deepEqual([...crawlStampsToIso(m)], [[7, '2026-10-28T09:14:00.000Z'], [0, '2026-10-28T03:00:00.000Z']]);
+  });
+
+  it('SWEEP_CRAWL_STAMPS: on by default with a miss counter, off with 0 or without one', () => {
+    assert.equal(guardConfigFromEnv({}).crawlStamps, true);
+    assert.equal(guardConfigFromEnv({ SWEEP_CRAWL_STAMPS: '0' }).crawlStamps, false);
+    assert.equal(guardConfigFromEnv({ SWEEP_MIN_MISSES: '1' }).crawlStamps, false);
+  });
+});
+
+// ---- the retired list is what the sweep did (audit 2026-10-29) --------------------------------------------------------------------------------------------
+// The retired-*.csv.gz of 10-29 had 17,155 rows against 10,544 retirements: it was a prediction made before the sweep. With returnRetired the API lists the
+// rows its retire statement stamped, which is the only list a rollback can trust.
+describe('returnRetired: the API lists exactly the rows this call retired', () => {
+  const g = { minMisses: 2, protectElsewhere: true };
+  const T = D('2026-10-29T12:27:00Z'), STORE = 13516, OTHER = 777;
+  const night = () => {
+    const inv = new FakeInventory();
+    inv.put('SECOND', STORE, D('2026-10-23T08:00:00Z'), { missCount: 1, missAt: D('2026-10-28T12:52:00Z') });   // miss 1 counted last night: retires now
+    inv.put('FIRST', STORE, D('2026-10-23T08:00:00Z'));                                                        // first miss: counted, kept
+    inv.put('SHARED', STORE, D('2026-10-23T08:00:00Z'), { missCount: 1, missAt: D('2026-10-28T12:52:00Z') });  // would be retired, but live at a sister store
+    inv.put('SHARED', OTHER, T + 5000);
+    inv.put('GONE', STORE, D('2026-10-20T08:00:00Z'), { removed: true, removedAt: D('2026-10-27T10:00:00Z') }); // retired on an earlier night
+    inv.put('KEEP', STORE, T + 1000);
+    return inv;
+  };
+
+  it('lists the car retired now and nothing else: not first misses, not protected cars, not cars retired on earlier nights', async () => {
+    const inv = night();
+    const r = await sweep(inv, [STORE], T, { ...g, returnRetired: true });
+    assert.equal(r.removed, 1);
+    assert.deepEqual(r.retired.map((x) => [x.vin, x.dealerId, x.missCount, x.lastSeenAt.toISOString()]), [['SECOND', STORE, 1, '2026-10-23T08:00:00.000Z']]);
+    assert.deepEqual([inv.get('FIRST', STORE).removed, inv.get('SHARED', STORE).removed], [false, false]);
+  });
+
+  it('works together with crawl stamps: a store with no new crawl retires and lists nothing', async () => {
+    const inv = night(); inv.stamps.set(STORE, D('2026-10-28T09:14:00Z'));
+    const same = await sweep(inv, [STORE], T, { ...g, returnRetired: true, crawlStamps: { [STORE]: '2026-10-28T09:14:00Z' } });
+    assert.deepEqual([same.removed, same.retired, inv.get('SECOND', STORE).removed], [0, [], false]);
+    const fresh = await sweep(inv, [STORE], T, { ...g, returnRetired: true, crawlStamps: { [STORE]: '2026-10-31T05:30:00Z' } });
+    assert.deepEqual([fresh.removed, fresh.retired.map((x) => x.vin)], [1, ['SECOND']]);
+  });
+
+  it('nothing retired: an empty list and no read-back query', async () => {
+    const inv = night(); inv.rows.delete('SECOND|13516');
+    const r = await sweep(inv, [STORE], T, { ...g, returnRetired: true });
+    assert.deepEqual([r.removed, r.retired], [0, []]);
+    assert.equal(inv.statements.some((q) => q.startsWith('SELECT vin, dealer_id AS dealerId, dealer_name')), false);
+  });
+
+  it('without returnRetired the retire statement is byte-for-byte the old one and the response has no `retired`', async () => {
+    const inv = night();
+    const r = await sweep(inv, [STORE], T, g);
+    assert.equal('retired' in r, false);
+    assert.ok(inv.statements.some((q) => /SET a\.removed_at = CURRENT_TIMESTAMP WHERE/.test(q)), 'CURRENT_TIMESTAMP kept');
+    assert.equal(inv.statements.some((q) => /removed_at = \?/.test(q)), false);
+  });
+
+  it('with returnRetired the retire statement stamps a whole-second time, and the read-back asks for exactly that time', () => {
+    const parsed = parse({ dealerIds: [STORE], seenAfter: '2026-10-29T12:27:00Z', sources: ['nightly'], ...g, returnRetired: true });
+    const at = new Date(1793293765000);
+    const st = buildSweepStatement(parsed, { retiredAt: at });
+    assert.match(st.sql, /SET a\.removed_at = \? WHERE/);
+    assert.equal(st.args[0], at);
+    const sel = buildRetiredSelect(parsed, at);
+    assert.equal((sel.sql.match(/\?/g) || []).length, sel.args.length);
+    assert.match(sel.sql, new RegExp(`LIMIT ${MAX_RETURNED_RETIRED + 1}$`));
+    for (const x of [st, sel]) assert.equal((x.sql.match(/\?/g) || []).length, x.args.length, x.sql);
+  });
+
+  it('validates the flag', () => {
+    assert.match(parse({ dealerId: 1, seenAfter: '2026-10-29T00:00:00Z', returnRetired: 'yes' }).error, /returnRetired/);
+    assert.equal('returnRetired' in parse({ dealerId: 1, seenAfter: '2026-10-29T00:00:00Z', returnRetired: false }), false);
+  });
+});
+
+describe('returnRetired: the sync client', () => {
+  const g = { minMisses: 2, protectElsewhere: true };
+  const row = (vin, dealerId) => ({ vin, dealerId, dealerName: `Store ${dealerId}`, state: 'ME', lastSeenAt: '2026-10-27T08:00:00.000Z', missCount: 1 });
+
+  it('collects the rows of every call into retiredRows and flags that the API reported them', async () => {
+    const api = async (_p, body) => ({ removed: body.dealerIds.length, counted: 0, skipped: [], retired: body.dealerIds.map((id) => row(`V${id}`, id)) });
+    const r = await runSweep({ api, stores: [1, 2, 3], startedAt: '2026-10-29T12:27:00Z', batchStores: 2, guards: g, returnRetired: true, sleep: async () => {} });
+    assert.deepEqual([r.retiredReported, r.retiredIncomplete, r.retiredRows.map((x) => x.vin)], [true, false, ['V1', 'V2', 'V3']]);
+  });
+
+  it('an API that ignores returnRetired reports nothing: retiredReported stays false', async () => {
+    const r = await runSweep({ api: async () => ({ removed: 1, counted: 0, skipped: [] }), stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: g, returnRetired: true, sleep: async () => {} });
+    assert.deepEqual([r.retiredReported, r.retiredRows], [false, []]);
+  });
+
+  it('a resumed sweep says its list is incomplete; without returnRetired the field is never sent', async () => {
+    const calls = [];
+    const api = async (_p, body) => { calls.push(body); return { removed: 0, counted: 0, skipped: [], retired: [] }; };
+    const resumed = await runSweep({ api, stores: [1, 2, 3, 4], startedAt: '2026-10-29T12:27:00Z', batchStores: 2, startIndex: 2, removed: 40, guards: g, returnRetired: true, sleep: async () => {} });
+    assert.equal(resumed.retiredIncomplete, true);
+    calls.length = 0;
+    await runSweep({ api, stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: g, sleep: async () => {} });
+    assert.equal('returnRetired' in calls[0], false);
   });
 });
