@@ -517,3 +517,6 @@ export async function inventoryVinByListingUrl(url: string): Promise<InventoryVe
 export async function sweepInventory(dealerId: string | number, seenAfter: string, sources?: string[]): Promise<{ removed: number }> {
   return request("POST", "/api/inventory/sweep", { dealerId, seenAfter, ...(sources?.length ? { sources } : {}) });
 }
+
+// Shared with lib/dealerAnalyticsApi.ts (same deals-box transport, API key and error type).
+export { request as dealsRequest };
