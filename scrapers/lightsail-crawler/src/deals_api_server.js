@@ -40,6 +40,7 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
 import { createChatAdminHandlers } from "./rfqChatAdmin.js";
 import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
+import { createDealerAnalyticsApi, matchDealerAnalyticsRoute } from "./dealerAnalyticsApi.js";
 import { createStatsCache, warmStatsCache } from "./statsCache.js";
 import { createInventoryStats } from "./inventoryStats.js";
 import { createRefreshTimeouts } from "./refreshTimeouts.js";
@@ -3346,6 +3347,27 @@ async function handleBuyerSearchState(req, res, params) {
   sendJson(res, 200, { ok: true });
 }
 
+// Dealer Analytics read endpoints for the admin page (dealerAnalyticsApi.js). Its own stale-while-revalidate cache: not invCached (every upsert clears
+// it) and not stableCached (its 500-entry cap would let per-dealer keys evict the buyer dropdown entries). Statements run under an 8 s cap.
+const dealerAnalyticsCached = createStableCache({
+  runBackground,
+  ttlMs: 30 * 60_000,
+  maxEntries: 400,
+  filePath: process.env.DEALER_ANALYTICS_CACHE_FILE || "/opt/trimscout-deals/dealer-analytics-cache.json",
+}).get;
+const dealerAnalytics = createDealerAnalyticsApi({
+  cache: dealerAnalyticsCached,
+  query: async (sql, args) => (await withPoolTimeout(
+    getPool().query(`SET STATEMENT max_statement_time=8 FOR ${sql}`, args),
+    waitMs(),
+    "Timed out waiting for an available database connection or a slow query"
+  ))[0],
+});
+async function handleDealerAnalytics(req, res, match, params) {
+  const out = await dealerAnalytics.handle(match, params);
+  sendJson(res, out.status, out.body);
+}
+
 // GET /api/inventory/by-dealer — in-stock counts per store, for the dealer sheet.
 async function handleInventoryByDealer(req, res) {
   const pool = getPool();
@@ -4032,6 +4054,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "GET" && pathname === "/api/inventory/admin-facets") return run(handleInventoryAdminFacets, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/analytics") return run(handleInventoryAnalytics, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/market-pulse") return run(handleMarketPulse, url.searchParams);
+  const dealerAnalyticsMatch = matchDealerAnalyticsRoute(req.method, pathname);
+  if (dealerAnalyticsMatch) return run(handleDealerAnalytics, dealerAnalyticsMatch, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/by-dealer") return run(handleInventoryByDealer);
   if ((req.method === "GET" || req.method === "PUT") && pathname === "/api/buyer-search-state") return run(handleBuyerSearchState, url.searchParams);
   if (req.method === "GET" && pathname === "/api/inventory/catalog") return run(handleInventoryCatalogOptions, url.searchParams);
