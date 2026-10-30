@@ -2,6 +2,8 @@
 
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
+import { QuoteIntro } from "./QuoteIntro";
+import { quoteIntroEnabled } from "@/lib/quoteIntroFlag";
 import { getSession } from "next-auth/react";
 import { TestModeBar } from "./TestModeBar";
 import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
@@ -1095,6 +1097,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   onQuoteRequestSent,
 }) => {
   const [step, setStep] = useState<number>(1);
+  // Short intro before step 1 (lib/quoteIntroFlag.ts): previews only, skipped under prefers-reduced-motion.
+  const [introActive, setIntroActive] = useState(false);
+  useEffect(() => {
+    if (!isOpen) { setIntroActive(false); return; }
+    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setIntroActive(quoteIntroEnabled() && !reduced);
+  }, [isOpen]);
   const [, setStrategy] = useState<BiddingStrategy>("firm_offer");
 
   const [dealerUrlInput, setDealerUrlInput] = useState<string>("");
@@ -2763,6 +2772,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); dismiss(); } }}
     >
       <div className="relative w-full max-w-2xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8" role="dialog" aria-modal="true" aria-label="Configure Quote Request" tabIndex={-1} ref={dialogRef}>
+        {introActive && <QuoteIntro onDone={() => setIntroActive(false)} />}
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-surface-elevated px-6 py-4">
           <div className="flex items-center gap-2">
