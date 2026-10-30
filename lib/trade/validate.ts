@@ -113,7 +113,7 @@ export function parseTradeFields(raw: unknown, now: Date = new Date()): TradePar
     vin, year: Number.isInteger(year) ? year : null, make, model, trim, decodedFromVin: o.decodedFromVin === true,
     mileage: Number.isInteger(mileage) ? mileage : 0, zip,
     conditionBand: conditionBand ?? "good", titleStatus: titleStatus ?? "not_sure", ownership: ownership ?? "owned",
-    lenderName, payoffEstimate, keys: keys ?? "1", historyFlag: historyFlag ?? "no", historyNotes,
+    lenderName, payoffEstimate, sharePayoff: (ownership === "financed" || ownership === "leased") && o.sharePayoff === true, keys: keys ?? "1", historyFlag: historyFlag ?? "no", historyNotes,
     drivetrain: null, options: [], optionsOther: null, // no longer asked; old records keep theirs (coerceTradeIn)
     extColor: null, intColor: null, serviceHistory: null, serviceNotes: null, // no longer asked; old records keep theirs (coerceTradeIn)
     tireBrake, mods: free("mods", o.mods, 300, "the mods") || null, warningLights, intent: "apply_to_deal", dealerNotes,

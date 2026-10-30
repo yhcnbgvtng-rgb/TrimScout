@@ -7,6 +7,7 @@
 import { NextResponse, after } from "next/server";
 import { getRfq, getRfqInviteByViewToken, markTradeSeen, reconfirmTradeAppraisal, RfqApiError, submitTradeAppraisal, submitTradePhotoRequest } from "@/lib/rfqApi";
 import { dealerMayViewTrade, signTradePhotos } from "@/lib/trade/access";
+import { payoffShared, redactDealerTradePayload } from "@/lib/trade/dealerView";
 import { s3Storage } from "@/lib/trade/storage";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
 import { parseAppraisalInput, parsePhotoRequestInput, parseTradeDecline } from "@/lib/trade/dealer";
@@ -41,15 +42,16 @@ export async function GET(req: Request) {
     const invite = rfq.invites.find((i) => i.id === loadedInvite.id) ?? loadedInvite;
     const signed = await signTradePhotos(s3Storage, rfq.tradeIn!.photos);
     await markTradeSeen(rfq.id, invite.id).catch(() => undefined);
-    return NextResponse.json({
-      tradeIn: rfq.tradeIn, signed, appraisal: invite.tradeAppraisal ?? null, photoRequest: invite.tradePhotoRequest ?? null,
+    // Payoff amount + lender are the buyer's to share; without their say-so the dealer sees only that a payoff exists.
+    return NextResponse.json(redactDealerTradePayload({
+      tradeIn: rfq.tradeIn!, signed, appraisal: invite.tradeAppraisal ?? null, photoRequest: invite.tradePhotoRequest ?? null,
       inviteStatus: invite.status, rfqStatus: rfq.status, appraisalOpen: dealerMayAppraise(rfq, invite),
       // The confirm-or-revise step: present only for the desk the buyer selected.
       confirmation: publicConfirmation(invite.tradeConfirmation),
       confirmationStatus: effectiveStatus(invite.tradeConfirmation, new Date()),
       quoteExpiresAt: invite.quote?.expiresAt ?? null,
       thresholdPct: tradeConfirmConfig().thresholdPct,
-    });
+    }, rfq.tradeIn!));
   } catch (err) {
     return tradeErrorResponse(err);
   }
@@ -76,7 +78,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: `That's more than 50% away from the value guide ($${Math.round(guide as number).toLocaleString()}). Confirm it's right to continue.`, needsConfirmation: true, guideValue: guide }, { status: 409 });
       }
       await submitTradeAppraisal(rfq.id, invite.id, { ...parsed.value, outlierConfirmed: outlier ? true : undefined });
-      return NextResponse.json({ ok: true, equityComputed: parsed.value.equityComputed });
+      return NextResponse.json({ ok: true, ...(payoffShared(rfq.tradeIn) ? { equityComputed: parsed.value.equityComputed } : {}) });
     }
     if (body?.kind === "decline") {
       const parsed = parseTradeDecline(body, { quoteExpiresAt: invite.quote?.expiresAt ?? null });

@@ -5,14 +5,22 @@ shows on the compare as its own lines, never inside the dealer's price or the mo
 dealers answer on their quote page; the only emails are the existing SAFE MODE notices (including one "photos
 updated" notice per batch of changes).
 
-## What the buyer enters (Configure Quote Request, Step 3 → "I have a trade-in", default off)
-Off = nothing is collected or sent. On:
+## What the buyer enters (Configure Quote Request, last thing in Step 3: "Do you have a trade-in?")
+**Yes, add my trade** opens the form below inline; **Skip** (or never answering) collects and sends nothing, and Continue stays blocked
+until a "Yes" trade is complete. The buyer can still add one later, after accepting an offer (`AddTradeInPrompt`). Year, make and model
+are dropdowns when the VIN is entered by hand (makes: `lib/trade/vehicleChoices.ts`; models: NHTSA vPIC via `/api/trade/models`, typing is the fallback).
+(Between #462 and this change the wizard only showed a note; the toggle is back as a Yes/Skip question.) On:
 
 | Required | Optional ("Helps you get a sharper number") |
 | --- | --- |
 | VIN (17 chars + check digit; decoded read-only, "Not right? Enter manually" fallback) · mileage · ZIP (defaults to account ZIP) · condition band · title status · ownership (financed/leased also need lender + approximate payoff) · keys · accident/airbag/flood (Yes needs a note) · drivetrain · value-moving options · odometer-match checkbox · **six photos** | colors · service history + notes · tire/brake life · aftermarket mods · warning lights · intent (apply to deal / open to selling outright) |
 
 No title documents, SSN or loan account numbers are collected.
+
+**Payoff privacy.** Financed/leased trades still collect lender + approximate payoff (the buyer-side equity math needs them), but dealers only
+see "Payoff: Yes (amount not shared)" unless the buyer ticks "Show dealers my payoff amount and lender" (`sharePayoff`, default off). The
+redaction (`lib/trade/dealerView.ts`) runs at `/api/quote-invite/trade` and also strips `payoffUsed` / `equityComputed` from the dealer's own
+appraisal and confirm step, since allowance minus equity would give the payoff away. The dealer email says only "Trade-in included".
 
 ## The six required photos
 `front`, `rear`, `driver_side`, `passenger_side`, `odometer` (car ON, mileage readable, warning lights visible), `interior`.

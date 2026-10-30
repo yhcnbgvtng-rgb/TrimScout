@@ -11,7 +11,7 @@ export interface SignedView { slot: TradePhoto["slot"]; label: string; required:
 const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 /** Read-only trade summary: everything the buyer told us, then the labelled photo gallery with a lightbox. */
-export function TradeSummary({ trade: stored, signed }: { trade: TradeInRecord | null | undefined; signed: SignedView[] }) {
+export function TradeSummary({ trade: stored, signed, viewer = "dealer" }: { trade: TradeInRecord | null | undefined; signed: SignedView[]; /** The buyer always sees their own payoff; a dealer sees the amount only when the buyer shared it. */ viewer?: "buyer" | "dealer" }) {
   const [open, setOpen] = useState<SignedView | null>(null);
   // A stored record can be partial (older build, script, unfinished draft): read it tolerantly instead of crashing the page.
   const trade = coerceTradeIn(stored);
@@ -33,7 +33,9 @@ export function TradeSummary({ trade: stored, signed }: { trade: TradeInRecord |
         {row("Condition", `${TRADE_CONDITION_COPY[trade.conditionBand].label}: ${TRADE_CONDITION_COPY[trade.conditionBand].line}`)}
         {row("Title", TITLE_LABELS[trade.titleStatus])}
         {row("Ownership", OWNERSHIP_LABELS[trade.ownership])}
-        {trade.ownership !== "owned" ? row("Lender / est. payoff", `${trade.lenderName || "—"} · ${usd(trade.payoffEstimate)} (estimate; verify)`) : null}
+        {trade.ownership === "owned" ? null : viewer === "buyer" || trade.sharePayoff
+          ? row("Lender / est. payoff", `${trade.lenderName || "—"} · ${usd(trade.payoffEstimate)} (estimate; verify)${viewer === "buyer" ? (trade.sharePayoff ? " · shared with dealers" : " · not shared with dealers") : ""}`)
+          : row("Payoff", "Yes (amount not shared)")}
         {row("Keys", trade.keys === "2+" ? "2 or more" : "1")}
         {row("Accident / airbag / flood", trade.historyFlag === "no" ? "No" : trade.historyFlag === "not_sure" ? "Not sure" : `Yes: ${trade.historyNotes || ""}`)}
         {row("Options", options || "None listed")}
