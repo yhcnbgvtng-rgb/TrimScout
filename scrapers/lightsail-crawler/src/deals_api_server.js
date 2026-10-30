@@ -53,7 +53,7 @@ import { normalizeTransmission } from "./transmission.js";
 import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
 import { parseSweepRequest, runSweepRequest } from "./inventorySweep.js";
 import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
-import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement } from "./vinKeeper.js";
+import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement, buildBlockedIdsSelect, BLOCKED_RANK_MODES } from "./vinKeeper.js";
 import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
 import { parseZeroScrapeRequest, classifyZeroScrape, buildMarkStaleStatement, aggregateZeroScrape, ZERO_SCRAPE_QUERY_SECONDS } from "./zeroScrape.js";
 import { normalizeState } from "./invState.js";
@@ -2706,8 +2706,16 @@ async function handleInventoryDuplicateVins(req, res) {
   if (!parsed.ok) return badRequest(res, parsed.error);
   const sel = buildRowsSelect(parsed.vins);
   const [found] = await pool.query(`SET STATEMENT max_statement_time=20 FOR ${sel.sql}`, sel.args);
-  const plan = planVinKeepers(found.map((r) => ({ vin: r.vin, dealerId: r.dealerId, firstSeenAt: r.firstSeenAt, lastSeenAt: r.lastSeenAt, source: r.source })), { foreignBefore: parsed.foreignBefore });
-  if (parsed.dryRun || plan.retire.length === 0) return sendJson(res, 200, { dryRun: parsed.dryRun, vinsWithDuplicates: plan.vinsWithDuplicates, ...(parsed.dryRun ? { wouldRetire: plan.retire.length } : { retired: 0 }) });
+  // Optional blocked-store rank (vinKeeper.js), OFF unless the request asks for it or DEDUPE_BLOCKED_RANK is set to before-brand / after-brand.
+  const envRank = BLOCKED_RANK_MODES.includes(process.env.DEDUPE_BLOCKED_RANK) ? process.env.DEDUPE_BLOCKED_RANK : "off";
+  const blockedRank = parsed.blockedRank ?? envRank;
+  let blockedDealerIds = [];
+  if (blockedRank !== "off") {
+    try { const bs = buildBlockedIdsSelect(); const [br] = await pool.query(bs.sql, bs.args); blockedDealerIds = br.map((x) => Number(x.dealerId)); }
+    catch (err) { console.warn(`[duplicate-vins] blockedRank=${blockedRank} ignored, crawl_blocked_stores unreadable: ${err.message}`); }
+  }
+  const plan = planVinKeepers(found.map((r) => ({ vin: r.vin, dealerId: r.dealerId, dealerName: r.dealerName, make: r.make, firstSeenAt: r.firstSeenAt, lastSeenAt: r.lastSeenAt, source: r.source })), { foreignBefore: parsed.foreignBefore, blockedRank, blockedDealerIds });
+  if (parsed.dryRun || plan.retire.length === 0) return sendJson(res, 200, { dryRun: parsed.dryRun, vinsWithDuplicates: plan.vinsWithDuplicates, ...(blockedRank !== "off" ? { blockedRank, blockedStores: blockedDealerIds.length } : {}), ...(parsed.dryRun ? { wouldRetire: plan.retire.length } : { retired: 0 }) });
   let retired = 0;
   for (let i = 0; i < plan.retire.length; i += 200) {
     const st = buildRetireStatement(plan.retire.slice(i, i + 200));
