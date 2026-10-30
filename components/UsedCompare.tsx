@@ -21,6 +21,7 @@ import type { LineItem } from "../lib/leaseQuote";
 import { stageOf } from "../lib/dealStages";
 import { DealerAdjustedFlag } from "./DealerAdjustedFlag";
 import { activeOverrides } from "../lib/feeOverride";
+import { CONTACT_SHARED_LINE } from "../lib/acceptShare";
 import { ACCEPT_ORIGINAL_LABEL, COUNTER_DECLINED_NOTE, COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 import { vehicleTitle } from "../lib/vehicleTitle";
 
@@ -278,6 +279,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         ) : null}
         {staged ? null : <button type="button" onClick={onWalk} disabled={busy} className="rounded-lg border border-border px-3 py-1.5 text-[11px] font-bold text-ink-light hover:text-white disabled:opacity-50" data-testid="walk-away">Walk away</button>}
         </div>
+        {staged ? null : <p className="text-[10px] text-ink-faint" data-testid="contact-shared-line">{CONTACT_SHARED_LINE}</p>}
       </div>
     ) : null;
     return { id: invite.id, kind: !used ? "waiting" : expired ? "expired" : "quoted", header, cells, best, muted: expired || invite.status === "declined" || (unsubscribed && !used), picked, footer, detail };

@@ -7,6 +7,8 @@ import { cashOutTheDoor } from "../lib/usedQuote";
 import { COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 import { isExpired } from "../lib/leaseQuote";
 import { DealStageBar } from "./DealStageBar";
+import { useAcceptShare } from "./AcceptShareConfirm";
+import { CONTACT_SHARED_LINE, type ShareContact } from "../lib/acceptShare";
 
 /** Off until the box patch is installed; read at build time. */
 const ACCEPT_ORIGINAL_ON = process.env.NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL === "on";
@@ -47,7 +49,8 @@ function FinalReview({ stage, dealerName, busy, onAccept, onChange, primary, gho
 }
 
 /** One dealer's stage card: where the deal is, the numbers locked so far, and the next thing the buyer can do. */
-function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; invite: RfqInvite; stage: DealStageState; headers: Record<string, string>; onRfq: (r: RfqRequest) => void }) {
+function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: RfqRequest; invite: RfqInvite; stage: DealStageState; headers: Record<string, string>; onRfq: (r: RfqRequest) => void; buyerContact?: ShareContact | null }) {
+  const acceptShare = useAcceptShare(buyerContact);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [counterValue, setCounterValue] = useState("");
@@ -92,6 +95,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
 
   return (
     <section className="space-y-3 rounded-2xl border border-border bg-surface p-4" data-testid="staged-deal-card" data-invite={invite.id} data-stage={stage.stage}>
+      {acceptShare.dialog}
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="text-sm font-bold text-white">{invite.dealerName}</h3>
         <span className="text-[11px] text-ink-muted" data-testid="stage-summary">{stageSummary(stage, Boolean(invite.notSelectedAt))}</span>
@@ -114,7 +118,8 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
           {quoteLive ? (
             <>
               <p className="text-[11px] text-ink-muted">{invite.counterDeclined ? `${COUNTER_DECLINED_STATUS}. Accept it to lock it.` : "Accept this out-the-door price to lock it, or counter below."} Finance terms come after your trade-in.</p>
-              <button type="button" disabled={busy} onClick={() => act({ type: "accept_otd" })} className={primary} data-testid="accept-otd">Accept {usd(cashOutTheDoor(used!))} out the door</button>
+              <button type="button" disabled={busy} onClick={() => acceptShare.request(invite.dealerName, () => act({ type: "accept_otd" }))} className={primary} data-testid="accept-otd">Accept {usd(cashOutTheDoor(used!))} out the door</button>
+              <p className="text-[10px] text-ink-faint" data-testid="contact-shared-line">{CONTACT_SHARED_LINE}</p>
             </>
           ) : invite.counterDeclined && used ? (
             <p className="text-[11px] text-amber-200" data-testid="counter-declined-staged">{COUNTER_DECLINED_STATUS}: {usd(cashOutTheDoor(used))} out the door.</p>
@@ -233,7 +238,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
       ) : null}
 
       {open && stage.stage === "final" ? (
-        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => act({ type: "accept_final" })} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
+        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => acceptShare.request(invite.dealerName, () => act({ type: "accept_final" }), "final")} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
       ) : null}
 
       {stage.stage === "closed" ? (
@@ -262,7 +267,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq }: { rfq: RfqRequest; inv
 }
 
 /** The staged Cash / Finance deals for a request: a one-line-per-dealer overview, then each dealer's card. */
-export function StagedDeals({ rfq, headers, onRfq, onWalkAll }: { rfq: RfqRequest; headers: Record<string, string>; onRfq: (r: RfqRequest) => void; /** Ends the whole request (every dealer) in one step. */ onWalkAll?: () => void }) {
+export function StagedDeals({ rfq, headers, onRfq, onWalkAll, buyerContact }: { buyerContact?: ShareContact | null; rfq: RfqRequest; headers: Record<string, string>; onRfq: (r: RfqRequest) => void; /** Ends the whole request (every dealer) in one step. */ onWalkAll?: () => void }) {
   const cards = rfq.invites
     .filter((i) => i.status !== "declined" && i.status !== "expired")
     .map((i) => ({ invite: i, stage: stageOf(rfq, i) }))
@@ -284,7 +289,7 @@ export function StagedDeals({ rfq, headers, onRfq, onWalkAll }: { rfq: RfqReques
           ))}
         </ul>
       ) : null}
-      {cards.map(({ invite, stage }) => <DealCard key={invite.id} rfq={rfq} invite={invite} stage={stage} headers={headers} onRfq={onRfq} />)}
+      {cards.map(({ invite, stage }) => <DealCard key={invite.id} rfq={rfq} invite={invite} stage={stage} headers={headers} onRfq={onRfq} buyerContact={buyerContact} />)}
       {onWalkAll && rfq.status === "collecting" ? (
         <button type="button" onClick={onWalkAll} className="text-[11px] font-bold text-ink-muted hover:text-rose-400" data-testid="walk-all">Walk away from every dealer</button>
       ) : null}
