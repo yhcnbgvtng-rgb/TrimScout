@@ -9,6 +9,7 @@ import {
   HISTORY_FLAGS, KEYS, OWNERSHIP_LABELS, OWNERSHIPS, TIRE_BRAKES, TIRE_BRAKE_LABELS, TITLE_LABELS, TITLE_STATUSES,
   DEALER_NOTES_MAX, TRADE_CONDITIONS, TRADE_CONDITION_COPY, TRADE_PHOTO_COPY, TRADE_PRIVACY_COPY,
 } from "../../lib/trade/types";
+import { TRADE_MAKES } from "../../lib/trade/vehicleChoices";
 import { isValidVin, parseTradeFields, requiredPhotoProgress, tradeReadiness } from "../../lib/trade/validate";
 
 export interface TradeStepState { ready: boolean; draftId: string | null; token: string | null; firstError: string | null }
@@ -70,6 +71,17 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vin, enabled, manual]);
 
+  // Manual entry is dropdown-first: year, then make, then the models NHTSA lists for that pair (typing is the fallback).
+  const [models, setModels] = useState<string[] | null>(null);
+  const mYear = Number(f.year), mMake = String(f.make || "");
+  const makeIsListed = (TRADE_MAKES as readonly string[]).includes(mMake);
+  useEffect(() => {
+    if (!enabled || !manual || !mYear || !mMake || !makeIsListed) { setModels(null); return; }
+    let live = true;
+    fetch(`/api/trade/models?year=${mYear}&make=${encodeURIComponent(mMake)}`).then((r) => r.json()).then((j) => { if (live) setModels(Array.isArray(j?.models) ? j.models : []); }).catch(() => { if (live) setModels([]); });
+    return () => { live = false; };
+  }, [enabled, manual, mYear, mMake, makeIsListed]);
+
   const parsed = useMemo(() => parseTradeFields(f), [f]);
   const progress = requiredPhotoProgress(draft.photos);
   const errors = parsed.ok ? {} : parsed.errors;
@@ -128,8 +140,13 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
               <div className="grid grid-cols-2 gap-3" data-testid="trade-manual-fields">
                 <div><label className={labelCls}>Year</label>
                   <select value={String(f.year || "")} onChange={(e) => set({ year: Number(e.target.value), decodedFromVin: false })} className={inputCls} aria-label="Trade-in year"><option value="">Year</option>{years.map((y) => <option key={y} value={y}>{y}</option>)}</select><Err k="year" /></div>
-                <div><label className={labelCls}>Make</label><input value={String(f.make || "")} onChange={(e) => set({ make: e.target.value, decodedFromVin: false })} className={inputCls} aria-label="Trade-in make" /><Err k="make" /></div>
-                <div><label className={labelCls}>Model</label><input value={String(f.model || "")} onChange={(e) => set({ model: e.target.value, decodedFromVin: false })} className={inputCls} aria-label="Trade-in model" /><Err k="model" /></div>
+                <div><label className={labelCls}>Make</label>
+                  <select value={makeIsListed ? mMake : mMake ? "__other" : ""} onChange={(e) => set({ make: e.target.value === "__other" ? " " : e.target.value, model: "", decodedFromVin: false })} className={inputCls} aria-label="Trade-in make" data-testid="trade-make"><option value="">Make</option>{TRADE_MAKES.map((m) => <option key={m} value={m}>{m}</option>)}<option value="__other">Other</option></select>
+                  {mMake && !makeIsListed ? <input value={mMake.trim()} onChange={(e) => set({ make: e.target.value })} placeholder="Type the make" className={`${inputCls} mt-2`} aria-label="Trade-in make (other)" /> : null}<Err k="make" /></div>
+                <div><label className={labelCls}>Model</label>
+                  {models && models.length ? (
+                    <select value={models.includes(String(f.model || "")) ? String(f.model) : ""} onChange={(e) => set({ model: e.target.value, decodedFromVin: false })} className={inputCls} aria-label="Trade-in model" data-testid="trade-model"><option value="">Model</option>{models.map((m) => <option key={m} value={m}>{m}</option>)}</select>
+                  ) : <input value={String(f.model || "")} onChange={(e) => set({ model: e.target.value, decodedFromVin: false })} placeholder={mYear && mMake ? "Type the model" : "Pick year and make first"} className={inputCls} aria-label="Trade-in model" data-testid="trade-model" />}<Err k="model" /></div>
                 <div><label className={labelCls}>Trim</label><input value={String(f.trim || "")} onChange={(e) => set({ trim: e.target.value, decodedFromVin: false })} className={inputCls} aria-label="Trade-in trim" /><Err k="trim" /></div>
               </div>
             ) : null}
@@ -157,6 +174,7 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
                 <div><label className={labelCls}>Lender name</label><input value={String(f.lenderName || "")} onChange={(e) => set({ lenderName: e.target.value })} onBlur={touch("lenderName")} className={inputCls} data-testid="trade-lender" /><Err k="lenderName" /></div>
                 <div><label className={labelCls}>Approximate payoff ($)</label><input inputMode="decimal" value={String(f.payoffEstimate ?? "")} onChange={(e) => set({ payoffEstimate: e.target.value.replace(/[^\d.]/g, "") })} onBlur={touch("payoffEstimate")} className={inputCls} data-testid="trade-payoff" /><Err k="payoffEstimate" />
                   <p className="mt-1 text-[11px] text-ink-faint">An estimate is fine. The dealer verifies the exact payoff.</p></div>
+                <label className="flex items-start gap-2 text-xs text-ink-light sm:col-span-2" data-testid="trade-share-payoff-label"><input type="checkbox" checked={f.sharePayoff === true} onChange={(e) => set({ sharePayoff: e.target.checked })} className="mt-0.5" data-testid="trade-share-payoff" />Show dealers my payoff amount and lender. Off by default: dealers only see that there is a payoff.</label>
               </div>
             ) : null}
             <div className="space-y-1.5"><label className={labelCls}>Number of keys</label><Chips value={f.keys} options={KEYS} labels={{ "1": "1", "2+": "2 or more" }} onChange={(v) => set({ keys: v })} testId="trade-keys" /><Err k="keys" /></div>

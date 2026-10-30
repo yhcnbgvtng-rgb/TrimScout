@@ -4,7 +4,7 @@ import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
 import { getSession } from "next-auth/react";
 import { TestModeBar } from "./TestModeBar";
-import { type TradeStepState } from "./trade/TradeInStep";
+import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -1283,8 +1283,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // only holds if a buyer can't just paste it in here; server-side
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
-  // Asked on Step 3: is a trade-in coming? Handled after the OTD price is agreed — never part of the quote.
-  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(false);
+  // Asked at the end of Step 3 ("Do you have a trade-in?"): null = not answered, false = skipped, true = the trade form is open and its details go with the request.
+  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(null);
   // The trade-in step's own state (draft id, readiness). Toggle off = nothing collected, nothing sent.
   const [tradeStep, setTradeStep] = useState<TradeStepState>({ ready: true, draftId: null, token: null, firstError: null });
   const [tradeAttempted, setTradeAttempted] = useState(false);
@@ -1395,7 +1395,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setQuoteDesks({});
     setConfirmedDesks({});
     setDealComment("");
-    setTradeInExpected(false);
+    setTradeInExpected(null);
     setTradeAttempted(false);
     setCreatedDealId(null);
     setSentPackage(null);
@@ -3579,12 +3579,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </WizardSection>
               ) : null}
 
-              <WizardSection title="Trade-in" className="pt-6">
-                <p className="text-xs text-ink-light" data-testid="trade-in-note">
-                  Trade-ins will be completed once we have aligned on the purchase price of the vehicle.
-                </p>
-              </WizardSection>
-
               <WizardSection title="Note to the dealer" hint="Goes to every dealer quoting this request, word for word." className="pt-6">
               {/* Buyer note — scrubbed of contact info before it ever leaves the browser */}
               <div className="space-y-1.5" data-testid="dealer-note">
@@ -3616,6 +3610,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   </p>
                 )}
               </div>
+              </WizardSection>
+
+              {/* Last question before Review & Send. Yes opens the trade-in form; Skip carries on with nothing collected or sent. */}
+              <WizardSection title="Do you have a trade-in?" hint="Optional. Invited dealers see the vehicle, mileage, condition and photos. You can add or change it later in the deal." className="pt-6">
+                <div className="flex gap-2" role="radiogroup" aria-label="Do you have a trade-in?" data-testid="trade-question">
+                  {([[true, "Yes, add my trade", "trade-yes"], [false, "Skip", "trade-skip"]] as const).map(([val, text, id]) => (
+                    <button key={id} type="button" role="radio" aria-checked={tradeInExpected === val} data-testid={id}
+                      onClick={() => { setTradeInExpected(val); if (!val) setTradeAttempted(false); }}
+                      className={`flex-1 rounded-xl border px-3.5 py-2.5 text-xs font-bold transition-all ${tradeInExpected === val ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}>{text}</button>
+                  ))}
+                </div>
+                {tradeInExpected ? (
+                  <div className="mt-4">
+                    <TradeInStep enabled hideToggle onToggle={setTradeInExpected as (on: boolean) => void} defaultZip={zipOk ? huntZip.trim() : null} attempted={tradeAttempted} onState={setTradeStep} />
+                  </div>
+                ) : null}
               </WizardSection>
             </div>
           )}
@@ -3932,13 +3942,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 </div>
               </div>
 
-              {/* Trade-in — after the price, never part of it */}
+              {/* Trade-in — attached to the request when the buyer added one; otherwise handled after the price */}
               <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-xs" data-testid="trade-in-after">
                 <Car className="h-5 w-5 text-ink-muted shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <div className="font-bold text-white">Trade-in</div>
                   <p className="text-[11px] leading-relaxed text-ink-light">
-                    Completed after an out-the-door price is agreed. We&apos;ll work with the dealer to calculate any changes in registration fees and sales tax.
+                    {tradeInExpected
+                      ? "Included with this quote request. Invited dealers see the vehicle, mileage, condition and photos. You can edit it later in the deal."
+                      : "No trade-in on this request. You can add one later in the deal. We'll work with the dealer to calculate any changes in registration fees and sales tax."}
                   </p>
                 </div>
               </div>

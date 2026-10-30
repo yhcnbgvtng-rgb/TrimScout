@@ -16,7 +16,8 @@ const usd = (n: number) => `${n < 0 ? "−" : ""}$${Math.abs(Math.round(n)).toLo
  */
 export function TradeAllowanceFields({ state, set, trade, needsOutlierConfirm }: { state: TradeFormState; set: (patch: Partial<TradeFormState>) => void; trade: TradeInRecord; needsOutlierConfirm?: boolean }) {
   const lien = trade.ownership !== "owned" || trade.payoffEstimate > 0;
-  const live = liveEquity(state, trade.payoffEstimate);
+  const hidden = lien && !trade.sharePayoff; // the buyer kept the payoff amount private: no amount, no equity shown
+  const live = hidden ? null : liveEquity(state, trade.payoffEstimate);
   return (
     <div className="space-y-3" data-testid="appraisal-form">
       <div className="flex gap-2" role="radiogroup" aria-label="Quote the trade or not">
@@ -53,9 +54,11 @@ export function TradeAllowanceFields({ state, set, trade, needsOutlierConfirm }:
           </fieldset>
           <label className="block space-y-1"><span className={label}>Good until</span><input type="date" value={state.goodUntil} onChange={(e) => set({ goodUntil: e.target.value })} className={input} aria-label="Good until" data-testid="good-until" /><span className="text-[10px] text-ink-faint">Leave blank to match your vehicle quote&apos;s expiry. The allowance never outlives the quote.</span></label>
           <div className="space-y-1.5 rounded-lg border border-border bg-background/50 p-3 text-xs" data-testid="payoff-handling">
-            <p className="text-ink-light">Estimated payoff used: <strong className="text-white">{usd(trade.payoffEstimate)}</strong>{trade.lenderName ? ` to ${trade.lenderName}` : ""}</p>
-            {lien ? <label className="flex items-start gap-2 text-ink-light"><input type="checkbox" checked={state.payoffConfirmed} onChange={(e) => set({ payoffConfirmed: e.target.checked })} className="mt-0.5" data-testid="payoff-confirm" />I&apos;ll pay off the lien, and the buyer&apos;s estimated payoff above was used. <span className="text-rose-300">*</span></label> : null}
-            {live ? <p className={`font-bold ${live.equity < 0 ? "text-rose-300" : "text-emerald-300"}`} data-testid="live-equity">Net equity = allowance − payoff = {usd(live.equity)}{live.isRange ? ` (range ${usd(live.lowEq)} to ${usd(live.highEq)})` : ""}{live.equity < 0 ? " · negative equity" : ""}</p> : <p className="text-ink-faint">Enter an allowance to see the equity.</p>}
+            {hidden
+              ? <p className="text-ink-light" data-testid="payoff-hidden">The buyer has a payoff on this vehicle and chose not to share the amount. Quote your allowance for the vehicle; TrimScout applies the payoff on the buyer&apos;s side.</p>
+              : <p className="text-ink-light">Estimated payoff used: <strong className="text-white">{usd(trade.payoffEstimate)}</strong>{trade.lenderName ? ` to ${trade.lenderName}` : ""}</p>}
+            {lien ? <label className="flex items-start gap-2 text-ink-light"><input type="checkbox" checked={state.payoffConfirmed} onChange={(e) => set({ payoffConfirmed: e.target.checked })} className="mt-0.5" data-testid="payoff-confirm" />{hidden ? "I\u2019ll pay off the lien on this vehicle." : "I\u2019ll pay off the lien, and the buyer\u2019s estimated payoff above was used."} <span className="text-rose-300">*</span></label> : null}
+            {hidden ? null : live ? <p className={`font-bold ${live.equity < 0 ? "text-rose-300" : "text-emerald-300"}`} data-testid="live-equity">Net equity = allowance − payoff = {usd(live.equity)}{live.isRange ? ` (range ${usd(live.lowEq)} to ${usd(live.highEq)})` : ""}{live.equity < 0 ? " · negative equity" : ""}</p> : <p className="text-ink-faint">Enter an allowance to see the equity.</p>}
           </div>
           <fieldset className="space-y-1.5"><legend className={label}>Conditions <span className="font-normal normal-case">(optional)</span></legend>
             <div className="flex flex-wrap gap-2">

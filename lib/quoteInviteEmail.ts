@@ -170,7 +170,7 @@ export function quoteInviteHtml(input: QuoteInviteEmailInput): string {
         ${input.purchaseTimelineLabel ? row("Timeline", escapeHtml(input.purchaseTimelineLabel)) : ""}
         ${row("Rooftop", rooftopLine(input))}
         ${input.buyerNote ? row("Buyer says", `<span style="font-weight:400;white-space:pre-wrap">${escapeHtml(input.buyerNote)}</span>`) : ""}
-        ${input.tradeInIncluded ? row("Trade-in", `Included <span style="font-weight:400;color:#475569">— details and 6 photos are on your quote page. Give your trade allowance with your quote there (it's part of the price the buyer compares and the quote can't be sent without it, or without a reason you can't quote it)</span>`) : input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
+        ${input.tradeInIncluded ? row("Trade-in", `Trade-in included <span style="font-weight:400;color:#475569">— the vehicle, mileage, condition and photos are on your quote request page</span>`) : input.tradeInExpected === true ? row("Trade-in", `Coming <span style="font-weight:400;color:#475569">— handled after the out-the-door price is agreed; quote the car on its own</span>`) : ""}
       </table>
     </div>
     <p style="font-size:13px;color:#475569;margin:14px 0 6px">${escapeHtml(copy.helper)}</p>

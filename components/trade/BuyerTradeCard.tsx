@@ -64,7 +64,7 @@ export function BuyerTradeCard({ rfqId, headers, version }: { rfqId: string; hea
       ) : null}
       {show || data.photoRequests.length ? (
         <>
-          {show ? <ErrorBoundary label="trade summary" resetKey={trade.updatedAt}><TradeSummary trade={trade} signed={data.signed} /></ErrorBoundary> : null}
+          {show ? <ErrorBoundary label="trade summary" resetKey={trade.updatedAt}><TradeSummary trade={trade} signed={data.signed} viewer="buyer" /></ErrorBoundary> : null}
           <div className="space-y-2 border-t border-border/60 pt-3">
             <p className="text-xs font-bold text-white">{locked ? "Photos are locked (the request is closed)" : "Replace a photo or add more until you pick a quote"}</p>
             {locked ? null : <p className="text-[11px] text-ink-muted">Dealers are told once when photos change. {TRADE_PRIVACY_COPY}</p>}
