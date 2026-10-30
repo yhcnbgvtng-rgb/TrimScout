@@ -27,6 +27,8 @@ export interface QuoteSeedVehicle {
   dealerId?: string | null;
   dealerName?: string | null;
   dealerState?: string | null;
+  /** The trim as our inventory row spells it ("LT Trail Boss"); preferred over the VIN decoder's spelling. */
+  trim?: string | null;
 }
 
 /** Identity of the store behind a car: its id, else its name + state. Null when the row names no store. */
@@ -87,17 +89,17 @@ const httpUrl = (u: unknown): string | null => {
 export function sanitizeQuoteSeed(raw: unknown): QuoteSeedVehicle[] {
   const out: QuoteSeedVehicle[] = [];
   for (const item of Array.isArray(raw) ? raw : []) {
-    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown; condition?: unknown; dealerId?: unknown; dealerName?: unknown; dealerState?: unknown };
+    const o = (item && typeof item === "object" ? item : {}) as { vin?: unknown; vdpUrl?: unknown; condition?: unknown; dealerId?: unknown; dealerName?: unknown; dealerState?: unknown; trim?: unknown };
     const str = (x: unknown) => (typeof x === "string" && x.trim() ? x.trim().slice(0, 200) : null);
     const vin = typeof o.vin === "string" ? o.vin.trim().toUpperCase() : "";
     if (!VIN.test(vin) || out.some((v) => v.vin === vin)) continue;
-    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl), condition: o.condition === "new" || o.condition === "used" || o.condition === "cpo" ? o.condition : null, dealerId: str(o.dealerId), dealerName: str(o.dealerName), dealerState: str(o.dealerState) });
+    out.push({ vin, vdpUrl: httpUrl(o.vdpUrl), condition: o.condition === "new" || o.condition === "used" || o.condition === "cpo" ? o.condition : null, dealerId: str(o.dealerId), dealerName: str(o.dealerName), dealerState: str(o.dealerState), trim: str(o.trim) });
     if (out.length >= QUOTE_SEED_MAX) break;
   }
   return out;
 }
 
-export function writeQuoteSeed(store: StorageLike, vehicles: Array<{ vin: string; vdpUrl: string | null; condition?: QuoteSeedVehicle["condition"]; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null }>, now: number = Date.now()): QuoteSeedVehicle[] {
+export function writeQuoteSeed(store: StorageLike, vehicles: Array<{ vin: string; vdpUrl: string | null; condition?: QuoteSeedVehicle["condition"]; dealerId?: string | null; dealerName?: string | null; dealerState?: string | null; trim?: string | null }>, now: number = Date.now()): QuoteSeedVehicle[] {
   const seed = sanitizeQuoteSeed(vehicles);
   try { store.setItem(QUOTE_SEED_KEY, JSON.stringify({ at: now, vehicles: seed })); } catch { /* storage blocked: the button then opens a plain wizard */ }
   return seed;
