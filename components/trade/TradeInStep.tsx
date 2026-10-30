@@ -152,7 +152,7 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
             ) : null}
             <div className="grid grid-cols-2 gap-3">
               <div><label className={labelCls} htmlFor="trade-mileage">Mileage</label><input id="trade-mileage" inputMode="numeric" value={String(f.mileage ?? "")} onChange={(e) => set({ mileage: e.target.value.replace(/[^\d]/g, "") })} onBlur={touch("mileage")} className={inputCls} data-testid="trade-mileage" /><Err k="mileage" /></div>
-              <div><label className={labelCls} htmlFor="trade-zip">ZIP where the vehicle is</label><input id="trade-zip" inputMode="numeric" maxLength={5} value={String(f.zip || "")} onChange={(e) => set({ zip: e.target.value.replace(/[^\d]/g, "").slice(0, 5) })} onBlur={touch("zip")} className={inputCls} data-testid="trade-zip" /><Err k="zip" /></div>
+              <div><label className={labelCls} htmlFor="trade-zip">Vehicle ZIP</label><input id="trade-zip" inputMode="numeric" maxLength={5} value={String(f.zip || "")} onChange={(e) => set({ zip: e.target.value.replace(/[^\d]/g, "").slice(0, 5) })} onBlur={touch("zip")} className={inputCls} data-testid="trade-zip" /><Err k="zip" /></div>
             </div>
           </Block>
 
