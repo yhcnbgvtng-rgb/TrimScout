@@ -238,7 +238,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
       ) : null}
 
       {open && stage.stage === "final" ? (
-        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => acceptShare.request(invite.dealerName, () => act({ type: "accept_final" }))} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
+        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => acceptShare.request(invite.dealerName, () => act({ type: "accept_final" }), "final")} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
       ) : null}
 
       {stage.stage === "closed" ? (

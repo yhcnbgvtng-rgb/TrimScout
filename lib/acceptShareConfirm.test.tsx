@@ -19,7 +19,7 @@ describe("accept gate: release only after confirm", () => {
     const gate = createAcceptGate(() => {});
     gate.request("Smith Ford", () => { released += 1; });
     assert.equal(released, 0);
-    assert.deepEqual(gate.pending(), { dealerName: "Smith Ford" });
+    assert.deepEqual(gate.pending(), { dealerName: "Smith Ford", mode: "early" });
     await gate.confirm();
     assert.equal(released, 1);
     await gate.confirm();
@@ -66,10 +66,45 @@ describe("masking and dialog", () => {
     for (const raw of [CONTACT.name, CONTACT.email, CONTACT.phone, "555-0142"]) assert.ok(!html.includes(raw), `raw value leaked: ${raw}`);
   });
 
-  it("says Not on file for a missing field instead of inventing one", () => {
+  it("a partly-missing contact still lists the fields, with Not on file for the gap", () => {
     assert.equal(sharedFields({ email: "a@b.co" }).find((f) => f.key === "phone")?.masked, null);
     const html = renderToStaticMarkup(<AcceptShareDialog dealerName="X" contact={{ email: "a@b.co" }} onConfirm={() => {}} onCancel={() => {}} />);
-    assert.ok(html.includes("Not on file"));
+    assert.ok(html.includes("Not on file") && html.includes("a•••@b.co"));
+  });
+
+  it("a guest with no session sees one line, not three Not on file rows", () => {
+    for (const contact of [null, undefined, {}]) {
+      for (const mode of ["early", "final"] as const) {
+        const html = renderToStaticMarkup(<AcceptShareDialog mode={mode} dealerName="X" contact={contact} onConfirm={() => {}} onCancel={() => {}} />);
+        assert.ok(html.includes("We&#x27;ll ask for your contact info before sharing"));
+        assert.ok(!html.includes("Not on file"));
+      }
+    }
+  });
+
+  it('early mode (Choose / OTD accept): "Nothing is shared yet" copy, Continue + Go back', () => {
+    const html = renderToStaticMarkup(<AcceptShareDialog mode="early" dealerName="Smith Ford" contact={CONTACT} onConfirm={() => {}} onCancel={() => {}} />);
+    assert.ok(html.includes("Nothing is shared yet. When you accept the final deal, your name, phone and email go to Smith Ford only, and they&#x27;ll contact you directly. Other dealers won&#x27;t get your info."));
+    assert.ok(html.includes(">Continue<") && html.includes(">Go back<"));
+    assert.ok(!html.includes("Accept and share my info"));
+    assert.ok(!html.includes("Accepting shares"));
+  });
+
+  it('final mode (Accept final deal): current copy and "Accept and share my info"', () => {
+    const html = renderToStaticMarkup(<AcceptShareDialog mode="final" dealerName="Smith Ford" contact={CONTACT} onConfirm={() => {}} onCancel={() => {}} />);
+    assert.ok(html.includes("Accepting shares your name, phone and email with Smith Ford only."));
+    assert.ok(html.includes(">Accept and share my info<") && !html.includes(">Continue<"));
+  });
+
+  it("the gate defaults to early; only Accept final deal asks for final", async () => {
+    const gate = createAcceptGate(() => {});
+    gate.request("A", () => {});
+    assert.equal(gate.pending()?.mode, "early");
+    gate.request("A", () => {}, "final");
+    assert.equal(gate.pending()?.mode, "final");
+    const src = read("components/StagedDeals.tsx");
+    assert.ok(/type: "accept_final" \}\), "final"\)/.test(src));
+    assert.ok(!/type: "accept_otd" \}\), "final"\)/.test(src));
   });
 
   it("body copy names only the chosen dealer", () => {
@@ -91,7 +126,7 @@ describe("every acceptance site goes through the dialog", () => {
     const src = read("components/StagedDeals.tsx");
     for (const t of ["accept_otd", "accept_final"]) {
       const calls = src.match(new RegExp(`act\\(\\{ type: "${t}" \\}\\)`, "g")) || [];
-      const gated = src.match(new RegExp(`acceptShare\\.request\\([^;]*?\\(\\) => act\\(\\{ type: "${t}" \\}\\)\\)`, "g")) || [];
+      const gated = src.match(new RegExp(`acceptShare\\.request\\([^;]*?\\(\\) => act\\(\\{ type: "${t}" \\}\\)(?:, "final")?\\)`, "g")) || [];
       assert.equal(calls.length, 1, t);
       assert.equal(gated.length, 1, `${t} must be wrapped`);
     }
