@@ -26,7 +26,7 @@
 #   curl -fsSL -o 2026-10-16-rfq-trade-confirm.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-10-16-rfq-trade-confirm.sh && bash 2026-10-16-rfq-trade-confirm.sh
 # Test against a copy (no sudo, no pm2, modules copied from a local source dir instead of downloaded):
 #   TEST_ONLY=1 FILE=/path/to/copy/deals_api_server.js SRC_LOCAL=/path/to/repo/scrapers/lightsail-crawler/src bash 2026-10-16-rfq-trade-confirm.sh
-# Rollback: sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<stamp> /opt/trimscout-deals/src/deals_api_server.js && sudo pm2 restart trimscout-deals-api
+# Rollback: sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<stamp> /opt/trimscout-deals/src/deals_api_server.js && pm2 restart deals-api
 #           (the new column and table are harmless to leave).
 set -euo pipefail
 FILE="${FILE:-/opt/trimscout-deals/src/deals_api_server.js}"
@@ -125,7 +125,7 @@ PY
 
 node --check "$FILE" && echo "syntax ok"
 if [ "$TEST" != "1" ]; then
-  sudo pm2 restart trimscout-deals-api
+  pm2 restart deals-api   # the ubuntu user's pm2 (root's is empty); never --update-env
   sleep 3
   echo "--- process up? (401 = up, key required) ---"
   curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3004/health
