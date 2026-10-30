@@ -94,6 +94,8 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   let upserted = 0;
   let skippedRows = 0;
   const optionStats = { setsReplaced: 0, setsKept: 0, setsUnchanged: 0, rowsWritten: 0, junkDropped: 0 };
+  let exactJunkPurged = 0; // kept out of optionStats: that object is returned and compared whole
+  let policyScopes = null; // the deals API's loaded option-policy scope count (null when it predates the field)
   const server = { upsertMs: 0, optionsMs: 0, optionsReadMs: 0, daysMs: 0, totalMs: 0, requests: 0 };
   const batchWallMs = [];
   let upsertMs = 0;
@@ -129,6 +131,8 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
       optionStats.setsUnchanged += r?.optionSetsUnchanged ?? 0;
       optionStats.rowsWritten += r?.optionRowsWritten ?? 0;
       optionStats.junkDropped += r?.optionJunkDropped ?? 0;
+      exactJunkPurged += r?.optionExactJunkPurged ?? 0;
+      if (Number.isFinite(r?.optionPolicyScopes)) policyScopes = r.optionPolicyScopes;
       if (r && r.timings) {
         server.requests++;
         for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) server[k] += Number(r.timings[k]) || 0;
@@ -153,6 +157,7 @@ export async function runWritePhase({ rows, fileIdentity, api, store, isLockLost
   }
   const sortedBatchMs = batchWallMs.slice().sort((a, b) => a - b);
   log(`[sync] factory options: ${optionStats.setsReplaced} vehicles replaced (${optionStats.rowsWritten} rows, ${optionStats.junkDropped} junk sentences dropped), ${optionStats.setsUnchanged} unchanged (left as-is), ${optionStats.setsKept} kept as-is (no options extracted this run)`);
+  log(`[sync] option clean: optionExactJunkPurged ${exactJunkPurged}, policy scopes loaded ${policyScopes ?? "unknown (deals API does not report it)"}`);
   if (batchWallMs.length) {
     log(`[sync] upsert phase: ${upserted} rows in ${fmtDur(upsertMs)} (${((upserted / Math.max(1, upsertMs)) * 1000).toFixed(1)} rows/s) over ${batchWallMs.length} requests; per-request p50 ${fmtDur(quantile(sortedBatchMs, 0.5))}, p95 ${fmtDur(quantile(sortedBatchMs, 0.95))}`);
   }

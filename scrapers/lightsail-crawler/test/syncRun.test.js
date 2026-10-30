@@ -22,7 +22,7 @@ function memoryStore(initial = null) {
 
 // An in-memory stand-in for the deals API + its table. `clock.t` is the box's clock in ms. `fail.*` can be
 // changed between attempts to "heal" the API.
-function fakeDeals({ clock, rows = [], timings = null, bulkFail = null, sweepFail = null, statsFail = false, batchSweep = true } = {}) {
+function fakeDeals({ clock, rows = [], timings = null, bulkFail = null, sweepFail = null, statsFail = false, batchSweep = true, bulkExtra = null } = {}) {
   const db = new Map(); // `${vin}|${dealerId}` -> { dealerId, lastSeen, removed }
   for (const r of rows) db.set(`${r.vin}|${r.dealerId}`, { dealerId: r.dealerId, lastSeen: r.lastSeen, removed: false });
   const calls = { bulk: [], sweep: [], stats: 0 };
@@ -33,7 +33,7 @@ function fakeDeals({ clock, rows = [], timings = null, bulkFail = null, sweepFai
       calls.bulk.push(vehicles.map((v) => v.vin));
       if (fail.bulk && fail.bulk(calls.bulk.length)) throw retryable();
       for (const v of vehicles) db.set(`${v.vin}|${v.dealerId}`, { dealerId: v.dealerId, lastSeen: clock.t, removed: false });
-      return { upserted: vehicles.length, optionSetsReplaced: 1, optionSetsKept: 2, optionSetsUnchanged: 3, optionRowsWritten: 4, optionJunkDropped: 5, ...(timings ? { timings } : {}) };
+      return { upserted: vehicles.length, optionSetsReplaced: 1, optionSetsKept: 2, optionSetsUnchanged: 3, optionRowsWritten: 4, optionJunkDropped: 5, ...(bulkExtra || {}), ...(timings ? { timings } : {}) };
     }
     if (path === STATS_PATH) {
       calls.stats++;
@@ -101,6 +101,16 @@ describe('a normal run', () => {
     assert.deepEqual(r.optionStats, { setsReplaced: 3, setsKept: 6, setsUnchanged: 9, rowsWritten: 12, junkDropped: 15 });
     assert.ok(logs.some((m) => /deals API time inside those requests/.test(m)));
     assert.ok(logs.some((m) => /factory options: 3 vehicles replaced .* 9 unchanged/.test(m)));
+  });
+
+  it('logs optionExactJunkPurged and the policy scope count, and says so when the deals API predates them', async () => {
+    const clock = { t: T0 };
+    const logs = [];
+    await run({ rows: makeRows(25), api: fakeDeals({ clock, bulkExtra: { optionExactJunkPurged: 7, optionPolicyScopes: 254 } }).api, store: memoryStore(), clock, log: (m) => logs.push(m) });
+    assert.ok(logs.some((m) => /option clean: optionExactJunkPurged 21, policy scopes loaded 254/.test(m)));
+    const old = [];
+    await run({ rows: makeRows(25), api: fakeDeals({ clock }).api, store: memoryStore(), clock, log: (m) => old.push(m) });
+    assert.ok(old.some((m) => /option clean: optionExactJunkPurged 0, policy scopes loaded unknown/.test(m)));
   });
 
   it('keeps the "upserted N/M" progress line existing log readers look for', async () => {

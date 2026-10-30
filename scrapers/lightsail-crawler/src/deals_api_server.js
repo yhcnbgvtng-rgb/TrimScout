@@ -2606,7 +2606,7 @@ async function handleInventoryBulk(req, res) {
   for (const k of ["upsertMs", "optionsMs", "optionsReadMs", "daysMs", "totalMs"]) timings[k] = Math.round(timings[k]);
   // Option counters are reported back so the sync's own log shows what happened to the facet
   // table on every run, instead of it being invisible unless someone queries the DB.
-  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, optionExactJunkPurged, priceGuarded, timings });
+  sendJson(res, 200, { upserted, skipped, optionSetsReplaced, optionSetsKept, optionSetsUnchanged, optionRowsWritten, optionJunkDropped, optionExactJunkPurged, optionPolicyScopes: OPTION_ALLOWLIST.models.size, priceGuarded, timings });
 }
 
 // The option rows each of these vehicles currently has in dealer_inventory_options, grouped by vehicle. One
