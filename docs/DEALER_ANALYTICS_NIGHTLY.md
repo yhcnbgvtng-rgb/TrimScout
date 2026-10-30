@@ -63,9 +63,9 @@ Expected total about 10 to 15 minutes, throttled 200 ms between batches, stateme
 
 ## Install (each step needs its own GO)
 
-1. Copy the files above into `~/dealer-analytics/` on box2 and create `~/dealer-analytics/.env` with the deals-api's `DB_*` values (`DB_WRITER_*` and `DB_READER_*`). `TRIMSCOUT_API_KEY` comes from `~/inventory-sync/.env`. Record md5s.
+1. Copy the files above plus `scripts/box/package.json` (`{"type":"module"}`, without it node treats the `.js` files as CommonJS) into `~/dealer-analytics/` on box2 and create `~/dealer-analytics/.env` with the deals-api's `DB_*` values (`DB_WRITER_*` and `DB_READER_*`). `TRIMSCOUT_API_KEY` comes from `~/inventory-sync/.env`. Record md5s.
 2. `node dealer-analytics-probe.mjs --price-diff --sample=20` and `--suspects` (read-only).
-3. `node dealer-analytics-nightly.mjs --dry-run` once: row counts and a timing, no writes.
+3. `node dealer-analytics-nightly.mjs --dry-run` once: row counts and a timing, no writes (works before the tables exist; the price-drop columns then read 0). Only starts between 06:00 and 18:00 ET, after the sync and with no crawl running.
 4. GO: `--create-tables`.
 5. GO: `dealer-analytics-backfill.mjs` dry run, then `--apply` in an idle window (resumable; pauses itself at 21:30 ET), then `dealer-analytics-probe.mjs --tables` (must be 98% or better).
 6. GO: cron, for example `15 10-17 * * * /home/ubuntu/dealer-analytics/run_dealer_analytics.sh` (hourly; finished days are skipped).

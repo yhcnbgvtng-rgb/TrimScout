@@ -287,6 +287,19 @@ test("buildSummary writes dealers in key order from the per-range queries", asyn
   assert.equal(log.filter((s) => /INSERT INTO dealer_daily_summary/.test(s)).length, 2);
 });
 
+test("dry run before the tables exist: drops read as 0; a real run still fails on the same error", async () => {
+  const missing = Object.assign(new Error("Table 'dealer_price_changes' doesn't exist"), { code: "ER_NO_SUCH_TABLE", errno: 1146 });
+  const q = async (sql, params) => {
+    if (/FROM dealer_price_changes/.test(sql)) throw missing;
+    return scriptedQ([])(sql, params);
+  };
+  const ctx = { checkpoint: async () => {} };
+  const base = { q, ctx, cfg, excluded: excludedSet(), day: "2026-10-31", log: () => {}, computedAt: "t" };
+  const dry = await buildSummary({ ...base, dryRun: true });
+  assert.equal(dry.dealers, 2);
+  await assert.rejects(buildSummary({ ...base, dryRun: false }), /doesn't exist/);
+});
+
 test("backfill: dry run counts without writing or locking; apply writes, saves progress, and releases the lock", async () => {
   const mk = (log) => async (sql, params) => {
     log.push(sql);
