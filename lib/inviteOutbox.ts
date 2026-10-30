@@ -312,7 +312,9 @@ export async function sendBuyerDetailsRelease(
     const mail = buildAcceptedOfferEmail({
       vehicle,
       vin: invite.vehicle?.vin || rfq.vin || "",
-      acceptedOtd: stage.final.summary.trueOtd ?? stage.final.summary.otd,
+      acceptedOtd: stage.final.summary.otd,
+      hasTrade: stage.final.summary.tradeValue != null,
+      netAfterTrade: stage.final.summary.trueOtd,
       url: revealUrl(signRevealToken(rfq.id, invite.id, deps.now), DEALER_EMAIL_BASE_URL),
     });
     const tagged = safeModeTag(invite.dealerName, mail.subject, mail.html);

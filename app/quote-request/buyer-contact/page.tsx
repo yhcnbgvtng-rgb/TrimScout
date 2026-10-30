@@ -10,7 +10,7 @@ import { SiteFooter } from "../../../components/SiteFooter";
 // Where the winning dealer lands from the "View buyer contact info" button in the "Your offer was accepted" email. The link is a
 // signed, expiring, single-dealer token (lib/contactRevealToken.ts). Opening the page shows only the vehicle; pressing
 // "Reveal buyer contact info" is what shows the buyer's name, email and phone, and that press is logged on the deal.
-type Summary = { vehicle: string; vin: string; acceptedOtd: number | null; expiresAt: number };
+type Summary = { vehicle: string; vin: string; acceptedOtd: number | null; netAfterTrade: number | null; expiresAt: number };
 type Contact = { name: string | null; email: string; phone: string | null; zip: string | null };
 const usd = (n: number | null) => (n == null ? "As quoted" : `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`);
 
@@ -64,7 +64,8 @@ function Body() {
           <dl className="mt-4 space-y-1 rounded-xl border border-border/70 bg-surface/50 p-4 text-sm" data-testid="reveal-summary">
             <div className="flex justify-between gap-3"><dt className="text-ink-faint">Vehicle</dt><dd className="font-bold text-white">{summary.vehicle}</dd></div>
             <div className="flex justify-between gap-3"><dt className="text-ink-faint">VIN</dt><dd className="font-bold text-white">{summary.vin}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-ink-faint">Accepted out-the-door total</dt><dd className="font-bold text-white">{usd(summary.acceptedOtd)}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-ink-faint">Accepted out-the-door price</dt><dd className="font-bold text-white">{usd(summary.acceptedOtd)}</dd></div>
+            {summary.netAfterTrade != null && <div className="flex justify-between gap-3"><dt className="text-ink-faint">Net after trade-in</dt><dd className="font-bold text-white">{usd(summary.netAfterTrade)}</dd></div>}
           </dl>
         ) : null}
         {summary && !contact ? (

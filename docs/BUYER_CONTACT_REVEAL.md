@@ -1,7 +1,7 @@
 # Buyer contact reveal (accepted deals)
 
 When the buyer accepts the final deal (`accept_final`, #493) the **winning dealer only** gets one email, **"Your offer was accepted"**:
-vehicle, VIN, the accepted out-the-door total and a **"View buyer contact info"** button. The email contains no buyer name, email or
+vehicle, VIN, the accepted out-the-door price and a **"View buyer contact info"** button. The email contains no buyer name, email or
 phone. This replaced the earlier "Deal accepted, here's your buyer" email and the inline `buyer-details` block on the dealer's quote
 page; there is one flow, not two.
 

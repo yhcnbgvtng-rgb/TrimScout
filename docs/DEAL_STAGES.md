@@ -31,7 +31,7 @@ acceptance of the OTD picks the dealer (the others are closed out, see `NOT_SELE
   `stageForDealer(state, { notSelected })` drops it for a closed-out dealer regardless, and drops `contact` for every dealer (the winner keeps only the marker: `at`, `reveals`).
 * The winning dealer does **not** see them on their quote page and they are **not** in any email. After `accept_final` the winner gets one
   email, **"Your offer was accepted"** (`buildAcceptedOfferEmail`, sent by `sendBuyerDetailsRelease` in the invite outbox): vehicle, VIN,
-  accepted out-the-door total and a **"View buyer contact info"** button. The button opens `/quote-request/buyer-contact?t=<signed token>`
+  accepted out-the-door price and a **"View buyer contact info"** button. The button opens `/quote-request/buyer-contact?t=<signed token>`
   (30 days, one dealer), where **"Reveal buyer contact info"** shows name, email and phone; every press is logged and the buyer's deal
   page shows "Dealer viewed your contact info" with the time. Full design, limits and the box handler: `docs/BUYER_CONTACT_REVEAL.md`.
   The email goes through the SAFE MODE sender, which has no `to` parameter: SAFE MODE, `audit=1` and buyer-test-mode deals all send **only

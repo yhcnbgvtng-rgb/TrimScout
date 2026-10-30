@@ -18,7 +18,7 @@ export interface RevealDeps {
   revealOnBox: (rfqId: string, inviteId: string) => Promise<{ contact: RevealContact; reveals: { count: number; firstAt: string | null; lastAt: string | null } }>;
   now?: number;
 }
-export interface RevealSummary { vehicle: string; vin: string; acceptedOtd: number | null; expiresAt: number }
+export interface RevealSummary { vehicle: string; vin: string; acceptedOtd: number | null; netAfterTrade: number | null; expiresAt: number }
 export type RevealOutcome =
   | { status: 200; body: { contact: RevealContact; viewedAt: string | null } }
   | { status: 200; body: { summary: RevealSummary } }
@@ -59,7 +59,7 @@ export async function describeReveal(token: unknown, ip: string, deps: RevealDep
   if (g.out) return g.out;
   const vehicle = [g.rfq.vehicleYear, g.rfq.vehicleMake, g.rfq.vehicleModel, g.rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
   const s = g.invite.stage?.final?.summary;
-  return { status: 200, body: { summary: { vehicle, vin: g.invite.vehicle?.vin || g.rfq.vin || "", acceptedOtd: s ? s.trueOtd ?? s.otd : null, expiresAt: g.claims.expiresAt } } };
+  return { status: 200, body: { summary: { vehicle, vin: g.invite.vehicle?.vin || g.rfq.vin || "", acceptedOtd: s ? s.otd : null, netAfterTrade: s && s.tradeValue != null ? s.trueOtd : null, expiresAt: g.claims.expiresAt } } };
 }
 
 /** POST: the button. Logged on the box before anything is returned. */

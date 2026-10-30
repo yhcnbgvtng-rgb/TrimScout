@@ -174,12 +174,23 @@ describe("privacy: no dealer sees contact details before acceptance; losing deal
 });
 
 describe("the 'Your offer was accepted' email", () => {
-  const input = () => ({ vehicle: "2026 Toyota RAV4 XLE", vin: "2T3VINEXAMPLE0001", acceptedOtd: finalSummary(accepted(atFinalFinance())).trueOtd, url: "https://www.trimscout.com/quote-request/buyer-contact?t=abc.def" });
-  it("has the agreed subject, the vehicle, VIN, accepted out-the-door total and the 'View buyer contact info' button", () => {
+  const input = () => ({ vehicle: "2026 Toyota RAV4 XLE", vin: "2T3VINEXAMPLE0001", acceptedOtd: finalSummary(accepted(atFinalFinance())).otd, url: "https://www.trimscout.com/quote-request/buyer-contact?t=abc.def" });
+  it("has the agreed subject, the vehicle, VIN, accepted out-the-door price and the 'View buyer contact info' button", () => {
     const m = buildAcceptedOfferEmail(input());
     assert.equal(ACCEPTED_OFFER_SUBJECT, "Your offer was accepted");
     assert.equal(m.subject, "Your offer was accepted: 2026 Toyota RAV4 XLE");
-    for (const v of ["2026 Toyota RAV4 XLE", "2T3VINEXAMPLE0001", "$36,749", ">View buyer contact info<", 'href="https://www.trimscout.com/quote-request/buyer-contact?t=abc.def"']) assert.ok(m.html.includes(v), v);
+    for (const v of ["2026 Toyota RAV4 XLE", "2T3VINEXAMPLE0001", "Accepted out-the-door price", "$43,749", ">View buyer contact info<", 'href="https://www.trimscout.com/quote-request/buyer-contact?t=abc.def"']) assert.ok(m.html.includes(v), v);
+  });
+  it("shows the quoted price as 'Accepted out-the-door price' and 'Net after trade-in' only when a trade is attached", () => {
+    const sum = finalSummary(accepted(atFinalFinance()));
+    assert.equal(sum.tradeValue, 9000);
+    const withTrade = buildAcceptedOfferEmail({ ...input(), hasTrade: sum.tradeValue != null, netAfterTrade: sum.trueOtd }).html;
+    assert.ok(withTrade.includes("Accepted out-the-door price") && withTrade.includes("$43,749"));
+    assert.ok(withTrade.includes("Net after trade-in") && withTrade.includes("$36,749"));
+    assert.ok(!withTrade.includes("Accepted out-the-door total"));
+    const noTrade = buildAcceptedOfferEmail({ ...input(), hasTrade: false, netAfterTrade: 43749 }).html;
+    assert.ok(noTrade.includes("Accepted out-the-door price") && !noTrade.includes("Net after trade-in"));
+    assert.ok(!buildAcceptedOfferEmail(input()).html.includes("Net after trade-in"), "default is no trade row");
   });
   it("contains no buyer name, email, phone or ZIP, and never says 'bid'", () => {
     const m = buildAcceptedOfferEmail(input());
@@ -190,7 +201,7 @@ describe("the 'Your offer was accepted' email", () => {
   it("the builder's input type has no contact field at all", () => {
     const src = read("lib/dealStageNotice.ts");
     const body = src.slice(src.indexOf("export interface AcceptedOfferEmailInput"), src.indexOf("export const ACCEPTED_OFFER_SUBJECT"));
-    assert.deepEqual([...body.matchAll(/^  (\w+): /gm)].map((m) => m[1]), ["vehicle", "vin", "acceptedOtd", "url"]);
+    assert.deepEqual([...body.matchAll(/^  (\w+)\??: /gm)].map((m) => m[1]), ["vehicle", "vin", "acceptedOtd", "netAfterTrade", "hasTrade", "url"]);
   });
   it("escapes its text", () => {
     assert.ok(!buildAcceptedOfferEmail({ ...input(), vehicle: "<script>x</script>" }).html.includes("<script>"));

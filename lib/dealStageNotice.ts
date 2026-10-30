@@ -100,8 +100,12 @@ export function buildTradeAddedNotice(i: { dealerName: string; vehicle: string; 
 export interface AcceptedOfferEmailInput {
   vehicle: string;
   vin: string;
-  /** What the buyer accepted, out the door (the true out-the-door total on the final summary). */
+  /** The out-the-door price the dealer quoted and the buyer accepted (final summary `otd`). */
   acceptedOtd: number | null;
+  /** The net out-the-door after trade-in and payoff (final summary `trueOtd`); shown only when `hasTrade`. */
+  netAfterTrade?: number | null;
+  /** True when a trade-in value was agreed on this deal. */
+  hasTrade?: boolean;
   /** The signed, expiring reveal page link (lib/contactRevealToken.ts). */
   url: string;
 }
@@ -115,7 +119,8 @@ export const REVEAL_BUTTON_LABEL = "View buyer contact info";
  * Sent only through the outbox's SAFE MODE sender (lib/inviteOutbox.ts), so it lands at SAFE_MODE_RECIPIENT whatever the deal.
  */
 export function buildAcceptedOfferEmail(i: AcceptedOfferEmailInput): { subject: string; html: string } {
-  const rows: Array<[string, string]> = [["Vehicle", i.vehicle], ["VIN", i.vin], ["Accepted out-the-door total", i.acceptedOtd != null ? usd(i.acceptedOtd) : "As quoted"]];
+  const rows: Array<[string, string]> = [["Vehicle", i.vehicle], ["VIN", i.vin], ["Accepted out-the-door price", i.acceptedOtd != null ? usd(i.acceptedOtd) : "As quoted"]];
+  if (i.hasTrade && i.netAfterTrade != null) rows.push(["Net after trade-in", usd(i.netAfterTrade)]);
   const table = `<table style="font-size:14px;border-collapse:collapse;width:100%">${rows.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b">${esc(k)}</td><td style="padding:4px 0;font-weight:600">${esc(v)}</td></tr>`).join("")}</table>`;
   const html = `<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;color:#111;">
     <h1 style="font-size:18px;margin:0 0 8px;">${esc(ACCEPTED_OFFER_SUBJECT)}</h1>

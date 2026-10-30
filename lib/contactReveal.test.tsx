@@ -138,10 +138,25 @@ describe("the reveal works only with a valid token", () => {
     const w = world();
     const out = await describeReveal(w.tokenFor("11"), "5.5.5.5", w.deps);
     assert.equal(out.status, 200);
-    const s = (out.body as { summary: { vehicle: string; vin: string; acceptedOtd: number } }).summary;
-    assert.deepEqual([s.vehicle, s.vin, s.acceptedOtd], ["2026 Toyota RAV4 XLE", "VINX", 43749]);
+    const s = (out.body as { summary: { vehicle: string; vin: string; acceptedOtd: number; netAfterTrade: number | null } }).summary;
+    assert.deepEqual([s.vehicle, s.vin, s.acceptedOtd, s.netAfterTrade], ["2026 Toyota RAV4 XLE", "VINX", 43749, null]);
     for (const secret of [CONTACT.email, CONTACT.name, CONTACT.phone]) assert.ok(!JSON.stringify(out.body).includes(secret));
     assert.equal(w.b.events.length, 0);
+  });
+});
+
+describe("the page summary with a trade attached", () => {
+  it("shows the quoted price and the net after trade-in", async () => {
+    const tctx = { ...ctx, hasTradeInOnFile: true, tradePayoff: 2000 };
+    const step = (s: DealStageState | null, a: StageAction, actor: "buyer" | "dealer", extra: object = {}) => (applyStageAction(s, { ...a, actor }, { ...tctx, ...extra }) as { ok: true; state: DealStageState }).state;
+    let st = step(initialStageState({ tradeInExpected: true }), { type: "accept_otd" }, "buyer");
+    st = step(st, { type: "trade_offer", value: 9000 }, "dealer");
+    st = step(st, { type: "trade_accept" }, "buyer");
+    st = step(step(st, { type: "choose_cash" }, "buyer"), { type: "accept_final" }, "buyer", { buyerContact: CONTACT });
+    const deps: RevealDeps = { getRfq: async () => rfqOf([invite("11", "Winner Motors", st)]), revealOnBox: async () => { throw new Error("not called"); }, now: T0 };
+    const out = await describeReveal(signRevealToken("7", "11", T0), "6.6.6.6", deps);
+    const s = (out.body as { summary: { acceptedOtd: number; netAfterTrade: number } }).summary;
+    assert.deepEqual([s.acceptedOtd, s.netAfterTrade], [43749, 36749]);
   });
 });
 
