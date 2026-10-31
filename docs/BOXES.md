@@ -38,8 +38,8 @@ All four crawler checkouts are at `b8ea6e3` (2026-09-22), **150 commits behind `
 
 | Box | Cron | CRAWL_STATES | Settings |
 |---|---|---|---|
-| box1 | 22:00 `run-daily-crawl`; sync 22:05 via `~/inventory-sync/run_sync_when_safe.sh` | AK,AZ,CT,DE,IA,ID,KS,LA,MN,NY,OH,RI,VA | `CRAWLER_MAX_CONCURRENT_STATES=2`, P90=55, `CRAWLER_LITE_NIGHTLY=shadow` |
-| box2 | 22:00 `run-daily-crawl`; sync 22:10 | AL,CA,CO,GA,IN,MD,ME,MT,NC,ND,NV,OK,OR,PA,TN,TX,VT,WV,WY | concurrency 6, P90=30 |
+| box1 | 22:00 `run-daily-crawl`; sync 22:05 via `~/inventory-sync/run_sync_when_safe.sh` | AK,AZ,CT,DE,IA,ID,KS,LA,MN,OH,RI,VA (NY moves to box2 at install, see [STEPS](box-patches/2026-10-31-crawl-rebalance-ny-box1-to-box2/STEPS.md)) | `CRAWLER_MAX_CONCURRENT_STATES=2`, P90=55, `CRAWLER_LITE_NIGHTLY=shadow` |
+| box2 | 22:00 `run-daily-crawl`; sync 22:10 | AL,CA,CO,GA,IN,MD,ME,MT,NC,ND,NV,NY,OK,OR,PA,TN,TX,VT,WV,WY (NY added at install) | concurrency 6, P90=30 |
 | box3 | 22:00 `run_nightly_chain.sh` | expansion: AL,IA,IN,LA,MI,NJ,OH,PA,TX,VA,WI; then core: AR,MA,MO,NH,SC,SD,NE,UT,WI | expansion concurrency 4, max 1000/dealer; core concurrency 6 |
 | box4 | 22:00 `run_nightly_chain.sh` | expansion: CA,FL,GA,IL,KY,MA,MN,MO,NC,NY,OK,TN; then core: FL,HI,IL,KY,MI,MS,NJ,NM,WA | not reported (concurrency/limits UNVERIFIED) |
 
