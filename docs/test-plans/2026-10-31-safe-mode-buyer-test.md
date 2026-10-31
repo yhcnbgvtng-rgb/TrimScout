@@ -51,6 +51,7 @@ Base URL: https://www.trimscout.com
 1. On `/rfq/<id>` click **Choose this quote** (lease/used/compare cards), or in the staged flow click the OTD accept and **Accept final deal**.
 2. Expected next to each Choose button: "Your contact info is shared only with the dealer you choose."
 3. Expected dialog: title **Share your info with <Dealer>?**; body "Accepting shares your name, phone and email with <Dealer> only. They'll contact you directly... Other dealers won't get your info."; masked fields (e.g. `P•••`, `•••-•••-0142`, `p•••@outlook.com`), or **Not on file** for a missing field; buttons **Accept and share my info** and **Go back**.
+   Early stage (choosing a quote / accepting the OTD price, nothing released yet): body reads "Nothing is shared yet. When you accept the final deal, your name, phone and email go to <Dealer> only..." with a **Continue** button. The "Accepting shares..." body and **Accept and share my info** appear on **Accept final deal**. A guest with no contact on file sees "We'll ask for your contact info before sharing".
 4. Click **Go back**. Expected: dialog closes, nothing accepted, no email.
 5. Repeat and click **Accept and share my info**. Expected: acceptance goes through once.
 6. Phone width (390 px): Expected bottom sheet. From `sm` up: centred card.
