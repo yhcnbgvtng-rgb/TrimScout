@@ -1,22 +1,22 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { acceptShareBody, ACCEPT_CONTINUE_BUTTON, GUEST_CONTACT_LINE, ACCEPT_SHARE_BUTTON, ACCEPT_SHARE_CANCEL, createAcceptGate, sharedFields, type AcceptMode, type ShareContact } from "../lib/acceptShare";
+import { acceptShareBody, ACCEPT_CONTINUE_BUTTON, guestShareLine, ACCEPT_SHARE_BUTTON, ACCEPT_SHARE_CANCEL, createAcceptGate, sharedFields, type AcceptMode, type ShareContact } from "../lib/acceptShare";
 
 /** The confirm dialog: a bottom sheet on phones, a centred card from sm up. Presentational; the gate decides what runs. */
 export function AcceptShareDialog({ dealerName, contact, onConfirm, onCancel, busy = false, mode = "final" }: { mode?: AcceptMode; dealerName: string; contact: ShareContact | null | undefined; onConfirm: () => void; onCancel: () => void; busy?: boolean }) {
   const fields = sharedFields(contact);
-  const guest = fields.every((f) => f.masked === null);
+  const guestLine = contact?.guest ? guestShareLine(contact.email, dealerName) : null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4" role="presentation" data-testid="accept-share-overlay">
       <div role="alertdialog" aria-modal="true" aria-labelledby="accept-share-title" aria-describedby="accept-share-body" className="w-full max-w-md space-y-3 rounded-t-2xl border border-border bg-surface p-5 sm:rounded-2xl" data-testid="accept-share-dialog">
         <h2 id="accept-share-title" className="text-sm font-bold text-white">Share your info with {dealerName}?</h2>
         <p id="accept-share-body" className="text-xs text-ink-light" data-testid="accept-share-body">{acceptShareBody(dealerName, mode)}</p>
-        {guest ? <p className="rounded-lg border border-border/70 p-3 text-[11px] text-ink-light" data-testid="accept-share-guest">{GUEST_CONTACT_LINE}</p> : <dl className="space-y-1 rounded-lg border border-border/70 p-3 text-[11px]" data-testid="accept-share-fields">
+        {guestLine ? <p className="rounded-lg border border-border/70 p-3 text-[11px] text-ink-light" data-testid="accept-share-guest">{guestLine}</p> : <dl className="space-y-1 rounded-lg border border-border/70 p-3 text-[11px]" data-testid="accept-share-fields">
           {fields.map((f) => (
             <div key={f.key} className="flex justify-between gap-3" data-testid={`accept-share-${f.key}`}>
               <dt className="text-ink-faint">{f.label}</dt>
-              <dd className="text-right font-bold text-white">{f.masked ?? "Not on file"}</dd>
+              <dd className="text-right font-bold text-white">{f.value ?? "Not on file"}</dd>
             </div>
           ))}
         </dl>}

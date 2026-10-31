@@ -19,6 +19,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { CONTACT_SHARED_LINE } from "../../../lib/acceptShare";
 import { useAcceptShare } from "../../../components/AcceptShareConfirm";
+import { guestEmailFromBuyerId, type ShareContact } from "../../../lib/acceptShare";
 import { inviteOfQuote } from "../../../lib/rfqClose";
 import { useGuestAccess } from "../../../lib/guestToken";
 import {
@@ -394,7 +395,9 @@ export default function RfqWorkspacePage() {
   }, [canLoad, load]);
 
   // Every "Choose this quote" goes through the confirm dialog first; the pick itself is unchanged and only runs on confirm.
-  const buyerContact = (sessionData?.user ?? null) as { name?: string | null; email?: string | null; phone?: string | null } | null;
+  const sessionUser = (sessionData?.user ?? null) as { name?: string | null; email?: string | null; phone?: string | null } | null;
+  // A guest has no session: accept_final releases the email their request is owned by, so that is what the dialog shows.
+  const buyerContact: ShareContact | null = sessionUser ?? (rfq ? { email: guestEmailFromBuyerId(rfq.buyerUserId), guest: true } : null);
   const acceptShare = useAcceptShare(buyerContact);
   const requestPick = (quoteId: string) => {
     const winner = rfq ? inviteOfQuote(rfq, quoteId) : null;

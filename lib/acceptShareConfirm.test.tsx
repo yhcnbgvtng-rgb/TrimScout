@@ -1,5 +1,5 @@
 // The "Accept and share my info" confirm step: nothing that picks a winner or releases the buyer's details runs before the
-// buyer confirms, "Go back" runs nothing, the dialog shows masked fields only, and every acceptance site goes through it.
+// buyer confirms, "Go back" runs nothing, the dialog shows the buyer's own full details, and every acceptance site goes through it.
 import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -7,7 +7,7 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { acceptShareBody, createAcceptGate, maskEmail, maskName, maskPhone, sharedFields, CONTACT_SHARED_LINE } from "./acceptShare";
+import { acceptShareBody, createAcceptGate, guestEmailFromBuyerId, sharedFields, CONTACT_SHARED_LINE } from "./acceptShare";
 import { AcceptShareDialog } from "../components/AcceptShareConfirm";
 
 const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
@@ -47,38 +47,34 @@ describe("accept gate: release only after confirm", () => {
   });
 });
 
-describe("masking and dialog", () => {
-  it("masks email, phone and name", () => {
-    assert.equal(maskEmail("pat@outlook.com"), "p•••@outlook.com");
-    assert.equal(maskPhone("(973) 555-0142"), "•••-•••-0142");
-    assert.equal(maskName("Pat Buyer"), "P••• B•••");
-    assert.equal(maskEmail(null), null);
-    assert.equal(maskPhone("12"), null);
-    assert.equal(maskName("  "), null);
+describe("full values and dialog", () => {
+  it("returns trimmed raw values and null for blanks", () => {
+    assert.deepEqual(sharedFields({ name: " Pat Buyer ", phone: "(973) 555-0142", email: "pat@outlook.com" }).map((f) => f.value), ["Pat Buyer", "(973) 555-0142", "pat@outlook.com"]);
+    assert.deepEqual(sharedFields({ name: "  ", email: null }).map((f) => f.value), [null, null, null]);
+    assert.equal(guestEmailFromBuyerId("guest:pat@outlook.com"), "pat@outlook.com");
+    assert.equal(guestEmailFromBuyerId("42"), null);
   });
 
-  it("shows the exact copy, both buttons and masked fields only", () => {
+  it("signed-in: shows the exact copy, both buttons and the full name, phone and email", () => {
     const html = renderToStaticMarkup(<AcceptShareDialog dealerName="Smith Ford" contact={CONTACT} onConfirm={() => {}} onCancel={() => {}} />);
     assert.ok(html.includes("Accepting shares your name, phone and email with Smith Ford only. They&#x27;ll contact you directly to finish the deal. Other dealers won&#x27;t get your info."));
     assert.ok(html.includes("Accept and share my info"));
     assert.ok(html.includes("Go back"));
-    for (const m of ["P••• B•••", "•••-•••-0142", "p•••@outlook.com"]) assert.ok(html.includes(m), m);
-    for (const raw of [CONTACT.name, CONTACT.email, CONTACT.phone, "555-0142"]) assert.ok(!html.includes(raw), `raw value leaked: ${raw}`);
+    for (const v of [CONTACT.name, CONTACT.phone, CONTACT.email]) assert.ok(html.includes(v), v);
+    assert.ok(!html.includes("•••"), "nothing masked");
   });
 
   it("a partly-missing contact still lists the fields, with Not on file for the gap", () => {
-    assert.equal(sharedFields({ email: "a@b.co" }).find((f) => f.key === "phone")?.masked, null);
     const html = renderToStaticMarkup(<AcceptShareDialog dealerName="X" contact={{ email: "a@b.co" }} onConfirm={() => {}} onCancel={() => {}} />);
-    assert.ok(html.includes("Not on file") && html.includes("a•••@b.co"));
+    assert.ok(html.includes("Not on file") && html.includes("a@b.co"));
   });
 
-  it("a guest with no session sees one line, not three Not on file rows", () => {
-    for (const contact of [null, undefined, {}]) {
-      for (const mode of ["early", "final"] as const) {
-        const html = renderToStaticMarkup(<AcceptShareDialog mode={mode} dealerName="X" contact={contact} onConfirm={() => {}} onCancel={() => {}} />);
-        assert.ok(html.includes("We&#x27;ll ask for your contact info before sharing"));
-        assert.ok(!html.includes("Not on file"));
-      }
+  it("a guest sees exactly which email goes to the dealer, in both modes", () => {
+    for (const mode of ["early", "final"] as const) {
+      const html = renderToStaticMarkup(<AcceptShareDialog mode={mode} dealerName="Smith Ford" contact={{ email: "pat@outlook.com", guest: true }} onConfirm={() => {}} onCancel={() => {}} />);
+      assert.ok(html.includes("Your email pat@outlook.com goes to Smith Ford"));
+      assert.ok(!html.includes("We&#x27;ll ask") && !html.includes("Not on file"));
+      assert.ok(html.includes(mode === "early" ? ">Continue<" : ">Accept and share my info<"));
     }
   });
 
