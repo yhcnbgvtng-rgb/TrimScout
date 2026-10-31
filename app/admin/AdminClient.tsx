@@ -59,6 +59,12 @@ export default function AdminClient() {
               <span>Chat review</span>
             </Link>
             <Link
+              href="/admin/dealer-analytics"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-elevated hover:bg-surface px-3 py-1.5 text-xs font-bold text-ink-light hover:text-white transition-all shadow-sm"
+            >
+              <span>Dealer analytics</span>
+            </Link>
+            <Link
               href="/admin/quote-requests"
               className="inline-flex items-center gap-1.5 rounded-xl border border-brand-500/40 bg-brand-500/10 hover:bg-brand-500/20 px-3 py-1.5 text-xs font-bold text-brand-300 hover:text-white transition-all shadow-sm"
             >
