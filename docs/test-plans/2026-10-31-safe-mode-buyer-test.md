@@ -8,7 +8,7 @@ One test buyer account, one test dealer, website only. Covers #638, #639, #640, 
 - The test dealer acts through the link in its SAFE MODE email (a quote request page). Open it in a private window so the buyer session stays signed in.
 - Do not click anything on a live dealer page that is not part of a step. Stop on any unexpected real-dealer send.
 - Record pass/fail and a screenshot per step. Write the actual text if it differs from "Expected".
-- Items marked **needs box patch** depend on a box2 change that the PRs did not apply. A failure there is a known gap, not a regression.
+- The #643 box patch is applied on box2 (Oct 30, 14:07 ET, `deals_api_server.js` bd11ff77). Step 5 is therefore a plain pass/fail check.
 
 Base URL: https://www.trimscout.com
 
@@ -57,14 +57,13 @@ Base URL: https://www.trimscout.com
 6. Phone width (390 px): Expected bottom sheet. From `sm` up: centred card.
 7. Not applicable: the dealer accepting a buyer's counter on the dealer token page has no dialog by design.
 
-## 5. Accepted-offer email and reveal (#643): needs box patch
-Reveal needs the box2 deals-api wiring in `docs/BUYER_CONTACT_REVEAL.md`. Until applied, step 5.5 shows the error text instead.
+## 5. Accepted-offer email and reveal (#643)
 1. After step 4 with **Accept final deal**, check pausmi@outlook.com.
 2. Expected email: subject **Your offer was accepted** (tagged `[SAFE MODE ...]`); rows Vehicle, VIN, **Accepted out-the-door price**; button **View buyer contact info**. The email has **no buyer name, email or phone**. Only the winning dealer's notice is sent; losing dealers get the not-selected notice instead.
 3. Open the button in the test dealer window: `/quote-request/buyer-contact?t=...`. Expected: vehicle, VIN, total, and a **Reveal buyer contact info** button; no buyer details yet.
 4. Check the buyer deal page before pressing. Expected: no "Dealer viewed your contact info" line.
-5. Press **Reveal buyer contact info**. Expected (patched box): name, email, phone appear. Unpatched box: "We couldn't open the contact info just now." and nothing revealed (fail closed, correct).
-6. Reload the buyer's deal page. Expected: **Dealer viewed your contact info · <date, time>**.
+5. Press **Reveal buyer contact info**. **PASS** only if the buyer's name, email and phone appear. **FAIL** if you see "We couldn't open the contact info just now." or nothing is revealed; record that as a bug.
+6. Reload the buyer's deal page. **PASS** only if it shows **Dealer viewed your contact info · <date, time>**; FAIL if the line is missing after a successful reveal.
 7. Check the dealer's regular quote page. Expected: buyer details are not shown; it says contact info is not shown and to use the "View buyer contact info" link.
 8. Optional: edit one character of `t` in the link. Expected: no reveal.
 
@@ -83,10 +82,11 @@ Reveal needs the box2 deals-api wiring in `docs/BUYER_CONTACT_REVEAL.md`. Until 
 5. Flag: on in Production; `NEXT_PUBLIC_QUOTE_INTRO=0` turns it off (not testable from the site).
 
 ## 8. "Unverified email" for BMW of Westlake (#655)
-1. Open `/search`. Filter or search for dealer **BMW of Westlake** (Ohio) and a BMW row.
-2. Column **Contact on file**. Expected: **Unverified email** (not "No", not "Yes"). The directory holds a Ganley BMW address that is not tied to the store.
-3. Check the contact filter. Expected: unchanged behaviour (an unverified address is not counted as on file).
-4. In the wizard dealer list the same dealer reads **Unverified email**, and no quote email goes to that address.
+1. Open https://trimscout.com/search?state=OH&make=BMW.
+2. Find the **BMW of Westlake** rows. In the **Contact on file** column each should read **Unverified email** (not "No", not "Yes"). The directory holds a Ganley BMW address that is not tied to the store.
+3. PASS: every BMW of Westlake row shows **Unverified email**. FAIL: any shows Yes or No; note the VIN.
+4. Check the contact filter. Expected: unchanged behaviour (an unverified address is not counted as on file).
+5. In the wizard dealer list the same dealer reads **Unverified email**, and no quote email goes to that address.
 
 ## Wrap-up
 - Inbox pausmi@outlook.com: expected email count per step 1, 3, 4, 5. All tagged `[SAFE MODE ...]`. Report any untagged email as a stop-everything bug.
