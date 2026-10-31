@@ -13,7 +13,6 @@ const ALLOWED_FILES = new Set([
   "lib/buyerCounter.ts",
   // Not in this change's scope; still carry real bid wording. Remove each entry as its copy is reworded.
   "components/DealerPortal.tsx", // dealer-facing portal, reworded separately
-  "components/LiveDealRoom.tsx", // one buyer-facing line ("leaderboard bids")
 ]);
 
 // "not a bid", "never a binding bid", "not an auction, not a bid" are the disclaimers we want to keep.

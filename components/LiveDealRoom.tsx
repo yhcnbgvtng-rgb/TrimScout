@@ -86,7 +86,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
           consecutiveFailures = 0;
           setPollTrouble(false);
         } else {
-          throw new Error(`bids poll failed (${bidsRes.status})`);
+          throw new Error(`quotes poll failed (${bidsRes.status})`);
         }
         if (engagementRes.ok) {
           const json = await engagementRes.json();
@@ -489,7 +489,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
               </div>
 
               <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-3 text-[11px] text-ink-light">
-                <strong className="text-blue-400">Transmitted to Dealers:</strong> Dealers review these photos to formulate binding trade-in allowances on your leaderboard bids.
+                <strong className="text-blue-400">Transmitted to Dealers:</strong> Dealers review these photos to formulate binding trade-in allowances on your leaderboard quotes.
               </div>
             </div>
 
