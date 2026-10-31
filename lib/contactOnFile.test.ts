@@ -9,6 +9,7 @@ import fs from "node:fs";
 import { buildContactIndex } from "./dealerContactIndex";
 import { toBuyerVehicle } from "./buyerSearch";
 import { publicDeskFor } from "./publicDesk";
+import { deskMatchFromContact } from "./deskResolve";
 import { contactStateOf, hasContactOnFile } from "./dealerContactLookup";
 import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, SALES_DESK_NO_NAME_LABEL, salesDeskLabel } from "./deskCopy";
 import type { Dealership } from "./dealershipsApi";
@@ -78,6 +79,25 @@ describe("one rule for contact on file", () => {
     const dir = [empty, full];
     assert.equal(toBuyerVehicle(vehicle(empty), null, buildContactIndex(dir)).dealerHasContact, false);
     assert.equal(publicDeskFor(dir, { dealerName: "Twin Ford", state: "NJ" }).contactState, "email_only");
+  });
+});
+
+describe("top-of-step line uses the same reachable rule", () => {
+  const match = (r: Dealership) => deskMatchFromContact(r, step3(r).knownNamed);
+  it("named and unnamed reachable dealers are reachable; no email and unverified are not", () => {
+    assert.equal(match(NAMED).reachable, true);
+    assert.equal(match(GLEN).reachable, true, "an unnamed reachable email still counts");
+    assert.equal(match(NONE).reachable, false);
+    assert.equal(match(row({ id: "20", dealerName: "Gmail Motors", contactEmail: "gm.sales@gmail.com" })).reachable, false, "unverified");
+    assert.equal(match(row({ id: "21", dealerName: "Gone Auto", contactEmail: "sales@gone.com", emailOptOut: true })).reachable, false);
+    for (const r of directory) assert.equal(match(r).reachable, step3(r).contactState === "named" || step3(r).contactState === "email_only", r.dealerName);
+  });
+  it("the wizard line and picker badge key off reachable, and never say no contact for a reachable dealer", () => {
+    const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
+    assert.match(src, /noteDesk\.reachable \? true : noteDesk\.emailOptOut \? null : false/);
+    assert.match(src, /d\.reachable \? "Contact on file" : "No sales contact"/);
+    assert.doesNotMatch(src, /no named sales contact/);
+    assert.doesNotMatch(src, /picked\.knownNamed|linkDesk\.knownNamed/);
   });
 });
 

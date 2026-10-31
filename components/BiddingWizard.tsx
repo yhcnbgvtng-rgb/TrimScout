@@ -461,10 +461,10 @@ function DealerPicker({
                 </span>
                 <span
                   className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                    d.knownNamed ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
+                    d.reachable ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
                   }`}
                 >
-                  {d.knownNamed ? "Contact on file" : "No sales contact"}
+                  {d.reachable ? "Contact on file" : "No sales contact"}
                 </span>
               </button>
             </li>
@@ -546,11 +546,10 @@ function LinkConfirmPanel({
     shown && shown.tone !== "vin" && vinDealer && !sameDealerName(vinDealer.dealerName, shown.name)
       ? `Factory shipped it to ${vinDealer.dealerName}${[vinDealer.city, vinDealer.state].filter(Boolean).length ? ` (${[vinDealer.city, vinDealer.state].filter(Boolean).join(", ")})` : ""} — the request goes to the store listing it.`
       : null;
-  const contactNote = picked
-    ? picked.knownNamed
-    : shown?.tone === "link" && linkDesk
-      ? linkDesk.knownNamed
-      : null;
+  // Same rule as the Dealers step badge (isQuoteReachable): a named or unnamed reachable email is a contact on file.
+  // Only a store with no email at all, or an unverified one, is "no contact"; an unsubscribed store gets no claim either way.
+  const noteDesk = picked ?? (shown?.tone === "link" ? linkDesk : null);
+  const contactNote = noteDesk ? (noteDesk.reachable ? true : noteDesk.emailOptOut ? null : false) : null;
   const pick = (d: DeskMatch) => {
     setPicked(d);
     setPicking(false);
@@ -656,7 +655,7 @@ function LinkConfirmPanel({
                 </span>
                 {contactNote === true ? <span className="text-brand-300"> · sales contact on file</span> : null}
                 {contactNote === false ? (
-                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
+                  <span className="text-amber-300"> · no sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
                 ) : null}
               </span>
               {shipToNote ? <span className="block text-[10px] text-ink-faint" data-testid="ship-to-note">{shipToNote}</span> : null}

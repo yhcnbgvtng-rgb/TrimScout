@@ -15,7 +15,7 @@ function fakeFetch(routes: Record<string, { status?: number; json: unknown }>) {
   return { impl, calls };
 }
 
-const DESK: DeskMatch = { deskId: "1", dealerName: "Bachrodt BMW", city: "Rockford", state: "IL", zip: "61112", knownNamed: true, emailOptOut: false };
+const DESK: DeskMatch = { deskId: "1", dealerName: "Bachrodt BMW", city: "Rockford", state: "IL", zip: "61112", knownNamed: true, reachable: true, emailOptOut: false };
 const URL_WITH_VIN = "https://www.loubachrodtbmw.com/new-Rockford-2026-BMW-X3-30+xDrive-5UX53GP01T9190742";
 
 describe("resolveVdpLink", () => {
