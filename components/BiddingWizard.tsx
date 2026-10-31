@@ -461,10 +461,10 @@ function DealerPicker({
                 </span>
                 <span
                   className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
-                    d.knownNamed ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
+                    d.reachable ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
                   }`}
                 >
-                  {d.knownNamed ? "Contact on file" : "No sales contact"}
+                  {d.reachable ? "Contact on file" : "No sales contact"}
                 </span>
               </button>
             </li>
@@ -546,11 +546,10 @@ function LinkConfirmPanel({
     shown && shown.tone !== "vin" && vinDealer && !sameDealerName(vinDealer.dealerName, shown.name)
       ? `Factory shipped it to ${vinDealer.dealerName}${[vinDealer.city, vinDealer.state].filter(Boolean).length ? ` (${[vinDealer.city, vinDealer.state].filter(Boolean).join(", ")})` : ""} — the request goes to the store listing it.`
       : null;
-  const contactNote = picked
-    ? picked.knownNamed
-    : shown?.tone === "link" && linkDesk
-      ? linkDesk.knownNamed
-      : null;
+  // Same rule as the Dealers step badge (isQuoteReachable): a named or unnamed reachable email is a contact on file.
+  // Only a store with no email at all, or an unverified one, is "no contact"; an unsubscribed store gets no claim either way.
+  const noteDesk = picked ?? (shown?.tone === "link" ? linkDesk : null);
+  const contactNote = noteDesk ? (noteDesk.reachable ? true : noteDesk.emailOptOut ? null : false) : null;
   const pick = (d: DeskMatch) => {
     setPicked(d);
     setPicking(false);
@@ -656,7 +655,7 @@ function LinkConfirmPanel({
                 </span>
                 {contactNote === true ? <span className="text-brand-300"> · sales contact on file</span> : null}
                 {contactNote === false ? (
-                  <span className="text-amber-300"> · no named sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
+                  <span className="text-amber-300"> · no sales contact on file yet — you can add your sales advisor&apos;s email on the Dealers step</span>
                 ) : null}
               </span>
               {shipToNote ? <span className="block text-[10px] text-ink-faint" data-testid="ship-to-note">{shipToNote}</span> : null}
@@ -3315,9 +3314,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         const typed = buyerDealerEmails[dealer.dealerName] || "";
                         const supplied = isPlausibleDealerEmail(typed);
                         const row = deskPlan.rows[dealer.dealerName];
-                        const onFile = Boolean(desk && desk.contactState === "named" && !desk.blockedReason);
+                        // A reachable email (named or not) is a contact on file; the name only changes the To line.
+                        const onFile = Boolean(desk && (desk.contactState === "named" || desk.contactState === "email_only") && !desk.blockedReason);
                         const optedOut = desk?.blockedReason === "dealer_opted_out";
-                        // No named person, not opted out: the request goes to the dealership's own sales desk.
+                        // No reachable email, not opted out: the request goes to the dealership's own sales desk.
                         const toDesk = Boolean(desk) && !onFile && !optedOut && !supplied;
                         return (
                           <li key={dealer.dealerName} className="space-y-1.5 rounded-lg border border-border bg-background px-3 py-2" data-testid="dealer-contact-row">
@@ -3339,7 +3339,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               {!desk ? (
                                 <span className="shrink-0 rounded-lg border border-border px-2.5 py-1 text-[10px] font-bold text-ink-muted">Checking…</span>
                               ) : onFile ? (
-                                <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={`${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}`}>
+                                <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={desk.contactState === "named" ? `${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}` : `Sales · ${dealer.dealerName}`}>
                                   ✓ Sales contact on file
                                 </span>
                               ) : supplied ? (
@@ -3361,9 +3361,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                               )}
                             </div>
                             {desk && onFile ? (
-                              <p className="text-[10px] text-ink-light">
-                                To: <span className="font-semibold">{desk.contactName}</span>
-                                {desk.role ? <span className="text-ink-muted"> · {DESK_ROLE_LABELS[desk.role]}</span> : null}
+                              <p className="text-[10px] text-ink-light" data-testid="to-line">
+                                {desk.contactState === "named" ? (
+                                  <>
+                                    To: <span className="font-semibold">{desk.contactName}</span>
+                                    {desk.role ? <span className="text-ink-muted"> · {DESK_ROLE_LABELS[desk.role]}</span> : null}
+                                  </>
+                                ) : (
+                                  <>
+                                    To: <span className="font-semibold">Sales</span> · {dealer.dealerName}
+                                  </>
+                                )}
                                 {desk.emailMasked ? <span className="font-mono text-ink-muted"> · {desk.emailMasked}</span> : null}
                               </p>
                             ) : desk ? (

@@ -18,6 +18,7 @@
 
 import { normalizeDomain } from "./dealerDomainLookup";
 import { emailDomainOf, isPublicEmailDomain } from "./quotePackage";
+import { isQuoteReachable } from "./quoteReachable";
 
 export interface DeskContact {
   id: string;
@@ -44,6 +45,8 @@ export interface DeskMatch {
   zip: string | null;
   /** A named person with a personal mailbox is on file — the only kind that gets a quote request. */
   knownNamed: boolean;
+  /** The store's email passes isQuoteReachable (named or not) — the same rule as Step 3's green badge. */
+  reachable: boolean;
   emailOptOut: boolean;
 }
 
@@ -204,6 +207,14 @@ export function deskMatchFromContact(row: DeskContact, knownNamed: boolean): Des
     state: row.state?.trim().toUpperCase() || null,
     zip: row.zipCode?.trim() || null,
     knownNamed,
+    reachable: isQuoteReachable({
+      contactEmail: row.contactEmail,
+      dealerName: row.dealerName,
+      website: row.website,
+      domains: row.domains,
+      emailOptOut: row.emailOptOut,
+      emailInGroupDomain: (row as { emailInGroupDomain?: boolean }).emailInGroupDomain,
+    }),
     emailOptOut: Boolean(row.emailOptOut),
   };
 }
