@@ -102,7 +102,10 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const exactBest = lane !== "alternate" && sideAlternates.length > 0 ? (hasTrade ? best : best ?? ranked[0]) ?? null : null;
   const exactBuildId = exactBest?.invite.id ?? null;
   // The headline is the lowest out the door across every live quote, alternates included, and says so when it is one.
-  const headline = !hasTrade && lane !== "alternate" && sideAlternates.length ? [...live, ...sideAlternates].sort(vehicleOrder)[0] ?? null : glanceBest;
+  const headlinePool = lane !== "alternate" && sideAlternates.length ? [...live, ...sideAlternates] : null;
+  const headline = !headlinePool ? glanceBest
+    : !hasTrade ? [...headlinePool].sort(vehicleOrder)[0] ?? null
+    : [...headlinePool.filter(eligibleRow)].sort(sort === "vehicle" ? vehicleOrder : postTradeOrder)[0] ?? glanceBest;
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.

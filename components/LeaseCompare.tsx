@@ -81,7 +81,9 @@ export function LeaseCompare({
     byVehicle: (a, b) => (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
     byPostTrade: (a, b) => (a.lease && b.lease ? leaseAfterTrade(a.lease, eqOfRow(a)).monthly - leaseAfterTrade(b.lease, eqOfRow(b)).monthly : 0) || (a.dueAtSigning ?? 0) - (b.dueAtSigning ?? 0) || (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
   });
-  const bestDealId = eligible.length > 1 ? bestDeal(eligible, { hasTrade, eligible: (r) => tradeEligible(eqOfRow(r)) })?.inviteId ?? null : null;
+  // "Best deal" needs two quotes that can be compared: with a trade, only the desks with a live trade number count.
+  const comparableCount = hasTrade ? eligible.filter((r) => tradeEligible(eqOfRow(r))).length : eligible.length;
+  const bestDealId = comparableCount > 1 ? bestDeal(eligible, { hasTrade, eligible: (r) => tradeEligible(eqOfRow(r)) })?.inviteId ?? null : null;
   const alternates = lane === "alternate" ? [] : rows.filter((r) => r.kind === "eligible" && r.alternate);
   const counters = rows.filter((r) => r.kind === "counter");
   const rest = rows.filter((r) => r.kind === "countered" || r.kind === "expired" || r.kind === "waiting" || r.kind === "declined" || r.kind === "unsubscribed");
