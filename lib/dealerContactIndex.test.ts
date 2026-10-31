@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildContactIndex, contactStatus } from "./dealerContactIndex";
+import { buildContactIndex, contactStateFor, contactStatus } from "./dealerContactIndex";
 import type { Dealership } from "./dealershipsApi";
 
 function row(over: Partial<Dealership>): Dealership {
@@ -15,6 +15,15 @@ describe("dealer contact index (search Contact column)", () => {
     assert.equal(contactStatus(idx, { dealerName: "Not In Directory", dealerState: "NJ" }), false, "no row = no contact");
     assert.equal(contactStatus(idx, { dealerName: "", dealerState: "NJ" }), null, "no dealer name is unknown, not 'no'");
     assert.equal(contactStatus(null, { dealerName: "Test Motors" }), null, "directory down is unknown, not 'no'");
+  });
+  it("a reachable email with no name is Yes; an unverified address is not", () => {
+    const idx = buildContactIndex([
+      row({ id: "1", dealerName: "Glen Motors", contactEmail: "jforkins@glentoyota.com", website: "https://www.glentoyota.com", domains: ["glentoyota.com"] }),
+      row({ id: "2", dealerName: "Gmail Motors", contactEmail: "gina@gmail.com" }),
+    ]);
+    assert.equal(contactStatus(idx, { dealerName: "Glen Motors", dealerState: "NJ" }), true);
+    assert.equal(contactStatus(idx, { dealerName: "Gmail Motors", dealerState: "NJ" }), false);
+    assert.equal(contactStateFor(idx, { dealerName: "Gmail Motors", dealerState: "NJ" }), "unverified");
   });
   it("blank, malformed and unsubscribed emails are not a contact", () => {
     const idx = buildContactIndex([

@@ -73,4 +73,4 @@ Set `NEXT_PUBLIC_CONTACT_FILTER=1` in Vercel (Production) and redeploy. The chec
 
 ## Rule note
 
-"Contact on file" is the PR #458 rule: a **named** contact. A dealer with an email and no person's name (BMW of Roseville, Glen Motors) is a sales desk in Step 3 and **No** in the search column, so the filter leaves it out too. Changing that rule changes all three at once, in `hasContactOnFile` (`lib/dealerContactLookup.ts`).
+"Contact on file" is the `isQuoteReachable` rule: a reachable email, **named or not**, is Yes in the search column, passes the filter and counts, and gets Step 3's green badge. An unverified address shows "Unverified email" and no email shows No; neither passes the filter. The rule lives in `isReachableState` / `hasContactOnFile` (`lib/dealerContactLookup.ts`), so all three move together.

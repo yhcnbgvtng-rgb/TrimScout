@@ -1,6 +1,7 @@
 import { searchInventory, InventoryApiError, type InventoryVehicle } from "./inventoryApi";
 import type { ParsedBuyerSearch } from "./buyerSearchQuery";
 import { calculateDistanceMiles } from "./otdCalculator";
+import { isReachableState } from "./dealerContactLookup";
 import { contactStateFor, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
 import type { ContactState } from "./dealerContactLookup";
 import { contactOnFileDealerIds } from "./contactFilter";
@@ -22,7 +23,7 @@ export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"
 export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
   const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, firstSeenAt: _firstSeenAt, lastSeenAt, ...rest } = v;
   const dealerContactState = contactStateFor(contacts, v);
-  return { ...rest, distanceMiles, dealerHasContact: dealerContactState == null ? null : dealerContactState === "named", dealerContactState, rfqEligible: isRfqEligible(lastSeenAt) };
+  return { ...rest, distanceMiles, dealerHasContact: dealerContactState == null ? null : isReachableState(dealerContactState), dealerContactState, rfqEligible: isRfqEligible(lastSeenAt) };
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */

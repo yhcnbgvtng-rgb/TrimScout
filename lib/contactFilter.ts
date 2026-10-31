@@ -1,6 +1,6 @@
 /**
  * The buyer search's "Dealer contact on file" filter. The set of dealers it keeps is decided HERE, by the same shared function behind
- * the search Contact column (contactStatus -> hasContactOnFile) and Step 3's desk lookup, so the three cannot drift: a dealer is in the
+ * the search Contact column (contactStatus -> isReachableState) and Step 3's desk lookup, so the three cannot drift: a dealer is in the
  * set exactly when the Contact column would say Yes for one of its cars. The box (deals-api) only applies the resulting id list.
  */
 import type { Dealership } from "./dealershipsApi";

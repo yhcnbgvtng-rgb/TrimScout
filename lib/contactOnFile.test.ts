@@ -1,7 +1,8 @@
 /**
  * /search's "Contact on file" column and Step 3's desk lookup must agree: both resolve the dealership the same way
  * and apply the one shared rule (an active, deliverable email — not unsubscribed). Regression: Glen Motors, Fair Lawn
- * NJ has an email and no contact name — /search said "Yes" while Step 3 said it had no contact.
+ * NJ has an email and no contact name — /search said "Yes" while Step 3 said it had no contact. The rule is isQuoteReachable:
+ * a reachable email is "Yes" whether or not a name is stored; unverified is "Unverified email"; no email is "No".
  */
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -42,8 +43,8 @@ describe("one rule for contact on file", () => {
     assert.equal(d.routing, "named");
     assert.equal(d.knownNamed, true);
   });
-  it("email with no name: /search No, Step 3 sales desk (no name)", () => {
-    assert.equal(searchSays(GLEN), false);
+  it("email with no name: /search Yes, Step 3 green badge with a Sales desk To line", () => {
+    assert.equal(searchSays(GLEN), true);
     const d = step3(GLEN);
     assert.equal(d.contactState, "email_only");
     assert.equal(d.routing, "rooftop_inbox", "an unnamed personal mailbox is the dealer's contact: invite goes to it, not to ops");
@@ -57,14 +58,14 @@ describe("one rule for contact on file", () => {
     assert.equal(d.routing, "unassigned");
     assert.equal(salesDeskLabel(d.contactState), SALES_DESK_NO_NAME_LABEL);
   });
-  it("Glen Motors data shape (regression): never Yes on /search while Step 3 finds no contact", () => {
+  it("Glen Motors data shape (regression): /search and Step 3 both say contact on file", () => {
     assert.equal(contactStateOf(GLEN), "email_only");
-    assert.equal(hasContactOnFile(GLEN), false);
+    assert.equal(hasContactOnFile(GLEN), true);
     assert.equal(searchSays(GLEN), hasContactOnFile(GLEN));
     assert.equal(step3(GLEN).contactState, "email_only", "Step 3 knows the email exists");
   });
   it("search and Step 3 agree for every state", () => {
-    for (const r of directory) assert.equal(searchSays(r), step3(r).contactState === "named", r.dealerName);
+    for (const r of directory) assert.equal(searchSays(r), step3(r).contactState === "named" || step3(r).contactState === "email_only", r.dealerName);
   });
   it("an unsubscribed dealer is No on /search and blocked in Step 3", () => {
     const gone = row({ id: "9", dealerName: "Gone Auto", contactEmail: "sales@gone.com", emailOptOut: true });
@@ -154,26 +155,26 @@ describe("real box2 rows (read-only snapshot 2026-10-10)", () => {
     assert.equal(step3.contactState, "none");
     assert.equal(salesDeskLabel(step3.contactState), SALES_DESK_NO_NAME_LABEL);
   });
-  it("Bayside CDJR in VA still finds its own unnamed email as a desk, not a contact", () => {
+  it("Bayside CDJR in VA finds its own unnamed email: Yes on /search, a sales desk in Step 3", () => {
     const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram", "VA");
-    assert.equal(search, false);
+    assert.equal(search, true);
     assert.equal(step3.contactState, "email_only");
   });
-  it("Bayside Annapolis (a name, but only a leads@ mailbox) is a desk on both sides", () => {
+  it("Bayside Annapolis (a name, but only a leads@ mailbox) is a desk on both sides, reachable", () => {
     const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram Annapolis", "MD");
-    assert.equal(search, false);
+    assert.equal(search, true);
     assert.equal(step3.contactState, "email_only");
   });
-  it("BMW of Roseville (email, no name): No on /search, sales desk in Step 3", () => {
+  it("BMW of Roseville (email, no name): Yes on /search, sales desk in Step 3", () => {
     const { search, step3 } = both("BMW of Roseville", "CA");
-    assert.equal(search, false);
+    assert.equal(search, true);
     assert.equal(step3.contactState, "email_only");
     assert.equal(step3.knownNamed, false);
   });
   it("search and Step 3 agree for every row and every state", () => {
     for (const r of rows) for (const st of [r.state || "", "NY", "CA"]) {
       const { search, step3 } = both(r.dealerName, st);
-      assert.equal(search, step3.contactState === "named", `${r.dealerName} ${st}`);
+      assert.equal(search, step3.contactState === "named" || step3.contactState === "email_only", `${r.dealerName} ${st}`);
     }
   });
 });

@@ -110,12 +110,17 @@ export function contactStateOf(row: DirectoryDealership | null | undefined): Con
   return named?.knownNamed ? "named" : "email_only";
 }
 
+/** A contact state whose email passes isQuoteReachable: a named person, or an unnamed sales desk. Unverified and none are not. */
+export function isReachableState(state: ContactState | null | undefined): boolean {
+  return state === "named" || state === "email_only";
+}
+
 /**
- * "Contact on file" means a NAMED contact: a real person on a personal mailbox. A store with only an unnamed
- * email is a sales desk (Step 3 routes to it) but has no contact on file, here and on /search alike.
+ * "Contact on file" means a reachable email (isQuoteReachable), named or not — the one rule behind /search's Contact column, its filter and
+ * counts, and Step 3's green badge. A name only changes how the To line reads.
  */
 export function hasContactOnFile(row: DirectoryDealership | null | undefined): boolean {
-  return contactStateOf(row) === "named";
+  return isReachableState(contactStateOf(row));
 }
 
 /**
