@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { describe, it } from "node:test";
-import { modelFromVin, repairLinkPastes, repairVehicleIdentity, resolveRfqVehicle, rfqVehicleLabel } from "./rfqVehicle";
+import { type RfqVehicleParts, modelFromVin, repairLinkPastes, repairVehicleIdentity, resolveRfqVehicle, rfqVehicleLabel } from "./rfqVehicle";
 import { vehicleTitle } from "./vehicleTitle";
 
 const VIN = "WBX33HR09VDA44039";
@@ -77,7 +77,8 @@ describe("labels", () => {
   });
 
   it("repairVehicleIdentity never throws on null parts", () => {
-    assert.deepEqual(repairVehicleIdentity({ vin: null, model: null, trim: null }).model, "");
+    const parts: RfqVehicleParts = { vin: null, model: null, trim: null };
+    assert.equal(repairVehicleIdentity(parts).model, "");
   });
 });
 
