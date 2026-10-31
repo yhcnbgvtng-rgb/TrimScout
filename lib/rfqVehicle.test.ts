@@ -64,6 +64,13 @@ describe("labels", () => {
     }
   });
 
+  it('repairs the feed fallback where the make stands in as the model ("BMW" under make BMW)', () => {
+    assert.equal(vehicleTitle({ vin: VIN, year: 2027, make: "BMW", model: "BMW", trim: "50 xDrive" }), "2027 BMW iX3 50 xDrive");
+    const r = resolveRfqVehicle({ vin: VIN, year: 2027, make: "BMW", model: "BMW", trim: "50 xDrive" });
+    assert.ok(r.ok);
+    assert.deepEqual([r.vehicle.model, r.vehicle.trim], ["iX3", "50 xDrive"]);
+  });
+
   it("vehicleTitle drops a model that only repeats the make", () => {
     assert.equal(vehicleTitle({ year: 2027, make: "BMW", model: "BMW", trim: "" }), "2027 BMW");
     assert.equal(vehicleTitle({ year: 2024, make: "Ford", model: "F-150", trim: "Raptor" }), "2024 Ford F-150 Raptor");
