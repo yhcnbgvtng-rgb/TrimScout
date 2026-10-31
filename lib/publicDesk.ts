@@ -32,7 +32,7 @@ export function publicDeskFor(rows: Dealership[], d: { dealerName: string; state
     knownNamed: Boolean(desk?.knownNamed),
     contactName: desk?.contactName || null,
     role: desk?.role || null,
-    emailMasked: desk?.knownNamed ? maskEmail(desk.email) : null,
+    emailMasked: desk?.email ? maskEmail(desk.email) : null,
     emailDomain: desk?.knownNamed ? desk.emailDomain : null,
     emailOptOut: Boolean(desk?.emailOptOut),
     blockedReason: blocked,

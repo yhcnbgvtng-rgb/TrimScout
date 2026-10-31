@@ -86,9 +86,29 @@ describe("Step 3 copy", () => {
     assert.equal(SALES_DESK_NO_NAME_LABEL, "Sales desk (no contact name on file)");
     assert.equal(NO_CONTACT_HELPER, "Went on a test drive? Enter the sales advisor's details below.");
   });
+  it("the To line has a masked email for an unnamed reachable dealer, and the address itself is never exposed", () => {
+    const d = step3(GLEN);
+    assert.equal(d.contactState, "email_only");
+    assert.match(d.emailMasked || "", /^j•+@glentoyota\.com$/);
+    assert.ok(!JSON.stringify(d).includes("jforkins"));
+    assert.equal(step3(NAMED).emailMasked, "m•••••@namedhonda.com".replace("•••••", "•".repeat(5)));
+    assert.equal(step3(NONE).emailMasked, null);
+  });
+  it("the green badge is on for named and email-only dealers, off for unverified and none; advisor field and helper only for those", () => {
+    const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
+    const card = src.slice(src.indexOf('data-testid="dealer-contact-list"'));
+    const rules = card.slice(0, card.indexOf("</ul>"));
+    // Reachable dealers take the first branch, so they never reach the blue badge, the test-drive helper or the advisor input.
+    assert.ok(rules.indexOf("data-testid=\"contact-on-file\"") < rules.indexOf("data-testid=\"contact-desk\""));
+    assert.match(rules, /\{desk && onFile \? \(\s*<p[^>]*data-testid="to-line"/);
+    assert.match(rules, /\) : desk \? \(\s*<div className="space-y-1" data-testid="add-adviser">/);
+    assert.match(rules, /data-testid="contact-unverified"/);
+  });
   it("the wizard renders them for the right states", () => {
     const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
     assert.match(src, /→ \{salesDeskLabel\(desk\.contactState\)\}/);
+    assert.match(src, /\(desk\.contactState === "named" \|\| desk\.contactState === "email_only"\) && !desk\.blockedReason/, "any reachable email gets the green badge");
+    assert.match(src, /To: <span className="font-semibold">Sales<\/span> · \{dealer\.dealerName\}/, "no name: To: Sales · dealer");
     assert.match(src, /: NO_CONTACT_HELPER\}/);
     assert.match(src, /placeholder=\{optedOut \? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER\}/);
     assert.equal(ADVISOR_EMAIL_PLACEHOLDER, "Sales advisor email (optional)");
