@@ -178,6 +178,39 @@ export function getZipCoordinates(zipCode: string): ZipLocation {
   return { lat: 37.7749, lng: -122.4194, city: "US Location", state: "USA", taxRate: 0.08 };
 }
 
+/** Cities the distance model can place by name. Any other dealer city is only known by its state, so its distance is the state centroid's. */
+const CITY_COORDS: Array<{ names: string[]; lat: number; lng: number }> = [
+  { names: ["San Rafael"], lat: 37.9735, lng: -122.5311 },
+  { names: ["San Mateo"], lat: 37.5630, lng: -122.3255 },
+  { names: ["Santa Clara", "San Jose"], lat: 37.3541, lng: -121.9552 },
+  { names: ["Redwood City"], lat: 37.4852, lng: -122.2364 },
+  { names: ["Berkeley", "Oakland"], lat: 37.8715, lng: -122.2730 },
+  { names: ["Corte Madera"], lat: 37.9255, lng: -122.5275 },
+  { names: ["San Francisco", "Colma"], lat: 37.7749, lng: -122.4194 },
+  { names: ["Los Angeles", "Century City", "Beverly Hills"], lat: 34.0590, lng: -118.4180 },
+  { names: ["New York", "Manhattan"], lat: 40.7690, lng: -73.9890 },
+  { names: ["Brooklyn"], lat: 40.6580, lng: -74.0080 },
+  { names: ["Dallas", "Park Cities"], lat: 32.8680, lng: -96.8620 },
+  { names: ["Houston"], lat: 29.7604, lng: -95.3698 },
+  { names: ["Austin"], lat: 30.2672, lng: -97.7431 },
+  { names: ["Chicago"], lat: 41.8860, lng: -87.6220 },
+  { names: ["Miami"], lat: 25.7743, lng: -80.1937 },
+  { names: ["Atlanta"], lat: 33.7490, lng: -84.3880 },
+  { names: ["Boston"], lat: 42.3588, lng: -71.0638 },
+  { names: ["Denver"], lat: 39.7530, lng: -104.9980 },
+  { names: ["Seattle"], lat: 47.6101, lng: -122.3340 },
+  { names: ["Phoenix"], lat: 33.4484, lng: -112.0740 },
+];
+
+function cityCoords(city: string): { lat: number; lng: number } | null {
+  return CITY_COORDS.find((c) => c.names.some((n) => city.includes(n))) ?? null;
+}
+
+/** True when the distance to this dealer city is a real city placement, false when it would fall back to the state centroid (every such dealer in a state shares one distance). */
+export function isCityPlaced(city: string): boolean {
+  return cityCoords(city) !== null;
+}
+
 // Calculate exact Haversine Distance in Miles between user ZIP and dealer location
 export function calculateDistanceMiles(
   userZip: string,
@@ -189,26 +222,8 @@ export function calculateDistanceMiles(
   let dealerLng = dealer.lng;
 
   if (!dealerLat || !dealerLng) {
-    if (dealer.city.includes("San Rafael")) { dealerLat = 37.9735; dealerLng = -122.5311; }
-    else if (dealer.city.includes("San Mateo")) { dealerLat = 37.5630; dealerLng = -122.3255; }
-    else if (dealer.city.includes("Santa Clara") || dealer.city.includes("San Jose")) { dealerLat = 37.3541; dealerLng = -121.9552; }
-    else if (dealer.city.includes("Redwood City")) { dealerLat = 37.4852; dealerLng = -122.2364; }
-    else if (dealer.city.includes("Berkeley") || dealer.city.includes("Oakland")) { dealerLat = 37.8715; dealerLng = -122.2730; }
-    else if (dealer.city.includes("Corte Madera")) { dealerLat = 37.9255; dealerLng = -122.5275; }
-    else if (dealer.city.includes("San Francisco") || dealer.city.includes("Colma")) { dealerLat = 37.7749; dealerLng = -122.4194; }
-    else if (dealer.city.includes("Los Angeles") || dealer.city.includes("Century City") || dealer.city.includes("Beverly Hills")) { dealerLat = 34.0590; dealerLng = -118.4180; }
-    else if (dealer.city.includes("New York") || dealer.city.includes("Manhattan")) { dealerLat = 40.7690; dealerLng = -73.9890; }
-    else if (dealer.city.includes("Brooklyn")) { dealerLat = 40.6580; dealerLng = -74.0080; }
-    else if (dealer.city.includes("Dallas") || dealer.city.includes("Park Cities")) { dealerLat = 32.8680; dealerLng = -96.8620; }
-    else if (dealer.city.includes("Houston")) { dealerLat = 29.7604; dealerLng = -95.3698; }
-    else if (dealer.city.includes("Austin")) { dealerLat = 30.2672; dealerLng = -97.7431; }
-    else if (dealer.city.includes("Chicago")) { dealerLat = 41.8860; dealerLng = -87.6220; }
-    else if (dealer.city.includes("Miami")) { dealerLat = 25.7743; dealerLng = -80.1937; }
-    else if (dealer.city.includes("Atlanta")) { dealerLat = 33.7490; dealerLng = -84.3880; }
-    else if (dealer.city.includes("Boston")) { dealerLat = 42.3588; dealerLng = -71.0638; }
-    else if (dealer.city.includes("Denver")) { dealerLat = 39.7530; dealerLng = -104.9980; }
-    else if (dealer.city.includes("Seattle")) { dealerLat = 47.6101; dealerLng = -122.3340; }
-    else if (dealer.city.includes("Phoenix")) { dealerLat = 33.4484; dealerLng = -112.0740; }
+    const placed = cityCoords(dealer.city);
+    if (placed) { dealerLat = placed.lat; dealerLng = placed.lng; }
     else {
       const centroid = STATE_CENTROIDS[(dealer.state || "").toUpperCase()];
       if (centroid) {
