@@ -48,6 +48,8 @@ const hasWord = (haystack: string, needle: string) => ` ${lower(haystack)} `.inc
 export function repairVehicleIdentity<T extends VehicleTitleParts>(v: T): T & { model: string; trim: string } {
   let model = tidy(v.model);
   let trim = tidy(v.trim);
+  // The factory-build vehicle stands the make in when the feed has no model ("BMW" under make "BMW"): that is blank, not a model.
+  if (model && lower(model) === lower(tidy(v.make))) model = "";
   const hint = modelFromVin(v.vin, v.make);
   if (hint && !hasWord(model, hint) && (!model || looksLikeTrimToken(model))) {
     // "50 xDrive" with no "iX3": the model slot holds the trim. Move it down and name the model.
