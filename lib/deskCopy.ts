@@ -9,7 +9,13 @@ export const NO_CONTACT_HELPER = "Went on a test drive? Enter the sales advisor'
 /** The one field label/placeholder for a buyer-supplied advisor address (spelled "advisor" everywhere). */
 export const ADVISOR_EMAIL_PLACEHOLDER = "Sales advisor email (optional)";
 
-/** The label for any desk with no named person — same badge whether or not an unnamed email is on file. */
-export function salesDeskLabel(_contactState?: "named" | "email_only" | "unverified" | "none"): string {
-  return SALES_DESK_NO_NAME_LABEL;
+/** Step 4 / Step 3 label for a desk we can reach by a shared sales inbox: no person's name, but a contact is on file. */
+export const SALES_CONTACT_ON_FILE_LABEL = "Sales contact on file";
+
+/**
+ * The label for a desk with no named person. A reachable rooftop (shared inbox on file, `rooftop_inbox`)
+ * has a sales contact on file; "no contact name on file" is only true when the request goes to our routing queue (`unassigned`).
+ */
+export function salesDeskLabel(routing?: "named" | "adviser" | "rooftop_inbox" | "unassigned" | null): string {
+  return routing === "unassigned" || routing == null ? SALES_DESK_NO_NAME_LABEL : SALES_CONTACT_ON_FILE_LABEL;
 }

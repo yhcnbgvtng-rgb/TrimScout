@@ -143,10 +143,10 @@ describe("lease flow — copy and contact rules", () => {
     const wizard = read("components/BiddingWizard.tsx");
     // The send list reads the desk-selection plan, whose rows are only ever
     // ticked when the rooftop is known and hasn't opted out.
-    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
+    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[pasteDeskKey\(p\)\]\?\.checked/);
     const plan = read("lib/deskSelection.ts");
     // A known rooftop is selectable unless it opted out — no named contact needed (routes to its sales desk).
-    assert.match(plan, /const contactReady = \(d: SelectionDesk\) => Boolean\(d\.desk\) && !optedOut\(d\)/);
+    assert.match(plan, /const contactReady = \(d: SelectionDesk\) => Boolean\(d\.desk\) && \(!optedOut\(d\) \|\| adviserOf\(d\)\)/);
     assert.match(plan, /const hasContact = contactReady\(d\)/);
     assert.match(plan, /const selectable = hasContact && !heldByState/);
     assert.match(plan, /const checked = selectable && wanted/);

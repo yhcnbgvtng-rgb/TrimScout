@@ -22,3 +22,13 @@ export function exteriorColorDisplay(raw: string | null | undefined): string {
 export function colorFilterOptions(colors: readonly string[]): string[] {
   return colors.filter((c) => !!c && !isColorCode(c));
 }
+
+/** Interior colours come through the same feeds and carry the same bare codes, so they get the same treatment. */
+export const interiorColorDisplay = exteriorColorDisplay;
+
+/** "Black · Tan" style list for the buyer screens: exterior and interior through the shared helper, blanks dropped. */
+export function colorsLine(exterior: string | null | undefined, interior: string | null | undefined, extra: Array<string | null | undefined> = []): string {
+  const ext = exteriorColorDisplay(exterior);
+  const int = interiorColorDisplay(interior);
+  return [ext, int ? `${int} interior` : "", ...extra].map((x) => (x || "").trim()).filter(Boolean).join(" · ");
+}

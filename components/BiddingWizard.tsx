@@ -13,7 +13,8 @@ import {
   paymentMethodFromStructures,
 } from "../lib/dealStructure";
 import { formatCurrency, getZipCoordinates } from "../lib/otdCalculator";
-import { planDeskSelection } from "../lib/deskSelection";
+import { deskKey, planDeskSelection } from "../lib/deskSelection";
+import { colorsLine, exteriorColorDisplay, interiorColorDisplay } from "../lib/colorCode";
 import { CPO_BUILD_COPY, USED_BUILD_COPY, USED_VEHICLES_ENABLED, conditionBadge, detectUsedCondition, isUsedCondition, type UsedCondition } from "../lib/usedVehicle";
 import { missingFinanceLocks, type QuotePrefs } from "../lib/usedQuote";
 import { activeRfqSummary } from "../lib/rfqLogic";
@@ -194,7 +195,7 @@ function QuoteFormatMatrix({
           <p className="text-xs font-semibold text-white">{vehicleTitle(primary)}</p>
           <p className="text-[10px] text-ink-muted">
             <VinLink vin={primary.vin} />
-            {[primary.exteriorColor, primary.drivetrain].filter(Boolean).length ? ` · ${[primary.exteriorColor, primary.drivetrain].filter(Boolean).join(" · ")}` : ""}
+            {colorsLine(primary.exteriorColor, primary.interiorColor, [primary.drivetrain]) ? ` · ${colorsLine(primary.exteriorColor, primary.interiorColor, [primary.drivetrain])}` : ""}
             {cars.length > 1 ? ` · +${cars.length - 1} alternate${cars.length > 2 ? "s" : ""}` : ""}
           </p>
         </div>
@@ -464,7 +465,7 @@ function DealerPicker({
                     d.reachable ? "bg-brand-500/15 text-brand-300" : "bg-border text-ink-muted"
                   }`}
                 >
-                  {d.reachable ? "Contact on file" : "No sales contact"}
+                  {d.reachable ? "Contact on file" : d.emailOptOut ? "Add your advisor" : "Sales desk"}
                 </span>
               </button>
             </li>
@@ -610,7 +611,7 @@ function LinkConfirmPanel({
                     ? "Factory sticker didn't come back from the manufacturer just now — details are a limited VIN decode. You can still confirm and continue."
                     : build.factoryBuildUnavailable
                       ? factoryBuildStateLine({ ...build.vehicle, buildConfidence: "dealer_listing_only", stickerPendingNote: build.stickerPending?.note || null })
-                      : [build.vehicle.exteriorColor, build.vehicle.drivetrain].filter(Boolean).join(" · ") || "Factory record read"}
+                      : colorsLine(build.vehicle.exteriorColor, build.vehicle.interiorColor, [build.vehicle.drivetrain]) || "Factory record read"}
               </span>
             </span>
             <span className="flex shrink-0 items-center gap-2">
@@ -1046,7 +1047,9 @@ function FactoryOptionsCompare({
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Drivetrain</div>
         {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.drivetrain, i > 0 && normalizeDrivetrain(v.drivetrain || "") !== normalizeDrivetrain(primary.drivetrain || ""))}</React.Fragment>)}
         <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Exterior color</div>
-        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(v.exteriorColor, i > 0 && !sameText(v.exteriorColor, primary.exteriorColor))}</React.Fragment>)}
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(exteriorColorDisplay(v.exteriorColor), i > 0 && !sameText(exteriorColorDisplay(v.exteriorColor), exteriorColorDisplay(primary.exteriorColor)))}</React.Fragment>)}
+        <div className="flex min-h-[22px] items-center text-[11px] text-ink-muted">Interior color</div>
+        {vehicles.map((v, i) => <React.Fragment key={i}>{valueCell(interiorColorDisplay(v.interiorColor), i > 0 && !sameText(interiorColorDisplay(v.interiorColor), interiorColorDisplay(primary.interiorColor)))}</React.Fragment>)}
 
         {/* Other differences: everything besides the must-haves already scored above */}
         <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Other differences · not must-haves</div>
@@ -1433,7 +1436,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       // (e.g. from the factory-match flow) already has a confirmed build, so
       // Step 1's "already imported" preview and must-have picker should show
       // immediately instead of leaving the paste-a-VIN box stuck open.
-      setParseSuccessMsg(`${preselectedVehicle.year} ${preselectedVehicle.make} ${preselectedVehicle.trim} — confirmed`);
+      setParseSuccessMsg(`${vehicleTitle(preselectedVehicle)} — confirmed`);
       setFordStickerStatus("released");
       setFordFilterableOptions(
         cleanOptionNames(
@@ -1538,14 +1541,23 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     buyerState: buyerStateFromZip,
     sameStateOnly,
     primaryDealerName,
+    primaryKey: reviewTarget ? deskKey({ dealerName: primaryDealerName, state: selectedVehicle?.location?.state, dealerId: dealerIdFrom(selectedVehicle?.location?.deskId) }) : null,
     desks: importedDealerships.map((d) => ({
+      key: deskKey(d),
       dealerName: d.dealerName,
       state: d.state,
-      desk: quoteDesks[d.dealerName],
-      buyerEmail: buyerDealerEmails[d.dealerName],
+      desk: quoteDesks[deskKey(d)],
+      buyerEmail: buyerDealerEmails[deskKey(d)],
     })),
     confirmed: confirmedDesks,
   });
+  // The desk key for a resolved paste: its dealer id when the imported store carries one, else name + state.
+  const pasteDeskKey = (p: { dealerName: string | null; dealerState: string | null }) => {
+    const name = (p.dealerName || "").trim();
+    const state = (p.dealerState || "").trim().toUpperCase();
+    const match = importedDealerships.find((d) => d.dealerName === name && d.state === state);
+    return match ? deskKey(match) : deskKey({ dealerName: name, state });
+  };
   const gatePlan = deskPlan.gate;
   const confirmedDeskCount = deskPlan.sendTo.length;
   const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
@@ -1570,10 +1582,11 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (cancelled || !json?.results) return;
+        // Results come back in request order; key them by rooftop (id, else name + state) so same-named stores in other states stay apart.
         const next: Record<string, DealerContactStatus> = {};
-        for (const result of json.results as DealerContactStatus[]) {
-          next[result.dealerName] = result;
-        }
+        (json.results as DealerContactStatus[]).forEach((result, i) => {
+          if (dealers[i]) next[deskKey(dealers[i])] = result;
+        });
         setDealerContacts(next);
       })
       .catch(() => {});
@@ -1586,9 +1599,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       .then((json) => {
         if (cancelled || !json?.desks) return;
         const next: Record<string, PublicDesk> = {};
-        for (const desk of json.desks as PublicDesk[]) {
-          next[desk.dealerName] = desk;
-        }
+        (json.desks as PublicDesk[]).forEach((desk, i) => {
+          if (dealers[i]) next[deskKey(dealers[i])] = desk;
+        });
         // No default ticks are seeded here: the desk-selection plan ticks
         // any selectable desk the buyer hasn't touched, so a desk that only
         // becomes selectable later (adviser address typed) ticks itself too.
@@ -2529,7 +2542,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     };
     });
     const toSend = pastes.filter(
-      (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
+      (p) => p.dealerName && deskPlan.rows[pasteDeskKey(p)]?.checked
     );
     if (toSend.length === 0) {
       setSubmitError("Tick at least one dealership to send the request.");
@@ -2601,7 +2614,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       for (const paste of pastes) {
         const name = paste.dealerName || "";
         if (!name || !toSend.includes(paste)) {
-          rows.push({ dealerName: name || paste.vin, stage: "blocked", message: quoteDesks[name]?.blockedMessage || "Not sent." });
+          rows.push({ dealerName: name || paste.vin, stage: "blocked", message: quoteDesks[pasteDeskKey(paste)]?.blockedMessage || "Not sent." });
           continue;
         }
         const r = await fetch(`/api/rfqs/${rfqId}/invites`, {
@@ -2611,8 +2624,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             dealerName: name,
             dealerState: paste.dealerState,
             // The car's own dealer id, so the send resolves the same directory row the badge showed.
-            dealerId: importedDealerships.find((d) => d.dealerName === name)?.dealerId ?? undefined,
-            buyerProvidedEmail: buyerDealerEmails[name] || undefined,
+            dealerId: importedDealerships.find((d) => deskKey(d) === pasteDeskKey(paste))?.dealerId ?? undefined,
+            buyerProvidedEmail: buyerDealerEmails[pasteDeskKey(paste)] || undefined,
             requestedStructures,
             purchaseTimelineLabel:
               purchaseTimeline === "asap" ? "ASAP" : purchaseTimeline === "this_week" ? "Within the week" : purchaseTimeline === "this_month" ? "Within the month" : null,
@@ -2721,7 +2734,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             otherLots: otherLotsForDeal,
             vehicleTerms: vehicleTermsForDeal,
             purchaseTimeline: purchaseTimeline || undefined,
-            buyerProvidedDealerEmails: buyerDealerEmails,
+            // The stored deal keeps its by-name shape; the wizard's own map is keyed by rooftop.
+            buyerProvidedDealerEmails: Object.fromEntries(importedDealerships.flatMap((d) => (buyerDealerEmails[deskKey(d)] ? [[d.dealerName, buyerDealerEmails[deskKey(d)]]] : []))),
             dealReference,
           }),
           // See tradeInForRequest above — the flag only, honestly empty
@@ -3309,18 +3323,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   ) : (
                     <ul className="space-y-1.5" data-testid="dealer-contact-list">
                       {importedDealerships.map((dealer) => {
-                        const desk = quoteDesks[dealer.dealerName];
-                        const contact = dealerContacts[dealer.dealerName];
-                        const typed = buyerDealerEmails[dealer.dealerName] || "";
+                        // Keyed by rooftop (id, else name + state): same-named stores in different states are different desks.
+                        const dk = deskKey(dealer);
+                        const desk = quoteDesks[dk];
+                        const contact = dealerContacts[dk];
+                        const typed = buyerDealerEmails[dk] || "";
                         const supplied = isPlausibleDealerEmail(typed);
-                        const row = deskPlan.rows[dealer.dealerName];
+                        const row = deskPlan.rows[dk];
+                        // A usable adviser address (plausible, not a shared inbox) — the only kind that takes the request.
+                        const adviser = Boolean(row?.adviserAdded);
                         // A reachable email (named or not) is a contact on file; the name only changes the To line.
                         const onFile = Boolean(desk && (desk.contactState === "named" || desk.contactState === "email_only") && !desk.blockedReason);
                         const optedOut = desk?.blockedReason === "dealer_opted_out";
                         // No reachable email, not opted out: the request goes to the dealership's own sales desk.
-                        const toDesk = Boolean(desk) && !onFile && !optedOut && !supplied;
+                        const toDesk = Boolean(desk) && !onFile && !optedOut && !adviser;
                         return (
-                          <li key={dealer.dealerName} className="space-y-1.5 rounded-lg border border-border bg-background px-3 py-2" data-testid="dealer-contact-row">
+                          <li key={dk} className="space-y-1.5 rounded-lg border border-border bg-background px-3 py-2" data-testid="dealer-contact-row">
                             <div className="flex items-start justify-between gap-3">
                               <label className="flex min-w-0 items-start gap-2">
                                 <input
@@ -3328,7 +3346,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                   aria-label={`Send a quote request to ${dealer.dealerName}`}
                                   checked={Boolean(row?.checked)}
                                   disabled={!row?.selectable}
-                                  onChange={(e) => setConfirmedDesks((current) => ({ ...current, [dealer.dealerName]: e.target.checked }))}
+                                  onChange={(e) => setConfirmedDesks((current) => ({ ...current, [dk]: e.target.checked }))}
                                   className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-border text-brand-500 focus:ring-0 disabled:opacity-40"
                                 />
                                 <span className="min-w-0">
@@ -3342,13 +3360,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-on-file" title={desk.contactState === "named" ? `${desk.contactName}${desk.role ? ` · ${DESK_ROLE_LABELS[desk.role]}` : ""}` : `Sales · ${dealer.dealerName}`}>
                                   ✓ Sales contact on file
                                 </span>
-                              ) : supplied ? (
+                              ) : adviser ? (
                                 <span className="shrink-0 rounded-lg bg-brand-500 px-2.5 py-1 text-[10px] font-extrabold text-black" data-testid="contact-added">
                                   ✓ Advisor added
                                 </span>
                               ) : optedOut ? (
-                                <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-missing">
-                                  Opted out
+                                <span className="shrink-0 rounded-lg bg-sky-500/15 px-2.5 py-1 text-[10px] font-extrabold text-sky-200" data-testid="contact-missing">
+                                  → Add your sales advisor
                                 </span>
                               ) : desk.contactState === "unverified" ? (
                                 <span className="shrink-0 rounded-lg border border-amber-500/50 px-2.5 py-1 text-[10px] font-bold text-amber-300" data-testid="contact-unverified" title="We have an address but can't tie it to this dealership, so we won't send to it. Add your own sales advisor's address, or we'll route the request for review.">
@@ -3356,7 +3374,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                 </span>
                               ) : (
                                 <span className="shrink-0 rounded-lg bg-sky-500/15 px-2.5 py-1 text-[10px] font-extrabold text-sky-200" data-testid="contact-desk" data-routing={desk.routing}>
-                                  → {salesDeskLabel(desk.contactState)}
+                                  → {salesDeskLabel(desk.routing)}
                                 </span>
                               )}
                             </div>
@@ -3377,24 +3395,30 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                             ) : desk ? (
                               <div className="space-y-1" data-testid="add-adviser">
                                 <p className="text-[10px] leading-snug text-ink-muted" data-testid="desk-routing-copy">
-                                  {supplied
+                                  {adviser
                                     ? "The request goes to the advisor address you added."
                                     : optedOut
                                       ? "This dealership asked us to stop emailing them. Add your own sales advisor's address to reach them."
                                       : NO_CONTACT_HELPER}
                                 </p>
-                                {toDesk ? <p className="text-[10px] text-ink-light">To: <span className="font-semibold">Sales desk</span> · {dealer.dealerName}</p> : null}
+                                {toDesk ? (
+                                  <p className="text-[10px] text-ink-light" data-testid="to-line">
+                                    To: <span className="font-semibold">{desk.routing === "unassigned" ? "Sales desk" : "Sales"}</span> · {dealer.dealerName}
+                                    {desk.emailMasked ? <span className="font-mono text-ink-muted"> · {desk.emailMasked}</span> : null}
+                                  </p>
+                                ) : null}
                                 <input
                                   type="email"
                                   inputMode="email"
                                   autoComplete="off"
                                   value={typed}
-                                  onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dealer.dealerName]: e.target.value }))}
+                                  onChange={(e) => setBuyerDealerEmails((current) => ({ ...current, [dk]: e.target.value }))}
                                   placeholder={optedOut ? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER}
                                   aria-label={`Sales advisor email for ${dealer.dealerName}`}
                                   className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
                                 />
                                 {typed.trim() !== "" && !supplied ? <p className="text-[10px] text-rose-400">That doesn&apos;t look like an email address.</p> : null}
+                                {supplied && !adviser ? <p className="text-[10px] text-rose-400">Use your advisor&apos;s own address, not a shared inbox like sales@.</p> : null}
                               </div>
                             ) : null}
                           </li>
@@ -3703,6 +3727,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <p className="text-[11px] leading-snug text-ink-muted">{quoteType === "lease" ? LEASE_NON_BINDING_COPY : NON_BINDING_COPY}</p>
                 </div>
               )}
+              <p className="text-[11px] leading-snug text-ink-muted" data-testid="what-happens-next">
+                What happens next: dealers reply on your TrimScout deal page and you get an email. Nothing is shared with a dealer until you accept a quote.
+              </p>
               <div className={`space-y-2 ${directOfferMode ? "hidden" : ""}`}>
                 <label className="text-xs font-semibold text-ink-light">Pricing</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -3781,8 +3808,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   .map((vehicle, index) => ({
                     vehicle,
                     target: reviewTargetFromVehicle(vehicle),
-                    contact: vehicle.location?.dealerName ? dealerContacts[vehicle.location.dealerName.trim()] : undefined,
-                    typedEmail: vehicle.location?.dealerName ? buyerDealerEmails[vehicle.location.dealerName.trim()] || "" : "",
+                    deskId: vehicle.location?.dealerName ? deskKey({ dealerName: vehicle.location.dealerName, state: (vehicle.location.state || "").trim().toUpperCase(), dealerId: dealerIdFrom(vehicle.location.deskId) }) : "",
+                    contact: vehicle.location?.dealerName ? dealerContacts[deskKey({ dealerName: vehicle.location.dealerName, state: (vehicle.location.state || "").trim().toUpperCase(), dealerId: dealerIdFrom(vehicle.location.deskId) })] : undefined,
+                    typedEmail: vehicle.location?.dealerName ? buyerDealerEmails[deskKey({ dealerName: vehicle.location.dealerName, state: (vehicle.location.state || "").trim().toUpperCase(), dealerId: dealerIdFrom(vehicle.location.deskId) })] || "" : "",
                     isPrimary: index === 0,
                   }));
                 if (packageVehicles.length === 0) {
@@ -3813,7 +3841,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                         className="grid divide-x divide-border/60"
                         style={{ gridTemplateColumns: `repeat(${cols}, minmax(${cols > 2 ? 260 : 220}px, 1fr))` }}
                       >
-                        {packageVehicles.map(({ vehicle, target, contact, typedEmail, isPrimary }) => {
+                        {packageVehicles.map(({ vehicle, target, deskId, contact, typedEmail, isPrimary }) => {
                           const reachable = Boolean(contact?.hasEmail && !contact?.emailOptOut);
                           const unverifiedEmail = contact?.emailStatus === "unverified" && !contact?.emailOptOut;
                           const supplied = isPlausibleDealerEmail(typedEmail);
@@ -3856,21 +3884,22 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                                       <span
                                         className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${(() => {
                                           const ok = directOfferMode
-                                            ? Boolean(target?.dealerName && deskPlan.rows[target.dealerName]?.checked)
+                                            ? Boolean(deskId && deskPlan.rows[deskId]?.checked)
                                             : reachable || supplied;
-                                          const pending = directOfferMode ? !(target?.dealerName && quoteDesks[target.dealerName]) : !contact;
+                                          const pending = directOfferMode ? !(deskId && quoteDesks[deskId]) : !contact;
                                           return pending ? "bg-border text-ink-muted" : ok ? "bg-brand-500/15 text-brand-300" : "bg-amber-500/15 text-amber-300";
                                         })()}`}
                                       >
                                         {(() => {
                                           if (directOfferMode) {
-                                            const desk = target?.dealerName ? quoteDesks[target.dealerName] : undefined;
+                                            const desk = deskId ? quoteDesks[deskId] : undefined;
                                             if (!desk) return "Checking";
-                                            const row = deskPlan.rows[target!.dealerName!];
+                                            const row = deskPlan.rows[deskId];
                                             if (!row?.checked) return desk.blockedReason === "dealer_opted_out" && !supplied ? "Opted out" : "Not sending";
                                             if (row.routing === "adviser") return "Advisor added";
                                             if (row.routing === "named") return "Named contact";
-                                            return salesDeskLabel(desk.contactState);
+                                            // A reachable rooftop (shared sales inbox) has a contact on file; the "no contact name" desk label is only for unassigned.
+                                            return salesDeskLabel(row.routing);
                                           }
                                           return !contact ? "Checking" : reachable ? "Email on file" : supplied ? "Email added" : unverifiedEmail ? "Unverified email" : "No email";
                                         })()}
