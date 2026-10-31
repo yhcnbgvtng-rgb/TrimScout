@@ -1,5 +1,5 @@
 import { listDealerships, type Dealership } from "./dealershipsApi";
-import { contactStateOf, dealerIdFrom, dealerMatchKey, pickDirectoryMatch, type ContactState } from "./dealerContactLookup";
+import { dealerIdFrom, dealerMatchKey, hasContactOnFile, pickDirectoryMatch } from "./dealerContactLookup";
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -32,24 +32,18 @@ function rowsById(index: ContactIndex): Map<string, Dealership> {
 }
 
 /**
- * The shared contact state ("named" | "email_only" | "unverified" | "none") for one car's dealer, or null when it is unknown (no dealer name, or
- * the directory is down). Resolves the dealership exactly as Step 3 does (dealer id first; else name + state, shared tie-break), so the
- * Contact column, the contact filter and the quote request cannot disagree. "unverified" is the buyer-facing "Unverified email".
+ * true / false when the directory answered; null when it is unknown (no dealer name, or the directory is down).
+ * Resolves the dealership exactly as Step 3 does (dealer id first; else name + state, shared tie-break) and applies the shared
+ * contact-on-file rule, so the Contact column cannot say "Yes" where the quote request would find no one.
  */
-export function contactStateFor(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null; dealerId?: string | number | null }): ContactState | null {
+export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null; dealerId?: string | number | null }): boolean | null {
   // The car's own dealer_id names its directory row; name + state is only for a car with no id (or one the directory doesn't carry).
   const id = dealerIdFrom(dealer.dealerId);
   const byId = index && id ? rowsById(index).get(id) : undefined;
-  if (byId) return contactStateOf(byId);
+  if (byId) return hasContactOnFile(byId);
   const key = dealerMatchKey(dealer.dealerName || "");
   if (!index || !key) return null;
-  return contactStateOf(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));
-}
-
-/** true / false when the directory answered; null when it is unknown. "On file" means a NAMED contact (see hasContactOnFile). */
-export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null; dealerId?: string | number | null }): boolean | null {
-  const state = contactStateFor(index, dealer);
-  return state == null ? null : state === "named";
+  return hasContactOnFile(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));
 }
 
 let cache: { at: number; ids: ContactIndex } | null = null;
