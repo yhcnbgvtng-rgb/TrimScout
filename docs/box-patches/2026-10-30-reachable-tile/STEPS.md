@@ -16,7 +16,7 @@ v1 added, inside `computeInventoryAnalytics` (the `statsCached` MEDIAN path), `S
 
 Fields: `coverage.dealersReachable`, `coverage.dealersUnverified` (shown as "Unverified email", never as on file), `coverage.dealersWithEmail` (= reachable, for older readers), and `dom.byDealer[].emailStatus` / `.hasEmail` (true only for `reachable`).
 
-**Estimated cold time (not measured on box2):** directory read 0.1-0.5 s + JS classification under 0.1 s + unfiltered dealer-id read 0.2-1 s ≈ **0.5-2 s**, hard-capped at the statement timeout per read; warm calls are milliseconds. Filtered calls (state, make, model, dates) read `dealer_id` from the row for each matching car and cost about what the existing `byDealer` query already costs.
+**Estimated cold time.** Not measured on box2: directory read 0.1-0.5 s + JS classification under 0.1 s + unfiltered dealer-id read 0.2-1 s ≈ **0.5-2 s**, hard-capped at the statement timeout per read; warm calls are milliseconds. Filtered calls (state, make, model, dates) read `dealer_id` from the row for each matching car and cost about what the existing `byDealer` query already costs.
 
 ## Files (`/opt/trimscout-deals/src`)
 | File | Before (must be exactly) | After |
