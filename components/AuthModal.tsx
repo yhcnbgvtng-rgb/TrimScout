@@ -106,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white">Sign In to TrimScout</h2>
-              <p className="text-xs text-ink-muted">Access your live deal room & track bids</p>
+              <p className="text-xs text-ink-muted">Access your live deal room & track quotes</p>
             </div>
           </div>
           <button

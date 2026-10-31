@@ -357,7 +357,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                       <div className="space-y-1.5 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded bg-brand-500 text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-                            {req.directOffer ? "Dealer response" : "Leading bid"}
+                            {req.directOffer ? "Dealer response" : "Leading quote"}
                           </span>
                           <span className="text-xs font-bold text-white">{leading.dealerName}</span>
                           <span className="text-xs text-ink-muted">({leading.distanceMiles} mi away)</span>

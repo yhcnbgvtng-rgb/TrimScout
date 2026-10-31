@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     bidId = String(body.bidId);
     const realBid = await getSingleBid(dealRequestId, bidId);
     if (!realBid) {
-      return NextResponse.json({ error: "That bid no longer exists." }, { status: 404 });
+      return NextResponse.json({ error: "That quote no longer exists." }, { status: 404 });
     }
     winningBid = {
       id: realBid.id,

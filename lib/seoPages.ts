@@ -13,9 +13,9 @@ export interface PublicPage {
 export const PUBLIC_PAGES: PublicPage[] = [
   {
     path: "/",
-    title: "TrimScout | Whole Market Vehicle Search & Dealership Bidding",
+    title: "TrimScout | Whole Market Vehicle Search & Dealer Quote Requests",
     description:
-      "Search cars by exact option packages, analyze real market prices, and let dealerships compete for your business with transparent out-the-door bids.",
+      "Search cars by exact option packages, analyze real market prices, and let dealerships compete for your business with transparent out-the-door quotes.",
     changeFrequency: "weekly",
     priority: 1,
   },
