@@ -8,6 +8,8 @@ import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
+import { quotedTaxOf, tradeTaxCredit, UNCONFIRMED_TRADE_TAX_NOTE, type TradeTaxCredit } from "../lib/trade/stateTradeCredit";
+import { quoteIsNew } from "../lib/salesTax";
 import { TRADE_ESTIMATE_COPY } from "../lib/trade/types";
 import { appraisalForCompare } from "../lib/trade/confirm";
 import { bestDeal, financeAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
@@ -52,13 +54,17 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const live = lane === "alternate" ? liveAll : liveAll.filter((r) => !r.alternate);
   const sideAlternates = lane === "alternate" ? [] : liveAll.filter((r) => r.alternate);
   // Trade-in lines (request-level trade, per-dealer appraisal). The dealer's own quote is never edited; the trade
-  // sits beside it. TODO(tax): no trade-in tax credit; sales tax stays as each dealer quoted it on the full price.
+  // sits beside it. The buyer's state may also take the trade-in off the taxable price (lib/trade/stateTradeCredit.ts): that saving is its own line.
   const trade = rfq.tradeIn ?? null;
   // The number that counts is the confirmed one once the winner has settled it; before that, or after the buyer went back from a
   // revision, it is what the desk originally quoted. The allowance dies with the vehicle quote it came with.
   const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity =>
     tradeEquity(Boolean(trade), trade?.payoffEstimate, appraisalForCompare(r.invite.tradeAppraisal, r.invite.tradeConfirmation), new Date(), { quoteExpiresAt: r.invite.quote?.expiresAt ?? null, tradeUpdatedAt: trade?.updatedAt ?? null });
-  const otdOf = (r: (typeof rows)[number]) => otdBeforeAfter(cashOutTheDoor(r.used!), eqOf(r));
+  const taxZip = (finance ? prefs.finance?.zip : prefs.cash?.zip) || null;
+  const taxCreditOf = (used: UsedQuote, eq: TradeEquity): TradeTaxCredit =>
+    tradeTaxCredit({ zip: taxZip, allowance: eq.status === "quoted" ? eq.allowance : null, sellingPrice: used.sellingPrice, addOns: used.addOns, quotedTax: quotedTaxOf(used.dueAtSigning), isNew: quoteIsNew(used) });
+  const otdFor = (used: UsedQuote, eq: TradeEquity) => otdBeforeAfter(cashOutTheDoor(used), eq, taxCreditOf(used, eq));
+  const otdOf = (r: (typeof rows)[number]) => otdFor(r.used!, eqOf(r));
   const hasTrade = Boolean(trade);
   const eligibleRow = (r: (typeof rows)[number]) => tradeEligible(eqOf(r));
   // Cash ranks on post-trade OTD (ties: more net equity), so a big trade offset by a higher price can't hide, and negative equity
@@ -121,6 +127,8 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
       <span className="font-bold text-white">{fmtMoney(total)}</span>
     );
 
+  const anyTaxCredit = Boolean(trade) && live.some((r) => taxCreditOf(r.used!, eqOf(r)).mid > 0);
+  const taxStatuses = new Set(live.map((r) => taxCreditOf(r.used!, eqOf(r)).status));
   const anyMiles = rows.some((r) => r.used?.miles != null);
   const anySurcharges = rows.some((r) => r.used && (r.used.noSurcharges || (r.used.surcharges?.length ?? 0) > 0));
   const rowDefs: QuoteRowDef[] = [
@@ -133,7 +141,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     // Between Add-ons and Rebates. Quotes sent before surcharges existed carry no field, so the row only appears once a compared quote has one.
     ...(anySurcharges ? [{ key: "surcharges", label: "Surcharges" }] : []),
     { key: "rebates", label: "Rebates / credits" },
-    ...(trade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }] : []),
+    ...(trade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }, ...(anyTaxCredit ? [{ key: "taxcredit", label: "Sales tax saved on trade" }] : [])] : []),
     ...(!finance ? [{ key: "otdex", label: "Out the door, excluding add-ons" }] : []),
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
@@ -165,12 +173,13 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     if (used && !expired && !excluded) {
       if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
       if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
-      if (used.kind === "cash" && (trade ? otdBeforeAfter(cashOutTheDoor(used), eq).after : cashOutTheDoor(used)) === bestOtd) best.push(trade ? "otdafter" : "otd");
+      if (used.kind === "cash" && (trade ? otdFor(used, eq).after : cashOutTheDoor(used)) === bestOtd) best.push(trade ? "otdafter" : "otd");
       if (used.kind === "cash" && cmp.biggestDiscount.includes(invite.id)) best.push("pctoff");
       if (trade && eq.status === "quoted" && bestNet != null && eq.net === bestNet) best.push("netequity");
-      if (trade && finance && eq.status === "quoted" && bestAfter != null && otdBeforeAfter(cashOutTheDoor(used), eq).after === bestAfter) best.push("otdafter");
+      if (trade && finance && eq.status === "quoted" && bestAfter != null && otdFor(used, eq).after === bestAfter) best.push("otdafter");
     }
-    const otd = used ? otdBeforeAfter(cashOutTheDoor(used), eq) : null;
+    const otd = used ? otdFor(used, eq) : null;
+    const taxCredit = used ? taxCreditOf(used, eq) : null;
     const disc = used?.kind === "cash" ? msrpDiscount(used) : null;
     const pctOffCell = !disc ? null : disc.status === "none" ? <span className="text-ink-muted" data-testid="msrp-not-provided">MSRP not provided</span>
       : <span data-testid="pct-off-msrp">
@@ -192,6 +201,9 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
             {eq.negative ? <span className="block text-[10px] font-bold uppercase">Negative equity</span> : null}
           </span>,
       ...(used ? {
+        taxcredit: taxCredit && taxCredit.mid > 0
+          ? <span className="font-bold text-emerald-300" data-testid="trade-tax-credit">−{fmtMoney(taxCredit.mid)}<span className="block text-[10px] font-normal text-ink-muted">{taxCredit.state} {taxCredit.taxName}{eq.allowance?.isRange ? ` · ${fmtMoney(taxCredit.low)} to ${fmtMoney(taxCredit.high)}` : ""}</span></span>
+          : <span className="text-ink-muted">—</span>,
         otdbefore: fmtMoney(otd!.before),
         otdafter: <>
           {fmtMoney(otd!.after)}
@@ -324,7 +336,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>
       )}
 
-      {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} Sales tax is as each dealer quoted it, on the full price.</p> : null}
+      {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} {taxStatuses.has("credit") ? "Where your state gives a trade-in credit, the tax it saves is estimated from each dealer's quoted tax and shown on its own line." : taxStatuses.has("none") && !taxStatuses.has("unconfirmed") ? "Your state gives no trade-in credit, so sales tax is as each dealer quoted it, on the full price." : null}{taxStatuses.has("unconfirmed") ? <span data-testid="trade-tax-unconfirmed-note"> {UNCONFIRMED_TRADE_TAX_NOTE}</span> : null}</p> : null}
       {trade && quoted > 1 ? <TradeSortToggle mode={sort} onChange={setSort} /> : null}
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (

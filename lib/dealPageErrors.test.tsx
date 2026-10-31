@@ -103,7 +103,7 @@ describe("cash with a trade: the headline is the lowest post-trade OTD, alternat
   it("headlines the alternate at its post-trade OTD, labelled as an alternate", () => {
     const g = glance(h);
     assert.match(g, /Alt Honda/);
-    assert.match(g, /\$26,995/);
+    assert.match(g, /\$25,679/, "26,995 less the NJ tax the 20,000 allowance saves at the quote's own rate (2,500 / 38,000)");
     assert.match(g, /Alternate vehicle/);
     assert.doesNotMatch(g, /tabular-nums">\$31,145/);
   });
