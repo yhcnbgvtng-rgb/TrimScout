@@ -12,3 +12,6 @@ data/lightsail_inventory.backup.json
 data/deal-engagement.json
 data/factory-builds.json
 data/factory-option-catalog.json
+
+# box2 live-file snapshot for the reachable-tile test: local only, never committed
+/docs/box-snapshots/2026-10-30-box2-deals-api/*.js.txt
