@@ -10,6 +10,7 @@ import { buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { guestTrackerPath, isGuestBuyerId } from "@/lib/buyerAccess";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       action,
       state: result.stage,
       dealerName: invite.dealerName,
-      vehicle: [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
+      vehicle: vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle",
       url: `${DEALER_EMAIL_BASE_URL}${isGuestBuyerId(rfq.buyerUserId) ? guestTrackerPath(found.rfqId) : `/rfq/${encodeURIComponent(found.rfqId)}`}`,
     });
     await sendDealStageNotice(notice);

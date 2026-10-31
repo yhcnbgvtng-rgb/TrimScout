@@ -44,10 +44,10 @@ describe("GET /api/lightsail?action=vehicles — dates are admin-only", () => {
   beforeEach(() => { delete env.LIGHTSAIL_IP; delete env.LIGHTSAIL_HOST; delete env.LIGHTSAIL_API_KEY; env.LIGHTSAIL_DUMP_SECRET = "test-dump-secret-value"; globalThis.fetch = (async () => { throw new Error("no network in tests"); }) as typeof fetch; });
   afterEach(() => { globalThis.fetch = realFetch; for (const [k, v] of [["LIGHTSAIL_IP", saved.ip], ["LIGHTSAIL_HOST", saved.host], ["LIGHTSAIL_API_KEY", saved.key], ["LIGHTSAIL_DUMP_SECRET", saved.dump]] as const) { if (v === undefined) delete env[k]; else env[k] = v; } });
 
-  it("a public caller's rows have no seen keys; the secret holder's still do", async () => {
-    const pub = await (await GET(req())).json();
-    assert.ok(pub.vehicles.length > 0);
-    assert.deepEqual(keysOf(pub).filter((k) => SEEN_KEY.test(k)), []);
+  it("a public caller gets no rows at all (410); the secret holder's rows still carry dates", async () => {
+    const pubRes = await GET(req());
+    assert.equal(pubRes.status, 410);
+    assert.deepEqual(keysOf(await pubRes.json()).filter((k) => SEEN_KEY.test(k)), []);
     const full = await (await GET(req({ [LIGHTSAIL_SECRET_HEADER]: "test-dump-secret-value" }))).json();
     assert.ok(keysOf(full).some((k) => SEEN_KEY.test(k)), "the full tier keeps its dates");
   });

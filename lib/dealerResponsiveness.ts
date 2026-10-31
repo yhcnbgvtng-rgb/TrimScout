@@ -13,11 +13,13 @@ export interface DealerResponsivenessStats {
 }
 
 // Real, computed from actual deal_bids/deal_requests timing — never a
-// fabricated "usually responds within..." default. null/zero-bid stats say
-// so plainly rather than guessing at a plausible-sounding number.
+// fabricated "usually responds within..." default. The stats come from the
+// old deal_bids table, which current quote requests no longer write to, so
+// they are almost always empty. With no history there is nothing true to say,
+// so the line is hidden (null) rather than printing "No response history yet".
 export function formatDealerResponsivenessLabel(stats: DealerResponsivenessStats | null): string | null {
   if (!stats) return null;
-  if (stats.bidCount === 0 || stats.avgResponseHours === null) return "No response history yet";
+  if (stats.bidCount === 0 || stats.avgResponseHours === null) return null;
   const hours = stats.avgResponseHours;
   if (hours < 1) return "Usually responds within the hour";
   if (hours < 24) return `Usually responds within ${Math.round(hours)} hour${Math.round(hours) === 1 ? "" : "s"}`;

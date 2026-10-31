@@ -229,7 +229,7 @@ describe("lease prefs — no payment cap anywhere", () => {
   it("no max-DAS field, type, copy or flag survives in the buyer UI, dealer calculator, compare, email, API types or admin desk", () => {
     const files = [
       "lib/leaseQuote.ts", "lib/rfqTracker.ts", "lib/quoteInviteEmail.ts", "components/BiddingWizard.tsx", "components/LeaseQuoteSheet.tsx",
-      "components/LeaseCalculatorForm.tsx", "components/LeaseCalculatorSheet.tsx", "components/LeaseCompare.tsx", "components/LeaseQuoteFormat.tsx",
+      "components/LeaseCalculatorForm.tsx", "components/LeaseCalculatorSheet.tsx", "components/LeaseCompare.tsx",
       "app/admin/quote-requests/QuoteRequestsClient.tsx", "app/api/rfqs/route.ts", "app/api/rfqs/[id]/lease-prefs/route.ts",
     ];
     for (const f of files) assert.doesNotMatch(read(f), /maxCashDueAtSigning|maxDueAtSigning|overMaxCashDue|MAX_CASH_DUE|Cash due at signing|max due at signing|Over (your|the buyer's) \$/i, f);

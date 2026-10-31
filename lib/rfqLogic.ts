@@ -4,6 +4,7 @@
 // server enforces server-side.
 import type { RfqInvite, RfqMustHave, RfqQuote, RfqRequest, RfqSpec } from "./rfq";
 import { RFQ_MAX_INVITES } from "./rfq";
+import { vehicleTitle } from "./vehicleTitle";
 
 /** Freezes a full-match result's must-haves for an RFQ. Only ever "hit" — never freeze a miss or unknown into a locked spec. */
 export function freezeMustHaves(hits: { code: string; name: string }[]): RfqMustHave[] {
@@ -62,7 +63,7 @@ export function totalOtdFromFees(price: number, fees: { amount: number }[]): num
  */
 export function dealerHandoffText(spec: RfqSpec): string {
   const lines = [
-    `Request for a quote — ${spec.vehicleYear} ${spec.vehicleMake} ${spec.vehicleModel} ${spec.vehicleTrim}`,
+    `Request for a quote — ${vehicleTitle({ vin: spec.vin, year: spec.vehicleYear, make: spec.vehicleMake, model: spec.vehicleModel, trim: spec.vehicleTrim })}`,
     `VIN: ${spec.vin}${spec.stockNumber ? ` · Stock #${spec.stockNumber}` : ""}`,
     "",
     "Locked must-have options (please confirm all are on this exact VIN before quoting):",

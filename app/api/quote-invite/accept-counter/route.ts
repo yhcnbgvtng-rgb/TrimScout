@@ -15,6 +15,7 @@ import { rfqVehicles } from "@/lib/rfqTracker";
 import { sendCounterAcceptedNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { closeOutLosers } from "@/lib/inviteOutbox";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
   // Best effort — the accepted quote is already on the buyer's compare.
   await sendCounterAcceptedNotice({
     dealerName: invite.dealerName,
-    vehicle: [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
+    vehicle: vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle",
     outTheDoor,
     surcharges: surchargeSummary(used),
     rfqUrl: `${DEALER_EMAIL_BASE_URL}/rfq/${encodeURIComponent(found.rfqId)}`,

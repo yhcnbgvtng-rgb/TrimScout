@@ -12,7 +12,6 @@ describe("lease sheet lock — editable until a dealer views, then frozen (box +
   const patchRoute = read("app/api/rfqs/[id]/lease-prefs/route.ts");
   const contextRoute = read("app/api/quote-invite/context/route.ts");
   const sheet = read("components/LeaseQuoteSheet.tsx");
-  const format = read("components/LeaseQuoteFormat.tsx");
   const detail = read("app/rfq/[id]/page.tsx");
 
   it("box: lock columns exist, are set once on the first 'viewed', and PATCH lease-prefs answers 409 after", () => {
@@ -42,11 +41,7 @@ describe("lease sheet lock — editable until a dealer views, then frozen (box +
     assert.match(sheet, /\/lease-prefs`, \{ method: "PATCH"/);
   });
 
-  it("lease deal: read-only format (blank, never $0) by default; calculator only behind an explicit phone-quote link", () => {
-    assert.match(format, /AWAITING_DEALER_COPY = "Waiting on dealer — quote format below; numbers appear when they reply\."/);
-    assert.match(format, /data-testid=\{q \? "lease-quote-filled" : "lease-quote-awaiting"\}/);
-    assert.doesNotMatch(format, /<input|<select|<textarea/);
-    assert.doesNotMatch(format, /["'`]\$0["'`]|money\(0[,)]/, "no literal $0 placeholder");
+  it("lease deal: calculator only behind an explicit phone-quote link", () => {
     // The card is gone: the phone-quote / decline actions now live in the dealer's compare-column header.
     assert.match(detail, /data-testid="record-quote"[\s\S]*?Record quote/);
     assert.match(detail, /data-testid="mark-declined"[\s\S]*?Mark declined/);

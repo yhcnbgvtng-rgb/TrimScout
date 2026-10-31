@@ -11,6 +11,7 @@ import { namedLimit, retryAfterLabel } from "./rateLimit";
 import { isFinallyAccepted } from "./dealThread";
 import type { RfqInvite, RfqRequest } from "./rfq";
 import { RfqApiError } from "./rfqApi";
+import { vehicleTitle } from "./vehicleTitle";
 
 export interface RevealContact { name: string | null; email: string; phone: string | null; zip: string | null }
 export interface RevealDeps {
@@ -57,7 +58,7 @@ async function gate(token: unknown, ip: string, deps: RevealDeps): Promise<Gate>
 export async function describeReveal(token: unknown, ip: string, deps: RevealDeps): Promise<RevealOutcome> {
   const g = await gate(token, ip, deps);
   if (g.out) return g.out;
-  const vehicle = [g.rfq.vehicleYear, g.rfq.vehicleMake, g.rfq.vehicleModel, g.rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
+  const vehicle = vehicleTitle({ vin: g.rfq.vin, year: g.rfq.vehicleYear, make: g.rfq.vehicleMake, model: g.rfq.vehicleModel, trim: g.rfq.vehicleTrim }) || "vehicle";
   const s = g.invite.stage?.final?.summary;
   return { status: 200, body: { summary: { vehicle, vin: g.invite.vehicle?.vin || g.rfq.vin || "", acceptedOtd: s ? s.otd : null, netAfterTrade: s && s.tradeValue != null ? s.trueOtd : null, expiresAt: g.claims.expiresAt } } };
 }

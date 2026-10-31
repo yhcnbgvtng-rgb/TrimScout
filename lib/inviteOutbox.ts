@@ -30,6 +30,7 @@ import { alternateAskSummary } from "./alternateAsk";
 import { dealersOwedNotSelected, invitesToClose } from "./rfqClose";
 import { buildAcceptedOfferEmail } from "./dealStageNotice";
 import { revealUrl, signRevealToken } from "./contactRevealToken";
+import { vehicleTitle } from "./vehicleTitle";
 
 export type OutboxResult = "sent" | "parked_switch_off" | "held_for_approval" | "opted_out" | "no_desk" | "already_sent" | "failed";
 
@@ -308,7 +309,7 @@ export async function sendBuyerDetailsRelease(
       count("buyerdetails_parked_switch_off");
       return "parked_switch_off";
     }
-    const vehicle = [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
+    const vehicle = vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle";
     const mail = buildAcceptedOfferEmail({
       vehicle,
       vin: invite.vehicle?.vin || rfq.vin || "",

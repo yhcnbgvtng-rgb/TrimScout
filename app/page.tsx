@@ -10,8 +10,6 @@ import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import type { RfqLane } from "../lib/alternateAsk";
 import { SiteFooter } from "../components/SiteFooter";
-import { MOCK_VEHICLES } from "../lib/mockData";
-import { fetchLiveInventory } from "../lib/inventoryConnector";
 import { mapDealRequestJson } from "../lib/shopperDeal";
 import { consumeLandingView, loadShopperRequests, upsertShopperRequest } from "../lib/offerCompare";
 import { Navbar } from "../components/Navbar";
@@ -36,7 +34,6 @@ function isPersistedDealId(id: string): boolean {
 }
 
 export default function Home() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
   const [currentView, setCurrentView] = useState<"bid_program" | "factory_match" | "deal_room" | "dealer_portal" | "track_deals" | "signup" | "admin">("bid_program");
   const [isImpersonating, setIsImpersonating] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -54,17 +51,6 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalError, setAuthModalError] = useState<string | null>(null);
   const { data: session, status: sessionStatus } = useSession();
-
-  // Live Inventory Connector State & Pagination
-  const [isSyncingInventory, setIsSyncingInventory] = useState(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [hasMoreVehicles, setHasMoreVehicles] = useState<boolean>(true);
-  const [totalFoundVehicles, setTotalFoundVehicles] = useState<number>(0);
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-  const [currentSearchParams, setCurrentSearchParams] = useState<{ zip: string; radius: number; query?: string; make?: string }>({
-    zip: "94107",
-    radius: 150,
-  });
 
   // Wizard state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -130,7 +116,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Initial live inventory sync & user session restore on load
+  // User session restore on load
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -153,7 +139,6 @@ export default function Home() {
         setCurrentView("dealer_portal");
       }
     }
-    handleSyncLiveInventory("94107", 25, undefined, undefined, 500);
   }, []);
 
   // Real Auth.js session -> currentUser sync. Runs whenever the session
@@ -316,71 +301,6 @@ export default function Home() {
     // no-op when there's no session to clear.
     if (sessionStatus === "authenticated") {
       authSignOut({ redirect: false });
-    }
-  };
-
-  // Sync Live Inventory from Connector
-  const handleSyncLiveInventory = async (
-    zip: string = "94107",
-    radius: number = 25,
-    query?: string,
-    make?: string,
-    limit: number = 500
-  ) => {
-    setIsSyncingInventory(true);
-    setCurrentSearchParams({ zip, radius, query, make });
-    setCurrentPage(1);
-    try {
-      const res = await fetchLiveInventory({
-        zip,
-        radius,
-        query,
-        make: make && make !== "All" ? make : undefined,
-        page: 1,
-        limit, // Load up to 500-1000 vehicles across parallel stream pages
-      });
-      if (res.success && res.data.length > 0) {
-        setVehicles(res.data);
-        setTotalFoundVehicles(res.totalFound || res.data.length);
-        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > res.data.length : res.data.length >= limit));
-      }
-    } catch (e) {
-      console.error("Failed to sync live inventory:", e);
-    } finally {
-      setIsSyncingInventory(false);
-    }
-  };
-
-  // Load More (Pagination)
-  const handleLoadMoreLiveInventory = async () => {
-    if (isLoadingMore || !hasMoreVehicles) return;
-    setIsLoadingMore(true);
-    const nextPage = currentPage + 1;
-    try {
-      const res = await fetchLiveInventory({
-        zip: currentSearchParams.zip,
-        radius: currentSearchParams.radius,
-        query: currentSearchParams.query,
-        make: currentSearchParams.make && currentSearchParams.make !== "All" ? currentSearchParams.make : undefined,
-        page: nextPage,
-        limit: 150,
-      });
-      if (res.success && res.data.length > 0) {
-        setVehicles(prev => {
-          const existingIds = new Set(prev.map(v => v.id || v.vin));
-          const newUnique = res.data.filter(v => !existingIds.has(v.id || v.vin));
-          return [...prev, ...newUnique];
-        });
-        setCurrentPage(nextPage);
-        setHasMoreVehicles(res.hasMore ?? (res.totalFound ? res.totalFound > (vehicles.length + res.data.length) : res.data.length >= 150));
-        if (res.totalFound) setTotalFoundVehicles(res.totalFound);
-      } else {
-        setHasMoreVehicles(false);
-      }
-    } catch (e) {
-      console.error("Failed to load more vehicles:", e);
-    } finally {
-      setIsLoadingMore(false);
     }
   };
 
@@ -809,7 +729,7 @@ export default function Home() {
         key={wizardSession}
         isOpen={isWizardOpen}
         onClose={() => setIsWizardOpen(false)}
-        vehicles={vehicles}
+        vehicles={[]}
         preselectedVehicle={preselectedVehicle}
         initialIntent={repickIntent}
         seedVehicles={seedVehicles}

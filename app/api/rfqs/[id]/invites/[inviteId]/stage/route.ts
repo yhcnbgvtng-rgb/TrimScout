@@ -15,6 +15,7 @@ import { zipStateTax } from "@/lib/counterSheet";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { closeOutLosers, sendBuyerDetailsRelease } from "@/lib/inviteOutbox";
 import { isNotSelected } from "@/lib/rfqClose";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string; inviteId: string }> }) {
   const session = await auth();
@@ -54,7 +55,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         action,
         state: result.stage,
         dealerName: invite.dealerName,
-        vehicle: [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
+        vehicle: vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle",
         url: `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken)}`,
       });
       await sendDealStageNotice(notice);
