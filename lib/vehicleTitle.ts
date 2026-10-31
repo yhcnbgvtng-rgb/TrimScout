@@ -60,7 +60,7 @@ export function repairVehicleIdentity<T extends VehicleTitleParts>(v: T): T & { 
 }
 
 export function vehicleTitle(input: VehicleTitleParts): string {
-  const v = input.vin ? repairVehicleIdentity(input) : input;
+  const v = input.vin || norm(input.model || "") === norm(input.make || "") ? repairVehicleIdentity(input) : input;
   const trim = modelEndsWithTrim(v.model, v.trim) ? null : v.trim;
   // A model that only repeats the make ("BMW" under make "BMW") is the box's stand-in for an unknown model: say nothing.
   const model = norm(v.model || "") === norm(v.make || "") ? null : v.model;

@@ -8,9 +8,9 @@ import { ALWAYS_VISIBLE, HIDDEN_BY_DEFAULT, toggleColumn, visibleColumnKeys } fr
 import { BUYER_COUNT_CAP } from "./buyerSearchQuery";
 
 describe("column defaults", () => {
-  const cols = ["pick", "days", "vehicleId", "vin", "year", "price"].map((key) => ({ key }));
-  it("hides Days on market and Vehicle ID until the shopper turns them on", () => {
-    assert.deepEqual([...HIDDEN_BY_DEFAULT].sort(), ["days", "vehicleId"]);
+  const cols = ["pick", "vehicleId", "vin", "year", "price"].map((key) => ({ key }));
+  it("hides Vehicle ID until the shopper turns them on", () => {
+    assert.deepEqual([...HIDDEN_BY_DEFAULT].sort(), ["vehicleId"]);
     assert.deepEqual(visibleColumnKeys(cols, null), ["pick", "vin", "year", "price"]);
     assert.deepEqual(visibleColumnKeys(cols, toggleColumn(null, "vehicleId")), ["pick", "vehicleId", "vin", "year", "price"]);
   });
@@ -109,11 +109,11 @@ describe("/search page, rendered", () => {
     const base = t.headers();
     assert.ok(base.includes("vin") && base.includes("price"));
     assert.ok(!base.includes("vehicle id"), "Vehicle ID hidden");
-    assert.ok(!base.includes("days on market"), "Days on market hidden");
+    assert.ok(!base.includes("days on market"), "no Days on market column");
     await t.click(t.btn("Columns"));
     const menu = document.querySelector('[role="menu"][aria-label="Columns"]')!;
     const items = [...menu.querySelectorAll("label")].map((l) => l.textContent?.trim().toLowerCase());
-    assert.ok(items.includes("vehicle id") && items.includes("days on market"), "both are offered in the menu");
+    assert.ok(items.includes("vehicle id") && !items.includes("days on market"), "Vehicle ID is offered; Days on market no longer exists");
     assert.ok(!items.some((i) => /first|last/.test(i ?? "") && /seen/.test(i ?? "")), "no seen-date column offered");
     const box = [...menu.querySelectorAll("label")].find((l) => l.textContent?.trim() === "Vehicle ID")!.querySelector("input")!;
     await t.click(box);

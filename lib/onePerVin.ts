@@ -45,3 +45,19 @@ export function collapseByVin<T extends OnePerVinRow>(rows: T[], distanceOf?: ((
   const out = rows.filter((r) => !r.vin || best.get(r.vin.toUpperCase()) === r);
   return { rows: out, dropped: rows.length - out.length };
 }
+
+/**
+ * Appends the next page to the rows already on screen, dropping any row whose VIN is already there (or repeats inside the new page).
+ * The earlier row keeps its place. Rows without a VIN are always kept.
+ */
+export function appendDedupeByVin<T extends { vin?: string | null }>(prev: T[], next: T[]): T[] {
+  const seen = new Set<string>();
+  for (const r of prev) if (r.vin) seen.add(r.vin.toUpperCase());
+  const out = [...prev];
+  for (const r of next) {
+    const vin = (r.vin || "").toUpperCase();
+    if (vin) { if (seen.has(vin)) continue; seen.add(vin); }
+    out.push(r);
+  }
+  return out;
+}

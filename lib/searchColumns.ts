@@ -1,7 +1,7 @@
-// Which /search grid columns show before the shopper opens the Columns menu. Days on market and Vehicle ID stay available there,
-// but start hidden. First-seen / last-seen dates are never a column: buyers do not see crawl dates (see lib/noPublicSeenDates.test.ts).
+// Which /search grid columns show before the shopper opens the Columns menu. Vehicle ID stays available there, but starts hidden.
+// There is no Days on market column: the API no longer sends days on lot. First-seen / last-seen dates are never a column: buyers do not see crawl dates (see lib/noPublicSeenDates.test.ts).
 
-export const HIDDEN_BY_DEFAULT: readonly string[] = ["days", "vehicleId"];
+export const HIDDEN_BY_DEFAULT: readonly string[] = ["vehicleId"];
 
 /** Columns the menu may not turn off: the pick checkbox is the only way to select a car. */
 export const ALWAYS_VISIBLE: readonly string[] = ["pick"];

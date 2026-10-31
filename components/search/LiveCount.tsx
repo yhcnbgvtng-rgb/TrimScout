@@ -43,7 +43,7 @@ function useEasedNumber(target: number | null): number | null {
 
 export function LiveCount({ value, capped, pending, note }: LiveCountProps) {
   const shown = useEasedNumber(value);
-  const text = shown == null ? "—" : `${shown.toLocaleString()}${capped && shown === value ? "+" : ""}`;
+  const text = shown == null ? "—" : `${shown.toLocaleString()}${capped ? "+" : ""}`;
   return (
     <div className="text-center" data-testid="live-count">
       <p

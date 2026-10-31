@@ -16,7 +16,10 @@ import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
 import { displayTrim, officialTrimOptions } from "@/lib/fordTrimDisplay";
-import { colorFilterOptions, exteriorColorDisplay } from "@/lib/colorCode";
+import { colorCell, colorFilterOptions } from "@/lib/colorCode";
+import { vehicleTitle, repairVehicleIdentity } from "@/lib/vehicleTitle";
+import { appendDedupeByVin } from "@/lib/onePerVin";
+import { rowsPassingContactFilter } from "@/lib/contactFilter";
 import type { LiveCountProps } from "./search/LiveCount";
 import VinLookup, { type VinLookupResult } from "./search/VinLookup";
 
@@ -38,7 +41,8 @@ interface BuyerVehicle {
   price: number | null;
   msrp: number | null;
   vdpUrl: string | null;
-  daysOnLot: number | null;
+  /** True when the API withheld the price as implausible (price is null then). */
+  priceSuspect?: boolean;
   priceDiff: number | null;
   distanceMiles: number | null;
   dealerHasContact?: boolean | null;
@@ -52,8 +56,8 @@ interface SearchResults {
   total: number;
   /** True when `total` is a floor ("1,000+") — the box stopped counting at its cap. */
   totalCapped?: boolean;
-  /** How many vehicles the most recent page returned — a full page is how "Load more" knows there may be another. */
-  lastPageCount?: number;
+  /** Where the next page starts, from the API (null = last page). Paging never infers it from how many rows are on screen. */
+  nextOffset?: number | null;
   limit: number;
   offset: number;
   vehicles: BuyerVehicle[];
@@ -137,6 +141,12 @@ export function filtersToQueryString(f: Filters, extra: { limit?: number; offset
 }
 
 const RESULTS_PAGE_SIZE = 24;
+
+/** Where the next page starts: the API's nextOffset (null = last page). Only a response without the field falls back to the rows loaded. */
+function nextOffsetOf(r: SearchResults): number | null {
+  if (r.nextOffset !== undefined) return r.nextOffset;
+  return r.vehicles.length < r.total ? r.vehicles.length : null;
+}
 
 /**
  * Why Search is disabled, or null when it can run. Mirrors the server's gates
@@ -269,7 +279,7 @@ export function BuyerSearchView() {
       .then((json) => {
         setCatalogOptions(Array.isArray(json?.options) ? json.options : []);
         setExteriorColors(Array.isArray(json?.exteriorColors) ? colorFilterOptions(json.exteriorColors) : []);
-        setInteriorColors(Array.isArray(json?.interiorColors) ? json.interiorColors : []);
+        setInteriorColors(Array.isArray(json?.interiorColors) ? colorFilterOptions(json.interiorColors) : []);
       })
       .catch((e) => {
         if (e?.name === "AbortError") return;
@@ -325,8 +335,8 @@ export function BuyerSearchView() {
       }
       sortAttemptRef.current = null;
       setSearchError(null);
-      const lastPageCount = Array.isArray(json.vehicles) ? json.vehicles.length : 0;
-      setResults((prev) => (offset > 0 && prev ? { ...json, lastPageCount, vehicles: [...prev.vehicles, ...json.vehicles] } : { ...json, lastPageCount }));
+      // Pages are appended with a VIN check across everything already loaded, so a car that moves between pages never shows twice.
+      setResults((prev) => (offset > 0 && prev ? { ...json, vehicles: appendDedupeByVin(prev.vehicles, json.vehicles || []) } : { ...json }));
     } catch (e) {
       if ((e as { name?: string })?.name === "AbortError") return;
       if (requestId !== runSearchRef.current) return;
@@ -388,11 +398,12 @@ export function BuyerSearchView() {
   // Infinite scroll: one page at a time, never while another request (page or search) is running.
   const loadMore = useCallback(() => {
     if (!results || !applied || searchLoading || pageInFlightRef.current) return;
+    const next = nextOffsetOf(results);
+    if (next == null) return;
     pageInFlightRef.current = true;
-    void runSearch(applied, results.vehicles.length);
+    void runSearch(applied, next);
   }, [results, applied, searchLoading, runSearch]);
-  // A capped total is a floor, so "more" is known only from the last page having been full.
-  const hasMore = results ? (results.totalCapped ? (results.lastPageCount ?? 0) >= RESULTS_PAGE_SIZE : results.vehicles.length < results.total) : false;
+  const hasMore = results ? nextOffsetOf(results) != null : false;
 
   const moreCount = countMoreFilters(filters);
   const clearMore = () =>
@@ -456,7 +467,9 @@ export function BuyerSearchView() {
   const live: LiveCountProps = (() => {
     let value: number | null = null, capped = false, pending = false, note: string | null = null;
     if (serverMode) {
-      const fresh = serverCount && serverCount.qs === countQs ? serverCount : null;
+      // The search that just ran already knows the total for these exact filters; use it at once instead of waiting out the debounce.
+      const own = results && applied && !results.offset && filtersToQueryString({ ...applied, sort: "" }, { limit: 1 }) === countQs ? { qs: countQs, total: results.total, capped: Boolean(results.totalCapped) } : null;
+      const fresh = serverCount && serverCount.qs === countQs ? serverCount : own;
       value = fresh ? fresh.total : lastShown.current?.value ?? null;
       capped = fresh ? fresh.capped : lastShown.current?.capped ?? false;
       pending = !fresh && !serverCountFailed;
@@ -473,8 +486,18 @@ export function BuyerSearchView() {
     return { value, capped, pending, note };
   })();
   const excludeTerms = useMemo(() => parseExclude(filters.exclude), [filters.exclude]);
-  const shownVehicles = useMemo(() => (results && excludeTerms.length ? results.vehicles.filter((v) => !isExcluded(v, excludeTerms)) : results?.vehicles ?? []), [results, excludeTerms]);
+  // Rows on screen: the contact filter's own rule applied to each row, the "Leave out" words, and (with no header sort) incomplete rows last.
+  const shownVehicles = useMemo(() => {
+    if (!results) return [];
+    let rows = rowsPassingContactFilter(results.vehicles, Boolean(applied?.contactOnFile));
+    if (excludeTerms.length) rows = rows.filter((v) => !isExcluded(v, excludeTerms));
+    return applied?.sort ? rows : incompleteLast(rows);
+  }, [results, excludeTerms, applied]);
   const excludedHidden = results ? results.vehicles.length - shownVehicles.length : 0;
+  // ONE count, from the API total: the header and the results line read the same value, so they cannot disagree. "Leave out" is a
+  // screen-only word filter, so it never changes the count; the note under the filters says how many loaded cars it hides.
+  const headlineCount = live.value ?? results?.total ?? null;
+  const headlineCapped = live.value != null ? Boolean(live.capped) : Boolean(results?.totalCapped);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
@@ -502,7 +525,7 @@ export function BuyerSearchView() {
       ) : (
       <div>
         <p className="mb-3 text-xs font-semibold text-ink-muted">
-          {results ? `${results.total.toLocaleString()}${results.totalCapped ? "+" : ""} vehicle${results.total === 1 && !results.totalCapped ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
+          {results && headlineCount != null ? `${headlineCount.toLocaleString()}${headlineCapped ? "+" : ""} vehicle${headlineCount === 1 && !headlineCapped ? "" : "s"} found` : searchLoading ? "Searching…" : " "}
         </p>
 
         {searchError && (
@@ -539,30 +562,46 @@ export function BuyerSearchView() {
   );
 }
 
-const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
+const DASH = "—";
+export const PRICE_ON_REQUEST = "Price on request";
+const money = (n: number) => `$${n.toLocaleString()}`;
+/** A missing, withheld (priceSuspect) or zero price all read "Price on request". */
+export const priceCell = (v: { price: number | null; priceSuspect?: boolean }) => (v.priceSuspect || v.price == null || v.price <= 0 ? PRICE_ON_REQUEST : money(v.price));
+/** Mileage: a dash when blank, and for a used car a 0 is a missing reading, not a car with no miles. */
+export const mileageCell = (v: { mileage: number | null; condition?: "new" | "used" | "cpo" | null }) => (v.mileage == null || (v.mileage === 0 && v.condition !== "new") ? DASH : v.mileage.toLocaleString());
+const dash = (x: string | number | null | undefined) => (x == null || x === "" ? DASH : String(x));
+/** The title the table, cards and pick labels all use (shared vehicleTitle: no "BMW BMW"; the VIN repairs a blank iX3 model/trim). */
+export function titleOf(v: { vin: string; year: number | null; make: string | null; model: string | null; trim: string | null }): string {
+  const r = repairVehicleIdentity({ vin: v.vin, make: v.make, model: v.model, trim: v.trim });
+  return vehicleTitle({ year: v.year, make: v.make, model: r.model, trim: displayTrim(v.make, r.model, r.trim) }) || v.vin;
+}
+const isComplete = (v: { year: number | null; model: string | null; price: number | null; priceSuspect?: boolean }) => v.year != null && Boolean(v.model) && v.price != null && !v.priceSuspect;
+/** Default order only: cars missing a year, model or price go after the complete ones, each group keeping the order it came in. */
+export function incompleteLast<T extends { year: number | null; model: string | null; price: number | null; priceSuspect?: boolean }>(rows: T[]): T[] {
+  return [...rows.filter(isComplete), ...rows.filter((v) => !isComplete(v))];
+}
 const condLabel = (c: BuyerVehicle["condition"]) => (c ? ({ new: "New", used: "Used", cpo: "Certified" } as const)[c] : "");
 
-// Same order, density and type style as the admin Vehicles table (app/admin/crawl/VehiclesSheet.tsx), limited to
-// what the public search returns. Distance only appears when the search was by ZIP.
+// Limited to what the public search returns. The columns a buyer compares on (price, dealer, state, contact, link) come right after the
+// car's identity so they are on screen at 1280px without scrolling; VIN, colours and mileage follow. Distance only appears when the search was by ZIP.
 const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: boolean; show?: (v: BuyerVehicle) => string }> = [
   { key: "pick", label: "", w: 40 },
-  { key: "days", label: "Days on market", w: 110, right: true, show: (v) => (v.daysOnLot == null ? "" : String(v.daysOnLot)) },
-  { key: "vehicleId", label: "Vehicle ID", w: 90, show: (v) => (v.vehicleId == null ? "" : String(v.vehicleId)) },
+  { key: "year", label: "Year", w: 56, show: (v) => dash(v.year) },
+  { key: "make", label: "Make", w: 96, show: (v) => dash(v.make) },
+  { key: "model", label: "Model", w: 120, show: (v) => dash(repairVehicleIdentity({ vin: v.vin, make: v.make, model: v.model, trim: v.trim }).model) },
+  { key: "trim", label: "Trim", w: 170, show: (v) => { const r = repairVehicleIdentity({ vin: v.vin, make: v.make, model: v.model, trim: v.trim }); return dash(displayTrim(v.make, r.model, r.trim)); } },
+  { key: "price", label: "Price", w: 116, right: true, show: priceCell },
+  { key: "dealer", label: "Dealer", w: 240, show: (v) => dash(v.dealerName) },
+  { key: "state", label: "State", w: 52, show: (v) => dash(v.dealerState) },
+  { key: "contact", label: "Contact on file", w: 130, show: (v) => (v.dealerHasContact == null ? DASH : v.dealerHasContact ? "Yes" : v.dealerContactState === "unverified" ? "Unverified email" : "No") },
+  { key: "listing", label: "Listing link", w: 140 },
+  { key: "vehicleId", label: "Vehicle ID", w: 90, show: (v) => (v.vehicleId == null ? DASH : String(v.vehicleId)) },
   { key: "vin", label: "VIN", w: 170, show: (v) => v.vin },
-  { key: "year", label: "Year", w: 64, show: (v) => (v.year == null ? "" : String(v.year)) },
-  { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
-  { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
-  { key: "trim", label: "Trim", w: 190, show: (v) => displayTrim(v.make, v.model, v.trim) ?? "" },
-  { key: "ext", label: "Exterior color", w: 170, show: (v) => exteriorColorDisplay(v.exteriorColor) },
-  { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
-  { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
-  { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
-  { key: "dealer", label: "Dealer", w: 340, show: (v) => v.dealerName },
-  { key: "state", label: "State", w: 60, show: (v) => v.dealerState ?? "" },
-  { key: "contact", label: "Contact on file", w: 130, show: (v) => (v.dealerHasContact == null ? "" : v.dealerHasContact ? "Yes" : v.dealerContactState === "unverified" ? "Unverified email" : "No") },
-  { key: "listing", label: "Listing link", w: 170 },
-  // Only when the search was by ZIP — after the fixed fields so their order never moves.
-  { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? "" : `${Math.round(v.distanceMiles)} mi`) },
+  { key: "ext", label: "Exterior color", w: 150, show: (v) => colorCell(v.exteriorColor) },
+  { key: "int", label: "Interior color", w: 150, show: (v) => colorCell(v.interiorColor) },
+  { key: "mileage", label: "Mileage", w: 80, right: true, show: mileageCell },
+  // Only when the search was by ZIP — after the fixed fields so their order never moves. A dealer we cannot place shows a dash.
+  { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? DASH : `${Math.round(v.distanceMiles)} mi`) },
 ];
 const ROW_H = 32;
 
@@ -574,7 +613,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   /** The applied sort string (e.g. "price:desc"), the click handler, and whether a request is already running. */
   sort: string; onSort: (column: SortableColumn) => void; sortBusy: boolean;
 }) {
-  const [hiddenCols, setHiddenCols] = useState<string[] | null>(null); // null = the defaults (Days on market and Vehicle ID off)
+  const [hiddenCols, setHiddenCols] = useState<string[] | null>(null); // null = the defaults (Vehicle ID off)
   const [colsOpen, setColsOpen] = useState(false);
   useEffect(() => {
     try { const raw = window.localStorage.getItem("trimscout.search.hiddenColumns"); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) setHiddenCols(v.filter((k) => typeof k === "string")); } } catch { /* storage blocked: the defaults */ }
@@ -585,6 +624,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
     return next;
   });
   const shownKeys = new Set(visibleColumnKeys(TABLE_COLUMNS, hiddenCols));
+  // A ZIP search: any row has a distance, or the API echoed the field as null for a dealer it could not place.
   const hasDistance = vehicles.some((v) => v.distanceMiles != null);
   const cols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance));
   const mobile = useIsMobile();
@@ -622,15 +662,15 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
       <div data-testid="results-cards" className={`space-y-2 transition-opacity ${dimmed ? "opacity-60" : ""}`}>
         {vehicles.map((v) => {
           const key = vehicleKey(v);
-          const title = [v.year, v.make, v.model, displayTrim(v.make, v.model, v.trim)].filter(Boolean).join(" ") || v.vin;
+          const title = titleOf(v);
           const blocked = v.rfqEligible === false && !picked.has(key);
           return (
             <article key={key} onClick={() => onView(key)} className="rounded-xl border border-border bg-surface p-3 text-sm">
               <div className="flex items-start justify-between gap-3">
                 <h3 className={`font-semibold ${viewed.has(key) ? "text-ink-faint" : "text-white"}`}>{title}</h3>
-                <span className="shrink-0 font-semibold tabular-nums text-white">{money(v.price)}</span>
+                <span className="shrink-0 font-semibold tabular-nums text-white">{priceCell(v)}</span>
               </div>
-              <p className="mt-1 text-xs text-ink-muted">{[v.mileage == null ? "" : `${v.mileage.toLocaleString()} mi`, exteriorColorDisplay(v.exteriorColor), v.interiorColor].filter(Boolean).join(" · ")}</p>
+              <p className="mt-1 text-xs text-ink-muted">{[mileageCell(v) === DASH ? "" : `${mileageCell(v)} mi`, colorCell(v.exteriorColor), `${colorCell(v.interiorColor)}${v.interiorColor && !colorCell(v.interiorColor).startsWith("Color") ? " interior" : ""}`].join(" · ")}</p>
               <p className="mt-0.5 text-xs text-ink-faint">{[v.dealerName, v.dealerState].filter(Boolean).join(" · ")}</p>
               <div className="mt-2 flex items-center justify-between gap-3">
                 <label className="flex items-center gap-2 text-xs text-ink-light" title={blocked ? "Not available for a quote request right now" : undefined}>
@@ -711,7 +751,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                           title={v.rfqEligible === false && !picked.has(key) ? "Not available for a quote request right now" : undefined}
                           onClick={(e) => e.stopPropagation()}
                           onChange={() => onTogglePick(toPick(v))}
-                          aria-label={`Pick ${[v.year, v.make, v.model, displayTrim(v.make, v.model, v.trim)].filter(Boolean).join(" ") || v.vin} for a quote`}
+                          aria-label={`Pick ${titleOf(v)} for a quote`}
                           className="h-3.5 w-3.5 accent-brand-500"
                         />
                       ) : c.key === "listing" ? (
@@ -758,7 +798,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   );
 }
 
-const pickLabel = (p: PickedVehicle) => [p.year, p.make, p.model, displayTrim(p.make, p.model, p.trim)].filter(Boolean).join(" ") || p.vin;
+const pickLabel = (p: PickedVehicle) => titleOf(p);
 
 /** Fixed bar at the bottom of the page: the ticked vehicles (max 3), a save control, and the limit notice. */
 function PicksBar({ state }: { state: ReturnType<typeof useBuyerSearchState> }) {

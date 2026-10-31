@@ -96,10 +96,10 @@ describe("/api/buyer/pick-status", () => {
 // ---- results layout: the picks bar must not cover rows; wide tables scroll sideways; column order is locked ------------------------
 describe("results layout", () => {
   const table = view.slice(view.indexOf("function VehicleTable("), view.indexOf("const pickLabel"));
-  it("LOCKED column order: pick, days, vehicleId, vin, year, make, model, trim, ext, int, mileage, price, dealer, state, contact, listing, then distance (ZIP search only, always last)", () => {
+  it("LOCKED column order: pick, year, make, model, trim, price, dealer, state, contact, listing (all on screen at 1280px), then vehicleId, vin, ext, int, mileage, then distance (ZIP search only, always last)", () => {
     const block = view.slice(view.indexOf("const TABLE_COLUMNS"), view.indexOf("const ROW_H"));
     const keys = [...block.matchAll(/\{ key: "(\w+)"/g)].map((m) => m[1]);
-    assert.deepEqual(keys, ["pick", "days", "vehicleId", "vin", "year", "make", "model", "trim", "ext", "int", "mileage", "price", "dealer", "state", "contact", "listing", "distance"]);
+    assert.deepEqual(keys, ["pick", "year", "make", "model", "trim", "price", "dealer", "state", "contact", "listing", "vehicleId", "vin", "ext", "int", "mileage", "distance"]);
   });
   it("the header row and every body row render the same filtered column list, in that order", () => {
     assert.equal((table.match(/\{cols\.map\(\(c\) =>/g) || []).length, 2, "header and body both map the same cols");
