@@ -39,9 +39,11 @@ function installFetch() {
       const vehicles = Array.from({ length: TOTAL }, (_, i) => ({ vin: `VIN${i}`.padEnd(17, "0"), vehicleId: i + 1, year: 2026, make: "Toyota", model: "RAV4", trim: "XLE", dealerId: 1, dealerName: "D", price: 30000 + i, daysOnLot: i, vdpUrl: null }));
       return json({ vehicles, total: TOTAL, totalCapped: false });
     }
+    if (url.pathname === "/api/vehicles/vin") return json({ kind: "full", vin: VIN, truncated: false, vehicles: [{ vin: VIN, vehicleId: 9, year: 2027, make: "BMW", model: "iX3", trim: null, dealerId: 1, dealerName: "D", price: 60000, daysOnLot: 1, vdpUrl: null }] });
     return json({});
   };
 }
+const VIN = "WBX33HR02VDA88612";
 
 describe("/search page, rendered", () => {
   before(() => {
@@ -118,5 +120,25 @@ describe("/search page, rendered", () => {
     assert.ok(t.headers().includes("vehicle id"), "turning it on shows the column");
     assert.ok(!t.headers().some((h) => /seen/.test(h ?? "")), "never a seen-date column");
     assert.doesNotMatch(document.body.textContent ?? "", /(first|last)[ _]?seen/i);
+  });
+
+  it('the "Pick a make to search." hint hides while a VIN result is showing and returns when the VIN is cleared', async () => {
+    const t = await mount();
+    const hint = () => /Pick a make to search\./.test(document.body.textContent ?? "");
+    assert.ok(hint(), "shown before any VIN lookup");
+    const { act } = await import("react");
+    const input = document.querySelector('input[aria-label="VIN or last 6 to 8 characters"]') as HTMLInputElement;
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(input, VIN);
+      input.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+      await tick();
+    });
+    await t.click(t.btn("Find VIN"));
+    await act(async () => { await tick(); });
+    assert.ok(document.querySelector('[data-testid="vin-results"]'), "the VIN result is showing");
+    assert.ok(!hint(), "hint hidden while the VIN result shows");
+    await t.click(document.querySelector('button[aria-label="Clear VIN"]')!);
+    assert.ok(!document.querySelector('[data-testid="vin-results"]'), "VIN result gone");
+    assert.ok(hint(), "hint is back once the VIN is cleared");
   });
 });

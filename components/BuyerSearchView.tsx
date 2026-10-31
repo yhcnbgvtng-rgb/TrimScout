@@ -485,7 +485,7 @@ export function BuyerSearchView() {
         optionsEmptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."}
         exteriorColors={exteriorColors} interiorColors={interiorColors}
         moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
-        contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
+        contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} hintHidden={vinHit !== null} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
         live={live} excludedHidden={excludedHidden}
       />
 
