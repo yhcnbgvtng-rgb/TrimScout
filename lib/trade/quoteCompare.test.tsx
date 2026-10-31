@@ -46,7 +46,7 @@ describe("cash compare ranks on post-trade OTD", () => {
   it("orders by what the buyer pays after the trade, negative equity included; a desk with no trade quote goes last", () => {
     const html = render(three());
     assert.deepEqual(order(html), ["B Big Allowance Honda", "A Negative Equity Honda", "C No Trade Honda"]);
-    assert.match(rowHtml(html, "otdafter"), /\$36,145[\s\S]*\$47,145[\s\S]*\$41,145/);
+    assert.match(rowHtml(html, "otdafter"), /\$34,940[\s\S]*\$46,814[\s\S]*\$41,145/);
   });
   it("negative equity is shown red and ADDED to the out-the-door", () => {
     const html = render(three());
@@ -100,7 +100,7 @@ describe("what a trade card says", () => {
     const html = render(rfqOf([invite("1", "Range Honda", cash(40000), appr({ allowanceSingle: null, allowanceLow: 14000, allowanceHigh: 18000 })), invite("2", "Single Honda", cash(40500), appr({ allowanceSingle: 16000 }))], tradeIn()));
     assert.match(rowHtml(html, "tradeallow"), /\$14,000 to \$18,000/);
     assert.match(rowHtml(html, "tradeallow"), /compared at the midpoint, \$16,000/);
-    assert.match(rowHtml(html, "otdafter"), /\$34,145 to \$38,145/);
+    assert.match(rowHtml(html, "otdafter"), /\$32,953 to \$37,218/);
   });
   it("marks a number 'Based on earlier details' when the buyer changed the trade after it was given", () => {
     const html = render(rfqOf([invite("1", "Stale Honda", cash(40000), appr({ createdAt: past })), invite("2", "Fresh Honda", cash(40500), appr({ createdAt: past, reconfirmedAt: new Date().toISOString() }))], tradeIn({ updatedAt: new Date(Date.now() - 3600_000).toISOString() })));
@@ -147,7 +147,7 @@ describe("after the buyer selects a desk", () => {
     assert.ok(accepted.ok);
     const html = render(rfqOf([invite("1", "Reviser Honda", cash(40000), a, (accepted as { confirmation: TradeConfirmation }).confirmation), invite("2", "Other Honda", cash(40500), appr({ allowanceSingle: 17000 }))], tradeIn(), "cash", "picked"));
     assert.match(rowHtml(html, "tradeallow"), /\$17,000/);
-    assert.match(rowHtml(html, "otdafter"), /\$35,145/, "43,145 − (17,000 − 9,000) = 35,145");
+    assert.match(rowHtml(html, "otdafter"), /\$34,019/, "43,145 − (17,000 − 9,000) = 35,145, less the NJ tax the 17,000 saves (1,126.25)");
   });
 });
 

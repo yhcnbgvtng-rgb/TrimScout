@@ -5,8 +5,9 @@
  *   Trade-in allowance − Payoff to lender = Net trade equity
  *   OTD after trade = OTD before trade − net equity   (negative equity makes it larger)
  *
- * Sales tax stays whatever the dealer quoted on the full price: no trade-in tax credit is applied.
- * TODO(tax): decide per-state trade-in tax treatment (NJ taxes the full price) before changing this.
+ * The dealer's sales tax line is never edited either. Where the buyer's state takes the trade-in off the taxable price
+ * (lib/trade/stateTradeCredit.ts, each state from its own revenue department), the tax that saves is its own line beside the
+ * quote and comes off the OTD after trade; everywhere else, and wherever the rule is unconfirmed, tax stays on the full price.
  *
  * How net equity is applied depends on the deal:
  *   cash     comes straight off (or onto) the out-the-door total.
@@ -85,11 +86,15 @@ export const computeEquity = (allowance: AllowanceValue, payoffUsed: number): nu
 
 export interface OtdPair { before: number; after: number; afterLow: number; afterHigh: number; changed: boolean }
 
+/** Sales tax the trade-in saves in the buyer's state (stateTradeCredit.tradeTaxCredit), at the mid / low / high allowance. */
+export interface TaxSaving { mid: number; low: number; high: number }
+
 /** OTD before and after trade. Pending / expired / none leave the dealer's total exactly as quoted. */
-export function otdBeforeAfter(before: number, eq: TradeEquity): OtdPair {
+export function otdBeforeAfter(before: number, eq: TradeEquity, taxSaving?: TaxSaving | null): OtdPair {
   const b = cents(before);
   if (eq.status !== "quoted" || eq.net == null) return { before: b, after: b, afterLow: b, afterHigh: b, changed: false };
-  return { before: b, after: cents(b - eq.net), afterLow: cents(b - (eq.netHigh as number)), afterHigh: cents(b - (eq.netLow as number)), changed: true };
+  const s = taxSaving ?? { mid: 0, low: 0, high: 0 };
+  return { before: b, after: cents(b - eq.net - s.mid), afterLow: cents(b - (eq.netHigh as number) - s.high), afterHigh: cents(b - (eq.netLow as number) - s.low), changed: true };
 }
 
 export type EquityApplication =
