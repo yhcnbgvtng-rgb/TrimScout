@@ -6,7 +6,9 @@ import assert from "node:assert/strict";
 import { reachabilityBucket, stampGroupDomains } from "./quoteReachable";
 import { contactStateOf, dealerContactStatus, dealerIdFrom, matchDirectoryDealership, type DirectoryDealership } from "./dealerContactLookup";
 import { deskFromDealership, deskFromRooftop, inviteRouting } from "./quotePackage";
-import { buildContactIndex, contactStatus } from "./dealerContactIndex";
+import { buildContactIndex, contactStateFor, contactStatus } from "./dealerContactIndex";
+import { toBuyerVehicle } from "./buyerSearch";
+import type { InventoryVehicle } from "./inventoryApi";
 import { publicDeskFor } from "./publicDesk";
 import type { Dealership } from "./dealershipsApi";
 
@@ -145,6 +147,26 @@ describe("matching by dealer_id, name + state only as the fallback", () => {
     assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ", dealerId: "100" }), false);
     assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ", dealerId: "101" }), false); // reachable but no person's name: not a NAMED contact
     assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ" }), false);
+  });
+});
+
+describe("/search's Contact column says \"Unverified email\", never \"on file\", for an address it cannot tie to the store", () => {
+  // BMW of Westlake (OH): the directory holds a Ganley BMW address (rstrecker@ganleybmw.com); no other rooftop shares that domain.
+  const westlake = dealer({ id: "7852", dealerName: "BMW of Westlake", state: "OH", contactName: "Jared Jeschelnig", contactEmail: "rstrecker@ganleybmw.com", website: "https://www.bmwofwestlake.com", domains: ["bmwofwestlake.com"] });
+  const index = buildContactIndex(stampGroupDomains([westlake, dealer({ dealerName: "Gmail Motors", state: "OH", contactEmail: "gina@gmail.com" })]));
+
+  it("contactStateFor is unverified, by dealer id and by name + state, and contactStatus is not true", () => {
+    assert.equal(contactStateFor(index, { dealerName: "BMW of Westlake", dealerState: "OH", dealerId: "7852" }), "unverified");
+    assert.equal(contactStateFor(index, { dealerName: "BMW of Westlake", dealerState: "OH" }), "unverified");
+    assert.equal(contactStatus(index, { dealerName: "BMW of Westlake", dealerState: "OH", dealerId: "7852" }), false);
+    assert.equal(contactStateFor(null, { dealerName: "BMW of Westlake" }), null);
+  });
+
+  it("a buyer vehicle carries the state the column renders", () => {
+    const car = { vin: "WBA0000000000001", dealerName: "BMW of Westlake", dealerState: "OH", dealerId: "7852", lastSeenAt: new Date().toISOString() } as unknown as InventoryVehicle;
+    const v = toBuyerVehicle(car, null, index);
+    assert.equal(v.dealerHasContact, false);
+    assert.equal(v.dealerContactState, "unverified");
   });
 });
 
