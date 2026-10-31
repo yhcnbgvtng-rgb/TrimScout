@@ -39,7 +39,7 @@ describe("cash compare with a trade", () => {
     assert.match(rowHtml(html, "tradeallow"), /\$18,000/); assert.match(rowHtml(html, "tradeallow"), /Preliminary/);
     assert.match(rowHtml(html, "payoff"), /\$6,000/);
     assert.match(rowHtml(html, "netequity"), /text-emerald-300[^>]*data-testid="positive-equity"[^>]*>\+\$12,000/);
-    assert.match(rowHtml(html, "otdbefore"), /\$43,145/); assert.match(rowHtml(html, "otdafter"), /\$31,145/);
+    assert.match(rowHtml(html, "otdbefore"), /\$43,145/); assert.match(rowHtml(html, "otdafter"), /\$29,953/, "31,145 less the NJ tax the 18,000 trade saves: 18,000 × 6.625% = 1,192.50");
   });
   it("a quoted dealer with no trade number says \"No trade quote\" and keeps their total; tax is untouched", () => {
     assert.match(rowHtml(html, "tradeallow"), /No trade quote/);
@@ -52,7 +52,7 @@ describe("cash compare with a trade", () => {
     ], tradeIn({ payoffEstimate: 9000 })));
     assert.match(rowHtml(h, "tradeallow"), /\$4,000 to \$6,000/); assert.match(rowHtml(h, "tradeallow"), /Firm/);
     assert.match(rowHtml(h, "netequity"), /text-rose-300[^>]*data-testid="negative-equity"[^>]*>−\$4,000[\s\S]*Negative equity/);
-    assert.match(rowHtml(h, "otdafter"), /\$47,145/, "negative equity (mid 5,000 − 9,000 = −4,000) is added: 43,145 + 4,000");
+    assert.match(rowHtml(h, "otdafter"), /\$46,814/, "negative equity (mid 5,000 − 9,000 = −4,000) is added: 43,145 + 4,000, less the 331.25 tax the 5,000 allowance saves");
   });
   it("ranks on post-trade OTD: a big trade offset by a higher price can't win by trade size alone", () => {
     const h = render(rfqOf([
