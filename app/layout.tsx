@@ -6,9 +6,9 @@ import './globals.css';
 import { BuyerAccessProvider } from '../components/BuyerAccessProvider';
 import { requireBuyerLogin } from '../lib/buyerAccess';
 
-const title = 'TrimScout | Whole Market Vehicle Search & Dealership Bidding';
+const title = 'TrimScout | Whole Market Vehicle Search & Dealer Quote Requests';
 const description =
-  'Search cars by exact option packages, analyze real market prices, and let dealerships compete for your business with transparent out-the-door bids.';
+  'Search cars by exact option packages, analyze real market prices, and let dealerships compete for your business with transparent out-the-door quotes.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.trimscout.com'),
