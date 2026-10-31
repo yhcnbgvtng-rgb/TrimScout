@@ -455,7 +455,7 @@ export function BuyerSearchView() {
   }, [countQs]);
   // The search that just ran already knows its own total: remember it so the matching count request never goes to the box.
   useEffect(() => {
-    if (!results || !applied || results.offset !== 0) return;
+    if (!results || !applied || results.offset) return;
     const key = filtersToQueryString({ ...applied, sort: "" }, { limit: 1 });
     countCache.current.set(key, { total: results.total, capped: Boolean(results.totalCapped) });
   }, [results, applied]);
