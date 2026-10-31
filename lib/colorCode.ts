@@ -5,10 +5,17 @@
  */
 export const COLOR_NOT_LISTED = "Color not listed";
 
-/** 3–5 characters, letters and digits only, with at least one digit: "0C7V", "0475", "490". Real names ("Black", "White") never contain a digit. */
+/** Real colour words that are short and may be typed in capitals ("RED", "TAN") — never treated as codes. */
+const SHORT_COLOR_WORDS = new Set(["RED", "TAN", "ICE", "SKY", "SEA", "SUN", "RUST", "GOLD", "BLUE", "GRAY", "GREY"]);
+
+/**
+ * A factory paint/trim CODE rather than a colour name: 3–6 letters-and-digits with at least one digit ("0C7V", "0475", "490",
+ * "WA8555", "490vdb"), or 2–3 capital letters with no digit ("BK", "KAD", "PSC", "UM"). Real names ("Black", "Alpine White", "Red") never match.
+ */
 export function isColorCode(raw: string | null | undefined): boolean {
   const s = (raw ?? "").trim();
-  return /^[0-9A-Za-z]{3,5}$/.test(s) && /[0-9]/.test(s);
+  if (/^[0-9A-Za-z]{3,6}$/.test(s) && /[0-9]/.test(s)) return true;
+  return /^[A-Z]{2,3}$/.test(s) && !SHORT_COLOR_WORDS.has(s);
 }
 
 /** What to show for an exterior colour: the name as-is, "Color not listed" for a bare code, "" when blank. */
