@@ -69,6 +69,12 @@ describe("labels", () => {
     assert.equal(vehicleTitle({ year: 2024, make: "Ford", model: "F-150", trim: "Raptor" }), "2024 Ford F-150 Raptor");
   });
 
+  it('vehicleTitle repairs the wizard card from the VIN: "2027 BMW 50 xDrive" becomes "2027 BMW iX3 50 xDrive"', () => {
+    assert.equal(vehicleTitle({ vin: VIN, year: 2027, make: "BMW", model: "50 xDrive", trim: "" }), "2027 BMW iX3 50 xDrive");
+    assert.equal(vehicleTitle({ vin: VIN, year: 2027, make: "BMW", model: "iX3", trim: "50 xDrive" }), "2027 BMW iX3 50 xDrive");
+    assert.equal(vehicleTitle({ year: 2027, make: "BMW", model: "50 xDrive", trim: "" }), "2027 BMW 50 xDrive", "no VIN, no repair");
+  });
+
   it("repairs each pasted car for the dealer invites, leaving other fields and non-VIN pastes alone", () => {
     const out = repairLinkPastes([{ vin: VIN, make: "BMW", model: "50 xDrive", trim: "", dealerName: "BMW of Westlake" }, { vin: "", model: "x" }]);
     assert.deepEqual(out?.[0], { vin: VIN, make: "BMW", model: "iX3", trim: "50 xDrive", dealerName: "BMW of Westlake" });
