@@ -1,7 +1,8 @@
 import { searchInventory, InventoryApiError, type InventoryVehicle } from "./inventoryApi";
 import type { ParsedBuyerSearch } from "./buyerSearchQuery";
 import { calculateDistanceMiles } from "./otdCalculator";
-import { contactStatus, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
+import { contactStateFor, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
+import type { ContactState } from "./dealerContactLookup";
 import { contactOnFileDealerIds } from "./contactFilter";
 import { sortByDistance } from "./buyerSort";
 import { isRfqEligible } from "./lastConfirmed";
@@ -12,13 +13,16 @@ export type BuyerVehicle = Omit<InventoryVehicle, "sourceBox" | "crawlFirstSeen"
   distanceMiles: number | null;
   /** Does this dealership have a contact (email) on file? null = unknown (directory unavailable / no dealer id). */
   dealerHasContact: boolean | null;
+  /** The shared contact state behind dealerHasContact; "unverified" is shown as "Unverified email", never as on file. null = unknown. */
+  dealerContactState: ContactState | null;
   /** False when the crawl last saw the car more than RFQ_MAX_AGE_DAYS ago: it cannot be picked for a quote. The date itself never reaches buyers. */
   rfqEligible: boolean;
 };
 
 export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
   const { sourceBox: _sourceBox, crawlFirstSeen: _crawlFirstSeen, firstSeenAt: _firstSeenAt, lastSeenAt, ...rest } = v;
-  return { ...rest, distanceMiles, dealerHasContact: contactStatus(contacts, v), rfqEligible: isRfqEligible(lastSeenAt) };
+  const dealerContactState = contactStateFor(contacts, v);
+  return { ...rest, distanceMiles, dealerHasContact: dealerContactState == null ? null : dealerContactState === "named", dealerContactState, rfqEligible: isRfqEligible(lastSeenAt) };
 }
 
 /** The actual box call + distance post-processing behind GET /api/vehicles/search. */
