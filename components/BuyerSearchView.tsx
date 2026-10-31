@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { facetCount, hasNonFacetFilter, isExcluded, needsServerCount, parseExclude } from "@/lib/searchLive";
 import { filtersFromSearchParams, urlWithFilters } from "@/lib/searchUrlState";
 import { displayTrim, officialTrimOptions } from "@/lib/fordTrimDisplay";
+import { colorFilterOptions, exteriorColorDisplay } from "@/lib/colorCode";
 import type { LiveCountProps } from "./search/LiveCount";
 import VinLookup, { type VinLookupResult } from "./search/VinLookup";
 
@@ -265,7 +266,7 @@ export function BuyerSearchView() {
       })
       .then((json) => {
         setCatalogOptions(Array.isArray(json?.options) ? json.options : []);
-        setExteriorColors(Array.isArray(json?.exteriorColors) ? json.exteriorColors : []);
+        setExteriorColors(Array.isArray(json?.exteriorColors) ? colorFilterOptions(json.exteriorColors) : []);
         setInteriorColors(Array.isArray(json?.interiorColors) ? json.interiorColors : []);
       })
       .catch((e) => {
@@ -550,7 +551,7 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "make", label: "Make", w: 110, show: (v) => v.make ?? "" },
   { key: "model", label: "Model", w: 130, show: (v) => v.model ?? "" },
   { key: "trim", label: "Trim", w: 190, show: (v) => displayTrim(v.make, v.model, v.trim) ?? "" },
-  { key: "ext", label: "Exterior color", w: 170, show: (v) => v.exteriorColor ?? "" },
+  { key: "ext", label: "Exterior color", w: 170, show: (v) => exteriorColorDisplay(v.exteriorColor) },
   { key: "int", label: "Interior color", w: 150, show: (v) => v.interiorColor ?? "" },
   { key: "mileage", label: "Mileage", w: 90, right: true, show: (v) => (v.mileage == null ? "" : v.mileage.toLocaleString()) },
   { key: "price", label: "Price", w: 100, right: true, show: (v) => money(v.price) },
@@ -627,7 +628,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                 <h3 className={`font-semibold ${viewed.has(key) ? "text-ink-faint" : "text-white"}`}>{title}</h3>
                 <span className="shrink-0 font-semibold tabular-nums text-white">{money(v.price)}</span>
               </div>
-              <p className="mt-1 text-xs text-ink-muted">{[v.mileage == null ? "" : `${v.mileage.toLocaleString()} mi`, v.exteriorColor, v.interiorColor].filter(Boolean).join(" · ")}</p>
+              <p className="mt-1 text-xs text-ink-muted">{[v.mileage == null ? "" : `${v.mileage.toLocaleString()} mi`, exteriorColorDisplay(v.exteriorColor), v.interiorColor].filter(Boolean).join(" · ")}</p>
               <p className="mt-0.5 text-xs text-ink-faint">{[v.dealerName, v.dealerState].filter(Boolean).join(" · ")}</p>
               <div className="mt-2 flex items-center justify-between gap-3">
                 <label className="flex items-center gap-2 text-xs text-ink-light" title={blocked ? "Not available for a quote request right now" : undefined}>
