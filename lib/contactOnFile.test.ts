@@ -12,7 +12,7 @@ import { toBuyerVehicle } from "./buyerSearch";
 import { publicDeskFor } from "./publicDesk";
 import { deskMatchFromContact } from "./deskResolve";
 import { contactStateOf, hasContactOnFile } from "./dealerContactLookup";
-import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, SALES_DESK_NO_NAME_LABEL, salesDeskLabel } from "./deskCopy";
+import { ADVISOR_EMAIL_PLACEHOLDER, NO_CONTACT_HELPER, SALES_CONTACT_ON_FILE_LABEL, SALES_DESK_NO_NAME_LABEL, salesDeskLabel } from "./deskCopy";
 import type { Dealership } from "./dealershipsApi";
 import type { InventoryVehicle } from "./inventoryApi";
 
@@ -49,14 +49,14 @@ describe("one rule for contact on file", () => {
     assert.equal(d.contactState, "email_only");
     assert.equal(d.routing, "rooftop_inbox", "an unnamed personal mailbox is the dealer's contact: invite goes to it, not to ops");
     assert.equal(d.blockedReason, null);
-    assert.equal(salesDeskLabel(d.contactState), SALES_DESK_NO_NAME_LABEL);
+    assert.equal(salesDeskLabel(d.routing), SALES_CONTACT_ON_FILE_LABEL, "a reachable shared inbox is a contact on file, not a nameless desk");
   });
   it("no contact: /search No, Step 3 unassigned with the test-drive helper", () => {
     assert.equal(searchSays(NONE), false);
     const d = step3(NONE);
     assert.equal(d.contactState, "none");
     assert.equal(d.routing, "unassigned");
-    assert.equal(salesDeskLabel(d.contactState), SALES_DESK_NO_NAME_LABEL);
+    assert.equal(salesDeskLabel(d.routing), SALES_DESK_NO_NAME_LABEL);
   });
   it("Glen Motors data shape (regression): /search and Step 3 both say contact on file", () => {
     assert.equal(contactStateOf(GLEN), "email_only");
@@ -96,7 +96,8 @@ describe("top-of-step line uses the same reachable rule", () => {
   it("the wizard line and picker badge key off reachable, and never say no contact for a reachable dealer", () => {
     const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
     assert.match(src, /noteDesk\.reachable \? true : noteDesk\.emailOptOut \? null : false/);
-    assert.match(src, /d\.reachable \? "Contact on file" : "No sales contact"/);
+    assert.match(src, /d\.reachable \? "Contact on file" : d\.emailOptOut \? "Add your advisor" : "Sales desk"/);
+    assert.doesNotMatch(src, /"No sales contact"/, "the picker never claims no contact for an unverified dealer");
     assert.doesNotMatch(src, /no named sales contact/);
     assert.doesNotMatch(src, /picked\.knownNamed|linkDesk\.knownNamed/);
   });
@@ -127,13 +128,14 @@ describe("Step 3 copy", () => {
   });
   it("the wizard renders them for the right states", () => {
     const src = fs.readFileSync(new URL("../components/BiddingWizard.tsx", import.meta.url), "utf8");
-    assert.match(src, /→ \{salesDeskLabel\(desk\.contactState\)\}/);
+    assert.match(src, /→ \{salesDeskLabel\(desk\.routing\)\}/);
     assert.match(src, /\(desk\.contactState === "named" \|\| desk\.contactState === "email_only"\) && !desk\.blockedReason/, "any reachable email gets the green badge");
     assert.match(src, /To: <span className="font-semibold">Sales<\/span> · \{dealer\.dealerName\}/, "no name: To: Sales · dealer");
     assert.match(src, /: NO_CONTACT_HELPER\}/);
     assert.match(src, /placeholder=\{optedOut \? "Sales advisor email" : ADVISOR_EMAIL_PLACEHOLDER\}/);
     assert.equal(ADVISOR_EMAIL_PLACEHOLDER, "Sales advisor email (optional)");
-    assert.equal(salesDeskLabel("none"), SALES_DESK_NO_NAME_LABEL, "every non-named dealer gets the one badge");
+    assert.equal(salesDeskLabel("unassigned"), SALES_DESK_NO_NAME_LABEL, "only an unassigned desk is nameless");
+    assert.equal(salesDeskLabel("rooftop_inbox"), SALES_CONTACT_ON_FILE_LABEL);
     assert.doesNotMatch(src, /"Dealership sales desk"/);
   });
 });
@@ -153,7 +155,7 @@ describe("real box2 rows (read-only snapshot 2026-10-10)", () => {
     const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram", "NY");
     assert.equal(search, false);
     assert.equal(step3.contactState, "none");
-    assert.equal(salesDeskLabel(step3.contactState), SALES_DESK_NO_NAME_LABEL);
+    assert.equal(salesDeskLabel(step3.routing), SALES_DESK_NO_NAME_LABEL);
   });
   it("Bayside CDJR in VA finds its own unnamed email: Yes on /search, a sales desk in Step 3", () => {
     const { search, step3 } = both("Bayside Chrysler Dodge Jeep Ram", "VA");

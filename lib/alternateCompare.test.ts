@@ -159,7 +159,7 @@ describe("wizard wiring — same-state gate + alternate comparison", () => {
   });
 
   it("(3) the send path and the confirmed count both go through the desk plan", () => {
-    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[p\.dealerName\]\?\.checked/);
+    assert.match(wizard, /toSend = pastes\.filter\([\s\S]*?deskPlan\.rows\[pasteDeskKey\(p\)\]\?\.checked/);
     assert.match(wizard, /confirmedDeskCount = deskPlan\.sendTo\.length/);
   });
 

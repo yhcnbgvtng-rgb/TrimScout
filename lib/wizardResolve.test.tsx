@@ -140,14 +140,16 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     await openFresh();
     await paste(URL_RAV4);
     await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
-    assert.match(doc.querySelector('[data-testid="confirm-build-state"]')!.textContent!, /Factory build not published yet.*on the lot 12 days/);
+    assert.match(doc.querySelector('[data-testid="confirm-build-state"]')!.textContent!, /Factory build not published yet/);
+    assert.doesNotMatch(doc.querySelector('[data-testid="confirm-build-state"]')!.textContent!, /on the lot|\bdays?\b/i, "days on the lot never reach a buyer screen");
     await act(async () => { button("Confirm & add")!.click(); });
     await settle(() => Boolean(card()));
     assert.equal(card()!.dataset.resolvePath, "factory_pending");
     assert.equal(card()!.dataset.dealerFromVdp, "true");
     assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota");
     assert.ok(card()!.className.includes("border-brand-500/40"), "the primary is green like an alternate");
-    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet — details come from the VIN decode.*on the lot 12 days/);
+    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet — details come from the VIN decode/);
+    assert.doesNotMatch(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /on the lot|\bdays?\b/i);
     assert.equal(continueBtn().disabled, false, "a real car with a pending build still continues; the dealer confirms the build");
 
     // ---- 3. No OEM claims the VIN and the catch-all can't build it: Continue stays off, with a reason.
@@ -167,7 +169,8 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.match(text(), /2026 Acura ADX/);
     assert.equal(card()!.dataset.resolvePath, "factory_pending");
     assert.equal(card()!.dataset.dealerFromVdp, "false");
-    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /on the lot 9 days/);
+    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet/);
+    assert.doesNotMatch(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /on the lot|\bdays?\b/i);
 
     // ---- 4. A link with no VIN in it, then the VIN pasted bare: the link's store sticks.
     await openFresh();

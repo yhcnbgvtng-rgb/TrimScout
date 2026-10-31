@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { planDeskSelection, type SelectionDesk } from "./deskSelection";
+import { deskKey, planDeskSelection, type SelectionDesk } from "./deskSelection";
 
 // Step 3 · "Request a quote from this dealership". The P0 that shipped twice:
 // NJ buyer (ZIP 07405), Scott Chevrolet in Allentown PA is the only desk,
@@ -91,7 +91,7 @@ describe("planDeskSelection — primary desk outside the buyer's state", () => {
     assert.equal(plan.canContinue, true);
   });
 
-  it("a shared-inbox or half-typed adviser address is ignored (the desk still takes it); an opted-out desk stays locked", () => {
+  it("a shared-inbox or half-typed adviser address is ignored (the desk still takes it)", () => {
     const base = { buyerState: "NJ", sameStateOnly: true, primaryDealerName: "Freedom Ford", confirmed: {} };
     for (const buyerEmail of ["sales@freedomford.com", "info@freedomford.com", "jane@freedomford", "jane"]) {
       const plan = planDeskSelection({ ...base, desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: generic, buyerEmail }] });
@@ -99,12 +99,65 @@ describe("planDeskSelection — primary desk outside the buyer's state", () => {
       assert.equal(plan.rows["Freedom Ford"].routing, "rooftop_inbox", buyerEmail);
       assert.equal(plan.canContinue, true, buyerEmail);
     }
-    const optedOut = planDeskSelection({
-      ...base,
-      desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: { knownNamed: true, blockedReason: "dealer_opted_out" }, buyerEmail: "jane.doe@freedomford.com" }],
+  });
+
+  // P0: opted-out dealer + the buyer's own adviser address was a dead end (green "Advisor added", disabled box).
+  it("opted out + a plausible adviser address: selectable, ticked, routing adviser, Continue live", () => {
+    for (const desk of [{ knownNamed: true, blockedReason: "dealer_opted_out" as const }, { knownNamed: false, blockedReason: "dealer_opted_out" as const, routing: "rooftop_inbox" as const }]) {
+      const plan = planDeskSelection({
+        buyerState: "NJ",
+        sameStateOnly: true,
+        primaryDealerName: "Freedom Ford",
+        confirmed: {},
+        desks: [{ dealerName: "Freedom Ford", state: "NJ", desk, buyerEmail: "jane.doe@freedomford.com" }],
+      });
+      const row = plan.rows["Freedom Ford"];
+      assert.equal(row.adviserAdded, true);
+      assert.equal(row.routing, "adviser");
+      assert.equal(row.selectable, true);
+      assert.equal(row.checked, true);
+      assert.equal(plan.canContinue, true);
+    }
+  });
+
+  it("opted out without a usable adviser address stays locked (none, shared inbox, half-typed)", () => {
+    for (const buyerEmail of [undefined, "", "sales@freedomford.com", "jane@freedomford"]) {
+      const plan = planDeskSelection({
+        buyerState: "NJ",
+        sameStateOnly: true,
+        primaryDealerName: "Freedom Ford",
+        confirmed: {},
+        desks: [{ dealerName: "Freedom Ford", state: "NJ", desk: { knownNamed: true, blockedReason: "dealer_opted_out" }, buyerEmail }],
+      });
+      assert.equal(plan.rows["Freedom Ford"].selectable, false, String(buyerEmail));
+      assert.equal(plan.rows["Freedom Ford"].adviserAdded, false, String(buyerEmail));
+      assert.equal(plan.canContinue, false, String(buyerEmail));
+    }
+  });
+
+  it("same-named rooftops in different states keep separate rows, ticks and routing", () => {
+    const pa: SelectionDesk = { key: deskKey({ dealerName: "Smith Hyundai", state: "PA" }), dealerName: "Smith Hyundai", state: "PA", desk: named };
+    const nj2: SelectionDesk = { key: deskKey({ dealerName: "Smith Hyundai", state: "NJ" }), dealerName: "Smith Hyundai", state: "NJ", desk: { knownNamed: false, blockedReason: "dealer_opted_out" }, buyerEmail: "jane.doe@smith.com" };
+    assert.notEqual(pa.key, nj2.key);
+    const plan = planDeskSelection({
+      buyerState: "NJ",
+      sameStateOnly: false,
+      primaryDealerName: "Smith Hyundai",
+      primaryKey: pa.key,
+      desks: [pa, nj2],
+      confirmed: { [pa.key!]: false },
     });
-    assert.equal(optedOut.rows["Freedom Ford"].selectable, false);
-    assert.equal(optedOut.canContinue, false);
+    assert.equal(plan.rows[pa.key!].checked, false, "the PA untick does not touch NJ");
+    assert.equal(plan.rows[nj2.key!].checked, true);
+    assert.equal(plan.rows[pa.key!].routing, "named");
+    assert.equal(plan.rows[nj2.key!].routing, "adviser");
+    assert.deepEqual(plan.sendTo, [nj2.key]);
+  });
+
+  it("deskKey prefers the dealer id and otherwise separates states and ignores case", () => {
+    assert.equal(deskKey({ dealerName: "A", state: "nj", dealerId: "77" }), deskKey({ dealerName: "B", state: "PA", dealerId: 77 }));
+    assert.notEqual(deskKey({ dealerName: "Smith Hyundai", state: "PA" }), deskKey({ dealerName: "Smith Hyundai", state: "NJ" }));
+    assert.equal(deskKey({ dealerName: " Smith Hyundai ", state: "nj" }), deskKey({ dealerName: "smith hyundai", state: "NJ" }));
   });
 
   it("while the lookup is still loading nothing is tickable and Continue waits", () => {
