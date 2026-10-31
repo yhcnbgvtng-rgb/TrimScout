@@ -53,35 +53,22 @@ describe("GET /api/lightsail — the bare dump is no longer public", () => {
   });
 });
 
-describe("GET /api/lightsail?action=vehicles — public callers get small pages", () => {
-  it("caps pageSize at 50 however much is asked for", async () => {
-    const res = await GET(req("?action=vehicles&pageSize=5000"));
-    assert.equal(res.status, 200);
-    const body = await res.json();
-    assert.ok(body.vehicles.length <= 50);
-    assert.ok(body.pagination.pageSize <= 50);
-  });
-  it("defaults to a small page", async () => {
-    const body = await (await GET(req("?action=vehicles"))).json();
-    assert.ok(body.pagination.pageSize <= 25 && body.vehicles.length <= 25);
-  });
-  it("refuses to page past the public window", async () => {
-    assert.equal((await GET(req("?action=vehicles&pageSize=50&page=11"))).status, 400);
-    assert.equal((await GET(req("?action=vehicles&page=100000"))).status, 400);
+describe("GET /api/lightsail?action=vehicles — the public tier is retired", () => {
+  it("answers 410 to public vehicles and facets calls, with no rows", async () => {
+    for (const q of ["?action=vehicles", "?action=vehicles&pageSize=5000", "?action=facets"]) {
+      const res = await GET(req(q));
+      assert.equal(res.status, 410);
+      const body = await res.json();
+      assert.equal(body.vehicles, undefined);
+    }
   });
   it("lets the secret holder use a bigger page, capped at 200", async () => {
     const body = await (await GET(req("?action=vehicles&pageSize=5000", { [LIGHTSAIL_SECRET_HEADER]: "test-dump-secret-value" }))).json();
     assert.ok(body.pagination.pageSize > 50 && body.pagination.pageSize <= 200);
   });
   it("never returns the box host", async () => {
-    const text = await (await GET(req("?action=vehicles"))).text();
+    const text = await (await GET(req("?action=vehicles", { [LIGHTSAIL_SECRET_HEADER]: "test-dump-secret-value" }))).text();
     assert.equal(text.includes("serverHost"), false);
-  });
-  it("rate-limits one client", async () => {
-    const same = { "x-forwarded-for": "203.0.113.99" };
-    let last = 200;
-    for (let i = 0; i < 70; i++) last = (await GET(new Request("https://www.trimscout.com/api/lightsail?action=facets", { headers: same }))).status;
-    assert.equal(last, 429);
   });
 });
 

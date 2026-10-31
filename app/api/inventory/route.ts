@@ -4,7 +4,7 @@ import path from "node:path";
 import { Vehicle } from "@/lib/types";
 import { MOCK_VEHICLES } from "@/lib/mockData";
 import { calculateDistanceMiles, getZipCoordinates } from "@/lib/otdCalculator";
-import { runUnifiedScrapers, scrapePorscheInventory } from "@/lib/scrapers";
+import { scrapePorscheInventory } from "@/lib/scrapers/porscheFinderScraper";
 import { exteriorColorNameFor } from "@/lib/porscheColors";
 import { serverSecret } from "@/lib/serverSecret";
 import { guardPaidDecode, MARKETCHECK_CALL_COST_USD } from "@/lib/apiSpendGuard";
@@ -12,68 +12,6 @@ import { featureEnabled } from "@/lib/featureFlags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-// Known vehicle database template for dynamic search matching
-const VEHICLE_TEMPLATES: Record<string, {
-  make: string;
-  model: string;
-  trims: { trim: string; msrp: number; dealerPrice: number; engine: string; drivetrain: string; bodyType: string; packages: string[] }[];
-  image: string;
-}> = {
-  audi: {
-    make: "Audi",
-    model: "A4",
-    trims: [
-      { trim: "45 TFSI Quattro Premium Plus", msrp: 49800, dealerPrice: 46200, engine: "2.0L Turbo 4-Cyl (261 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["Premium Plus Package", "Black Optic Plus", "Bang & Olufsen 3D Sound"] },
-      { trim: "S4 Quattro Prestige", msrp: 63500, dealerPrice: 59800, engine: "3.0L Turbo V6 (349 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["Prestige Package", "S Sport Package", "Dynamic Steering"] },
-    ],
-    image: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=1200&q=80",
-  },
-  mercedes: {
-    make: "Mercedes-Benz",
-    model: "C-Class",
-    trims: [
-      { trim: "C 300 4MATIC Exclusive", msrp: 51500, dealerPrice: 47900, engine: "2.0L Turbo Inline-4 with Mild Hybrid (255 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["AMG Line w/ Night Package", "Exclusive Trim", "Panorama Sunroof"] },
-      { trim: "AMG C 43 4MATIC", msrp: 66800, dealerPrice: 62500, engine: "Handcrafted 2.0L Turbo w/ Electric Exhaust Gas Turbo (402 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["AMG Performance Studio Package", "Driver Assistance Package"] },
-    ],
-    image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
-  },
-  honda: {
-    make: "Honda",
-    model: "Civic",
-    trims: [
-      { trim: "Sport Touring Hybrid", msrp: 32800, dealerPrice: 31200, engine: "2.0L 4-Cylinder Hybrid (200 hp)", drivetrain: "FWD", bodyType: "Sedan", packages: ["Bose Premium Audio", "Wireless Apple CarPlay", "Honda Sensing Pro"] },
-      { trim: "Type R", msrp: 45890, dealerPrice: 45890, engine: "2.0L VTEC Turbo (315 hp)", drivetrain: "FWD", bodyType: "Hatchback", packages: ["Brembo 4-Piston Brakes", "LogR Datalogger", "Alcantara Sport Seats"] },
-    ],
-    image: "https://images.unsplash.com/photo-1590362891988-f77804703061?auto=format&fit=crop&w=1200&q=80",
-  },
-  corvette: {
-    make: "Chevrolet",
-    model: "Corvette Stingray",
-    trims: [
-      { trim: "2LT Coupe w/ Z51 Performance", msrp: 82500, dealerPrice: 77900, engine: "6.2L LT2 V8 (495 hp)", drivetrain: "RWD", bodyType: "Coupe", packages: ["Z51 Performance Package", "Front Lift Adjustable Height", "GT2 Bucket Seats"] },
-      { trim: "3LT Convertible", msrp: 91200, dealerPrice: 86500, engine: "6.2L LT2 V8 (495 hp)", drivetrain: "RWD", bodyType: "Convertible", packages: ["Magnetic Selective Ride Control", "Custom Leather Wrapped Interior"] },
-    ],
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
-  },
-  lexus: {
-    make: "Lexus",
-    model: "IS 350",
-    trims: [
-      { trim: "F SPORT AWD", msrp: 47950, dealerPrice: 44200, engine: "3.5L V6 (311 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["F SPORT Dynamic Handling Package", "Mark Levinson 17-Speaker Audio", "Triple-Beam LED Headlamps"] },
-      { trim: "IS 500 F SPORT Performance", msrp: 61850, dealerPrice: 58900, engine: "5.0L Naturally Aspirated V8 (472 hp)", drivetrain: "RWD", bodyType: "Sedan", packages: ["Yamaha Rear Performance Damper", "Torsen Limited-Slip Differential"] },
-    ],
-    image: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-  },
-  subaru: {
-    make: "Subaru",
-    model: "WRX",
-    trims: [
-      { trim: "GT AWD", msrp: 44900, dealerPrice: 41800, engine: "2.4L Turbocharged Boxer (271 hp)", drivetrain: "AWD", bodyType: "Sedan", packages: ["Recaro Performance Front Seats", "Drive Mode Select", "Harman Kardon Audio"] },
-    ],
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80",
-  },
-};
 
 // Helper parsers for live DMS payloads (MarketCheck, dealer scrapers)
 function parsePrice(raw: any, fallback: number = 45000): number {
@@ -212,61 +150,8 @@ export async function GET(request: Request) {
   const userCoords = getZipCoordinates(zip);
 
   try {
-    // 1. Check if query is a 17-character VIN: live decode via NHTSA
-    if (rawQuery.length === 17 && /^[A-HJ-NPR-Z0-9]{17}$/i.test(rawQuery)) {
-      const nhtsaUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${encodeURIComponent(rawQuery)}?format=json`;
-      const res = await fetch(nhtsaUrl);
-      if (res.ok) {
-        const json = await res.json();
-        const r = json.Results?.[0];
-        if (r && r.Make) {
-          const vinVehicle: Vehicle = {
-            id: `vin-${rawQuery}`,
-            vin: rawQuery.toUpperCase(),
-            year: parseInt(r.ModelYear || "2024", 10),
-            make: r.Make,
-            model: r.Model || "Vehicle",
-            trim: r.Trim || "Standard",
-            bodyType: r.BodyClass?.includes("Sedan") ? "Sedan" : r.BodyClass?.includes("Truck") ? "Truck" : r.BodyClass?.includes("Coupe") ? "Coupe" : "SUV",
-            engine: r.DisplacementL ? `${r.DisplacementL}L ${r.EngineCylinders || 4}-Cylinder` : "Turbo Engine",
-            drivetrain: r.DriveType?.includes("4WD") || r.DriveType?.includes("AWD") ? "AWD" : "RWD",
-            transmission: "Automatic",
-            exteriorColor: "Factory Paint",
-            interiorColor: "Premium Interior",
-            msrp: 52000,
-            dealerPrice: 48500,
-            daysOnLot: 14,
-            status: "on_lot",
-            location: {
-              dealerName: `${r.Make} Certified Direct`,
-              city: userCoords.city,
-              state: userCoords.state,
-              zip,
-              distanceMiles: 8,
-              lat: userCoords.lat + 0.05,
-              lng: userCoords.lng - 0.04,
-            },
-            packages: ["Verified Factory Window Sticker", "Factory Warranty"],
-            options: [],
-            imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-            mileage: 8,
-          };
-
-          return NextResponse.json({
-            success: true,
-            provider: "nhtsa_live_vin",
-            isLiveApi: true,
-            totalFound: 1,
-            page: 1,
-            limit: 1,
-            hasMore: false,
-            zip,
-            radius,
-            data: [vinVehicle],
-          });
-        }
-      }
-    }
+    // A VIN is never turned into a made-up listing here: a decode has no price, colour, dealer or mileage,
+    // so it falls through to the real tiers below, which return only vehicles that exist.
 
     // 2. MARKETCHECK LIVE AUTOMOTIVE INVENTORY API — gated: rate-limited
     // and budget-capped, since unlike the seed/smart_feed tier below this
@@ -304,7 +189,7 @@ export async function GET(request: Request) {
             const data = await res.json();
             const rawListings = data.listings || [];
             if (rawListings.length > 0) {
-              const mcVehicles: Vehicle[] = rawListings.map((item: any, idx: number) => {
+              const mcVehicles: Vehicle[] = rawListings.filter((item: any) => typeof item?.vin === "string" && item.vin.trim()).map((item: any, idx: number) => {
                 const build = item.build || {};
                 const dealer = item.dealer || {};
                 const lat = dealer.latitude || userCoords.lat;
@@ -344,7 +229,7 @@ export async function GET(request: Request) {
 
                 return {
                   id: item.id ? String(item.id) : (item.vin || `mc-${idx}`),
-                  vin: item.vin || `1MCFW1ED5PFA${Math.floor(10000 + Math.random() * 90000)}`,
+                  vin: item.vin,
                   year: build.year || item.year || 2025,
                   make: build.make || item.make || "Vehicle",
                   model: build.model || item.model || "",
@@ -451,26 +336,6 @@ export async function GET(request: Request) {
       });
     } catch {}
 
-    try {
-      const scrapedResponse = await runUnifiedScrapers({
-        zip,
-        radiusMiles: radius,
-        make: make !== "All" ? make : undefined,
-        query: rawQuery,
-      });
-
-      if (scrapedResponse.vehicles && scrapedResponse.vehicles.length > 0) {
-        for (const sv of scrapedResponse.vehicles) {
-          if (!baseList.some((existing) => existing.vin === sv.vin)) {
-            baseList.push(sv);
-          }
-        }
-      }
-    } catch (scErr) {
-      console.warn("Unified scrapers encountered partial network issue, proceeding with cached feeds:", scErr);
-    }
-
-    // Check if query or make matches any extended templates (Audi, Mercedes, Honda, Corvette, Lexus, Subaru)
     const lowerQuery = rawQuery.toLowerCase();
     const lowerMake = make.toLowerCase();
 
@@ -487,53 +352,6 @@ export async function GET(request: Request) {
         }
       } catch (err) {
         console.error("Porsche scraper error:", err);
-      }
-    }
-
-    for (const [key, template] of Object.entries(VEHICLE_TEMPLATES)) {
-      if (lowerQuery.includes(key) || lowerQuery.includes(template.make.toLowerCase()) || lowerQuery.includes(template.model.toLowerCase()) || lowerMake.includes(key) || lowerMake.includes(template.make.toLowerCase())) {
-        template.trims.forEach((t, idx) => {
-          const templId = `dyn-${key}-${idx}`;
-          if (!baseList.some((v) => v.id === templId)) {
-            baseList.push({
-              id: templId,
-              vin: `WAUZZAF42NA${Math.floor(100000 + Math.random() * 900000)}`,
-              year: 2026,
-              make: template.make,
-              model: template.model,
-              trim: t.trim,
-              bodyType: t.bodyType,
-              engine: t.engine,
-              drivetrain: t.drivetrain,
-              transmission: "Automatic",
-              exteriorColor: idx % 2 === 0 ? "Mythos Black Metallic" : "Glacier White Metallic",
-              interiorColor: "Black Premium Leather",
-              msrp: t.msrp,
-              dealerPrice: t.dealerPrice,
-              daysOnLot: Math.floor(6 + idx * 8),
-              status: "on_lot",
-              location: {
-                dealerName: `${template.make} of ${userCoords.city || "San Francisco"}`,
-                city: userCoords.city,
-                state: userCoords.state,
-                zip,
-                distanceMiles: Math.floor(5 + idx * 7),
-                lat: userCoords.lat + (idx % 2 === 0 ? 0.04 : -0.06),
-                lng: userCoords.lng + (idx % 2 === 0 ? 0.05 : -0.03),
-              },
-              packages: t.packages,
-              options: t.packages.map((pkg, pIdx) => ({
-                code: `PKG-${pIdx + 1}`,
-                name: pkg,
-                price: 1500 + pIdx * 400,
-                category: "package",
-              })),
-              imageUrl: template.image,
-              mileage: 8 + idx * 4,
-              dealerUrl: `https://www.${key}dealer.com/new/${template.make}/${template.model}`,
-            });
-          }
-        });
       }
     }
 

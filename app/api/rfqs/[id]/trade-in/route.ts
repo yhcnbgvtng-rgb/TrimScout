@@ -18,6 +18,7 @@ import { buyerMayManageTrade } from "@/lib/trade/access";
 import { adoptDraftIntoRfq, prepareTradeForRfq } from "@/lib/trade/service";
 import { s3Storage } from "@/lib/trade/storage";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -41,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const record = await adoptDraftIntoRfq(s3Storage, ready.draft, ready.record, rfq.id);
     let updated = await submitRfqTradeIn(rfq.id, record);
 
-    const vehicle = [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
+    const vehicle = vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle";
     const winner = deal.invite;
     const url = winner.viewToken ? `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(winner.viewToken)}` : DEALER_EMAIL_BASE_URL;
     if (isStagedRfq(rfq)) {

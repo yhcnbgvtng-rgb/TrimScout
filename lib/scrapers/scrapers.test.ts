@@ -5,7 +5,6 @@ import { scrapeDealerDotCom } from "./dealerDotComScraper";
 import { scrapeDealerInspire } from "./dealerInspireScraper";
 import { scrapeDealerOn } from "./dealerOnScraper";
 import { scrapeOemAllocationFeed } from "./oemInventoryScraper";
-import { runUnifiedScrapers } from "./index";
 
 async function withMockedFetch<T>(
   impl: typeof fetch,
@@ -113,23 +112,6 @@ describe("scrapeOemAllocationFeed has no real feed, so it never fabricates inven
       const result = await scrapeOemAllocationFeed({ make, zip: "94107" });
       assert.deepEqual(result.vehicles, []);
       assert.equal(result.totalFound, 0);
-    }
-  });
-});
-
-describe("runUnifiedScrapers", () => {
-  it("degrades to zero scraped vehicles (not fabricated ones) when every live dealer site is unreachable", async () => {
-    const result = await withMockedFetch(NETWORK_FAILURE, () =>
-      runUnifiedScrapers({ zip: "94107", make: "BMW" })
-    );
-    // porscheFinderScraper is out of scope for this fix and may still add
-    // its own (unrelated) results; assert on the four in-scope engines only.
-    assert.deepEqual(result.engineBreakdown.dealerDotCom, { count: 0, status: "success", timeMs: result.engineBreakdown.dealerDotCom.timeMs });
-    assert.deepEqual(result.engineBreakdown.dealerInspire, { count: 0, status: "success", timeMs: result.engineBreakdown.dealerInspire.timeMs });
-    assert.deepEqual(result.engineBreakdown.dealerOn, { count: 0, status: "success", timeMs: result.engineBreakdown.dealerOn.timeMs });
-    assert.deepEqual(result.engineBreakdown.oemAllocations, { count: 0, status: "success", timeMs: result.engineBreakdown.oemAllocations.timeMs });
-    for (const v of result.vehicles) {
-      assert.notEqual(v.dealerUrl?.includes("bmwofsanrafael.com"), true, "no synthetic Dealer.com fallback vehicle should appear");
     }
   });
 });

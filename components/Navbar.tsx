@@ -56,6 +56,16 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // "How It Works" lives on the home intro. Already there, scroll to the section; elsewhere, go home first and scroll once it renders.
+  const goToHowItWorks = () => {
+    const scroll = () => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (currentView === "bid_program") scroll();
+    else {
+      onToggleView("bid_program");
+      setTimeout(scroll, 100);
+    }
+  };
+
   const navLinks: {
     id: "bid_program";
     label: string;
@@ -90,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             return (
               <button
                 key={link.id}
-                onClick={() => onToggleView(link.id)}
+                onClick={goToHowItWorks}
                 className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   isActive
                     ? "text-brand-400 bg-brand-500/10 font-bold"
@@ -287,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 key={link.id}
                 onClick={() => {
-                  onToggleView(link.id);
+                  goToHowItWorks();
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${

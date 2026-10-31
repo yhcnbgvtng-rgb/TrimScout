@@ -13,6 +13,7 @@ import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuo
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 import { notifyDealerQuoted } from "@/lib/noticeOutbox";
+import { vehicleTitle } from "@/lib/vehicleTitle";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -102,7 +103,7 @@ async function announceOverrides(i: { rfq: NonNullable<Awaited<ReturnType<typeof
   });
   const notice = buildFeeOverrideNotice({
     dealerName: i.invite.dealerName,
-    vehicle: [i.rfq.vehicleYear, i.rfq.vehicleMake, i.rfq.vehicleModel, i.rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle",
+    vehicle: vehicleTitle({ vin: i.rfq.vin, year: i.rfq.vehicleYear, make: i.rfq.vehicleMake, model: i.rfq.vehicleModel, trim: i.rfq.vehicleTrim }) || "vehicle",
     overrides: i.overrides,
     url: `${DEALER_EMAIL_BASE_URL}${isGuestBuyerId(i.rfq.buyerUserId) ? guestTrackerPath(i.rfqId) : `/rfq/${encodeURIComponent(i.rfqId)}`}`,
   });

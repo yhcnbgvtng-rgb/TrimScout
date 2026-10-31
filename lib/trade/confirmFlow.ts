@@ -16,9 +16,10 @@ import { closeOutLosers } from "../inviteOutbox";
 import { buildConfirmRequestedNotice, buildRevisedNotice } from "../tradeConfirmNotice";
 import { dueExpiries, tradeConfirmConfig, type TradeConfirmation } from "./confirm";
 import { postTradeOtdAt } from "./confirmView";
+import { vehicleTitle } from "../vehicleTitle";
 
-const vehicleOf = (rfq: RfqRequest) => [rfq.vehicleYear, rfq.vehicleMake, rfq.vehicleModel, rfq.vehicleTrim].filter(Boolean).join(" ") || "vehicle";
-const tradeTitleOf = (rfq: RfqRequest) => (rfq.tradeIn ? [rfq.tradeIn.year, rfq.tradeIn.make, rfq.tradeIn.model, rfq.tradeIn.trim].filter(Boolean).join(" ") : "") || "trade-in";
+const vehicleOf = (rfq: RfqRequest) => vehicleTitle({ vin: rfq.vin, year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim }) || "vehicle";
+const tradeTitleOf = (rfq: RfqRequest) => (rfq.tradeIn ? vehicleTitle({ vin: rfq.tradeIn.vin, year: rfq.tradeIn.year, make: rfq.tradeIn.make, model: rfq.tradeIn.model, trim: rfq.tradeIn.trim }) : "") || "trade-in";
 export const dealerConfirmUrl = (invite: Pick<RfqInvite, "viewToken">) => `${DEALER_EMAIL_BASE_URL}/api/quote-invite/view?t=${encodeURIComponent(invite.viewToken || "")}`;
 export const buyerRfqUrl = (rfq: Pick<RfqRequest, "id" | "buyerUserId">) => `${DEALER_EMAIL_BASE_URL}${isGuestBuyerId(rfq.buyerUserId) ? guestTrackerPath(rfq.id) : `/rfq/${encodeURIComponent(rfq.id)}`}`;
 

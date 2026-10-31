@@ -55,3 +55,15 @@ body {
 .price-range:focus-visible { outline: none; }
 .price-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(61, 148, 116, 0.5); }
 .price-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px rgba(61, 148, 116, 0.5); }
+
+/* Keyboard focus: the header's buttons and links get a visible ring (brand-300 on the dark header is well above 3:1). */
+header button:focus-visible,
+header a:focus-visible {
+  outline: 2px solid #8ccfb3;
+  outline-offset: 2px;
+}
+
+/* Small hint text: the old #6b7280 was ~3.9:1 on the page background; this is ~6:1, which clears WCAG AA (4.5:1). */
+.text-ink-faint {
+  color: #8b93a1;
+}

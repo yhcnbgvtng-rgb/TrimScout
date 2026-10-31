@@ -8,8 +8,6 @@ import {
   type BoxVehicle,
 } from "@/lib/lightsailClient";
 import { requireAdminSession } from "@/lib/adminAuth";
-import { clientIpFromHeaders } from "@/lib/clientIp";
-import { checkRateLimit } from "@/lib/rateLimit";
 import { withoutSeenDates } from "@/lib/seenDates";
 import { fullPageSize, hasDumpSecret, publicVehicleWindow, type LightsailAccess } from "@/lib/lightsailAccess";
 
@@ -473,8 +471,6 @@ async function resolveAccess(request: Request): Promise<LightsailAccess> {
   return "public";
 }
 
-const PUBLIC_RATE_LIMIT = 60;
-const PUBLIC_RATE_WINDOW_MS = 60_000;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -482,15 +478,12 @@ export async function GET(request: Request) {
   const access = await resolveAccess(request);
 
   if (access === "public") {
-    // In-memory and per-instance (see lib/rateLimit.ts) — a floor, not a global ceiling.
-    const verdict = checkRateLimit(`lightsail:${clientIpFromHeaders(request.headers)}`, PUBLIC_RATE_LIMIT, PUBLIC_RATE_WINDOW_MS);
-    if (!verdict.ok) {
-      return NextResponse.json({ error: "Too many requests." }, { status: 429, headers: { "Retry-After": String(verdict.retryAfterSec) } });
+    // The bare/summary dump was never public. The vehicles/facets pages used to be, but their fallback chain ends in
+    // a stale August Porsche snapshot, so the public tier is retired: /search is the public inventory.
+    if (action === "vehicles" || action === "facets") {
+      return NextResponse.json({ error: "This endpoint has been retired. Use /search." }, { status: 410 });
     }
-    // The bare/summary dump (and any unknown action, which falls through to it) is not public.
-    if (action !== "vehicles" && action !== "facets") {
-      return NextResponse.json({ error: "Not authorized." }, { status: 401 });
-    }
+    return NextResponse.json({ error: "Not authorized." }, { status: 401 });
   }
 
   // NEW: paginated/filtered vehicle list and cross-filtered facet counts,

@@ -31,7 +31,7 @@ const REASONS = [
   {
     icon: FileText,
     title: "Quotes you can compare",
-    body: "Get structured, itemized quotes with clear monthly payments and due-at-signing amounts, so every offer reads the same way.",
+    body: "Get itemized out-the-door quotes (the total you pay, including tax and fees) with clear monthly payments and due-at-signing amounts, so every offer reads the same way.",
   },
 ];
 
@@ -155,7 +155,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
       </div>
 
       {/* HOW IT WORKS */}
-      <div className="space-y-8">
+      <div id="how-it-works" className="scroll-mt-20 space-y-8">
         <div className="text-center space-y-2">
           <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">How it works</p>
           <h2 className="text-2xl sm:text-3xl font-black text-white">From link to quote in three steps</h2>
@@ -170,9 +170,9 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
           ))}
         </div>
         <p className="max-w-3xl mx-auto text-center text-xs text-ink-faint leading-relaxed">
-          <strong className="text-ink-muted">Honest about where we are:</strong> our inventory is a curated,
-          hand-verified set of listings, not the whole market yet. We expand make by make and never show a match we
-          haven&apos;t checked.
+          <strong className="text-ink-muted">Where we are:</strong> you can search about 2 million cars from dealers
+          across the country. Where the maker publishes the factory record we read it from the VIN, and we say so on
+          any car we haven&apos;t been able to check.
         </p>
       </div>
 

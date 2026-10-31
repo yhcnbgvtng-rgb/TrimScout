@@ -7,17 +7,17 @@ describe("formatDealerResponsivenessLabel — real numbers only, never a fabrica
     assert.equal(formatDealerResponsivenessLabel(null), null);
   });
 
-  it("says plainly there's no history yet for a dealer with zero bids, rather than guessing", () => {
+  it("hides the line for a dealer with zero bids, rather than printing a stale or guessed one", () => {
     assert.equal(
       formatDealerResponsivenessLabel({ dealerName: "New Dealer", bidCount: 0, avgResponseHours: null }),
-      "No response history yet"
+      null
     );
   });
 
   it("treats a null avgResponseHours the same as zero bids, defensively", () => {
     assert.equal(
       formatDealerResponsivenessLabel({ dealerName: "Odd State", bidCount: 3, avgResponseHours: null }),
-      "No response history yet"
+      null
     );
   });
 
