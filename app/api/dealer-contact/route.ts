@@ -5,7 +5,9 @@ import { dealerContactStatus, dealerIdFrom, type DirectoryDealership } from "@/l
 // Public (no login) — the wizard asks this while the buyer is still choosing
 // who gets their offer, before it requires signing in. It answers one question
 // per dealership: can we actually reach them? Never the email address itself —
-// see DealerContactStatus for why.
+// see DealerContactStatus for why. The dealer's phone number is not returned
+// either: no buyer screen shows it, and this route has no login. The street
+// address stays because the wizard prints it under the dealer name.
 
 const MAX_DEALERS_PER_REQUEST = 3;
 
@@ -65,7 +67,6 @@ export async function POST(req: Request) {
         dealerName: d.dealerName,
         matched: false,
         addressLine: null,
-        phone: null,
         hasEmail: false,
         emailStatus: "none",
         emailOptOut: false,

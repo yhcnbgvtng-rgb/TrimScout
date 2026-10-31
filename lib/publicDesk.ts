@@ -12,7 +12,6 @@ export interface PublicDesk {
   contactName: string | null;
   role: DealerDesk["role"] | null;
   emailMasked: string | null;
-  emailDomain: string | null;
   emailOptOut: boolean;
   blockedReason: keyof typeof INVITE_BLOCK_MESSAGES | null;
   blockedMessage: string | null;
@@ -33,7 +32,6 @@ export function publicDeskFor(rows: Dealership[], d: { dealerName: string; state
     contactName: desk?.contactName || null,
     role: desk?.role || null,
     emailMasked: desk?.email ? maskEmail(desk.email) : null,
-    emailDomain: desk?.knownNamed ? desk.emailDomain : null,
     emailOptOut: Boolean(desk?.emailOptOut),
     blockedReason: blocked,
     blockedMessage: blocked ? INVITE_BLOCK_MESSAGES[blocked] : null,

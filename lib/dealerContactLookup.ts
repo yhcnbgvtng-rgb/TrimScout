@@ -44,7 +44,6 @@ export interface DealerContactStatus {
   dealerName: string;
   matched: boolean;
   addressLine: string | null;
-  phone: string | null;
   /**
    * Whether a usable email exists — never the address itself. The directory is
    * dealer contact data the buyer has no claim to; they only need to know if we
@@ -193,7 +192,6 @@ export function dealerContactStatus(
     dealerName: query.dealerName,
     matched: Boolean(match),
     addressLine: formatDealershipAddress(match),
-    phone: match?.phone?.trim() || null,
     // The address check alone; the dealer's unsubscribe is its own field (emailOptOut), as it always was here.
     hasEmail: addressStatus(match) === "valid",
     emailStatus: ({ valid: "reachable", unverified: "unverified", invalid: "none", none: "none" } as const)[addressStatus(match)],
