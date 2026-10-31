@@ -1,6 +1,8 @@
 # md5  role  file   (BASE = box2 live deals_api_server.js read-only 2026-10-30, after the buyer-contact-reveal install #643; RESULT = after the patch; PATCH/FILE = shipped in this directory)
 bd11ff778117cd932c2608e1585634d4  BASE     deals_api_server.js@live-2026-10-30
-5ce745d698cc19bcdf9809e8982304f3  RESULT   deals_api_server.js@live-2026-10-30
-805378b67044e9727b24d37b1b726840  PACKAGE  deals_api_server.js.patch
+b2a0964b0e25eb4f47f54b563d8eb523  RESULT   deals_api_server.js@live-2026-10-30
+23f3aea19de2d0ba822748e3118153c4  PACKAGE  deals_api_server.js.patch
 cff4d09baa921dac3d2cdb23c81d6dea  PACKAGE  files/quoteReachable.js
+43276833cab9f27e615bd0068bb663de  PACKAGE  files/reachableCoverage.js
 -                                 BEFORE   quoteReachable.js   (absent)
+-                                 BEFORE   reachableCoverage.js   (absent)

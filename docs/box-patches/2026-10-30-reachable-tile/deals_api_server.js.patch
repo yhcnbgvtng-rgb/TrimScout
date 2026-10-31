@@ -4,52 +4,28 @@
  import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql } from "./inventoryListQuery.js";
  import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
  import { createGate, SearchBusyError } from "./searchGate.js";
-+import { reachabilityBucket, stampGroupDomains } from "./quoteReachable.js";
++import { withReachableCoverage, REACHABLE_CACHE_MS } from "./reachableCoverage.js";
  import { createRfqStageHandler } from "./rfqStages.js";
  import { createRfqMessagesHandler } from "./rfqMessages.js";
  import { createChatAdminHandlers } from "./rfqChatAdmin.js";
-@@ -3050,7 +3051,7 @@
-   // --- DOM by model / dealer / trim / year / drivetrain / powertrain
-   const byModel = (await q(`SELECT i.make, i.model, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL GROUP BY i.make, i.model ORDER BY n DESC LIMIT 400`)).map(shape);
-   attachMedian(byModel, await medians("i.make, i.model", "i.make AS make, i.model AS model", "make, model"), ["make", "model"]);
--  const byDealer = (await q(`SELECT i.dealer_id AS dealerId, i.dealer_name AS dealerName, d.state, d.city, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker, SUM(i.options_json IS NOT NULL) AS withOptions, SUM(i.price IS NULL OR i.price <= 0) AS missingPrice, SUM(i.image_url IS NULL OR i.image_url = '') AS missingPhoto, SUM(i.last_seen_at < DATE_SUB(NOW(), INTERVAL 2 DAY)) AS stale, MAX(d.contact_email IS NOT NULL AND d.contact_email <> '') AS hasEmail, MAX(i.last_seen_at) AS lastSeenAt ${stock} GROUP BY i.dealer_id, i.dealer_name, d.state, d.city ORDER BY n DESC LIMIT 1500`)).map(shape);
-+  const byDealer = (await q(`SELECT i.dealer_id AS dealerId, i.dealer_name AS dealerName, d.state, d.city, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker, SUM(i.options_json IS NOT NULL) AS withOptions, SUM(i.price IS NULL OR i.price <= 0) AS missingPrice, SUM(i.image_url IS NULL OR i.image_url = '') AS missingPhoto, SUM(i.last_seen_at < DATE_SUB(NOW(), INTERVAL 2 DAY)) AS stale, MAX(d.contact_email) AS contactEmail, MAX(d.website) AS website, MAX(d.domains_json) AS domainsJson, MAX(d.email_opt_out) AS emailOptOut, MAX(i.last_seen_at) AS lastSeenAt ${stock} GROUP BY i.dealer_id, i.dealer_name, d.state, d.city ORDER BY n DESC LIMIT 1500`)).map(shape);
-   attachMedian(byDealer, await medians("i.dealer_id", "i.dealer_id AS dealerId", "dealerId"), ["dealerId"]);
-   const byTrim = (await q(`SELECT i.make, i.model, i.trim, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL AND i.trim IS NOT NULL AND i.trim <> '' GROUP BY i.make, i.model, i.trim HAVING n >= 2 ORDER BY n DESC LIMIT 400`)).map(shape);
-   attachMedian(byTrim, await medians("i.make, i.model, i.trim", "i.make AS make, i.model AS model, i.trim AS trim", "make, model, trim"), ["make", "model", "trim"]);
-@@ -3087,18 +3088,32 @@
- 
-   // --- Coverage by brand (dealer-level coverage rides on byDealer).
-   const coverageByMake = await q(`SELECT i.make, COUNT(*) AS n, SUM(i.window_sticker_url IS NOT NULL) AS withSticker, SUM(i.options_json IS NOT NULL) AS withOptions, SUM(i.price IS NULL OR i.price <= 0) AS missingPrice, SUM(i.image_url IS NULL OR i.image_url = '') AS missingPhoto ${stock} AND i.make IS NOT NULL GROUP BY i.make ORDER BY n DESC LIMIT 60`).then((rows) => rows.map((r) => ({ make: r.make, n: Number(r.n), withSticker: Number(r.withSticker || 0), withOptions: Number(r.withOptions || 0), missingPrice: Number(r.missingPrice || 0), missingPhoto: Number(r.missingPhoto || 0) })));
--  const [[emails]] = await pool.query(`SELECT COUNT(DISTINCT i.dealer_id) AS dealers, COUNT(DISTINCT CASE WHEN d.contact_email IS NOT NULL AND d.contact_email <> '' THEN i.dealer_id END) AS withEmail ${stock}`, args);
-+  // "Reachable by quote request" is the shared rule (quoteReachable.js — the same function the wizard badge and quote routing run),
-+  // not "has any text in contact_email": a department mailbox, a vendor/OEM domain or a scraped file name is not reachable.
-+  const groupDomainRows = await invCached("contact-group-domains", async () => {
-+    const [r] = await pool.query("SELECT contact_email AS contactEmail FROM dealership_contacts WHERE contact_email LIKE '%@%' AND is_test = 0");
-+    return r;
-+  });
-+  const stampedGroups = new Map(stampGroupDomains(groupDomainRows).map((r) => [String(r.contactEmail).trim().toLowerCase().split("@")[1], r.emailInGroupDomain]));
-+  const bucketOf = (r) => reachabilityBucket({ contactEmail: r.contactEmail, dealerName: r.dealerName, website: r.website, domains: r.domainsJson, emailOptOut: Boolean(Number(r.emailOptOut || 0)), emailInGroupDomain: Boolean(stampedGroups.get(String(r.contactEmail || "").trim().toLowerCase().split("@")[1])) });
-+  const coverageRows = await q(`SELECT i.dealer_id AS dealerId, MAX(i.dealer_name) AS dealerName, MAX(d.contact_email) AS contactEmail, MAX(d.website) AS website, MAX(d.domains_json) AS domainsJson, MAX(d.email_opt_out) AS emailOptOut ${stock} GROUP BY i.dealer_id`);
-+  const emails = { dealers: coverageRows.length, reachable: 0, unverified: 0 };
-+  for (const r of coverageRows) {
-+    const b = bucketOf(r);
-+    if (b === "reachable") emails.reachable++;
-+    else if (b === "unverified") emails.unverified++;
-+  }
- 
-   return {
-     computedAt: new Date().toISOString(),
-     filters: f,
-     domFormula: "days_on_lot from the crawl when present, else days between the first day the crawl saw the VIN at this store (crawl_first_seen, else first_seen_at) and today (or the day it was removed)",
-     totals: { n: Number(totals.n), avgDom: round1(totals.avgDom), bands: { d0_14: Number(totals.d0_14 || 0), d15_45: Number(totals.d15_45 || 0), d46_90: Number(totals.d46_90 || 0), d90p: Number(totals.d90p || 0) }, dealers: Number(totals.dealers), models: Number(totals.models), lastSeenAt: totals.lastSeenAt },
--    dom: { byModel, byDealer: byDealer.map((r) => ({ ...r, dealerId: Number(r.dealerId), withOptions: Number(r.withOptions || 0), missingPrice: Number(r.missingPrice || 0), missingPhoto: Number(r.missingPhoto || 0), stale: Number(r.stale || 0), hasEmail: Boolean(Number(r.hasEmail)), withSticker: Number(r.withSticker || 0), avgDiscount: r.avgDiscount == null ? null : round1(Number(r.avgDiscount) * 100) })), byTrim, byYear, byDrivetrain, byPowertrain },
-+    dom: { byModel, byDealer: byDealer.map((r) => ({ ...r, dealerId: Number(r.dealerId), withOptions: Number(r.withOptions || 0), missingPrice: Number(r.missingPrice || 0), missingPhoto: Number(r.missingPhoto || 0), stale: Number(r.stale || 0), emailStatus: bucketOf(r), hasEmail: bucketOf(r) === "reachable", contactEmail: undefined, website: undefined, domainsJson: undefined, emailOptOut: undefined, withSticker: Number(r.withSticker || 0), avgDiscount: r.avgDiscount == null ? null : round1(Number(r.avgDiscount) * 100) })), byTrim, byYear, byDrivetrain, byPowertrain },
-     velocity: { onLot: Number(turn.onLot || 0), removed7: Number(turn.removed7 || 0), removed28: Number(turn.removed28 || 0), arrived7: Number(turn.arrived7 || 0), turnRate: Number(turn.onLot) ? round1((Number(turn.removed7 || 0) / Number(turn.onLot)) * 100) : null, byModel: velocityByModel, byDealer: velocityByDealer },
-     pricing: { avgDiscount: disc.avgDiscount == null ? null : round1(Number(disc.avgDiscount) * 100), priced: Number(disc.priced || 0), dropsNow: Number(disc.dropsNow || 0), avgDropNow: disc.avgDropNow == null ? null : Math.round(Number(disc.avgDropNow)), cuts: priceCuts },
-     assortment: { brandNorm },
--    coverage: { byMake: coverageByMake, dealersWithEmail: Number(emails.withEmail || 0), dealers: Number(emails.dealers || 0) },
-+    coverage: { byMake: coverageByMake, dealersReachable: emails.reachable, dealersUnverified: emails.unverified, dealersWithEmail: emails.reachable, dealers: emails.dealers },
-   };
+@@ -2462,6 +2463,9 @@
+   runBackground,
+   filePath: process.env.INV_STATS_CACHE_FILE || "/opt/trimscout-deals/stats-cache.json",
+ });
++// The admin "Reachable by quote request" counts: their own in-memory stale-while-revalidate cache, NOT the stats cache and not inside the MEDIAN
++// path (reachableCoverage.js: one directory read + one dealer-id read, both cheap and capped by the statement timeout).
++const reachableCached = createStableCache({ runBackground, ttlMs: REACHABLE_CACHE_MS, maxEntries: 40 }).get;
+ const invInvalidate = () => {
+   invGeneration++;
+   invCache.clear();
+@@ -3021,7 +3025,9 @@
+   const p = (k) => (params.get(k) || "").trim();
+   const f = { state: p("state").toUpperCase().slice(0, 2), make: p("make").slice(0, 64), dealerId: INV_INT(p("dealerId")), model: p("model").slice(0, 96), from: INV_DATE(p("from")), to: INV_DATE(p("to")) };
+   const key = "analytics:" + JSON.stringify(f);
+-  sendJson(res, 200, await statsCached(key, () => computeInventoryAnalytics(pool, f)));
++  const stats = await statsCached(key, () => computeInventoryAnalytics(pool, f));
++  const run = async (sql, args) => (await withPoolTimeout(pool.query(`SET STATEMENT max_statement_time=${statementSeconds()} FOR ${sql}`, args), waitMs(), "Timed out waiting for an available database connection or a slow query"))[0];
++  sendJson(res, 200, await withReachableCoverage({ stats, f, cache: reachableCached, run }));
  }
- 
+ async function computeInventoryAnalytics(pool, f) {
+   const where = [], args = [];

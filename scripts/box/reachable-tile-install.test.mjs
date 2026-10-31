@@ -14,6 +14,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const PKG = path.join(ROOT, 'docs/box-patches/2026-10-30-reachable-tile');
 const SNAP = path.join(ROOT, 'docs/box-snapshots/2026-10-30-box2-deals-api/deals_api_server.bd11ff77.js.txt');
 const MODULE = path.join(ROOT, 'scrapers/lightsail-crawler/src/quoteReachable.js');
+const COVERAGE = path.join(ROOT, 'scrapers/lightsail-crawler/src/reachableCoverage.js');
 const md5 = (file) => createHash('md5').update(fs.readFileSync(file)).digest('hex');
 const rows = fs.readFileSync(path.join(PKG, 'manifest.txt'), 'utf8').split('\n').filter((l) => l && !l.startsWith('#')).map((l) => { const [sum, role, file] = l.trim().split(/\s+/); return { sum, role, file }; });
 const want = (role, file) => rows.find((m) => m.role === role && m.file === file)?.sum;
@@ -39,6 +40,7 @@ describe('manifest, STEPS.md and the files agree', () => {
   it('every PACKAGE md5 is the file in this checkout, and the shipped module is the repo source', () => {
     for (const m of rows.filter((x) => x.role === 'PACKAGE')) assert.equal(m.sum, md5(path.join(PKG, m.file)), `${m.file} changed after the manifest was written`);
     assert.equal(want('PACKAGE', 'files/quoteReachable.js'), md5(MODULE), 'files/quoteReachable.js must be the repo source');
+    assert.equal(want('PACKAGE', 'files/reachableCoverage.js'), md5(COVERAGE), 'files/reachableCoverage.js must be the repo source');
   });
 
   it('the local snapshot is the BASE the manifest pins', { skip: hasSnap ? false : 'snapshot not present locally (gitignored)' }, () => {
@@ -47,7 +49,7 @@ describe('manifest, STEPS.md and the files agree', () => {
 
   it('install.sh pins every md5 in the manifest', () => {
     const script = fs.readFileSync(path.join(PKG, 'install.sh'), 'utf8');
-    for (const m of rows.filter((x) => x.sum !== '-' && x.file !== 'files/quoteReachable.js' || x.file === 'files/quoteReachable.js')) assert.ok(script.includes(m.sum), `install.sh pins ${m.sum} (${m.role} ${m.file})`);
+    for (const m of rows.filter((x) => x.sum !== '-')) assert.ok(script.includes(m.sum), `install.sh pins ${m.sum} (${m.role} ${m.file})`);
   });
 
   it('STEPS.md carries exactly the manifest as its md5 table and has what an install needs', () => {
@@ -55,7 +57,7 @@ describe('manifest, STEPS.md and the files agree', () => {
     const block = /<!-- MD5S:START -->\n```\n([\s\S]*?)\n```\n<!-- MD5S:END -->/.exec(steps);
     assert.ok(block, 'md5 block present');
     assert.equal(block[1], fs.readFileSync(path.join(PKG, 'manifest.txt'), 'utf8').trimEnd());
-    for (const must of ['NOTHING IS INSTALLED', 'typed GO', 'bd11ff77', 'install.sh check', 'install.sh apply', 'install.sh restart', 'install.sh restore', 'sudo -u ubuntu pm2 restart deals-api', '**backup first**', 'zero fuzz', 'Rollback', '[sync-lock]', 'Not measured on box2']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
+    for (const must of ['NOTHING IS INSTALLED', 'typed GO', 'bd11ff77', 'install.sh check', 'install.sh apply', 'install.sh restart', 'install.sh restore', 'sudo -u ubuntu pm2 restart deals-api', '**backup first**', 'zero fuzz', 'Rollback', '[sync-lock]', 'Not measured on box2', 'unpatched baseline', 'default key', 'MEDIAN']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
   });
 });
 
@@ -73,9 +75,12 @@ describe('deals_api_server.js patch and install.sh', { skip: SKIP }, () => {
     fs.copyFileSync(f, asModule);
     execFileSync(process.execPath, ['--check', asModule]);
     const text = fs.readFileSync(f, 'utf8');
-    assert.equal(text.split('import { reachabilityBucket, stampGroupDomains } from "./quoteReachable.js"').length - 1, 1);
-    assert.ok(text.includes('dealersReachable: emails.reachable'));
-    assert.ok(!text.includes("COUNT(DISTINCT CASE WHEN d.contact_email IS NOT NULL"), 'the any-text-in-the-field count is gone');
+    assert.equal(text.split('import { withReachableCoverage, REACHABLE_CACHE_MS } from "./reachableCoverage.js"').length - 1, 1);
+    assert.equal(text.split('const reachableCached = createStableCache(').length - 1, 1, 'its own cache, not the stats cache');
+    assert.equal(text.split('withReachableCoverage({ stats, f, cache: reachableCached, run })').length - 1, 1);
+    // the MEDIAN compute is untouched: same text between its start and the next top-level function as in the live file
+    const slice = (t) => t.slice(t.indexOf('async function computeInventoryAnalytics'), t.indexOf('async function computeInventoryAnalytics') + 20000);
+    assert.equal(slice(text), slice(fs.readFileSync(SNAP, 'utf8')), 'computeInventoryAnalytics is byte-for-byte the live one');
   });
 
   it('check passes on the live text and changes nothing', () => {
@@ -117,12 +122,14 @@ describe('deals_api_server.js patch and install.sh', { skip: SKIP }, () => {
     assert.match(r.stdout, /FILES APPLIED/);
     assert.equal(md5(path.join(b.src, 'deals_api_server.js')), want('RESULT', 'deals_api_server.js@live-2026-10-30'));
     assert.equal(md5(path.join(b.src, 'quoteReachable.js')), want('PACKAGE', 'files/quoteReachable.js'));
+    assert.equal(md5(path.join(b.src, 'reachableCoverage.js')), want('PACKAGE', 'files/reachableCoverage.js'));
     assert.equal(md5(path.join(b.env.BACKUP, 'deals_api_server.js')), original, 'the backup is the file as it was');
     assert.match(sh(['apply'], b.env).stdout, /ALREADY PATCHED/);
     const back = sh(['restore'], b.env);
     assert.equal(back.status, 0, back.stdout + back.stderr);
     assert.equal(md5(path.join(b.src, 'deals_api_server.js')), original);
     assert.equal(fs.existsSync(path.join(b.src, 'quoteReachable.js')), false);
+    assert.equal(fs.existsSync(path.join(b.src, 'reachableCoverage.js')), false);
   });
 });
 

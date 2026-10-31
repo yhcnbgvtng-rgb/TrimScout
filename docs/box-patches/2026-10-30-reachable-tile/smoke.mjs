@@ -11,4 +11,8 @@ assert.equal(m.reachabilityBucket({ contactEmail: "accessibility@hmausa.com" }),
 assert.equal(m.reachabilityBucket({ contactEmail: "jdoe@gmail.com" }), "unverified");
 assert.equal(m.reachabilityBucket({ contactEmail: "jdoe@lafontaine.com", dealerName: "LaFontaine Chrysler Dodge Jeep Ram of Walled Lake", website: "lafontainecdjrwalledlake.com" }), "reachable");
 assert.equal(m.reachabilityBucket({ contactEmail: "jdoe@lafontaine.com", dealerName: "LaFontaine Chrysler Dodge Jeep Ram of Walled Lake", website: "lafontainecdjrwalledlake.com", emailOptOut: true }), "none");
-console.log("smoke ok: quoteReachable.js answers the audit cases");
+const rc = await import(pathToFileURL(path.join(dir, "reachableCoverage.js")).href);
+for (const fn of ["bucketsFromDirectory", "overlayReachable", "withReachableCoverage", "scopeSql"]) assert.equal(typeof rc[fn], "function", `${fn} exported`);
+const out = rc.overlayReachable({ coverage: { dealers: 3 }, dom: { byDealer: [{ dealerId: 1 }] } }, [1, 2], rc.bucketsFromDirectory([{ id: 1, dealerName: "X", contactEmail: "a@gmail.com", emailOptOut: 0 }, { id: 2, dealerName: "Y", contactEmail: "accessibility@hmausa.com", emailOptOut: 0 }]));
+assert.equal(out.coverage.dealersUnverified, 1); assert.equal(out.coverage.dealersReachable, 0); assert.equal(out.dom.byDealer[0].emailStatus, "unverified");
+console.log("smoke ok: quoteReachable.js answers the audit cases, reachableCoverage.js overlays them");
