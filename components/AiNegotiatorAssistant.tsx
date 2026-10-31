@@ -108,7 +108,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
     fetch(`/api/deal-requests/${selectedRequestId}/bids`)
       .then((res) => res.json())
       .then((json) => setBids(json.bids || []))
-      .catch(() => setError("Could not load bids for this deal."))
+      .catch(() => setError("Could not load quotes for this deal."))
       .finally(() => setLoadingBids(false));
   }, [selectedRequestId]);
 
@@ -181,7 +181,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
         <div>
           <h1 className="text-xl font-black text-white">AI Negotiator Assistant</h1>
           <p className="text-xs text-ink-muted">
-            Set your walk-away price, then run it against each bid — the numbers are decided by a fixed policy,
+            Set your walk-away price, then run it against each quote — the numbers are decided by a fixed policy,
             never guessed by AI.
           </p>
         </div>
@@ -274,7 +274,7 @@ export const AiNegotiatorAssistant: React.FC = () => {
                     type="number"
                     value={guardrails.fairOtdMid}
                     onChange={(e) => setGuardrails((g) => ({ ...g, fairOtdMid: e.target.value }))}
-                    placeholder="Hold for more bids under this"
+                    placeholder="Hold for more quotes under this"
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
@@ -294,11 +294,11 @@ export const AiNegotiatorAssistant: React.FC = () => {
           <div className="space-y-3">
             {loadingBids ? (
               <div className="text-center text-ink-muted text-sm py-8">
-                <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" /> Loading bids…
+                <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" /> Loading quotes…
               </div>
             ) : bids.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center text-sm text-ink-muted">
-                No dealer bids on this request yet.
+                No dealer quotes on this request yet.
               </div>
             ) : (
               bids.map((bid) => {

@@ -78,7 +78,7 @@ export function decideNegotiation(bid: BidSnapshot, g: NegotiationGuardrails): N
       action: "walk",
       nextTargetOtd: null,
       askImprovementDollars: null,
-      reason: `Bid ${money(otd)} is above walk-away ${money(walk)}.`,
+      reason: `Quote ${money(otd)} is above walk-away ${money(walk)}.`,
       messageTemplate:
         "Thanks for the offer. That OTD is above what I can do on this vehicle — I'll pass for now.",
       allowAutoAccept: false,
@@ -96,7 +96,7 @@ export function decideNegotiation(bid: BidSnapshot, g: NegotiationGuardrails): N
       action: "recommend_accept",
       nextTargetOtd: null,
       askImprovementDollars: null,
-      reason: `Bid ${money(otd)} meets target ${money(target)}${
+      reason: `Quote ${money(otd)} meets target ${money(target)}${
         allowAutoAccept ? " and auto-accept threshold" : ""
       }.`,
       messageTemplate: `This looks like a strong match at ${money(otd)} OTD. Ready to proceed if the numbers hold.`,
@@ -127,7 +127,7 @@ export function decideNegotiation(bid: BidSnapshot, g: NegotiationGuardrails): N
       action: "hold",
       nextTargetOtd: null,
       askImprovementDollars: null,
-      reason: `Bid ${money(otd)} is at/under fair mid ${money(fairMid)}; holding for competing bids.`,
+      reason: `Quote ${money(otd)} is at/under fair mid ${money(fairMid)}; holding for competing quotes.`,
       messageTemplate: "",
       allowAutoAccept: false,
     };

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'TrimScout | Whole Market Vehicle Search & Dealership Bidding';
+export const alt = 'TrimScout | Whole Market Vehicle Search & Dealer Quote Requests';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -46,7 +46,7 @@ export default async function Image() {
               maxWidth: 980,
             }}
           >
-            Whole-market vehicle search &amp; dealership bidding
+            Whole-market vehicle search &amp; dealer quote requests
           </div>
           <div
             style={{
@@ -57,7 +57,7 @@ export default async function Image() {
               maxWidth: 880,
             }}
           >
-            Search by exact option packages, track real market prices, and let dealers compete with transparent out-the-door bids.
+            Search by exact option packages, track real market prices, and let dealers compete with transparent out-the-door quotes.
           </div>
         </div>
 
