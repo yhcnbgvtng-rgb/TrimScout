@@ -485,6 +485,19 @@ export async function inventoryAnalytics(f: AnalyticsFilters = {}): Promise<Deal
   return request("GET", `/api/inventory/analytics${suffix ? `?${suffix}` : ""}`);
 }
 
+/** Cars in current inventory whose VIN ends with these 6-8 characters (needs the box's vin-search endpoint; capped at 25 rows). */
+export async function inventoryVinSuffix(suffix: string): Promise<{ suffix: string; truncated: boolean; vehicles: InventoryVehicle[] }> {
+  const clean = suffix.trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{6,8}$/.test(clean)) throw new InventoryApiError("Enter the last 6 to 8 characters of the VIN (no I, O or Q).", 400);
+  try {
+    return await request("GET", `/api/inventory/vin-search?suffix=${clean}`);
+  } catch (err) {
+    // A box without the vin-search patch answers 404: say so, and point at the full VIN, which the older endpoint serves.
+    if (err instanceof InventoryApiError && err.status === 404) throw new InventoryApiError("Searching by the last characters isn't available yet — enter the full 17-character VIN.", 404);
+    throw err;
+  }
+}
+
 /** Every listing of one VIN (each store that has carried it) plus the day-by-day observations behind them. */
 export async function inventoryVin(vin: string): Promise<{ vin: string; listings: InventoryVehicle[]; days: InventoryDay[] }> {
   const clean = vin.trim().toUpperCase();
