@@ -12,9 +12,10 @@ describe("isColorCode", () => {
   it("treats blank / null as not a code", () => {
     for (const c of [null, undefined, "", "  "]) assert.equal(isColorCode(c), false);
   });
-  it("needs 3-5 characters", () => {
+  it("needs 3-6 characters (a 1-2 character value with a digit is not treated as a code)", () => {
     assert.equal(isColorCode("A1"), false);
-    assert.equal(isColorCode("A1B2C3"), false);
+    assert.equal(isColorCode("A1B2C3"), true);
+    assert.equal(isColorCode("A1B2C3D"), false);
   });
 });
 
