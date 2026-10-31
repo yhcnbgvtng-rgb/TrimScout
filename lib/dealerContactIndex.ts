@@ -1,5 +1,5 @@
 import { listDealerships, type Dealership } from "./dealershipsApi";
-import { contactStateOf, dealerIdFrom, dealerMatchKey, pickDirectoryMatch, type ContactState } from "./dealerContactLookup";
+import { contactStateOf, dealerIdFrom, isReachableState, dealerMatchKey, pickDirectoryMatch, type ContactState } from "./dealerContactLookup";
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -46,10 +46,10 @@ export function contactStateFor(index: ContactIndex | null, dealer: { dealerName
   return contactStateOf(pickDirectoryMatch(index.get(key) || [], dealer.dealerState));
 }
 
-/** true / false when the directory answered; null when it is unknown. "On file" means a NAMED contact (see hasContactOnFile). */
+/** true / false when the directory answered; null when it is unknown. "On file" means a reachable email, named or not (see hasContactOnFile). */
 export function contactStatus(index: ContactIndex | null, dealer: { dealerName?: string | null; dealerState?: string | null; dealerId?: string | number | null }): boolean | null {
   const state = contactStateFor(index, dealer);
-  return state == null ? null : state === "named";
+  return state == null ? null : isReachableState(state);
 }
 
 let cache: { at: number; ids: ContactIndex } | null = null;

@@ -34,11 +34,11 @@ const ROSEVILLE = fixture.find((r) => r.id === "7632")!;
 describe("which dealers the filter keeps", () => {
   const ids = contactOnFileDealerIds(buildContactIndex(DIRECTORY));
   it("keeps a named contact", () => assert.ok(ids.includes("9001")));
-  it("a dealer with an email but no name is NOT on file (the #458 rule the Contact column and Step 3 share)", () => {
-    assert.ok(!ids.includes("9002"));
+  it("a dealer with a reachable email but no name IS on file (isQuoteReachable, same as Step 3's green badge)", () => {
+    assert.ok(ids.includes("9002"));
     const d = publicDeskFor(DIRECTORY, { dealerName: "Glen Motors", state: "NJ" });
-    assert.equal(d.contactState === ("named" as string), ids.includes("9002"));
     assert.equal(d.contactState, "email_only");
+    assert.equal(ids.includes("9002"), (["named", "email_only"] as string[]).includes(d.contactState));
   });
   it("a dealer with no email is excluded", () => assert.ok(!ids.includes("9003")));
   it("an unsubscribed dealer is excluded", () => assert.ok(!ids.includes("9004")));
@@ -46,14 +46,14 @@ describe("which dealers the filter keeps", () => {
   it("Bayside CDJR and BMW of Roseville: filter and Step 3 agree", () => {
     for (const r of [BAYSIDE_NY, ROSEVILLE]) {
       const step3 = publicDeskFor(DIRECTORY, { dealerName: r.dealerName.replace(/ \(.*\)$/, ""), state: r.state || "" });
-      assert.equal(ids.includes(r.id), step3.contactState === "named", r.dealerName);
-      assert.equal(ids.includes(r.id), false, `${r.dealerName} has no named contact`);
+      assert.equal(ids.includes(r.id), step3.contactState === "named" || step3.contactState === "email_only", r.dealerName);
     }
+    assert.equal(ids.includes(BAYSIDE_NY.id), false, "Bayside CDJR (NY) has nothing reachable");
   });
-  it("for every directory row the filter set equals 'Step 3 says named'", () => {
+  it("for every directory row the filter set equals 'Step 3 says reachable (named or email-only)'", () => {
     for (const r of DIRECTORY.filter((x) => !(x as { isTest?: boolean }).isTest)) {
       const step3 = publicDeskFor(DIRECTORY, { dealerName: r.dealerName.replace(/ \(.*\)$/, ""), state: r.state || "" });
-      assert.equal(ids.includes(r.id), step3.contactState === "named", r.dealerName);
+      assert.equal(ids.includes(r.id), step3.contactState === "named" || step3.contactState === "email_only", r.dealerName);
     }
   });
 });
@@ -116,9 +116,9 @@ describe("buyer search with the filter on vs off", () => {
   it("on: only cars whose dealer has a contact on file; the count equals the list, and every row says Yes in the Contact column", async () => {
     const r = await runBuyerSearch(parse("&contactOnFile=1"));
     assert.equal(r.total, r.vehicles.length);
-    assert.equal(r.vehicles.length, 3, "only Named Honda's three cars");
+    assert.equal(r.vehicles.length, 5, "Named Honda's 3 cars + Glen Motors' 2 (a reachable email with no name); Roseville's autonation address is unverified here");
     assert.ok(r.vehicles.every((v) => v.dealerHasContact === true), "filter and column agree row by row");
-    assert.deepEqual([...new Set(r.vehicles.map((v) => v.dealerName))], ["Named Honda"]);
+    assert.deepEqual([...new Set(r.vehicles.map((v) => v.dealerName))].sort(), ["Glen Motors, Inc.", "Named Honda"]);
     const post = calls.find((c) => c.path === "/api/inventory/contact-search")!;
     assert.equal(post.method, "POST");
     assert.deepEqual(post.body.dealerIds, contactOnFileDealerIds(buildContactIndex(DIRECTORY)));
@@ -127,9 +127,9 @@ describe("buyer search with the filter on vs off", () => {
     assert.match(post.body.query, /seenWithinDays=/);
   });
 
-  it("on: no car of an email-only, no-email, unsubscribed or test dealer comes back", async () => {
+  it("on: no car of a no-email, unsubscribed or test dealer comes back", async () => {
     const r = await runBuyerSearch(parse("&contactOnFile=1"));
-    for (const bad of ["Glen Motors, Inc.", "Nobody Kia", "Gone Auto", "Audit Test Motors", "BMW of Roseville"]) assert.ok(!r.vehicles.some((v) => v.dealerName === bad), bad);
+    for (const bad of ["Nobody Kia", "Gone Auto", "Audit Test Motors", "BMW of Roseville", "Bayside Chrysler Dodge Jeep Ram (Bayside, NY)"]) assert.ok(!r.vehicles.some((v) => v.dealerName === bad), bad);
   });
 
   it("the facets follow the filter and sum to the list's count", async () => {

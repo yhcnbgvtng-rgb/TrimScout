@@ -145,8 +145,8 @@ describe("matching by dealer_id, name + state only as the fallback", () => {
   it("/search's Contact column uses the car's dealer id as well", () => {
     const index = buildContactIndex(dup);
     assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ", dealerId: "100" }), false);
-    assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ", dealerId: "101" }), false); // reachable but no person's name: not a NAMED contact
-    assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ" }), false);
+    assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ", dealerId: "101" }), true); // reachable, no person's name: still on file
+    assert.equal(contactStatus(index, { dealerName: "Twin Toyota", dealerState: "NJ" }), true);
   });
 });
 
