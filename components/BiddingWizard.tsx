@@ -2973,9 +2973,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-400" />
                       <span className="min-w-0 text-[11px] text-ink-light">
                         <span className="block truncate">
-                        {[selectedVehicle.year, selectedVehicle.make, selectedVehicle.model, selectedVehicle.trim]
-                          .filter(Boolean)
-                          .join(" ")}
+                        {vehicleTitle(selectedVehicle)}
                         </span>
                         {/* VIN and the dealer rooftop — or, failing a name, the
                             site the link came from — so the buyer can confirm

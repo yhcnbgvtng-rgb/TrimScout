@@ -107,3 +107,15 @@ describe("rfq create route wiring", () => {
     assert.match(route, /repairLinkPastes\(body\.linkPastes\)/);
   });
 });
+
+describe("wizard cards use vehicleTitle", () => {
+  for (const f of ["../components/BiddingWizard.tsx", "../components/OfferCompareView.tsx"]) {
+    it(`${f} has no raw year/make/model/trim join`, () => {
+      const src = fs.readFileSync(new URL(f, import.meta.url), "utf8");
+      assert.doesNotMatch(src, /\[(selectedVehicle|vehicle)\.year[^\]]*(selectedVehicle|vehicle)\.make, (selectedVehicle|vehicle)\.model, (selectedVehicle|vehicle)\.trim\]/);
+    });
+  }
+  it("a blank-model card with the VIN reads 2027 BMW iX3 50 xDrive", () => {
+    assert.equal(vehicleTitle({ vin: VIN, year: 2027, make: "BMW", model: "", trim: "50 xDrive" }), "2027 BMW iX3 50 xDrive");
+  });
+});

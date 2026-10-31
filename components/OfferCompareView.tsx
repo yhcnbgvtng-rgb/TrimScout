@@ -601,9 +601,7 @@ function VehicleHeroCard({
 }) {
   const price = columnAdvertised(vehicle, sheet);
   const vdp = listingVdpHref(sheet?.vdpUrl) || listingVdpHref(vehicle.dealerUrl);
-  const title = [vehicle.year > 0 ? vehicle.year : null, vehicle.make, vehicle.model, vehicle.trim]
-    .filter(Boolean)
-    .join(" ");
+  const title = vehicleTitle(vehicle);
   const loc = vehicle.location;
   const where = [loc?.dealerName, [loc?.city, loc?.state].filter(Boolean).join(", ")].filter(Boolean).join(" · ");
   const distance = milesLabel(loc?.distanceMiles, buyerZip);
@@ -1023,9 +1021,7 @@ function VehicleOfferColumn({
       <div className={`border-b border-border bg-surface-elevated px-4 py-3 ${wide ? "lg:w-80 lg:shrink-0 lg:border-b-0 lg:border-r" : ""}`}>
         <div className="text-[10px] font-bold uppercase tracking-wider text-brand-400">{column.label}</div>
         <h2 className="text-base font-black text-white mt-0.5">
-          {[vehicle.year > 0 ? vehicle.year : null, vehicle.make, vehicle.model, vehicle.trim]
-            .filter(Boolean)
-            .join(" ") || "Imported vehicle"}
+          {vehicleTitle(vehicle) || "Imported vehicle"}
         </h2>
         {vehicle.vin ? (
           <p className="text-[11px] text-ink-muted mt-0.5">
