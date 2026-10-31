@@ -202,13 +202,13 @@ const CITY_COORDS: Array<{ names: string[]; lat: number; lng: number }> = [
   { names: ["Phoenix"], lat: 33.4484, lng: -112.0740 },
 ];
 
-function cityCoords(city: string): { lat: number; lng: number } | null {
+export function cityCoordinates(city: string): { lat: number; lng: number } | null {
   return CITY_COORDS.find((c) => c.names.some((n) => city.includes(n))) ?? null;
 }
 
 /** True when the distance to this dealer city is a real city placement, false when it would fall back to the state centroid (every such dealer in a state shares one distance). */
 export function isCityPlaced(city: string): boolean {
-  return cityCoords(city) !== null;
+  return cityCoordinates(city) !== null;
 }
 
 // Calculate exact Haversine Distance in Miles between user ZIP and dealer location
@@ -222,7 +222,7 @@ export function calculateDistanceMiles(
   let dealerLng = dealer.lng;
 
   if (!dealerLat || !dealerLng) {
-    const placed = cityCoords(dealer.city);
+    const placed = cityCoordinates(dealer.city);
     if (placed) { dealerLat = placed.lat; dealerLng = placed.lng; }
     else {
       const centroid = STATE_CENTROIDS[(dealer.state || "").toUpperCase()];

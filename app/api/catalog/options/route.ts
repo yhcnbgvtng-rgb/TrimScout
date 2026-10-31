@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { catalogOptions, InventoryApiError } from "@/lib/inventoryApi";
+import { normalizeColorFacets } from "@/lib/colorFacets";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,9 @@ export async function GET(req: Request) {
       model: sp.get("model") || undefined,
       trim: sp.get("trim") || undefined,
     });
-    return NextResponse.json(result, { headers: { "Cache-Control": "private, max-age=60" } });
+    // Colour values are cleaned here (codes and junk dropped, duplicates merged); the search maps a chosen clean value back to every stored spelling.
+    const cleaned = { ...result, exteriorColors: normalizeColorFacets(result.exteriorColors ?? []).values, interiorColors: normalizeColorFacets(result.interiorColors ?? []).values };
+    return NextResponse.json(cleaned, { headers: { "Cache-Control": "private, max-age=60" } });
   } catch (err) {
     const message = err instanceof InventoryApiError ? err.message : "Could not load catalog options.";
     const status = err instanceof InventoryApiError ? (err.status === 503 ? 503 : err.status === 400 || err.status === 404 ? err.status : 502) : 502;
