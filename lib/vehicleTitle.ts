@@ -21,5 +21,7 @@ export function modelEndsWithTrim(model: string | null | undefined, trim: string
 
 export function vehicleTitle(v: VehicleTitleParts): string {
   const trim = modelEndsWithTrim(v.model, v.trim) ? null : v.trim;
-  return [v.year, v.make, v.model, trim].filter(Boolean).join(" ");
+  // A model that only repeats the make ("BMW" under make "BMW") is the box's stand-in for an unknown model: say nothing.
+  const model = norm(v.model || "") === norm(v.make || "") ? null : v.model;
+  return [v.year, v.make, model, trim].filter(Boolean).join(" ");
 }

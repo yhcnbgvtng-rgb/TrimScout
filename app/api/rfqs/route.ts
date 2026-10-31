@@ -4,6 +4,7 @@ import { parseQuotePrefs } from "@/lib/usedQuote";
 import { gateStagedPrefs } from "@/lib/dealStages";
 import { auth } from "@/auth";
 import { createRfq, listRfqsForBuyer, RfqApiError, submitRfqTradeIn, walkAwayFromRfq } from "@/lib/rfqApi";
+import { repairLinkPastes, resolveRfqVehicle } from "@/lib/rfqVehicle";
 import { s3Storage } from "@/lib/trade/storage";
 import { adoptDraftIntoRfq, prepareTradeForRfq } from "@/lib/trade/service";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
@@ -81,9 +82,12 @@ export async function POST(req: Request) {
     }
   }
   const packageKind: "match" | "links" = body?.packageKind === "links" ? "links" : "match";
-  if (!body?.vin || !body?.vehicleMake || !body?.vehicleModel || (packageKind === "match" && !body?.vehicleTrim)) {
-    return NextResponse.json({ error: "A specific matched vehicle is required." }, { status: 400 });
+  // A VIN, make and year are the identity; model and trim are labels, repaired from the VIN where it says what they are.
+  const vehicleCheck = resolveRfqVehicle({ vin: body?.vin, year: body?.vehicleYear, make: body?.vehicleMake, model: body?.vehicleModel, trim: body?.vehicleTrim });
+  if (!vehicleCheck.ok) {
+    return NextResponse.json({ error: vehicleCheck.error }, { status: 400 });
   }
+  const vehicle = vehicleCheck.vehicle;
   // Two kinds of package. "match" is the factory-option flow, and keeps its
   // hard gate: every must-have a confirmed hit. "links" is the v1 core loop
   // — the buyer pasted dealer listings; there is no option match to gate
@@ -164,13 +168,13 @@ export async function POST(req: Request) {
       buyerUserId: ownerId,
       vin: body.vin,
       stockNumber: body.stockNumber ?? null,
-      vehicleYear: body.vehicleYear,
-      vehicleMake: body.vehicleMake,
-      vehicleModel: body.vehicleModel,
-      vehicleTrim: body.vehicleTrim || "",
+      vehicleYear: vehicle.year,
+      vehicleMake: vehicle.make,
+      vehicleModel: vehicle.model,
+      vehicleTrim: vehicle.trim,
       mustHaves: packageKind === "match" ? body.mustHaves : [],
       packageKind,
-      linkPastes: packageKind === "links" ? body.linkPastes : undefined,
+      linkPastes: packageKind === "links" ? repairLinkPastes(body.linkPastes) : undefined,
       dealReference: typeof body.dealReference === "string" ? body.dealReference : null,
       leasePrefs: parseLeasePrefs(body.leasePrefs),
       // Used cars: Finance / Cash only. A lease ask on a used car is refused

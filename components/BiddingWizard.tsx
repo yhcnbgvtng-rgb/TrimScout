@@ -103,6 +103,7 @@ import {
 } from "lucide-react";
 import { filterMustHaveOptions, formatOptionPrice, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { vehicleTitle } from "../lib/vehicleTitle";
+import { repairVehicleIdentity } from "../lib/rfqVehicle";
 
 type FilterableFactoryOption = FactoryFilterableOption;
 
@@ -2508,7 +2509,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // invite loop and the desk plan work the same way. The box stores the ask, not a vehicle.
     const pastes: DealerLinkPaste[] = alternateLane
       ? altDealers.slice(0, MAX_PACKAGE_LINKS).map((d) => ({ raw: "", kind: "vin" as const, vin: "", year: 0, make: "", model: "", trim: "", dealerName: d.dealerName, dealerState: (d.state || "").toUpperCase() || null, vdpUrl: null, buildConfidence: "dealer_listing_only" as const, resolvedAt: new Date().toISOString() }))
-      : vehicles.map((v) => ({
+      : vehicles.map((rawV) => {
+      const v = { ...rawV, ...repairVehicleIdentity(rawV) };
+      return {
       raw: v.dealerUrl || v.vin,
       kind: v.dealerUrl ? "url" : "vin",
       vin: v.vin,
@@ -2524,7 +2527,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       // Sticker MSRP, only on a verified factory build — the dealer sheet shows price + add-ons + doc fee as a % of it.
       msrp: v.buildConfidence === "verified_factory" && v.msrp > 0 ? v.msrp : null,
       ...(isUsedCondition(v.condition) ? { condition: v.condition } : {}),
-    }));
+    };
+    });
     const toSend = pastes.filter(
       (p) => p.dealerName && deskPlan.rows[p.dealerName]?.checked
     );
