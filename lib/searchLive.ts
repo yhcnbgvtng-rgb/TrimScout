@@ -40,9 +40,13 @@ export function facetCount(f: LiveFilterShape, facets: FacetLists): number | nul
   return facets.makes.length ? sum(facets.makes) : null;
 }
 
-/** The count comes from a limit=1 search only when a filter the facets cannot see is set and the server will accept the query (it needs a make, and options need a model). */
+/**
+ * The count comes from a limit=1 search whenever a make is picked and the server will accept the query (options need a model): the API
+ * total is the one number the header, the results line and "Show N vehicles" all use, so it reflects every active filter (contact, radius ...).
+ * Facet counts are scoped to state/make/model only and are used just before a make is picked.
+ */
 export function needsServerCount(f: LiveFilterShape): boolean {
-  if (!hasNonFacetFilter(f) || !f.make) return false;
+  if (!f.make) return false;
   if (f.optionKeys.length && !f.model) return false;
   return true;
 }

@@ -18,18 +18,20 @@ export default function VinLookup<V>({ onResult, onClear, active }: { onResult: 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const q = normalizeVinQuery(text);
-    if (!q.ok) { setError(q.error); return; }
+    if (!q.ok) { setError(q.error); onClear(); return; }
     setText(q.vin);
     setError(null);
+    onClear(); // the previous lookup's rows go the moment a new one starts; the button reads "Looking…" until the answer lands
     setBusy(true);
     try {
       const res = await fetch(`/api/vehicles/vin?vin=${encodeURIComponent(q.vin)}`, { cache: "no-store" });
       const json = await res.json().catch(() => null);
-      if (!res.ok) { setError((json && json.error) || "Could not look up that VIN right now."); return; }
+      if (!res.ok) { setError((json && json.error) || "Could not look up that VIN right now."); onClear(); return; }
       if (!json.vehicles?.length) { setError(VIN_NO_MATCH); onClear(); return; }
       onResult({ vin: q.vin, vehicles: json.vehicles, truncated: Boolean(json.truncated) });
     } catch {
       setError("Could not look up that VIN right now.");
+      onClear();
     } finally {
       setBusy(false);
     }

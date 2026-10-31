@@ -63,7 +63,7 @@ describe("columns", () => {
     const view = fs.readFileSync(new URL("../components/BuyerSearchView.tsx", import.meta.url), "utf8");
     const block = view.slice(view.indexOf("const TABLE_COLUMNS"), view.indexOf("const ROW_H"));
     const keys = [...block.matchAll(/\{ key: "(\w+)"/g)].map((m) => m[1]);
-    assert.deepEqual(keys, ["pick", "days", "vehicleId", "vin", "year", "make", "model", "trim", "ext", "int", "mileage", "price", "dealer", "state", "contact", "listing", "distance"], "the locked column order");
+    assert.deepEqual(keys, ["pick", "year", "make", "model", "trim", "price", "dealer", "state", "contact", "listing", "vehicleId", "vin", "ext", "int", "mileage", "distance"], "the locked column order");
     for (const k of keys) assert.equal(isSortableColumn(k), k !== "pick", k);
   });
 });

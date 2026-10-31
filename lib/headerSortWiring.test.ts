@@ -57,7 +57,7 @@ describe("a sort that fails is undone, not left blank", () => {
     assert.equal((run.match(/setSortNote\(SORT_TIMEOUT_NOTE\(attempt\.label\)\)/g) || []).length, 2, "both the HTTP-error and the network-error paths");
     assert.equal((run.match(/sort: attempt\.prev/g) || []).length, 4, "filters and applied are both restored, in both paths");
     assert.match(run, /const attempt = sortAttemptRef\.current;\s*if \(attempt && offset === 0\) \{/);
-    assert.match(run, /sortAttemptRef\.current = null;\s*setSearchError\(null\);\s*const lastPageCount/, "a successful search clears the pending attempt");
+    assert.match(run, /sortAttemptRef\.current = null;\s*setSearchError\(null\);\s*\/\/[^\n]*\n\s*setResults/, "a successful search clears the pending attempt");
   });
   it("the note is shown above the table", () => {
     assert.match(page, /\{sortNote && <p role="status" data-testid="sort-note"/);
@@ -76,7 +76,7 @@ describe("the request", () => {
 
 describe("the sort sticks", () => {
   it("through paging: Load more re-runs the SAME applied filters (sort included) from where the list ended", () => {
-    assert.match(page, /void runSearch\(applied, results\.vehicles\.length\);/);
+    assert.match(page, /void runSearch\(applied, next\);/);
   });
   it("through filter changes: Search commits the draft, which already carries the sort", () => {
     assert.match(page, /setApplied\(\{ \.\.\.filters \}\);/);

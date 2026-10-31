@@ -403,7 +403,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
             </select>
           </div>
           {p.contactFilterOn && (
-            <label className="flex items-center gap-2 text-sm text-ink-light" title="Only cars whose dealer has a named sales contact on file with us">
+            <label className="flex items-center gap-2 text-sm text-ink-light" title="Only cars whose dealer has a valid sales email on file with us">
               <input type="checkbox" checked={filters.contactOnFile} onChange={(e) => setFilters((f) => ({ ...f, contactOnFile: e.target.checked }))} className={`h-4 w-4 ${RING}`} style={{ accentColor: ACCENT }} />
               Dealer contact on file
             </label>

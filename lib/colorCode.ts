@@ -25,6 +25,11 @@ export function exteriorColorDisplay(raw: string | null | undefined): string {
   return isColorCode(s) ? COLOR_NOT_LISTED : s;
 }
 
+/** A table/card cell for a colour: the name, or "Color not listed" when the feed sent a bare code or nothing at all. */
+export function colorCell(raw: string | null | undefined): string {
+  return exteriorColorDisplay(raw) || COLOR_NOT_LISTED;
+}
+
 /** Colour-filter options: drops code-only values (and blanks) so the filter only offers real names. */
 export function colorFilterOptions(colors: readonly string[]): string[] {
   return colors.filter((c) => !!c && !isColorCode(c));
