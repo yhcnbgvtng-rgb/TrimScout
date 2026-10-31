@@ -19,7 +19,7 @@ import { displayTrim, officialTrimOptions } from "@/lib/fordTrimDisplay";
 import { colorCell, colorFilterOptions } from "@/lib/colorCode";
 import { vehicleTitle, repairVehicleIdentity } from "@/lib/vehicleTitle";
 import { appendDedupeByVin } from "@/lib/onePerVin";
-import { rowsPassingContactFilter } from "@/lib/contactFilter";
+import { rowsPassingContactFilter } from "@/lib/contactRows";
 import type { LiveCountProps } from "./search/LiveCount";
 import VinLookup, { type VinLookupResult } from "./search/VinLookup";
 
