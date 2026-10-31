@@ -91,7 +91,7 @@ describe("wiring — server attaches the analysis, the page renders it, lease de
   it("GET /api/rfqs/:id returns leaseCompare computed from the sanitized rfq; the page prefers it", () => {
     assert.match(read("app/api/rfqs/[id]/route.ts"), /leaseCompare: analyzeLeaseQuotes\(pub\)/);
     const page = read("app/rfq/[id]/page.tsx");
-    assert.match(page, /setLeaseCompare\(\(json\.leaseCompare as LeaseCompareData \| null\) \?\? null\)/);
+    assert.match(page, /setLeaseCompare\(\(r\.json\.leaseCompare as LeaseCompareData \| null\) \?\? null\)/);
     assert.match(page, /<LeaseCompare data=\{leaseCompare \|\| analyzeLeaseQuotes\(rfq\)!\}/);
     assert.match(page, /\{rfq\.leasePrefs && \(\s*<div className="space-y-3">\s*<h2[^>]*>Compare lease quotes/);
     assert.match(page, /quotedInvites\.length > 0 && !rfq\.leasePrefs && !rfq\.quotePrefs && \(/, "new cash/finance keep their own compare; used gets UsedCompare");
