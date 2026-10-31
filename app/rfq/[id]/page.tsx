@@ -6,6 +6,7 @@ import { LeaseCompare } from "@/components/LeaseCompare";
 import { analyzeLeaseQuotes, type LeaseCompare as LeaseCompareData } from "@/lib/leaseCompare";
 import { LeaseQuoteSheet } from "@/components/LeaseQuoteSheet";
 import { UsedCompare } from "@/components/UsedCompare";
+import { dealPageRequest } from "@/lib/dealPageRequest";
 import { DealThreadPanel } from "@/components/DealThreadPanel";
 import { StagedDeals } from "../../../components/StagedDeals";
 import { AddTradeInPrompt } from "../../../components/AddTradeInPrompt";
@@ -379,15 +380,15 @@ export default function RfqWorkspacePage() {
   const [threadInviteId, setThreadInviteId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/rfqs/${rfqId}`, { headers: guest.headers });
-    const json = await res.json();
-    if (!res.ok) {
-      setLoadError(json.error || "Could not load this request.");
+    setLoadError(null);
+    const r = await dealPageRequest<any>(`/api/rfqs/${rfqId}`, { headers: guest.headers }, "Could not load this request.");
+    if (!r.ok) {
+      setLoadError(r.error);
       return;
     }
-    setRfq(json.rfq);
-    setLeaseCompare((json.leaseCompare as LeaseCompareData | null) ?? null);
-    setStickerRecheck((json.stickerRecheck as typeof stickerRecheck) || {});
+    setRfq(r.json.rfq);
+    setLeaseCompare((r.json.leaseCompare as LeaseCompareData | null) ?? null);
+    setStickerRecheck((r.json.stickerRecheck as typeof stickerRecheck) || {});
   }, [rfqId, guest.token]);
 
   useEffect(() => {
@@ -404,22 +405,28 @@ export default function RfqWorkspacePage() {
     acceptShare.request(winner?.dealerName || "this dealer", () => handlePick(quoteId));
   };
 
+  // What the Retry button next to an action error runs again.
+  const [retryAction, setRetryAction] = useState<(() => void) | null>(null);
   const handlePick = async (quoteId: string) => {
     setPicking(true);
     setPickError(null);
-    const res = await fetch(`/api/rfqs/${rfqId}/pick`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...guest.headers },
-      body: JSON.stringify({ quoteId }),
-    });
-    const json = await res.json();
-    if (res.ok) {
-      setRfq(json.rfq);
-      setLeaseCompare(null);
-    } else {
-      setPickError(json.error || "Could not record your pick.");
+    setRetryAction(null);
+    try {
+      const r = await dealPageRequest<any>(`/api/rfqs/${rfqId}/pick`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...guest.headers },
+        body: JSON.stringify({ quoteId }),
+      }, "Could not record your pick.");
+      if (r.ok) {
+        setRfq(r.json.rfq);
+        setLeaseCompare(null);
+      } else {
+        setPickError(r.error);
+        setRetryAction(() => () => handlePick(quoteId));
+      }
+    } finally {
+      setPicking(false);
     }
-    setPicking(false);
   };
 
   // Buyer counter to one desk: the box supersedes that quote and reopens
@@ -440,13 +447,20 @@ export default function RfqWorkspacePage() {
 
   const handleWalk = async () => {
     setWalking(true);
-    const res = await fetch(`/api/rfqs/${rfqId}/walk`, { method: "POST", headers: guest.headers });
-    const json = await res.json();
-    if (res.ok) {
-      setRfq(json.rfq);
-      setLeaseCompare(null);
+    setPickError(null);
+    setRetryAction(null);
+    try {
+      const r = await dealPageRequest<any>(`/api/rfqs/${rfqId}/walk`, { method: "POST", headers: guest.headers }, "Could not record that you walked away.");
+      if (r.ok) {
+        setRfq(r.json.rfq);
+        setLeaseCompare(null);
+      } else {
+        setPickError(r.error);
+        setRetryAction(() => () => handleWalk());
+      }
+    } finally {
+      setWalking(false);
     }
-    setWalking(false);
   };
 
   if (sessionStatus === "loading" || !guest.ready) {
@@ -463,7 +477,12 @@ export default function RfqWorkspacePage() {
     );
   }
   if (loadError) {
-    return <div className="mx-auto max-w-3xl px-4 py-16 text-center text-sm text-rose-400">{loadError}</div>;
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-3" data-testid="load-error">
+        <p className="text-sm text-rose-400">{loadError}</p>
+        <button onClick={() => void load()} className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-white hover:bg-surface" data-testid="load-retry">Retry</button>
+      </div>
+    );
   }
   if (!rfq) {
     return <div className="mx-auto max-w-3xl px-4 py-16 text-center text-sm text-ink-muted">Loading your request…</div>;
@@ -529,6 +548,7 @@ export default function RfqWorkspacePage() {
           {pickError && (
             <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
               {pickError}
+              {retryAction ? <button onClick={retryAction} className="ml-3 font-semibold underline" data-testid="action-retry">Retry</button> : null}
             </div>
           )}
 
@@ -616,6 +636,7 @@ export default function RfqWorkspacePage() {
           {pickError && (
             <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">
               {pickError}
+              {retryAction ? <button onClick={retryAction} className="ml-3 font-semibold underline" data-testid="action-retry">Retry</button> : null}
             </div>
           )}
 
