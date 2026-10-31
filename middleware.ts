@@ -72,6 +72,18 @@ const RULES: { match: (path: string) => boolean; limit: number; windowMs: number
   // Unauthenticated by design (an invited dealer has no account yet), so
   // gated here against token-guessing the same way /api/auth/signup is.
   { match: (p) => p === "/api/dealer-signup-invite", limit: 20, windowMs: 60_000 },
+  // Public, unauthenticated lookups over the dealer directory and inventory.
+  // Per-IP caps keep one client from scraping them. vehicles/search is
+  // generous: a radius search is one browser request (the route's own page
+  // fetches to the box never pass through here), but scrolling and filter
+  // changes fire many.
+  { match: (p) => p === "/api/dealer-contact", limit: 30, windowMs: 60_000 },
+  { match: (p) => p === "/api/quote-desks", limit: 30, windowMs: 60_000 },
+  { match: (p) => p === "/api/desk-resolve", limit: 20, windowMs: 60_000 },
+  { match: (p) => p === "/api/dealer-search", limit: 120, windowMs: 60_000 },
+  { match: (p) => p.startsWith("/api/vehicles/search"), limit: 120, windowMs: 60_000 },
+  { match: (p) => p.startsWith("/api/vehicles/vin"), limit: 30, windowMs: 60_000 },
+  { match: (p) => p.startsWith("/api/catalog/"), limit: 120, windowMs: 60_000 },
 ];
 
 export function middleware(req: NextRequest) {
@@ -97,5 +109,12 @@ export const config = {
     "/api/deal-requests/:path*",
     "/api/rfqs/:path*",
     "/api/dealer-signup-invite",
+    "/api/dealer-contact",
+    "/api/quote-desks",
+    "/api/desk-resolve",
+    "/api/dealer-search",
+    "/api/vehicles/search",
+    "/api/vehicles/vin/:path*",
+    "/api/catalog/:path*",
   ],
 };
