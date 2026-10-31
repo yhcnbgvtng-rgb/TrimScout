@@ -45,6 +45,8 @@ export interface SearchFilterBarProps {
   clearAll: () => void;
   contactFilterOn: boolean;
   blockedReason: string | null;
+  /** A VIN lookup is showing in place of the filter results: the "pick a make" / "filters changed" hint is about those results, so it is hidden. */
+  hintHidden?: boolean;
   dirty: boolean;
   searchLoading: boolean;
   submitSearch: () => void;
@@ -443,7 +445,7 @@ export function SearchFilterBar(p: SearchFilterBarProps) {
 
       <div className="mt-3 min-h-[1rem] text-center text-xs text-ink-muted">
         {p.facetsFailed && !p.facetsLoading && <p role="status" className="text-amber-300">Couldn&apos;t refresh the counts just now, so they&apos;re hidden. Change a filter to try again.</p>}
-        {(p.blockedReason || p.dirty) && <p>{p.blockedReason ?? "Filters changed — press the green button to update the results."}</p>}
+        {!p.hintHidden && (p.blockedReason || p.dirty) && <p>{p.blockedReason ?? "Filters changed — press the green button to update the results."}</p>}
         {p.excludedHidden > 0 && <p data-testid="excluded-note">{p.excludedHidden.toLocaleString()} car{p.excludedHidden === 1 ? "" : "s"} hidden by &ldquo;Leave out&rdquo;.</p>}
       </div>
     </section>
