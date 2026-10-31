@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, lotAgeHint, resolveLogEntry } from "./resolvePath";
+import { classifyResolvePath, dealerFromVdp, factoryBuildStateLine, resolveLogEntry } from "./resolvePath";
 import type { Vehicle } from "./types";
 
 const VIN = "2T36CRAVXTC39J403";
@@ -50,16 +50,11 @@ describe("factoryBuildStateLine — the honest line under a car with no factory 
       factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only" })),
       "Factory build not published yet — details come from the VIN decode; the dealer confirms the build when they quote."
     );
-    assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 14 }))!, /· on the lot 14 days$/);
-    assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 1 }))!, /on the lot 1 day$/);
-    assert.doesNotMatch(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot: 0 }))!, /on the lot/);
+    // Buyers never see days on the lot, however long the crawl says the car has sat.
+    for (const daysOnLot of [0, 1, 14]) assert.doesNotMatch(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", daysOnLot }))!, /on the lot|\bdays?\b/i);
   });
   it("an OEM's own pending note or a sticker-service outage leads instead of the generic line", () => {
     assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", stickerPendingNote: "Hyundai posts labels a few days after listing." }))!, /^Hyundai posts labels/);
-    assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", stickerUnavailableReason: "GM's sticker service didn't answer.", daysOnLot: 3 }))!, /^GM's sticker service didn't answer\. · on the lot 3 days$/);
-  });
-  it("lotAgeHint alone", () => {
-    assert.equal(lotAgeHint({ daysOnLot: 0 }), null);
-    assert.equal(lotAgeHint({ daysOnLot: 5 }), "on the lot 5 days");
+    assert.match(factoryBuildStateLine(car({ buildConfidence: "dealer_listing_only", stickerUnavailableReason: "GM's sticker service didn't answer.", daysOnLot: 3 }))!, /^GM's sticker service didn't answer\.$/);
   });
 });

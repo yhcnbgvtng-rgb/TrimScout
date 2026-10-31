@@ -29,9 +29,9 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ matches: [], degraded: true });
   }
-  // A rooftop that unsubscribed is off the desk for new RFQs until it re-subscribes.
-  const active = rows.filter((r) => !r.emailOptOut);
-  const hits = searchDirectoryDealerships(active, q, { state, limit: LIMIT });
+  // An opted-out rooftop stays findable (match.emailOptOut): we never email its own address, but the buyer can
+  // still add their own sales advisor there. The wizard locks the desk until they do.
+  const hits = searchDirectoryDealerships(rows, q, { state, limit: LIMIT });
   return NextResponse.json({
     matches: hits.map((h) => deskMatchFromContact(h.row, Boolean(deskFromDealership(h.row)?.knownNamed))),
     state,

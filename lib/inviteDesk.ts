@@ -26,6 +26,18 @@ import {
 
 export type InviteDeskOutcome = { ok: true; desk: DealerDesk | null } | { ok: false; code: InviteBlockReason; error: string; status: number };
 
+/**
+ * The buyer's own sales adviser (a personal, non-shared address they typed) stands in for a missing named contact.
+ * An opted-out rooftop is closed to its own address, but the adviser may still take the request; it goes to the
+ * adviser alone, never to the dealership's own or opted-out address. A shared inbox is not an adviser: the
+ * directory desk (and its opt-out) stays as it was.
+ */
+export function withBuyerAdvisor(desk: DealerDesk | null, input: { dealerName: string; dealerState: string; providedEmail?: string | null; rowOptedOut?: boolean }): DealerDesk | null {
+  const optedOut = Boolean(input.rowOptedOut || desk?.emailOptOut);
+  if ((desk?.knownNamed && !optedOut) || typeof input.providedEmail !== "string" || !input.providedEmail.trim()) return desk;
+  return deskFromBuyerEmail(input.dealerName, input.dealerState, input.providedEmail) || desk;
+}
+
 export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: string; dealerState: string; dealerId?: string | number | null; providedEmail?: string | null }): Promise<InviteDeskOutcome> {
   const dealerName = input.dealerName.trim();
   const dealerState = (input.dealerState || "").trim();
@@ -33,9 +45,7 @@ export async function resolveInviteDesk(rfq: RfqRequest, input: { dealerName: st
   const directory = await listDealerships().catch(() => []);
   const row = matchDirectoryDealership(directory, { dealerName, state: dealerState, dealerId: input.dealerId });
   let desk: DealerDesk | null = row ? deskFromDealership(row) : null;
-  if (!desk?.knownNamed && typeof input.providedEmail === "string" && input.providedEmail.trim()) {
-    desk = deskFromBuyerEmail(dealerName, dealerState, input.providedEmail) || desk;
-  }
+  desk = withBuyerAdvisor(desk, { dealerName, dealerState, providedEmail: input.providedEmail, rowOptedOut: Boolean(row?.emailOptOut) });
   if (!desk?.knownNamed) {
     desk = row ? deskFromRooftop(row) : { dealerName, dealerState: dealerState.toUpperCase() || null, contactName: "Sales desk", role: "sales", email: "", emailDomain: "", source: "rooftop", knownNamed: false, emailOptOut: false };
   }

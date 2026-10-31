@@ -60,8 +60,8 @@ export function logResolve(entry: ResolveLogEntry): void {
 }
 
 /**
- * The honest line under a car with no factory build: what we have instead,
- * and how long the car has sat when our crawl knows. Null when a real
+ * The honest line under a car with no factory build: what we have instead.
+ * Null when a real
  * sticker was read (nothing to explain) or the car is pre-owned (no
  * factory build is expected).
  */
@@ -69,14 +69,7 @@ export function factoryBuildStateLine(vehicle: Pick<Vehicle, "buildConfidence" |
   if (!vehicle) return null;
   if (vehicle.condition === "used" || vehicle.condition === "cpo") return null;
   if (vehicle.buildConfidence !== "dealer_listing_only") return null;
-  const age = lotAgeHint(vehicle);
-  if (vehicle.stickerUnavailableReason) return `${vehicle.stickerUnavailableReason}${age ? ` · ${age}` : ""}`;
-  const head = vehicle.stickerPendingNote || "Factory build not published yet — details come from the VIN decode; the dealer confirms the build when they quote.";
-  return age ? `${head} · ${age}` : head;
-}
-
-export function lotAgeHint(vehicle: Pick<Vehicle, "daysOnLot">): string | null {
-  const days = vehicle.daysOnLot;
-  if (typeof days === "number" && days > 0) return `on the lot ${days} day${days === 1 ? "" : "s"}`;
-  return null;
+  // Buyers never see how long a car has sat (days on lot / first seen stay admin-only).
+  if (vehicle.stickerUnavailableReason) return vehicle.stickerUnavailableReason;
+  return vehicle.stickerPendingNote || "Factory build not published yet — details come from the VIN decode; the dealer confirms the build when they quote.";
 }

@@ -43,6 +43,11 @@ export function vinPasteError(
 
 
 
+/** The pending note for a make with no window-sticker source; named for the car's own make, never the route's. */
+export function noStickerNote(makeLabel: string): string {
+  return `Window sticker isn't available for ${makeLabel} on TrimScout — details come from the VIN decode; the dealer confirms the exact build when they quote.`;
+}
+
 export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig) {
   const { make, looksLikePaste, notFlag } = config;
 
@@ -61,7 +66,8 @@ export function createListingFeedStickerHandlers(config: ListingFeedRouteConfig)
     return NextResponse.json({
       ...free.payload,
       stickerPending: true,
-      stickerPendingNote: `Window sticker isn't available for ${make.label} on TrimScout — details come from the VIN decode; the dealer confirms the exact build when they quote.`,
+      // The vehicle's own make (NHTSA decode), not this route's: a Hyundai VIN can land on the Kia route.
+      stickerPendingNote: noStickerNote(free.vehicle?.make?.trim() || make.label),
     });
   }
 
