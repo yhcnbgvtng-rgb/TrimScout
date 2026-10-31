@@ -8,7 +8,7 @@
  import { createRfqStageHandler } from "./rfqStages.js";
  import { createRfqMessagesHandler } from "./rfqMessages.js";
  import { createChatAdminHandlers } from "./rfqChatAdmin.js";
-@@ -3046,7 +3047,7 @@
+@@ -3050,7 +3051,7 @@
    // --- DOM by model / dealer / trim / year / drivetrain / powertrain
    const byModel = (await q(`SELECT i.make, i.model, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount, SUM(i.window_sticker_url IS NOT NULL) AS withSticker ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL GROUP BY i.make, i.model ORDER BY n DESC LIMIT 400`)).map(shape);
    attachMedian(byModel, await medians("i.make, i.model", "i.make AS make, i.model AS model", "make, model"), ["make", "model"]);
@@ -17,7 +17,7 @@
    attachMedian(byDealer, await medians("i.dealer_id", "i.dealer_id AS dealerId", "dealerId"), ["dealerId"]);
    const byTrim = (await q(`SELECT i.make, i.model, i.trim, COUNT(*) AS n, AVG(${INV_DOM}) AS avgDom, ${INV_BANDS}, AVG(CASE WHEN i.msrp > 0 AND i.price > 0 THEN (i.msrp - i.price) / i.msrp END) AS avgDiscount ${stock} AND i.make IS NOT NULL AND i.model IS NOT NULL AND i.trim IS NOT NULL AND i.trim <> '' GROUP BY i.make, i.model, i.trim HAVING n >= 2 ORDER BY n DESC LIMIT 400`)).map(shape);
    attachMedian(byTrim, await medians("i.make, i.model, i.trim", "i.make AS make, i.model AS model, i.trim AS trim", "make, model, trim"), ["make", "model", "trim"]);
-@@ -3083,18 +3084,32 @@
+@@ -3087,18 +3088,32 @@
  
    // --- Coverage by brand (dealer-level coverage rides on byDealer).
    const coverageByMake = await q(`SELECT i.make, COUNT(*) AS n, SUM(i.window_sticker_url IS NOT NULL) AS withSticker, SUM(i.options_json IS NOT NULL) AS withOptions, SUM(i.price IS NULL OR i.price <= 0) AS missingPrice, SUM(i.image_url IS NULL OR i.image_url = '') AS missingPhoto ${stock} AND i.make IS NOT NULL GROUP BY i.make ORDER BY n DESC LIMIT 60`).then((rows) => rows.map((r) => ({ make: r.make, n: Number(r.n), withSticker: Number(r.withSticker || 0), withOptions: Number(r.withOptions || 0), missingPrice: Number(r.missingPrice || 0), missingPhoto: Number(r.missingPhoto || 0) })));
