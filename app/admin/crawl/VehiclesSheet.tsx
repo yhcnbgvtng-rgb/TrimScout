@@ -25,11 +25,11 @@ import {
 } from "@/lib/vehicleFilters";
 import type { DropdownOption } from "@/components/search/SearchableDropdown";
 import { MultiPill, PillShell } from "@/components/admin/FilterPill";
+import { NUMERIC_KEYS, computeColWidths } from "@/lib/vehicleColWidths";
 import VinHistory from "./VinHistory";
 
 type Stats = { total: number; inStock: number; dealers: number | null; vins?: number | null; lastSeenAt: string | null; movement?: { arrivals: number; priceDrops: number; priceIncreases: number; withSticker: number | null; removedToday: number } };
 const SORT_FOR: Partial<Record<keyof VehicleRow, SortKey>> = { dealerName: "dealer", year: "year", make: "make", model: "model", price: "price", mileage: "mileage", lastSeenAt: "seen", daysOnLot: "days", priceDiff: "pricediff", msrp: "msrp" };
-const COL_W: Partial<Record<keyof VehicleRow, number>> = { dealerName: 240, dealerState: 60, dealerCity: 130, condition: 90, year: 64, make: 110, model: 130, trim: 190, vehicleId: 90, vin: 170, stockNumber: 100, price: 90, priceDiff: 90, msrp: 90, mileage: 80, daysOnLot: 90, changeType: 110, windowStickerUrl: 120, exteriorColor: 170, interiorColor: 150, bodyStyle: 100, engine: 200, transmission: 200, options: 260, optionsTotal: 90, vdpUrl: 260, crawlFirstSeen: 110, firstSeenAt: 140, lastSeenAt: 140, removedAt: 100, source: 90, sourceBox: 70 };
 const PAGE = 500;
 const ROW_H = 32;
 // "Load all" asks for confirmation above this many rows (an estimate from the stats call). Not a CSV limit.
@@ -41,6 +41,16 @@ const CONDITIONS: Array<[string, string]> = [["new", "New"], ["used", "Used"], [
 
 const money = (n: number | null) => (n == null ? "" : `$${n.toLocaleString()}`);
 const condLabel = (c: string | null) => ({ new: "New", used: "Used", cpo: "Certified" } as Record<string, string>)[c || ""] || (c || "—");
+// The text a cell shows (also what the column widths are measured from).
+const cellText = (r: VehicleRow, key: keyof VehicleRow): string => {
+  const raw = vehicleRowCell(r, key);
+  const diff = r.priceDiff ?? null;
+  return key === "price" || key === "msrp" || key === "optionsTotal" ? money((r[key] as number | null | undefined) ?? null)
+    : key === "priceDiff" ? (diff == null || diff === 0 ? "" : `${diff < 0 ? "▼" : "▲"} $${Math.abs(diff).toLocaleString()}`)
+    : key === "mileage" && r.mileage != null ? r.mileage.toLocaleString()
+    : key === "condition" ? condLabel(r.condition)
+    : key === "options" && r.options?.length ? `${r.options.length} · ${raw}` : raw;
+};
 
 function toOptions<T>(rows: T[], valueKey: keyof T, countKey: keyof T): DropdownOption[] {
   return rows.map((r) => ({ value: String(r[valueKey]), label: valueKey === "trim" ? cleanTrimText(String(r[valueKey])) || String(r[valueKey]) : String(r[valueKey]), count: Number(r[countKey]) || 0 }));
@@ -233,7 +243,14 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
 
   const shownRows = useMemo(() => (firstSeenDir ? [...rows].sort((a, b) => (firstSeenDir === "asc" ? 1 : -1) * (a.firstSeenAt || "").localeCompare(b.firstSeenAt || "")) : rows), [rows, firstSeenDir]);
   const onHeader = (key: keyof VehicleRow) => { if (key === "firstSeenAt") { setFirstSeenDir(firstSeenDir === "desc" ? "asc" : "desc"); return; } const sk = SORT_FOR[key]; if (!sk) return; setFirstSeenDir(null); setSort(() => (sort.key === sk ? { key: sk, dir: sort.dir === "asc" ? "desc" : "asc" } : { key: sk, dir: sk === "price" || sk === "year" || sk === "seen" || sk === "days" || sk === "msrp" ? "desc" : "asc" })); };
-  const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (COL_W[c.key] || 120), 0);
+  // Column widths fit the rows on the page (lib/vehicleColWidths.ts); a column blank on every row shrinks to its header.
+  const colW = useMemo(() => {
+    const texts: Record<string, string[]> = {};
+    for (const c of VEHICLE_SHEET_COLUMNS) texts[c.key] = shownRows.map((r) => cellText(r, c.key));
+    const hasBadge = shownRows.some((r) => r.dealerId && blockedFlagText(blocked.get(String(r.dealerId))));
+    return computeColWidths(VEHICLE_SHEET_COLUMNS.map((c) => ({ key: c.key, label: c.label, sortable: c.key === "firstSeenAt" || !!SORT_FOR[c.key] })), texts, hasBadge ? { dealerName: 100 } : {});
+  }, [shownRows, blocked]);
+  const totalW = VEHICLE_SHEET_COLUMNS.reduce((s, c) => s + (colW[c.key] || 120), 0);
   const canLoadMore = rows.length > 0 && (totalCapped ? lastPageFull : rows.length < total);
   const totalLabel = `${total.toLocaleString()}${totalCapped ? "+" : ""}`;
   const chipGroups: Array<{ field: "states" | "makes" | "models" | "trims"; label: string }> = [
@@ -341,7 +358,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                 const dir = isFirst ? firstSeenDir : sort.dir;
                 const active = isFirst ? firstSeenDir !== null : sk && !firstSeenDir && sort.key === sk;
                 return (
-                  <button key={c.key} type="button" onClick={() => onHeader(c.key)} disabled={!sk} title={isFirst ? "Sort the loaded rows by First seen" : sk ? `Sort by ${c.label}` : undefined} className="flex items-center gap-1 border-r border-border/60 px-2.5 text-left text-[10.5px] font-black uppercase tracking-wider text-ink-faint enabled:hover:text-white shrink-0" style={{ width: COL_W[c.key] || 120 }}>
+                  <button key={c.key} type="button" onClick={() => onHeader(c.key)} disabled={!sk} title={isFirst ? "Sort the loaded rows by First seen" : sk ? `Sort by ${c.label}` : undefined} className={`flex items-center gap-1 border-r border-border/60 px-2.5 text-left text-[10.5px] font-black uppercase tracking-wider text-ink-faint enabled:hover:text-white shrink-0 ${NUMERIC_KEYS.has(c.key) ? "justify-end" : ""}`} style={{ width: colW[c.key] || 120 }}>
                     <span className="truncate">{c.label}</span>
                     {sk ? (active ? (dir === "asc" ? <ArrowUp className="h-3 w-3 text-brand-400 shrink-0" /> : <ArrowDown className="h-3 w-3 text-brand-400 shrink-0" />) : <ArrowUpDown className="h-3 w-3 opacity-30 shrink-0" />) : null}
                   </button>
@@ -365,11 +382,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                   {VEHICLE_SHEET_COLUMNS.map((c) => {
                     const raw = vehicleRowCell(r, c.key);
                     const diff = r.priceDiff ?? null;
-                    const v = c.key === "price" || c.key === "msrp" || c.key === "optionsTotal" ? money((r[c.key] as number | null | undefined) ?? null)
-                      : c.key === "priceDiff" ? (diff == null || diff === 0 ? "" : `${diff < 0 ? "▼" : "▲"} $${Math.abs(diff).toLocaleString()}`)
-                      : c.key === "mileage" && r.mileage != null ? r.mileage.toLocaleString()
-                      : c.key === "condition" ? condLabel(r.condition)
-                      : c.key === "options" && r.options?.length ? `${r.options.length} · ${raw}` : raw;
+                    const v = cellText(r, c.key);
                     const tone = c.key === "dealerName" ? "font-semibold text-white" : c.key === "vin" || c.key === "stockNumber" || c.key === "vehicleId" ? "font-mono text-ink-light"
                       : c.key === "priceDiff" ? `tabular-nums justify-end font-bold ${diff != null && diff < 0 ? "text-positive-300" : diff != null && diff > 0 ? "text-amber-300" : "text-ink-faint"}`
                       : c.key === "price" || c.key === "msrp" || c.key === "mileage" || c.key === "daysOnLot" || c.key === "optionsTotal" ? "tabular-nums text-ink-light justify-end"
@@ -378,7 +391,7 @@ export default function VehiclesSheet({ initialVin = null }: { initialVin?: stri
                     const link = c.key === "vdpUrl" || c.key === "windowStickerUrl" ? raw : "";
                     const blockedText = c.key === "dealerName" && r.dealerId ? blockedFlagText(blocked.get(String(r.dealerId))) : null;
                     return (
-                      <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: COL_W[c.key] || 120 }} title={blockedText ?? raw}>
+                      <div key={c.key} className={`flex items-center border-r border-border/40 px-2.5 shrink-0 overflow-hidden whitespace-nowrap ${tone}`} style={{ width: colW[c.key] || 120 }} title={blockedText ?? (v || raw)}>
                         {link ? <a href={link} target="_blank" rel="noopener noreferrer" className="truncate text-sky-300 hover:underline">{c.key === "windowStickerUrl" ? "sticker ↗" : link.replace(/^https?:\/\/(www\.)?/, "")}</a>
                           : c.key === "vin" ? <button type="button" onClick={() => setVinOpen(r.vin)} title="Day-by-day history" className="truncate font-mono text-sky-300 hover:underline">{r.vin}</button>
                           : blockedText ? <><span className="truncate">{v}</span><span className="ml-2 shrink-0 rounded bg-amber-500/15 px-1.5 text-[10px] font-semibold text-amber-300" title={blockedText}>{BLOCKED_NO_BYPASS_LABEL}</span></>
