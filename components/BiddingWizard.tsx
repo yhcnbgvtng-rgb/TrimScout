@@ -1,5 +1,6 @@
 "use client";
 
+import { focusableIn, nextFocusIndex } from "../lib/focusTrap";
 import { VinLink } from "./VinLink";
 import React, { useState, useEffect } from "react";
 import { QuoteIntro } from "./QuoteIntro";
@@ -1322,7 +1323,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   const keepStateOnNextOpenRef = React.useRef(false);
   const dialogRef = React.useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (isOpen) dialogRef.current?.focus({ preventScroll: true });
+    if (!isOpen) return;
+    const opener = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus({ preventScroll: true });
+    // Anything that grabs focus from outside the dialog while it is open (a script, a click-through) is pulled back in.
+    const pullBack = (e: FocusEvent) => {
+      const d = dialogRef.current;
+      if (d && e.target instanceof Node && !d.contains(e.target)) d.focus({ preventScroll: true });
+    };
+    document.addEventListener("focusin", pullBack);
+    return () => {
+      document.removeEventListener("focusin", pullBack);
+      if (opener?.isConnected) opener.focus?.({ preventScroll: true }); // back to the button that opened it
+    };
   }, [isOpen]);
   // The ZIP saved on the buyer's own account, offered as the starting value of the ZIP box (still editable).
   const savedBuyerZip = currentUser?.role === "buyer" && /^\d{5}$/.test(String(currentUser.zipCode || "").trim()) ? String(currentUser.zipCode).trim() : "";
@@ -1335,13 +1348,19 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   }, [isOpen, savedBuyerZip]);
   // One active request per buyer (the server refuses a second): say so up front, with the way to it, instead of at Send.
   const [activeRfq, setActiveRfq] = useState<{ id: string; dealReference: string | null } | null>(null);
+  // The real per-request invite cap (reputation rule, server-computed); null until known.
+  const [inviteCap, setInviteCap] = useState<number | null>(null);
   useEffect(() => {
-    // Test mode has no one-request limit, so no banner either.
-    if (!isOpen || currentUser?.role !== "buyer" || currentUser.testMode) { setActiveRfq(null); return; }
+    // Test mode has no one-request limit, so no banner either (but it still reads the invite cap).
+    if (!isOpen || currentUser?.role !== "buyer") { setActiveRfq(null); return; }
     let cancelled = false;
     fetch("/api/rfqs")
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (!cancelled) setActiveRfq(activeRfqSummary(j?.rfqs)); })
+      .then((j) => {
+        if (cancelled) return;
+        setActiveRfq(currentUser.testMode ? null : activeRfqSummary(j?.rfqs));
+        setInviteCap(typeof j?.inviteCap === "number" && j.inviteCap > 0 ? j.inviteCap : null);
+      })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [isOpen, currentUser?.role, currentUser?.testMode]);
@@ -1560,7 +1579,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   };
   const gatePlan = deskPlan.gate;
   const confirmedDeskCount = deskPlan.sendTo.length;
-  const sendToCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
+  const confirmedOrImportedCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
+  // Only this many invites can actually go through, so never promise more.
+  const sendToCount = inviteCap == null ? confirmedOrImportedCount : Math.min(confirmedOrImportedCount, inviteCap);
+  const overInviteCap = inviteCap != null && confirmedOrImportedCount > inviteCap;
 
   useEffect(() => {
     const dealers = dealerLookupKey
@@ -2789,7 +2811,17 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto"
       data-testid="wizard-backdrop"
       onMouseDown={(e) => { if (e.target === e.currentTarget) dismiss(); }}
-      onKeyDown={(e) => { if (e.key === "Escape") { e.stopPropagation(); dismiss(); } }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") { e.stopPropagation(); dismiss(); return; }
+        // Focus stays inside the open wizard: Tab / Shift+Tab wrap at the ends instead of walking into the page behind it.
+        if (e.key === "Tab" && dialogRef.current) {
+          const items = focusableIn(dialogRef.current);
+          if (items.length === 0) { e.preventDefault(); dialogRef.current.focus(); return; }
+          const at = items.indexOf(document.activeElement as HTMLElement);
+          const edge = e.shiftKey ? at <= 0 : at === items.length - 1;
+          if (at < 0 || edge) { e.preventDefault(); items[nextFocusIndex(items.length, at, e.shiftKey)].focus(); }
+        }
+      }}
     >
       <div className="relative w-full max-w-2xl rounded-2xl border border-border-strong bg-surface shadow-2xl overflow-hidden my-8" role="dialog" aria-modal="true" aria-label="Configure Quote Request" tabIndex={-1} ref={dialogRef}>
         {introActive && <QuoteIntro onDone={() => setIntroActive(false)} />}
@@ -3943,7 +3975,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                   <span className="text-brand-400 font-bold text-right">
                     {directOfferMode
                       ? competeAmongImported
-                        ? `${sendToCount} of ${importedDealerships.length} dealerships confirmed`
+                        ? overInviteCap
+                          ? `${sendToCount} of ${importedDealerships.length} dealerships (limit ${inviteCap} per request)`
+                          : `${sendToCount} of ${importedDealerships.length} dealerships confirmed`
                         : "This dealership only"
                       : "This dealership and others nearby"}
                   </span>

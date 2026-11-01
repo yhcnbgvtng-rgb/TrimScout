@@ -31,6 +31,12 @@ describe("findByVin", () => {
   beforeEach(() => { urls = []; process.env.LIGHTSAIL_API_KEY = "test-key"; });
   afterEach(() => { globalThis.fetch = saved.fetch; if (saved.key === undefined) delete process.env.LIGHTSAIL_API_KEY; else process.env.LIGHTSAIL_API_KEY = saved.key; });
 
+  it("a row from a VIN lookup is pickable even when the crawl last saw it more than 3 days ago", async () => {
+    mockBox({ full: [row({ lastSeenAt: "2020-01-01T06:00:00.000Z" })] });
+    const r = await findByVin(full as never);
+    assert.equal(r.vehicles[0].rfqEligible, true);
+  });
+
   it("a full VIN is an exact lookup on the existing /api/inventory/vin/:vin endpoint and returns that listing", async () => {
     mockBox({ full: [row({})] });
     const r = await findByVin(full as never);

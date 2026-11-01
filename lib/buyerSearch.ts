@@ -4,7 +4,7 @@ import { haversineMiles, makeDealerLocator, roundMiles, zipLatLng } from "./deal
 import { isReachableState } from "./dealerContactLookup";
 import { contactStateFor, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
 import type { ContactState } from "./dealerContactLookup";
-import { contactOnFileDealerIds } from "./contactFilter";
+import { contactOnFileDealerIds, rowsPassingContactFilter } from "./contactFilter";
 import { parseSort, sortByDistance, type Sort } from "./buyerSort";
 import { isRfqEligible } from "./lastConfirmed";
 import { collapseByVin } from "./onePerVin";
@@ -153,10 +153,14 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   const contacts = await loadContactIndex();
   // No directory = no way to say who has a contact: refuse, never fall back to the unfiltered list under a checked box.
   if (contactOnFile && !contacts) throw new InventoryApiError("Dealer contacts are unavailable right now, so the contact filter cannot run.", 503);
-  const fetchPage = (q: BuyerSearchQuery) => searchInventory(q, contactOnFile && contacts ? { dealerIds: contactOnFileDealerIds(contacts) } : undefined);
+  const contactIds = contactOnFile && contacts ? contactOnFileDealerIds(contacts) : null;
+  const fetchPage = (q: BuyerSearchQuery) => searchInventory(q, contactIds ? { dealerIds: contactIds } : undefined);
+  // A scan (radius / merged colours) reads the SAME capped box result set whether or not the contact filter is on, then applies the filter
+  // here, page-side. The filtered rows are then always a subset of the unfiltered ones, so ticking the box can only narrow the count.
+  const fetchScanPage = (q: BuyerSearchQuery) => searchInventory(q);
 
   // Real distances: the buyer's ZIP and the dealer's directory ZIP both come from the Census ZCTA table. A dealer we cannot place has
-  // NO distance (null) — never a state centroid — and a radius never cuts it, because a made-up number would be the same for every such dealer.
+  // NO distance (null) — never a state centroid — and a radius cuts it: a car whose distance or ZIP is unknown cannot be shown to be inside it.
   const buyerAt = zip ? zipLatLng(zip) : null;
   const locate = makeDealerLocator(contacts);
   const distanceTo = (v: InventoryVehicle): number | null => {
@@ -166,7 +170,7 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   };
   // The one radius rule. The count and the list both come from the rows it keeps, so they cannot disagree.
   const useRadius = Boolean(zip && radiusMiles !== undefined && buyerAt);
-  const insideRadius = (v: { distanceMiles: number | null }) => v.distanceMiles === null || v.distanceMiles <= (radiusMiles as number);
+  const insideRadius = (v: { distanceMiles: number | null }) => v.distanceMiles !== null && v.distanceMiles <= (radiusMiles as number);
 
   const variants = await colorVariants(query);
   const limit = query.limit ?? 50, from = query.offset ?? 0;
@@ -175,27 +179,27 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   // set (the box's own count cap bounds it): count, page and "load more" then all come from one filtered set.
   if (useRadius || variants.length > 1) {
     const all: InventoryVehicle[] = [];
-    let truncated = false;
     for (const variant of variants) {
-      const first = await fetchPage({ ...variant, limit: SCAN_PAGE, offset: 0 });
+      const first = await fetchScanPage({ ...variant, limit: SCAN_PAGE, offset: 0 });
       const rows = [...first.vehicles];
       const reachable = Math.min(first.total, BUYER_COUNT_CAP);
       const offsets: number[] = [];
       for (let o = SCAN_PAGE; o < reachable; o += SCAN_PAGE) offsets.push(o);
       for (let i = 0; i < offsets.length; i += SCAN_CONCURRENCY) {
-        const pages = await Promise.all(offsets.slice(i, i + SCAN_CONCURRENCY).map((o) => fetchPage({ ...variant, limit: SCAN_PAGE, offset: o })));
+        const pages = await Promise.all(offsets.slice(i, i + SCAN_CONCURRENCY).map((o) => fetchScanPage({ ...variant, limit: SCAN_PAGE, offset: o })));
         for (const p of pages) rows.push(...p.vehicles);
       }
-      // Rows past the cap were never read: the count is then a floor, shown as "N+".
-      if (first.totalCapped || rows.length < first.total) truncated = true;
       all.push(...rows);
     }
     const merged = variants.length > 1 && !sortDistance ? sortLikeBox(all, query.sort) : all;
     let near = collapseByVin(merged, zip ? distanceTo : null).rows.map((v) => toBuyerVehicle(v, distanceTo(v), contacts));
     if (useRadius) near = near.filter(insideRadius);
+    near = rowsPassingContactFilter(near, contactOnFile);
     const ordered = sortDistance ? sortByDistance(near, distanceDir) : near;
     const page = ordered.slice(from, from + limit);
-    return { total: near.length, totalCapped: truncated, limit, offset: from, nextOffset: nextOffsetOf(from, page.length, near.length), vehicles: page };
+    // "+" only when the count reaches the search's cap: below it the number is what the rows show.
+    const capped = near.length >= BUYER_COUNT_CAP;
+    return { total: near.length, totalCapped: capped, limit, offset: from, nextOffset: nextOffsetOf(from, page.length, near.length), vehicles: page };
   }
 
   const result = await fetchPage(variants[0]);
@@ -210,5 +214,6 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   const capped = Boolean(result.totalCapped);
   // A capped total is a floor: a full page may still have more behind it.
   const nextOffset = result.vehicles.length > 0 && (result.offset + result.vehicles.length < total || (capped && result.vehicles.length >= result.limit)) ? result.offset + result.vehicles.length : null;
-  return { total, totalCapped: capped, limit: result.limit, offset: result.offset, nextOffset, vehicles };
+  // "+" only at the cap itself, never on a smaller number (paging above still follows the box's own flag).
+  return { total, totalCapped: capped && total >= BUYER_COUNT_CAP, limit: result.limit, offset: result.offset, nextOffset, vehicles };
 }

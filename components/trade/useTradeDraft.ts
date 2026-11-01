@@ -7,6 +7,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { processPhoto } from "../../lib/trade/photoPipeline";
+import { nextPollDelay, photosSignature } from "../../lib/trade/draftPoll";
 import type { PhotoSlot, TradePhoto } from "../../lib/trade/types";
 
 export type Fields = Record<string, unknown>;
@@ -91,15 +92,39 @@ export function useTradeDraft(enabled: boolean, opts: { draftId?: string; token?
     });
   }, [ref]);
 
-  // Pick up photos added on the phone.
+  // Pick up photos added on the phone. One poll at a time, only while the page is visible; the gap doubles while nothing changes
+  // (and after an error) up to a cap, resets when the photos change, and stops once the draft is sent.
   useEffect(() => {
-    if (!enabled || !ref || !opts.poll) return;
-    const t = setInterval(() => {
+    if (!enabled || !ref || !opts.poll || sent) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let quiet = 0;
+    let last: string | null = null;
+    const visible = () => typeof document === "undefined" || document.visibilityState !== "hidden";
+    const schedule = () => {
+      if (stopped || !visible()) return;
+      timer = setTimeout(tick, nextPollDelay(quiet));
+    };
+    const tick = () => {
       api<{ draft: { photos: TradePhoto[]; sent: boolean }; signed: SignedPhoto[] }>(`/api/trade/draft/${ref.id}?k=${ref.token}`)
-        .then((r) => applyServer(r.draft, r.signed, false)).catch(() => undefined);
-    }, 6000);
-    return () => clearInterval(t);
-  }, [enabled, ref, opts.poll, applyServer]);
+        .then((r) => {
+          if (stopped) return;
+          const sig = photosSignature(r.draft.photos);
+          quiet = last === null || sig !== last ? 0 : quiet + 1;
+          last = sig;
+          applyServer(r.draft, r.signed, false);
+        })
+        .catch(() => { quiet += 1; })
+        .finally(schedule);
+    };
+    const onVisibility = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (visible()) { quiet = 0; tick(); } // back on the tab: look once now, then resume the slow pace
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    schedule();
+    return () => { stopped = true; if (timer) clearTimeout(timer); document.removeEventListener("visibilitychange", onVisibility); };
+  }, [enabled, ref, opts.poll, sent, applyServer]);
 
   const uploadPhoto = useCallback(async (slot: PhotoSlot, file: File): Promise<boolean> => {
     if (!ref) return false;
