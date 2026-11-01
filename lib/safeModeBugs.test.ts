@@ -51,7 +51,7 @@ describe("trade draft polling", () => {
 describe("VIN-lookup rows that may be sold", () => {
   const view = read("components/BuyerSearchView.tsx");
   it("show the note next to the row (desktop and card) instead of disabling it", () => {
-    assert.match(view, /May be sold — we'll check with the dealer/);
+    assert.match(view, /May be sold — the dealer will confirm in their quote/);
     assert.equal((view.match(/data-testid="may-be-sold"/g) || []).length, 2);
     assert.match(view, /toPick\(v\)/);
   });

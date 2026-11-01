@@ -606,7 +606,7 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? DASH : `${Math.round(v.distanceMiles)} mi`) },
 ];
 const ROW_H = 32;
-const MAY_BE_SOLD_COPY = "May be sold — we'll check with the dealer";
+const MAY_BE_SOLD_COPY = "May be sold — the dealer will confirm in their quote";
 const MAY_BE_SOLD_COL_W = 360;
 
 function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
