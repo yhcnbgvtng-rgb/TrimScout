@@ -153,3 +153,20 @@ describe("buyer search with the filter on vs off", () => {
     await assert.rejects(runBuyerSearch(parse("&contactOnFile=1")), /did not apply/);
   });
 });
+
+describe("contact filter with a radius never raises the count", () => {
+  beforeEach(() => { calls.length = 0; boxPatched = true; process.env.LIGHTSAIL_API_KEY = "test-key"; process.env.NEXT_PUBLIC_CONTACT_FILTER = "1"; globalThis.fetch = fakeFetch as typeof fetch; });
+  afterEach(() => { globalThis.fetch = realFetch; delete process.env.NEXT_PUBLIC_CONTACT_FILTER; });
+  const parse = (extra: string) => parseBuyerSearchParams(new URLSearchParams(`make=Toyota&zip=95678&radiusMiles=5000${extra}`));
+
+  it("a radius scan reads the same box result set with the box checked or not, so the filtered rows are a subset", async () => {
+    const off = await runBuyerSearch(parse(""));
+    const on = await runBuyerSearch(parse("&contactOnFile=1"));
+    assert.ok(on.total <= off.total, `${on.total} must not exceed ${off.total}`);
+    assert.equal(on.total, on.vehicles.length);
+    assert.ok(on.vehicles.every((v) => v.dealerHasContact === true));
+    const offVins = new Set(off.vehicles.map((v) => v.vin));
+    assert.ok(on.vehicles.every((v) => offVins.has(v.vin)));
+    assert.ok(!calls.some((c) => c.path === "/api/inventory/contact-search"), "scan path filters page-side, not by a different box query");
+  });
+});

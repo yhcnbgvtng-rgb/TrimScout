@@ -73,7 +73,7 @@ describe("useBuyerSearchState", () => {
     assert.match(hook, /reconcileLoaded\(\{ local, server, now \}\)/);
     assert.match(hook, /await checkListed\(r\.state\.picks\)/);
     assert.match(hook, /dropGone\(r\.state\.picks, listing\)/);
-    assert.match(hook, /pickNotice\(\{ gone: gone\.length, expired: r\.expired\.length \}\)/);
+    assert.match(hook, /pickNotice\(\{ gone: gone\.length, expired: r\.expired\.length, goneMaybeSold: gone\.filter\(\(g\) => g\.mayBeSold\)\.length \}\)/);
     assert.match(hook, /write\(store, key, \{ picks: live,/);
   });
   it("a failed stock check keeps every pick", () => {

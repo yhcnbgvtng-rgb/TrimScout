@@ -41,7 +41,7 @@ function migrateGuest() {
 async function checkListed(picks: PickedVehicle[]): Promise<Record<string, PickListing>> {
   if (picks.length === 0) return {};
   try {
-    const res = await fetch("/api/buyer/pick-status", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ picks: picks.map((p) => ({ vin: p.vin, dealerId: p.dealerId, dealerName: p.dealerName })) }) });
+    const res = await fetch("/api/buyer/pick-status", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", body: JSON.stringify({ picks: picks.map((p) => ({ vin: p.vin, dealerId: p.dealerId, dealerName: p.dealerName, ...(p.mayBeSold ? { mayBeSold: true } : {}) })) }) });
     if (!res.ok) return {};
     const json = (await res.json()) as { status?: Record<string, PickListing> };
     return json.status ?? {};
@@ -99,7 +99,7 @@ export function useBuyerSearchState() {
       const changed = gone.length > 0 || r.expired.length > 0;
       setSavedPicks(live); savedRef.current = live; setPicks(live);
       setViewed(r.state.viewed); viewedRef.current = r.state.viewed;
-      setNotice(pickNotice({ gone: gone.length, expired: r.expired.length }));
+      setNotice(pickNotice({ gone: gone.length, expired: r.expired.length, goneMaybeSold: gone.filter((g) => g.mayBeSold).length }));
       setReady(true);
       // Persist the cleaned list (and the stamps given to older saved picks) so the 7 days start once and dropped picks stay dropped.
       if (changed) editedAtRef.current = now;

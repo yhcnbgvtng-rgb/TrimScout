@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { CREDIT_BAND_LABELS, FINANCE_TERMS, SURCHARGE_REASON_MAX, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
@@ -104,6 +104,9 @@ export function UsedQuoteForm({
   const [busy, setBusy] = useState(false);
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  // A failed submit scrolls to and focuses the problem (the field when we can tell which, else the error summary).
+  const [submitAttempt, setSubmitAttempt] = useState(0);
+  const errorBoxRef = useRef<HTMLDivElement | null>(null);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
 
   const toLines = (list: Item[]) => list.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN })).filter((i) => i.name && Number.isFinite(i.amount));
@@ -162,10 +165,10 @@ export function UsedQuoteForm({
     const taxTotal = dueAtSigningSum(items.filter((i) => /tax/i.test(i.name)));
     const mandatoryTotal = dasTotal - taxTotal;
     const docFee = dueAtSigningSum(items.filter((i) => /\bdoc/i.test(i.name)));
-    // Price + add-ons + doc fee as a share of MSRP — the number that shows a "discount" eaten back by dealer charges. Surcharges are not in it (nor in the buyer's % off MSRP).
+    // dealerAsk (price + add-ons + doc fee) is shown as its own line; the "% of MSRP" is the selling price alone over MSRP, so it matches the buyer's % off MSRP.
     const msrpNum = num(f.msrp);
     const dealerAsk = sellingPrice != null ? Math.round((sellingPrice + addOnTotal + docFee) * 100) / 100 : null;
-    const pctOfMsrp = dealerAsk != null && msrpNum != null && msrpNum > 0 ? Math.round((dealerAsk / msrpNum) * 1000) / 10 : null;
+    const pctOfMsrp = sellingPrice != null && msrpNum != null && msrpNum > 0 ? Math.round((sellingPrice / msrpNum) * 1000) / 10 : null;
     return { sellingPrice, items, addOnLines, surchargeLines, surchargeTotal, rebateLines, dasTotal, addOnTotal, rebateTotal, taxTotal, mandatoryTotal, docFee, msrp: msrpNum, dealerAsk, pctOfMsrp, down, trade, apr, term, amountFinanced, monthly, taxed, estTaxOnPrice, cashDue, otd };
   }, [f, effFees, addOns, surcharges, rebates, noTaxEstimate, zipRate]);
 
@@ -223,16 +226,28 @@ export function UsedQuoteForm({
   const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : []), ...feeCheck.errors];
   const lockBroken = kind === "finance" && ((d.term != null && d.term !== prefs.finance.termMonths) || (d.down != null && Math.round(d.down) !== prefs.finance.downPayment));
 
+  useEffect(() => {
+    if (submitAttempt === 0) return;
+    const box = errorBoxRef.current;
+    if (!box) return;
+    // Add-on errors point at the add-ons confirm; anything else lands on the summary itself.
+    const addOnField = errors.some((e) => /add-on/i.test(e)) ? box.ownerDocument.querySelector<HTMLElement>('[data-testid="no-add-ons"]') : null;
+    const target = addOnField ?? box;
+    target.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    target.focus?.({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitAttempt]);
+
   const submit = async () => {
     setTouched(true);
     setServerError(null);
-    if (errors.length) return;
+    if (errors.length) { setSubmitAttempt((n) => n + 1); return; }
     setBusy(true);
     try {
       let tradeBody: Record<string, unknown> | null = null;
       if (trade?.hasTrade) {
         const c = trade.check(quote.expiresAt || null);
-        if (!c.ok) { setServerError(c.errors.join(" ")); return; }
+        if (!c.ok) { setServerError(c.errors.join(" ")); setSubmitAttempt((n) => n + 1); return; }
         tradeBody = c.trade;
       }
       const res = await fetch("/api/quote-invite/used-quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote, ...(tradeBody ? { trade: tradeBody } : {}) }) });
@@ -240,6 +255,7 @@ export function UsedQuoteForm({
       if (!res.ok) {
         trade?.onReject(json);
         setServerError(Array.isArray(json.errors) && json.errors.length ? json.errors.join(" ") : json.error || "Could not submit the quote.");
+        setSubmitAttempt((n) => n + 1);
         return;
       }
       onSubmitted({ warnings: json.warnings || [] });
@@ -607,7 +623,7 @@ export function UsedQuoteForm({
               </div>
               <div className="border-t border-border/60 pt-2 space-y-1" data-testid="pct-of-msrp">
                 {out("Price + add-ons + doc fee", money(d.dealerAsk))}
-                {out("as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.dealerAsk != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
+                {out("Selling price as % of MSRP", d.pctOfMsrp != null ? `${d.pctOfMsrp}%${d.msrp ? ` of ${money(d.msrp)}` : ""}` : d.sellingPrice != null ? "enter MSRP above" : null, d.pctOfMsrp != null)}
               </div>
             </>
           )}
@@ -621,14 +637,16 @@ export function UsedQuoteForm({
         </aside>
       </div>
 
-      {touched && errors.length ? (
-        <ul className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300 space-y-0.5" data-testid="used-errors">
-          {errors.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-      ) : null}
-      {serverError ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{serverError}</p> : null}
+      <div ref={errorBoxRef} tabIndex={-1} role="alert" aria-live="assertive" className="space-y-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 rounded-lg" data-testid="used-error-region">
+        {touched && errors.length ? (
+          <ul className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300 space-y-0.5" data-testid="used-errors">
+            {errors.map((e) => (
+              <li key={e}>{e}</li>
+            ))}
+          </ul>
+        ) : null}
+        {serverError ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{serverError}</p> : null}
+      </div>
       {validation.warnings.length ? (
         <ul className="text-[10px] text-amber-200/90 space-y-0.5">
           {validation.warnings.map((w) => (

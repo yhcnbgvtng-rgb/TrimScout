@@ -49,7 +49,8 @@ module.exports = {
         ink: {
           light: '#F3F4F6',
           muted: '#9CA3AF',
-          faint: '#6B7280',
+          // 5.5:1 or better on the page, surface and elevated backgrounds (WCAG AA 4.5:1). Placeholders use this token too (placeholder-ink-faint).
+          faint: '#8B93A1',
         }
       },
     },

@@ -8,10 +8,10 @@ import { parseBuyerSearchParams } from "./buyerSearchQuery";
 import { runBuyerSearch } from "./buyerSearch";
 
 // The box returns trim order: 200 cars in Chicago (placed, far), 20 in Cape May NJ (a city the app cannot place, only its state), then 30 in
-// Brooklyn (placed, ~1 mi from ZIP 11201). A radius must keep Brooklyn and the unplaceable dealer, and cut Chicago.
+// Brooklyn (placed, ~1 mi from ZIP 11201). A radius must keep Brooklyn only: Chicago is too far and the unplaceable dealer has no distance.
 const rows = (n: number, city: string, state: string, dealerId: string) => Array.from({ length: n }, () => ({ city, state, dealerId }));
 const SPEC = [...rows(200, "Chicago", "IL", "100"), ...rows(20, "Cape May", "NJ", "150"), ...rows(30, "Brooklyn", "NY", "200")];
-const NEAR = 30, UNPLACED = 20, KEPT = NEAR + UNPLACED;
+const NEAR = 30, UNPLACED = 20, KEPT = NEAR; // a radius keeps only cars whose distance is known and inside it
 const CARS = SPEC.map((c, i) => ({
   vin: `1FTFW1E5X${String(i).padStart(8, "0")}`, vehicleId: i + 1, dealerId: c.dealerId, dealerName: `${c.city} Ford`,
   dealerCity: c.city, dealerState: c.state, state: c.state, make: "Ford", model: "F-150", year: 2024, price: 40000 + i, lastSeenAt: "2026-10-30 10:00:00", sourceBox: "b",
@@ -41,15 +41,22 @@ describe("radius search: the count describes the rows and the rows load", () => 
     assert.ok(r.vehicles.every((v) => v.dealerCity !== "Chicago"), "a placed dealer outside the radius is cut");
   });
 
-  it("a dealer placed only by state shows no distance, is not cut by the radius, and sorts after cars with a real distance", async () => {
+  it("a car with an unknown distance or ZIP is excluded when a radius is set, and without a radius it stays (no distance shown)", async () => {
     const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=100&sort=distance:asc"));
     assert.equal(r.total, r.vehicles.length);
-    const near = r.vehicles.filter((v) => v.dealerCity === "Brooklyn"), unplaced = r.vehicles.filter((v) => v.dealerCity === "Cape May");
-    assert.equal(near.length, NEAR);
+    assert.equal(r.vehicles.filter((v) => v.dealerCity === "Cape May").length, 0, "unplaceable dealer is cut by the radius");
+    assert.equal(r.vehicles.filter((v) => v.dealerCity === "Brooklyn").length, NEAR);
+    assert.ok(r.vehicles.every((v) => v.distanceMiles !== null && v.distanceMiles <= 25));
+    const open = await runBuyerSearch(parse("&zip=11201&limit=100&offset=200"));
+    const unplaced = open.vehicles.filter((v) => v.dealerCity === "Cape May");
     assert.equal(unplaced.length, UNPLACED);
-    assert.ok(near.every((v) => v.distanceMiles !== null && v.distanceMiles <= 25));
     assert.ok(unplaced.every((v) => v.distanceMiles === null), "no made-up state-centroid distance");
-    assert.ok(r.vehicles.slice(0, NEAR).every((v) => v.dealerCity === "Brooklyn"), "real distances first");
+  });
+
+  it('an exact scan (the box returned every row) shows no "+"', async () => {
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.total, KEPT);
+    assert.equal(r.totalCapped, false);
   });
 
   it("load more walks the filtered set: pages add up to the count, no repeats", async () => {
@@ -78,5 +85,38 @@ describe("radius search: the count describes the rows and the rows load", () => 
     assert.equal(boxCalls, 1);
     assert.equal(r.vehicles.length, 50);
     assert.equal(r.total, CARS.length);
+  });
+});
+
+describe("radius search over a box result that hit its row limit", () => {
+  const capped = (reported: number, capFlag: boolean) => (url: any): Promise<Response> => {
+    const u = new URL(String(url));
+    const json = (o: unknown) => Promise.resolve(new Response(JSON.stringify(o), { status: 200, headers: { "Content-Type": "application/json" } }));
+    if (u.port === "3003") return json({ dealerships: [] });
+    const limit = Number(u.searchParams.get("limit")), offset = Number(u.searchParams.get("offset") || 0);
+    // The box says more matched than it will hand over (1,500), but only the 250 rows we have exist to read.
+    return json({ total: reported, totalCapped: capFlag, limit, offset, vehicles: CARS.slice(offset, offset + limit) });
+  };
+  beforeEach(() => { process.env.LIGHTSAIL_API_KEY = "test-key"; });
+  afterEach(() => { globalThis.fetch = realFetch; });
+
+  it('a truncated scan shows "+" even though the filtered count is well under 1,000', async () => {
+    globalThis.fetch = capped(1500, true) as typeof fetch;
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.total, KEPT);
+    assert.ok(r.total < 1000);
+    assert.equal(r.totalCapped, true, "rows past the limit were never read, so the count is a floor");
+  });
+
+  it("a scan that stopped short of the box's own total is also a floor, even without the box's flag", async () => {
+    globalThis.fetch = capped(400, false) as typeof fetch; // 400 reported, only 250 readable
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.totalCapped, true);
+  });
+
+  it("a scan that read every row the box reported is exact", async () => {
+    globalThis.fetch = capped(CARS.length, false) as typeof fetch;
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.totalCapped, false);
   });
 });

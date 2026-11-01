@@ -279,6 +279,15 @@ describe("buyerRfqStrikeCount / reputationInviteCap", () => {
     assert.equal(buyerRfqStrikeCount([completed, walkedEarly], now), 0);
   });
 
+  it("test traffic never counts: audit requests are skipped, test-mode accounts have no strikes", () => {
+    const auditGhost = { ...ghosted, audit: true };
+    const auditSafe = { ...cancelled, auditForcedSafeMode: true };
+    assert.equal(buyerRfqStrikeCount([auditGhost, auditSafe, ghosted], now), 1);
+    assert.equal(buyerRfqStrikeCount([ghosted, cancelled], now, { testMode: true }), 0);
+    assert.equal(reputationInviteCap(buyerRfqStrikeCount([ghosted, cancelled], now, { testMode: true })), RFQ_MAX_INVITES);
+    assert.equal(reputationInviteCap(buyerRfqStrikeCount([ghosted, cancelled], now)), 1);
+  });
+
   it("keeps the normal invite cap below the strike threshold, reduces it at/above", () => {
     assert.equal(reputationInviteCap(0), RFQ_MAX_INVITES);
     assert.equal(reputationInviteCap(1), RFQ_MAX_INVITES);

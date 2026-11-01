@@ -17,6 +17,7 @@ import { findContactInfo } from "@/lib/piiFilter";
 import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
+import { buyerRfqStrikeCount, reputationInviteCap } from "@/lib/rfqLogic";
 import { bump } from "@/lib/opsMetrics";
 import { approvalAlertHtml, approvalAlertSubject } from "@/lib/approvalAlertEmail";
 import { sendAdminApprovalAlert, sendQuoteInviteEmail } from "@/lib/dealerEmail";
@@ -32,7 +33,9 @@ export async function GET() {
   }
   try {
     const rfqs = await listRfqsForBuyer(session.user.id as string);
-    return NextResponse.json({ rfqs: rfqs.map(publicRfqForBuyer) });
+    // The invite cap a new request would get, so the wizard can show it before submit (same rule as the invites route).
+    const inviteCap = reputationInviteCap(buyerRfqStrikeCount(rfqs, Date.now(), { testMode: isBuyerTestMode(session.user) }));
+    return NextResponse.json({ rfqs: rfqs.map(publicRfqForBuyer), inviteCap });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load your requests.";
     const status = err instanceof RfqApiError ? err.status : 502;
