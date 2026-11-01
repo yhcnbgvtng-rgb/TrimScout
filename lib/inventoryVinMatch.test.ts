@@ -31,10 +31,15 @@ describe("findByVin", () => {
   beforeEach(() => { urls = []; process.env.LIGHTSAIL_API_KEY = "test-key"; });
   afterEach(() => { globalThis.fetch = saved.fetch; if (saved.key === undefined) delete process.env.LIGHTSAIL_API_KEY; else process.env.LIGHTSAIL_API_KEY = saved.key; });
 
-  it("a row from a VIN lookup is pickable even when the crawl last saw it more than 3 days ago", async () => {
+  it("a row last seen over 3 days ago stays pickable and is flagged may-be-sold; a fresh row is not flagged", async () => {
     mockBox({ full: [row({ lastSeenAt: "2020-01-01T06:00:00.000Z" })] });
-    const r = await findByVin(full as never);
-    assert.equal(r.vehicles[0].rfqEligible, true);
+    const stale = (await findByVin(full as never)).vehicles[0];
+    assert.equal(stale.rfqEligible, true);
+    assert.equal(stale.mayBeSold, true);
+    mockBox({ full: [row({ lastSeenAt: new Date().toISOString() })] });
+    const fresh = (await findByVin(full as never)).vehicles[0];
+    assert.equal(fresh.rfqEligible, true);
+    assert.equal(fresh.mayBeSold, undefined);
   });
 
   it("a full VIN is an exact lookup on the existing /api/inventory/vin/:vin endpoint and returns that listing", async () => {

@@ -179,3 +179,35 @@ describe("pickWarnings", () => {
     assert.equal(pickWarnings([withCond("1", "new", "7"), withCond("2", "used", "7")]).length, 2);
   });
 });
+
+describe("a pick ticked from a VIN lookup while the car may be sold", () => {
+  const now = Date.parse("2026-10-28T12:00:00Z");
+  const here = { vin: "V", dealerId: "11", dealerName: "A Motors", mayBeSold: true };
+  const stale = [{ dealerId: "11", dealerName: "A Motors", removedAt: null, lastSeenAt: "2026-10-22T06:28:19Z" }];
+
+  it("the reload check keeps it when only the crawl date is old, and still drops a pick without the flag", () => {
+    assert.equal(listingFor(here, stale, now), "listed");
+    assert.equal(listingFor({ ...here, mayBeSold: false }, stale, now), "gone");
+  });
+  it("it is dropped when the car is really gone: removed, or no longer at that store", () => {
+    assert.equal(listingFor(here, [{ ...stale[0], removedAt: "2026-10-25T00:00:00Z" }], now), "gone");
+    assert.equal(listingFor(here, [{ dealerId: "99", dealerName: "B Motors", removedAt: null, lastSeenAt: "2026-10-27T00:00:00Z" }], now), "gone");
+  });
+  it("the flag survives toPick and a save/load round trip, and is absent otherwise", () => {
+    const base = { vin: "V", dealerId: "11", dealerName: "A Motors", dealerState: "NJ", year: 2024, make: "Honda", model: "Accord", trim: "EX", mileage: 10, price: 1, vdpUrl: null };
+    assert.equal(toPick({ ...base, mayBeSold: true }).mayBeSold, true);
+    assert.equal("mayBeSold" in toPick(base), false);
+    const back = parseStored(JSON.stringify({ picks: [toPick({ ...base, mayBeSold: true })], viewed: [] }));
+    assert.equal(back.picks[0].mayBeSold, true);
+  });
+  it("when it is removed the buyer is told why", () => {
+    assert.equal(pickNotice({ gone: 1, expired: 0, goneMaybeSold: 1 }), "1 pick removed — the dealer no longer lists it, so it may have sold");
+    assert.equal(pickNotice({ gone: 3, expired: 0, goneMaybeSold: 2 }), "1 pick removed — no longer listed · 2 picks removed — the dealer no longer lists them, so they may have sold");
+  });
+  it("dropGone removes it only on a 'gone' answer and keeps it on 'listed' or no answer", () => {
+    const p = toPick({ vin: "V", dealerId: "11", dealerName: "A Motors", dealerState: null, year: 1, make: null, model: null, trim: null, mileage: null, price: null, vdpUrl: null, mayBeSold: true });
+    assert.equal(dropGone([p], { [p.key]: "listed" }).gone.length, 0);
+    assert.equal(dropGone([p], {}).gone.length, 0);
+    assert.equal(dropGone([p], { [p.key]: "gone" }).gone.length, 1);
+  });
+});

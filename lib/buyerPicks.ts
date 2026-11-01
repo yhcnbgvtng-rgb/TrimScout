@@ -32,6 +32,8 @@ export interface PickedVehicle {
   condition: PickCondition | null;
   /** When this pick was SAVED (ms since epoch); null while it is only ticked in this session. Saved picks expire PICK_TTL_MS later. */
   savedAt: number | null;
+  /** Ticked from a VIN lookup while the crawl had not seen the car for over 3 days: the reload check keeps it unless it is really gone. */
+  mayBeSold?: boolean;
 }
 
 export type PickCondition = "new" | "used" | "cpo";
@@ -49,8 +51,8 @@ export interface BuyerSearchState {
 
 export const EMPTY_STATE: BuyerSearchState = { picks: [], viewed: [] };
 
-export function toPick(v: { vin: string; dealerId?: string | null; dealerName: string; dealerState: string | null; year: number | null; make: string | null; model: string | null; trim: string | null; mileage: number | null; price: number | null; vdpUrl: string | null; condition?: PickCondition | null }): PickedVehicle {
-  return { key: vehicleKey(v), vin: v.vin, dealerId: v.dealerId ?? null, dealerName: v.dealerName, dealerState: v.dealerState, year: v.year, make: v.make, model: v.model, trim: v.trim, mileage: v.mileage, price: v.price, vdpUrl: v.vdpUrl, condition: v.condition ?? null, savedAt: null };
+export function toPick(v: { vin: string; dealerId?: string | null; dealerName: string; dealerState: string | null; year: number | null; make: string | null; model: string | null; trim: string | null; mileage: number | null; price: number | null; vdpUrl: string | null; condition?: PickCondition | null; mayBeSold?: boolean }): PickedVehicle {
+  return { key: vehicleKey(v), vin: v.vin, dealerId: v.dealerId ?? null, dealerName: v.dealerName, dealerState: v.dealerState, year: v.year, make: v.make, model: v.model, trim: v.trim, mileage: v.mileage, price: v.price, vdpUrl: v.vdpUrl, condition: v.condition ?? null, savedAt: null, ...(v.mayBeSold ? { mayBeSold: true } : {}) };
 }
 
 export type ToggleResult = { picks: PickedVehicle[]; outcome: "added" | "removed" | "blocked" };
@@ -101,7 +103,7 @@ export function sanitizeState(raw: unknown): BuyerSearchState {
     const r = (p && typeof p === "object" ? p : {}) as Record<string, unknown>;
     const vin = str(r.vin), dealerName = str(r.dealerName);
     if (!vin || !dealerName) continue;
-    const pick: PickedVehicle = { key: "", vin, dealerId: str(r.dealerId), dealerName, dealerState: str(r.dealerState), year: num(r.year), make: str(r.make), model: str(r.model), trim: str(r.trim), mileage: num(r.mileage), price: num(r.price), vdpUrl: link(r.vdpUrl), condition: cond(r.condition), savedAt: time(r.savedAt) };
+    const pick: PickedVehicle = { key: "", vin, dealerId: str(r.dealerId), dealerName, dealerState: str(r.dealerState), year: num(r.year), make: str(r.make), model: str(r.model), trim: str(r.trim), mileage: num(r.mileage), price: num(r.price), vdpUrl: link(r.vdpUrl), condition: cond(r.condition), savedAt: time(r.savedAt), ...(r.mayBeSold === true ? { mayBeSold: true } : {}) };
     pick.key = vehicleKey(pick);
     if (!picks.some((x) => x.key === pick.key)) picks.push(pick);
     if (picks.length >= MAX_PICKS) break;
@@ -149,20 +151,22 @@ export function dropGone(picks: PickedVehicle[], listing: Record<string, PickLis
 }
 
 /** One short line for the bar after picks were dropped on load; null when nothing was. */
-export function pickNotice({ gone, expired }: { gone: number; expired: number }): string | null {
+export function pickNotice({ gone, expired, goneMaybeSold = 0 }: { gone: number; expired: number; goneMaybeSold?: number }): string | null {
   const n = (c: number) => `${c} pick${c === 1 ? "" : "s"}`;
   const parts: string[] = [];
-  if (gone > 0) parts.push(`${n(gone)} removed — no longer listed`);
+  if (gone - goneMaybeSold > 0) parts.push(`${n(gone - goneMaybeSold)} removed — no longer listed`);
+  if (goneMaybeSold > 0) parts.push(`${n(goneMaybeSold)} removed — the dealer no longer lists ${goneMaybeSold === 1 ? "it" : "them"}, so ${goneMaybeSold === 1 ? "it" : "they"} may have sold`);
   if (expired > 0) parts.push(`${n(expired)} removed — saved over 7 days ago`);
   return parts.length ? parts.join(" · ") : null;
 }
 
 /** Decide, from every listing of a VIN, whether this pick's car is still listed at its store. */
-export function listingFor(pick: { vin: string; dealerId: string | null; dealerName: string }, listings: Array<{ dealerId: string | null; dealerName: string; removedAt: string | null; lastSeenAt?: string | null }>, now: number = Date.now()): PickListing {
+export function listingFor(pick: { vin: string; dealerId: string | null; dealerName: string; mayBeSold?: boolean }, listings: Array<{ dealerId: string | null; dealerName: string; removedAt: string | null; lastSeenAt?: string | null }>, now: number = Date.now()): PickListing {
   if (listings.length === 0) return "unknown"; // the box has no record: say nothing rather than drop a car it never indexed
   const norm = (s: string) => s.trim().toLowerCase();
   const here = listings.filter((l) => (pick.dealerId && l.dealerId ? String(l.dealerId) === String(pick.dealerId) : norm(l.dealerName) === norm(pick.dealerName)));
   if (here.length === 0) return "gone"; // the VIN is known but not at this store any more
   // Still on the lot as far as the box knows, but the crawl has not seen it for more than RFQ_MAX_AGE_DAYS: no longer quotable.
-  return here.some((l) => l.removedAt == null && isRfqEligible(l.lastSeenAt, now)) ? "listed" : "gone";
+  // A pick flagged mayBeSold was ticked knowing the crawl had not seen it recently, so staleness alone never drops it; removal does.
+  return here.some((l) => l.removedAt == null && (pick.mayBeSold || isRfqEligible(l.lastSeenAt, now))) ? "listed" : "gone";
 }

@@ -60,6 +60,8 @@ export type BuyerVehicle = Pick<InventoryVehicle,
   dealerContactState: ContactState | null;
   /** False when the crawl last saw the car more than RFQ_MAX_AGE_DAYS ago: it cannot be picked for a quote. The date itself never reaches buyers. */
   rfqEligible: boolean;
+  /** Set only on a VIN-lookup row the crawl has not seen for over RFQ_MAX_AGE_DAYS: still pickable, shown with "May be sold". */
+  mayBeSold?: boolean;
 };
 
 export function toBuyerVehicle(v: InventoryVehicle, distanceMiles: number | null, contacts: ContactIndex | null): BuyerVehicle {
@@ -179,6 +181,8 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   // set (the box's own count cap bounds it): count, page and "load more" then all come from one filtered set.
   if (useRadius || variants.length > 1) {
     const all: InventoryVehicle[] = [];
+    // True when any box query stopped at its row limit: rows past it were never read, so the count is a floor and is shown as "N+".
+    let truncated = false;
     for (const variant of variants) {
       const first = await fetchScanPage({ ...variant, limit: SCAN_PAGE, offset: 0 });
       const rows = [...first.vehicles];
@@ -189,6 +193,7 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
         const pages = await Promise.all(offsets.slice(i, i + SCAN_CONCURRENCY).map((o) => fetchScanPage({ ...variant, limit: SCAN_PAGE, offset: o })));
         for (const p of pages) rows.push(...p.vehicles);
       }
+      if (first.totalCapped || rows.length < first.total) truncated = true;
       all.push(...rows);
     }
     const merged = variants.length > 1 && !sortDistance ? sortLikeBox(all, query.sort) : all;
@@ -197,8 +202,8 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
     near = rowsPassingContactFilter(near, contactOnFile);
     const ordered = sortDistance ? sortByDistance(near, distanceDir) : near;
     const page = ordered.slice(from, from + limit);
-    // "+" only when the count reaches the search's cap: below it the number is what the rows show.
-    const capped = near.length >= BUYER_COUNT_CAP;
+    // "+" whenever the scan was cut short, even when the filtered count is well under the cap; no "+" only when the count is exact.
+    const capped = truncated || near.length >= BUYER_COUNT_CAP;
     return { total: near.length, totalCapped: capped, limit, offset: from, nextOffset: nextOffsetOf(from, page.length, near.length), vehicles: page };
   }
 
@@ -214,6 +219,5 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   const capped = Boolean(result.totalCapped);
   // A capped total is a floor: a full page may still have more behind it.
   const nextOffset = result.vehicles.length > 0 && (result.offset + result.vehicles.length < total || (capped && result.vehicles.length >= result.limit)) ? result.offset + result.vehicles.length : null;
-  // "+" only at the cap itself, never on a smaller number (paging above still follows the box's own flag).
-  return { total, totalCapped: capped && total >= BUYER_COUNT_CAP, limit: result.limit, offset: result.offset, nextOffset, vehicles };
+  return { total, totalCapped: capped, limit: result.limit, offset: result.offset, nextOffset, vehicles };
 }

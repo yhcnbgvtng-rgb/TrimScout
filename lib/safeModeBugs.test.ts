@@ -47,3 +47,16 @@ describe("trade draft polling", () => {
     assert.doesNotMatch(hook, /setInterval/);
   });
 });
+
+describe("VIN-lookup rows that may be sold", () => {
+  const view = read("components/BuyerSearchView.tsx");
+  it("show the note next to the row (desktop and card) instead of disabling it", () => {
+    assert.match(view, /May be sold — we'll check with the dealer/);
+    assert.equal((view.match(/data-testid="may-be-sold"/g) || []).length, 2);
+    assert.match(view, /toPick\(v\)/);
+  });
+  it("the reload check carries the flag both ways", () => {
+    assert.match(read("components/search/useBuyerSearchState.ts"), /mayBeSold: true/);
+    assert.match(read("app/api/buyer/pick-status/route.ts"), /listingFor\(\{ vin, dealerId, dealerName, mayBeSold \}/);
+  });
+});

@@ -53,8 +53,9 @@ describe("radius search: the count describes the rows and the rows load", () => 
     assert.ok(unplaced.every((v) => v.distanceMiles === null), "no made-up state-centroid distance");
   });
 
-  it('"+" shows only at the 1,000 cap: a radius count below it is never marked as a floor', async () => {
+  it('an exact scan (the box returned every row) shows no "+"', async () => {
     const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.total, KEPT);
     assert.equal(r.totalCapped, false);
   });
 
@@ -84,5 +85,38 @@ describe("radius search: the count describes the rows and the rows load", () => 
     assert.equal(boxCalls, 1);
     assert.equal(r.vehicles.length, 50);
     assert.equal(r.total, CARS.length);
+  });
+});
+
+describe("radius search over a box result that hit its row limit", () => {
+  const capped = (reported: number, capFlag: boolean) => (url: any): Promise<Response> => {
+    const u = new URL(String(url));
+    const json = (o: unknown) => Promise.resolve(new Response(JSON.stringify(o), { status: 200, headers: { "Content-Type": "application/json" } }));
+    if (u.port === "3003") return json({ dealerships: [] });
+    const limit = Number(u.searchParams.get("limit")), offset = Number(u.searchParams.get("offset") || 0);
+    // The box says more matched than it will hand over (1,500), but only the 250 rows we have exist to read.
+    return json({ total: reported, totalCapped: capFlag, limit, offset, vehicles: CARS.slice(offset, offset + limit) });
+  };
+  beforeEach(() => { process.env.LIGHTSAIL_API_KEY = "test-key"; });
+  afterEach(() => { globalThis.fetch = realFetch; });
+
+  it('a truncated scan shows "+" even though the filtered count is well under 1,000', async () => {
+    globalThis.fetch = capped(1500, true) as typeof fetch;
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.total, KEPT);
+    assert.ok(r.total < 1000);
+    assert.equal(r.totalCapped, true, "rows past the limit were never read, so the count is a floor");
+  });
+
+  it("a scan that stopped short of the box's own total is also a floor, even without the box's flag", async () => {
+    globalThis.fetch = capped(400, false) as typeof fetch; // 400 reported, only 250 readable
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.totalCapped, true);
+  });
+
+  it("a scan that read every row the box reported is exact", async () => {
+    globalThis.fetch = capped(CARS.length, false) as typeof fetch;
+    const r = await runBuyerSearch(parse("&zip=11201&radiusMiles=25&limit=50"));
+    assert.equal(r.totalCapped, false);
   });
 });

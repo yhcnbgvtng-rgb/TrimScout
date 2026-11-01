@@ -50,6 +50,8 @@ interface BuyerVehicle {
   dealerContactState?: "named" | "email_only" | "unverified" | "none" | null;
   /** False when the car is too long unconfirmed to quote; the checkbox is disabled. */
   rfqEligible?: boolean;
+  /** VIN-lookup row the crawl has not seen for over 3 days: pickable, labelled "May be sold". */
+  mayBeSold?: boolean;
 }
 
 interface SearchResults {
@@ -604,6 +606,8 @@ const TABLE_COLUMNS: Array<{ key: string; label: string; w: number; right?: bool
   { key: "distance", label: "Distance", w: 80, right: true, show: (v) => (v.distanceMiles == null ? DASH : `${Math.round(v.distanceMiles)} mi`) },
 ];
 const ROW_H = 32;
+const MAY_BE_SOLD_COPY = "May be sold — we'll check with the dealer";
+const MAY_BE_SOLD_COL_W = 360;
 
 function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, vehicles, dimmed, picks, viewed, onTogglePick, onView, sort, onSort, sortBusy }: {
   /** Changes (new object) whenever a fresh search starts — the list scrolls back to the top. */
@@ -626,7 +630,9 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   const shownKeys = new Set(visibleColumnKeys(TABLE_COLUMNS, hiddenCols));
   // A ZIP search: any row has a distance, or the API echoed the field as null for a dealer it could not place.
   const hasDistance = vehicles.some((v) => v.distanceMiles != null);
-  const cols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance));
+  const anyMaybeSold = vehicles.some((v) => v.mayBeSold);
+  // Room for the "May be sold" note beside the listing link, only when some row carries it.
+  const cols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance)).map((c) => (c.key === "listing" && anyMaybeSold ? { ...c, w: MAY_BE_SOLD_COL_W } : c));
   const mobile = useIsMobile();
   const totalW = cols.reduce((s, c) => s + c.w, 0);
   const picked = new Set(picks.map((p) => p.key));
@@ -677,6 +683,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                   <input type="checkbox" checked={picked.has(key)} disabled={blocked} onClick={(e) => e.stopPropagation()} onChange={() => onTogglePick(toPick(v))} aria-label={`Pick ${title} for a quote`} className="h-4 w-4 accent-brand-500" />
                   Get a quote
                 </label>
+                {v.mayBeSold ? <span data-testid="may-be-sold" className="text-[11px] font-semibold text-amber-300">{MAY_BE_SOLD_COPY}</span> : null}
                 {v.vdpUrl ? <Link href={v.vdpUrl} target="_blank" rel="noopener noreferrer" onClick={() => onView(key)} className="text-xs text-brand-400 hover:underline">View at dealer ↗</Link> : <span className="text-xs text-ink-faint">No link</span>}
               </div>
             </article>
@@ -761,6 +768,7 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
                           ) : (
                             <span className="truncate text-ink-faint">No link</span>
                           )}
+                          {v.mayBeSold && <span data-testid="may-be-sold" className="shrink-0 text-[10.5px] font-semibold text-amber-300">{MAY_BE_SOLD_COPY}</span>}
                           {isViewed && <span className="shrink-0 text-[10.5px] text-ink-faint">Viewed</span>}
                         </span>
                       ) : (
