@@ -69,14 +69,15 @@ describe("radius search with real dealer coordinates", () => {
     assert.notEqual(flem, budd, "distances differ per dealer");
   });
 
-  it("a dealer with no usable ZIP gets distance null, is kept, and sorts after every real distance", async () => {
+  it("a dealer with no usable ZIP is left out by a radius, and shown with distance null when no radius is set", async () => {
     const r = await runBuyerSearch(parse("&zip=07836&radiusMiles=25&limit=100&sort=distance"));
-    const unknown = r.vehicles.filter((v) => v.dealerId === "14" || v.dealerId === "15");
+    assert.ok(!r.vehicles.some((v) => v.dealerId === "14" || v.dealerId === "15"), "unknown distance cannot be shown to be inside the radius");
+    assert.ok(r.vehicles.length > 0);
+    assert.ok(r.vehicles.every((v) => v.distanceMiles !== null && v.distanceMiles <= 25));
+    const open = [...(await runBuyerSearch(parse("&zip=07836&limit=100&offset=0"))).vehicles, ...(await runBuyerSearch(parse("&zip=07836&limit=100&offset=100"))).vehicles];
+    const unknown = open.filter((v) => v.dealerId === "14" || v.dealerId === "15");
     assert.ok(unknown.length > 0);
-    assert.ok(unknown.every((v) => v.distanceMiles === null));
-    const firstNull = r.vehicles.findIndex((v) => v.distanceMiles === null);
-    assert.ok(r.vehicles.slice(firstNull).every((v) => v.distanceMiles === null), "nulls all last");
-    assert.ok(r.vehicles.every((v) => v.distanceMiles === null || v.distanceMiles <= 25));
+    assert.ok(unknown.every((v) => v.distanceMiles === null), "no made-up distance");
   });
 
   it("total is stable across pages and nextOffset walks the set exactly once", async () => {
@@ -91,7 +92,7 @@ describe("radius search with real dealer coordinates", () => {
       offset = r.nextOffset;
     }
     assert.equal(seen.size, total);
-    assert.equal(total, 40 + 30 + 30 + 30, "Budd Lake + Flemington + two unplaceable dealers");
+    assert.equal(total, 40 + 30, "Budd Lake + Flemington; the two unplaceable dealers are cut by the radius");
   });
 
   it("without a radius: total and nextOffset come from the one box query", async () => {

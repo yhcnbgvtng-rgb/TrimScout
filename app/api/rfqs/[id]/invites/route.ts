@@ -10,6 +10,7 @@ import { featureEnabled, DEGRADE_COPY } from "@/lib/featureFlags";
 import { firstTrippedLimit, isRateLimitExempt, tooManyRequests } from "@/lib/rateLimit";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { bump } from "@/lib/opsMetrics";
+import { isBuyerTestMode } from "@/lib/buyerTestMode";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 
 // The one send path. The buyer's confirm step names a dealership; this
@@ -59,7 +60,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
     }
     const history = await listRfqsForBuyer(rfq.buyerUserId);
-    const maxInvites = reputationInviteCap(buyerRfqStrikeCount(history, Date.now()));
+    const maxInvites = reputationInviteCap(buyerRfqStrikeCount(history, Date.now(), { testMode: isBuyerTestMode(session?.user) }));
     if (!canInviteMore(rfq.invites, maxInvites)) {
       return NextResponse.json({ error: "You've reached the invite limit for this request." }, { status: 400 });
     }

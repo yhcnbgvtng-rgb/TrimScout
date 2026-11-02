@@ -63,6 +63,15 @@ header a:focus-visible {
   outline-offset: 2px;
 }
 
+/* Keyboard focus on the green "Request a Quote" buttons (header, hero, intro footer, mobile menu): a white 3px ring with a 2px gap,
+   visible against the dark page and the green fill alike. The old ring was black, which vanished on the dark header. */
+a.bg-brand-500:focus-visible,
+button.bg-brand-500:focus-visible,
+[data-testid^="cta-request-quote"]:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
 /* Small hint text: the old #6b7280 was ~3.9:1 on the page background; this is ~6:1, which clears WCAG AA (4.5:1). */
 .text-ink-faint {
   color: #8b93a1;

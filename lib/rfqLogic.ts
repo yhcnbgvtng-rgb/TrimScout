@@ -147,9 +147,20 @@ export function classifyRfqOutcome(rfq: Pick<RfqRequest, "status" | "invites">, 
   return nowMs - latestQuoteMs > staleMs ? "ghosted" : "in_progress";
 }
 
-/** Count of strike-worthy outcomes across a buyer's RFQ history. */
-export function buyerRfqStrikeCount(rfqs: Pick<RfqRequest, "status" | "invites">[], nowMs: number): number {
+/**
+ * Count of strike-worthy outcomes across a buyer's RFQ history. Test traffic never counts: requests the
+ * box flagged audit (buyer test mode, the audit key) are skipped, and a test-mode account (the
+ * BUYER_TEST_MODE_EMAILS allowlist) has no strikes at all. Computed at read time, so strikes already
+ * on file from test requests stop counting with no DB writes.
+ */
+export function buyerRfqStrikeCount(
+  rfqs: (Pick<RfqRequest, "status" | "invites"> & { audit?: boolean; auditForcedSafeMode?: boolean })[],
+  nowMs: number,
+  opts: { testMode?: boolean } = {}
+): number {
+  if (opts.testMode) return 0;
   return rfqs.filter((r) => {
+    if (r.audit || r.auditForcedSafeMode) return false;
     const outcome = classifyRfqOutcome(r, nowMs);
     return outcome === "ghosted" || outcome === "cancelled_after_quote";
   }).length;

@@ -20,10 +20,11 @@ export async function POST(req: Request) {
     const dealerName = typeof p.dealerName === "string" ? p.dealerName : "";
     const dealerId = typeof p.dealerId === "string" && p.dealerId ? p.dealerId : null;
     if (!VIN_RE.test(vin) || !dealerName) return;
+    const mayBeSold = p.mayBeSold === true;
     const key = vehicleKey({ vin, dealerId, dealerName });
     try {
       const { listings } = await inventoryVin(vin);
-      status[key] = listingFor({ vin, dealerId, dealerName }, listings);
+      status[key] = listingFor({ vin, dealerId, dealerName, mayBeSold }, listings);
     } catch {
       status[key] = "unknown";
     }

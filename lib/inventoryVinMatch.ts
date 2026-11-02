@@ -21,6 +21,12 @@ export async function findByVin(q: Extract<VinQuery, { ok: true }>): Promise<{ v
   }
   const current = rows.filter((v) => !v.removedAt);
   const contacts = await loadContactIndex();
-  const vehicles = collapseByVin(current, null).rows.map((v) => toBuyerVehicle(v, null, contacts));
+  // The buyer asked for this exact car, so its row is always pickable: the search list's "seen within 3 days" gate would otherwise grey
+  // out the checkbox with no way to tick it ("Picked 0 of 3"). A stale row stays pickable and is flagged mayBeSold; the pick-status check
+  // keeps such a pick on reload unless the car is really gone (removed, or no longer at that store).
+  const vehicles = collapseByVin(current, null).rows.map((v) => {
+    const b = toBuyerVehicle(v, null, contacts);
+    return b.rfqEligible ? b : { ...b, rfqEligible: true, mayBeSold: true };
+  });
   return { vehicles, truncated };
 }

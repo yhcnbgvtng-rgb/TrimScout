@@ -205,7 +205,7 @@ describe("a price change flags the sales tax for the dealer", () => {
       const src = fs.readFileSync(f, "utf8");
       assert.match(src, /counterPriceChanged\(counterSheet\) && !taxConfirmed/, f);
       assert.match(src, /\.\.\.\(taxPending \? \[TAX_PROMPT_COPY\] : \[\]\)/, f);
-      assert.match(src, /if \(errors\.length\) return;/, f);
+      assert.match(src, /if \(errors\.length\) (\{ setSubmitAttempt\(\(n\) => n \+ 1\); )?return;/, f);
       assert.match(src, /<TaxUpdatePrompt pending=\{taxPending\}/, f);
     }
     const page = fs.readFileSync("app/quote-request/received/page.tsx", "utf8");
