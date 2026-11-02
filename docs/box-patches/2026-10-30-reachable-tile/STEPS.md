@@ -1,67 +1,67 @@
 # Box patch: "Reachable by quote request" admin tile (box2 deals API) — code only, NOTHING IS INSTALLED
 
-Install only on Paul's typed GO, in an idle window (not 22:00-23:30 ET; box2's nightly sync finished and the sync lock released). Box2 only, one patched file plus one new file in `/opt/trimscout-deals/src`, one `sudo -u ubuntu pm2 restart deals-api`. No schema or env change. Addresses and paths: `docs/BOXES.md`.
+**v2, 2026-10-30.** v1 was applied on box2 that evening and rolled back after a cold analytics call ran past 120 s (limit 5 s). v2 moves the counts out of the MEDIAN analytics path. Cut against box2's live `deals_api_server.js`, md5 `79bc7ca5…` (after the buyer-contact-reveal install, PR #643). Install only on Paul's typed GO (not before box2's sync has finished), on **box2** (`ssh box2`; `docs/BOXES.md`): sync lock free, no sync/crawl process on any box. One patched file plus two new files in `/opt/trimscout-deals/src`, one `sudo -u ubuntu pm2 restart deals-api`. No schema or env change.
 
-## Why
-The admin tile "Sales email on file for X of Y rooftops" counted any non-empty `contact_email` (audit 2026-10-30): `accessibility@hmausa.com` on 111 rooftops, lead-vendor domains, scraped `.png` names and department inboxes all counted. The patch makes the box compute the tile with the SAME function the wizard badge and quote routing run (`quoteReachable.js`, shared with the web app), and returns the new fields the admin page already reads:
+## Why v1 was slow (from the code; EXPLAIN was not run, there is no local DB and box2's production DB is off limits)
+v1 added, inside `computeInventoryAnalytics` (the `statsCached` MEDIAN path), `SELECT i.dealer_id, MAX(i.dealer_name), MAX(d.contact_email), MAX(d.website), MAX(d.domains_json), MAX(d.email_opt_out) … GROUP BY i.dealer_id` over every in-stock car, plus four more `MAX(d.*)` columns in the existing `byDealer` query.
+- `i.dealer_name` is in neither `idx_inv_stock_dealer_id (removed_at, dealer_id)` nor `idx_inv_by_dealer_covering (removed_at, dealer_id, cond, price_diff, last_seen_at)`, so the grouped read stops being index-only: one row lookup per in-stock vehicle. The comment above that index in the live file measured exactly this shape at 32.1 s cold against 223 ms covered.
+- Every in-stock row also joined `dealership_contacts` and aggregated its text columns (`domains_json` is TEXT), millions of times, to learn about roughly 9.5k rooftops.
+- It sat in the same compute as the MEDIAN full scans, so a cold key paid for both, and a persisted pre-patch cache entry kept serving the old fields until it expired (the 14 ms "first call" never ran the new code).
 
-| Field | Meaning |
-|---|---|
-| `coverage.dealersReachable` | rooftops with cars on the lot whose address passes the shared check and who have not unsubscribed |
-| `coverage.dealersUnverified` | rooftops with an address we cannot tie to the store (public mail, unrelated domain) |
-| `coverage.dealersWithEmail` | kept for older readers; now equals `dealersReachable` |
-| `dom.byDealer[].emailStatus` / `.hasEmail` | per rooftop: `reachable` / `unverified` / `none`; `hasEmail` is true only for `reachable` |
+## What v2 does
+`reachableCoverage.js` overlays the reachable counts on the cached stats payload; `computeInventoryAnalytics` is **byte-for-byte unchanged** (the test pins it).
+1. Directory read: `SELECT id, dealer_name, contact_email, website, domains_json, email_opt_out FROM dealership_contacts WHERE is_test = 0` — one small table (about 10k rows, primary key), classified once in JS with the shared rule (`quoteReachable.js`), group domains included.
+2. Dealer ids in scope: `SELECT i.dealer_id FROM dealer_inventory i WHERE [filters] AND i.removed_at IS NULL AND i.dealer_id > 0 GROUP BY i.dealer_id` — no join, only `removed_at` and `dealer_id`, so the unfiltered call is answered from `idx_inv_stock_dealer_id` alone (the by-dealer query is the same class).
+3. Both are cached in their own in-memory stale-while-revalidate cache (`reachableCached`, 30 min, not the stats cache, not cleared by writes), each read capped by the server's statement timeout. A failure leaves the stats payload untouched and is not cached (the page falls back to its "not updated" label).
 
-Until this is installed the admin page shows the old count under an honest label ("Box has not been updated: this is the old any-text-in-the-field count"), so nothing misleads in the meantime.
+Fields: `coverage.dealersReachable`, `coverage.dealersUnverified` (shown as "Unverified email", never as on file), `coverage.dealersWithEmail` (= reachable, for older readers), and `dom.byDealer[].emailStatus` / `.hasEmail` (true only for `reachable`).
 
-## What it adds to the request
-One cached query of the directory's addresses (to find group domains: a mail domain two or more rooftops share), and the existing coverage count becomes a per-dealer pass over the in-scope rooftops (about 9.5k) in JS. The directory query is cached with the other inventory caches (`invCached`) and re-run after a bulk upsert. **Not measured on box2** (code only); step 6 times the first call.
+**Estimated cold time.** Not measured on box2: directory read 0.1-0.5 s + JS classification under 0.1 s + unfiltered dealer-id read 0.2-1 s ≈ **0.5-2 s**, hard-capped at the statement timeout per read; warm calls are milliseconds. **Hard cap:** the overlay waits at most `REACHABLE_WAIT_MS` = 4 s; past that the plain stats go out at once (fallback, always under the 5 s limit; the page shows its "not updated" label) while the two reads finish in the background and warm the cache for the next call. Filtered calls (state, make, model, dates) read `dealer_id` from the row for each matching car and cost about what the existing `byDealer` query already costs.
 
 ## Files (`/opt/trimscout-deals/src`)
-Copied from the repo checkout at the install commit: `scrapers/lightsail-crawler/src/quoteReachable.js` (new file, copied whole, md5 in `manifest.txt`). Patched: `deals_api_server.js`, which has two accepted starting files (before and after the sweep-crawl-stamps install, PR #628); pick the patch by the live md5, never by guess.
+| File | Before (must be exactly) | After |
+|---|---|---|
+| `quoteReachable.js` | absent | `cff4d09baa921dac3d2cdb23c81d6dea` (new: `files/`) |
+| `reachableCoverage.js` | absent | `e208f7648598788713b1f81b00bd5dc6` (new: `files/`) |
+| `deals_api_server.js` | `79bc7ca587662d4f5120cd9c4330f209` | `b82c398d17494f7ab6e470da563cad9d` (patched by `deals_api_server.js.patch`, `7032cd2ad20df352fc77d48a1d8b6df1`: one import, one cache, three lines in `handleInventoryAnalytics`) |
+
+There is exactly one accepted starting file. Any other md5 (another package was installed since): **stop**. Do not hand-edit on the box; pull the live file, cut a new patch in a PR, re-pin. The patch applies with **zero fuzz** (`patch -F0`); `scripts/box/reachable-tile-install.test.mjs` runs it against the local (gitignored) live snapshot `docs/box-snapshots/2026-10-30-box2-deals-api/` and skips with a message when it is absent; `install.sh check` does the same md5 pin and zero-fuzz dry run on the box. The module behaviour is covered by `scrapers/lightsail-crawler/test/reachable_coverage.test.js`.
 
 <!-- MD5S:START -->
 ```
-# md5  role  file   (BASE = box2 live text read-only 2026-10-29, the two accepted starting files of deals_api_server.js; RESULT = after the patch; PATCH = the patch file; FILE = copied whole to the box)
-31d527ba8e277ff58e39f73ad1d00295  BASE    deals_api_server.js@before-crawl-stamps
-3609a39f07e8caa2d2a9c551c89a19ec  RESULT  deals_api_server.js@before-crawl-stamps
-b40e93c8c13de575cae0055be64a04d0  PATCH   deals_api_server.js.patch
-400e943b58e972a00fcce92738ead685  BASE    deals_api_server.js@after-crawl-stamps
-4f4d81a822d0106e6a4198a8bf7d7100  RESULT  deals_api_server.js@after-crawl-stamps
-805378b67044e9727b24d37b1b726840  PATCH   deals_api_server.after-crawl-stamps.js.patch
-cff4d09baa921dac3d2cdb23c81d6dea  FILE    quoteReachable.js
+# md5  role  file   (BASE = box2 live deals_api_server.js read-only 2026-10-30, after the buyer-contact-reveal (#643) and vin-search installs; RESULT = after the patch; PATCH/FILE = shipped in this directory)
+79bc7ca587662d4f5120cd9c4330f209  BASE     deals_api_server.js@live-2026-10-30
+b82c398d17494f7ab6e470da563cad9d  RESULT   deals_api_server.js@live-2026-10-30
+7032cd2ad20df352fc77d48a1d8b6df1  PACKAGE  deals_api_server.js.patch
+cff4d09baa921dac3d2cdb23c81d6dea  PACKAGE  files/quoteReachable.js
+e208f7648598788713b1f81b00bd5dc6  PACKAGE  files/reachableCoverage.js
+-                                 BEFORE   quoteReachable.js   (absent)
+-                                 BEFORE   reachableCoverage.js   (absent)
 ```
 <!-- MD5S:END -->
 
-The patches stack with `2026-10-29-stats-cache-warm` (same file, different hunks); the install test applies this one to the stats-warm result too. If a live md5 matches none of the BASE values, **stop**: do not hand-edit on the box. Pull the live file, cut a new patch from it in a PR, and re-verify the result md5.
-
-## Steps (Paul's GO)
-0. Preconditions: no `run-daily-crawl|run_nightly_chain|standalone|inventory-sync.mjs` process on box1-4, sync lock free (last `[sync-lock]` line in `/home/ubuntu/.pm2/logs/deals-api-out.log` is a `release`).
-1. Backup and drift check, read-only on the live file:
+## Steps (on box2, as `ubuntu`)
+0. Mac, from the merged checkout: `scp -r docs/box-patches/2026-10-30-reachable-tile ubuntu@52.202.234.65:/tmp/rt`. Compare to `manifest.txt` (`PACKAGE` rows): `cd /tmp/rt && md5sum deals_api_server.js.patch files/*`.
+1. Read-only drift check (changes nothing in the live dir). Must end `DRIFT CHECK PASS`:
 ```bash
-ssh box2 'cd /opt/trimscout-deals/src && md5sum deals_api_server.js && S=$(date +%Y%m%d%H%M%S) && sudo cp -p deals_api_server.js deals_api_server.js.bak.reachtile.$S && echo "backup stamp: $S"'
+bash /tmp/rt/install.sh check
 ```
-   `deals_api_server.js` must equal one of the two BASE values: `31d527ba…` (use `deals_api_server.js.patch`) or `400e943b…` (use `deals_api_server.after-crawl-stamps.js.patch`). Any other md5: stop. Write down the stamp and which one it was.
-2. Patch a COPY, never the live file (`-F0` = no fuzz, so drift fails instead of patching wrongly):
+2. Gate by hand as well: the last `[sync-lock]` line in `~/.pm2/logs/deals-api-out.log` is a `release`; no `inventory-sync|run_sync|run_nightly_chain|run-daily-crawl|standalone` process on any box; `catalog-facets/status` shows `building: false`. `apply` and `restart` check the lock and box2's own processes again and refuse.
+3. **Time the unpatched baseline first**, before applying anything, with the default key (no `?from=`, no filters), twice (the first may be a cache hit; note which): `time curl -s -H "X-Trimscout-Api-Key: $KEY" "http://127.0.0.1:3004/api/inventory/analytics" -o /dev/null`. Write both numbers down. Do not use a `?from=` key: it forces a different, filter-scoped MEDIAN compute and says nothing about the tile.
+4. Apply (gates, **backup first** to `~/backups/box2-reachable-tile-20261030/`, copies the two modules then the patched server, checks every md5, `node --check`, the smoke test on the live files, restores itself on any failure; **does not restart**), then restart (gates again, `sudo -u ubuntu pm2 restart deals-api`, online with a fresh uptime stamp, `/health` 401). Never `sudo pm2 ...` and never `trimscout-deals-api`.
 ```bash
-scp scrapers/lightsail-crawler/src/quoteReachable.js docs/box-patches/2026-10-30-reachable-tile/*.patch box2:/tmp/
-# DP: deals_api_server.js.patch when the live md5 is 31d527ba…, deals_api_server.after-crawl-stamps.js.patch when it is 400e943b…
-ssh box2 'DP=deals_api_server.js.patch; mkdir -p /tmp/reachtile && cd /tmp/reachtile && cp /opt/trimscout-deals/src/deals_api_server.js . && cp /tmp/quoteReachable.js . && patch -F0 --dry-run deals_api_server.js < /tmp/$DP && patch -F0 -s --no-backup-if-mismatch deals_api_server.js < /tmp/$DP && md5sum deals_api_server.js quoteReachable.js && ls *.rej 2>&1 | head -1'
+bash /tmp/rt/install.sh apply
+bash /tmp/rt/install.sh restart
 ```
-   Expect no `.rej` and the RESULT md5 for your starting file, and the FILE md5 for `quoteReachable.js`.
-3. Check the import and the module: `ssh box2 'cd /tmp/reachtile && grep -c "quoteReachable.js" deals_api_server.js && node --check quoteReachable.js && node --input-type=module -e "import(\"/tmp/reachtile/quoteReachable.js\").then(m=>console.log(m.reachabilityBucket({contactEmail:\"accessibility@hmausa.com\"}), m.reachabilityBucket({contactEmail:\"jdoe@gmail.com\"})))"'`. Expect `1`, then `none unverified`. (`node --check` does NOT catch a missing import.)
-4. Syntax check the patched server: `ssh box2 'cd /tmp/reachtile && cp deals_api_server.js check.mjs && node --check check.mjs && echo syntax ok'`.
-5. Install and restart (only the `ubuntu` PM2 runs deals-api; never a bare `sudo pm2`):
-```bash
-ssh box2 'cd /tmp/reachtile && sudo install -m 0644 quoteReachable.js /opt/trimscout-deals/src/quoteReachable.js && sudo install -m 0644 deals_api_server.js /opt/trimscout-deals/src/deals_api_server.js && md5sum /opt/trimscout-deals/src/quoteReachable.js /opt/trimscout-deals/src/deals_api_server.js && sudo -u ubuntu pm2 restart deals-api'
-```
-6. Verify (about 10 s after the restart): `deals-api` online and its restart count unchanged 10 s later; `/health` 401; then one analytics call, timed, e.g. `time curl -s -H "X-Trimscout-Api-Key: $KEY" "http://127.0.0.1:3004/api/inventory/analytics" | python3 -c "import sys,json; c=json.load(sys.stdin)['coverage']; print({k:c[k] for k in ('dealers','dealersReachable','dealersUnverified','dealersWithEmail')})"`. `dealersReachable` should be near the audit's 5,468 of 9,486 (the audit's group-domain threshold was 3, this uses 2, so a little higher). If the call takes more than a few seconds cold, roll back.
+   If `/opt/trimscout-deals/src` is root-owned: `SUDO=sudo bash /tmp/rt/install.sh apply`.
+5. Verify, timed, with the **default key** (same command as step 3, plus the fields): `time curl -s -H "X-Trimscout-Api-Key: $KEY" "http://127.0.0.1:3004/api/inventory/analytics" | python3 -c "import sys,json; c=json.load(sys.stdin)['coverage']; print({k:c.get(k) for k in ('dealers','dealersReachable','dealersUnverified','dealersWithEmail')})"`. The first call after the restart must come back in **under 5 s** with `dealersReachable` and `dealersUnverified` present (v2 computes them on every first call, so a persisted pre-patch stats entry cannot hide them) and `dealersReachable` near the audit's 5,468 of 9,486 (a little higher: the audit's group-domain threshold was 3, this uses 2). Then a second call (milliseconds), `sudo -u ubuntu pm2 logs deals-api --lines 30 --nostream` with no errors, and the restart count unchanged a minute later. If the first call takes 5 s or more, or the fields are missing: roll back.
+6. Clean up `/tmp/rt`. Keep the backup until the admin page is seen working.
 
 ## Rollback
 ```bash
-ssh box2 'cd /opt/trimscout-deals/src && sudo cp -p deals_api_server.js.bak.reachtile.<STAMP> deals_api_server.js && sudo rm -f quoteReachable.js && md5sum deals_api_server.js && sudo -u ubuntu pm2 restart deals-api'
+bash /tmp/rt/install.sh restore && sudo -u ubuntu pm2 restart deals-api
 ```
-The md5 must equal the starting md5 written down in step 1. The admin page falls back to its "Box has not been updated" label.
+`restore` copies the backed-up server back, removes the two modules and checks the md5 against `md5s.txt`. The admin page falls back to its "Box has not been updated" label.
 
 ## Not in this package
-The contact-write guard in `auth_api_server.js` (refuses department mailboxes, vendor domains and junk on create, update and bulk import) is in the repo mirror and covered by the web app's own guard, but the live auth server's text is not in `docs/box-snapshots/`, so no patch is cut for it here. Install it with its own package cut from the live text, on its own GO.
+The contact-write guard in `auth_api_server.js` (refuses department mailboxes, vendor domains and junk on create, update and bulk import) is in the repo mirror, but the live auth server's text is not in `docs/box-snapshots/`, so no patch is cut for it here. The /search "Unverified email" column ships with the Next app (PR #655), not this package.

@@ -61,6 +61,18 @@ describe("the admin alert email", () => {
     assert.match(approvalDeskUrl(r), /\/admin\/approvals#rfq-17$/);
     assert.doesNotMatch(html, /<script/);
   });
+
+  it("shows the buyer's email, not the account id", () => {
+    const r = rfq([invite()], { buyerUserId: "1" });
+    const html = approvalAlertHtml(r, "pat.buyer@example.com");
+    assert.match(html, />Buyer<\/td><td>pat\.buyer@example\.com<\/td>/);
+    assert.doesNotMatch(html, /Buyer 1|<td>1<\/td>/);
+    assert.match(approvalAlertHtml(r, null), /\(no email on file\) · account 1/);
+    assert.match(approvalAlertHtml(r, "<b>x</b>@example.com"), /&lt;b&gt;/);
+  });
+  it("says quote request, never bid", () => {
+    assert.doesNotMatch(approvalAlertHtml(rfq([invite()]), "a@example.com") + approvalAlertSubject(rfq([invite()])), /\bbids?\b/i);
+  });
 });
 
 describe("wiring", () => {
@@ -79,7 +91,7 @@ describe("wiring", () => {
     const edit = fs.readFileSync("app/api/admin/rfqs/[id]/route.ts", "utf8");
     assert.match(edit, /adminPatchRfq\(id, \{ \.\.\.patch, adminEdit: \{ by: session\.user\?\.email/);
     const create = fs.readFileSync("app/api/rfqs/route.ts", "utf8");
-    assert.match(create, /sendAdminApprovalAlert\(`\$\{testMode \? "\[TEST\] " : ""\}\$\{approvalAlertSubject\(rfq\)\}`, approvalAlertHtml\(rfq\)\)/, "one admin email per new request");
+    assert.match(create, /sendAdminApprovalAlert\(`\$\{testMode \? "\[TEST\] " : ""\}\$\{approvalAlertSubject\(rfq\)\}`, approvalAlertHtml\(rfq, [^)]*\)\)/, "one admin email per new request");
   });
   it("the box patch inserts every new request as pending and grandfathers existing rows as approved", () => {
     const box = fs.readFileSync("scrapers/lightsail-crawler/src/deals_api_server.js", "utf8");
