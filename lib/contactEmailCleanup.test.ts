@@ -59,6 +59,36 @@ describe("planContactEmailCleanup", () => {
     assert.equal(p.counts.moveActive, null);
   });
 
+  it("counts dealers with no reachable email after the cleanup, and those that lose one", () => {
+    const c = plan.counts;
+    assert.equal(c.reachableBefore, 1);   // only row 6 (jdoe@goodmotors.com) is reachable today
+    assert.equal(c.reachableAfter, 2);    // row 8 gains one from its notes
+    assert.equal(c.noReachableAfter, 11);
+    assert.equal(c.lostReachable, 0);     // clearing only removes addresses that were never reachable
+    assert.deepEqual(plan.lostReachableIds, []);
+  });
+
+  it("a group mailbox stripped of its sibling stops being reachable and is counted as lost", () => {
+    const grp = [
+      { ...base, id: 21, dealerName: "Alpha Store", contactEmail: "mia@groupco.com" },
+      { ...base, id: 22, dealerName: "Beta Store", contactEmail: "info@groupco.com" },
+    ];
+    const p = planContactEmailCleanup(grp, { activeIds: new Set([21]) });
+    assert.deepEqual(p.clear.map((c) => c.id), [22]);
+    assert.equal(p.counts.reachableBefore, 1);
+    assert.equal(p.counts.reachableAfter, 0);
+    assert.equal(p.counts.noReachableAfter, 2);
+    assert.equal(p.counts.lostReachable, 1);
+    assert.equal(p.counts.lostReachableActive, 1);
+    assert.deepEqual(p.lostReachableIds, [21]);
+  });
+
+  it("an opted-out dealer is never reachable, before or after", () => {
+    const p = planContactEmailCleanup([{ ...base, id: 30, dealerName: "Good Motors", contactEmail: "jdoe@goodmotors.com", emailOptOut: 1 }]);
+    assert.equal(p.counts.reachableBefore, 0);
+    assert.equal(p.counts.noReachableAfter, 1);
+  });
+
   it("is idempotent: a second plan over the cleaned rows changes nothing", () => {
     const cleaned = rows.map((r) => {
       const c = plan.clear.find((x) => x.id === r.id);
@@ -82,6 +112,13 @@ describe("planContactEmailCleanup", () => {
 describe("the cleanup script's gates", () => {
   const fs = nodeFs;
   const src = fs.readFileSync(new URL("../scripts/box/2026-10-30-contact-email-cleanup.mjs", import.meta.url), "utf8");
+  it("dry run reads the directory in primary-key batches under a 10 s cap, not one full scan", () => {
+    assert.match(src, /WHERE id > \? AND is_test = 0 ORDER BY id LIMIT \?/);
+    assert.match(src, /STATEMENT_CAP_S = 10/);
+    assert.match(src, /READ_BATCH = 500/);
+    assert.doesNotMatch(src, /SELECT DISTINCT dealer_id/);
+    assert.doesNotMatch(src, /src\/contactEmailCleanup\.js"\)\)|process\.cwd\(\), "src/);
+  });
   it("dry run is the default and read-only", () => {
     assert.match(src, /SET SESSION TRANSACTION READ ONLY/);
     assert.match(src, /const WRITES = APPLY \|\| ROLLBACK/);

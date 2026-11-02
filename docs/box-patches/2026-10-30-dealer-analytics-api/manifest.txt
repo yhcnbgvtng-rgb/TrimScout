@@ -1,0 +1,5 @@
+# md5  role  file   (BASE = box2 live text read-only 2026-10-30; RESULT = file after the patch; PATCH = the patch file; NEW = a file copied to box2 src/ as-is from the repo)
+bd11ff778117cd932c2608e1585634d4  BASE    deals_api_server.js
+4b695d7d4297e728033b37ffdc59a09f  RESULT  deals_api_server.js
+c59a0e988cf51fae85c3eb8a9c162894  PATCH   deals_api_server.js.patch
+2fd7eb4f33118c116cbdb86fba94cc5f  NEW     dealerAnalyticsApi.js

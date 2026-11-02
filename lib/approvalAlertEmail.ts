@@ -20,9 +20,12 @@ export function approvalDeskUrl(rfq: Pick<RfqRequest, "id">): string {
   return `${DEALER_EMAIL_BASE_URL}/admin/approvals#rfq-${rfq.id}`;
 }
 
-export function approvalAlertHtml(rfq: RfqRequest): string {
+/** `buyerEmail` is the signed-in buyer's (or the guest's) email; without one the row says so and keeps the account id so the admin can still look the buyer up. */
+export function approvalAlertHtml(rfq: RfqRequest, buyerEmail?: string | null): string {
   const dealers = (rfq.linkPastes || []).map((p) => (typeof p.dealerName === "string" && p.dealerName.trim()) || "(no dealership attached)");
   const url = escapeHtml(approvalDeskUrl(rfq));
+  const email = typeof buyerEmail === "string" ? buyerEmail.trim() : "";
+  const buyer = email ? escapeHtml(email) : `(no email on file) · account ${escapeHtml(rfq.buyerUserId)}`;
   return `
   <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:600px;margin:0 auto;color:#0f172a;line-height:1.5">
     ${emailHeader()}
@@ -32,7 +35,7 @@ export function approvalAlertHtml(rfq: RfqRequest): string {
       <tr><td style="padding:2px 12px 2px 0;color:#64748b">Vehicle</td><td>${escapeHtml(rfqVehicleSummary(rfq))} · VIN ${escapeHtml(rfq.vin)}</td></tr>
       <tr><td style="padding:2px 12px 2px 0;color:#64748b">Type</td><td>${escapeHtml(rfqQuoteTypeLabel(rfq))}</td></tr>
       <tr><td style="padding:2px 12px 2px 0;color:#64748b">Dealers</td><td>${dealers.length ? escapeHtml(dealers.join(" · ")) : "—"}</td></tr>
-      <tr><td style="padding:2px 12px 2px 0;color:#64748b">Buyer</td><td>${escapeHtml(rfq.buyerUserId)}</td></tr>
+      <tr><td style="padding:2px 12px 2px 0;color:#64748b">Buyer</td><td>${buyer}</td></tr>
       ${rfq.buyerNote ? `<tr><td style="padding:2px 12px 2px 0;color:#64748b;vertical-align:top">Note</td><td>${escapeHtml(rfq.buyerNote)}</td></tr>` : ""}
     </table>
     <p style="margin:16px 0"><a href="${url}" style="display:inline-block;background:#2A6B53;color:#ffffff;font-weight:800;padding:10px 16px;border-radius:10px;text-decoration:none">Open the approval desk</a></p>
