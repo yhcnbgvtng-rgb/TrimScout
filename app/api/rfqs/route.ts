@@ -211,7 +211,7 @@ export async function POST(req: Request) {
     // The admin gate: every new request waits for approval. Tell the admin
     // now (after the response), with the summary and a link to the desk.
     after(async () => {
-      const alerted = await sendAdminApprovalAlert(`${testMode ? "[TEST] " : ""}${approvalAlertSubject(rfq)}`, approvalAlertHtml(rfq)).catch(() => false);
+      const alerted = await sendAdminApprovalAlert(`${testMode ? "[TEST] " : ""}${approvalAlertSubject(rfq)}`, approvalAlertHtml(rfq, guestEmail || (typeof session?.user?.email === "string" ? session.user.email : null))).catch(() => false);
       if (!alerted) {
         // The request now waits in the approval queue with nobody told: leave a trace.
         console.error(`rfqs: approval alert for request ${rfq.id} was not sent`);
