@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { vinTimeline, type VehicleRow, type VinDay } from "@/lib/crawlSheetColumns";
+import { distinctMsrp } from "../../../lib/listingMsrp";
 
 const money = (n: number | null) => (n == null ? "—" : `$${n.toLocaleString()}`);
 
@@ -79,7 +80,7 @@ export default function VinHistory({ vin, onClose }: { vin: string; onClose: () 
                 {listing.condition && <div><span className="text-ink-faint">Condition</span> {listing.condition}</div>}
                 {listing.stockNumber && <div><span className="text-ink-faint">Stock #</span> <span className="font-mono">{listing.stockNumber}</span></div>}
                 {listing.mileage != null && <div><span className="text-ink-faint">Miles</span> {listing.mileage.toLocaleString()}</div>}
-                {listing.msrp != null && <div><span className="text-ink-faint">MSRP</span> {money(listing.msrp)}</div>}
+                {distinctMsrp(listing.msrp, last) != null && <div><span className="text-ink-faint">MSRP</span> {money(listing.msrp)}</div>}
                 {listing.daysOnLot != null && <div><span className="text-ink-faint">Days on lot (crawl)</span> {listing.daysOnLot}</div>}
                 {listing.crawlFirstSeen && <div><span className="text-ink-faint">On site since</span> {listing.crawlFirstSeen.slice(0, 10)}</div>}
                 {listing.vdpUrl && <div className="col-span-2 sm:col-span-3"><a href={listing.vdpUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:underline">Listing ↗</a>{listing.windowStickerUrl ? <> · <a href={listing.windowStickerUrl} target="_blank" rel="noopener noreferrer" className="text-sky-300 hover:underline">Window sticker ↗</a></> : null}</div>}

@@ -17,6 +17,7 @@
  * "Removed" = the crawl stopped seeing the VIN at that store (sold-ish, or
  * moved); it is the only churn signal public listings give.
  */
+import { distinctMsrp } from "./listingMsrp";
 
 export type DomBands = { d0_14: number; d15_45: number; d46_90: number; d90p: number };
 export const DOM_BAND_LABELS: Array<{ key: keyof DomBands; label: string }> = [
@@ -133,6 +134,7 @@ export function daysSupply(onLot: number, removed7: number, removed28: number): 
 
 export function discountPct(msrp: number | null | undefined, price: number | null | undefined): number | null {
   if (!msrp || !price || msrp <= 0 || price <= 0) return null;
+  if (distinctMsrp(msrp, price) == null) return null; // MSRP repeated from the asking price: no real discount to show
   return Math.round(((msrp - price) / msrp) * 1000) / 10;
 }
 

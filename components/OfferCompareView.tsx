@@ -60,6 +60,7 @@ import type { DealStructureMethod, Vehicle, VehicleDealTerms } from "../lib/type
 import { formatCurrency } from "../lib/otdCalculator";
 import { NO_PAID_FACTORY_OPTIONS, STANDARD_FEATURES_HEADING, optionsPaidOnlyEnabled, paidOptionView } from "@/lib/optionsPaidOnly";
 import { vehicleTitle } from "../lib/vehicleTitle";
+import { distinctMsrp } from "../lib/listingMsrp";
 
 function unavailableSheet(vin: string, note: string): ShopperListingSheet {
   return {
@@ -643,7 +644,7 @@ function VehicleHeroCard({
           {formatPriceAmount(price.amount)}{" "}
           <span className="uppercase text-[9px] font-bold text-ink-faint">{shopperPriceSourceLabel(price.source)}</span>
         </div>
-        {price.source === "listing" && vehicle.msrp > 0 ? (
+        {price.source === "listing" && distinctMsrp(vehicle.msrp, price.amount) != null ? (
           <div className="text-[11px] text-ink-muted">MSRP {formatPriceAmount(vehicle.msrp)}</div>
         ) : null}
       </div>
@@ -1054,7 +1055,7 @@ function VehicleOfferColumn({
               {shopperPriceSourceLabel(reviewPrice.source)}
             </span>
           </div>
-          {reviewPrice.source === "listing" && vehicle.msrp > 0 ? (
+          {reviewPrice.source === "listing" && distinctMsrp(vehicle.msrp, reviewPrice.amount) != null ? (
             <div className="text-[11px] text-ink-muted">MSRP {formatPriceAmount(vehicle.msrp)}</div>
           ) : null}
         </div>
@@ -1306,7 +1307,7 @@ export function PaidOnlyOptions({ options, sharedOptions }: { options: FactoryOp
 function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
   const facts: Array<{ label: string; value: React.ReactNode }> = [];
   if (sheet.advertisedPrice) facts.push({ label: "Advertised price", value: formatPriceAmount(sheet.advertisedPrice) });
-  if (sheet.msrp) facts.push({ label: "MSRP", value: formatPriceAmount(sheet.msrp) });
+  if (distinctMsrp(sheet.msrp, sheet.advertisedPrice) != null) facts.push({ label: "MSRP", value: formatPriceAmount(sheet.msrp as number) });
   if (sheet.daysOnMarket != null) facts.push({ label: "Days on market", value: String(sheet.daysOnMarket) });
   if (sheet.daysOnMarketActive != null) {
     facts.push({ label: "Days on market (active)", value: String(sheet.daysOnMarketActive) });
