@@ -6,14 +6,14 @@ Install only on Paul's typed GO, in an idle window (not 22:00-23:30 ET; box2's n
 `GET /api/inventory/dealer-analytics/dealers`, `/dealers/:id`, `/dealers/:id/market` (read-only, behind the same API key as every /api/inventory/* route; scoped audit keys are default-denied). A **dedicated** stable cache instance (`dealerAnalyticsCached`, 400 entries, 30 min, persisted to `/opt/trimscout-deals/dealer-analytics-cache.json`, created on first use) so per-dealer keys cannot evict the buyer dropdown entries in `facet-cache.json`; keys carry the finished run's identity, so a new nightly run is served at once. Statements run under `SET STATEMENT max_statement_time=8`.
 
 ## The patch is cut against box2's live text (2026-10-30), not repo main
-Box2's live `deals_api_server.js` differs from main (it has imports main does not), so the patch is cut from a read-only copy of the live file (`docs/box-snapshots/2026-10-30-box2-deals-api/`) and applies with no fuzz and no hand edit on the box. It has 3 hunks: the import, the cache + handler block just above `// GET /api/inventory/by-dealer`, and the route line just above the `/api/inventory/by-dealer` route. It relies on identifiers the live file already defines: `createStableCache`, `runBackground`, `waitMs`, `withPoolTimeout`, `getPool`, `sendJson`.
+Box2's live `deals_api_server.js` differs from main (it has imports main does not), so the patch is cut against the live text `79bc7ca5…`, which is rebuilt offline from the committed snapshot `docs/box-snapshots/2026-10-30-box2-deals-api/deals_api_server.bd11ff77.js.txt` plus `docs/box-patches/2026-10-31-vin-search/deals_api_server.js.patch` (md5-checked; re-pinned from `bd11ff77` on 2026-11-01, no box touched), and applies with no fuzz and no hand edit on the box. It has 3 hunks: the import, the cache + handler block just above `// GET /api/inventory/by-dealer`, and the route line just above the `/api/inventory/by-dealer` route. It relies on identifiers the live file already defines: `createStableCache`, `runBackground`, `waitMs`, `withPoolTimeout`, `getPool`, `sendJson`.
 
 | File | Applies to (box2 `src/`) | BASE md5 | Result md5 | File md5 |
 |---|---|---|---|---|
-| `deals_api_server.js.patch` | `deals_api_server.js` | `bd11ff778117cd932c2608e1585634d4` | `4b695d7d4297e728033b37ffdc59a09f` | `c59a0e988cf51fae85c3eb8a9c162894` |
+| `deals_api_server.js.patch` | `deals_api_server.js` | `79bc7ca587662d4f5120cd9c4330f209` | `4d948c6082ecb78cf9e37a62ac6b36e9` | `e70a0f3a3ff3c5a67985906a7522b30d` |
 | `dealerAnalyticsApi.js` (new, copied from `scrapers/lightsail-crawler/src/`) | — | — | — | `2fd7eb4f33118c116cbdb86fba94cc5f` |
 
-If the live `deals_api_server.js` is not `bd11ff77...` (another package was installed since), **stop**: do not hand-edit on the box. Pull the live file, cut a new patch from it in a PR, re-verify the result md5.
+If the live `deals_api_server.js` is not `79bc7ca5...` (another package was installed since), **stop**: do not hand-edit on the box. Pull the live file, cut a new patch from it in a PR, re-verify the result md5.
 
 ## Steps (Paul's GO)
 0. Preconditions: no `run-daily-crawl|run_nightly_chain|standalone|inventory-sync.mjs` process on box1-4, sync lock free (last `[sync-lock]` line in `/home/ubuntu/.pm2/logs/deals-api-out.log` is a `release`), and `SELECT COUNT(*) FROM dealer_analytics_runs WHERE status='ok'` is at least 1.
@@ -27,7 +27,7 @@ ssh box2 'cd /opt/trimscout-deals/src && md5sum deals_api_server.js && S=$(date 
 scp docs/box-patches/2026-10-30-dealer-analytics-api/deals_api_server.js.patch scrapers/lightsail-crawler/src/dealerAnalyticsApi.js box2:/tmp/
 ssh box2 'mkdir -p /tmp/dealeranalytics && cd /tmp/dealeranalytics && cp /opt/trimscout-deals/src/deals_api_server.js . && cp /tmp/dealerAnalyticsApi.js . && patch -F0 --dry-run deals_api_server.js < /tmp/deals_api_server.js.patch && patch -F0 -s --no-backup-if-mismatch deals_api_server.js < /tmp/deals_api_server.js.patch && md5sum deals_api_server.js dealerAnalyticsApi.js && ls *.rej 2>&1 | head -1'
 ```
-   Expect no `.rej`, `deals_api_server.js` = `4b695d7d...` and `dealerAnalyticsApi.js` = `2fd7eb4f33118c116cbdb86fba94cc5f`.
+   Expect no `.rej`, `deals_api_server.js` = `4d948c60...` and `dealerAnalyticsApi.js` = `2fd7eb4f33118c116cbdb86fba94cc5f`.
 3. **Check the import after patching** (`node --check` does NOT catch a missing import):
 ```bash
 ssh box2 'cd /tmp/dealeranalytics && grep -c "dealerAnalyticsApi.js" deals_api_server.js && grep -c "matchDealerAnalyticsRoute" deals_api_server.js && grep -c "dealerAnalyticsCached" deals_api_server.js && node --check deals_api_server.js && node --check dealerAnalyticsApi.js && echo syntax ok'

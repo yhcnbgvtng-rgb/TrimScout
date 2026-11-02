@@ -1,5 +1,5 @@
-# md5  role  file   (BASE = box2 live text read-only 2026-10-30; RESULT = file after the patch; PATCH = the patch file; NEW = a file copied to box2 src/ as-is from the repo)
-bd11ff778117cd932c2608e1585634d4  BASE    deals_api_server.js
-4b695d7d4297e728033b37ffdc59a09f  RESULT  deals_api_server.js
-c59a0e988cf51fae85c3eb8a9c162894  PATCH   deals_api_server.js.patch
+# md5  role  file   (BASE = box2 live text 79bc7ca5 (= committed bd11ff77 snapshot + the vin-search patch, rebuilt offline and md5-checked); RESULT = file after the patch; PATCH = the patch file; NEW = a file copied to box2 src/ as-is from the repo)
+79bc7ca587662d4f5120cd9c4330f209  BASE    deals_api_server.js
+4d948c6082ecb78cf9e37a62ac6b36e9  RESULT  deals_api_server.js
+e70a0f3a3ff3c5a67985906a7522b30d  PATCH   deals_api_server.js.patch
 2fd7eb4f33118c116cbdb86fba94cc5f  NEW     dealerAnalyticsApi.js
