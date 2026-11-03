@@ -71,7 +71,7 @@ if [ "$ON_BOX" = 1 ]; then
     time mysql -h "$DB_HOST" -P "${DB_PORT:-3306}" -u "$DB_WRITER_USER" "$DB_NAME" \
       -e "ALTER TABLE dealer_inventory ADD INDEX IF NOT EXISTS idx_inv_make_dealer (make, dealer_name, vin), ALGORITHM=INPLACE, LOCK=NONE"
   )
-  sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+  sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
   code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3004/api/inventory?make=Porsche&limit=1")
   echo "inventory-route-check (401 = up, auth-gated): $code"
 fi

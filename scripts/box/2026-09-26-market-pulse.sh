@@ -194,7 +194,7 @@ echo "Applying idx_inv_stock_first_seen directly (idempotent — same DDL ensure
 sudo mysql trimscout -e "ALTER TABLE dealer_inventory ADD INDEX IF NOT EXISTS idx_inv_stock_first_seen (removed_at, first_seen_at);"
 echo "Index applied."
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory/market-pulse)
 echo "GET /api/inventory/market-pulse without key -> $code (401 = server up and guarding)"
 echo "Done. Verify live, e.g.:"

@@ -86,7 +86,7 @@ node --check "$FILE" && echo "syntax ok: deals_api_server.js"
 echo "Applying idx_opt_dealer_canonical directly (idempotent) so it's live immediately, not just on next fresh boot..."
 sudo mysql trimscout -e "ALTER TABLE dealer_inventory_options ADD INDEX IF NOT EXISTS idx_opt_dealer_canonical (dealer_id, canonical_key, vin);"
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory)
 echo "GET /api/inventory without key -> $code (401 = server up and guarding)"
 echo "Verify live, e.g. (should return well under a second, not 60s+):"

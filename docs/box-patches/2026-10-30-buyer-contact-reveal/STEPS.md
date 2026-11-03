@@ -40,7 +40,7 @@ bash /tmp/bcr/install.sh check
 bash /tmp/bcr/install.sh apply
 ```
    If `/opt/trimscout-deals/src` is root-owned: `SUDO=sudo bash /tmp/bcr/install.sh apply`.
-4. Restart (gates again, then `sudo -u ubuntu pm2 restart deals-api`, then checks the process is online with a fresh uptime stamp, and that `POST /api/rfqs/1/invites/1/reveal-contact` without the key answers **401** (route exists, guarded) not 404). Never `sudo pm2 ...` and never `trimscout-deals-api`: the root PM2 has no `deals-api`.
+4. Restart (gates again, then `sudo -u ubuntu pm2 restart deals-api`, then checks the process is online with a fresh uptime stamp, and that `POST /api/rfqs/1/invites/1/reveal-contact` without the key answers **401** (route exists, guarded) not 404). Never `sudo pm2 ...` and never `deals-api`: the root PM2 has no `deals-api`.
 ```bash
 bash /tmp/bcr/install.sh restart
 ```

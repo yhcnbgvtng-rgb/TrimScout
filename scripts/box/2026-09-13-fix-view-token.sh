@@ -23,7 +23,7 @@ open(p, "w").write(s)
 print("patched:", p, "| applied:", ", ".join(changed) or "nothing (already present)")
 PY
 node --check "$FILE" && echo "syntax ok"
-sudo pm2 restart trimscout-deals-api
+sudo pm2 restart deals-api
 sleep 3
 echo "--- last error lines (expect none new) ---"
-sudo pm2 logs trimscout-deals-api --err --lines 3 --nostream | tail -3
+sudo pm2 logs deals-api --err --lines 3 --nostream | tail -3

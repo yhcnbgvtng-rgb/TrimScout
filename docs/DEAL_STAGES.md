@@ -76,7 +76,7 @@ dealer quotes the OTD, the buyer picks), the wizard does not promise the four st
 Run **after** the trade-in (#414, `2026-10-08-rfq-trade-in.sh`), stage (#482, `2026-10-11-rfq-deal-stages.sh`) and not-selected
 (#490, `2026-10-12-rfq-not-selected.sh`) patches, in that order. This one is `scripts/box/2026-10-13-rfq-deal-stages-v2.sh`: it installs
 `dealStages.js` + `rfqStages.js` only (no edits to `deals_api_server.js`, no schema change), refuses to run if an earlier patch is missing
-or inventory-sync is running, and restarts `trimscout-deals-api` once. **Idle window (outside 22:00-23:30 ET), on Paul's GO.**
+or inventory-sync is running, and restarts `deals-api` once. **Idle window (outside 22:00-23:30 ET), on Paul's GO.**
 1. `pgrep -f inventory-sync.mjs` on box1-4 returns nothing; it is outside the crawl/sync window.
 2. On box2 as `ubuntu`:
    ```bash
@@ -89,7 +89,7 @@ or inventory-sync is running, and restarts `trimscout-deals-api` once. **Idle wi
    with no contact in its payload, and the other dealers' pages show nothing.
 4. Only then set `FEATURE_DEAL_STAGES=on` in Vercel and redeploy. **The feature stays behind that flag**: while it is off, new Cash /
    Finance requests are the original single cash sheet and nothing here is reachable.
-5. Rollback: flag off; box: `for m in dealStages.js rfqStages.js; do sudo cp /opt/trimscout-deals/src/$m.bak.<STAMP> /opt/trimscout-deals/src/$m; done; sudo pm2 restart trimscout-deals-api`.
+5. Rollback: flag off; box: `for m in dealStages.js rfqStages.js; do sudo cp /opt/trimscout-deals/src/$m.bak.<STAMP> /opt/trimscout-deals/src/$m; done; sudo pm2 restart deals-api`.
    Stage JSON written by v2 (`v: 2`) is read by v1 only up to stage 3; do not roll back after real deals reached stage 4.
 
 ## Deploy (first half, #482): NOT deployed yet; do this in an idle window, on Paul's GO
@@ -101,14 +101,14 @@ or inventory-sync is running, and restarts `trimscout-deals-api` once. **Idle wi
    ```
    It backs up `deals_api_server.js`, installs `dealStages.js` + `rfqStages.js` next to it, applies five anchored edits
    (import, `stage_json` column, invite mapper, handler, route; each asserts exactly one match, idempotent), runs
-   `node --check`, restarts `trimscout-deals-api`, and prints the health status code (401 = up and guarding).
+   `node --check`, restarts `deals-api`, and prints the health status code (401 = up and guarding).
 3. Verify: `curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:3004/api/rfqs/1/invites/1/stage` returns 401 without the
    key (route exists; before the patch it is 404). Then, on a SAFE-MODE audit RFQ, run one full path against the box
    (accept OTD, trade offer, accept, choose cash).
 4. Only then set `FEATURE_DEAL_STAGES=on` in Vercel and redeploy (~1 min). New Cash / Finance requests are now staged.
 5. Rollback: set `FEATURE_DEAL_STAGES` off (new requests revert to the single sheet; requests already staged stop at
    "The staged deal isn't available yet" only if the box is also rolled back). Box rollback:
-   `sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<STAMP> /opt/trimscout-deals/src/deals_api_server.js && sudo pm2 restart trimscout-deals-api`
+   `sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<STAMP> /opt/trimscout-deals/src/deals_api_server.js && sudo pm2 restart deals-api`
    (the added files and the nullable `stage_json` column are harmless to leave).
 6. Live-drift caution (BOXES.md): the live server text can differ from the repo mirror. The script asserts its anchors
    and aborts without changing anything if one is missing. It was tested against the mirror both fresh and **after** the

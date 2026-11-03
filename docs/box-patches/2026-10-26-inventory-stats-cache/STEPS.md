@@ -1,6 +1,6 @@
 # Box patch: `/api/inventory/stats` served from `statsCached`, queries guarded (box2)
 
-Code and docs only. **Nothing installed, no box touched.** Install only on Paul's separate typed GO, in an idle window (no sync, no crawl push). One file changes: `/opt/trimscout-deals/src/deals_api_server.js` on box2 (`52.202.234.65`, pm2 `trimscout-deals-api`; not a git checkout). Needs a pm2 restart; the cache file `stats-cache.json` is created on first request.
+Code and docs only. **Nothing installed, no box touched.** Install only on Paul's separate typed GO, in an idle window (no sync, no crawl push). One file changes: `/opt/trimscout-deals/src/deals_api_server.js` on box2 (`52.202.234.65`, pm2 `deals-api`; not a git checkout). Needs a pm2 restart; the cache file `stats-cache.json` is created on first request.
 
 ## Why
 `invCached` is cleared by every bulk upsert/sweep, so after the nightly sync the first `/stats` requests rescan the whole table and time out. `statsCached` is write-proof stale-while-revalidate (30 min). The five queries also get `SET STATEMENT max_statement_time` + `withPoolTimeout`, as `/makes` has. Nothing else reads the `"stats"` key of `invCache` (only the handler did). Known tradeoff: `statsCached` keeps 40 entries and drops the oldest-inserted, so many filtered analytics keys can evict `"stats"` once; it then recomputes.
@@ -26,8 +26,8 @@ ssh -i $KEY $H 'B=~/backups/stats-cache-20261026; mkdir -p $B; cp -p /opt/trimsc
 ssh -i $KEY $H 'cd /opt/trimscout-deals/src && python3 /tmp/patch.py deals_api_server.js && md5sum deals_api_server.js && cp deals_api_server.js /tmp/chk.mjs && node --check /tmp/chk.mjs && echo SYNTAX_OK; rm -f /tmp/chk.mjs; grep -c "statsCached(\"stats\"" deals_api_server.js; grep -c "invCached(\"stats\"" deals_api_server.js'
 ```
    Expect SYNTAX_OK, then `1` and `0`.
-5. **Restart** (idle only): `ssh -i $KEY $H 'pm2 restart trimscout-deals-api'`, then `curl -s -m 60 localhost:<port>/api/inventory/stats | head -c 200` twice (second must be instant) and `pm2 logs trimscout-deals-api --lines 30 --nostream`.
+5. **Restart** (idle only): `ssh -i $KEY $H 'pm2 restart deals-api'`, then `curl -s -m 60 localhost:<port>/api/inventory/stats | head -c 200` twice (second must be instant) and `pm2 logs deals-api --lines 30 --nostream`.
 6. **Rollback** (one line, then pm2 restart):
 ```bash
-ssh -i $KEY $H 'cp -p ~/backups/stats-cache-20261026/deals_api_server.js /opt/trimscout-deals/src/ && md5sum /opt/trimscout-deals/src/deals_api_server.js && pm2 restart trimscout-deals-api'   # md5 must equal BEFORE from step 0
+ssh -i $KEY $H 'cp -p ~/backups/stats-cache-20261026/deals_api_server.js /opt/trimscout-deals/src/ && md5sum /opt/trimscout-deals/src/deals_api_server.js && pm2 restart deals-api'   # md5 must equal BEFORE from step 0
 ```

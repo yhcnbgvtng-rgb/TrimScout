@@ -11,7 +11,7 @@
 // performance" section for how to read the output day to day.
 //
 // Usage:
-//   npm run fleet-report                 # today (ET) on all 4 boxes
+//   npm run fleet-report                 # today (ET) on every box in config/boxes.json
 //   node scripts/fleet-report.mjs --date=2026-09-21
 //   node scripts/fleet-report.mjs --date=2026-09-21 --boxes=box1,box2
 
@@ -27,10 +27,11 @@ const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-// The 4-box fleet this session built out (state-sharding-fix /
-// expansion-brands branches). remoteDir matches every SSH command used
-// to deploy/test this fleet throughout that work. Update here (not per
-// call-site) if a box is ever replaced.
+// The fleet (box1-box5) comes from config/boxes.json, mirrored by
+// docs/BOXES.md. Update those (not this file) when a box is added or
+// replaced: 2026-11-03 box1 was replaced by box1-v2 (same label, new IP) and
+// box5 was added. remoteDir matches every SSH command used to deploy/test
+// this fleet.
 //
 // 2026-09-28: switched to each box's Lightsail STATIC IP (console names
 // Ubuntu-1/crawler-box-2/3/4) after all 4 boxes went down overnight on a
@@ -39,7 +40,9 @@ const ROOT = path.resolve(__dirname, '..');
 // this Vercel LIGHTSAIL_IP env var (production buyer search was down until
 // that was traced and fixed). Static IPs are free while attached to a
 // running instance and don't change across stop/start, so this list should
-// now be stable.
+// now be stable. Exception: box5's public IP is NOT static (docs/BOXES.md);
+// re-check it after any stop/start. Port 22 is open only to the operator
+// IP and 172.26.0.0/16, so run this from the operator machine, not elsewhere.
 export { BOXES };
 const DEFAULT_SSH_KEY = path.join(os.homedir(), '.ssh', 'LightsailDefaultKey-us-east-1.pem');
 

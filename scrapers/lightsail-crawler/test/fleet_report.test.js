@@ -27,9 +27,9 @@ describe('fleet-report.mjs (fleet-wide SLA rollup)', () => {
     };
   }
 
-  it('BOXES lists all 4 fleet boxes by their real host IPs', () => {
-    assert.equal(BOXES.length, 4);
-    assert.deepEqual(BOXES.map((b) => b.host), ['34.203.148.79', '52.202.234.65', '184.73.158.210', '100.50.85.234']);
+  it('BOXES lists all 5 fleet boxes by their real host IPs', () => {
+    assert.equal(BOXES.length, 5);
+    assert.deepEqual(BOXES.map((b) => b.host), ['3.211.168.213', '52.202.234.65', '184.73.158.210', '100.50.85.234', '44.200.197.211']);
   });
 
   it('fetchBoxReports lists run-label directories then cats each box-report.json, via the injected sshFn only', async () => {

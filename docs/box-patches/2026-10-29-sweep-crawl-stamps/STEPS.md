@@ -1,6 +1,6 @@
 # Box patch: sweep crawl stamps + the real retired list (box2)
 
-Code and docs only. **Nothing is installed and no box was touched.** Install only on Paul's typed **GO**, in an idle window, one numbered step at a time. Box2 is both the deals box (`/opt/trimscout-deals`, MariaDB, pm2 `trimscout-deals-api`) and a crawl box (`~/inventory-sync`). Builds on `docs/box-patches/2026-10-27-sweep-guards/` (already live on box2): it needs the guard fields, `sweep_miss_count` / `sweep_miss_at`, and the probe.
+Code and docs only. **Nothing is installed and no box was touched.** Install only on Paul's typed **GO**, in an idle window, one numbered step at a time. Box2 is both the deals box (`/opt/trimscout-deals`, MariaDB, pm2 `deals-api`) and a crawl box (`~/inventory-sync`). Builds on `docs/box-patches/2026-10-27-sweep-guards/` (already live on box2): it needs the guard fields, `sweep_miss_count` / `sweep_miss_at`, and the probe.
 
 ## Why (audit 2026-10-29, read-only)
 Box2's 10-28 sync retired 10,544 cars, all of them "second misses". 6,189 came from brands the 10-28 crawl never visited (they are crawled every few nights). Their last crawl output (`updatedAt` 10-28 ~09:00 UTC) was still inside the sync's 30 h freshness window on 10-29 08:27 UTC, so two syncs in a row swept the **same** observation: the 10-27 sync counted miss 1, the 10-28 sync counted "miss 2" and retired. `minMisses 2` counted runs, not crawls. Separately, `~/sweep-retired/retired-*.csv.gz` was a prediction written before the sweep (17,155 rows against 10,544 retirements), so it could not be used to roll anything back.
@@ -53,7 +53,7 @@ ssh box2 'cd /opt/trimscout-deals/src && cp /tmp/sweep-crawl-stamps-stage/invent
 ### 3. Restart the deals API (idle only)
 Before: `sudo mysql -e "SELECT id,time,state,LEFT(info,90) FROM information_schema.processlist WHERE command<>'Sleep'"` shows nothing long (a restart ALTER hangs behind long SELECTs), and no sync holds the lock.
 ```bash
-ssh box2 'pm2 restart trimscout-deals-api && sleep 5 && pm2 logs trimscout-deals-api --lines 15 --nostream | tail -15'
+ssh box2 'pm2 restart deals-api && sleep 5 && pm2 logs deals-api --lines 15 --nostream | tail -15'
 ```
 Then probe with a store id that exists nowhere (these sweep nothing; the key is read from the env file inside the one ssh command and never printed):
 ```bash
@@ -90,7 +90,7 @@ ssh box2 'B=$(ls -dt ~/backups/sweep-crawl-stamps-* | head -1); cp -p $B/client/
 ```
 Server (the old client form is unchanged either way; a new client against the old server stops at its probe without sweeping):
 ```bash
-ssh box2 'B=$(ls -dt ~/backups/sweep-crawl-stamps-* | head -1); cp -p $B/server/inventorySweep.js $B/server/deals_api_server.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && md5sum inventorySweep.js deals_api_server.js && grep -E "server/" $B/md5s-before.txt && pm2 restart trimscout-deals-api'
+ssh box2 'B=$(ls -dt ~/backups/sweep-crawl-stamps-* | head -1); cp -p $B/server/inventorySweep.js $B/server/deals_api_server.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && md5sum inventorySweep.js deals_api_server.js && grep -E "server/" $B/md5s-before.txt && pm2 restart deals-api'
 ```
 The table can stay (nothing reads it without stamps); to drop it: `DROP TABLE IF EXISTS sweep_crawl_stamps` (the next install starts from "first sight" again). Switch without touching code: `SWEEP_CRAWL_STAMPS=0` in `~/inventory-sync/.env` (the wrapper `run_sync_when_safe.sh` sources it with `set -a` just before starting the sync), which sweeps with the counted-misses rule only.
 

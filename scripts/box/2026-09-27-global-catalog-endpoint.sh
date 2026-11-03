@@ -60,7 +60,7 @@ const server = http.createServer((req, res) => {''', '''      exteriorColors,
 // GET /api/inventory/catalog/global — the buyer /search AI box's Gemini-context source (see
 // /api/search/parse), NOT the filter panel (that stays on handleInventoryCatalogOptions above,
 // scoped by make/model/trim with real per-make vehicle counts). Confirmed live 2026-09-27 via
-// box logs (pm2 logs trimscout-deals-api): /api/inventory/catalog was hitting error 1969 (max
+// box logs (pm2 logs deals-api): /api/inventory/catalog was hitting error 1969 (max
 // statement_time exceeded) continuously all day, every ~15-90 minutes from 03:29 to 19:57 —
 // because /api/search/parse calls catalogOptions() with NO make/model/trim to build Gemini's
 // full context, which forced handleInventoryCatalogOptions's STRAIGHT_JOIN across the ENTIRE
@@ -118,7 +118,7 @@ PY
 
 node --check "$FILE" && echo "syntax ok: deals_api_server.js"
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory)
 echo "GET /api/inventory without key -> $code (401 = server up and guarding)"
 echo "Verify live, e.g. (should return in well under a second, not 20s+):"

@@ -65,7 +65,7 @@ All rows (`--include-removed`): 5,228,448 read, **3,517 to rewrite** = `wmi-conf
 ## Gate (before every write)
 1. Sync lock free (read the log, never acquire it by hand): `grep '\[sync-lock\]' ~/.pm2/logs/*deals*out*.log | tail -2` ends with a release.
 2. No `inventory-sync|run_nightly_chain|run_daily_crawl|standalone|backfill|unretire|facet|apply` process on box1-box4 (`pgrep -fa`; boxes 1/3/4 via `ssh -J box2 ... ubuntu@<private ip>`). The other session's facet rebuild must be finished.
-3. Not inside the nightly window (22:00-06:30 ET); the script itself stops at 21:30 ET (`--deadline-et`). `pm2 describe trimscout-deals-api` online.
+3. Not inside the nightly window (22:00-06:30 ET); the script itself stops at 21:30 ET (`--deadline-et`). `pm2 describe deals-api` online.
 
 ## Steps
 0. Mac, from the merged repo checkout (`npm i` has esbuild):

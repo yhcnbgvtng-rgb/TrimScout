@@ -89,7 +89,7 @@ sudo mysql trimscout -e "ALTER TABLE dealer_inventory ADD INDEX IF NOT EXISTS id
 echo "Also confirming idx_inv_stock_make_dealer exists (from 2026-09-25-fix-make-filter-filesort.sh)..."
 sudo mysql trimscout -e "ALTER TABLE dealer_inventory ADD INDEX IF NOT EXISTS idx_inv_stock_make_dealer (removed_at, make, dealer_name, vin);"
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory/catalog)
 echo "GET /api/inventory/catalog without key -> $code (401 = server up and guarding)"
 echo "Done. Verify live, e.g.:"

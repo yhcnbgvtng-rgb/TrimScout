@@ -39,7 +39,7 @@ describe('the manifest and STEPS.md describe the files in this checkout', () => 
 
   it('STEPS.md has the pieces an install needs: backup + md5s, drift check, restart gate, rollback, the dead-shard step, and says nothing was installed', () => {
     const steps = fs.readFileSync(path.join(PKG, 'STEPS.md'), 'utf8');
-    for (const must of ['Nothing is installed', 'drift-check.sh', 'md5s-before.txt', 'pm2 restart trimscout-deals-api', 'Rollback', 'move-dead-shards.sh', 'AL.json CO.json IN.json MD.json MT.json PA.json TX.json VT.json WY.json', 'ALGORITHM=INSTANT', 'EXPLAIN']) {
+    for (const must of ['Nothing is installed', 'drift-check.sh', 'md5s-before.txt', 'pm2 restart deals-api', 'Rollback', 'move-dead-shards.sh', 'AL.json CO.json IN.json MD.json MT.json PA.json TX.json VT.json WY.json', 'ALGORITHM=INSTANT', 'EXPLAIN']) {
       assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
     }
   });
@@ -199,7 +199,7 @@ describe('the crawl-stamps package (docs/box-patches/2026-10-29-sweep-crawl-stam
 
   it('STEPS.md has the pieces an install needs, and the drift check is valid shell', () => {
     const steps = fs.readFileSync(path.join(STAMPS, 'STEPS.md'), 'utf8');
-    for (const must of ['Nothing is installed', 'drift-check.sh', 'md5s-before.txt', 'pm2 restart trimscout-deals-api', 'Rollback', 'sweep_crawl_stamps', 'SWEEP_MIN_MISSES=3', 'SWEEP_CRAWL_STAMPS=0', 'Boxes 1, 3 and 4 do not run the sweep guards']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
+    for (const must of ['Nothing is installed', 'drift-check.sh', 'md5s-before.txt', 'pm2 restart deals-api', 'Rollback', 'sweep_crawl_stamps', 'SWEEP_MIN_MISSES=3', 'SWEEP_CRAWL_STAMPS=0', 'Boxes 1, 3 and 4 do not run the sweep guards']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
     assert.equal(spawnSync('bash', ['-n', path.join(STAMPS, 'drift-check.sh')]).status, 0);
   });
 });

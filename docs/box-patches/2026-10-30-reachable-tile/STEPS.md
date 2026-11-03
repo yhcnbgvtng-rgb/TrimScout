@@ -48,7 +48,7 @@ bash /tmp/rt/install.sh check
 ```
 2. Gate by hand as well: the last `[sync-lock]` line in `~/.pm2/logs/deals-api-out.log` is a `release`; no `inventory-sync|run_sync|run_nightly_chain|run-daily-crawl|standalone` process on any box; `catalog-facets/status` shows `building: false`. `apply` and `restart` check the lock and box2's own processes again and refuse.
 3. **Time the unpatched baseline first**, before applying anything, with the default key (no `?from=`, no filters), twice (the first may be a cache hit; note which): `time curl -s -H "X-Trimscout-Api-Key: $KEY" "http://127.0.0.1:3004/api/inventory/analytics" -o /dev/null`. Write both numbers down. Do not use a `?from=` key: it forces a different, filter-scoped MEDIAN compute and says nothing about the tile.
-4. Apply (gates, **backup first** to `~/backups/box2-reachable-tile-20261030/`, copies the two modules then the patched server, checks every md5, `node --check`, the smoke test on the live files, restores itself on any failure; **does not restart**), then restart (gates again, `sudo -u ubuntu pm2 restart deals-api`, online with a fresh uptime stamp, `/health` 401). Never `sudo pm2 ...` and never `trimscout-deals-api`.
+4. Apply (gates, **backup first** to `~/backups/box2-reachable-tile-20261030/`, copies the two modules then the patched server, checks every md5, `node --check`, the smoke test on the live files, restores itself on any failure; **does not restart**), then restart (gates again, `sudo -u ubuntu pm2 restart deals-api`, online with a fresh uptime stamp, `/health` 401). Never `sudo pm2 ...` and never `deals-api`.
 ```bash
 bash /tmp/rt/install.sh apply
 bash /tmp/rt/install.sh restart

@@ -37,9 +37,9 @@ Everything above reads and works without it; the compose box says "Sending messa
    ```bash
    curl -fsSL -o 2026-10-11-rfq-messages.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-10-11-rfq-messages.sh && bash 2026-10-11-rfq-messages.sh
    ```
-   It backs up the file, installs `src/rfqMessages.js` and `src/identityFilter.js`, makes four anchored edits (import, `rfq_invites.messages_json TEXT NULL` column, `messages` on the invite mapper, the `POST /api/rfqs/:id/invites/:inviteId/messages` route), runs `node --check`, restarts `trimscout-deals-api`, and prints the health status (401 means up).
+   It backs up the file, installs `src/rfqMessages.js` and `src/identityFilter.js`, makes four anchored edits (import, `rfq_invites.messages_json TEXT NULL` column, `messages` on the invite mapper, the `POST /api/rfqs/:id/invites/:inviteId/messages` route), runs `node --check`, restarts `deals-api`, and prints the health status (401 means up).
 4. Verify: a buyer message and a dealer message on a test request appear in each other's panel, never on another dealer's; a message containing a phone number is refused; submit a quote with an overridden tax and confirm a `fee_override` row in `rfq_events`.
-5. Rollback: restore the printed `deals_api_server.js.bak.<stamp>` and `sudo pm2 restart trimscout-deals-api`. The column is harmless to leave.
+5. Rollback: restore the printed `deals_api_server.js.bak.<stamp>` and `sudo pm2 restart deals-api`. The column is harmless to leave.
 
 ---
 
@@ -76,6 +76,6 @@ One module, `scrapers/lightsail-crawler/src/identityFilter.js`, is the only rule
    ```bash
    curl -fsSL -o 2026-10-12-rfq-chat-guard.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-10-12-rfq-chat-guard.sh && bash 2026-10-12-rfq-chat-guard.sh
    ```
-   It backs up the server file and the two modules it replaces, installs `identityFilter.js`, `rfqChatGuard.js`, `rfqMessages.js`, `rfqChatAdmin.js`, adds the five routes, runs `node --check`, restarts `trimscout-deals-api`, and prints the health status (401 = up). The three tables (`rfq_chat_attempts`, `rfq_chat_review`, `rfq_chat_pauses`) are created on first use with `CREATE TABLE IF NOT EXISTS`; no existing table is touched.
+   It backs up the server file and the two modules it replaces, installs `identityFilter.js`, `rfqChatGuard.js`, `rfqMessages.js`, `rfqChatAdmin.js`, adds the five routes, runs `node --check`, restarts `deals-api`, and prints the health status (401 = up). The three tables (`rfq_chat_attempts`, `rfq_chat_review`, `rfq_chat_pauses`) are created on first use with `CREATE TABLE IF NOT EXISTS`; no existing table is touched.
 4. Verify on a test request: a message with a phone number is refused with the plain note and logged (no text); a dealer's first refused message shows the warning; split a number across messages and the completing one is refused; `/admin/chat-review` loads; a buyer Report appears there; Release/Block work.
-5. Rollback: restore the printed `.bak.<stamp>` files (`deals_api_server.js`, `identityFilter.js`, `rfqMessages.js`) and `sudo pm2 restart trimscout-deals-api`. The tables are harmless to leave.
+5. Rollback: restore the printed `.bak.<stamp>` files (`deals_api_server.js`, `identityFilter.js`, `rfqMessages.js`) and `sudo pm2 restart deals-api`. The tables are harmless to leave.

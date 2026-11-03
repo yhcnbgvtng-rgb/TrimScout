@@ -78,6 +78,6 @@ PYEOF
 
 node --check "$FILE" && echo "syntax ok"
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 echo "Verify live, e.g.:"
 echo '  curl -s -H "X-Trimscout-Api-Key: $LIGHTSAIL_API_KEY" "http://127.0.0.1:3004/api/inventory/market-pulse" -w "\n%{time_total}s\n"'

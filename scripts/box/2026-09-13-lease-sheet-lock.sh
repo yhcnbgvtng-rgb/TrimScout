@@ -84,8 +84,8 @@ print("patched:", p, "| applied:", ", ".join(changed) or "nothing (already prese
 PY
 
 node --check "$FILE" && echo "syntax ok"
-sudo pm2 restart trimscout-deals-api
+sudo pm2 restart deals-api
 sleep 3
 echo "--- health (expect 200) ---"
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3004/health
-sudo pm2 logs trimscout-deals-api --lines 5 --nostream | tail -5
+sudo pm2 logs deals-api --lines 5 --nostream | tail -5
