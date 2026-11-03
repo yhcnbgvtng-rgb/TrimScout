@@ -91,7 +91,7 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </button>
           <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-ink-faint">
-            {["Free to request & compare", "Takes about 2 minutes", "Your number stays private"].map((t) => (
+            {["Free to request & compare", "Takes about 2 minutes", "Your personal information stays private"].map((t) => (
               <li key={t} className="flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-brand-400" />
                 {t}
