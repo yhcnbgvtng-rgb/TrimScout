@@ -12,6 +12,7 @@ import type { ConfirmAction, TradeConfirmation } from "./trade/confirm";
 import { coerceTradeIn } from "./trade/coerce";
 import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
+import type { QuoteAvailability } from "./quoteAvailability";
 import { serverSecret } from "./serverSecret";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
@@ -411,6 +412,8 @@ export async function submitRfqQuote(
     lease?: LeaseQuote | null;
     /** The validated used Finance / Cash sheet; stored whole on the box. */
     used?: UsedQuote | null;
+    /** The dealer's availability confirmation, stored with the quote on the box (rfq_quotes.availability_json). */
+    availability?: QuoteAvailability | null;
   }
 ): Promise<void> {
   // The box returns the created quote alone; callers that need the

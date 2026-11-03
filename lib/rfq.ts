@@ -14,6 +14,7 @@ import type { LeaseQuote, LeaseRequestPrefs } from "./leaseQuote";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "./trade/types";
 import { publicConfirmation, type TradeConfirmation } from "./trade/confirm";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
+import type { QuoteAvailability } from "./quoteAvailability";
 import { withCounterDeclinedOffers } from "./counterDeclined";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
@@ -80,6 +81,8 @@ export interface RfqQuote {
   supersededAt?: string | null;
   /** The dealer's structured used-car Finance / Cash sheet (lib/usedQuote.ts). */
   used?: UsedQuote | null;
+  /** The dealer's answer to "is this exact car in stock?", saved with the quote. Absent on quotes sent before the confirmation existed. */
+  availability?: QuoteAvailability | null;
 }
 
 /**

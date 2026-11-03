@@ -29,6 +29,8 @@ import { vehicleTitle } from "../../../lib/vehicleTitle";
 // can't become a quote. No login; the invite token is the whole context.
 type Context = {
   vin: string;
+  /** The VIN the buyer asked about on this invite (the availability question is about this car). */
+  requestedVin?: string;
   stockNumber: string | null;
   vehicle: { year?: number; make?: string; model?: string; trim?: string; exteriorColor?: string; drivetrain?: string } | null;
   dealerName: string;
@@ -281,7 +283,7 @@ function ReceivedBody() {
                 {ctx.hasTrade ? <p className="text-xs text-sky-200 border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">The buyer included a trade-in. Quote the car on its own, then give your trade allowance in the section at the bottom of the sheet: it is part of the price the buyer compares, so the quote can&apos;t be sent without it.</p> : <TradeInNote expected={ctx.tradeInExpected} />}
                 <p className="text-xs text-ink-muted border-t border-border/60 pt-3">This is a non-binding quote request — not an auction, not a bid, and no response deadline. The buyer compares and picks one, or walks away.</p>
               </div>
-              {ctx.staged && ctx.stage && ctx.stage.otd.status === "locked" ? null : <UsedQuoteForm trade={tradeForm} token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />}
+              {ctx.staged && ctx.stage && ctx.stage.otd.status === "locked" ? null : <UsedQuoteForm trade={tradeForm} requestedVin={ctx.requestedVin ?? ctx.vin} onDecline={decline} declining={declining} token={token} vin={ctx.vin} stockNumber={ctx.stockNumber} prefs={ctx.quotePrefs} condition={ctx.condition} buyerMiles={ctx.buyerMiles} msrp={ctx.msrp} initial={ctx.priorUsed || null} counterSheet={ctx.buyerCounter?.sheet ?? null} onSubmitted={(r) => setDone({ warnings: r.warnings, dueAtSigningTotal: 0 })} />}
               {ctx.hasTrade ? <DealerTradePanel token={token} feed={tradeFeed} onChanged={loadContext} /> : null}
             </>
           ) : !ctx.leasePrefs ? (
@@ -331,6 +333,9 @@ function ReceivedBody() {
               )}
               <LeaseCalculatorForm
                 trade={tradeForm}
+                requestedVin={ctx.requestedVin ?? ctx.vin}
+                onDecline={decline}
+                declining={declining}
                 token={token}
                 vin={ctx.vin}
                 stockNumber={ctx.stockNumber}
