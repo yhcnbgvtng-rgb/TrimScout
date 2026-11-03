@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { AvailabilityConfirm, availabilityAnswer, availabilityErrors, availabilityQuoteVin, useAvailability } from "./AvailabilityConfirm";
 import { Plus, Trash2 } from "lucide-react";
 import { CREDIT_BAND_LABELS, FINANCE_TERMS, SURCHARGE_REASON_MAX, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
@@ -45,6 +46,9 @@ export function UsedQuoteForm({
   initial,
   counterSheet = null,
   trade = null,
+  requestedVin,
+  onDecline,
+  declining = false,
   onSubmitted,
 }: {
   token: string;
@@ -61,6 +65,11 @@ export function UsedQuoteForm({
   counterSheet?: CounterSheet | null;
   /** The trade allowance that rides with this quote (set when the buyer included a trade-in): the quote can't be sent without it. */
   trade?: TradeQuoteForm | null;
+  /** The VIN the buyer asked about (the availability question is about this car). */
+  requestedVin?: string;
+  /** "No, it's unavailable" -> decline this quote request. */
+  onDecline?: () => void;
+  declining?: boolean;
   onSubmitted: (result: { warnings: string[] }) => void;
 }) {
   const kind = prefs.quoteType;
@@ -102,6 +111,7 @@ export function UsedQuoteForm({
   );
   const [focused, setFocused] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [av, setAv] = useAvailability();
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   // A failed submit scrolls to and focuses the problem (the field when we can tell which, else the error summary).
@@ -223,7 +233,8 @@ export function UsedQuoteForm({
   const [taxConfirmed, setTaxConfirmed] = useState(false);
   const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
-  const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : []), ...feeCheck.errors];
+  const availErrors = availabilityErrors(av, requestedVin ?? vin, f.vin);
+  const errors = [...availErrors, ...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : []), ...feeCheck.errors];
   const lockBroken = kind === "finance" && ((d.term != null && d.term !== prefs.finance.termMonths) || (d.down != null && Math.round(d.down) !== prefs.finance.downPayment));
 
   useEffect(() => {
@@ -250,7 +261,7 @@ export function UsedQuoteForm({
         if (!c.ok) { setServerError(c.errors.join(" ")); setSubmitAttempt((n) => n + 1); return; }
         tradeBody = c.trade;
       }
-      const res = await fetch("/api/quote-invite/used-quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote, ...(tradeBody ? { trade: tradeBody } : {}) }) });
+      const res = await fetch("/api/quote-invite/used-quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ t: token, vin: availabilityQuoteVin(av, f.vin), stockNumber: f.stockNumber, quote, availability: availabilityAnswer(av), ...(tradeBody ? { trade: tradeBody } : {}) }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
         trade?.onReject(json);
@@ -636,6 +647,8 @@ export function UsedQuoteForm({
           ) : null}
         </aside>
       </div>
+
+      <AvailabilityConfirm value={av} onChange={setAv} requestedVin={requestedVin ?? vin} sheetVin={f.vin} onDecline={onDecline} declining={declining} invalid={touched && availErrors.length > 0} />
 
       <div ref={errorBoxRef} tabIndex={-1} role="alert" aria-live="assertive" className="space-y-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 rounded-lg" data-testid="used-error-region">
         {touched && errors.length ? (

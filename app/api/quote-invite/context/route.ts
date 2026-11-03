@@ -52,6 +52,8 @@ export async function GET(req: Request) {
     msrp: thisCar?.msrp ?? recheck?.msrp ?? null,
     factoryStickerUrl: recheck?.pdfUrl || null,
     vin: rfq.vin,
+    // The car this desk was asked about (a multi-car request invites each desk for its own car).
+    requestedVin: invite.vehicle?.vin || rfq.vin,
     stockNumber: rfq.stockNumber,
     vehicle: invite.vehicle || { year: rfq.vehicleYear, make: rfq.vehicleMake, model: rfq.vehicleModel, trim: rfq.vehicleTrim },
     dealerName: invite.dealerName,

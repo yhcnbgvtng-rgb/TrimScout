@@ -14,6 +14,7 @@ import { rfqVehicles } from "@/lib/rfqTracker";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 import { notifyDealerQuoted } from "@/lib/noticeOutbox";
 import { vehicleTitle } from "@/lib/vehicleTitle";
+import { resolveAvailability } from "@/lib/quoteAvailability";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -31,6 +32,12 @@ export async function POST(req: Request) {
   const raw = (body?.quote || {}) as Record<string, unknown>;
   const vin = typeof body?.vin === "string" && body.vin.trim() ? body.vin.trim().toUpperCase() : rfq.vin;
   const stockNumber = typeof body?.stockNumber === "string" && body.stockNumber.trim() ? body.stockNumber.trim() : rfq.stockNumber;
+  // Required: the desk says whether this exact car is in stock before any quote is taken (a "no" declines, or quotes a comparable car under its own VIN).
+  // The time is stamped here, never taken from the browser.
+  const requestedVin = (rfq.invites.find((i) => i.id === found.invite.id) ?? found.invite).vehicle?.vin || rfq.vin;
+  const availability = resolveAvailability(body?.availability, { requestedVin, quoteVin: vin });
+  if (!availability.ok) return NextResponse.json({ error: availability.error, errors: [availability.error] }, { status: 422 });
+
   const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v)) ? Number(v) : undefined);
   const toLines = (v: unknown) => (Array.isArray(v) ? (v as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN })) : undefined);
   const car = rfqVehicles(rfq).find((c) => c.vin === vin) || rfqVehicles(rfq)[0] || null;
@@ -89,6 +96,7 @@ export async function POST(req: Request) {
     mustHaveAcknowledgement: true,
     notes: used.notes || null,
     used,
+    availability: availability.availability,
   });
   // Tell the buyer a quote is in (after the response; SAFE MODE routes it, and a failure never fails the dealer's submit).
   after(() => notifyDealerQuoted(rfq, found.invite));

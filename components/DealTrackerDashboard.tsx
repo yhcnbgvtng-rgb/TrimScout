@@ -10,6 +10,7 @@ import { DealStageBar } from "./DealStageBar";
 import { isStagedRfq, stageOf, stageSummary } from "../lib/dealStages";
 import { RFQ_LIFECYCLE, relativeTime, rfqDealNumber, rfqLifecycleDetail, rfqLifecycleStage, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary, type RfqLifecycleStage } from "../lib/rfqTracker";
 import { readQuoteDraft } from "../lib/quoteDraft";
+import { trackerAvailabilityLines } from "../lib/quoteAvailability";
 import { formatCurrency } from "../lib/otdCalculator";
 import { formatDealStructures } from "../lib/dealStructure";
 import { reviewTargetFromVehicle } from "../lib/fordCompetitionUi";
@@ -50,6 +51,22 @@ interface DealTrackerDashboardProps {
   /** "Choose another vehicle" from the dealer-unsubscribed banner — opens the wizard on the request's Step 1 intent. */
   onChooseAnother?: (intent: RfqLane) => void;
   onToggleTradeIn: (requestId: string, hasTradeIn: boolean) => void;
+}
+
+/** What each quoting desk told us about whether the car is in stock, so the buyer can trust the quote. Desk name and the answer only. */
+export function AvailabilityLines({ rfq }: { rfq: Pick<RfqRequest, "invites"> }) {
+  const lines = trackerAvailabilityLines(rfq);
+  if (!lines.length) return null;
+  return (
+    <ul className="space-y-0.5" data-testid="rfq-availability">
+      {lines.map((l) => (
+        <li key={l.inviteId} className="text-[11px]" data-testid="rfq-availability-line" data-alternative={l.alternative ? "true" : "false"}>
+          <span className="font-bold text-white">{l.dealerName}</span>
+          <span className={l.alternative ? "text-amber-200" : "text-positive-300"}> · {l.line}</span>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 /**
@@ -197,6 +214,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     })}
                   </div>
                 ) : null}
+                <AvailabilityLines rfq={rfq} />
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">

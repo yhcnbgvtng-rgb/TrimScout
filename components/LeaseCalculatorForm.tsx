@@ -3,6 +3,7 @@
 import { counterPriceChanged, TAX_PROMPT_COPY, type CounterSheet } from "../lib/counterSheet";
 import { TaxUpdatePrompt } from "./TaxUpdatePrompt";
 import React, { useMemo, useState } from "react";
+import { AvailabilityConfirm, availabilityAnswer, availabilityErrors, availabilityQuoteVin, useAvailability } from "./AvailabilityConfirm";
 import { Plus, Trash2 } from "lucide-react";
 import { validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem, LEASE_DAS_INTENT_LABELS } from "../lib/leaseQuote";
 import { CREDIT_BAND_LABELS } from "../lib/creditBand";
@@ -71,6 +72,9 @@ export function LeaseCalculatorForm({
   initial = null,
   counterSheet = null,
   trade = null,
+  requestedVin,
+  onDecline,
+  declining = false,
   onSubmitted,
 }: {
   token: string;
@@ -83,6 +87,11 @@ export function LeaseCalculatorForm({
   initial?: LeaseQuote | null;
   /** The buyer's counter being answered — a price change makes the dealer update or confirm sales tax first. */
   counterSheet?: CounterSheet | null;
+  /** The VIN the buyer asked about (the availability question is about this car). */
+  requestedVin?: string;
+  /** "No, it's unavailable" -> decline this quote request. */
+  onDecline?: () => void;
+  declining?: boolean;
   onSubmitted: (result: { warnings: string[]; dueAtSigningTotal: number }) => void;
 }) {
   const zipRate = prefs.zip ? getZipCoordinates(prefs.zip).taxRate : null;
@@ -127,6 +136,7 @@ export function LeaseCalculatorForm({
   const [counterOffer, setCounterOffer] = useState(false);
   const [noTaxEstimate, setNoTaxEstimate] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [av, setAv] = useAvailability();
   const [serverError, setServerError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
   // Which formatted fields are being edited right now (show raw while typing).
@@ -191,7 +201,8 @@ export function LeaseCalculatorForm({
   const warnings = [...validation.warnings, ...(d.residualDrift ? [`Residual amount ${money(d.residualAmount)} doesn't match ${d.residualPercent}% of MSRP (${money(d.residualFromMsrp)}) — double-check which one is right.`] : [])];
   const [taxConfirmed, setTaxConfirmed] = useState(false);
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && f.taxesAtSigning === str(initial?.dueAtSigning.taxes);
-  const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : [])];
+  const availErrors = availabilityErrors(av, requestedVin ?? vin, f.vin);
+  const errors = [...availErrors, ...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : [])];
   const differs = Number(f.termMonths) !== prefs.termMonths || Number(f.milesPerYear) !== prefs.milesPerYear;
 
   const submit = async () => {
@@ -209,7 +220,7 @@ export function LeaseCalculatorForm({
       const res = await fetch("/api/quote-invite/lease-quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ t: token, vin: f.vin, stockNumber: f.stockNumber, quote, ...(tradeBody ? { trade: tradeBody } : {}) }),
+        body: JSON.stringify({ t: token, vin: availabilityQuoteVin(av, f.vin), stockNumber: f.stockNumber, quote, availability: availabilityAnswer(av), ...(tradeBody ? { trade: tradeBody } : {}) }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -513,6 +524,7 @@ export function LeaseCalculatorForm({
         </ul>
       ) : null}
 
+      <AvailabilityConfirm value={av} onChange={setAv} requestedVin={requestedVin ?? vin} sheetVin={f.vin} onDecline={onDecline} declining={declining} invalid={touched && availErrors.length > 0} />
       {trade?.slot}
       {trade?.hasTrade && !trade.ready ? <p className="text-[11px] text-amber-200" data-testid="trade-required-hint">Add your trade allowance (or choose &ldquo;Can&apos;t quote this trade&rdquo;) to send this quote. The trade is part of the price.</p> : null}
       <button type="button" onClick={submit} disabled={busy || Boolean(trade?.hasTrade && !trade.ready)} className="w-full rounded-xl bg-brand-500 py-2.5 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50" data-testid="submit-quote">

@@ -7,6 +7,7 @@ import { getRfq, getRfqInviteByViewToken, submitRfqQuote } from "@/lib/rfqApi";
 import { coerceLeaseQuote, dueAtSigningTotal, validateLeaseQuote, type LeaseQuote } from "@/lib/leaseQuote";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 import { notifyDealerQuoted } from "@/lib/noticeOutbox";
+import { resolveAvailability } from "@/lib/quoteAvailability";
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
@@ -24,6 +25,12 @@ export async function POST(req: Request) {
   const quote = coerceLeaseQuote((body?.quote || {}) as Record<string, unknown>);
   const vin = typeof body?.vin === "string" && body.vin.trim() ? body.vin.trim().toUpperCase() : rfq.vin;
   const stockNumber = typeof body?.stockNumber === "string" && body.stockNumber.trim() ? body.stockNumber.trim() : rfq.stockNumber;
+  // Required: the desk says whether this exact car is in stock before any quote is taken (a "no" declines, or quotes a comparable car under its own VIN).
+  // The time is stamped here, never taken from the browser.
+  const requestedVin = (rfq.invites.find((i) => i.id === found.invite.id) ?? found.invite).vehicle?.vin || rfq.vin;
+  const availability = resolveAvailability(body?.availability, { requestedVin, quoteVin: vin });
+  if (!availability.ok) return NextResponse.json({ error: availability.error, errors: [availability.error] }, { status: 422 });
+
   const v = validateLeaseQuote(quote, rfq.leasePrefs, { vin, stockNumber });
   if (v.errors.length) return NextResponse.json({ error: "Quote is incomplete.", errors: v.errors, warnings: v.warnings }, { status: 422 });
 
@@ -49,6 +56,7 @@ export async function POST(req: Request) {
     mustHaveAcknowledgement: true,
     notes: lease.notes || null,
     lease,
+    availability: availability.availability,
   });
   // Tell the buyer a quote is in (after the response; SAFE MODE routes it, and a failure never fails the dealer's submit).
   after(() => notifyDealerQuoted(rfq, found.invite));
