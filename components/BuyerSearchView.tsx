@@ -7,6 +7,7 @@ import { NO_PAID_FACTORY_OPTIONS, optionsPaidOnlyEnabled } from "@/lib/optionsPa
 import type { DropdownOption } from "./search/SearchableDropdown";
 import { SearchFilterBar, useIsMobile } from "./search/SearchFilterBar";
 import { toggleColumn, visibleColumnKeys } from "@/lib/searchColumns";
+import { fitColumnWidth, growOnly, maxCellPx } from "@/lib/searchColumnFit";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
 import { MAX_PICKS, pickWarnings, toPick, vehicleKey, type PickedVehicle } from "@/lib/buyerPicks";
 import { SORT_TIMEOUT_NOTE, activeSort, ariaSortFor, isSortableColumn, nextSort, parseSort, sortBlockedReason, type SortableColumn } from "@/lib/buyerSort";
@@ -632,8 +633,40 @@ function VehicleTable({ resetKey, hasMore, loadingMore, moreError, onLoadMore, v
   const hasDistance = vehicles.some((v) => v.distanceMiles != null);
   const anyMaybeSold = vehicles.some((v) => v.mayBeSold);
   // Room for the "May be sold" note beside the listing link, only when some row carries it.
-  const cols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance)).map((c) => (c.key === "listing" && anyMaybeSold ? { ...c, w: MAY_BE_SOLD_COL_W } : c));
+  const baseCols = TABLE_COLUMNS.filter((c) => shownKeys.has(c.key) && (c.key !== "distance" || hasDistance)).map((c) => (c.key === "listing" && anyMaybeSold ? { ...c, w: MAY_BE_SOLD_COL_W } : c));
   const mobile = useIsMobile();
+  // Auto-fit: each text column is as wide as its widest header or cell among the loaded rows (60–280px). Widths are a pure function of
+  // the rows and the chosen columns, so while a new search loads (old rows stay, dimmed) nothing moves; within one search, appended
+  // pages only ever widen a column. Until fonts are ready, or where there is no canvas, the fixed widths stand.
+  const [fontsTick, setFontsTick] = useState(0);
+  useEffect(() => { try { void document.fonts?.ready.then(() => setFontsTick((t) => t + 1)); } catch { /* fixed widths stand */ } }, []);
+  const fitState = useRef<{ firstVin: string; keys: string; w: Record<string, number> } | null>(null);
+  const colKeys = baseCols.map((c) => c.key).join(",");
+  const fitted = useMemo(() => {
+    const prev = fitState.current;
+    if (vehicles.length === 0) return prev && prev.keys === colKeys ? prev.w : null; // between searches: keep what is on screen
+    const ctx = typeof document === "undefined" ? null : document.createElement("canvas").getContext("2d");
+    if (!ctx) return null;
+    const family = (typeof window !== "undefined" && document.body ? window.getComputedStyle(document.body).fontFamily : "") || "system-ui, sans-serif";
+    const mono = "ui-monospace, SFMono-Regular, Menlo, monospace";
+    const w: Record<string, number> = {};
+    for (const c of baseCols) {
+      if (c.key === "pick" || c.key === "listing" || !c.show) { w[c.key] = c.w; continue; }
+      const show = c.show;
+      ctx.font = `900 10.5px ${family}`;
+      const headerPx = ctx.measureText(c.label.toUpperCase()).width + c.label.length * 0.525; // tracking-wider = 0.05em
+      const isMono = c.key === "vin" || c.key === "vehicleId";
+      ctx.font = `${c.key === "dealer" ? 600 : 400} 11.5px ${isMono ? mono : family}`;
+      const cellPx = maxCellPx((function* () { for (const v of vehicles) yield show(v); })(), (t) => ctx.measureText(t).width);
+      w[c.key] = fitColumnWidth({ key: c.key, headerPx, sortable: isSortableColumn(c.key), cellPx, noMax: c.key === "vin" });
+    }
+    const same = prev && prev.firstVin === vehicles[0].vin && prev.keys === colKeys; // appended pages keep the first row; a new search or sort does not
+    const out = same ? growOnly(prev.w, w) : w;
+    fitState.current = { firstVin: vehicles[0].vin, keys: colKeys, w: out };
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicles, colKeys, fontsTick]);
+  const cols = baseCols.map((c) => (fitted && fitted[c.key] ? { ...c, w: fitted[c.key] } : c));
   const totalW = cols.reduce((s, c) => s + c.w, 0);
   const picked = new Set(picks.map((p) => p.key));
   // The scroller's own bottom edge — and with it the horizontal scrollbar and the last rows — must stay above the fixed picks bar.
