@@ -82,7 +82,7 @@ describe('2026-10-13 deal stages v2 box script', () => {
   it('the real script asks for the idle window and Paul\'s GO, restarts deals-api exactly once, and does not touch FEATURE_DEAL_STAGES', () => {
     const s = fs.readFileSync(SCRIPT, 'utf8');
     assert.match(s, /IDLE WINDOW[\s\S]*PAUL'S GO/);
-    assert.equal(s.split('\n').filter((l) => /^\s*sudo pm2 restart trimscout-deals-api/.test(l)).length, 1, 'one real restart (the rollback hint is an echo)');
+    assert.equal(s.split('\n').filter((l) => /^\s*sudo pm2 restart deals-api/.test(l)).length, 1, 'one real restart (the rollback hint is an echo)');
     assert.match(s, /pgrep -f inventory-sync\.mjs/);
     assert.doesNotMatch(s.replace(/^#.*$/gm, ''), /FEATURE_DEAL_STAGES/);
     execFileSync('bash', ['-n', SCRIPT]);

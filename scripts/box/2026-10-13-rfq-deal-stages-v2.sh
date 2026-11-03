@@ -64,11 +64,11 @@ done
 node --check "$FILE" && echo "syntax ok"
 
 if [ "$TEST" != "1" ]; then
-  sudo pm2 restart trimscout-deals-api
+  sudo pm2 restart deals-api
   sleep 3
   echo "--- deals-api up? (401 = up and guarding; needs the key) ---"
   curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3004/health
   echo "--- stage route exists? (401 without the key; 404 would mean 2026-10-11 is missing) ---"
   curl -s -o /dev/null -w '%{http_code}\n' -X POST http://127.0.0.1:3004/api/rfqs/1/invites/1/stage
-  echo "Rollback: for m in dealStages.js rfqStages.js; do sudo cp /opt/trimscout-deals/src/\$m.bak.$STAMP /opt/trimscout-deals/src/\$m; done; sudo pm2 restart trimscout-deals-api"
+  echo "Rollback: for m in dealStages.js rfqStages.js; do sudo cp /opt/trimscout-deals/src/\$m.bak.$STAMP /opt/trimscout-deals/src/\$m; done; sudo pm2 restart deals-api"
 fi

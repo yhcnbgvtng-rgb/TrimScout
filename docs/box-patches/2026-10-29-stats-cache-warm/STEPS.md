@@ -40,7 +40,7 @@ ssh box2 'cd /tmp/statswarm && grep -n "import { createStatsCache, warmStatsCach
 ```
    The first two greps must each print one line; the count must be 2 (import + the call). Any miss: stop, nothing is installed yet.
 4. Syntax check both: `ssh box2 'cd /tmp/statswarm && node --check statsCache.js && node --check deals_api_server.js && echo syntax ok'`.
-5. Install the checked copies and restart (only the `ubuntu` PM2 runs deals-api; **never** `sudo pm2 ... trimscout-deals-api` and never a bare `sudo pm2`, which starts an empty root daemon):
+5. Install the checked copies and restart (only the `ubuntu` PM2 runs deals-api; **never** `sudo pm2 ... deals-api` and never a bare `sudo pm2`, which starts an empty root daemon):
 ```bash
 ssh box2 'cd /tmp/statswarm && sudo install -m 0644 statsCache.js /opt/trimscout-deals/src/statsCache.js && sudo install -m 0644 deals_api_server.js /opt/trimscout-deals/src/deals_api_server.js && md5sum /opt/trimscout-deals/src/statsCache.js /opt/trimscout-deals/src/deals_api_server.js && sudo -u ubuntu pm2 restart deals-api'
 ```

@@ -32,8 +32,8 @@ ids. Measured 2026-10-10 against the live directory: 18,224 rows, 7,794 qualify,
 ```bash
 cd /opt/trimscout-deals/src
 node --check inventoryListQuery.js && node --check deals_api_server.js
-pm2 restart trimscout-deals-api
-pm2 logs trimscout-deals-api --lines 30 --nostream     # expect a clean start
+pm2 restart deals-api
+pm2 logs deals-api --lines 30 --nostream     # expect a clean start
 ```
 
 Restart note (from earlier incidents): start-up `ALTER`s can hang behind a long SELECT. If `/health` is not back in about a minute, check `SHOW PROCESSLIST` for a long query before restarting again.
@@ -64,7 +64,7 @@ Set `NEXT_PUBLIC_CONTACT_FILTER=1` in Vercel (Production) and redeploy. The chec
 ## Roll back
 
 - Web: unset `NEXT_PUBLIC_CONTACT_FILTER` and redeploy. The filter disappears and the URL param is ignored. Nothing else depends on the box change.
-- Box: restore the `.pre-contact` copies and `pm2 restart trimscout-deals-api`.
+- Box: restore the `.pre-contact` copies and `pm2 restart deals-api`.
 
 ## Failure behavior (by design)
 

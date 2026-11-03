@@ -37,8 +37,8 @@ Prereqs on the box: 2026-10-11 stage endpoint, 2026-09-13 buyer counter and 2026
    EXPECT_MD5=548574bc4cd2fffdfa34bc54ec682ce5 bash 2026-10-29-rfq-staged-accept-original.sh
    ```
    It prints the new module md5, the live md5 before, the backup path and its md5 (must equal step 2), runs `node --check`, restarts
-   `trimscout-deals-api` and curls `/health` and the stage route (401 = up and guarding).
-4. Verify: `md5sum /opt/trimscout-deals/src/rfqStages.js` = `548574bc4cd2fffdfa34bc54ec682ce5`; `sudo pm2 status trimscout-deals-api` online, no restart loop.
+   `deals-api` and curls `/health` and the stage route (401 = up and guarding).
+4. Verify: `md5sum /opt/trimscout-deals/src/rfqStages.js` = `548574bc4cd2fffdfa34bc54ec682ce5`; `sudo pm2 status deals-api` online, no restart loop.
 5. **Then** in Vercel set `NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL=on` and redeploy (it is build-time). Until then the website shows the state and amount
    but no accept button, so merging this PR before the install is safe.
 6. SAFE MODE check on a test-mode request (BUYER_TEST_MODE_EMAILS account): staged cash, counter, dealer declines the counter (dealer link),
@@ -47,7 +47,7 @@ Prereqs on the box: 2026-10-11 stage endpoint, 2026-09-13 buyer counter and 2026
 ## Rollback
 ```bash
 sudo cp /opt/trimscout-deals/src/rfqStages.js.bak.<STAMP> /opt/trimscout-deals/src/rfqStages.js
-sudo pm2 restart trimscout-deals-api
+sudo pm2 restart deals-api
 md5sum /opt/trimscout-deals/src/rfqStages.js   # must equal the md5 you recorded in step 2
 ```
 (`<STAMP>` is printed by the installer.) Also unset `NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL` and redeploy; the button then disappears and the buyer sees the

@@ -70,6 +70,6 @@ print("patched:", ", ".join(changed) or "nothing")
 PY
 
 node --check "$FILE" && echo "syntax ok"
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3004/api/inventory?inStock=1&limit=1&sort=dealer:asc")
 echo "inventory-default-check: $code"

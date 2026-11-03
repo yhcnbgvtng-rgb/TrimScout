@@ -1,6 +1,6 @@
 # Box patch: sweep guards (box2) — stop retiring live cars
 
-Code and docs only. **Nothing is installed and no box was touched.** Install only on Paul's typed **GO**, in an idle window, one numbered step at a time. Box2 is both the deals box (`/opt/trimscout-deals`, MariaDB, pm2 `trimscout-deals-api`) and a crawl box (`~/inventory-sync`). Addresses and paths: `docs/BOXES.md` (box2 = `ssh box2`).
+Code and docs only. **Nothing is installed and no box was touched.** Install only on Paul's typed **GO**, in an idle window, one numbered step at a time. Box2 is both the deals box (`/opt/trimscout-deals`, MariaDB, pm2 `deals-api`) and a crawl box (`~/inventory-sync`). Addresses and paths: `docs/BOXES.md` (box2 = `ssh box2`).
 
 ## Why (audit 2026-10-27, read-only)
 Box2's sync retired 81,268 cars on 10-27. 32,068 of them had the same VIN live at another store, and about 23% of a week's retirements were live again at the same dealer within 7 days. Two causes, both visible in the logs:
@@ -83,7 +83,7 @@ ssh box2 'cd /opt/trimscout-deals/src && cp /tmp/sweep-guards-stage/inventorySwe
 ### 4. Restart the deals API (idle only)
 Before: `sudo mysql -e "SELECT id,time,state,LEFT(info,90) FROM information_schema.processlist WHERE command<>'Sleep'"` shows nothing long, and no sync holds the lock.
 ```bash
-ssh box2 'pm2 restart trimscout-deals-api && sleep 5 && pm2 logs trimscout-deals-api --lines 15 --nostream | tail -15'
+ssh box2 'pm2 restart deals-api && sleep 5 && pm2 logs deals-api --lines 15 --nostream | tail -15'
 ```
 Expect a clean start. Then confirm the **old client form is unchanged** and the **new form is acknowledged**, using a store id that exists nowhere (these sweep nothing):
 ```bash
@@ -129,7 +129,7 @@ ssh box2 'B=~/backups/sweep-guards-20261027; cp -p $B/client/inventory-sync.mjs 
 ```
 Server (old API ignores nothing it needs: the old client form is unchanged either way):
 ```bash
-ssh box2 'B=~/backups/sweep-guards-20261027; cp -p $B/server/inventorySweep.js $B/server/deals_api_server.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && md5sum inventorySweep.js deals_api_server.js && grep -E "server/" $B/md5s-before.txt && pm2 restart trimscout-deals-api'
+ssh box2 'B=~/backups/sweep-guards-20261027; cp -p $B/server/inventorySweep.js $B/server/deals_api_server.js /opt/trimscout-deals/src/ && cd /opt/trimscout-deals/src && md5sum inventorySweep.js deals_api_server.js && grep -E "server/" $B/md5s-before.txt && pm2 restart deals-api'
 ```
 Rolling back the server while the new client is installed makes the new client stop at its probe without sweeping (safe), so roll the client back too. The two columns can stay (harmless); to remove them: `ALTER TABLE dealer_inventory DROP COLUMN IF EXISTS sweep_miss_count, DROP COLUMN IF EXISTS sweep_miss_at;`.
 

@@ -223,7 +223,7 @@ sudo mysql trimscout -e "DROP TABLE IF EXISTS dealer_inventory_options;"
 sudo mysql trimscout -e "CREATE TABLE dealer_inventory_options (vin CHAR(17) NOT NULL, dealer_id INT NOT NULL DEFAULT 0, canonical_key VARCHAR(80) NOT NULL, label VARCHAR(160) NOT NULL, code VARCHAR(32) NULL, PRIMARY KEY (vin, dealer_id, canonical_key), INDEX idx_opt_canonical (canonical_key));"
 echo "Schema applied."
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory)
 echo "GET /api/inventory without key -> $code (401 = server up and guarding)"
 sudo mysql trimscout -e "DESCRIBE dealer_inventory_options;"

@@ -219,10 +219,10 @@ print("patched:", path)
 PYEOF
 
 node --check "$FILE" && echo "syntax ok"
-sudo pm2 restart trimscout-deals-api
+sudo pm2 restart deals-api
 sleep 2
 echo "--- health ---"
 curl -s http://127.0.0.1:3004/health || curl -s http://127.0.0.1:3004/ | head -c 200
 echo
 echo "--- won-deals column check (expects no 'Unknown column' error) ---"
-sudo pm2 logs trimscout-deals-api --lines 15 --nostream | tail -15
+sudo pm2 logs deals-api --lines 15 --nostream | tail -15

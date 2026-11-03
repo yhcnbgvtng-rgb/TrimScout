@@ -36,7 +36,7 @@ bash /tmp/vg/install.sh check
 bash /tmp/vg/install.sh apply
 ```
 It ends by printing `ROLLBACK:  bash /tmp/vg/install.sh restore && sudo -u ubuntu pm2 restart deals-api`.
-4. Restart (gates again, then `sudo -u ubuntu pm2 restart deals-api`, then checks the process is online with a fresh uptime stamp; the root PM2 has no `deals-api`. `docs/BOXES.md` still says `trimscout-deals-api`, which is stale):
+4. Restart (gates again, then `sudo -u ubuntu pm2 restart deals-api`, then checks the process is online with a fresh uptime stamp; the root PM2 has no `deals-api`. `docs/BOXES.md` still says `deals-api`, which is stale):
 ```bash
 bash /tmp/vg/install.sh restart
 sudo -u ubuntu pm2 logs deals-api --lines 30 --nostream     # no import/syntax error

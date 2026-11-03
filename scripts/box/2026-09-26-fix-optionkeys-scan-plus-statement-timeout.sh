@@ -130,7 +130,7 @@ PYEOF
 
 node --check "$FILE" && echo "syntax ok"
 
-sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
 code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3004/api/inventory)
 echo "GET /api/inventory without key -> $code (401 = server up and guarding)"
 echo "Done. Verify live, e.g.:"

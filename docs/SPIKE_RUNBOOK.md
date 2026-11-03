@@ -78,7 +78,7 @@ curl -s -o /dev/null -w "3004 %{http_code}\n" http://127.0.0.1:3004/api/inventor
 ```
 
 If `pm2 ls` is empty, the daemon lost its list — start them by hand from
-`/opt/trimscout-deals` (`pm2 start deals_api_server.js --name trimscout-deals-api`,
+`/opt/trimscout-deals` (`pm2 start deals_api_server.js --name deals-api`,
 same for `auth_api_server.js` → `trimscout-auth-api`), then `pm2 save` and
 `pm2 startup` so they survive a reboot.
 
@@ -108,7 +108,7 @@ free -m
 
 (`fallocate` needs ~3 GB free on the root disk — `df -h /` first; on a 40 GB
 Lightsail disk that's fine.) If `dmesg` keeps naming the same process, cap it
-instead of the box: `pm2 restart trimscout-deals-api --max-memory-restart 600M`
+instead of the box: `pm2 restart deals-api --max-memory-restart 600M`
 and `pm2 save`. Swap is a cushion, not a fix, for a job that genuinely needs
 more RAM than the instance has.
 

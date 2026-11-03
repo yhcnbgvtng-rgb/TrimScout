@@ -64,14 +64,14 @@ if the stages patch is missing and skips the trade-after-acceptance part, with a
    curl -fsSL -o 2026-10-12-rfq-not-selected.sh https://raw.githubusercontent.com/yhcnbgvtng-rgb/TrimScout/main/scripts/box/2026-10-12-rfq-not-selected.sh && bash 2026-10-12-rfq-not-selected.sh
    ```
    It backs up `deals_api_server.js`, installs `rfqNotSelected.js`, `dealStages.js`, `rfqStages.js`, applies anchored edits (asserted exactly-once),
-   `node --check`s, restarts pm2 `trimscout-deals-api`, and probes `/health` (401 = up).
+   `node --check`s, restarts pm2 `deals-api`, and probes `/health` (401 = up).
 3. Verify (use an `audit=1` / test-mode request only):
    * `POST /api/rfqs/:id/invites/:inviteId/not-selected {"step":"close"}` on a loser returns 200 and the invite now shows `notSelectedAt`; on the accepted dealer returns 409 `accepted`.
    * `claim` twice: first `claimed:true`, second `false`; `sent`, then `claim` again: `false`.
    * Counter / used-quote POST on the closed desk returns 409.
    * Accept a dealer on a test request: exactly one `[SAFE MODE · …] Not selected this time` per other dealer lands at pausmi@outlook.com.
    * Add a trade-in on a picked (lease) test request: 200; before the patch it was 409 `closed`.
-4. Rollback: `sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<stamp> /opt/trimscout-deals/src/deals_api_server.js && sudo pm2 restart trimscout-deals-api`. The added columns are nullable and harmless to leave.
+4. Rollback: `sudo cp /opt/trimscout-deals/src/deals_api_server.js.bak.<stamp> /opt/trimscout-deals/src/deals_api_server.js && sudo pm2 restart deals-api`. The added columns are nullable and harmless to leave.
 5. Until step 2 is done the app still works: the pick/accept succeed, the close-out calls fail quietly (best effort) and no note is sent. Deploy the site and the box patch in either order.
 
 ## Not covered

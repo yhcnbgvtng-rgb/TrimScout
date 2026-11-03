@@ -137,7 +137,7 @@ PY
 
 node --check "$FILE" && echo "syntax ok"
 if [ "$ON_BOX" = 1 ]; then
-  sudo pm2 restart trimscout-deals-api --update-env >/dev/null && sleep 2
+  sudo pm2 restart deals-api --update-env >/dev/null && sleep 2
   code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3004/api/inventory/export?inStock=1&state=TX&max=1")
   echo "export-route-check (401 = up, auth-gated): $code"
 fi
