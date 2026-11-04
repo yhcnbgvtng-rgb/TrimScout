@@ -161,3 +161,58 @@ describe("Compare factory options — after all 3 VDPs resolve with must-haves p
     await act(async () => { root.unmount(); });
   });
 });
+
+describe("Compare 'Other differences' chips — +N more expands in place, per column", () => {
+  let dom: JSDOM;
+  before(() => {
+    dom = new JSDOM("<!doctype html><html><body><div id=\"root\"></div></body></html>", { url: "http://localhost/" });
+    const w = dom.window as unknown as Record<string, unknown>;
+    const define = (k: string, v: unknown) => Object.defineProperty(globalThis, k, { value: v, configurable: true, writable: true });
+    for (const k of ["window", "document", "navigator", "HTMLElement", "Node", "Event", "MouseEvent", "sessionStorage", "localStorage"]) define(k, w[k]);
+    define("IS_REACT_ACT_ENVIRONMENT", true);
+  });
+  after(() => dom.window.close());
+
+  it("collapses to 2 chips + a button; expand shows all, 'Show less' collapses, focus stays, glyphs cleaned", async () => {
+    const React = (await import("react")).default;
+    const { act } = await import("react");
+    const { createRoot } = await import("react-dom/client");
+    const { FactoryOptionsCompare } = await import("../components/BiddingWizard");
+    const primary = ford(VIN_PRIMARY, { packages: ["▤DUAL VALVE SHOCKS", "A1", "B2", "C3", "Last Pkg"] });
+    const alt1 = ford(VIN_ALT1, { packages: ["X1", "X2", "X3", "XLast"] });
+    const alt2 = ford(VIN_ALT2, { packages: ["▤DUAL VALVE SHOCKS", "A1", "B2", "C3", "Last Pkg"] });
+    const root = createRoot(dom.window.document.getElementById("root")!);
+    await act(async () => {
+      root.render(React.createElement(FactoryOptionsCompare as never, { primary, alt1, alt2, mustHaves: [], stickerStates: {} }));
+    });
+    const doc = dom.window.document;
+    const btn = (k: string) => doc.querySelector(`[data-testid="compare-${k}-toggle"]`) as HTMLButtonElement | null;
+    const text = () => doc.body.textContent || "";
+
+    // alt1 (column 0): 5 missing → 2 shown, button "+3 more missing"; 4 extra → "+2 more added".
+    const m0 = btn("missing-0")!;
+    assert.equal(m0.tagName, "BUTTON");
+    assert.equal(m0.getAttribute("aria-expanded"), "false");
+    assert.equal(m0.textContent, "+3 more missing");
+    assert.match(text(), /DUAL VALVE SHOCKS/);
+    assert.doesNotMatch(text(), /▤/, "stray glyph is never displayed");
+    assert.doesNotMatch(text(), /Last Pkg/, "hidden option not shown while collapsed");
+    assert.equal(btn("extra-0")!.textContent, "+2 more added");
+    assert.equal(btn("missing-1"), null, "alt2 has nothing missing → no button");
+
+    m0.focus();
+    await act(async () => { m0.click(); });
+    assert.match(text(), /Last Pkg/, "every hidden option shown once expanded");
+    assert.equal(btn("missing-0")!.getAttribute("aria-expanded"), "true");
+    assert.equal(btn("missing-0")!.textContent, "Show less");
+    assert.equal(doc.activeElement, btn("missing-0"), "focus stays on the control");
+    assert.equal(btn("extra-0")!.getAttribute("aria-expanded"), "false", "columns/rows expand independently");
+    assert.doesNotMatch(text(), /XLast/);
+
+    await act(async () => { btn("missing-0")!.click(); });
+    assert.doesNotMatch(text(), /Last Pkg/, "collapses again");
+    assert.equal(btn("missing-0")!.textContent, "+3 more missing");
+    assert.equal(doc.activeElement, btn("missing-0"));
+    await act(async () => { root.unmount(); });
+  });
+});

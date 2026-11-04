@@ -117,6 +117,13 @@ describe("diffVsPrimary — facts, not a second percentage", () => {
     assert.doesNotMatch(line, /\d+%/);
   });
 
+  it("an uncapped diff lists every hidden package (display expands them in place)", () => {
+    const alt = car({ packages: ["Tow Package", "Bed Liner", "Floor Mats", "Cargo Net", "Splash Guards"] });
+    const all = diffVsPrimary(favorite, alt, [], Infinity).filter((c) => c.kind === "extra").map((c) => c.text);
+    assert.equal(all.length, 5);
+    assert.ok(all.every((t) => t.startsWith("adds: ")), "no +N more chip when uncapped");
+  });
+
   it("a different model is named once, with no package-by-package noise", () => {
     const alt = car({ model: "Explorer", trim: "Tremor", packages: ["Tow Package", "Twin Panel Moonroof"] });
     const chips = diffVsPrimary(favorite, alt);
