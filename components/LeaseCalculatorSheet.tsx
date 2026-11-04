@@ -267,9 +267,9 @@ export function LeaseCalculatorSheet({
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Quote details</h4>
             <div className="grid grid-cols-2 gap-2.5">
               <label className="space-y-1">
-                <span className={label}>Quote expires</span>
+                <span className={label}>Quote expires (optional)</span>
                 <input type="date" value={f.expiresAt} onChange={set("expiresAt")} className={input} />
-                <span className={hint}>Required to save.</span>
+                <span className={hint}>Leave blank if the quote has no end date.</span>
               </label>
               {field({ k: "vin", title: "VIN quoted", mono: true })}
               {field({ k: "stockNumber", title: "Stock # (optional)", mono: true })}

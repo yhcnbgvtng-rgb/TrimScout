@@ -142,7 +142,7 @@ export function LeaseCompare({
         {statusNotes.map((c) => <span key={c} className="block text-[10px] leading-snug text-ink-muted">{c}</span>)}
         {r.counterDeclined && r.kind !== "expired" ? <span className="block text-[10px] leading-snug text-amber-200/90" data-testid="counter-declined-note">{COUNTER_DECLINED_NOTE}</span> : null}
         {r.kind === "countered" && r.buyerCounter ? <span className="block text-[10px] leading-snug text-sky-200">You asked: {counterSummary(r.buyerCounter)}</span> : null}
-        <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
+        <span className={`block text-[10px] ${r.kind === "expired" ? "text-rose-300" : "text-ink-faint"}`}>{r.expiresAt ? `Expires ${new Date(r.expiresAt).toLocaleDateString()}` : r.lease ? "" : "No quote yet"}</span>
         {inviteActions && !r.lease ? inviteActions(r.inviteId) : null}
       </div>
     );
@@ -173,7 +173,7 @@ export function LeaseCompare({
       </ul>),
       tax: fmtMoney(l.dueAtSigning.taxes),
       rebates: names(l.incentives, "−"),
-      expires: <span className={r.kind === "expired" ? "text-rose-300" : ""}>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—"}</span>,
+      expires: <span className={r.kind === "expired" ? "text-rose-300" : ""}>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : ""}</span>,
     } : { ...tradeCells };
     const detail = isOpen && l ? (
       <div className="space-y-3" data-testid="lease-row-detail">
@@ -216,7 +216,7 @@ export function LeaseCompare({
           </p>
         ) : null}
         {l.notes ? <p className="text-ink-muted">{l.notes}</p> : null}
-        <p className="text-[10px] text-ink-faint">Good through {r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : "—"}</p>
+        {r.expiresAt ? <p className="text-[10px] text-ink-faint">Good through {new Date(r.expiresAt).toLocaleDateString()}</p> : null}
         {r.buyerCounter?.sheet ? (
           <div className="space-y-1" data-testid="lease-row-counter">
             <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Your counter, line by line — before vs after</p>

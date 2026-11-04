@@ -53,11 +53,19 @@ describe("validateLeaseQuote — blocks (acceptance 4)", () => {
     const v = validateLeaseQuote(q, PREFS, {}, NOW);
     for (const re of [/VIN or stock/, /Cap cost/, /Residual %/, /Money factor/, /Monthly payment \(pre-tax\)/]) assert.ok(v.errors.some((e) => re.test(e)), String(re));
   });
-  it("requires a future expiry", () => {
+  it("the offer date is optional, but one that is given must be real and in the future", () => {
     const v1 = validateLeaseQuote({ ...good(), expiresAt: "" }, PREFS, { vin: "X" }, NOW);
-    assert.ok(v1.errors.some((e) => /expiry date is required/.test(e)));
+    assert.ok(!v1.errors.some((e) => /expiry/.test(e)), "no date is fine");
     const v2 = validateLeaseQuote({ ...good(), expiresAt: "2026-09-01T00:00:00Z" }, PREFS, { vin: "X" }, NOW);
     assert.ok(v2.errors.some((e) => /must be in the future/.test(e)));
+    const v3 = validateLeaseQuote({ ...good(), expiresAt: "soon" }, PREFS, { vin: "X" }, NOW);
+    assert.ok(v3.errors.some((e) => /isn't a valid date/.test(e)));
+  });
+  it("a quote with no offer date never counts as expired", () => {
+    assert.equal(isExpired({ expiresAt: "" }), false);
+    assert.equal(isExpired({ expiresAt: null }), false);
+    assert.equal(isExpired({ expiresAt: "2020-01-01T00:00:00Z" }), true);
+    assert.equal(isExpired({ expiresAt: "not a date" }), true);
   });
 });
 

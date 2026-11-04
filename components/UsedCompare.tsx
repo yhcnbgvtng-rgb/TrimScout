@@ -249,7 +249,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
       ) : used.noSurcharges ? <span className="text-ink-muted">None</span> : <span className="text-ink-muted">—</span>,
       rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
       miles: used.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—",
-      expires: <span className={expired ? "text-rose-300" : ""}>{new Date(used.expiresAt).toLocaleDateString()}</span>,
+      expires: <span className={expired ? "text-rose-300" : ""}>{used.expiresAt ? new Date(used.expiresAt).toLocaleDateString() : ""}</span>,
       ...(fin ? {
         monthly: <>{fmtMoney(fin.monthlyPaymentPreTax)}<span className="text-[10px] text-ink-muted">/mo</span>{fin.monthlyPaymentWithEstTax != null ? <span className="block text-[10px] text-ink-muted">{fmtMoney(fin.monthlyPaymentWithEstTax)}/mo with est. tax</span> : null}</>,
         cashdue: fmtMoney(financeCashDue(fin)),
@@ -283,7 +283,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         {used?.kind === "cash" && used.counterAccepted ? <span className="block text-[10px] font-bold text-emerald-300" data-testid="counter-accepted-badge">Dealer accepted your counter</span> : null}
         {invite.counterDeclined && !expired ? <span className="block text-[10px] text-amber-200/90" data-testid="counter-declined-note">{COUNTER_DECLINED_NOTE}</span> : null}
         {invite.buyerCounter && invite.status === "invited" ? <span className="block text-[10px] text-sky-200">You countered: {counterSummary(invite.buyerCounter)}</span> : null}
-        <span className={`block text-[10px] ${expired ? "text-rose-300" : "text-ink-faint"}`}>{used ? `Expires ${new Date(used.expiresAt).toLocaleDateString()}` : "No quote yet"}</span>
+        <span className={`block text-[10px] ${expired ? "text-rose-300" : "text-ink-faint"}`}>{used ? (used.expiresAt ? `Expires ${new Date(used.expiresAt).toLocaleDateString()}` : "") : "No quote yet"}</span>
       </div>
     );
     const detail = invite.buyerCounter?.sheet && invite.status === "invited" ? (

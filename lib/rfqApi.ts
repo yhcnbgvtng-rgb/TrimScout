@@ -404,7 +404,8 @@ export async function submitRfqQuote(
     fees: RfqQuoteFee[];
     vin: string;
     stockNumber?: string | null;
-    expiresAt: string;
+    /** Optional: blank or omitted means no offer date. */
+    expiresAt?: string | null;
     mustHaveAcknowledgement: boolean;
     notes?: string | null;
     /** The validated lease calculator; stored whole on the box. */

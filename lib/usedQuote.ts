@@ -198,8 +198,11 @@ export function validateUsedQuote(
   if (q.noSurcharges && surcharges.length > 0) errors.push("Either list the surcharges or mark none — not both.");
   const rebates = Array.isArray(q.rebates) ? q.rebates : [];
   if (!rebates.every((r) => r && typeof r.name === "string" && r.name.trim().length >= 2 && pos(r.amount))) errors.push("Every rebate / incentive needs a name and an amount above $0.");
-  if (!q.expiresAt || Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("An expiry date is required.");
-  else if (new Date(q.expiresAt).getTime() <= now.getTime()) errors.push("The expiry date must be in the future.");
+  // The offer date is optional: blank means the dealer gave no end date (nothing is shown, nothing is defaulted). A date that IS given must be real and in the future.
+  if (q.expiresAt) {
+    if (Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("The expiry date isn't a valid date.");
+    else if (new Date(q.expiresAt).getTime() <= now.getTime()) errors.push("The expiry date must be in the future.");
+  }
 
   if (q.kind === "finance" && prefs.quoteType === "finance") {
     const f = q as Partial<UsedFinanceQuote>;

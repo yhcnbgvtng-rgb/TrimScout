@@ -47,7 +47,12 @@ describe("Finance / Cash quote locks — structured, itemized, apples to apples"
     assert.deepEqual(validateUsedQuote(fin({ miles: null, cpo: false }), finPrefs, NEW, NOW).errors, [], "new car: no miles needed");
     assert.ok(validateUsedQuote(fin({ miles: null }), finPrefs, USED, NOW).errors.some((e) => /Miles on the car/.test(e)));
   });
-  it("blocks: lump fees, no sales-tax line, missing/past expiry, bad amounts, monthly-only finance, wrong kind", () => {
+  it("the offer date is optional: none is fine, a given one must be real and in the future", () => {
+    assert.deepEqual(validateUsedQuote(cash({ expiresAt: "" }), cashPrefs, USED, NOW).errors, []);
+    assert.ok(validateUsedQuote(cash({ expiresAt: "nope" }), cashPrefs, USED, NOW).errors.some((e) => /isn't a valid date/.test(e)));
+    assert.ok(validateUsedQuote(cash({ expiresAt: "2026-09-01T00:00:00Z" }), cashPrefs, USED, NOW).errors.some((e) => /must be in the future/.test(e)));
+  });
+  it("blocks: lump fees, no sales-tax line, past expiry, bad amounts, monthly-only finance, wrong kind", () => {
     const lump = validateUsedQuote(cash({ dueAtSigning: [{ name: "Fees", amount: 3230 }] }), cashPrefs, USED, NOW);
     assert.ok(lump.errors.some((e) => /single unlabeled lump/.test(e)));
     const otdLump = validateUsedQuote(cash({ dueAtSigning: [{ name: "OTD", amount: 41730 }] }), cashPrefs, USED, NOW);

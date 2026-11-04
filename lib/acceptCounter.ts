@@ -107,7 +107,7 @@ export function verifyAcceptedQuote(submitted: Partial<UsedQuote> | null | undef
   else if (!subTax.every((l) => typeof l.amount === "number" && Number.isFinite(l.amount) && l.amount >= 0)) errors.push("Sales tax must be $0 or more.");
   if ((submitted.miles ?? null) !== (after.miles ?? null)) diff("Miles");
   if (Boolean(submitted.cpo) !== Boolean(after.cpo)) diff("CPO");
-  const exp = (v: unknown) => (typeof v === "string" ? new Date(v).getTime() : NaN);
+  const exp = (v: unknown) => (typeof v === "string" && v ? new Date(v).getTime() : 0); // blank = no date; two blanks agree
   if (exp(submitted.expiresAt) !== exp(after.expiresAt)) diff("The good-until date");
   return errors;
 }

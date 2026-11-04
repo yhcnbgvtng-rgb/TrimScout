@@ -594,7 +594,7 @@ export function UsedQuoteForm({
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Quote details</h4>
             <div className="grid grid-cols-2 gap-3">
               <label className="space-y-1">
-                <span className={labelCls}>Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="text-amber-300">*</span>}</span>
+                <span className={labelCls}>Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="font-normal normal-case text-ink-faint">(optional)</span>}</span>
                 <input type="date" value={f.expiresAt} onChange={set("expiresAt")} className={input} />
               </label>
               <label className="space-y-1">

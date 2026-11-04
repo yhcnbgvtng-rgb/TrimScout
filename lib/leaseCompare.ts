@@ -139,7 +139,7 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
       dueAtSigning: dueAtSigningTotal(lease.dueAtSigning),
       counterHow: counter ? counterHowLine(lease, prefs) : null,
       counterNote: counter && lease.counter?.note ? lease.counter.note : null,
-      expiresAt: lease.expiresAt,
+      expiresAt: lease.expiresAt || null,
     });
   }
 

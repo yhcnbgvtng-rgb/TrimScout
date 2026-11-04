@@ -438,7 +438,7 @@ export function LeaseCalculatorForm({
               <div className="grid grid-cols-2 gap-3">
                 <label className="space-y-1">
                   <span className={labelCls}>
-                    Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="text-amber-300">*</span>}
+                    Quote good through {initial && f.expiresAt ? <span className="font-normal normal-case text-ink-faint">(carried over — change only if needed)</span> : <span className="font-normal normal-case text-ink-faint">(optional)</span>}
                   </span>
                   <input type="date" value={f.expiresAt} onChange={set("expiresAt")} className={input} />
                 </label>

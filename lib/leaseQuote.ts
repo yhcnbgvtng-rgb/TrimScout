@@ -176,8 +176,11 @@ export function validateLeaseQuote(
     if (list && !list.every((f) => f && typeof f.name === "string" && Number.isFinite(f.amount))) errors.push(`${label}s need a name and an amount.`);
     if (label === "Add-on" && list?.some((f) => f && f.amount > 0 && (f.name || "").trim().length < 4)) warnings.push("Add-ons without clear names — the buyer will see them line by line.");
   }
-  if (!q.expiresAt || Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("An expiry date is required.");
-  else if (new Date(q.expiresAt).getTime() <= now.getTime()) errors.push("The expiry date must be in the future.");
+  // The offer date is optional: blank means the dealer gave no end date (nothing is shown, nothing is defaulted). A date that IS given must be real and in the future.
+  if (q.expiresAt) {
+    if (Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("The expiry date isn't a valid date.");
+    else if (new Date(q.expiresAt).getTime() <= now.getTime()) errors.push("The expiry date must be in the future.");
+  }
 
   const termDiffers = pos(q.termMonths) && q.termMonths !== prefs.termMonths;
   const milesDiffers = pos(q.milesPerYear) && q.milesPerYear !== prefs.milesPerYear;
@@ -193,7 +196,9 @@ export function isCounter(q: Pick<LeaseQuote, "termMonths" | "milesPerYear">, pr
   return q.termMonths !== prefs.termMonths || q.milesPerYear !== prefs.milesPerYear;
 }
 
-export function isExpired(q: Pick<LeaseQuote, "expiresAt">, now: Date = new Date()): boolean {
+export function isExpired(q: { expiresAt?: string | null }, now: Date = new Date()): boolean {
+  // No offer date means the dealer gave no end date: never expired by the clock.
+  if (!q.expiresAt) return false;
   const t = new Date(q.expiresAt).getTime();
   return Number.isNaN(t) || t <= now.getTime();
 }
