@@ -32,7 +32,7 @@ describe("cash compare with a trade", () => {
   it("adds the trade rows under Rebates / credits and OTD before / after at the end", () => {
     const l = labels(html), i = l.indexOf("Rebates / credits");
     assert.deepEqual(l.slice(i, i + 4), ["Rebates / credits", "Trade-in allowance", "Payoff to lender", "Net trade equity"]);
-    assert.deepEqual(l.slice(-2), ["OTD before trade", "OTD after trade"]);
+    assert.deepEqual(l.slice(-2), ["OTD before trade", "True OTD after trade"]);
     assert.ok(!l.includes("Out the door"));
   });
   it("shows allowance, payoff, positive equity (green) and the Preliminary label; OTD before and after", () => {

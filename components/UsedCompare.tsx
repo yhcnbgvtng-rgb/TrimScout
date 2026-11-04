@@ -7,12 +7,14 @@ import { QuoteColumns, type QuoteColumn, type QuoteRowDef } from "./QuoteColumns
 import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
-import { applyToFinance, compareByOtdAfterThenEquity, otdBeforeAfter, tradeEquity, type TradeEquity } from "../lib/trade/otd";
+import { applyToFinance, compareByOtdAfterThenEquity, tradeEquity, type TradeEquity } from "../lib/trade/otd";
+import { taxNotConfirmedNote, trueOtdBreakdown } from "../lib/trade/trueOtd";
 import { quotedTaxOf, tradeTaxCredit, UNCONFIRMED_TRADE_TAX_NOTE, type TradeTaxCredit } from "../lib/trade/stateTradeCredit";
 import { quoteIsNew } from "../lib/salesTax";
 import { TRADE_ESTIMATE_COPY } from "../lib/trade/types";
 import { appraisalForCompare } from "../lib/trade/confirm";
 import { bestDeal, financeAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
+import { TrueOtdCard } from "./trade/TrueOtdCard";
 import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
 import { compareCashQuotes, msrpDiscount, otdExcludingAddOns } from "../lib/cashCompare";
 import { cashOutTheDoor, compareFinanceQuotes, isCountyTaxSurcharge, surchargeLabel, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
@@ -63,7 +65,12 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const taxZip = (finance ? prefs.finance?.zip : prefs.cash?.zip) || null;
   const taxCreditOf = (used: UsedQuote, eq: TradeEquity): TradeTaxCredit =>
     tradeTaxCredit({ zip: taxZip, allowance: eq.status === "quoted" ? eq.allowance : null, sellingPrice: used.sellingPrice, addOns: used.addOns, quotedTax: quotedTaxOf(used.dueAtSigning), isNew: quoteIsNew(used) });
-  const otdFor = (used: UsedQuote, eq: TradeEquity) => otdBeforeAfter(cashOutTheDoor(used), eq, taxCreditOf(used, eq));
+  // One calculation (lib/trade/trueOtd.ts) feeds every number below: the ranking, the badges, the cells and the step-by-step card.
+  const breakdownOf = (used: UsedQuote, eq: TradeEquity) => trueOtdBreakdown({ originalOtd: cashOutTheDoor(used), eq, taxCredit: taxCreditOf(used, eq) });
+  const otdFor = (used: UsedQuote, eq: TradeEquity) => {
+    const b = breakdownOf(used, eq);
+    return { before: b.original, after: b.trueOtd.mid, afterLow: b.trueOtd.low, afterHigh: b.trueOtd.high, changed: b.applies };
+  };
   const otdOf = (r: (typeof rows)[number]) => otdFor(r.used!, eqOf(r));
   const hasTrade = Boolean(trade);
   const eligibleRow = (r: (typeof rows)[number]) => tradeEligible(eqOf(r));
@@ -146,7 +153,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
     ...(trade
-      ? [{ key: "otdbefore", label: "OTD before trade" }, ...(finance ? [{ key: "applied", label: "How equity is applied" }] : []), { key: "otdafter", label: "OTD after trade", total: true }]
+      ? [{ key: "otdbefore", label: "OTD before trade" }, ...(finance ? [{ key: "applied", label: "How equity is applied" }] : []), { key: "otdafter", label: "True OTD after trade", total: true }]
       : !finance ? [{ key: "otd", label: "Out the door", total: true }] : []),
   ];
   const isTax = (n: string) => /tax/i.test(n);
@@ -208,7 +215,8 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
         otdafter: <>
           {fmtMoney(otd!.after)}
           {used.kind === "cash" ? vsBest : null}
-          {eq.status === "quoted" && eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted">{fmtMoney(otd!.afterLow)} to {fmtMoney(otd!.afterHigh)}</span> : null}
+          {eq.status === "quoted" && eq.allowance?.isRange ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="true-otd-range">{fmtMoney(otd!.afterLow)} to {fmtMoney(otd!.afterHigh)}</span> : null}
+          {eq.status === "quoted" && taxCredit && taxCredit.status === "unconfirmed" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="tax-credit-not-confirmed">{taxNotConfirmedNote(taxCredit.state)}</span> : null}
           {eq.status !== "quoted" ? <span className="block text-[10px] font-normal text-ink-muted" data-testid="otd-trade-note">{eq.status === "expired" ? "trade expired; not applied" : eq.status === "declined" ? "no trade quote; not applied" : used ? "no trade quote; not applied" : "trade pending; not applied"}</span> : null}
         </>,
         ...(used.kind === "finance" ? { applied: (() => {
@@ -339,6 +347,19 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
       {trade ? <p className="text-[11px] text-ink-muted" data-testid="trade-estimate-copy">{TRADE_ESTIMATE_COPY} {taxStatuses.has("credit") ? "Where your state gives a trade-in credit, the tax it saves is estimated from each dealer's quoted tax and shown on its own line." : taxStatuses.has("none") && !taxStatuses.has("unconfirmed") ? "Your state gives no trade-in credit, so sales tax is as each dealer quoted it, on the full price." : null}{taxStatuses.has("unconfirmed") ? <span data-testid="trade-tax-unconfirmed-note"> {UNCONFIRMED_TRADE_TAX_NOTE}</span> : null}</p> : null}
       {trade && quoted > 1 ? <TradeSortToggle mode={sort} onChange={setSort} /> : null}
       <QuoteColumns testId="used-table" caption="Quotes, one column per dealer" rows={rowDefs} columns={ordered.map(toColumn)} />
+      {trade && !finance && live.some((r) => breakdownOf(r.used!, eqOf(r)).applies) ? (
+        <section className="space-y-2" data-testid="true-otd-steps">
+          <h3 className="text-xs font-bold text-white">True out-the-door, step by step</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {live.filter((r) => breakdownOf(r.used!, eqOf(r)).applies).map((r) => (
+              <div key={r.invite.id} className="rounded-xl border border-border bg-surface p-3" data-testid="true-otd-desk">
+                <p className="mb-2 text-xs font-bold text-white">{r.invite.dealerName}</p>
+                <TrueOtdCard b={breakdownOf(r.used!, eqOf(r))} compact />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
       {counteringRow && counteringRow.used && counteringRow.invite.quote && onCounter ? (
         <CounterSheetForm dealerName={counteringRow.invite.dealerName} quote={{ used: counteringRow.used }} zip={(finance ? prefs.finance?.zip : prefs.cash?.zip) || ""} quoteId={counteringRow.invite.quote.id} onSubmit={async (c) => { await onCounter(counteringRow.invite.id, c); setCountering(null); }} onCancel={() => setCountering(null)} />
       ) : null}
