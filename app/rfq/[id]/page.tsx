@@ -119,7 +119,7 @@ function QuoteIntakeForm({
           />
         </label>
         <label className="space-y-1">
-          <span className="text-[10px] font-bold uppercase text-ink-light">Quote expires</span>
+          <span className="text-[10px] font-bold uppercase text-ink-light">Quote expires (optional)</span>
           <input
             type="date"
             value={expiresAt}
@@ -331,7 +331,7 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
             {f.label}: {formatCurrency(f.amount)}
           </div>
         ))}
-        <div>Expires: {new Date(q.expiresAt).toLocaleDateString()}</div>
+        {q.expiresAt ? <div>Expires: {new Date(q.expiresAt).toLocaleDateString()}</div> : null}
       </div>
       <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
         <span className={`flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-bold border ${specOk ? "bg-brand-500/15 text-brand-300 border-brand-500/30" : "bg-rose-500/15 text-rose-300 border-rose-500/30"}`}>

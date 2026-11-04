@@ -48,7 +48,8 @@ export function isQuoteComplete(quote: Pick<RfqQuote, "price" | "fees" | "vin" |
   if (!(quote.price > 0)) return false;
   if (!Array.isArray(quote.fees)) return false;
   if (!quote.vin.trim()) return false;
-  if (!quote.expiresAt || Number.isNaN(new Date(quote.expiresAt).getTime())) return false;
+  // The offer date is optional; one that is given must be real.
+  if (quote.expiresAt && Number.isNaN(new Date(quote.expiresAt).getTime())) return false;
   return true;
 }
 

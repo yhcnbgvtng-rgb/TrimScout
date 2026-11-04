@@ -137,6 +137,11 @@ describe("isQuoteComplete", () => {
     assert.equal(isQuoteComplete(quote({ vin: "" })), false);
   });
 
+  it("is complete with no offer date (it is optional)", () => {
+    assert.equal(isQuoteComplete(quote({ expiresAt: "" })), true);
+    assert.equal(isQuoteComplete(quote({ expiresAt: null })), true);
+  });
+
   it("is incomplete with an unparseable expiry", () => {
     assert.equal(isQuoteComplete(quote({ expiresAt: "not-a-date" })), false);
   });

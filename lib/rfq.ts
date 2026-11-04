@@ -65,7 +65,8 @@ export interface RfqQuote {
   totalOtdPrice: number;
   vin: string;
   stockNumber: string | null;
-  expiresAt: string;
+  /** The dealer's offer date; null when they gave none (nothing is shown). */
+  expiresAt: string | null;
   submittedAt: string;
   mustHaveAcknowledgement: boolean;
   notes: string | null;

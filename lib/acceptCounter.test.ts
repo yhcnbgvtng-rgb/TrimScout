@@ -53,6 +53,7 @@ describe("accepting a buyer's counter", () => {
     assert.ok(tamper((q) => ({ ...q, dueAtSigning: [...q.dueAtSigning, { name: "Market adjustment", amount: 500 }] })).length, "extra fee");
     assert.ok(tamper((q) => ({ ...q, dueAtSigning: q.dueAtSigning.map((l) => (l.name === "Sales tax" ? { ...l, amount: -5 } : l)) })).length, "negative tax");
     assert.ok(tamper((q) => ({ ...q, expiresAt: "2099-06-01T00:00:00.000Z" })).length, "expiry");
+    assert.ok(tamper((q) => ({ ...q, expiresAt: "" })).length, "dropping the date is a change");
     assert.ok(verifyAcceptedQuote(undefined, c).length, "nothing submitted");
   });
 
