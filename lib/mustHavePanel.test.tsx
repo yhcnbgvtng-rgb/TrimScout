@@ -116,3 +116,13 @@ describe("Must-have panel layout", () => {
     await t.act(async () => { t.root.unmount(); });
   });
 });
+
+describe("cleanOptionLabel — display-only label cleanup", () => {
+  it("drops leading glyphs / box-drawing / bullets but keeps real text", async () => {
+    const { cleanOptionLabel } = await import("./mustHaveOptions");
+    assert.equal(cleanOptionLabel("▤DUAL VALVE SHOCKS"), "DUAL VALVE SHOCKS");
+    assert.equal(cleanOptionLabel("│─ • Tow Package"), "Tow Package");
+    assert.equal(cleanOptionLabel("360 Camera"), "360 Camera");
+    assert.equal(cleanOptionLabel("▤▤"), "", "nothing readable left stays empty");
+  });
+});

@@ -15,6 +15,15 @@ export function stripNonPrinting(text: string): string {
     .trim();
 }
 
+/**
+ * Display-only label cleanup: stripNonPrinting plus any leading symbol/punctuation run (bullets, icon glyphs,
+ * box-drawing) so "▤DUAL VALVE SHOCKS" reads "DUAL VALVE SHOCKS". Never use the result for matching or storage.
+ */
+export function cleanOptionLabel(text: string): string {
+  const cleaned = stripNonPrinting(text).replace(/^[^\p{L}\p{N}"'(]+/u, "").trim();
+  return cleaned || stripNonPrinting(text);
+}
+
 interface NamedOption {
   name: string;
   description?: string;

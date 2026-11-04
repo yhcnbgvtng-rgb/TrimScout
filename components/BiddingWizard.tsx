@@ -22,7 +22,7 @@ import { activeRfqSummary } from "../lib/rfqLogic";
 import { orderFactoryOptions } from "../lib/factoryOptionOrder";
 import { CREDIT_BAND_COPY, CREDIT_BAND_LABELS, CREDIT_BANDS, type CreditBand } from "../lib/creditBand";
 import { clearQuoteDraft, readQuoteDraft, saveQuoteDraft, wizardAuthState, type QuoteDraft } from "../lib/quoteDraft";
-import { MUST_HAVE_PREVIEW_COUNT, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
+import { MUST_HAVE_PREVIEW_COUNT, cleanOptionLabel, cleanOptionNames, mustHaveSummary } from "../lib/mustHaveOptions";
 import { fetchAltSticker, importAndPrime, needsAltSticker, unverifiedLabel, withStickerFacts, type AltStickerState } from "../lib/altSticker";
 import { diffVsPrimary, mustHaveHeadline, mustHaveReport, normalizeDrivetrain, sameTrim, type MustHaveRef } from "../lib/alternateCompare";
 import { DEFAULT_LEASE_TERM, LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_NON_BINDING_COPY, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseTerm } from "../lib/leaseQuote";
@@ -949,7 +949,7 @@ function AlternateVinField({
  * of the factory build, then everything else that differs — never a single
  * composite score, just the facts side by side.
  */
-function FactoryOptionsCompare({
+export function FactoryOptionsCompare({
   primary,
   alt1,
   alt2,
@@ -965,10 +965,37 @@ function FactoryOptionsCompare({
 }) {
   const vehicles = [primary, alt1, alt2];
   const reports = vehicles.map((v) => mustHaveReport(mustHaves, v));
-  const diffs = [diffVsPrimary(primary, alt1, mustHaves), diffVsPrimary(primary, alt2, mustHaves)];
+  // Full lists (no cap): the table shows the first few and expands the rest in place, per column.
+  const diffs = [diffVsPrimary(primary, alt1, mustHaves, Infinity), diffVsPrimary(primary, alt2, mustHaves, Infinity)];
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   const sameText = (a?: string | null, b?: string | null) => (a || "").trim().toLowerCase() === (b || "").trim().toLowerCase();
   const packagesOf = (kind: "missing" | "extra", i: number) =>
-    diffs[i].filter((c) => c.kind === kind).map((c) => c.text.replace(/^(missing|adds):\s*/, ""));
+    diffs[i].filter((c) => c.kind === kind).map((c) => cleanOptionLabel(c.text.replace(/^(missing|adds):\s*/, "")));
+  const COLLAPSED_CHIPS = 2;
+  const chipList = (kind: "missing" | "extra", i: number, tone: string) => {
+    const items = packagesOf(kind, i);
+    if (items.length === 0) return <span className="text-[11px] text-ink-faint">—</span>;
+    const key = `${kind}-${i}`;
+    const open = Boolean(expanded[key]);
+    const hidden = items.length - COLLAPSED_CHIPS;
+    const shown = open || hidden <= 0 ? items : items.slice(0, COLLAPSED_CHIPS);
+    return (
+      <>
+        {shown.map((t) => <span key={t} className={`rounded px-1.5 py-0.5 text-[10px] ${tone}`}>{t}</span>)}
+        {hidden > 0 && (
+          <button
+            type="button"
+            aria-expanded={open}
+            data-testid={`compare-${key}-toggle`}
+            onClick={() => setExpanded((e) => ({ ...e, [key]: !e[key] }))}
+            className={`rounded px-1.5 py-0.5 text-[10px] underline decoration-dotted underline-offset-2 hover:brightness-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${tone}`}
+          >
+            {open ? "Show less" : `+${hidden} more ${kind === "missing" ? "missing" : "added"}`}
+          </button>
+        )}
+      </>
+    );
+  };
 
   const vehicleLabel = (v: Vehicle) => vehicleTitle(v);
   const chipCell = "flex items-start";
@@ -1056,28 +1083,14 @@ function FactoryOptionsCompare({
         <div className="col-span-4 border-t border-border/60 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint">Other differences · not must-haves</div>
         <div className="flex min-h-[28px] items-center text-[11px] text-ink-muted">Missing</div>
         <div className="flex min-h-[28px] items-center text-[11px] text-ink-faint">—</div>
-        {[0, 1].map((i) => {
-          const items = packagesOf("missing", i);
-          return (
-            <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>
-              {items.length === 0 ? <span className="text-[11px] text-ink-faint">—</span> : items.map((t) => (
-                <span key={t} className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] text-amber-200">{t}</span>
-              ))}
-            </div>
-          );
-        })}
+        {[0, 1].map((i) => (
+          <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>{chipList("missing", i, "bg-amber-500/15 text-amber-200")}</div>
+        ))}
         <div className="flex min-h-[28px] items-center text-[11px] text-ink-muted">Also includes</div>
         <div className="flex min-h-[28px] items-center text-[11px] text-ink-faint">—</div>
-        {[0, 1].map((i) => {
-          const items = packagesOf("extra", i);
-          return (
-            <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>
-              {items.length === 0 ? <span className="text-[11px] text-ink-faint">—</span> : items.map((t) => (
-                <span key={t} className="rounded bg-sky-500/15 px-1.5 py-0.5 text-[10px] text-sky-200">{t}</span>
-              ))}
-            </div>
-          );
-        })}
+        {[0, 1].map((i) => (
+          <div key={i} className={`flex flex-wrap items-start gap-1 ${chipCell}`}>{chipList("extra", i, "bg-sky-500/15 text-sky-200")}</div>
+        ))}
       </div>
     </div>
   );

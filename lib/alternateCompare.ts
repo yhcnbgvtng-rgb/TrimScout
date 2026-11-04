@@ -198,7 +198,7 @@ function labelTrim(v: Vehicle): string {
  * that matter — capped, so it's a line, not a sticker dump. Options the
  * buyer already scored as must-haves are left to the must-have report.
  */
-export function diffVsPrimary(primary: Vehicle, alternate: Vehicle, exclude: MustHaveRef[] = []): DiffChip[] {
+export function diffVsPrimary(primary: Vehicle, alternate: Vehicle, exclude: MustHaveRef[] = [], maxPackageChips: number = MAX_PACKAGE_CHIPS): DiffChip[] {
   const chips: DiffChip[] = [];
   const pTrim = labelTrim(primary);
   const aTrim = labelTrim(alternate);
@@ -223,15 +223,15 @@ export function diffVsPrimary(primary: Vehicle, alternate: Vehicle, exclude: Mus
     let missing = 0;
     for (const [k, label] of pPk) {
       if (aPk.has(k) || skip.has(k)) continue;
-      if (missing++ < MAX_PACKAGE_CHIPS) chips.push({ kind: "missing", text: `missing: ${label}` });
+      if (missing++ < maxPackageChips) chips.push({ kind: "missing", text: `missing: ${label}` });
     }
-    if (missing > MAX_PACKAGE_CHIPS) chips.push({ kind: "missing", text: `+${missing - MAX_PACKAGE_CHIPS} more missing` });
+    if (missing > maxPackageChips) chips.push({ kind: "missing", text: `+${missing - maxPackageChips} more missing` });
     let extra = 0;
     for (const [k, label] of aPk) {
       if (pPk.has(k) || skip.has(k)) continue;
-      if (extra++ < MAX_PACKAGE_CHIPS) chips.push({ kind: "extra", text: `adds: ${label}` });
+      if (extra++ < maxPackageChips) chips.push({ kind: "extra", text: `adds: ${label}` });
     }
-    if (extra > MAX_PACKAGE_CHIPS) chips.push({ kind: "extra", text: `+${extra - MAX_PACKAGE_CHIPS} more added` });
+    if (extra > maxPackageChips) chips.push({ kind: "extra", text: `+${extra - maxPackageChips} more added` });
   }
   return chips;
 }
