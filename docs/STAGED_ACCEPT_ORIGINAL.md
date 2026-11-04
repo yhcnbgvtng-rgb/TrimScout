@@ -20,8 +20,10 @@ Lease and single-sheet cash/finance already work through `/pick` (no box change 
 ## Files and md5s (this PR)
 | File | md5 |
 |---|---|
-| `scrapers/lightsail-crawler/src/rfqStages.js` (the new module) | `548574bc4cd2fffdfa34bc54ec682ce5` |
-| `scripts/box/2026-10-29-rfq-staged-accept-original.sh` (installer) | `2b11e772874d9521e02945bffcbacad2` |
+| `scrapers/lightsail-crawler/src/rfqStages.js` (the module in the repo now) | `e40c2e7152c7d2bc8f155ec98ce2c437` |
+| `scripts/box/2026-10-29-rfq-staged-accept-original.sh` (installer) | `48cde91c8fc50d89e49bd4d02bca6694` |
+
+History: the module this PR installed on 2026-10-29 was `548574bc4cd2fffdfa34bc54ec682ce5`. On 2026-11-04 it gained one line (`used` in the stage context, for the staged true OTD on the shared state trade credit: `docs/BOX2_QUOTE_PATCHES_2026-11-04.md`), which gives the md5 above; the installer now also carries the live `stateTradeCredit.js` along when it checks that the pair loads.
 
 `test/` pins the module md5 above to the file in the repo; if you change the module, update this table.
 

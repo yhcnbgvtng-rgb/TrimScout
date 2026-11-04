@@ -60,7 +60,7 @@ describe('handler: full cash path with a trade', () => {
     r = await w.act('dealer', { type: 'trade_offer', value: 9000 });
     assert.equal(r.status, 200);
     r = await w.act('buyer', { type: 'trade_accept' });
-    assert.equal(r.json.stage.trueOtd, OTD - 9000);
+    assert.equal(r.json.stage.trueOtd, 34152.75, 'OTD - trade - the 596.25 NJ tax the trade saves');
     assert.equal(r.json.stage.trade.taxSavings > 0, true);
     r = await w.act('buyer', { type: 'choose_cash' });
     assert.equal(r.json.stage.stage, 'final');
@@ -78,7 +78,7 @@ describe('handler: full cash path with a trade', () => {
     await w.act('buyer', { type: 'accept_otd' });
     await w.act('dealer', { type: 'trade_offer', value: 9000 });
     const r = await w.act('buyer', { type: 'trade_accept' }, { tradePayoff: 1 });
-    assert.equal(r.json.stage.trueOtd, OTD - 9000 + 4000);
+    assert.equal(r.json.stage.trueOtd, 38152.75, 'OTD - trade + payoff - the 596.25 NJ tax saving');
   });
   it('runs the trade counter loop through the handler', async () => {
     const w = world();

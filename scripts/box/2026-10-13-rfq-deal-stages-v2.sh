@@ -46,7 +46,8 @@ fi
 
 # 3. Fetch + syntax-check both modules into a temp dir BEFORE touching anything.
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-for m in dealStages.js rfqStages.js; do
+# stateTradeCredit.js: dealStages.js imports it since 2026-11-04 (the shared state trade tax credit). Must travel with it.
+for m in stateTradeCredit.js dealStages.js rfqStages.js; do
   if [ -n "$SRC_LOCAL" ]; then cp "$SRC_LOCAL/$m" "$TMP/$m"; else curl -fsSL -o "$TMP/$m" "$SRC_BASE/$m"; fi
   node --check "$TMP/$m"
 done
@@ -56,7 +57,7 @@ grep -q 'accept_final' "$TMP/dealStages.js" || { echo "downloaded dealStages.js 
 
 # 4. Back up, install, restart.
 SUDO="sudo"; [ "$TEST" = "1" ] && SUDO=""
-for m in dealStages.js rfqStages.js; do
+for m in stateTradeCredit.js dealStages.js rfqStages.js; do
   if [ -f "$DIR/$m" ] && cmp -s "$TMP/$m" "$DIR/$m"; then echo "$m: already current"; continue; fi
   [ -f "$DIR/$m" ] && $SUDO cp "$DIR/$m" "$DIR/$m.bak.$STAMP" && echo "backup: $DIR/$m.bak.$STAMP"
   $SUDO install -m 0644 "$TMP/$m" "$DIR/$m"; echo "installed $DIR/$m"

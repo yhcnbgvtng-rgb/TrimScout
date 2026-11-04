@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applyStageAction, initialStageState, stageProgress, monthlyPayment, cashQuoteOtd, quoteTaxRate, tradeTaxSavings, TRADE_TAX_CREDIT_STATES, liveTrueOtd, financeMath, finalSummary, stageForDealer, revealContact, trueOtdFor,
+  applyStageAction, initialStageState, stageProgress, monthlyPayment, cashQuoteOtd, quoteTaxRate, stagedTrueOtd, taxInputsOf, TRADE_TAX_CREDIT_STATES, liveTrueOtd, financeMath, finalSummary, stageForDealer, revealContact, trueOtdFor,
 } from '../src/dealStages.js';
 
 const NOW = new Date('2026-10-11T15:00:00Z');
@@ -96,17 +96,64 @@ describe('stage 2: trade-in', () => {
     assert.equal(s.trueOtd, 38000);
     assert.equal(s.stage, 'payment');
   });
-  it('shows the tax saving where the state credits trades', () => {
-    assert.equal(atPayment().trade.taxSavings, 795);
-    assert.equal(tradeTaxSavings({ tradeValue: 10000, state: 'CA', taxRate: 0.0725 }), null);
+  // The true OTD uses the same state trade tax credit as the website (stateTradeCredit.js = lib/trade/stateTradeCredit.ts):
+  // original OTD - (trade - payoff) - the sales tax the trade saves. A $40,000 new car with $2,650 tax (6.625%).
+  const taxQuote = { kind: 'cash', sellingPrice: 40000, addOns: [], rebates: [], dueAtSigning: [{ name: 'Sales tax', amount: 2650 }, { name: 'Doc fee', amount: 799 }] };
+  const usedQuote = { ...taxQuote, miles: 20000 };
+  const tradeDeal = (c, value = 12000) => {
+    let s = must(run(initialStageState({ tradeInExpected: true }), { type: 'accept_otd', actor: 'buyer' }, c));
+    s = must(run(s, { type: 'trade_offer', actor: 'dealer', value }, c));
+    return must(run(s, { type: 'trade_accept', actor: 'buyer' }, c));
+  };
+  it('subtracts the tax the trade saves where the state credits trades, like the website', () => {
+    const s = tradeDeal(ctx({ used: taxQuote }));
+    assert.equal(s.trade.taxSavings, 795);
+    assert.equal(s.trade.taxCreditState, true);
+    assert.equal(s.trueOtd, 37205);
     assert.ok(TRADE_TAX_CREDIT_STATES.includes('NJ'));
   });
-  it('leaves the saving off when the state does not credit trades', () => {
-    let s = atTrade();
-    s = must(run(s, { type: 'trade_offer', actor: 'dealer', value: 12000 }));
-    s = must(run(s, { type: 'trade_accept', actor: 'buyer' }, ctx({ state: 'CA' })));
+  it('uses the shared table: states the old 11-state list missed now credit, states with no credit do not', () => {
+    assert.ok(TRADE_TAX_CREDIT_STATES.includes('MA'), 'MA is a full-credit state in the shared table, not in the old list');
+    assert.ok(!TRADE_TAX_CREDIT_STATES.includes('CA') && !TRADE_TAX_CREDIT_STATES.includes('VA'));
+    assert.equal(tradeDeal(ctx({ used: taxQuote, state: 'MA' })).trueOtd, 37205);
+    assert.equal(tradeDeal(ctx({ used: taxQuote, state: 'CA' })).trueOtd, 38000);
+  });
+  it('leaves the saving off when the state does not credit trades or the rule is unconfirmed', () => {
+    for (const state of ['CA', 'VA', 'AK', 'OK', null]) {
+      const s = tradeDeal(ctx({ used: taxQuote, state }));
+      assert.equal(s.trade.taxSavings, null, String(state));
+      assert.equal(s.trade.taxCreditState, false, String(state));
+      assert.equal(s.trueOtd, 38000, String(state));
+    }
+  });
+  it('without the quote on file nothing is subtracted (no guess at a tax rate)', () => {
+    const s = tradeDeal(ctx());
     assert.equal(s.trade.taxSavings, null);
     assert.equal(s.trueOtd, 38000);
+  });
+  it('follows the state rule: Ohio credits new cars only, Michigan caps, South Carolina is a flat capped fee', () => {
+    assert.equal(tradeDeal(ctx({ used: taxQuote, state: 'OH' })).trueOtd, 37205);
+    assert.equal(tradeDeal(ctx({ used: usedQuote, state: 'OH' })).trueOtd, 38000, 'a used car in Ohio gets no credit');
+    const mi = (value, year) => stagedTrueOtd({ otd: 50000, tradeValue: value, payoff: 0, tax: { ...taxInputsOf(taxQuote, 'MI'), year } });
+    assert.equal(mi(15000, 2026).trueOtd, 50000 - 15000 - 795, 'only the first $12,000 counts in 2026');
+    assert.equal(mi(15000, 2027).trueOtd, 50000 - 15000 - 861.25,'the cap grows $1,000 on each January 1');
+    const sc = stagedTrueOtd({ otd: 50000, tradeValue: 12000, payoff: 0, tax: taxInputsOf({ ...taxQuote, dueAtSigning: [{ name: 'Infrastructure maintenance fee', amount: 500 }, { name: 'Sales tax', amount: 0 }] }, 'SC') });
+    assert.equal(sc.taxSavings, null, 'no quoted tax line, nothing to credit');
+  });
+  it('a payoff rolls into the true OTD before the tax credit, with the same rounding as the website', () => {
+    const r = stagedTrueOtd({ otd: 43749, tradeValue: 9000, payoff: 4000, tax: taxInputsOf(taxQuote, 'NJ') });
+    assert.equal(r.trueOtd, 38152.75);
+    assert.equal(r.taxSavings, 596.25);
+  });
+  it('the live projections use the inputs stored when the OTD locked, and a dealer accept finds the stored state', () => {
+    let s = must(run(initialStageState({ tradeInExpected: true }), { type: 'accept_otd', actor: 'buyer' }, ctx({ used: taxQuote })));
+    assert.equal(s.otd.tax.state, 'NJ');
+    s = must(run(s, { type: 'trade_offer', actor: 'dealer', value: 12000 }, ctx({ state: null })));
+    assert.equal(liveTrueOtd(s).ifOffer, 37205);
+    s = must(run(s, { type: 'trade_counter', actor: 'buyer', value: 13000 }, ctx({ used: taxQuote })));
+    assert.equal(liveTrueOtd(s).ifCounter, 50000 - 13000 - 861.25);
+    s = must(run(s, { type: 'trade_accept_counter', actor: 'dealer' }, ctx({ state: null, used: taxQuote })));
+    assert.equal(s.trueOtd, 50000 - 13000 - 861.25, 'the dealer\'s request carries no state: the stored one is used');
   });
   it('cannot counter before there is an offer', () => {
     refuse(run(atTrade(), { type: 'trade_counter', actor: 'buyer', value: 12000 }), 'no_offer');

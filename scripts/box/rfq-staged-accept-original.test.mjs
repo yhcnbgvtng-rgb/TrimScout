@@ -21,6 +21,7 @@ function box(server = MIRROR, { v2 = true } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'accept-original-'));
   fs.writeFileSync(path.join(dir, 'deals_api_server.js'), server);
   fs.copyFileSync(path.join(SRC, 'dealStages.js'), path.join(dir, 'dealStages.js'));
+  fs.copyFileSync(path.join(SRC, 'stateTradeCredit.js'), path.join(dir, 'stateTradeCredit.js'));
   fs.writeFileSync(path.join(dir, 'rfqStages.js'), v2 ? '// live v2 module\nexport const x = 1;\n' : '');
   if (!v2) fs.writeFileSync(path.join(dir, 'dealStages.js'), '// v1\n');
   return dir;
