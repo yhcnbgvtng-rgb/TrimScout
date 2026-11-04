@@ -19,6 +19,8 @@
 // Pure and dependency-free, so the deals server (ESM, plain node) and the Next app (lib/dealStages.ts) run the
 // exact same rules. State is stored as JSON in rfq_invites.stage_json; every transition returns a NEW state.
 
+import { STATE_TRADE_CREDIT, quoteIsNew, quotedTaxOf, tradeTaxSaving } from "./stateTradeCredit.js";
+
 export const STAGES = ["otd", "trade", "payment", "final"];
 export const TERMINAL = ["closed", "walked"];
 export const FINANCE_TERM_OPTIONS = [36, 48, 60, 72];
@@ -28,11 +30,11 @@ export const MAX_APR = 40;
 const HISTORY_CAP = 20;
 
 /**
- * States where a trade-in lowers the sales tax charged on the purchase (the tax applies to price minus trade).
- * Deliberately short and conservative: outside this list the app says the effect depends on the state and the
- * dealer confirms it, rather than promising a saving. Review per state before extending.
+ * States where a trade-in lowers the sales tax charged on the purchase. Derived from the SAME per-state rule table the website uses
+ * (stateTradeCredit.js, a copy of lib/trade/stateTradeCredit.ts), so there is one list, not two. Kept as an export for callers that only
+ * need the yes/no; the amount comes from stagedTrueOtd() below.
  */
-export const TRADE_TAX_CREDIT_STATES = ["CO", "FL", "GA", "IL", "NC", "NJ", "NY", "OH", "PA", "TX", "WA"];
+export const TRADE_TAX_CREDIT_STATES = Object.keys(STATE_TRADE_CREDIT).filter((st) => ["full", "capped", "new_only"].includes(STATE_TRADE_CREDIT[st].rule));
 
 const r2 = (n) => Math.round(n * 100) / 100;
 const money = (v) => {
@@ -58,12 +60,19 @@ export function quoteTaxRate(used) {
   return base > 0 && tax > 0 ? tax / base : null;
 }
 
-/** What the trade saves in sales tax, or null when the state doesn't credit trade-ins (or the rate is unknown). */
-export function tradeTaxSavings({ tradeValue, state, taxRate }) {
-  const st = String(state || "").toUpperCase();
-  if (!TRADE_TAX_CREDIT_STATES.includes(st)) return null;
-  if (!(tradeValue > 0) || !(taxRate > 0)) return null;
-  return r2(tradeValue * taxRate);
+/**
+ * What the shared credit rule needs from a stored cash quote (price, add-ons, the dealer's tax lines, new vs used) plus the buyer's state.
+ * Null when the quote isn't a cash quote. Stored on the locked OTD so every later step and the live projections read the same inputs.
+ */
+export function taxInputsOf(used, state) {
+  if (!used || used.kind !== "cash" || !Number.isFinite(Number(used.sellingPrice))) return null;
+  return {
+    state: typeof state === "string" && /^[A-Za-z]{2}$/.test(state) ? state.toUpperCase() : null,
+    sellingPrice: Number(used.sellingPrice),
+    addOns: (Array.isArray(used.addOns) ? used.addOns : []).map((a) => ({ amount: Number(a?.amount) || 0 })),
+    quotedTax: quotedTaxOf(used.dueAtSigning),
+    isNew: quoteIsNew(used),
+  };
 }
 
 /** Standard amortized payment; 0% APR is principal / term. Null for nonsense inputs. */
@@ -83,6 +92,21 @@ export function trueOtdFor(otd, tradeValue, payoff) {
 }
 
 /**
+ * The staged deal's true OTD: the same arithmetic as lib/trade/trueOtd.ts (trueOtdBreakdown with a single allowance):
+ *   original OTD - (trade value - payoff) - sales tax the trade saves in the buyer's state (stateTradeCredit.js).
+ * `tax` is taxInputsOf(); without it (or in a state with no confirmed credit) nothing is subtracted, exactly as the website shows it.
+ */
+export function stagedTrueOtd({ otd, tradeValue, payoff, tax }) {
+  const before = r2(otd);
+  const owed = payoff > 0 ? r2(payoff) : 0;
+  const value = tradeValue || 0;
+  const net = r2(value - owed);
+  const credit = tax && value > 0 ? tradeTaxSaving({ ...tax, allowance: { low: value, mid: value, high: value } }) : null;
+  const saving = credit && credit.status === "credit" && credit.mid > 0 ? credit.mid : 0;
+  return { trueOtd: r2(before - net - saving), taxSavings: saving > 0 ? saving : null, creditState: Boolean(credit && credit.status === "credit") };
+}
+
+/**
  * The number the buyer would land on if the trade were agreed right now at the offer (and at their counter), for the live
  * "true OTD" line while the trade is still being negotiated. Null parts mean there is nothing to project yet.
  */
@@ -92,8 +116,8 @@ export function liveTrueOtd(state) {
   const payoff = t.payoff || 0;
   return {
     locked: state.trueOtd,
-    ifOffer: t.offer ? trueOtdFor(state.otd.amount, t.offer.value, payoff) : null,
-    ifCounter: t.counter && t.turn === "dealer" ? trueOtdFor(state.otd.amount, t.counter.value, payoff) : null,
+    ifOffer: t.offer ? stagedTrueOtd({ otd: state.otd.amount, tradeValue: t.offer.value, payoff, tax: state.otd.tax }).trueOtd : null,
+    ifCounter: t.counter && t.turn === "dealer" ? stagedTrueOtd({ otd: state.otd.amount, tradeValue: t.counter.value, payoff, tax: state.otd.tax }).trueOtd : null,
     payoff,
   };
 }
@@ -228,7 +252,9 @@ export function applyStageAction(prev, action, ctx = {}) {
       if (state.stage !== "otd") return fail("wrong_stage", "The out-the-door price is already locked.");
       const amount = money(ctx.otdAmount);
       if (!(amount > 0)) return fail("no_quote", "There is no itemized out-the-door quote to accept yet.");
-      const next = { ...state, otd: { status: "locked", amount, lockedAt: at, lockedBy: actor } };
+      // The tax inputs travel with the locked OTD so the trade step and the live projections use the quote the buyer accepted.
+      const tax = taxInputsOf(ctx.used, ctx.state);
+      const next = { ...state, otd: { status: "locked", amount, lockedAt: at, lockedBy: actor, ...(tax ? { tax } : {}) } };
       if (state.tradeInExpected) {
         next.stage = "trade";
         next.trade = { ...state.trade, status: "open" };
@@ -319,14 +345,17 @@ export function applyStageAction(prev, action, ctx = {}) {
         value = t.counter.value;
       }
       const payoff = t.payoff || 0;
-      const trueOtd = trueOtdFor(state.otd.amount, value, payoff);
-      const taxSavings = tradeTaxSavings({ tradeValue: value, state: ctx.state, taxRate: ctx.taxRate });
+      // Inputs from the quote on file now; the state from this request, else the one stored when the OTD locked.
+      const fresh = taxInputsOf(ctx.used, ctx.state);
+      const stored = state.otd.tax || null;
+      const tax = fresh ? { ...fresh, state: fresh.state || stored?.state || null } : stored ? { ...stored, state: stored.state || (typeof ctx.state === "string" && /^[A-Za-z]{2}$/.test(ctx.state) ? ctx.state.toUpperCase() : null) } : null;
+      const { trueOtd, taxSavings, creditState } = stagedTrueOtd({ otd: state.otd.amount, tradeValue: value, payoff, tax });
       const next = {
         ...state,
         stage: "payment",
         trueOtd,
         trade: {
-          ...t, status: "locked", value, turn: null, taxSavings, taxCreditState: TRADE_TAX_CREDIT_STATES.includes(String(ctx.state || "").toUpperCase()), lockedAt: at,
+          ...t, status: "locked", value, turn: null, taxSavings, taxCreditState: creditState, lockedAt: at,
           history: pushHistory(t.history, { by: actor, kind: "accept", value, at }),
         },
         payment: { ...state.payment, status: "open" },

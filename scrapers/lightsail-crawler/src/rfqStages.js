@@ -72,6 +72,8 @@ export function createRfqStageHandler(deps) {
     const outcome = applyStageAction(before, { ...action, actor }, {
       otdAmount: quoteLive ? cashQuoteOtd(used) : null,
       taxRate: quoteTaxRate(used),
+      // The stored quote itself: the staged true OTD reads its price, add-ons, tax lines and new/used from here (stateTradeCredit.js).
+      used,
       state: buyerState,
       hasTradeInOnFile: rfq.trade_in_json != null && rfq.trade_in_json !== "",
       // The payoff the buyer stated on the trade-in on file, never a number from the browser.
