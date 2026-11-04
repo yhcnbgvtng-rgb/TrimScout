@@ -70,6 +70,7 @@ describe('2026-10-13 deal stages v2 box script', () => {
     const dir = box();
     const bad = fs.mkdtempSync(path.join(os.tmpdir(), 'stages-v2-src-'));
     fs.copyFileSync(path.join(SRC, 'rfqStages.js'), path.join(bad, 'rfqStages.js'));
+    fs.copyFileSync(path.join(SRC, 'stateTradeCredit.js'), path.join(bad, 'stateTradeCredit.js'));
     fs.writeFileSync(path.join(bad, 'dealStages.js'), 'export const STAGES = [');
     let r = run(dir, { SRC_LOCAL: bad });
     assert.notEqual(r.status, 0);

@@ -41,6 +41,8 @@ TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 m=rfqStages.js
 if [ -n "$SRC_LOCAL" ]; then cp "$SRC_LOCAL/$m" "$TMP/$m"; else curl -fsSL -o "$TMP/$m" "$SRC_BASE/$m"; fi
 cp "$DIR/dealStages.js" "$TMP/dealStages.js"
+# dealStages.js imports stateTradeCredit.js (2026-11-04): bring the live sibling along so the pair loads.
+if [ -f "$DIR/stateTradeCredit.js" ]; then cp "$DIR/stateTradeCredit.js" "$TMP/stateTradeCredit.js"; fi
 node --check "$TMP/$m"
 NEW_MD5=$(md5of "$TMP/$m")
 echo "new rfqStages.js md5: $NEW_MD5"
