@@ -19,6 +19,8 @@ import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import { vehicleTitle } from "../lib/vehicleTitle";
 import { tradeInIsExpected } from "../lib/tradeInAnswer";
+import { rfqTrueOtdRows } from "../lib/trade/quoteTrueOtd";
+import { TrueOtdCard } from "./trade/TrueOtdCard";
 import {
   Zap,
   Building2,
@@ -218,6 +220,19 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     Open <ChevronRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
+                {rfqTrueOtdRows(rfq).length > 0 ? (
+                  <section className="space-y-2" data-testid="tracker-true-otd">
+                    <h3 className="text-xs font-bold text-white">True out-the-door after your trade-in</h3>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {rfqTrueOtdRows(rfq).map(({ invite, b }) => (
+                        <div key={invite.id} className="rounded-xl border border-border bg-background/40 p-3" data-testid="tracker-true-otd-desk">
+                          <p className="mb-2 text-xs font-bold text-white">{invite.dealerName}</p>
+                          <TrueOtdCard b={b} compact />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
                 {sent ? (
                   <div className="rounded-xl border border-brand-500/40 bg-brand-500/5 px-3 py-2 space-y-1">
                     <p className="text-[11px] font-bold text-brand-300">

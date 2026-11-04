@@ -8,7 +8,8 @@ import { counterSummary, type CounterEditsPayload } from "../lib/buyerCounter";
 import { alternateAskSummary, askedVinForInvite, distinctInviteVehicles, isAlternateQuote } from "../lib/alternateAsk";
 import { fmtMoney, fmtPct } from "../lib/leaseCompare";
 import { applyToFinance, compareByOtdAfterThenEquity, tradeEquity, type TradeEquity } from "../lib/trade/otd";
-import { taxNotConfirmedNote, trueOtdBreakdown } from "../lib/trade/trueOtd";
+import { taxNotConfirmedNote } from "../lib/trade/trueOtd";
+import { inviteTradeEquity, taxCreditForQuote, trueOtdForQuote } from "../lib/trade/quoteTrueOtd";
 import { quotedTaxOf, tradeTaxCredit, UNCONFIRMED_TRADE_TAX_NOTE, type TradeTaxCredit } from "../lib/trade/stateTradeCredit";
 import { quoteIsNew } from "../lib/salesTax";
 import { TRADE_ESTIMATE_COPY } from "../lib/trade/types";
@@ -60,13 +61,11 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const trade = rfq.tradeIn ?? null;
   // The number that counts is the confirmed one once the winner has settled it; before that, or after the buyer went back from a
   // revision, it is what the desk originally quoted. The allowance dies with the vehicle quote it came with.
-  const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity =>
-    tradeEquity(Boolean(trade), trade?.payoffEstimate, appraisalForCompare(r.invite.tradeAppraisal, r.invite.tradeConfirmation), new Date(), { quoteExpiresAt: r.invite.quote?.expiresAt ?? null, tradeUpdatedAt: trade?.updatedAt ?? null });
+  const eqOf = (r: { invite: (typeof rfq.invites)[number] }): TradeEquity => inviteTradeEquity(rfq, r.invite);
   const taxZip = (finance ? prefs.finance?.zip : prefs.cash?.zip) || null;
-  const taxCreditOf = (used: UsedQuote, eq: TradeEquity): TradeTaxCredit =>
-    tradeTaxCredit({ zip: taxZip, allowance: eq.status === "quoted" ? eq.allowance : null, sellingPrice: used.sellingPrice, addOns: used.addOns, quotedTax: quotedTaxOf(used.dueAtSigning), isNew: quoteIsNew(used) });
+  const taxCreditOf = (used: UsedQuote, eq: TradeEquity): TradeTaxCredit => taxCreditForQuote(used, eq, taxZip);
   // One calculation (lib/trade/trueOtd.ts) feeds every number below: the ranking, the badges, the cells and the step-by-step card.
-  const breakdownOf = (used: UsedQuote, eq: TradeEquity) => trueOtdBreakdown({ originalOtd: cashOutTheDoor(used), eq, taxCredit: taxCreditOf(used, eq) });
+  const breakdownOf = (used: UsedQuote, eq: TradeEquity) => trueOtdForQuote(used, eq, taxZip);
   const otdFor = (used: UsedQuote, eq: TradeEquity) => {
     const b = breakdownOf(used, eq);
     return { before: b.original, after: b.trueOtd.mid, afterLow: b.trueOtd.low, afterHigh: b.trueOtd.high, changed: b.applies };
