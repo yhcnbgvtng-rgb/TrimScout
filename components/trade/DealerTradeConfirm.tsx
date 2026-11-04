@@ -5,6 +5,7 @@ import { applyConfirmAction, CONDITIONS_TEXT_KEY, chipLabel, DEFAULT_THRESHOLD_P
 import { toNum } from "../../lib/trade/dealerForm";
 import { BASIS_LABELS, type TradeInRecord } from "../../lib/trade/types";
 import type { DealerTradeFeed } from "./useDealerTrade";
+import { MoneyInput } from "../MoneyInput";
 
 const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
 const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
@@ -80,7 +81,7 @@ export function DealerTradeConfirm({ token, feed, trade, onChanged }: { token: s
       {!revising ? (
         <div className="space-y-2">
           {conf.range ? (
-            <label className="block space-y-1"><span className={label}>You quoted a range. Confirm one number inside it ($)</span><input inputMode="decimal" value={rangePick} onChange={(e) => setRangePick(e.target.value)} className={input} aria-label="Single number to confirm" data-testid="confirm-range-pick" /></label>
+            <label className="block space-y-1"><span className={label}>You quoted a range. Confirm one number inside it ($)</span><MoneyInput allowCents value={rangePick} onValueChange={setRangePick} className={input} aria-label="Single number to confirm" data-testid="confirm-range-pick" /></label>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={busy || (Boolean(conf.range) && !toNum(rangePick))} onClick={() => send({ action: "confirm", ...(conf.range ? { allowance: rangePick } : {}) }, "Confirmed. The buyer has been told.")} className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="confirm-as-quoted">Confirm as quoted</button>
@@ -90,7 +91,7 @@ export function DealerTradeConfirm({ token, feed, trade, onChanged }: { token: s
       ) : (
         <div className="space-y-3 rounded-lg border border-border bg-background/50 p-3" data-testid="revise-form">
           {firm ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/20 px-3 py-2 text-[11px] text-rose-200" data-testid="firm-warning">You quoted this as <strong>Firm</strong> (if the vehicle matches the description and photos). A revision is recorded against your desk, and the buyer sees the reason.</p> : null}
-          <label className="block space-y-1"><span className={label}>Revised trade allowance ($) <span className="text-rose-300">*</span></span><input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} className={input} aria-label="Revised allowance" data-testid="revise-amount" /></label>
+          <label className="block space-y-1"><span className={label}>Revised trade allowance ($) <span className="text-rose-300">*</span></span><MoneyInput allowCents value={amount} onValueChange={setAmount} className={input} aria-label="Revised allowance" data-testid="revise-amount" /></label>
           <fieldset className="space-y-1.5"><legend className={label}>Reason <span className="text-rose-300">*</span></legend>
             {REVISION_REASON_LIST.map((r) => <label key={r.code} className="flex items-center gap-2 text-xs text-ink-light"><input type="radio" name="reason" checked={reasonCode === r.code} onChange={() => setReasonCode(r.code)} data-testid={`reason-${r.code}`} />{r.label}</label>)}
           </fieldset>

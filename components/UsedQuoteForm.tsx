@@ -36,6 +36,7 @@ import type { TradeQuoteForm } from "./trade/useDealerTrade";
 import { TrueOtdCard } from "./trade/TrueOtdCard";
 import { quotedEquityOf, trueOtdBreakdown } from "../lib/trade/trueOtd";
 import { tradeTaxCredit } from "../lib/trade/stateTradeCredit";
+import { MoneyInput } from "./MoneyInput";
 
 export function UsedQuoteForm({
   token,
@@ -284,7 +285,11 @@ export function UsedQuoteForm({
     return (
       <label className="space-y-1">
         <span className={labelCls}>{o.title} {o.required ? <span className="text-amber-300">*</span> : null}</span>
-        <input type="text" inputMode={kd === "text" ? "text" : "decimal"} value={editing || kd === "text" ? raw : kd === "money" ? formatMoneyInput(raw) : formatPercentInput(raw)} onFocus={() => setFocused(o.k)} onBlur={() => setFocused(null)} onChange={set(o.k)} placeholder={o.placeholder || ""} className={`${input} ${kd !== "text" ? "font-mono" : ""}`} />
+        {kd === "money" ? (
+          <MoneyInput allowCents allowNegative={o.k === "tradeEquity"} value={raw} onValueChange={(v) => setF((p) => ({ ...p, [o.k]: v }))} placeholder={o.placeholder || ""} className={`${input} font-mono`} />
+        ) : (
+          <input type="text" inputMode={kd === "text" ? "text" : "decimal"} value={editing || kd === "text" ? raw : formatPercentInput(raw)} onFocus={() => setFocused(o.k)} onBlur={() => setFocused(null)} onChange={set(o.k)} placeholder={o.placeholder || ""} className={`${input} ${kd !== "text" ? "font-mono" : ""}`} />
+        )}
         {o.hint ? <span className={hintCls}>{o.hint}</span> : null}
       </label>
     );
@@ -333,7 +338,7 @@ export function UsedQuoteForm({
           <span className="relative block">
             <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
             {open ? (
-              <input type="text" inputMode="decimal" value={focused === `fee:${i}` ? shown : formatMoneyInput(shown).replace(/^\$/, "")} onFocus={() => setFocused(`fee:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => { const v = e.target.value; setFees((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x))); setEditing((p) => ({ ...p, [k]: true })); }} aria-label={`${it.name} amount`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono`} />
+              <MoneyInput allowCents value={shown} onValueChange={(v) => { setFees((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x))); setEditing((p) => ({ ...p, [k]: true })); }} aria-label={`${it.name} amount`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono`} />
             ) : (
               <input type="text" readOnly value={calc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} aria-label={`${it.name} amount (calculated by TrimScout)`} data-testid={`fee-amount-${k}`} className={`${input} pl-6 font-mono text-ink-light`} />
             )}
@@ -365,7 +370,7 @@ export function UsedQuoteForm({
       <input type="text" value={it.name} readOnly={standing} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Describe the line" aria-label={`${key} description`} className={input} />
       <span className="relative block">
         <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-        <input type="text" inputMode="decimal" value={focused === `${key}:${i}` ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")} onFocus={() => setFocused(`${key}:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder={placeholder} aria-label={`${it.name || key} amount`} className={`${input} pl-6 font-mono`} />
+        <MoneyInput allowCents value={it.amount} onValueChange={(v) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))} placeholder={placeholder} aria-label={`${it.name || key} amount`} className={`${input} pl-6 font-mono`} />
       </span>
       {standing ? <span /> : <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${key} line`}><Trash2 className="h-3.5 w-3.5" /></button>}
     </div>
@@ -541,7 +546,7 @@ export function UsedQuoteForm({
                     <input type="text" value={it.name} onChange={(e) => setAddOns((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="e.g. Paint protection" aria-label="Add-on description" className={input} />
                     <span className="relative block">
                       <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-                      <input type="text" inputMode="decimal" value={focused === `addon:${i}` ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")} onFocus={() => setFocused(`addon:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => setAddOns((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="0" aria-label={`${it.name || "add-on"} amount`} className={`${input} pl-6 font-mono`} />
+                      <MoneyInput allowCents value={it.amount} onValueChange={(v) => setAddOns((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))} placeholder="0" aria-label={`${it.name || "add-on"} amount`} className={`${input} pl-6 font-mono`} />
                     </span>
                     <button type="button" onClick={() => setAddOns((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label="Remove add-on"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
@@ -574,7 +579,7 @@ export function UsedQuoteForm({
                 <input type="text" value={it.name} onChange={(e) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="e.g. Loyalty cash" aria-label="Rebate description" className={input} />
                 <span className="relative block">
                   <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-                  <input type="text" inputMode="decimal" value={focused === `rebate:${i}` ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")} onFocus={() => setFocused(`rebate:${i}`)} onBlur={() => setFocused(null)} onChange={(e) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="0" aria-label={`${it.name || "rebate"} amount`} className={`${input} pl-6 font-mono`} />
+                  <MoneyInput allowCents value={it.amount} onValueChange={(v) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))} placeholder="0" aria-label={`${it.name || "rebate"} amount`} className={`${input} pl-6 font-mono`} />
                 </span>
                 <button type="button" onClick={() => setRebates((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label="Remove rebate"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>

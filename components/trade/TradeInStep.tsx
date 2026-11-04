@@ -11,6 +11,7 @@ import {
 } from "../../lib/trade/types";
 import { TRADE_MAKES } from "../../lib/trade/vehicleChoices";
 import { isValidVin, parseTradeFields, requiredPhotoProgress, tradeReadiness } from "../../lib/trade/validate";
+import { MoneyInput } from "../MoneyInput";
 
 export interface TradeStepState { ready: boolean; draftId: string | null; token: string | null; firstError: string | null }
 
@@ -172,7 +173,7 @@ export function TradeInStep({ enabled, onToggle, defaultZip, attempted, onState,
             {financed ? (
               <div className="grid gap-3 sm:grid-cols-2" data-testid="trade-lien">
                 <div><label className={labelCls}>Lender name</label><input value={String(f.lenderName || "")} onChange={(e) => set({ lenderName: e.target.value })} onBlur={touch("lenderName")} className={inputCls} data-testid="trade-lender" /><Err k="lenderName" /></div>
-                <div><label className={labelCls}>Approximate payoff ($)</label><input inputMode="decimal" value={String(f.payoffEstimate ?? "")} onChange={(e) => set({ payoffEstimate: e.target.value.replace(/[^\d.]/g, "") })} onBlur={touch("payoffEstimate")} className={inputCls} data-testid="trade-payoff" /><Err k="payoffEstimate" />
+                <div><label className={labelCls}>Approximate payoff ($)</label><MoneyInput allowCents value={String(f.payoffEstimate ?? "")} onValueChange={(v) => set({ payoffEstimate: v })} onBlur={touch("payoffEstimate")} className={inputCls} data-testid="trade-payoff" /><Err k="payoffEstimate" />
                   <p className="mt-1 text-[11px] text-ink-faint">An estimate is fine. The dealer verifies the exact payoff.</p></div>
                 <label className="flex items-start gap-2 text-xs text-ink-light sm:col-span-2" data-testid="trade-share-payoff-label"><input type="checkbox" checked={f.sharePayoff === true} onChange={(e) => set({ sharePayoff: e.target.checked })} className="mt-0.5" data-testid="trade-share-payoff" />Show dealers my payoff amount and lender. Off by default: dealers only see that there is a payoff.</label>
               </div>

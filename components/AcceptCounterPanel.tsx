@@ -6,6 +6,7 @@ import { acceptedOutTheDoor, buildAcceptedQuote, prefillTax, taxBaseChanged } fr
 import { isTaxLine } from "../lib/counterSheet";
 import type { BuyerCounter } from "../lib/rfq";
 import type { UsedCashQuote } from "../lib/usedQuote";
+import { MoneyInput } from "./MoneyInput";
 
 const money = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -52,7 +53,7 @@ export function AcceptCounterPanel({ token, counter, onAccepted, onCancel }: { t
         Sales tax{changed ? " — recalculated at the rate of your original quote" : ""}
         <div className="mt-1 flex items-center gap-2">
           <span className="text-white">$</span>
-          <input type="text" inputMode="decimal" value={taxText} onChange={(e) => setTaxText(e.target.value)} disabled={!hasTaxLine || busy} className="w-32 rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-white tabular-nums" data-testid="accept-counter-tax" />
+          <MoneyInput allowCents value={taxText} onValueChange={setTaxText} disabled={!hasTaxLine || busy} className="w-32 rounded-lg border border-border bg-background px-2 py-1.5 text-sm text-white tabular-nums" data-testid="accept-counter-tax" />
         </div>
       </label>
       <p className="text-sm text-white">Final out-the-door: <strong className="tabular-nums" data-testid="accept-counter-otd">{money(otd)}</strong></p>

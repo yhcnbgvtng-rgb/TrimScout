@@ -10,6 +10,7 @@ import { DealStageBar } from "./DealStageBar";
 import { useAcceptShare } from "./AcceptShareConfirm";
 import { tradeInAnswerOf } from "../lib/tradeInAnswer";
 import { CONTACT_SHARED_LINE, type ShareContact } from "../lib/acceptShare";
+import { MoneyInput } from "./MoneyInput";
 
 /** Off until the box patch is installed; read at build time. */
 const ACCEPT_ORIGINAL_ON = process.env.NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL === "on";
@@ -157,7 +158,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
                 <div className="space-y-2">
                   <button type="button" disabled={busy} onClick={() => act({ type: "trade_accept" })} className={primary} data-testid="accept-trade">Accept {usd(t.offer.value)}</button>
                   <div className="flex flex-wrap items-center gap-2">
-                    <input inputMode="decimal" aria-label="Your trade value" placeholder="Your number $" value={counterValue} onChange={(e) => setCounterValue(e.target.value)} className={input} data-testid="trade-counter-input" />
+                    <MoneyInput allowCents aria-label="Your trade value" placeholder="Your number $" value={counterValue} onValueChange={setCounterValue} className={input} data-testid="trade-counter-input" />
                     <input aria-label="Note to the dealer (optional)" placeholder="Note (optional)" maxLength={300} value={counterNote} onChange={(e) => setCounterNote(e.target.value)} className="w-full min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-2 text-[12px] text-white sm:py-1" data-testid="trade-counter-note" />
                     <button type="button" disabled={busy || !counterValue.trim()} onClick={() => act({ type: "trade_counter", value: counterValue, note: counterNote })} className={ghost} data-testid="counter-trade">Send counter</button>
                   </div>
@@ -220,7 +221,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
               ) : null}
               {paySel === "dealer" ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  <input inputMode="decimal" aria-label="Down payment" placeholder="Down payment $" value={down} onChange={(e) => setDown(e.target.value)} className={input} data-testid="down-input" />
+                  <MoneyInput allowCents aria-label="Down payment" placeholder="Down payment $" value={down} onValueChange={setDown} className={input} data-testid="down-input" />
                   <select aria-label="Preferred term" value={term} onChange={(e) => setTerm(e.target.value)} className={input}>
                     <option value="">Any term</option>
                     {FINANCE_TERM_OPTIONS.map((m: number) => <option key={m} value={m}>{m} months</option>)}

@@ -6,6 +6,7 @@ import { applyCashCounter, applyFinanceCounter, applyLeaseCounter, changedKeys, 
 import type { LeaseQuote, LineItem } from "../lib/leaseQuote";
 import type { UsedQuote } from "../lib/usedQuote";
 import { CounterComparison } from "./CounterComparison";
+import { MoneyInput } from "./MoneyInput";
 
 /**
  * The buyer's counter as the dealer's own sheet with only the price-side
@@ -111,13 +112,13 @@ export function CounterSheetForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="space-y-1">
           <span className={label}>{priceLabel} <span className="normal-case font-normal text-ink-muted">— quoted ${(lease ? lease.capCost : used!.sellingPrice).toLocaleString()}</span></span>
-          <input value={price} onChange={(e) => setPrice(e.target.value)} inputMode="decimal" className={input} data-testid="counter-price" />
+          <MoneyInput allowCents value={price} onValueChange={setPrice} className={input} data-testid="counter-price" />
           {sheet && !taxInfo && counterPriceChanged(sheet) ? <span className="block text-[10px] font-normal normal-case text-sky-200" data-testid="tax-update-note">{TAX_UPDATE_NOTE}</span> : null}
         </label>
         {kind !== "cash" ? (
           <label className="space-y-1">
             <span className={label}>{downLabel} <span className="normal-case font-normal text-ink-muted">— quoted ${(lease ? lease.capReduction : (used as { downPayment: number }).downPayment).toLocaleString()}</span></span>
-            <input value={down} onChange={(e) => setDown(e.target.value)} inputMode="decimal" className={input} data-testid="counter-down" />
+            <MoneyInput allowCents value={down} onValueChange={setDown} className={input} data-testid="counter-down" />
           </label>
         ) : null}
       </div>
@@ -129,7 +130,7 @@ export function CounterSheetForm({
           {addOns.map((l, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
               <span className="min-w-0 break-words text-[11px] leading-snug text-ink-light">{l.name}<span className="block text-[10px] text-ink-faint">quoted ${(lease ? lease.addOns : used!.addOns)[i]?.amount.toLocaleString()}</span></span>
-              <input value={l.amount} onChange={(e) => setLine(addOns, setAddOns, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Add-on ${l.name}`} />
+              <MoneyInput allowCents value={l.amount} onValueChange={(v) => setLine(addOns, setAddOns, i, v)} className={input} aria-label={`Add-on ${l.name}`} />
               <button type="button" onClick={() => strike(addOns, setAddOns, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this add-on">strike</button>
             </div>
           ))}
@@ -145,7 +146,7 @@ export function CounterSheetForm({
           {fees.map((l, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
               <span className={`min-w-0 break-words text-[11px] leading-snug ${feeEditable(l.name) ? "text-ink-light" : "text-ink-faint"}`}>{l.name}{autoTax(l.name) ? ` (auto · ${taxInfo!.state} ${formatRatePercent(taxInfo!.rate)}% of price + add-ons)` : feeEditable(l.name) ? "" : " (fixed)"}</span>
-              <input value={autoTax(l.name) && sheet && sheet.kind !== "lease" ? String((sheet.after as UsedQuote).dueAtSigning.find((x) => x.name === l.name)?.amount ?? l.amount) : l.amount} onChange={(e) => setLine(fees, setFees, i, e.target.value)} inputMode="decimal" disabled={!feeEditable(l.name) || autoTax(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
+              <MoneyInput allowCents value={autoTax(l.name) && sheet && sheet.kind !== "lease" ? String((sheet.after as UsedQuote).dueAtSigning.find((x) => x.name === l.name)?.amount ?? l.amount) : l.amount} onValueChange={(v) => setLine(fees, setFees, i, v)} disabled={!feeEditable(l.name) || autoTax(l.name)} className={`${input} disabled:opacity-50`} aria-label={`Fee ${l.name}`} />
               {feeEditable(l.name) ? <button type="button" onClick={() => strike(fees, setFees, i)} className="col-span-2 justify-self-end text-[10px] font-bold text-rose-300 hover:text-white" title="Ask to remove this fee">strike</button> : null}
             </div>
           ))}
@@ -155,7 +156,7 @@ export function CounterSheetForm({
           {rebates.map((l, i) => (
             <div key={i} className="grid grid-cols-[minmax(0,1fr)_6.5rem] items-center gap-x-2 gap-y-1">
               <input value={l.name} onChange={(e) => setRebates(rebates.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="Name" className={`${input} min-w-0`} aria-label="Rebate name" />
-              <input value={l.amount} onChange={(e) => setLine(rebates, setRebates, i, e.target.value)} inputMode="decimal" className={input} aria-label={`Rebate ${l.name || i + 1}`} />
+              <MoneyInput allowCents value={l.amount} onValueChange={(v) => setLine(rebates, setRebates, i, v)} className={input} aria-label={`Rebate ${l.name || i + 1}`} />
             </div>
           ))}
           <button type="button" onClick={() => setRebates([...rebates, { name: "", amount: "" }])} className="text-[10px] font-bold text-sky-300 hover:text-white" data-testid="counter-add-rebate">+ Add a rebate you qualify for</button>
