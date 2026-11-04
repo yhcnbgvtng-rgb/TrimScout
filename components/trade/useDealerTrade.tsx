@@ -3,7 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { coerceTradeIn } from "../../lib/trade/coerce";
 import type { TradeConfirmation } from "../../lib/trade/confirm";
-import { checkTradeForm, emptyTradeForm, tradeFormFrom, tradeFormReady, type TradeFormCheck, type TradeFormState } from "../../lib/trade/dealerForm";
+import { checkTradeForm, emptyTradeForm, toNum, tradeFormFrom, tradeFormReady, type TradeFormCheck, type TradeFormState } from "../../lib/trade/dealerForm";
+import { allowanceOf, type AllowanceValue } from "../../lib/trade/otd";
 import type { DealerTradeAppraisal, TradeInRecord, TradePhotoRequest } from "../../lib/trade/types";
 import type { SignedView } from "./TradeSummary";
 import { TradeAllowanceFields } from "./TradeAllowanceFields";
@@ -32,6 +33,8 @@ export interface TradeQuoteForm {
   hasTrade: boolean;
   /** The allowance section is complete enough to send. */
   ready: boolean;
+  /** The allowance as typed so far (single or range) and the payoff on the trade; null until there is a usable number. The dealer's OTD summary previews the true OTD from these. */
+  preview: { allowance: AllowanceValue; payoff: number } | null;
   /** The section to render above the submit button. */
   slot: React.ReactNode;
   /** Run the server's own check on the form; `quoteExpiresAt` is the default good-until. */
@@ -67,5 +70,10 @@ export function useTradeQuoteForm(feed: { data: DealerTradeFeed | null }, expect
       {trade ? <TradeAllowanceFields state={state} set={set} trade={trade} needsOutlierConfirm={outlier} /> : <p className="text-xs text-ink-muted">Loading the trade-in…</p>}
     </section>
   ) : null;
-  return { hasTrade: expected, ready, slot, check, onReject };
+  const preview = useMemo(() => {
+    if (!expected || !trade || state.mode !== "allowance") return null;
+    const allowance = allowanceOf(state.shape === "single" ? { allowanceSingle: toNum(state.single), allowanceLow: null, allowanceHigh: null } : { allowanceSingle: null, allowanceLow: toNum(state.low), allowanceHigh: toNum(state.high) });
+    return allowance ? { allowance, payoff: lien ? Math.max(0, trade.payoffEstimate || 0) : 0 } : null;
+  }, [expected, trade, state, lien]);
+  return { hasTrade: expected, ready, preview, slot, check, onReject };
 }

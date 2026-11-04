@@ -33,6 +33,9 @@ const carryOverDate = (iso: string | null | undefined): string => {
 };
 
 import type { TradeQuoteForm } from "./trade/useDealerTrade";
+import { TrueOtdCard } from "./trade/TrueOtdCard";
+import { quotedEquityOf, trueOtdBreakdown } from "../lib/trade/trueOtd";
+import { tradeTaxCredit } from "../lib/trade/stateTradeCredit";
 
 export function UsedQuoteForm({
   token,
@@ -224,6 +227,13 @@ export function UsedQuoteForm({
   const initialTax = dueAtSigningSum((initial?.dueAtSigning || []).filter((i) => /tax/i.test(i.name)));
   const taxPending = counterPriceChanged(counterSheet) && !taxConfirmed && Math.abs(d.taxTotal - initialTax) < 0.005;
   const errors = [...validation.errors, ...(taxPending ? [TAX_PROMPT_COPY] : []), ...feeCheck.errors];
+  // Once an allowance is typed, the summary shows the true OTD from the same calculation the buyer's compare uses (lib/trade/trueOtd.ts).
+  const trueOtd = useMemo(() => {
+    if (kind !== "cash" || !trade?.preview || d.otd == null || d.sellingPrice == null) return null;
+    const eq = quotedEquityOf(trade.preview.allowance, trade.preview.payoff);
+    const taxCredit = tradeTaxCredit({ zip, allowance: trade.preview.allowance, sellingPrice: d.sellingPrice, addOns: d.addOnLines, quotedTax: d.taxTotal, isNew: isNewCar });
+    return trueOtdBreakdown({ originalOtd: d.otd, eq, taxCredit });
+  }, [kind, trade?.preview, d.otd, d.sellingPrice, d.addOnLines, d.taxTotal, zip, isNewCar]);
   const lockBroken = kind === "finance" && ((d.term != null && d.term !== prefs.finance.termMonths) || (d.down != null && Math.round(d.down) !== prefs.finance.downPayment));
 
   useEffect(() => {
@@ -612,7 +622,7 @@ export function UsedQuoteForm({
             </>
           ) : (
             <>
-              {out("Out the door", money(d.otd, 2), true)}
+              {trueOtd && trueOtd.applies ? <TrueOtdCard b={trueOtd} /> : out("Out the door", money(d.otd, 2), true)}
               <div className="border-t border-border/60 pt-2 space-y-1">
                 {out("Selling price", money(d.sellingPrice))}
                 {out("Add-ons", d.sellingPrice != null ? money(d.addOnTotal) : null)}
