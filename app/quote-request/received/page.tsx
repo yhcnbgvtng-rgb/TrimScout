@@ -72,7 +72,7 @@ function TradeInNote({ expected }: { expected: boolean | null }) {
   return (
     <p className="text-xs text-ink-muted border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">
       <strong className="text-ink-light">Trade-in:</strong>{" "}
-      {expected === true ? <strong className="text-sky-300">The buyer has a trade-in coming.</strong> : expected === false ? <span className="text-ink-light">No trade-in.</span> : null}{" "}
+      {expected === true ? <strong className="text-sky-300">The buyer has a trade-in and will add it in the deal.</strong> : expected === false ? <span className="text-ink-light">No trade-in.</span> : null}{" "}
       {DEALER_TRADE_IN_COPY}
     </p>
   );

@@ -8,6 +8,7 @@ import { COUNTER_DECLINED_STATUS } from "../lib/counterDeclined";
 import { isExpired } from "../lib/leaseQuote";
 import { DealStageBar } from "./DealStageBar";
 import { useAcceptShare } from "./AcceptShareConfirm";
+import { tradeInAnswerOf } from "../lib/tradeInAnswer";
 import { CONTACT_SHARED_LINE, type ShareContact } from "../lib/acceptShare";
 
 /** Off until the box patch is installed; read at build time. */
@@ -272,6 +273,14 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
 }
 
 /** The staged Cash / Finance deals for a request: a one-line-per-dealer overview, then each dealer's card. */
+/** Step 2 of the buyer's deal line: say what is happening with the trade-in. */
+function tradeStageNote(rfq: Pick<RfqRequest, "tradeInExpected" | "tradeIn">): string {
+  const a = tradeInAnswerOf(rfq);
+  if (a === "now") return "";
+  if (a === "later") return " (you're adding it in the deal)";
+  return " (skipped: you have no trade-in)";
+}
+
 export function StagedDeals({ rfq, headers, onRfq, onWalkAll, buyerContact }: { buyerContact?: ShareContact | null; rfq: RfqRequest; headers: Record<string, string>; onRfq: (r: RfqRequest) => void; /** Ends the whole request (every dealer) in one step. */ onWalkAll?: () => void }) {
   const cards = rfq.invites
     .filter((i) => i.status !== "declined" && i.status !== "expired")
@@ -282,7 +291,7 @@ export function StagedDeals({ rfq, headers, onRfq, onWalkAll, buyerContact }: { 
     <div className="space-y-3" data-testid="staged-deals">
       <h2 className="text-sm font-bold text-white">Your deal, step by step</h2>
       <p className="text-[11px] text-ink-muted">
-        1. Agree the out-the-door price. 2. Value your trade-in{rfq.tradeInExpected ? "" : " (skipped: you have no trade-in)"}. 3. Choose cash, your own financing, or a financing offer from the dealer. 4. Review and accept the final deal: only then does the dealer get your contact details. Each dealer moves through these separately. {NO_BINDING}
+        1. Agree the out-the-door price. 2. Value your trade-in{tradeStageNote(rfq)}. 3. Choose cash, your own financing, or a financing offer from the dealer. 4. Review and accept the final deal: only then does the dealer get your contact details. Each dealer moves through these separately. {NO_BINDING}
       </p>
       {cards.length > 1 ? (
         <ul className="divide-y divide-border/60 rounded-xl border border-border text-[11px]" data-testid="stage-overview">

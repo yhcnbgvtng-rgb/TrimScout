@@ -8,6 +8,7 @@ import { quoteIntroEnabled } from "@/lib/quoteIntroFlag";
 import { getSession } from "next-auth/react";
 import { TestModeBar } from "./TestModeBar";
 import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
+import { type TradeInAnswer, tradeInExpectedFor, tradeInBlocksContinue, tradeInReviewLabel, tradeInReviewText, TRADE_IN_REQUIRED_MESSAGE } from "../lib/tradeInAnswer";
 import { Vehicle, BiddingStrategy, BiddingRequest, UserProfile, type DealStructureMethod, type PurchaseTimeline, type TradeInVehicle } from "../lib/types";
 import {
   DEAL_STRUCTURE_LABELS,
@@ -1309,8 +1310,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
   // only holds if a buyer can't just paste it in here; server-side
   // (app/api/deal-requests and the box) re-checks authoritatively.
   const [dealComment, setDealComment] = useState("");
-  // Asked at the end of Step 3 ("Do you have a trade-in?"): null = not answered, false = skipped, true = the trade form is open and its details go with the request.
-  const [tradeInExpected, setTradeInExpected] = useState<boolean | null>(null);
+  // Asked early in Step 3 ("Do you have a trade-in?") and required: null = not answered, "now" = the trade form is open and
+  // its details + six photos go with the request, "later" = the buyer will add it in the deal, "none" = no trade-in.
+  const [tradeAnswer, setTradeAnswer] = useState<TradeInAnswer | null>(null);
+  const tradeInExpected = tradeInExpectedFor(tradeAnswer) === true;
   // The trade-in step's own state (draft id, readiness). Toggle off = nothing collected, nothing sent.
   const [tradeStep, setTradeStep] = useState<TradeStepState>({ ready: true, draftId: null, token: null, firstError: null });
   const [tradeAttempted, setTradeAttempted] = useState(false);
@@ -1439,7 +1442,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setQuoteDesks({});
     setConfirmedDesks({});
     setDealComment("");
-    setTradeInExpected(null);
+    setTradeAnswer(null);
     setTradeAttempted(false);
     setCreatedDealId(null);
     setSentPackage(null);
@@ -1695,7 +1698,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     confirmedDesks,
     buyerDealerEmails,
     dealComment,
-    tradeInExpected,
+    tradeAnswer,
     pricingChoice,
     targetOtdPrice,
   });
@@ -1764,7 +1767,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     pick<Record<string, boolean>>("confirmedDesks", setConfirmedDesks);
     pick<Record<string, string>>("buyerDealerEmails", setBuyerDealerEmails);
     pick<string>("dealComment", setDealComment);
-    pick<boolean | null>("tradeInExpected", setTradeInExpected);
+    pick<TradeInAnswer | null>("tradeAnswer", setTradeAnswer);
+    // Drafts saved before the three answers: true was "Yes" (form open), false was "Skip" (no trade-in).
+    const oldTrade = (d as { tradeInExpected?: unknown }).tradeInExpected;
+    if (d.tradeAnswer === undefined && typeof oldTrade === "boolean") setTradeAnswer(oldTrade ? "now" : "none");
     pick<"dealer_names" | "buyer_names">("pricingChoice", setPricingChoice);
     pick<number>("targetOtdPrice", setTargetOtdPrice);
     setStep(Math.min(Math.max(1, draft.step), TOTAL_STEPS));
@@ -1860,7 +1866,15 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     // Step 3 → 4: every lock set, and at least one desk with a named contact (or an adviser address) ticked.
     if (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || dealCommentContactWarning)) return;
     // Trade toggle on: the details and all six required photos must be in before Continue; point at what's missing.
-    if (step === 3 && tradeInExpected && !tradeStep.ready) { setTradeAttempted(true); return; }
+    if (step === 3) {
+      const block = tradeInBlocksContinue(tradeAnswer, tradeStep.ready);
+      if (block === "unanswered") {
+        setTradeAttempted(true);
+        document.getElementById("trade-question-section")?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+        return;
+      }
+      if (block === "incomplete") { setTradeAttempted(true); return; }
+    }
     setStep(step + 1);
   };
   const goBack = () => {
@@ -2597,9 +2611,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           alternateAsk: null,
           // Word for word to every quoting dealer (scrubbed of contact info first).
           buyerNote: dealComment.trim() || null,
-          tradeInExpected,
+          tradeInExpected: tradeInExpectedFor(tradeAnswer),
           // Toggle off: no trade data at all. On: the draft (fields + six photos) the server re-verifies before anything is created.
-          tradeIn: tradeInExpected && tradeStep.draftId ? { enabled: true, draftId: tradeStep.draftId, token: tradeStep.token } : { enabled: false },
+          tradeIn: tradeAnswer === "now" && tradeStep.draftId ? { enabled: true, draftId: tradeStep.draftId, token: tradeStep.token } : { enabled: false },
           leasePrefs:
             quoteType === "lease" && !isUsed
               ? {
@@ -3339,6 +3353,30 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               payment method, plus the sheet they'll fill in against them.          */}
           {step === 3 && quoteType && (
             <div className="space-y-6 animate-fadeIn" data-testid="quote-format-step">
+              {/* Required, and asked before the dealer list. Yes opens the trade-in form; "later" tells dealers a trade is expected; "No" sends nothing. */}
+              <div id="trade-question-section" data-testid="trade-question-section">
+              <WizardSection title="Do you have a trade-in?" hint="Required. Invited dealers see the vehicle, mileage, condition and photos if you add it now. You can add or change it later in the deal." className="pt-2">
+                <div className="flex flex-col gap-2 sm:flex-row" role="radiogroup" aria-label="Do you have a trade-in?" aria-required="true" aria-describedby={tradeAnswer === null && tradeAttempted ? "trade-required-msg" : undefined} data-testid="trade-question">
+                  {([["now", "Yes, add my trade", "trade-yes"], ["later", "Skip, add later", "trade-later"], ["none", "No", "trade-no"]] as const).map(([val, text, id]) => (
+                    <button key={id} type="button" role="radio" aria-checked={tradeAnswer === val} data-testid={id}
+                      onClick={() => { setTradeAnswer(val); if (val !== "now") setTradeAttempted(false); }}
+                      className={`flex-1 rounded-xl border px-3.5 py-2.5 text-xs font-bold transition-all ${tradeAnswer === val ? "border-brand-500 bg-brand-500/10 text-white" : tradeAnswer === null && tradeAttempted ? "border-rose-500/60 text-ink-light hover:border-rose-400" : "border-border text-ink-light hover:border-border-strong"}`}>{text}</button>
+                  ))}
+                </div>
+                {tradeAnswer === null && tradeAttempted ? (
+                  <p id="trade-required-msg" role="alert" className="text-[11px] text-rose-400" data-testid="trade-required">{TRADE_IN_REQUIRED_MESSAGE}</p>
+                ) : null}
+                {tradeAnswer === "later" ? (
+                  <p className="text-[11px] text-ink-muted" data-testid="trade-later-note">Dealers are told a trade-in is expected. You&apos;ll be asked to add it after you accept an offer.</p>
+                ) : null}
+                {tradeAnswer === "now" ? (
+                  <div className="mt-4">
+                    <TradeInStep enabled hideToggle onToggle={(on) => setTradeAnswer(on ? "now" : null)} defaultZip={zipOk ? huntZip.trim() : null} attempted={tradeAttempted} onState={setTradeStep} />
+                  </div>
+                ) : null}
+              </WizardSection>
+              </div>
+
               <QuoteFormatMatrix
                 quoteType={quoteType}
                 cars={intent === "alternate" ? [] : [selectedVehicle, altVehicle1, altVehicle2].filter((v): v is Vehicle => Boolean(v))}
@@ -3707,22 +3745,6 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
               </div>
               </WizardSection>
-
-              {/* Last question before Review & Send. Yes opens the trade-in form; Skip carries on with nothing collected or sent. */}
-              <WizardSection title="Do you have a trade-in?" hint="Optional. Invited dealers see the vehicle, mileage, condition and photos. You can add or change it later in the deal." className="pt-6">
-                <div className="flex gap-2" role="radiogroup" aria-label="Do you have a trade-in?" data-testid="trade-question">
-                  {([[true, "Yes, add my trade", "trade-yes"], [false, "Skip", "trade-skip"]] as const).map(([val, text, id]) => (
-                    <button key={id} type="button" role="radio" aria-checked={tradeInExpected === val} data-testid={id}
-                      onClick={() => { setTradeInExpected(val); if (!val) setTradeAttempted(false); }}
-                      className={`flex-1 rounded-xl border px-3.5 py-2.5 text-xs font-bold transition-all ${tradeInExpected === val ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light hover:border-border-strong"}`}>{text}</button>
-                  ))}
-                </div>
-                {tradeInExpected ? (
-                  <div className="mt-4">
-                    <TradeInStep enabled hideToggle onToggle={setTradeInExpected as (on: boolean) => void} defaultZip={zipOk ? huntZip.trim() : null} attempted={tradeAttempted} onState={setTradeStep} />
-                  </div>
-                ) : null}
-              </WizardSection>
             </div>
           )}
 
@@ -4050,12 +4072,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div className="rounded-xl border border-border bg-surface-elevated p-3 flex items-start gap-2.5 text-xs" data-testid="trade-in-after">
                 <Car className="h-5 w-5 text-ink-muted shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <div className="font-bold text-white">Trade-in</div>
-                  <p className="text-[11px] leading-relaxed text-ink-light">
-                    {tradeInExpected
-                      ? "Included with this quote request. Invited dealers see the vehicle, mileage, condition and photos. You can edit it later in the deal."
-                      : "No trade-in on this request. You can add one later in the deal. We'll work with the dealer to calculate any changes in registration fees and sales tax."}
-                  </p>
+                  <div className="font-bold text-white" data-testid="trade-in-review-label">{tradeInReviewLabel(tradeAnswer)}</div>
+                  <p className="text-[11px] leading-relaxed text-ink-light">{tradeInReviewText(tradeAnswer)}</p>
                 </div>
               </div>
             </div>
@@ -4107,7 +4125,9 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
               <div />
             )}
 
-            {step === 3 && importedDealerships.length === 0 ? (
+            {step === 3 && tradeAnswer === null ? (
+              <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Answer the trade-in question</span>
+            ) : step === 3 && importedDealerships.length === 0 ? (
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Choose a dealership</span>
             ) : step === 3 && confirmedDeskCount === 0 ? (
               <span className="ml-auto mr-3 text-[10px] text-amber-300/90" data-testid="continue-reason">Tick a dealership</span>
@@ -4118,12 +4138,13 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             {step < TOTAL_STEPS ? (
               <button
                 onClick={goNext}
+                aria-disabled={step === 3 && tradeAnswer === null ? true : undefined}
                 disabled={
                   (step === 1 && step1ContinueDisabled) ||
                   (step === 2 && !paymentChosen) ||
                   (step === 3 && (!quoteSetupComplete || confirmedDeskCount === 0 || Boolean(dealCommentContactWarning)))
                 }
-                className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-bold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-5 py-2 text-xs font-bold text-black hover:bg-brand-400 transition-all shadow-md shadow-brand-500/20 disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>

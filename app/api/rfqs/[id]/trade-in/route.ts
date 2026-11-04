@@ -8,7 +8,7 @@ import { auth } from "@/auth";
 import { getRfq, postDealStage, RfqApiError, submitRfqTradeIn } from "@/lib/rfqApi";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
-import { needsTradePrompt } from "@/lib/acceptTrade";
+import { tradeAttachable } from "@/lib/acceptTrade";
 import { isStagedRfq } from "@/lib/dealStages";
 import { buildTradeAddedNotice, buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
@@ -33,7 +33,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const buyer = buyerForRfq(session, req, rfq);
     if (!buyer) return NextResponse.json({ error: "You must be signed in as a buyer." }, { status: 401 });
     if (!buyerMayManageTrade(buyer.id, rfq)) return NextResponse.json({ error: "This request belongs to a different buyer." }, { status: 403 });
-    const deal = needsTradePrompt(rfq);
+    const deal = tradeAttachable(rfq);
     if (!deal) return NextResponse.json({ error: rfq.tradeIn ? "This request already has a trade-in." : "Accept a dealer's offer first." }, { status: 409 });
 
     // Same checks as at send time: nothing attaches unless the whole record, six required photos included, is real.

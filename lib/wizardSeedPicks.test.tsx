@@ -113,10 +113,10 @@ describe("buyer search seed -> Step 1", () => {
       if (send) {
         const zip = doc.querySelector<HTMLInputElement>('input[placeholder="ZIP"]')!;
         await act(async () => { Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value")!.set!.call(zip, "44503"); zip.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
-        // Step 3 asks "Do you have a trade-in?"; Skip carries on with nothing collected, and the form stays closed.
+        // Step 3 asks "Do you have a trade-in?"; "No" carries on with nothing collected, and the form stays closed.
         assert.ok(doc.querySelector('[data-testid="trade-question"]'));
         assert.equal(doc.querySelector('[data-testid="trade-in-step"]'), null);
-        await act(async () => { doc.querySelector<HTMLButtonElement>('[data-testid="trade-skip"]')!.click(); });
+        await act(async () => { doc.querySelector<HTMLButtonElement>('[data-testid="trade-no"]')!.click(); });
         const cont = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
         await act(async () => { cont.click(); });
         await tick();
