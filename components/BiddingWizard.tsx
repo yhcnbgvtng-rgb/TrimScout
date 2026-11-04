@@ -107,6 +107,7 @@ import {
 import { filterMustHaveOptions, formatOptionPrice, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { vehicleTitle } from "../lib/vehicleTitle";
 import { repairVehicleIdentity } from "../lib/rfqVehicle";
+import { MoneyInput } from "./MoneyInput";
 
 type FilterableFactoryOption = FactoryFilterableOption;
 
@@ -3617,11 +3618,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     </label>
                     <label className="space-y-1">
                       <span className="block text-[10px] font-bold uppercase tracking-wide text-ink-faint">Down payment ($)</span>
-                      <input
-                        type="text"
-                        inputMode="decimal"
+                      <MoneyInput
+                        allowCents
                         value={downPayment}
-                        onChange={(e) => setDownPayment(e.target.value)}
+                        onValueChange={setDownPayment}
                         placeholder="0"
                         aria-label="Down payment"
                         className="w-full rounded-lg border border-border bg-background py-2 px-3 font-mono text-[11px] text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none"
@@ -3835,12 +3835,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                     <label className="text-[10px] uppercase font-bold text-ink-faint">Your Target Out-The-Door Price</label>
                     <div className="relative">
                       <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint text-xs font-bold">$</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={targetOtdPrice > 0 ? targetOtdPrice.toLocaleString("en-US") : ""}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, "").slice(0, 7);
+                      <MoneyInput
+                        value={targetOtdPrice > 0 ? String(targetOtdPrice) : ""}
+                        onValueChange={(v) => {
+                          const digits = v.slice(0, 7);
                           setTargetOtdPrice(digits ? Number(digits) : 0);
                         }}
                         placeholder="52,000"

@@ -5,6 +5,7 @@ import { Car, CheckCircle2, Loader2 } from "lucide-react";
 import { formatCurrency, getEstimatedTaxRate, getStateTaxRate } from "../lib/otdCalculator";
 import type { TradeInSubmission, TradeInAppraisalRecord } from "../lib/types";
 import { TradeInRevisedOtd } from "./TradeInRevisedOtd";
+import { MoneyInput } from "./MoneyInput";
 
 interface TradeInAppraisalPanelProps {
   dealId: string;
@@ -115,10 +116,9 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Trade-in allowance</span>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-faint">$</span>
-              <input
-                inputMode="numeric"
-                value={allowance ? Number(allowance.replace(/[^\d]/g, "")).toLocaleString("en-US") : ""}
-                onChange={(e) => setAllowance(e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
+              <MoneyInput
+                value={allowance}
+                onValueChange={(v) => setAllowance(v.slice(0, 6))}
                 placeholder="18,500"
                 className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-sm font-bold text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none font-mono"
               />
@@ -128,10 +128,9 @@ export const TradeInAppraisalPanel: React.FC<TradeInAppraisalPanelProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Loan payoff you&apos;ll handle</span>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-faint">$</span>
-              <input
-                inputMode="numeric"
-                value={loanPayoff ? Number(loanPayoff.replace(/[^\d]/g, "")).toLocaleString("en-US") : ""}
-                onChange={(e) => setLoanPayoff(e.target.value.replace(/[^\d]/g, "").slice(0, 6))}
+              <MoneyInput
+                value={loanPayoff}
+                onValueChange={(v) => setLoanPayoff(v.slice(0, 6))}
                 placeholder="0"
                 className="w-full rounded-lg border border-border bg-background py-2 pl-6 pr-3 text-xs text-ink-light placeholder-ink-faint focus:border-brand-500 focus:outline-none font-mono"
               />

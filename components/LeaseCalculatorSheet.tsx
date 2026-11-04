@@ -5,6 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { isCounter, validateLeaseQuote, LEASE_MILES, LEASE_TERMS, type LeaseQuote, type LeaseRequestPrefs, type LineItem } from "../lib/leaseQuote";
 import { aprFromMf, dasTotal, dueAtSigningFrom, effectiveMonthly, monthlyPreTax, monthlyWithTax, netCapCost, num, residualAmountFrom, totalLeaseCost } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
+import { MoneyInput } from "./MoneyInput";
 
 /**
  * The buyer-side lease calculator: record what a dealer quoted (email,
@@ -152,10 +153,14 @@ export function LeaseCalculatorSheet({
   const hint = "block text-[10px] text-ink-faint";
   // Render helpers (not components): a component defined inside render is a
   // new type every render, which remounts its inputs and drops focus per keystroke.
-  const field = ({ k, title, note, placeholder, mono }: { k: keyof Draft; title: string; note?: string; placeholder?: string; mono?: boolean }) => (
+  const field = ({ k, title, note, placeholder, mono, money: isMoney }: { k: keyof Draft; title: string; note?: string; placeholder?: string; mono?: boolean; money?: boolean }) => (
     <label className="space-y-1">
       <span className={label}>{title}</span>
-      <input type="text" inputMode="decimal" value={f[k]} onChange={set(k)} placeholder={placeholder || ""} className={`${input} ${mono ? "font-mono" : ""}`} />
+      {isMoney ? (
+        <MoneyInput allowCents value={f[k]} onValueChange={(v) => setF((s) => ({ ...s, [k]: v }))} placeholder={placeholder || ""} className={`${input} ${mono ? "font-mono" : ""}`} />
+      ) : (
+        <input type="text" inputMode="decimal" value={f[k]} onChange={set(k)} placeholder={placeholder || ""} className={`${input} ${mono ? "font-mono" : ""}`} />
+      )}
       {note ? <span className={hint}>{note}</span> : null}
     </label>
   );
@@ -173,7 +178,7 @@ export function LeaseCalculatorSheet({
             <input type="text" value={it.name} readOnly={isFixed} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder={placeholder} aria-label={`${title} description`} className={input} />
             <span className="relative block">
               <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-              <input type="text" inputMode="decimal" value={it.amount} onChange={(e) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))} placeholder="0" aria-label={`${it.name || title} amount`} className={`${input} pl-6 font-mono`} />
+              <MoneyInput allowCents value={it.amount} onValueChange={(v) => setList((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))} placeholder="0" aria-label={`${it.name || title} amount`} className={`${input} pl-6 font-mono`} />
             </span>
             {isFixed ? <span /> : (
               <button type="button" onClick={() => setList((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label={`Remove ${title.toLowerCase()} line`}>
@@ -207,10 +212,10 @@ export function LeaseCalculatorSheet({
           <section className="space-y-2.5">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">1 · Deal inputs</h4>
             <div className="grid grid-cols-2 gap-2.5">
-              {field({ k: "msrp", title: "MSRP (optional)", note: "Used only to turn residual % into dollars." })}
-              {field({ k: "capCost", title: "Cap cost / selling price", note: "Required to calculate." })}
-              {field({ k: "capReduction", title: "Cap cost reduction / cash down" })}
-              {field({ k: "acquisitionFee", title: "Acquisition fee" })}
+              {field({ k: "msrp", money: true, title: "MSRP (optional)", note: "Used only to turn residual % into dollars." })}
+              {field({ k: "capCost", money: true, title: "Cap cost / selling price", note: "Required to calculate." })}
+              {field({ k: "capReduction", money: true, title: "Cap cost reduction / cash down" })}
+              {field({ k: "acquisitionFee", money: true, title: "Acquisition fee" })}
             </div>
             {itemList({ title: "Incentives / rebates", list: incentives, setList: setIncentives, addLabel: "Add another incentive", placeholder: "Describe the incentive, e.g. Loyalty or Conquest", fixed: ["Lease cash / rebate"] })}
             {itemList({ title: "Fees at signing (itemized)", list: otherFees, setList: setOtherFees, addLabel: "Add another fee", placeholder: "Describe the fee, e.g. Registration & title", fixed: ["Doc fee"] })}
@@ -243,7 +248,7 @@ export function LeaseCalculatorSheet({
                 </select>
               </label>
               {field({ k: "residualPercent", title: "Residual %", note: d.residualFromMsrp != null && !f.residualAmount ? `= ${money(d.residualFromMsrp)} of MSRP` : undefined })}
-              {field({ k: "residualAmount", title: "Residual amount ($)", note: d.residualFromMsrp != null ? "Calculated from MSRP — type to override." : "Enter MSRP above, or type the dollar residual.", placeholder: d.residualFromMsrp != null ? String(d.residualFromMsrp) : "", mono: true })}
+              {field({ k: "residualAmount", money: true, title: "Residual amount ($)", note: d.residualFromMsrp != null ? "Calculated from MSRP — type to override." : "Enter MSRP above, or type the dollar residual.", placeholder: d.residualFromMsrp != null ? String(d.residualFromMsrp) : "", mono: true })}
               {field({ k: "moneyFactor", title: "Money factor", note: d.apr != null ? `≈ ${d.apr}% APR` : "e.g. 0.00225", mono: true })}
             </div>
           </section>
@@ -253,7 +258,7 @@ export function LeaseCalculatorSheet({
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">3 · Tax context</h4>
             <div className="grid grid-cols-2 gap-2.5">
               {field({ k: "taxRatePercent", title: "Sales tax rate (%)", note: prefs.zip ? `Estimated for ZIP ${prefs.zip} — edit if the dealer used another rate. Blank = tax estimated at signing.` : "Blank = tax estimated at signing." })}
-              {field({ k: "taxesAtSigning", title: "Taxes due at signing", note: "Defaults to tax on the cap reduction; type the dealer's figure to override." })}
+              {field({ k: "taxesAtSigning", money: true, title: "Taxes due at signing", note: "Defaults to tax on the cap reduction; type the dealer's figure to override." })}
             </div>
           </section>
 

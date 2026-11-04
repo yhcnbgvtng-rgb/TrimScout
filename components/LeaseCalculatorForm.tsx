@@ -21,6 +21,7 @@ import {
 } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
 import type { TradeQuoteForm } from "./trade/useDealerTrade";
+import { MoneyInput } from "./MoneyInput";
 
 /**
  * The dealer's lease calculator — the only way a quote gets in. Laid out
@@ -237,16 +238,20 @@ export function LeaseCalculatorForm({
         <span className={labelCls}>
           {o.title} {o.required ? <span className="text-amber-300">*</span> : null}
         </span>
-        <input
-          type="text"
-          inputMode="decimal"
-          value={editing || kind === "text" ? f[o.k] : fmt(kind, f[o.k])}
-          onFocus={() => setFocused(o.k)}
-          onBlur={() => setFocused(null)}
-          onChange={set(o.k)}
-          placeholder={o.placeholder ?? ""}
-          className={`${input} ${o.mono || kind !== "text" ? "font-mono" : ""}`}
-        />
+        {kind === "money" ? (
+          <MoneyInput allowCents value={f[o.k]} onValueChange={(v) => setF((s) => ({ ...s, [o.k]: v }))} placeholder={o.placeholder ?? ""} className={`${input} font-mono`} />
+        ) : (
+          <input
+            type="text"
+            inputMode="decimal"
+            value={editing || kind === "text" ? f[o.k] : fmt(kind, f[o.k])}
+            onFocus={() => setFocused(o.k)}
+            onBlur={() => setFocused(null)}
+            onChange={set(o.k)}
+            placeholder={o.placeholder ?? ""}
+            className={`${input} ${o.mono || kind !== "text" ? "font-mono" : ""}`}
+          />
+        )}
         {o.hint ? <span className={hintCls}>{o.hint}</span> : null}
       </label>
     );
@@ -275,13 +280,10 @@ export function LeaseCalculatorForm({
             />
             <span className="relative block">
               <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={focused === (`item:${o.title}:${i}` as never) ? it.amount : formatMoneyInput(it.amount).replace(/^\$/, "")}
-                onFocus={() => setFocused(`item:${o.title}:${i}` as never)}
-                onBlur={() => setFocused(null)}
-                onChange={(e) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))}
+              <MoneyInput
+                allowCents
+                value={it.amount}
+                onValueChange={(v) => o.setList((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))}
                 placeholder="0"
                 aria-label={`${it.name || o.title} amount`}
                 className={`${input} pl-6 font-mono`}

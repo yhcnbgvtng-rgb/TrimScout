@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { CREDIT_RANGE_LABELS, FINANCE_TERM_OPTIONS, financeMath, liveTrueOtd, MAX_APR, PAYMENT_METHOD_LABELS, stageSummary, type CreditRange, type DealStageState, type StageAction } from "../lib/dealStages";
 import { DealStageBar } from "./DealStageBar";
+import { MoneyInput } from "./MoneyInput";
 
 const usd = (n: number | null | undefined) => (typeof n === "number" ? `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}` : "—");
 
@@ -81,7 +82,7 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
                 <button type="button" disabled={busy} onClick={() => act({ type: "trade_hold" })} className={ghost} data-testid="hold-trade">Hold firm at {usd(t.offer?.value)}</button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <input inputMode="decimal" aria-label="Revised trade value" placeholder="Revised value $" value={value} onChange={(e) => setValue(e.target.value)} className={input} />
+                <MoneyInput allowCents aria-label="Revised trade value" placeholder="Revised value $" value={value} onValueChange={setValue} className={input} />
                 <button type="button" disabled={busy || !value.trim()} onClick={() => act({ type: "trade_offer", value, basis })} className={ghost} data-testid="revise-trade-offer">Send revised offer</button>
               </div>
             </>
@@ -91,7 +92,7 @@ export function DealerStagePanel({ token, stage, quotedOtd, hasTrade, rfqOpen, o
             <>
               <p className="text-xs text-ink-muted">Stage 2: value the buyer&apos;s trade-in (details and photos are in the trade section below). Your number is a request, not a bid.</p>
               <div className="flex flex-wrap items-center gap-2">
-                <input inputMode="decimal" aria-label="Trade value" placeholder="Trade value $" value={value} onChange={(e) => setValue(e.target.value)} className={input} data-testid="trade-offer-input" />
+                <MoneyInput allowCents aria-label="Trade value" placeholder="Trade value $" value={value} onValueChange={setValue} className={input} data-testid="trade-offer-input" />
                 <select aria-label="Valuation basis" value={basis} onChange={(e) => setBasis(e.target.value as "preliminary" | "firm")} className={input}>
                   <option value="preliminary">Preliminary</option>
                   <option value="firm">Firm</option>

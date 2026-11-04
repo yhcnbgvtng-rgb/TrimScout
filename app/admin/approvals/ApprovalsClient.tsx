@@ -7,6 +7,7 @@ import type { AdminRfq, AdminRfqInvite } from "../../api/admin/rfqs/route";
 import { CREDIT_BANDS, EDITOR_QUOTE_TYPES, EDITOR_TIMELINES, FINANCE_TERMS, LEASE_MILES, LEASE_TERMS, prefsPatch, prefsToForm, type PrefsForm } from "../../../lib/adminQuotePrefs";
 import { DESK_ROLE_LABELS } from "../../../lib/quotePackage";
 import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqVehicleSummary } from "../../../lib/rfqTracker";
+import { MoneyInput } from "../../../components/MoneyInput";
 
 /**
  * The approval desk. Every quote request waits here after the buyer submits;
@@ -491,7 +492,7 @@ export function EditSheet({ rfq, onChanged, onClose }: { rfq: AdminRfq; onChange
           {isFinance ? (
             <label className={label}>
               Down payment ($)
-              <input value={prefs.downPayment} onChange={setP("downPayment")} inputMode="numeric" placeholder="0" className={field} />
+              <MoneyInput value={prefs.downPayment} onValueChange={(v) => setPrefs((p) => ({ ...p, downPayment: v }))} placeholder="0" className={field} />
             </label>
           ) : null}
           {isLease || isFinance ? (

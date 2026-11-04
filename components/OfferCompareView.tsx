@@ -61,6 +61,7 @@ import { formatCurrency } from "../lib/otdCalculator";
 import { NO_PAID_FACTORY_OPTIONS, STANDARD_FEATURES_HEADING, optionsPaidOnlyEnabled, paidOptionView } from "@/lib/optionsPaidOnly";
 import { vehicleTitle } from "../lib/vehicleTitle";
 import { distinctMsrp } from "../lib/listingMsrp";
+import { MoneyInput } from "./MoneyInput";
 
 function unavailableSheet(vin: string, note: string): ShopperListingSheet {
   return {
@@ -127,11 +128,10 @@ function moneyInput(value: number, onChange: (n: number) => void, label: string)
   return (
     <label className="block space-y-1">
       <span className="text-[10px] font-semibold uppercase tracking-wider text-ink-faint">{label}</span>
-      <input
-        type="number"
-        min={0}
+      <MoneyInput
+        allowCents
         value={Number.isFinite(value) ? value : 0}
-        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        onValueChange={(v) => onChange(Number(v) || 0)}
         className="w-full rounded-lg border border-border bg-background py-1.5 px-2 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
       />
     </label>

@@ -15,6 +15,7 @@ import {
 import { formatCurrency } from "../lib/otdCalculator";
 import type { DealRequestRecord, DealBidRecord } from "../lib/dealsApi";
 import type { NegotiateAction } from "../lib/negotiationPolicy";
+import { MoneyInput } from "./MoneyInput";
 
 interface GuardrailForm {
   walkAwayOtd: string;
@@ -232,20 +233,20 @@ export const AiNegotiatorAssistant: React.FC = () => {
                 </label>
                 <label className="space-y-1">
                   <span className="text-[10px] font-bold uppercase text-ink-faint">Walk-away OTD (max you'll pay)</span>
-                  <input
-                    type="number"
+                  <MoneyInput
+                    allowCents
                     value={guardrails.walkAwayOtd}
-                    onChange={(e) => setGuardrails((g) => ({ ...g, walkAwayOtd: e.target.value }))}
+                    onValueChange={(v) => setGuardrails((g) => ({ ...g, walkAwayOtd: v }))}
                     placeholder="e.g. 61000"
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
                   <span className="text-[10px] font-bold uppercase text-ink-faint">Counter step ($)</span>
-                  <input
-                    type="number"
+                  <MoneyInput
+                    allowCents
                     value={guardrails.concessionStep}
-                    onChange={(e) => setGuardrails((g) => ({ ...g, concessionStep: e.target.value }))}
+                    onValueChange={(v) => setGuardrails((g) => ({ ...g, concessionStep: v }))}
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
@@ -260,20 +261,20 @@ export const AiNegotiatorAssistant: React.FC = () => {
                 </label>
                 <label className="space-y-1">
                   <span className="text-[10px] font-bold uppercase text-ink-faint">Auto-accept under (optional)</span>
-                  <input
-                    type="number"
+                  <MoneyInput
+                    allowCents
                     value={guardrails.autoAcceptUnderOtd}
-                    onChange={(e) => setGuardrails((g) => ({ ...g, autoAcceptUnderOtd: e.target.value }))}
+                    onValueChange={(v) => setGuardrails((g) => ({ ...g, autoAcceptUnderOtd: v }))}
                     placeholder="Never, unless set"
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />
                 </label>
                 <label className="space-y-1">
                   <span className="text-[10px] font-bold uppercase text-ink-faint">Fair-mid estimate (optional)</span>
-                  <input
-                    type="number"
+                  <MoneyInput
+                    allowCents
                     value={guardrails.fairOtdMid}
-                    onChange={(e) => setGuardrails((g) => ({ ...g, fairOtdMid: e.target.value }))}
+                    onValueChange={(v) => setGuardrails((g) => ({ ...g, fairOtdMid: v }))}
                     placeholder="Hold for more quotes under this"
                     className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-mono text-white focus:border-brand-500 focus:outline-none"
                   />

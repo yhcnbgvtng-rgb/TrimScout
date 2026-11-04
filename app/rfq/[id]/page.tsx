@@ -41,6 +41,7 @@ import { isQuoteComplete, quoteMatchesLockedSpec } from "@/lib/rfqLogic";
 import { NON_BINDING_COPY } from "@/lib/quotePackage";
 import { formatFactoryOptionLine } from "@/lib/fordCompetitionUi";
 import { formatCurrency } from "@/lib/otdCalculator";
+import { MoneyInput } from "@/components/MoneyInput";
 
 interface DraftFee {
   label: string;
@@ -110,10 +111,10 @@ function QuoteIntakeForm({
       <div className="grid grid-cols-2 gap-2">
         <label className="space-y-1">
           <span className="text-[10px] font-bold uppercase text-ink-light">Price (before fees)</span>
-          <input
-            type="number"
+          <MoneyInput
+            allowCents
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onValueChange={setPrice}
             className="w-full rounded-lg border border-border bg-surface py-2 px-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"
           />
         </label>
@@ -139,10 +140,10 @@ function QuoteIntakeForm({
               placeholder="Fee label"
               className="flex-1 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />
-            <input
-              type="number"
+            <MoneyInput
+              allowCents
               value={f.amount}
-              onChange={(e) => updateFee(i, "amount", e.target.value)}
+              onValueChange={(v) => updateFee(i, "amount", v)}
               placeholder="Amount"
               className="w-28 rounded-lg border border-border bg-surface py-1.5 px-2.5 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none"
             />

@@ -4,6 +4,7 @@ import React from "react";
 import { CONDITION_CHIP_KEYS, chipLabel, DECLINE_CODE_LIST } from "../../lib/trade/confirm";
 import { liveEquity, type TradeFormState } from "../../lib/trade/dealerForm";
 import { APPRAISAL_BASES, BASIS_COPY, BASIS_LABELS, TRADE_ESTIMATE_COPY, type TradeInRecord } from "../../lib/trade/types";
+import { MoneyInput } from "../MoneyInput";
 
 const input = "w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-white placeholder-ink-faint focus:border-brand-500 focus:outline-none tabular-nums";
 const label = "block text-[10px] font-bold uppercase tracking-wide text-ink-faint";
@@ -44,9 +45,9 @@ export function TradeAllowanceFields({ state, set, trade, needsOutlierConfirm }:
             {(["single", "range"] as const).map((m) => <button key={m} type="button" role="radio" aria-checked={state.shape === m} onClick={() => set({ shape: m })} className={`rounded-lg border px-3 py-1.5 text-xs font-bold ${state.shape === m ? "border-brand-500 bg-brand-500/10 text-white" : "border-border text-ink-light"}`}>{m === "single" ? "One number" : "Low / high range"}</button>)}
           </div>
           {state.shape === "single" ? (
-            <label className="block space-y-1"><span className={label}>Trade allowance ($) <span className="text-rose-300">*</span></span><input inputMode="decimal" value={state.single} onChange={(e) => set({ single: e.target.value })} className={input} aria-label="Trade allowance" data-testid="allowance-single" /></label>
+            <label className="block space-y-1"><span className={label}>Trade allowance ($) <span className="text-rose-300">*</span></span><MoneyInput allowCents value={state.single} onValueChange={(v) => set({ single: v })} className={input} aria-label="Trade allowance" data-testid="allowance-single" /></label>
           ) : (
-            <div className="grid grid-cols-2 gap-3"><label className="space-y-1"><span className={label}>Low ($) <span className="text-rose-300">*</span></span><input inputMode="decimal" value={state.low} onChange={(e) => set({ low: e.target.value })} className={input} aria-label="Allowance low" data-testid="allowance-low" /></label><label className="space-y-1"><span className={label}>High ($) <span className="text-rose-300">*</span></span><input inputMode="decimal" value={state.high} onChange={(e) => set({ high: e.target.value })} className={input} aria-label="Allowance high" data-testid="allowance-high" /></label></div>
+            <div className="grid grid-cols-2 gap-3"><label className="space-y-1"><span className={label}>Low ($) <span className="text-rose-300">*</span></span><MoneyInput allowCents value={state.low} onValueChange={(v) => set({ low: v })} className={input} aria-label="Allowance low" data-testid="allowance-low" /></label><label className="space-y-1"><span className={label}>High ($) <span className="text-rose-300">*</span></span><MoneyInput allowCents value={state.high} onValueChange={(v) => set({ high: v })} className={input} aria-label="Allowance high" data-testid="allowance-high" /></label></div>
           )}
           {state.shape === "range" ? <p className="text-[10px] text-ink-faint">The buyer compares at the midpoint and sees your range. If they pick you, you&apos;ll confirm one number.</p> : null}
           <fieldset className="space-y-1.5"><legend className={label}>Valuation basis</legend>

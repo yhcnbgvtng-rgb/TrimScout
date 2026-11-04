@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { X, Camera, Loader2, CheckCircle2, Trash2 } from "lucide-react";
 import { TRADE_IN_PHOTO_ANGLES, type TradeInPhoto, type TradeInSubmission, type TradeInVehicle } from "../lib/types";
 import { compressPhotoForTradeIn } from "../lib/tradeInPhotos";
+import { MoneyInput } from "./MoneyInput";
 
 interface TradeInSubmissionModalProps {
   isOpen: boolean;
@@ -136,7 +137,7 @@ export const TradeInSubmissionModal: React.FC<TradeInSubmissionModalProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <label className="space-y-1"><span className={label}>Mileage</span><input className={field} inputMode="numeric" value={mileage} onChange={(e) => setMileage(e.target.value.replace(/\D/g, "").slice(0, 7))} placeholder="48,000" /></label>
               <label className="space-y-1"><span className={label}>VIN (optional)</span><input className={`${field} font-mono`} maxLength={17} value={vin} onChange={(e) => setVin(e.target.value.toUpperCase())} placeholder="17 characters" /></label>
-              <label className="space-y-1"><span className={label}>Loan payoff (if any)</span><input className={field} inputMode="numeric" value={loanPayoff} onChange={(e) => setLoanPayoff(e.target.value.replace(/[^\d]/g, ""))} placeholder="0" /></label>
+              <label className="space-y-1"><span className={label}>Loan payoff (if any)</span><MoneyInput className={field} value={loanPayoff} onValueChange={setLoanPayoff} placeholder="0" /></label>
             </div>
             <div className="space-y-1">
               <span className={label}>Condition</span>

@@ -32,6 +32,7 @@ import {
   Car,
   Info
 } from "lucide-react";
+import { MoneyInput } from "./MoneyInput";
 
 interface DealerInventoryOption {
   vin: string;
@@ -1141,10 +1142,10 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint font-bold">$</span>
-                    <input
-                      type="number"
+                    <MoneyInput
+                      allowCents
                       value={rebates}
-                      onChange={(e) => setRebates(Number(e.target.value))}
+                      onValueChange={(v) => setRebates(Number(v))}
                       className="w-full rounded-xl border border-border bg-background py-2 pl-9 pr-3 text-sm text-white font-bold focus:border-brand-500 focus:outline-none"
                     />
                   </div>
@@ -1205,10 +1206,10 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                       <span>Committed Trade-In Allowance ($):</span>
                       <div className="relative w-36">
                         <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-faint" />
-                        <input
-                          type="number"
+                        <MoneyInput
+                          allowCents
                           value={tradeInAllowance}
-                          onChange={(e) => setTradeInAllowance(Number(e.target.value))}
+                          onValueChange={(v) => setTradeInAllowance(Number(v))}
                           className="w-full rounded-lg border border-border bg-background py-1.5 pl-7 pr-2 text-xs font-bold text-white focus:border-brand-500 focus:outline-none"
                         />
                       </div>
