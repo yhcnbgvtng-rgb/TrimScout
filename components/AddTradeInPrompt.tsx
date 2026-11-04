@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import type { RfqRequest } from "../lib/rfq";
-import { needsTradePrompt, TRADE_PROMPT_COPY } from "../lib/acceptTrade";
+import { needsTradePrompt, tradeAttachable, TRADE_PROMPT_COPY } from "../lib/acceptTrade";
+import { tradeInAnswerOf } from "../lib/tradeInAnswer";
 import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
@@ -15,13 +16,24 @@ const wasDismissed = (rfqId: string) => { try { return localStorage.getItem(dism
  * Cash / Finance and Lease both use it; the routes do the rest (lib/acceptTrade.ts).
  */
 export function AddTradeInPrompt({ rfq, headers, defaultZip, onRfq }: { rfq: RfqRequest; headers: Record<string, string>; defaultZip?: string | null; onRfq: (r: RfqRequest) => void }) {
-  const deal = needsTradePrompt(rfq);
+  // A buyer who answered "No" in the wizard is not prompted, but can still add a trade-in from the deal: a quiet link opens the form.
+  const [forced, setForced] = useState(false);
+  const attachable = tradeAttachable(rfq);
+  const saidNo = tradeInAnswerOf(rfq) === "none";
+  const deal = needsTradePrompt(rfq) ?? (forced ? attachable : null);
   const [step, setStep] = useState<TradeStepState>({ ready: false, draftId: null, token: null, firstError: null });
   const [attempted, setAttempted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [skipped, setSkipped] = useState(() => (typeof window === "undefined" ? false : wasDismissed(rfq.id)));
-  if (!deal || (skipped && !deal.tradeStageOpen)) return null;
+  if (!deal && attachable && saidNo) {
+    return (
+      <p className="text-[11px] text-ink-muted" data-testid="trade-prompt-add-later">
+        No trade-in on this quote request. <button type="button" onClick={() => setForced(true)} className="font-bold text-brand-400 underline hover:text-brand-300" data-testid="trade-prompt-add-anyway">Add a trade-in</button>
+      </p>
+    );
+  }
+  if (!deal || (skipped && !forced && !deal.tradeStageOpen)) return null;
 
   const post = async (url: string, body: unknown) => {
     setBusy(true); setError(null);
@@ -52,6 +64,7 @@ export function AddTradeInPrompt({ rfq, headers, defaultZip, onRfq }: { rfq: Rfq
       if (json) onRfq(json.rfq);
       return;
     }
+    if (forced) { setForced(false); return; }
     try { localStorage.setItem(dismissKey(rfq.id), "1"); } catch { /* private mode: dismissed for this view only */ }
     setSkipped(true);
   };

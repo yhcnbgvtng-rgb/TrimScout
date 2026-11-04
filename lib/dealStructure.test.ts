@@ -107,19 +107,19 @@ describe("BiddingWizard — Step 1 vehicle; Step 2 payment only; Step 3 quote fo
     assert.match(src, /const paymentChosen = Boolean\(quoteType\) && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /if \(step === 2 && !paymentChosen\) return;/);
     assert.match(src, /if \(step === 3 && \(!quoteSetupComplete \|\| confirmedDeskCount === 0 \|\| dealCommentContactWarning\)\) return;/);
-    // Trade toggle on: Continue waits for the details AND all six required photos, and points at what's missing.
-    assert.match(src, /if \(step === 3 && tradeInExpected && !tradeStep\.ready\) \{ setTradeAttempted\(true\); return; \}/);
+    // Trade-in question: Continue needs an answer, and "Yes" also waits for the details AND all six required photos.
+    assert.match(src, /const block = tradeInBlocksContinue\(tradeAnswer, tradeStep\.ready\);/);
     // Every lock must be set: the gate is "nothing missing", and the empty state names what is.
     assert.match(src, /const quoteSetupComplete = Boolean\(quoteType\) && missingLocks\.length === 0 && !\(quoteType === "lease" && isUsed\);/);
     assert.match(src, /quoteType === "finance"\s*\? missingFinanceLocks\(\{ termMonths: financeTerm, downPayment, creditBand, zip: huntZip \}\)/);
     assert.match(src, /quoteType === "cash"\s*\? zipOk \? \[\] : \["ZIP"\]\s*: \[\]/);
     assert.match(step2, /data-testid="missing-locks"/);
     assert.match(step2, /data-testid="missing-contact"/);
-    // Step 3 ends with "Do you have a trade-in?" (Yes opens the existing TradeInStep, Skip sends no trade data); unanswered = null.
+    // Step 3 asks "Do you have a trade-in?" (Yes opens the existing TradeInStep, later/No send no trade data); unanswered = null.
     assert.match(step2, /data-testid="trade-question"/);
     assert.match(step2, /<TradeInStep enabled hideToggle/);
-    assert.match(src, /useState<boolean \| null>\(null\);/);
-    assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,\s*tradeInExpected,\s*\/\/[^\n]*\n\s*tradeIn: tradeInExpected && tradeStep\.draftId \? \{ enabled: true, draftId: tradeStep\.draftId, token: tradeStep\.token \} : \{ enabled: false \},/);
+    assert.match(src, /useState<TradeInAnswer \| null>\(null\);/);
+    assert.match(src, /buyerNote: dealComment\.trim\(\) \|\| null,\s*tradeInExpected: tradeInExpectedFor\(tradeAnswer\),\s*\/\/[^\n]*\n\s*tradeIn: tradeAnswer === "now" && tradeStep\.draftId \? \{ enabled: true, draftId: tradeStep\.draftId, token: tradeStep\.token \} : \{ enabled: false \},/);
     assert.match(src, /TOTAL_STEPS = 4/);
   });
 

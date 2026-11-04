@@ -62,8 +62,9 @@ async function toStep4(t: Awaited<ReturnType<typeof open>>) {
   const zip = Array.from(t.doc.querySelectorAll<HTMLInputElement>("input")).find((i) => i.inputMode === "numeric" && i.maxLength === 5) || t.doc.querySelector<HTMLInputElement>('input[inputmode="numeric"]');
   assert.ok(zip, "ZIP field");
   await t.type(zip!, "08822");
-  const skip = Array.from(t.doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim() === "Skip" && !b.closest(".quote-intro"));
-  if (skip) await t.click(skip);
+  // Step 3 now needs an answer to "Do you have a trade-in?": No.
+  const no = t.doc.querySelector<HTMLButtonElement>('[data-testid="trade-no"]');
+  if (no) await t.click(no);
   await t.click(t.button("Continue"));
   await t.settle(30);
 }

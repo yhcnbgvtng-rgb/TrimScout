@@ -217,8 +217,9 @@ describe("the Add your trade-in prompt", () => {
     const r = applyStageAction(initialStageState({ tradeInExpected: tradeExpected }), { type: "accept_otd", actor: "buyer" }, { otdAmount: 43749 });
     assert.equal(r.ok, true); return (r as { ok: true; state: DealStageState }).state;
   };
-  const staged = (over: Partial<RfqRequest> = {}, stage = lockedStage(false)) => rfqOf([mk("1", "Winner Toyota", { stage }), mk("2", "Loser A")], { quotePrefs: { quoteType: "cash", staged: true, cash: { zip: "07405", timeline: "this_month" } } as never, ...over });
-  const lease = (over: Partial<RfqRequest> = {}) => rfqOf([mk("1", "Winner Toyota"), mk("2", "Loser A")], { status: "picked", pickedQuoteId: "q1", leasePrefs: { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "this_month" } as never, quotePrefs: null, ...over });
+  // tradeInExpected: null = a request from before the question existed (prompted). An explicit "No" is false and is tested below.
+  const staged = (over: Partial<RfqRequest> = {}, stage = lockedStage(false)) => rfqOf([mk("1", "Winner Toyota", { stage }), mk("2", "Loser A")], { tradeInExpected: null, quotePrefs: { quoteType: "cash", staged: true, cash: { zip: "07405", timeline: "this_month" } } as never, ...over });
+  const lease = (over: Partial<RfqRequest> = {}) => rfqOf([mk("1", "Winner Toyota"), mk("2", "Loser A")], { status: "picked", pickedQuoteId: "q1", tradeInExpected: null, leasePrefs: { termMonths: 36, milesPerYear: 10000, zip: "07405", timeline: "this_month" } as never, quotePrefs: null, ...over });
 
   it("Cash / Finance: appears once the OTD is locked, with the accepted number; not before", () => {
     assert.equal(needsTradePrompt(staged({}, initialStageState({}))), null);
@@ -253,7 +254,7 @@ describe("the Add your trade-in prompt", () => {
   it("is mounted on the buyer's request page, and the attach route needs an accepted deal and a complete draft", () => {
     assert.match(read("app/rfq/[id]/page.tsx"), /<AddTradeInPrompt rfq=\{rfq\}/);
     const route = read("app/api/rfqs/[id]/trade-in/route.ts");
-    assert.match(route, /needsTradePrompt\(rfq\)/); assert.match(route, /prepareTradeForRfq/); assert.match(route, /type: "add_trade"/);
+    assert.match(route, /tradeAttachable\(rfq\)/); assert.match(route, /prepareTradeForRfq/); assert.match(route, /type: "add_trade"/);
   });
   it("the winner is asked for a value: staged gets the add_trade notice, lease gets the trade-added notice, both SAFE MODE", () => {
     const st = applyStageAction(lockedStage(false), { type: "add_trade", actor: "buyer" }, { hasTradeInOnFile: true });

@@ -10,6 +10,7 @@ import type { RfqRequest } from "./rfq";
 import { alternateAskSummary } from "./alternateAsk";
 import { SAFE_MODE_ACTIVE, SAFE_MODE_HELD_COPY } from "./safeMode";
 import { vehicleTitle } from "./vehicleTitle";
+import { tradeInIsExpected } from "./tradeInAnswer";
 
 /** One pasted car as the package recorded it (rfq.linkPastes rows). */
 export interface RfqPasteVehicle {
@@ -109,7 +110,7 @@ export const RFQ_LIFECYCLE: ReadonlyArray<{ id: RfqLifecycleStage; label: string
 /** The buyer-facing promise while an admin checks the request. */
 export const UNDER_REVIEW_COPY = "Under review — released to dealers within 1 business day.";
 
-type LifecycleRfq = Pick<RfqRequest, "status" | "invites"> & Partial<Pick<RfqRequest, "approvalStatus" | "rejectionReason" | "adminEdits" | "tradeInExpected">>;
+type LifecycleRfq = Pick<RfqRequest, "status" | "invites"> & Partial<Pick<RfqRequest, "approvalStatus" | "rejectionReason" | "adminEdits" | "tradeInExpected" | "tradeIn">>;
 
 /** True while the request waits on (or was refused by) the admin gate; pre-gate rows read as released. */
 export function rfqAwaitingApproval(rfq: Pick<RfqRequest, "approvalStatus">): boolean {
@@ -133,7 +134,7 @@ export function rfqLifecycleStage(rfq: LifecycleRfq): RfqLifecycleStage {
   // door price, so it's the last step before walk/pick), otherwise it reads as
   // "responses received" until the buyer picks one or walks away.
   if (!rfq.invites.some((i) => i.quote)) return "awaiting";
-  return rfq.tradeInExpected ? "trade_in_evaluation" : "responses_received";
+  return tradeInIsExpected(rfq) ? "trade_in_evaluation" : "responses_received";
 }
 
 /** One line under the strip: what's actually happening at this stage. */

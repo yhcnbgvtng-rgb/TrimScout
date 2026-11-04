@@ -115,18 +115,19 @@ describe("dealer email wording", () => {
 
 describe("wizard question", () => {
   const src = fs.readFileSync(new URL("../../components/BiddingWizard.tsx", import.meta.url), "utf8");
-  it("asks 'Do you have a trade-in?' with Yes and Skip as the last thing in step 3, ahead of Review & Send", () => {
+  it("asks 'Do you have a trade-in?' early in step 3, before the dealer list, with three answers", () => {
     const q = src.indexOf('title="Do you have a trade-in?"');
-    assert.ok(q > src.indexOf('title="Note to the dealer"'), "after the dealer note");
+    assert.ok(q > 0 && q < src.indexOf("<QuoteFormatMatrix"), "before the matrix that holds the dealer list");
+    assert.ok(q < src.indexOf('data-testid="dealer-contact-list"'), "before the dealer list");
     assert.ok(q < src.indexOf("{/* STEP 4: REVIEW & BROADCAST"), "before step 4");
-    assert.match(src, /data-testid=\{id\}/);
-    assert.match(src, /\["trade-yes"|"trade-yes"/);
-    assert.match(src, /"trade-skip"/);
+    for (const id of ["trade-yes", "trade-later", "trade-no"]) assert.match(src, new RegExp(`"${id}"`));
+    assert.match(src, /"Skip, add later"/);
+    assert.match(src, /hint="Required\./);
   });
-  it("Yes opens the existing TradeInStep form (no new form), Skip clears it, and Continue waits for a complete trade", () => {
-    assert.match(src, /\{tradeInExpected \? \(\s*<div className="mt-4">\s*<TradeInStep enabled hideToggle/);
-    assert.match(src, /if \(!val\) setTradeAttempted\(false\)/);
-    assert.match(src, /if \(step === 3 && tradeInExpected && !tradeStep\.ready\) \{ setTradeAttempted\(true\); return; \}/);
+  it("Yes opens the existing TradeInStep form (no new form) and Continue waits for a complete trade", () => {
+    assert.match(src, /\{tradeAnswer === "now" \? \(\s*<div className="mt-4">\s*<TradeInStep enabled hideToggle/);
+    assert.match(src, /tradeInBlocksContinue\(tradeAnswer, tradeStep\.ready\)/);
+    assert.match(src, /if \(block === "incomplete"\) \{ setTradeAttempted\(true\); return; \}/);
   });
   it("uses quote request wording, not bid", () => {
     const section = src.slice(src.indexOf('title="Do you have a trade-in?"'), src.indexOf("{/* STEP 4: REVIEW & BROADCAST"));

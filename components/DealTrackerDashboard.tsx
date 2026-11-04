@@ -18,6 +18,7 @@ import { evaluateOfferClock } from "../lib/offerCloseClock";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import { vehicleTitle } from "../lib/vehicleTitle";
+import { tradeInIsExpected } from "../lib/tradeInAnswer";
 import {
   Zap,
   Building2,
@@ -165,7 +166,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                 className={`rounded-2xl border bg-surface p-5 space-y-3 ${focused ? "border-brand-500/60 shadow-lg shadow-brand-500/10" : "border-border"}`}
                 data-testid={focused ? "quote-request-focused" : undefined}
               >
-                <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} showTradeIn={rfq.tradeInExpected === true} />
+                <QuoteStatusStrip stage={rfqLifecycleStage(rfq)} detail={rfqLifecycleDetail(rfq)} showTradeIn={tradeInIsExpected(rfq)} />
                 <UnsubscribedBanner rfq={rfq} onChooseAnother={onChooseAnother} />
                 {rfq.approvalStatus === "rejected" ? (
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-500/40 bg-rose-950/30 px-3 py-2" data-testid="rfq-rejected">

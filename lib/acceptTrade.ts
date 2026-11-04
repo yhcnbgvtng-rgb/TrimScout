@@ -9,6 +9,7 @@
  */
 import type { RfqInvite, RfqRequest } from "./rfq";
 import { isStagedRfq, stageOf } from "./dealStages";
+import { tradeInAnswerOf } from "./tradeInAnswer";
 
 export interface AcceptedDeal {
   /** The dealer whose offer the buyer accepted. */
@@ -36,8 +37,11 @@ export function acceptedDeal(rfq: Pick<RfqRequest, "status" | "pickedQuoteId" | 
   return invite ? { invite, kind: rfq.leasePrefs ? "lease" : "cash_finance", lockedOtd: null, tradeStageOpen: false } : null;
 }
 
-/** True when the buyer should be asked to add a trade-in: they accepted, and there is no trade-in on the request. */
-export function needsTradePrompt(rfq: Parameters<typeof acceptedDeal>[0] & Pick<RfqRequest, "tradeIn">): AcceptedDeal | null {
+/**
+ * The accepted deal a trade-in can still be attached to: they accepted, there is no trade-in on the request, and the deal
+ * is not too far along. Whatever the buyer answered in the wizard, they can add a trade here (the add route uses this).
+ */
+export function tradeAttachable(rfq: Parameters<typeof acceptedDeal>[0] & Pick<RfqRequest, "tradeIn">): AcceptedDeal | null {
   if (rfq.tradeIn) return null;
   const deal = acceptedDeal(rfq);
   if (!deal) return null;
@@ -47,6 +51,16 @@ export function needsTradePrompt(rfq: Parameters<typeof acceptedDeal>[0] & Pick<
     if (!st || st.stage === "closed" || st.payment.financeRequestedAt || st.payment.method) return null;
   }
   return deal;
+}
+
+/**
+ * True when the buyer should be ASKED to add a trade-in after accepting: attachable, and they did not answer "No" in the
+ * wizard. "Skip, add later" (tradeInExpected true) and requests from before the question (null) are asked; a buyer who
+ * said "No" is not, but can still add one from the deal (see tradeAttachable and AddTradeInPrompt).
+ */
+export function needsTradePrompt(rfq: Parameters<typeof acceptedDeal>[0] & Pick<RfqRequest, "tradeIn">): AcceptedDeal | null {
+  if (tradeInAnswerOf(rfq) === "none") return null;
+  return tradeAttachable(rfq);
 }
 
 /** The OTD stays what the buyer accepted: nothing in the trade-in step may change it. */
