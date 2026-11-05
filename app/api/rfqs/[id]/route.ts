@@ -5,7 +5,6 @@ import { buyerForRfq, hasBuyerCredential } from "@/lib/buyerAccess";
 import { publicRfqForBuyer } from "@/lib/rfq";
 import { analyzeLeaseQuotes } from "@/lib/leaseCompare";
 import { recheckPendingStickers } from "@/lib/stickerRecheck";
-import { drainQueuedInvites, queuedInvitesOf } from "@/lib/inviteOutbox";
 import { settleAndCloseOut, sweepIfDue } from "@/lib/trade/confirmFlow";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -36,10 +35,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const pub = publicRfqForBuyer(rfq);
     // Pending factory stickers (Hyundai lists weeks before the label exists) are asked again on every open.
     const stickerRecheck = await recheckPendingStickers(rfq).catch(() => ({}));
-    // Anything still queued (a killed send, a provider blip, the switch having
-    // been off) goes out after this response — the buyer opening the deal is
-    // the retry, no cron required.
-    if (queuedInvitesOf(rfq).length) after(() => drainQueuedInvites([rfq]).catch(() => null));
+    // Reading a deal never sends dealer email. Anything still queued (a killed send, a provider blip, the switch
+    // having been off) goes out only through the explicit, authorized paths: the admin release, POST
+    // /api/admin/rfqs/:id/send-queued, or the ops drain.
     return NextResponse.json({ rfq: pub, leaseCompare: analyzeLeaseQuotes(pub), stickerRecheck });
   } catch (err) {
     const message = err instanceof RfqApiError ? err.message : "Could not load this request.";

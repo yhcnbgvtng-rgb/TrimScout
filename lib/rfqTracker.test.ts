@@ -103,9 +103,9 @@ describe("wiring — send lands in My Deal Tracker; the deal page carries the sh
   const tracker = read("components/DealTrackerDashboard.tsx");
   const detail = read("app/rfq/[id]/page.tsx");
 
-  it("a package with ≥1 desk sent hands off to the host; all-blocked stays on the wizard with the reasons", () => {
-    assert.match(wizard, /if \(onQuoteRequestSent && sentRows\.some\(\(r\) => r\.sent\)\) \{[\s\S]*?onQuoteRequestSent\(\{ rfqId, rows: sentRows, trackerPath \}\);\s*return;/);
-    assert.match(wizard, /setSentPackage\(\{ rfqId, rows, trackerPath \}\);/);
+  it("a package where EVERY vehicle got an invitation hands off to the host; a partial or all-blocked one stays on the wizard with counts and each vehicle's reason", () => {
+    assert.match(wizard, /if \(onQuoteRequestSent && fullSuccess\) \{[\s\S]*?onQuoteRequestSent\(\{ rfqId, rows: sentRows, trackerPath \}\);\s*return;/);
+    assert.match(wizard, /setSentPackage\(\{\s*rfqId,[\s\S]*?vehicleRows: vRows,/);
     assert.match(page, /onQuoteRequestSent=\{\(sent\) => \{[\s\S]*?setFocusRfqId\(sent\.rfqId\);[\s\S]*?setCurrentView\("track_deals"\);/);
   });
 

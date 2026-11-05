@@ -119,7 +119,8 @@ describe("dealer email is a queue — built from stored state, sent after the re
     assert.match(create, /r\.status === "collecting" && r\.vin === String\(body\.vin \|\| ""\)\.trim\(\)\.toUpperCase\(\)/);
     assert.match(create, /idempotent: true/);
     const deal = read("app/api/rfqs/[id]/route.ts");
-    assert.match(deal, /after\(\(\) => drainQueuedInvites\(\[rfq\]\)/);
+    // Reading a deal never sends dealer email any more (selectionOutcomes.test.ts pins the explicit admin retry route).
+    assert.doesNotMatch(deal, /drainQueuedInvites/);
     assert.match(read("app/api/auth/signup/route.ts"), /"signup_ip"[\s\S]*?"signup_global"/);
     assert.match(read("components/BiddingWizard.tsx"), /fetch\("\/api\/status\/features"\)/);
     assert.match(read("components/BiddingWizard.tsx"), /disabled=\{isSubmittingReal \|\| !!dealCommentContactWarning \|\| !featureStatus\.rfqSend\}/);

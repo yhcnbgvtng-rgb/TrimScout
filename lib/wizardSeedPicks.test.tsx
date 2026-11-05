@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { after, before, describe, it } from "node:test";
 import { JSDOM } from "jsdom";
-import { toPick } from "./buyerPicks";
+import { PICK_WARNING_COPY, pickWarnings, toPick } from "./buyerPicks";
 import { QUOTE_SEED_KEY, QUOTE_SEED_LANE, seedDealersFrom, takeQuoteSeed, writeQuoteSeed } from "./quoteSeed";
 
 const NEW_VINS = ["2T36CRAV0TW113785", "2T36CRAV1TC046311", "2T36CRAV1TC046373"];
@@ -145,10 +145,20 @@ describe("buyer search seed -> Step 1", () => {
       assert.doesNotMatch(text, /Search dealerships/);
     });
 
-    it("two picks at the same dealer list that dealer once", async () => {
-      const text = await run([row(NEW_VINS[0], "new", "a"), row(NEW_VINS[1], "new", "a"), row(NEW_VINS[2], "new", "b")], true);
-      assert.equal((text.match(/Dealer a/g) || []).length, 1, "Dealer a is listed once");
-      assert.ok(text.includes("Dealer b"));
+    it("two picks at the same store: the store is one desk, the later car is left out by the one-car-per-store rule (warned before the click), and the review lists the cars that made the request", async () => {
+      const picks = [row(NEW_VINS[0], "new", "a"), row(NEW_VINS[1], "new", "a"), row(NEW_VINS[2], "new", "b")];
+      // The rule is stated up front, on the picks bar, before anything is dropped.
+      assert.ok(pickWarnings(picks).includes(PICK_WARNING_COPY.sameDealer));
+      const text = await run(picks, true, false);
+      // The pre-submit review (PR #700) lists each car in the request with its store, so the store's name appears there too.
+      const review = text.match(/\d+ vehicles? selected[\s\S]*?Anything blocked then is listed with its reason\./)?.[0] ?? "";
+      assert.ok(review, "the pre-submit review is shown");
+      const desks = text.replace(review, "");
+      assert.equal((desks.match(/Dealer a/g) || []).length, 1, "the store is listed once as a desk");
+      assert.ok(desks.includes("Dealer b"));
+      assert.ok(review.includes(NEW_VINS[0]) && review.includes(NEW_VINS[2]), "the cars that made the request are each accounted for");
+      assert.ok(!review.includes(NEW_VINS[1]), "the later car at the same store was left out, as the warning said, not half-listed");
+      assert.equal((review.match(/\d+ vehicles? selected/g) || []).length, 1);
     });
 
     for (const [label, vins, cond] of [["new", NEW_VINS, "new"], ["used", USED_VINS, "used"]] as const) {

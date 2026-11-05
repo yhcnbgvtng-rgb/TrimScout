@@ -15,6 +15,8 @@ import { isStagedRfq } from "../../../lib/dealStages";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { rfqVehicles } from "@/lib/rfqTracker";
+import { selectionApplies, vehicleRows } from "@/lib/selectionOutcomes";
+import { SelectionOutcomes } from "@/components/SelectionOutcomes";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -586,6 +588,7 @@ export default function RfqWorkspacePage() {
 
         </>
       ) : null}
+      {selectionApplies(rfq) ? <SelectionOutcomes rows={vehicleRows(rfq)} /> : null}
       <details className="group rounded-2xl border border-border bg-surface" open={!hasQuotes} data-testid="request-details">
         <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-5 py-3.5">
           <span className="text-sm font-bold text-white">Request details</span>

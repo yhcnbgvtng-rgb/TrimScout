@@ -148,10 +148,10 @@ describe("wiring — the send route feeds the one template", () => {
     const r = read("app/api/rfqs/[id]/invites/route.ts");
     assert.doesNotMatch(r, /quoteInviteHtml\(|paymentLabel|formatDealStructures/);
   });
-  it("wizard sends buyerZip + finance prefs with each invite; dealer landing for a new-car cash/finance request points at log in / sign up", () => {
+  it("the wizard sends only per-vehicle choices (no ZIP or finance prefs: the email is built from the stored request); dealer landing for a new-car cash/finance request points at log in / sign up", () => {
     const w = read("components/BiddingWizard.tsx");
-    assert.match(w, /buyerZip: zipOk \? huntZip : null,/);
-    assert.match(w, /financePrefs:\s*quoteType === "finance"\s*\? \{ termMonths: financeTerm \|\| 60, downPayment/);
+    assert.match(w, /selection-invites`/);
+    assert.doesNotMatch(w.slice(w.indexOf("selection-invites`"), w.indexOf("selection-invites`") + 900), /buyerZip|financePrefs/);
     const page = read("app/quote-request/received/page.tsx");
     assert.match(page, /data-testid="login-to-quote"/);
     assert.match(page, /href="\/\?login=1"/);

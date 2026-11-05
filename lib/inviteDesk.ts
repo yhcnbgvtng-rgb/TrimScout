@@ -90,8 +90,13 @@ export async function resolveAdminInviteDesk(rfq: RfqRequest, input: { dealerNam
 }
 
 /** The vehicle this desk quotes, from the package's own pastes (or the request's headline car). */
-export function inviteVehicleFor(rfq: RfqRequest, dealerName: string) {
-  const paste = (rfq.linkPastes || []).find((p) => typeof p.dealerName === "string" && p.dealerName.trim().toLowerCase() === dealerName.trim().toLowerCase()) as Record<string, unknown> | undefined;
+export function inviteVehicleFor(rfq: RfqRequest, dealerName: string, vin?: string | null) {
+  const pastes = (rfq.linkPastes || []) as Array<Record<string, unknown>>;
+  const wanted = (vin || "").trim().toUpperCase();
+  // The vehicle the caller means wins; otherwise the first paste at that dealership (the older, name-only rule).
+  const paste =
+    (wanted ? pastes.find((p) => typeof p.vin === "string" && p.vin.trim().toUpperCase() === wanted) : undefined) ||
+    pastes.find((p) => typeof p.dealerName === "string" && p.dealerName.trim().toLowerCase() === dealerName.trim().toLowerCase());
   return paste
     ? {
         vin: String(paste.vin || rfq.vin),
@@ -105,13 +110,13 @@ export function inviteVehicleFor(rfq: RfqRequest, dealerName: string) {
 }
 
 /** Queue the invite on the box (409 → desk_already_invited). Nothing is sent here. */
-export async function queueInvite(rfq: RfqRequest, dealerName: string, desk: DealerDesk | null, fallbackEmail?: string | null): Promise<{ ok: true; invite: RfqInvite } | { ok: false; code: InviteBlockReason; error: string; status: number }> {
+export async function queueInvite(rfq: RfqRequest, dealerName: string, desk: DealerDesk | null, fallbackEmail?: string | null, vin?: string | null): Promise<{ ok: true; invite: RfqInvite } | { ok: false; code: InviteBlockReason; error: string; status: number }> {
   try {
     const invite = await createRfqInvite(rfq.id, {
       dealerName,
       dealerContactEmail: desk ? desk.email || null : fallbackEmail || null,
       desk: desk ? { contactName: desk.contactName, role: desk.role, emailMasked: maskEmail(desk.email), source: desk.source } : undefined,
-      vehicle: inviteVehicleFor(rfq, dealerName),
+      vehicle: inviteVehicleFor(rfq, dealerName, vin),
     });
     return { ok: true, invite };
   } catch (err) {

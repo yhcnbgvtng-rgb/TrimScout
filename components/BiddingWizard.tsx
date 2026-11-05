@@ -106,6 +106,10 @@ import {
 } from "lucide-react";
 import { filterMustHaveOptions, formatOptionPrice, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import { vehicleTitle } from "../lib/vehicleTitle";
+import type { VehicleRow } from "../lib/selectionOutcomes";
+import { SelectionOutcomes } from "./SelectionOutcomes";
+import { SelectionPreview } from "./SelectionPreview";
+import { planSelectionPreview } from "../lib/selectionPreview";
 import { repairVehicleIdentity } from "../lib/rfqVehicle";
 import { MoneyInput } from "./MoneyInput";
 
@@ -1522,8 +1526,10 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     })
     .filter((target): target is NonNullable<typeof target> => Boolean(target))
   ).filter(
+      // One row per desk (dealer id, else name + state). Name alone merged two same-named stores in different states into
+      // one row, and the second store's car then had no tick and was left out without a word.
       (target, index, all) =>
-        all.findIndex((other) => other.dealerName === target.dealerName) === index
+        all.findIndex((other) => deskKey(other) === deskKey(target)) === index
     );
 
   // Whether each dealership is reachable. Looked up as soon as the vehicles are
@@ -1543,6 +1549,12 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }>;
     /** Guest sends only: the private tracker path (carries the signed link token). */
     trackerPath?: string;
+    /** One row per selected vehicle, from the server's recorded outcomes. */
+    vehicleRows?: VehicleRow[];
+    headline?: string;
+    delivery?: string;
+    /** False when the server could not store the reasons (older box): shown now, not kept. */
+    recorded?: boolean;
   } | null>(null);
   // REQUIRE_BUYER_LOGIN=false: a visitor with no session sends as a guest, identified by this email.
   const requireLogin = useRequireBuyerLogin();
@@ -1594,6 +1606,29 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     const match = importedDealerships.find((d) => d.dealerName === name && d.state === state);
     return match ? deskKey(match) : deskKey({ dealerName: name, state });
   };
+  // Pre-submit review: every selected vehicle, whether it will get an invitation, and why not.
+  const selectionPreviewRows = intent === "alternate" ? [] : planSelectionPreview(
+    [selectedVehicle, altVehicle1, altVehicle2]
+      .filter((v): v is NonNullable<typeof v> => Boolean(v))
+      .map((v) => {
+        const dealerName = v.location?.dealerName?.trim() || null;
+        const key = dealerName ? pasteDeskKey({ dealerName, dealerState: v.location?.state ?? null }) : null;
+        const row = key ? deskPlan.rows[key] : undefined;
+        const desk = key ? quoteDesks[key] : undefined;
+        return {
+          vin: v.vin,
+          title: vehicleTitle(v),
+          dealerName,
+          dealerState: (v.location?.state || "").trim().toUpperCase() || null,
+          deskKey: key,
+          checked: Boolean(row?.checked),
+          optedOut: desk?.blockedReason === "dealer_opted_out",
+          adviserAdded: Boolean(row?.adviserAdded),
+          emailMasked: desk?.emailMasked ?? null,
+        };
+      }),
+    { inviteCap }
+  );
   const gatePlan = deskPlan.gate;
   const confirmedDeskCount = deskPlan.sendTo.length;
   const confirmedOrImportedCount = directOfferMode ? confirmedDeskCount : importedDealerships.length;
@@ -2358,26 +2393,31 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-500/20 text-brand-400">
               <CheckCircle2 className="h-7 w-7" />
             </div>
-            <h2 className="mt-3 text-lg font-black text-white">
-              {sentCount === 0 ? "Nothing was sent" : `Quote request submitted — ${sentCount} desk${sentCount === 1 ? "" : "s"} lined up`}
+            <h2 className="mt-3 text-lg font-black text-white" data-testid="sent-title">
+              {sentCount === 0 ? "No invitations were created" : `Request saved — ${sentCount} of ${sentPackage.rows.length} vehicle${sentPackage.rows.length === 1 ? "" : "s"} invited`}
             </h2>
             <p className="mt-1 text-xs text-ink-muted" data-testid="sent-under-review">
-              {UNDER_REVIEW_COPY} Each desk then replies on its own time — we&apos;ll show every quote as it comes in; pick one, or walk away.
+              {sentCount === 0 ? "Your request is saved, but no dealer has been invited. The reasons are below." : `${UNDER_REVIEW_COPY} Invitations are created, not yet delivered; each desk then replies on its own time.`}
             </p>
           </div>
-          <ul className="space-y-1.5">
-            {sentPackage.rows.map((row) => (
-              <li key={row.dealerName} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface-elevated px-3 py-2">
-                <div className="min-w-0">
-                  <div className="text-[11px] font-semibold text-ink-light">{row.dealerName}</div>
-                  {row.message ? <div className="text-[10px] leading-snug text-ink-muted">{row.message}</div> : null}
-                </div>
-                <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${stageTone(row.stage)}`}>
-                  {row.stage === "blocked" ? "Not sent" : INVITE_STAGE_LABELS[row.stage]}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {sentPackage.vehicleRows ? (
+            <SelectionOutcomes rows={sentPackage.vehicleRows} title="What happened to each vehicle" />
+          ) : (
+            <ul className="space-y-1.5">
+              {sentPackage.rows.map((row) => (
+                <li key={row.dealerName} className="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface-elevated px-3 py-2">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-ink-light">{row.dealerName}</div>
+                    {row.message ? <div className="text-[10px] leading-snug text-ink-muted">{row.message}</div> : null}
+                  </div>
+                  <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${stageTone(row.stage)}`}>
+                    {row.stage === "blocked" ? "Not sent" : INVITE_STAGE_LABELS[row.stage]}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {sentPackage.recorded === false ? <p className="text-[10px] text-amber-200/90" data-testid="outcomes-not-stored">These reasons are shown now but could not be stored with your request yet.</p> : null}
           <div className="rounded-xl border border-border bg-surface-elevated py-3 text-center">
             <div className="text-[10px] font-bold text-ink-faint uppercase tracking-wider">Quote request</div>
             <div className="text-xl font-mono font-black text-brand-400">{dealReference}</div>
@@ -2658,50 +2698,45 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
       const guestToken = trackerPath ? new URL(trackerPath, "http://x").searchParams.get("t") : null;
       if (guestToken) saveGuestToken(rfqId, guestToken);
 
-      // Invites go one at a time so a per-desk or sister-store block on one
-      // never blocks the others, and each row reports its own outcome.
-      const rows: Array<{ dealerName: string; stage: QuoteInviteStage | "blocked"; message?: string }> = [];
-      for (const paste of pastes) {
-        const name = paste.dealerName || "";
-        if (!name || !toSend.includes(paste)) {
-          rows.push({ dealerName: name || paste.vin, stage: "blocked", message: quoteDesks[pasteDeskKey(paste)]?.blockedMessage || "Not sent." });
-          continue;
-        }
-        const r = await fetch(`/api/rfqs/${rfqId}/invites`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...(guestToken ? { "x-guest-token": guestToken } : {}) },
-          body: JSON.stringify({
-            dealerName: name,
-            dealerState: paste.dealerState,
+      // One server call settles EVERY saved vehicle: it creates the invitations that are allowed and records an outcome
+      // (invited, or not invited with a reason) for each of the rest. Nothing is emailed by this step.
+      const sel = await fetch(`/api/rfqs/${rfqId}/selection-invites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(guestToken ? { "x-guest-token": guestToken } : {}) },
+        body: JSON.stringify({
+          choices: pastes.map((paste) => ({
+            vin: paste.vin,
+            checked: Boolean(paste.dealerName && deskPlan.rows[pasteDeskKey(paste)]?.checked),
             // The car's own dealer id, so the send resolves the same directory row the badge showed.
             dealerId: importedDealerships.find((d) => deskKey(d) === pasteDeskKey(paste))?.dealerId ?? undefined,
             buyerProvidedEmail: buyerDealerEmails[pasteDeskKey(paste)] || undefined,
-            requestedStructures,
-            purchaseTimelineLabel:
-              purchaseTimeline === "asap" ? "ASAP" : purchaseTimeline === "this_week" ? "Within the week" : purchaseTimeline === "this_month" ? "Within the month" : null,
-            // For the dealer email's Area + Prefs rows (new-car finance/cash prefs aren't stored on the request).
-            buyerZip: zipOk ? huntZip : null,
-            financePrefs:
-              quoteType === "finance"
-                ? { termMonths: financeTerm || 60, downPayment: Math.max(0, Math.round(downPaymentNumber || 0)), creditBand: creditBand || null }
-                : null,
-          }),
-        });
-        const j = await r.json().catch(() => ({}));
-        if (r.ok && j.invite) {
-          rows.push({ dealerName: name, stage: inviteStage(j.invite as RfqInvite) });
-        } else {
-          rows.push({ dealerName: name, stage: "blocked", message: j.error || "Could not send." });
-        }
+          })),
+        }),
+      });
+      const selJson = await sel.json().catch(() => ({}));
+      if (!sel.ok || !Array.isArray(selJson.rows)) {
+        // The request is saved but its invitations were not settled. Say exactly that; submitting again links, never duplicates.
+        setSubmitError(`Your request was saved (ref #${rfqId}), but we couldn't create its dealer invitations${selJson.error ? `: ${selJson.error}` : "."} Nothing was sent. Submit again to retry — it will not create a duplicate.`);
+        return;
       }
-      const sentRows = rows.map((r) => ({ dealerName: r.dealerName, sent: r.stage !== "blocked", message: r.message }));
-      if (onQuoteRequestSent && sentRows.some((r) => r.sent)) {
-        // The deal is real on the box now — land in the tracker on it. A
-        // package where every desk was blocked stays here with the reasons.
+      const vRows = selJson.rows as VehicleRow[];
+      const sentRows = vRows.map((r) => ({ dealerName: vehicleTitle(r.vehicle) || r.dealerName || r.vehicle.vin, sent: r.status !== "excluded" && r.status !== "unrecorded", message: r.reason || undefined }));
+      const fullSuccess = vRows.length > 0 && vRows.every((r) => r.status !== "excluded" && r.status !== "unrecorded");
+      if (onQuoteRequestSent && fullSuccess) {
+        // Every vehicle has its invitation: land in the tracker, which keeps the counts and per-vehicle rows.
         onQuoteRequestSent({ rfqId, rows: sentRows, trackerPath });
         return;
       }
-      setSentPackage({ rfqId, rows, trackerPath });
+      // Partial or none: stay here and show the counts and each vehicle's outcome. A partial result never reads as success.
+      setSentPackage({
+        rfqId,
+        rows: vRows.map((r) => ({ dealerName: r.dealerName || r.vehicle.vin, stage: r.status === "excluded" || r.status === "unrecorded" ? "blocked" : (r.status as QuoteInviteStage), message: r.reason || undefined })),
+        trackerPath,
+        vehicleRows: vRows,
+        headline: String(selJson.headline || ""),
+        delivery: String(selJson.delivery || ""),
+        recorded: selJson.recorded !== false,
+      });
     } catch {
       setSubmitError("Couldn't reach the server. Your request wasn't sent — try again.");
     } finally {
@@ -3693,6 +3728,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       </select>
                     </label>
                   </div>
+                  {selectionPreviewRows.length > 1 || selectionPreviewRows.some((r) => r.verdict === "restricted") ? <SelectionPreview rows={selectionPreviewRows} /> : null}
                   {missingLocks.length ? (
                     <p className="mt-2 text-[11px] text-amber-300/90" data-testid="missing-locks">
                       To continue, set your {missingLocks.length === 1 ? missingLocks[0] : `${missingLocks.slice(0, -1).join(", ")} and ${missingLocks[missingLocks.length - 1]}`} — dealers quote to these, so they can&apos;t be blank.

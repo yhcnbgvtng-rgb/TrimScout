@@ -8,6 +8,8 @@ import { DESK_ROLE_LABELS, inviteStage } from "../../../lib/quotePackage";
 import { relativeTime, rfqDealNumber, rfqQuoteTypeLabel, rfqTrackerStatus, rfqTrackerStatusLabel, rfqVehicleSummary } from "../../../lib/rfqTracker";
 import { dueAtSigningTotal } from "../../../lib/leaseQuote";
 import TradeHonestyPanel from "./TradeHonestyPanel";
+import { selectionApplies, vehicleRows } from "../../../lib/selectionOutcomes";
+import { SelectionOutcomes } from "../../../components/SelectionOutcomes";
 
 /**
  * The master desk: every quote request, every buyer, every invited dealer —
@@ -161,6 +163,8 @@ export default function QuoteRequestsClient() {
                     </Link>
                   </div>
                 </div>
+
+                {selectionApplies(r) ? <SelectionOutcomes rows={vehicleRows(r)} title="Saved selections (read-only)" showCodes compact /> : null}
 
                 <ul className="divide-y divide-border/60 rounded-xl border border-border bg-background">
                   {r.invites.length === 0 ? <li className="px-3 py-2 text-[11px] text-ink-faint">No dealers invited.</li> : null}
