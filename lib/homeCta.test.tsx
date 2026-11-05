@@ -50,6 +50,11 @@ describe("Request a Quote CTAs — one wizard, every placement", () => {
     };
     await click("cta-request-quote-header");
     await click("cta-request-quote-hero");
+    // Secondary hero CTA: a plain link to the inventory search page, never the wizard.
+    const searchCta = doc.querySelector<HTMLAnchorElement>('[data-testid="cta-search-inventory-hero"]');
+    assert.ok(searchCta, "Search Inventory button on screen");
+    assert.equal(searchCta!.getAttribute("href"), "/search");
+    assert.match(searchCta!.textContent || "", /Search Inventory/);
     // The mobile drawer CTA appears once the drawer is open.
     const toggle = Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => /menu/i.test(b.getAttribute("aria-label") || ""));
     if (toggle) {

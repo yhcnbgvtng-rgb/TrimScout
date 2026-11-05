@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import {
   Zap,
+  Search,
   ArrowRight,
   SlidersHorizontal,
   UserRound,
@@ -80,16 +82,26 @@ export const BidProgramIntro: React.FC<BidProgramIntroProps> = ({
         </h1>
 
         <div className="flex flex-col items-center justify-center gap-4 pt-2">
-          <button
-            type="button"
-            onClick={() => onStartWizard("hero")}
-            data-testid="cta-request-quote-hero"
-            className="flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-brand-400 transition-all shadow-xl shadow-brand-500/20 active:scale-95"
-          >
-            <Zap className="h-4 w-4 fill-black" />
-            <span>Request a Quote</span>
-            <ArrowRight className="h-4 w-4 stroke-[2.5]" />
-          </button>
+          <div className="flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
+            <button
+              type="button"
+              onClick={() => onStartWizard("hero")}
+              data-testid="cta-request-quote-hero"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border-2 border-transparent bg-brand-500 px-8 py-3.5 font-extrabold text-sm text-black hover:bg-brand-400 transition-all shadow-xl shadow-brand-500/20 active:scale-95"
+            >
+              <Zap className="h-4 w-4 fill-black" />
+              <span>Request a Quote</span>
+              <ArrowRight className="h-4 w-4 stroke-[2.5]" />
+            </button>
+            <Link
+              href="/search"
+              data-testid="cta-search-inventory-hero"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border-2 border-brand-500 bg-transparent px-8 py-3.5 font-extrabold text-sm text-brand-400 hover:bg-brand-500/10 transition-all active:scale-95"
+            >
+              <Search className="h-4 w-4 stroke-[2.5]" />
+              <span>Search Inventory</span>
+            </Link>
+          </div>
           <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-ink-faint">
             {["Free to request & compare", "Takes about 2 minutes", "Your personal information stays private"].map((t) => (
               <li key={t} className="flex items-center gap-1.5">
