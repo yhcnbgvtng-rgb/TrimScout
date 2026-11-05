@@ -69,6 +69,12 @@ const input = "w-full rounded-lg border border-border-strong bg-surface-elevated
 function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.SetStateAction<F>>; onClose?: () => void }) {
   const [open, setOpen] = useState<Record<SectionId, boolean>>({ condition: true, location: true, make: true, model: false, trim: false, year: false, price: false, options: false });
   const toggle = (id: SectionId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
+  // Type-to-filter text per section (Make / Model / Trim / Factory options), so long lists are searchable.
+  const [q, setQ] = useState({ make: "", model: "", trim: "", options: "" });
+  const match = (items: string[], text: string) => items.filter((i) => i.toLowerCase().includes(text.trim().toLowerCase()));
+  const search = (key: keyof typeof q, placeholder: string) => (
+    <input value={q[key]} onChange={(e) => setQ((s) => ({ ...s, [key]: e.target.value }))} placeholder={placeholder} className={`${input} mb-2`} aria-label={placeholder} />
+  );
   const flip = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
   const chips = useMemo(() => {
@@ -142,8 +148,9 @@ function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.S
         </Section>
 
         <Section title="Make" badge={f.makes.length} open={open.make} onToggle={() => toggle("make")}>
+          {search("make", "Search makes")}
           <div className="flex flex-wrap gap-1.5">
-            {MAKES.map((m) => (
+            {match(MAKES, q.make).map((m) => (
               <button key={m} type="button" onClick={() => setF((s) => ({ ...s, makes: flip(s.makes, m), model: "" }))} className={pill(f.makes.includes(m))} aria-pressed={f.makes.includes(m)}>{m}</button>
             ))}
           </div>
@@ -153,9 +160,12 @@ function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.S
           {models.length === 0 ? (
             <p className="text-xs text-ink-faint">Choose a single make to see its models.</p>
           ) : (
+            <>
+            {search("model", "Search models")}
             <div className="flex flex-wrap gap-1.5">
-              {models.map((m) => <button key={m} type="button" onClick={() => setF((s) => ({ ...s, model: s.model === m ? "" : m }))} className={pill(f.model === m)} aria-pressed={f.model === m}>{m}</button>)}
+              {match(models, q.model).map((m) => <button key={m} type="button" onClick={() => setF((s) => ({ ...s, model: s.model === m ? "" : m }))} className={pill(f.model === m)} aria-pressed={f.model === m}>{m}</button>)}
             </div>
+            </>
           )}
         </Section>
 
@@ -163,9 +173,12 @@ function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.S
           {!f.model ? (
             <p className="text-xs text-ink-faint">Choose a model to see its trims.</p>
           ) : (
+            <>
+            {search("trim", "Search trims")}
             <div className="flex flex-wrap gap-1.5">
-              {TRIMS.map((t) => <button key={t} type="button" onClick={() => setF((s) => ({ ...s, trims: flip(s.trims, t) }))} className={pill(f.trims.includes(t))} aria-pressed={f.trims.includes(t)}>{t}</button>)}
+              {match(TRIMS, q.trim).map((t) => <button key={t} type="button" onClick={() => setF((s) => ({ ...s, trims: flip(s.trims, t) }))} className={pill(f.trims.includes(t))} aria-pressed={f.trims.includes(t)}>{t}</button>)}
             </div>
+            </>
           )}
         </Section>
 
@@ -189,8 +202,10 @@ function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.S
           {!f.model ? (
             <p className="text-xs text-ink-faint">Choose a model to filter by factory options.</p>
           ) : (
+            <>
+            {search("options", "Search options")}
             <ul className="space-y-1.5">
-              {OPTIONS.map((o) => (
+              {match(OPTIONS, q.options).map((o) => (
                 <li key={o}>
                   <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-light hover:text-white">
                     <input type="checkbox" checked={f.options.includes(o)} onChange={() => setF((s) => ({ ...s, options: flip(s.options, o) }))} className="h-4 w-4 accent-brand-500" />
@@ -199,6 +214,7 @@ function FiltersPanel({ f, setF, onClose }: { f: F; setF: React.Dispatch<React.S
                 </li>
               ))}
             </ul>
+            </>
           )}
         </Section>
       </div>
