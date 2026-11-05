@@ -76,3 +76,6 @@ Listings APIs filter year/make/model/zip/radius. They cannot filter Ultimate / B
 
 ## Trade-ins
 Buyers can attach a trade-in (six required photos) to a quote request and dealers appraise it in-app. See [docs/TRADE_IN.md](docs/TRADE_IN.md) for the fields, the photo rules and how equity flows into cash, finance and lease.
+
+## Lease quote fields
+The dealer lease reply has required fields (MSRP used for residual, lender, credit tier, tax method, vehicle status/ETA, good-through, security deposit, disposition fee, excess mileage charge) and itemized fee, incentive and add-on lines. See [docs/LEASE_QUOTE_FIELDS.md](docs/LEASE_QUOTE_FIELDS.md) for why each one is required and how the calculator applies them.

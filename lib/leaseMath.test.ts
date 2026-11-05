@@ -120,8 +120,8 @@ describe("calculator input formatting — display with $ , % as you type, store 
 
 describe("dealer calculator — worksheet order, live formatting, residual autofill, honest tax line", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "components/LeaseCalculatorForm.tsx"), "utf8");
-  it("field order follows MSRP → selling price → incentives → net cap → term/miles → residual/MF → fees → tax → add-ons/expiry", () => {
-    const order = ['k: "msrp"', 'k: "sellingPrice"', "Incentives / rebates", 'k: "capCost"', "Term (months)", 'k: "residualPercent"', 'k: "residualAmount"', 'k: "moneyFactor"', 'k: "capReduction"', 'k: "acquisitionFee"', "Fees at signing (itemized)", 'k: "taxRatePercent"', "Add-ons", "Quote good through"];
+  it("field order follows vehicle → lender → MSRP → selling price → incentives → fees → add-ons → net cap → term/miles → residual/MF → tax → deposit/end-of-lease → expiry", () => {
+    const order = ['data-testid="vin-input"', 'data-testid="lender-select"', 'k: "msrp"', 'k: "sellingPrice"', "Incentives / rebates", 'k: "acquisitionFee"', 'title: "Dealer fees"', 'title: "Government fees (pass-through)"', '"5 · Add-ons"', 'k: "capCost"', 'k: "capReduction"', "Term (months)", 'k: "residualPercent"', 'k: "residualAmount"', 'k: "moneyFactor"', 'k: "taxMethod"', 'k: "taxRatePercent"', 'k: "securityDeposit"', 'k: "dispositionFee"', 'k: "excessMileagePerMile"', "Quote good through"];
     let last = -1;
     for (const needle of order) {
       const at = src.indexOf(needle);
@@ -134,8 +134,8 @@ describe("dealer calculator — worksheet order, live formatting, residual autof
     assert.match(src, /residualAmountFrom\(msrp, residualPercent\)/);
     assert.match(src, /num\(f\.residualAmount\) \?\? residualFromMsrp/);
     assert.match(src, /doesn't match .* of MSRP/);
-    assert.match(src, /netCapFromWorksheet\(\{ sellingPrice, incentivesTotal, capitalizedFees \}\)/);
-    assert.match(src, /num\(f\.capCost\) \?\? derivedCap/);
+    assert.match(src, /calcNetCap\(\{/);
+    assert.match(src, /num\(f\.capCost\);\s*const netCap = netCapEntered \?\? calcNet;/);
   });
   it("money / percent / money-factor inputs format on blur and never seed $0; tax reads 'estimated at signing' instead of $0.00", () => {
     assert.match(src, /formatMoneyInput|formatPercentInput|formatMoneyFactorInput/);
@@ -143,10 +143,11 @@ describe("dealer calculator — worksheet order, live formatting, residual autof
     assert.match(src, /noTaxEstimate \? out\("Tax", d\.monthly != null \? "estimated at signing" : null\)/);
     // Doc fee: always on the sheet, description fixed, amount blank until typed; a long description + $ box per line.
     // Standing lines survive a prefill from a prior quote too.
-    assert.match(src, /\[\{ name: "Doc fee", amount: "" \}, \.\.\.seeded\]/);
-    assert.match(src, /fixed: \["Doc fee"\]/);
-    assert.match(src, /\[\{ name: "Lease cash \/ rebate", amount: "" \}, \.\.\.seeded\]/);
-    assert.match(src, /fixed: \["Lease cash \/ rebate"\]/);
+    assert.match(src, /\{ name: "Doc fee", amount: "", taxable: feeTaxableDefault\(zipState, "doc"\), timing: "signing", kind: "doc" \}/);
+    assert.match(src, /\{ name: "Title fee", amount: ""/);
+    assert.match(src, /\{ name: "Registration fee", amount: ""/);
+    assert.match(src, /name: "Lease cash \/ rebate", amount: "", eligibilityType: "", proof: ""/);
+    assert.match(src, /const fixed = i === 0 && it\.name === "Lease cash \/ rebate"/);
     assert.match(src, /grid-cols-\[1fr_140px_20px\]/);
     assert.match(src, /Math\.round\(zipRate \* 100000\) \/ 1000/, "tax rate keeps three decimals (NJ 6.625%)");
     assert.match(src, /noTaxEstimate && !f\.taxesAtSigning \? "at signing"/);

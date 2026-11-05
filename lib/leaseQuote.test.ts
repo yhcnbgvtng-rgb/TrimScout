@@ -4,6 +4,7 @@ import { aprFromMoneyFactor, coerceLeaseQuote, dueAtSigningTotal, isCounter, isE
 
 const NOW = new Date("2026-09-13T12:00:00Z");
 const PREFS = { termMonths: 36 as const, milesPerYear: 10000 as const };
+const VIN = "1FMEE9BP9TLA88678";
 const good = (): LeaseQuote => ({
   capCost: 52000,
   residualPercent: 58,
@@ -14,12 +15,26 @@ const good = (): LeaseQuote => ({
   capReduction: 0,
   monthlyPaymentPreTax: 612,
   monthlyPaymentWithEstTax: 652.5,
-  dueAtSigning: { firstMonth: 652.5, acquisitionFee: 0, capReduction: 0, taxes: 120, otherFees: [{ name: "Doc fee", amount: 299 }] },
-  incentives: [{ name: "Loyalty", amount: 1000 }],
+  dueAtSigning: { firstMonth: 652.5, acquisitionFee: 0, capReduction: 0, taxes: 120, otherFees: [{ name: "Doc fee", amount: 299, category: "dealer", taxable: true, timing: "signing" }], securityDeposit: 0, addOnsDue: [] },
+  incentives: [{ name: "Loyalty", amount: 1000, eligibilityType: "loyalty", eligibilityProof: "current Ford lease" }],
   addOns: [],
   expiresAt: "2026-09-20T00:00:00Z",
   notes: null,
   counter: { counterOffer: false, note: "" },
+  // v2 (required on a dealer submission): net cap = 53,000 selling − 1,000 incentive − 0 cap reduction = 52,000.
+  sellingPrice: 53000,
+  msrpForResidual: 52000,
+  rolledFees: [],
+  incentiveAttested: true,
+  lenderType: "captive",
+  lenderName: "Ford Credit",
+  creditTierAssumed: "Tier 1",
+  taxMethod: "monthly",
+  vehicleStatus: "in_stock",
+  etaDate: null,
+  securityDeposit: 0,
+  dispositionFee: 395,
+  excessMileagePerMile: 0.25,
 });
 
 describe("validateLeaseQuote — a complete quote passes", () => {
@@ -36,7 +51,7 @@ describe("validateLeaseQuote — a complete quote passes", () => {
 
 describe("validateLeaseQuote — blocks (acceptance 4)", () => {
   it("rejects a monthly-only reply: no cap cost, no MF, no residual", () => {
-    const v = validateLeaseQuote({ monthlyPaymentPreTax: 599, termMonths: 36, milesPerYear: 10000, expiresAt: "2026-09-20T00:00:00Z" }, PREFS, { vin: "X" }, NOW);
+    const v = validateLeaseQuote({ monthlyPaymentPreTax: 599, termMonths: 36, milesPerYear: 10000, expiresAt: "2026-09-20T00:00:00Z" }, PREFS, { vin: VIN }, NOW);
     assert.ok(v.errors.some((e) => /Cap cost/.test(e)));
     assert.ok(v.errors.some((e) => /Money factor/.test(e)));
     assert.ok(v.errors.some((e) => /Residual %/.test(e)));
@@ -45,20 +60,21 @@ describe("validateLeaseQuote — blocks (acceptance 4)", () => {
   it("rejects a single unlabeled due-at-signing lump", () => {
     const q = good();
     q.dueAtSigning = { firstMonth: 0, acquisitionFee: 0, capReduction: 0, taxes: 0, otherFees: [{ name: "Due at signing", amount: 2500 }] };
-    const v = validateLeaseQuote(q, PREFS, { vin: "X" }, NOW);
+    const v = validateLeaseQuote(q, PREFS, { vin: VIN }, NOW);
     assert.ok(v.errors.some((e) => /single unlabeled lump/.test(e)));
   });
-  it("requires VIN or stock, positive cap cost, residual in (0,100], MF > 0, monthly > 0", () => {
+  it("requires a VIN, positive cap cost, residual in (0,100], MF > 0, monthly > 0", () => {
     const q = { ...good(), capCost: 0, residualPercent: 101, moneyFactor: 0, monthlyPaymentPreTax: -1 };
     const v = validateLeaseQuote(q, PREFS, {}, NOW);
-    for (const re of [/VIN or stock/, /Cap cost/, /Residual %/, /Money factor/, /Monthly payment \(pre-tax\)/]) assert.ok(v.errors.some((e) => re.test(e)), String(re));
+    for (const re of [/VIN is required/, /Cap cost/, /Residual %/, /Money factor/, /Monthly payment \(pre-tax\)/]) assert.ok(v.errors.some((e) => re.test(e)), String(re));
   });
-  it("the offer date is optional, but one that is given must be real and in the future", () => {
-    const v1 = validateLeaseQuote({ ...good(), expiresAt: "" }, PREFS, { vin: "X" }, NOW);
-    assert.ok(!v1.errors.some((e) => /expiry/.test(e)), "no date is fine");
-    const v2 = validateLeaseQuote({ ...good(), expiresAt: "2026-09-01T00:00:00Z" }, PREFS, { vin: "X" }, NOW);
-    assert.ok(v2.errors.some((e) => /must be in the future/.test(e)));
-    const v3 = validateLeaseQuote({ ...good(), expiresAt: "soon" }, PREFS, { vin: "X" }, NOW);
+  it("a dealer quote needs a good-through date that is real, today or later; a buyer-logged (legacy) one may omit it", () => {
+    const v1 = validateLeaseQuote({ ...good(), expiresAt: "" }, PREFS, { vin: VIN }, NOW);
+    assert.ok(v1.errors.some((e) => /good through is required/i.test(e)));
+    assert.ok(!validateLeaseQuote({ ...good(), expiresAt: "" }, PREFS, { vin: VIN }, NOW, { legacy: true }).errors.some((e) => /expiry|good through/i.test(e)), "legacy: no date is fine");
+    const v2 = validateLeaseQuote({ ...good(), expiresAt: "2026-09-01T00:00:00Z" }, PREFS, { vin: VIN }, NOW);
+    assert.ok(v2.errors.some((e) => /today or later/.test(e)));
+    const v3 = validateLeaseQuote({ ...good(), expiresAt: "soon" }, PREFS, { vin: VIN }, NOW);
     assert.ok(v3.errors.some((e) => /isn't a valid date/.test(e)));
   });
   it("a quote with no offer date never counts as expired", () => {
@@ -72,11 +88,11 @@ describe("validateLeaseQuote — blocks (acceptance 4)", () => {
 describe("validateLeaseQuote — counters (acceptance 5)", () => {
   it("term/miles that differ from the buyer's prefs need counterOffer + a note", () => {
     const q = { ...good(), termMonths: 39 };
-    const v = validateLeaseQuote(q, PREFS, { vin: "X" }, NOW);
+    const v = validateLeaseQuote(q, PREFS, { vin: VIN }, NOW);
     assert.ok(v.errors.some((e) => /mark it as a counter-offer/.test(e)));
-    const v2 = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "" } }, PREFS, { vin: "X" }, NOW);
+    const v2 = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "" } }, PREFS, { vin: VIN }, NOW);
     assert.ok(v2.errors.some((e) => /needs a short note/.test(e)));
-    const v3 = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "39 mo has a better residual this month" } }, PREFS, { vin: "X" }, NOW);
+    const v3 = validateLeaseQuote({ ...q, counter: { counterOffer: true, note: "39 mo has a better residual this month" } }, PREFS, { vin: VIN }, NOW);
     assert.deepEqual(v3.errors, []);
     assert.equal(isCounter(q, PREFS), true);
     assert.equal(isCounter(good(), PREFS), false);
@@ -85,12 +101,12 @@ describe("validateLeaseQuote — counters (acceptance 5)", () => {
 
 describe("validateLeaseQuote — warns but allows", () => {
   it("extreme MF / residual, big due-at-signing, vague add-on names", () => {
-    const q = { ...good(), moneyFactor: 0.009, residualPercent: 30, addOns: [{ name: "pkg", amount: 899 }] };
+    const q = { ...good(), moneyFactor: 0.02, residualPercent: 10, msrpForResidual: 52000, residualAmount: 5200, addOns: [{ name: "pkg", amount: 899, taxable: true, removable: true, timing: "signing" as const }] };
     q.dueAtSigning = { ...q.dueAtSigning, capReduction: 3000 };
-    const v = validateLeaseQuote(q, PREFS, { vin: "X" }, NOW);
+    const v = validateLeaseQuote(q, PREFS, { vin: VIN }, NOW);
     assert.deepEqual(v.errors, []);
-    assert.ok(v.warnings.some((w) => /unusually high/.test(w)));
-    assert.ok(v.warnings.some((w) => /outside the usual 40–70%/.test(w)));
+    assert.ok(v.warnings.some((w) => /outside the usual 0\.00001–0\.01 range/.test(w)));
+    assert.ok(v.warnings.some((w) => /outside the usual 20–85%/.test(w)));
     assert.ok(v.warnings.some((w) => /more than twice the monthly/.test(w)));
     assert.ok(v.warnings.some((w) => /Add-ons without clear names/.test(w)));
   });
@@ -104,7 +120,7 @@ describe("coerceLeaseQuote / isExpired", () => {
     assert.equal(q.monthlyPaymentWithEstTax, null);
     assert.equal(q.dueAtSigning?.otherFees[0].amount, 299);
     assert.equal(q.counter?.note, "ok");
-    assert.deepEqual(validateLeaseQuote(q, PREFS, { vin: "X" }, NOW).errors, []);
+    assert.deepEqual(validateLeaseQuote(q, PREFS, { vin: VIN }, NOW, { legacy: true }).errors, []);
   });
   it("flags an expired quote", () => {
     assert.equal(isExpired({ expiresAt: "2026-09-01T00:00:00Z" }, NOW), true);
@@ -192,10 +208,10 @@ describe("lease terms — 18 and 24 both offered, default stays 36", () => {
   it("an 18-month request is quoted at 18 with no counter; a 24 against it is a counter", () => {
     const prefs18 = { termMonths: 18 as const, milesPerYear: 10000 as const };
     const at18 = { ...good(), termMonths: 18 };
-    assert.deepEqual(validateLeaseQuote(at18, prefs18, { vin: "X" }, NOW).errors, []);
+    assert.deepEqual(validateLeaseQuote(at18, prefs18, { vin: VIN }, NOW).errors, []);
     assert.equal(isCounter(at18, prefs18), false);
     const at24 = { ...good(), termMonths: 24 };
-    assert.ok(validateLeaseQuote(at24, prefs18, { vin: "X" }, NOW).errors.some((e) => /counter-offer/.test(e)));
+    assert.ok(validateLeaseQuote(at24, prefs18, { vin: VIN }, NOW).errors.some((e) => /counter-offer/.test(e)));
     assert.equal(isCounter(at24, prefs18), true);
   });
 
@@ -229,9 +245,9 @@ describe("lease prefs — no payment cap anywhere", () => {
   });
 
   it("a big due-at-signing is a plain quote, not a counter and not a validation error", () => {
-    const q = { ...good(), dueAtSigning: { firstMonth: 652.5, acquisitionFee: 995, capReduction: 5000, taxes: 400, otherFees: [{ name: "Doc fee", amount: 799 }] } };
+    const q = { ...good(), dueAtSigning: { firstMonth: 652.5, acquisitionFee: 995, capReduction: 5000, taxes: 400, otherFees: [{ name: "Doc fee", amount: 799, category: "dealer" as const, taxable: true, timing: "signing" as const }], securityDeposit: 0, addOnsDue: [] } };
     assert.equal(isCounter(q, PREFS), false);
-    assert.deepEqual(validateLeaseQuote(q, PREFS, { vin: "X" }, NOW).errors, []);
+    assert.deepEqual(validateLeaseQuote(q, PREFS, { vin: VIN }, NOW).errors, []);
   });
 
   it("no max-DAS field, type, copy or flag survives in the buyer UI, dealer calculator, compare, email, API types or admin desk", () => {

@@ -9,7 +9,7 @@
  * quotes never win anything. No composite score, no prose — derived
  * numbers only.
  */
-import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
+import { aprFromMoneyFactor, dueAtSigningTotal, isCounter, isExpired, leaseTotalCostOf, pricedAtLowerTier, termMilesLabel, type LeaseQuote, type LeaseRequestPrefs } from "./leaseQuote";
 import { waitingDeliveryLabel } from "./quotePackage";
 import type { BuyerCounter, RfqInvite, RfqQuote, RfqRequest } from "./rfq";
 import { alternateAskSummary, askedVinForInvite, isAlternateQuote, type RfqLane } from "./alternateAsk";
@@ -28,6 +28,10 @@ export interface LeaseCompareRow {
   lease: LeaseQuote | null;
   monthly: number | null;
   dueAtSigning: number | null;
+  /** (monthly with tax × term) + due at signing − first month + disposition fee. The secondary sort after the monthly. */
+  totalLeaseCost: number | null;
+  /** The dealer priced the money factor at a credit tier below what the buyer stated. */
+  lowerTier: boolean;
   /** One line on how a counter differs from the ask ("39 mo instead of 36"). */
   counterHow: string | null;
   counterNote: string | null;
@@ -98,6 +102,8 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     emailMasked: invite.desk?.emailMasked ?? null,
     deliveryLabel: waitingDeliveryLabel(invite),
     lease: invite.quote?.lease ?? null,
+    totalLeaseCost: null,
+    lowerTier: false,
     bestMonthly: false,
     bestDas: false,
     chips: [],
@@ -112,6 +118,10 @@ function baseRow(invite: RfqInvite, rfq: RfqRequest): Omit<LeaseCompareRow, "kin
     quotedVin: invite.quote?.vin && invite.quote.vin.trim().toUpperCase() !== askedVinForInvite(rfq, invite) ? invite.quote.vin.trim().toUpperCase() : null,
   };
 }
+
+/** Lowest monthly first; equal monthlies fall back to the lower total lease cost (a missing total sorts last). */
+export const byMonthlyThenTotal = (a: { monthly: number | null; totalLeaseCost: number | null }, b: { monthly: number | null; totalLeaseCost: number | null }) =>
+  (a.monthly ?? Infinity) - (b.monthly ?? Infinity) || (a.totalLeaseCost ?? Infinity) - (b.totalLeaseCost ?? Infinity);
 
 export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): LeaseCompare | null {
   const prefs = rfq.leasePrefs;
@@ -143,6 +153,11 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
     });
   }
 
+  for (const r of rows) {
+    r.totalLeaseCost = r.lease ? leaseTotalCostOf(r.lease) : null;
+    r.lowerTier = r.lease ? pricedAtLowerTier(r.lease.creditTierAssumed, prefs.creditBand) : false;
+  }
+
   const lane: RfqLane = rfq.lane ?? "same_spec";
   // Same-spec lane: a dealer's quote for a different VIN is an alternate — shown in its own
   // block, never ranked with the same-spec quotes and never "lowest" on the cards. Alternate
@@ -150,7 +165,7 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   const sameSpecEligible = rows.filter((r) => r.kind === "eligible" && !r.alternate);
   const alternateEligible = rows.filter((r) => r.kind === "eligible" && r.alternate);
   const eligible = lane === "alternate" ? alternateEligible : sameSpecEligible;
-  const byMonthly = [...eligible].sort((a, b) => a.monthly! - b.monthly!);
+  const byMonthly = [...eligible].sort(byMonthlyThenTotal);
   const byDas = [...eligible].sort((a, b) => a.dueAtSigning! - b.dueAtSigning!);
   const bestM = byMonthly[0] ?? null;
   const bestD = byDas[0] ?? null;
@@ -182,8 +197,8 @@ export function analyzeLeaseQuotes(rfq: RfqRequest, now: Date = new Date()): Lea
   const waiting = rows.filter((r) => r.kind === "waiting");
   const declined = rows.filter((r) => r.kind === "declined");
   const unsub = rows.filter((r) => r.kind === "unsubscribed");
-  const sideAlternates = lane === "alternate" ? [] : alternateEligible.sort((a, b) => a.monthly! - b.monthly!);
-  const ordered = [...byMonthly, ...counters.sort((a, b) => a.monthly! - b.monthly!), ...sideAlternates, ...countered, ...expiredRows, ...waiting, ...unsub, ...declined];
+  const sideAlternates = lane === "alternate" ? [] : alternateEligible.sort(byMonthlyThenTotal);
+  const ordered = [...byMonthly, ...counters.sort(byMonthlyThenTotal), ...sideAlternates, ...countered, ...expiredRows, ...waiting, ...unsub, ...declined];
 
   const warn: string[] = [];
   if (counters.length) warn.push(`${counters.length} counter${counters.length === 1 ? "" : "s"} on term/miles`);

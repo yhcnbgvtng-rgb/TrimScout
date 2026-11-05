@@ -3,7 +3,9 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { fmtMf, fmtMoney, fmtPct, type LeaseCompare as LeaseCompareData, type LeaseCompareRow } from "../lib/leaseCompare";
-import { termMilesLabel } from "../lib/leaseQuote";
+import { byMonthlyThenTotal } from "../lib/leaseCompare";
+import { feeSubtotals, INCENTIVE_ELIGIBILITY_LABELS, LEASE_TAX_METHOD_LABELS, PRICED_AT_LOWER_TIER_LABEL, RESIDUAL_ENTERED_DIRECTLY_NOTE, termMilesLabel, VEHICLE_STATUS_LABELS, type LineItem } from "../lib/leaseQuote";
+import { CREDIT_BAND_LABELS } from "../lib/creditBand";
 import { counterSummary } from "../lib/buyerCounter";
 import { CounterSheetForm } from "./CounterSheetForm";
 import { CounterComparison } from "./CounterComparison";
@@ -27,16 +29,61 @@ import { ACCEPT_ORIGINAL_LABEL, COUNTER_DECLINED_NOTE, COUNTER_DECLINED_STATUS }
 export const LEASE_ROWS: QuoteRowDef[] = [
   { key: "monthly", label: "Monthly" },
   { key: "das", label: "Due at signing" },
+  { key: "total", label: "Total lease cost" },
   { key: "cap", label: "Cap cost" },
   { key: "mf", label: "MF (APR)" },
   { key: "residual", label: "Residual %" },
   { key: "term", label: "Term / miles" },
+  { key: "lender", label: "Lender" },
+  { key: "tier", label: "Credit tier assumed" },
+  { key: "taxmethod", label: "Tax method" },
+  { key: "status", label: "Vehicle status" },
   { key: "addons", label: "Add-ons" },
   { key: "fees", label: "Fees" },
   { key: "tax", label: "Sales tax" },
+  { key: "eol", label: "End-of-lease costs" },
   { key: "rebates", label: "Rebates / credits" },
   { key: "expires", label: "Expires" },
 ];
+
+/** "Dealer-claimed" incentive lines with who they are open to and the proof the dealer will ask for. */
+function IncentiveLines({ items }: { items: LineItem[] }) {
+  if (!items.length) return <span className="text-ink-muted">None</span>;
+  return (
+    <ul className="space-y-1 text-[11px]" data-testid="incentive-lines">
+      {items.map((x, i) => (
+        <li key={i}>
+          <span className="flex justify-between gap-2"><span className="min-w-0 text-ink-muted">{x.name}</span><span className="shrink-0">−{fmtMoney(x.amount)}</span></span>
+          <span className="block text-[10px] text-amber-200" data-testid="dealer-claimed">
+            Dealer-claimed{x.eligibilityType ? ` · ${INCENTIVE_ELIGIBILITY_LABELS[x.eligibilityType]}` : ""}{x.eligibilityProof ? ` · proof: ${x.eligibilityProof}` : ""}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Dealer fees and government fees as two itemized lists with their own subtotals. */
+function FeeLists({ l }: { l: import("../lib/leaseQuote").LeaseQuote }) {
+  const f = feeSubtotals(l);
+  const list = (title: string, lines: LineItem[], subtotal: number, testId: string) => (
+    <div data-testid={testId}>
+      <p className="flex justify-between gap-2 text-[10px] font-bold uppercase tracking-wide text-ink-faint"><span>{title}</span><span>{fmtMoney(subtotal)}</span></p>
+      {lines.length ? (
+        <ul className="space-y-0.5 text-[11px]" data-testid="itemized-lines">
+          {lines.map((x, i) => (<li key={i} className="flex justify-between gap-2"><span className="min-w-0 text-ink-muted">{x.name}{x.timing === "rolled" ? " (rolled into cap cost)" : ""}</span><span className="shrink-0">{fmtMoney(x.amount)}</span></li>))}
+        </ul>
+      ) : <span className="text-[11px] text-ink-muted">None</span>}
+    </div>
+  );
+  return (
+    <div className="space-y-1.5">
+      <p className="flex justify-between gap-2 text-[11px]"><span className="text-ink-muted">Acquisition fee{l.acquisitionFeeRolled ? " (rolled into cap cost)" : ""}</span><span>{fmtMoney(l.acquisitionFeeRolled || l.dueAtSigning.acquisitionFee)}</span></p>
+      {list("Dealer fees", f.dealerLines, f.dealer, "dealer-fees")}
+      {list("Government fees (pass-through)", f.governmentLines, f.government, "government-fees")}
+    </div>
+  );
+}
 
 const badge = (cls: string, text: React.ReactNode, testId?: string) => <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${cls}`} data-testid={testId}>{text}</span>;
 
@@ -79,7 +126,7 @@ export function LeaseCompare({
   const eligible = orderDesks(baseEligible, {
     mode: sort, hasTrade, eligible: (r) => tradeEligible(eqOfRow(r)),
     byVehicle: (a, b) => (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
-    byPostTrade: (a, b) => (a.lease && b.lease ? leaseAfterTrade(a.lease, eqOfRow(a)).monthly - leaseAfterTrade(b.lease, eqOfRow(b)).monthly : 0) || (a.dueAtSigning ?? 0) - (b.dueAtSigning ?? 0) || (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
+    byPostTrade: (a, b) => (a.lease && b.lease ? leaseAfterTrade(a.lease, eqOfRow(a)).monthly - leaseAfterTrade(b.lease, eqOfRow(b)).monthly : 0) || byMonthlyThenTotal({ monthly: 0, totalLeaseCost: a.totalLeaseCost }, { monthly: 0, totalLeaseCost: b.totalLeaseCost }) || (a.dueAtSigning ?? 0) - (b.dueAtSigning ?? 0) || (originalIndex.get(a.inviteId) ?? 0) - (originalIndex.get(b.inviteId) ?? 0),
   });
   // "Best deal" needs two quotes that can be compared: with a trade, only the desks with a live trade number count.
   const comparableCount = hasTrade ? eligible.filter((r) => tradeEligible(eqOfRow(r))).length : eligible.length;
@@ -115,6 +162,8 @@ export function LeaseCompare({
       : r.kind === "unsubscribed" ? badge("bg-border text-ink-muted", "Unsubscribed — won't reply", "unsub-chip")
       : badge("bg-border text-ink-muted", `Waiting · ${r.deliveryLabel}`);
     const isOpen = !!open[r.inviteId];
+    const fs = l ? feeSubtotals(l) : null;
+    const dueSplit = { dealerSigning: fs ? fs.dealerLines.filter((f) => f.timing !== "rolled") : [], governmentSigning: fs ? fs.governmentLines.filter((f) => f.timing !== "rolled") : [] };
     const names = (items: { name: string; amount: number }[], sign = "") => items.length ? (
       <ul className="space-y-0.5 text-[11px]" data-testid="itemized-lines">
         {items.map((x, i) => (<li key={i} className="flex justify-between gap-2"><span className="min-w-0 text-ink-muted">{x.name}</span><span className="shrink-0">{sign}{fmtMoney(x.amount)}</span></li>))}
@@ -162,17 +211,34 @@ export function LeaseCompare({
           {l.addOns.length && l.incentives.length ? <span className="text-ink-faint"> · </span> : null}
           {l.incentives.length ? <span className="text-brand-300">{l.incentives.length} incentive{l.incentives.length === 1 ? "" : "s"}</span> : null}
         </span>) : null}</>,
-      cap: fmtMoney(l.capCost),
+      total: <><span className="text-base">{fmtMoney(r.totalLeaseCost)}</span><span className="mt-1 block text-[10px] font-normal leading-snug text-ink-muted">payments + due at signing{l.dispositionFee ? " + disposition fee" : ""}</span></>,
+      cap: <>{fmtMoney(l.capCost)}{l.netCapOverrideReason ? <span className="mt-1 block text-[10px] font-normal leading-snug text-amber-200" data-testid="adjusted-by-dealer">Adjusted by dealer: {l.netCapOverrideReason}</span> : null}</>,
+      lender: l.lenderName ? <>{l.lenderName}</> : <span className="text-ink-muted">Not given</span>,
+      tier: l.creditTierAssumed ? <>{l.creditTierAssumed}{r.lowerTier ? <span className="mt-1 block text-[10px] font-bold text-amber-300" data-testid="lower-tier">{PRICED_AT_LOWER_TIER_LABEL}{prefs.creditBand ? ` · you stated ${CREDIT_BAND_LABELS[prefs.creditBand].toLowerCase()}` : ""}</span> : null}</> : <span className="text-ink-muted">Not given</span>,
+      taxmethod: l.taxMethod ? <>{LEASE_TAX_METHOD_LABELS[l.taxMethod]}{l.taxMethod === "other" && l.taxMethodOther ? <span className="block text-[10px] text-ink-muted">{l.taxMethodOther}</span> : null}</> : <span className="text-ink-muted">Not given</span>,
+      status: l.vehicleStatus ? <>{VEHICLE_STATUS_LABELS[l.vehicleStatus]}{l.vehicleStatus !== "in_stock" && l.etaDate ? <span className="block text-[10px] text-ink-muted">ETA {new Date(`${l.etaDate}T12:00:00`).toLocaleDateString()}</span> : null}</> : <span className="text-ink-muted">Not given</span>,
+      eol: l.dispositionFee != null || l.excessMileagePerMile != null ? (
+        <ul className="space-y-0.5 text-[11px]" data-testid="end-of-lease-costs">
+          <li className="flex justify-between gap-2"><span className="text-ink-muted">Disposition fee</span><span>{l.dispositionFee != null ? fmtMoney(l.dispositionFee) : "—"}</span></li>
+          <li className="flex justify-between gap-2"><span className="text-ink-muted">Excess mileage</span><span>{l.excessMileagePerMile != null ? `$${l.excessMileagePerMile.toFixed(2)}/mi` : "—"}</span></li>
+        </ul>
+      ) : <span className="text-ink-muted">Not given</span>,
       mf: <span className="font-mono text-[11px]">{fmtMf(l.moneyFactor)}</span>,
-      residual: fmtPct(l.residualPercent),
+      residual: <>{fmtPct(l.residualPercent)}{l.residualEnteredDirectly ? <span className="mt-1 block text-[10px] font-normal leading-snug text-amber-200" data-testid="residual-direct">{RESIDUAL_ENTERED_DIRECTLY_NOTE}</span> : null}</>,
       term: <span className={r.kind === "counter" ? "text-amber-200" : ""}>{termMilesLabel(l.termMonths, l.milesPerYear)}{r.counterHow ? <span className="mt-1 block text-[10px] text-amber-300">{r.counterHow}</span> : null}</span>,
-      addons: names(l.addOns, "+"),
-      fees: (<ul className="space-y-0.5 text-[11px]" data-testid="itemized-lines">
-        <li className="flex justify-between gap-2"><span className="text-ink-muted">Acquisition fee</span><span>{fmtMoney(l.dueAtSigning.acquisitionFee)}</span></li>
-        {l.dueAtSigning.otherFees.map((f, i) => (<li key={i} className="flex justify-between gap-2"><span className="min-w-0 text-ink-muted">{f.name}</span><span className="shrink-0">{fmtMoney(f.amount)}</span></li>))}
-      </ul>),
+      addons: l.addOns.length ? (
+        <ul className="space-y-0.5 text-[11px]" data-testid="itemized-lines">
+          {l.addOns.map((x, i) => (
+            <li key={i}>
+              <span className="flex justify-between gap-2"><span className="min-w-0 text-ink-muted">{x.name}</span><span className="shrink-0">+{fmtMoney(x.amount)}</span></span>
+              {x.timing || x.removable != null ? <span className="block text-[10px] text-ink-faint">{x.timing === "rolled" ? "Rolled into cap cost" : x.timing === "signing" ? "Due at signing" : ""}{x.removable != null ? `${x.timing ? " · " : ""}${x.removable ? "Removable on request" : "Not removable"}` : ""}</span> : null}
+            </li>
+          ))}
+        </ul>
+      ) : <span className="text-ink-muted">None</span>,
+      fees: <FeeLists l={l} />,
       tax: fmtMoney(l.dueAtSigning.taxes),
-      rebates: names(l.incentives, "−"),
+      rebates: <IncentiveLines items={l.incentives} />,
       expires: <span className={r.kind === "expired" ? "text-rose-300" : ""}>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString() : ""}</span>,
     } : { ...tradeCells };
     const detail = isOpen && l ? (
@@ -182,10 +248,13 @@ export function LeaseCompare({
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Due at signing — itemized</p>
           <ul className="mt-1 space-y-0.5 tabular-nums">
             <li className="flex justify-between"><span>First month</span><span>{fmtMoney(l.dueAtSigning.firstMonth)}</span></li>
-            <li className="flex justify-between"><span>Acquisition fee</span><span>{fmtMoney(l.dueAtSigning.acquisitionFee)}</span></li>
+            {l.acquisitionFeeRolled ? null : <li className="flex justify-between"><span>Acquisition fee</span><span>{fmtMoney(l.dueAtSigning.acquisitionFee)}</span></li>}
             <li className="flex justify-between"><span>Cap reduction</span><span>{fmtMoney(l.dueAtSigning.capReduction)}</span></li>
-            <li className="flex justify-between"><span>Taxes</span><span>{fmtMoney(l.dueAtSigning.taxes)}</span></li>
-            {l.dueAtSigning.otherFees.map((f, i) => (<li key={i} className="flex justify-between"><span>{f.name}</span><span>{fmtMoney(f.amount)}</span></li>))}
+            {dueSplit.dealerSigning.map((f, i) => (<li key={`d${i}`} className="flex justify-between" data-testid="das-dealer-fee"><span>{f.name} <span className="text-ink-faint">· dealer fee</span></span><span>{fmtMoney(f.amount)}</span></li>))}
+            {dueSplit.governmentSigning.map((f, i) => (<li key={`g${i}`} className="flex justify-between" data-testid="das-government-fee"><span>{f.name} <span className="text-ink-faint">· government fee</span></span><span>{fmtMoney(f.amount)}</span></li>))}
+            {l.dueAtSigning.securityDeposit != null ? <li className="flex justify-between" data-testid="das-security-deposit"><span>Refundable security deposit</span><span>{fmtMoney(l.dueAtSigning.securityDeposit)}</span></li> : null}
+            <li className="flex justify-between"><span>Taxes due at signing</span><span>{fmtMoney(l.dueAtSigning.taxes)}</span></li>
+            {(l.dueAtSigning.addOnsDue || []).map((f, i) => (<li key={`a${i}`} className="flex justify-between" data-testid="das-add-on"><span>{f.name} <span className="text-ink-faint">· add-on</span></span><span>{fmtMoney(f.amount)}</span></li>))}
             <li className="flex justify-between border-t border-border/60 pt-1 font-bold text-white"><span>Total</span><span>{fmtMoney(r.dueAtSigning)}</span></li>
           </ul>
         </div>
@@ -203,7 +272,7 @@ export function LeaseCompare({
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">Incentives / add-ons</p>
           {l.incentives.length + l.addOns.length ? (
             <ul className="mt-1 space-y-0.5 tabular-nums">
-              {l.incentives.map((x, i) => (<li key={`i${i}`} className="flex justify-between"><span>{x.name}</span><span>−{fmtMoney(x.amount)}</span></li>))}
+              {l.incentives.map((x, i) => (<li key={`i${i}`}><span className="flex justify-between"><span>{x.name}</span><span>−{fmtMoney(x.amount)}</span></span><span className="block text-[10px] text-amber-200">Dealer-claimed{x.eligibilityType ? ` · ${INCENTIVE_ELIGIBILITY_LABELS[x.eligibilityType]}` : ""}{x.eligibilityProof ? ` · proof: ${x.eligibilityProof}` : ""}</span></li>))}
               {l.addOns.map((x, i) => (<li key={`a${i}`} className="flex justify-between"><span>{x.name}</span><span>+{fmtMoney(x.amount)}</span></li>))}
             </ul>
           ) : <p className="mt-1 text-ink-faint">none</p>}

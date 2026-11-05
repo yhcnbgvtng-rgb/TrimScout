@@ -131,9 +131,11 @@ describe("wiring — Finance | Cash locks on Step 2; dealer sheets; compare colu
     const dealerPage = read("app/quote-request/received/page.tsx");
     assert.match(dealerPage, /ctx\.quotePrefs \? \([\s\S]*?<UsedQuoteForm/);
     assert.doesNotMatch(dealerPage, /must-confirm|mustConfirm/i);
-    // Every sheet says trade-ins come after the OTD price — the quote is the car alone.
-    assert.equal((dealerPage.match(/<TradeInNote expected=\{ctx\.tradeInExpected\} \/>/g) || []).length, 2, "cash/finance intro and the lease intro both carry the trade-in note");
-    assert.match(dealerPage, /Trade-ins are handled after an out-the-door price is agreed/);
+    // Trade-in line: cash/finance intro and lease intro both carry it. The old "handled after an out-the-door price" copy is gone everywhere;
+    // no trade reads just "No trade-in.", and a request with a trade shows the trade section (DealerTradePanel).
+    assert.equal((dealerPage.match(/<TradeInNote expected=\{ctx\.tradeInExpected\}/g) || []).length, 2, "cash/finance intro and the lease intro both carry the trade-in note");
+    assert.doesNotMatch(dealerPage, /Trade-ins are handled after|handled after an out-the-door/i);
+    assert.match(dealerPage, /<span className="text-ink-light">No trade-in\.<\/span>/);
     const f = read("components/UsedQuoteForm.tsx");
     assert.match(f, /validateUsedQuote\(quote, prefs, \{ vin: f\.vin, stockNumber: f\.stockNumber, condition, requireMsrp: true, requireSurcharges: true \}\)/);
     assert.match(f, /financeMonthly\(amountFinanced, apr, term\)/);

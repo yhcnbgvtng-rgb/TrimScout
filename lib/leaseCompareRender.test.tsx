@@ -29,7 +29,7 @@ describe("Compare lease quotes — an airy, scannable primary band", () => {
   const html = renderToStaticMarkup(<LeaseCompare data={data} collecting onPick={() => {}} onWalk={() => {}} onCounter={async () => {}} busy={false} />);
   it("dealers are columns: line-item labels down the left in locked order; At a glance cards still there; no composite score", () => {
     const rowLabels = Array.from(html.matchAll(/<th scope="row"[^>]*>([^<]+)<\/th>/g)).map((m) => m[1]);
-    assert.deepEqual(rowLabels, ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Add-ons", "Fees", "Sales tax", "Rebates / credits", "Expires"]);
+    assert.deepEqual(rowLabels, ["Monthly", "Due at signing", "Total lease cost", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Lender", "Credit tier assumed", "Tax method", "Vehicle status", "Add-ons", "Fees", "Sales tax", "End-of-lease costs", "Rebates / credits", "Expires"]);
     assert.match(html, /data-columns="2"/, "two quotes, two dealer columns");
     assert.match(html, /Lowest monthly/); assert.match(html, /Lowest due at signing/); assert.match(html, /Watch-outs/);
     assert.doesNotMatch(html, /score|auction|bid war/i);
@@ -73,7 +73,7 @@ describe("column compare at 1, 3 and 5 dealers", () => {
       const html = render(many(n));
       assert.match(html, new RegExp(`data-testid="lease-table" data-columns="${n}"`));
       assert.equal((html.match(/data-testid="quote-col-eligible"/g) || []).length, n);
-      assert.equal((html.match(/<th scope="row"/g) || []).length, 12, "11 line-item labels + the actions row, once");
+      assert.equal((html.match(/<th scope="row"/g) || []).length, 18, "17 line-item labels + the actions row, once");
       assert.match(html, /overflow-auto/, "the table scrolls sideways when it outgrows the screen");
       assert.match(html, /w-\[15\.5rem\] min-w-\[15\.5rem\] max-w-\[15\.5rem\]/, "capped readable column width");
       assert.match(html, /sticky left-0/); assert.match(html, /sticky top-0/);
@@ -93,7 +93,7 @@ describe("column compare at 1, 3 and 5 dealers", () => {
     assert.match(html, /data-testid="lease-counters-table" data-columns="1"/);
     assert.match(html, /data-testid="counter-badge">Counter</);
     assert.ok(html.indexOf('data-testid="lease-table"') < html.indexOf('data-testid="counters-block"'));
-    assert.equal((html.match(/<th scope="row"/g) || []).length, 24, "both tables use the same line-item rows");
+    assert.equal((html.match(/<th scope="row"/g) || []).length, 36, "both tables use the same line-item rows");
   });
   it("expanding a dealer shows the itemized detail for that quote only", async () => {
     const fs = await import("node:fs");

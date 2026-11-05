@@ -33,7 +33,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const quote = coerceLeaseQuote(body.lease as Record<string, unknown>);
       const vin = typeof body.vin === "string" && body.vin.trim() ? body.vin.trim().toUpperCase() : rfq.vin;
       const stockNumber = typeof body.stockNumber === "string" && body.stockNumber.trim() ? body.stockNumber.trim() : rfq.stockNumber;
-      const v = validateLeaseQuote(quote, rfq.leasePrefs, { vin, stockNumber });
+      // A buyer logging a quote a dealer gave by phone or email can't know the lender or tax method, so this path keeps the pre-v2 rules.
+      const v = validateLeaseQuote(quote, rfq.leasePrefs, { vin, stockNumber }, new Date(), { legacy: true });
       if (v.errors.length) return NextResponse.json({ error: v.errors.join(" "), errors: v.errors, warnings: v.warnings }, { status: 422 });
       const lease = quote as LeaseQuote;
       const d = lease.dueAtSigning;

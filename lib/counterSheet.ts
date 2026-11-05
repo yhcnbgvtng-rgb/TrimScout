@@ -12,7 +12,7 @@
  * these. Still "a request, not a binding bid".
  */
 import { getZipCoordinates } from "./otdCalculator";
-import { dasTotal, monthlyPreTax, netCapCost, sumItems } from "./leaseMath";
+import { dasTotal, monthlyPreTax, netCapCost, sumItems, totalLeaseCost } from "./leaseMath";
 import { computeSalesTax, quoteIsNew } from "./salesTax";
 import type { LeaseQuote, LineItem } from "./leaseQuote";
 import type { FeeOverride } from "./feeOverride";
@@ -131,9 +131,12 @@ export function impliedTaxRate(q: Pick<LeaseQuote, "monthlyPaymentPreTax" | "mon
 /** The dealer's lease with the buyer's price-side edits applied and the payment recomputed by the dealer's own factors. */
 export function applyLeaseCounter(before: LeaseQuote, edits: LeaseCounterEdits): LeaseQuote {
   const capReduction = edits.capReduction ?? before.capReduction;
-  const addOns = (edits.addOns ?? before.addOns).filter((a) => a.name.trim());
-  const incentives = (edits.incentives ?? before.incentives).filter((a) => a.name.trim());
-  const otherFees = (edits.otherFees ?? before.dueAtSigning.otherFees).filter((a) => a.name.trim());
+  // The counter form sends plain name + amount lines; carry the dealer's per-line attributes (fee category, taxable, timing,
+  // incentive eligibility, add-on removable) back onto lines that kept their name, so the compare keeps showing them.
+  const carry = (was: LineItem[], now: LineItem[]) => now.map((n) => ({ ...(was.find((w) => w.name === n.name) ?? {}), ...n }));
+  const addOns = carry(before.addOns, (edits.addOns ?? before.addOns).filter((a) => a.name.trim()));
+  const incentives = carry(before.incentives, (edits.incentives ?? before.incentives).filter((a) => a.name.trim()));
+  const otherFees = carry(before.dueAtSigning.otherFees, (edits.otherFees ?? before.dueAtSigning.otherFees).filter((a) => a.name.trim()));
   // The dealer's calculator nets incentives into the cap cost (cap = selling price − incentives
   // + capitalised fees) and keeps add-ons as listed lines outside the payment. So: a lower cap
   // cost is the buyer's price ask, a bigger incentive lowers the cap by the difference, and the
@@ -146,6 +149,7 @@ export function applyLeaseCounter(before: LeaseQuote, edits: LeaseCounterEdits):
   // DAS: first month follows the new monthly; cap reduction follows the edit. Taxes at signing are the
   // dealer's figure, untouched — tax is not recalculated on the buyer's side; the dealer updates it when they reply.
   const taxes = before.dueAtSigning.taxes;
+  const dueAtSigning = { ...before.dueAtSigning, firstMonth: monthlyTaxed ?? monthly, capReduction, taxes, otherFees, ...(before.dueAtSigning.addOnsDue ? { addOnsDue: addOns.filter((a) => a.timing === "signing") } : {}) };
   return {
     ...before,
     capCost,
@@ -154,7 +158,9 @@ export function applyLeaseCounter(before: LeaseQuote, edits: LeaseCounterEdits):
     incentives,
     monthlyPaymentPreTax: monthly,
     monthlyPaymentWithEstTax: monthlyTaxed,
-    dueAtSigning: { ...before.dueAtSigning, firstMonth: monthlyTaxed ?? monthly, capReduction, taxes, otherFees },
+    dueAtSigning,
+    // Keep the total in step with the new payment and due at signing (only quotes that carry one).
+    ...(before.totalLeaseCost != null ? { totalLeaseCost: totalLeaseCost(monthlyTaxed ?? monthly, before.termMonths, dueAtSigning, before.dispositionFee ?? 0) } : {}),
   };
 }
 
