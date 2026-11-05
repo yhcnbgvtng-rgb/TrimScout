@@ -18,6 +18,7 @@ import { withCounterDeclinedOffers } from "./counterDeclined";
 import type { CounterSheet } from "./counterSheet";
 import type { AlternateAsk, RfqLane } from "./alternateAsk";
 import type { DealStageState } from "./dealStages";
+import type { SelectionOutcome } from "./selectionOutcomes";
 
 export type OptionMatchStatus = "hit" | "miss" | "unknown";
 
@@ -228,6 +229,11 @@ export interface RfqRequest extends RfqSpec {
   adminEdits?: RfqAdminEdit[];
   /** Created by the scoped audit API key: dealer email stays on SAFE MODE, test-mode recipient overrides never apply. */
   auditForcedSafeMode?: boolean;
+  /**
+   * One durable outcome per selected vehicle (lib/selectionOutcomes.ts): invited, or excluded with a stable reason code.
+   * Absent on requests saved before outcomes were recorded, or on a box without the selection-outcomes patch.
+   */
+  selectionOutcomes?: SelectionOutcome[];
   /** audit=1 on the box: created by the audit key or by buyer test mode. Left out of metrics, dealer email stays on SAFE MODE. */
   audit?: boolean;
 }

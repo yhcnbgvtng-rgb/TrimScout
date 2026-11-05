@@ -45,8 +45,9 @@ Box side: `scripts/box/2026-09-17-rfq-approval.sh`.
 The invite row on the box *is* the queue. Create → `queued` → the buyer's
 request returns → on admin release the email is built from stored state and
 sent. Anything still `queued` on a *released* request (killed function,
-provider blip, switch off) is retried when:
-- the buyer opens the deal page (`GET /api/rfqs/:id` drains that request), or
+provider blip, switch off) is retried only by an explicit, authorized action.
+**Opening a deal page, the tracker or the selections diagnostic never sends mail** (changed from "the buyer opening the deal retries it"):
+- an admin presses the request's retry: `POST /api/admin/rfqs/:id/send-queued` (admin session, same gated outbox), or
 - ops drains everything: `curl -X POST https://www.trimscout.com/api/ops/drain-invites?max=100 -H "x-ops-secret: $OPS_SECRET"` (or an admin session).
 
 No cron (Hobby plan). Upgrade to Pro → add `{"crons":[{"path":"/api/ops/drain-invites","schedule":"*/5 * * * *"}]}` to `vercel.json` and pass `CRON_SECRET`.

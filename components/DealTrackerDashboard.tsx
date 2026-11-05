@@ -18,6 +18,8 @@ import { evaluateOfferClock } from "../lib/offerCloseClock";
 import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import { vehicleTitle } from "../lib/vehicleTitle";
+import { selectionApplies, vehicleRows } from "../lib/selectionOutcomes";
+import { SelectionOutcomes } from "./SelectionOutcomes";
 import { tradeInIsExpected } from "../lib/tradeInAnswer";
 import { rfqTrueOtdRows } from "../lib/trade/quoteTrueOtd";
 import { TrueOtdCard } from "./trade/TrueOtdCard";
@@ -209,7 +211,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     </div>
                     <p className="mt-1 text-sm font-semibold text-white">{rfqVehicleSummary(rfq)}</p>
                     <p className="text-[11px] text-ink-muted">
-                      {rfq.invites.length} desk{rfq.invites.length === 1 ? "" : "s"} invited · {relativeTime(rfq.createdAt)}
+                      {rfq.invites.length} desk{rfq.invites.length === 1 ? "" : "s"} invited{selectionApplies(rfq) && (rfq.linkPastes || []).length > rfq.invites.length ? ` of ${(rfq.linkPastes || []).length} vehicles saved` : ""} · {relativeTime(rfq.createdAt)}
                       {rfq.leasePrefs ? ` · ${rfq.leasePrefs.termMonths} mo · ${rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr` : ""}
                     </p>
                   </div>
@@ -220,6 +222,7 @@ export const DealTrackerDashboard: React.FC<DealTrackerDashboardProps> = ({
                     Open <ChevronRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
+                {selectionApplies(rfq) ? <SelectionOutcomes rows={vehicleRows(rfq)} compact /> : null}
                 {rfqTrueOtdRows(rfq).length > 0 ? (
                   <section className="space-y-2" data-testid="tracker-true-otd">
                     <h3 className="text-xs font-bold text-white">True out-the-door after your trade-in</h3>

@@ -13,6 +13,7 @@ import { coerceTradeIn } from "./trade/coerce";
 import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
+import type { SelectionOutcome } from "./selectionOutcomes";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
 const DEALS_API_PORT = 3004;
@@ -149,6 +150,20 @@ export async function createRfqInvite(
 ): Promise<RfqInvite> {
   const json = await request("POST", `/api/rfqs/${rfqId}/invites`, input);
   return json.invite as RfqInvite;
+}
+
+/**
+ * Store the per-vehicle outcomes of a submission on the request (box: rfq_requests.selection_outcomes_json).
+ * Returns false when the box has no such endpoint yet (404/405) or cannot be reached: the caller still has the
+ * outcomes in hand and says they were not stored, rather than pretending they were.
+ */
+export async function recordSelectionOutcomes(rfqId: string, outcomes: SelectionOutcome[]): Promise<boolean> {
+  try {
+    await request("PUT", `/api/rfqs/${rfqId}/selection-outcomes`, { outcomes });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** The admin gate: release, reject (reason required), or put back to pending (buyer resubmit). */
