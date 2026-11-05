@@ -13,6 +13,8 @@ export interface LiveCountProps {
   pending?: boolean;
   /** One line under the number, e.g. why it is a wider count than the filters ask for. */
   note?: string | null;
+  /** The sidebar version: a small number beside its label instead of the large centred headline. */
+  compact?: boolean;
 }
 
 const DURATION_MS = 380;
@@ -41,9 +43,20 @@ function useEasedNumber(target: number | null): number | null {
   return shown;
 }
 
-export function LiveCount({ value, capped, pending, note }: LiveCountProps) {
+export function LiveCount({ value, capped, pending, note, compact }: LiveCountProps) {
   const shown = useEasedNumber(value);
   const text = shown == null ? "—" : `${shown.toLocaleString()}${capped ? "+" : ""}`;
+  if (compact) {
+    return (
+      <div data-testid="live-count">
+        <p className={`text-xs text-ink-light transition-opacity duration-200 ${pending ? "opacity-50" : "opacity-100"}`}>
+          <span aria-live="polite" aria-atomic="true" className="text-2xl font-semibold tabular-nums text-white">{text}</span>{" "}
+          {value === 1 && !capped ? "vehicle matches" : "vehicles match"}
+        </p>
+        {note && <p className="mt-1 text-[11px] text-ink-faint">{note}</p>}
+      </div>
+    );
+  }
   return (
     <div className="text-center" data-testid="live-count">
       <p

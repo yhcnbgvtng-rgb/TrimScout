@@ -81,10 +81,7 @@ describe("/search infinite scroll", () => {
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
     // Pick the Toyota make (an option in the Make dropdown), then press the green "Show N vehicles" button.
-    const makeLabel = [...document.querySelectorAll("label")].find((l) => l.textContent?.trim() === "Make") as HTMLLabelElement;
-    await click(document.getElementById(makeLabel.htmlFor)!);
-    const makeOption = [...document.querySelectorAll('[role="option"]')].find((e) => e.textContent?.startsWith("Toyota")) as HTMLButtonElement;
-    await click(makeOption);
+        await click([...document.querySelectorAll('ul[aria-label="Makes"] button')].find((e) => e.textContent?.startsWith("Toyota"))!);
     await click(btn("Show"));
     const hitSentinel = async () => {
       const live = observers.filter((o) => o.live && o.el);
@@ -154,8 +151,8 @@ describe("/search infinite scroll", () => {
     await t.hitSentinel();
     assert.equal(box().checked, true, "pick survives the append");
     assert.equal(t.rows(), PAGE * 2);
-    // Change the sort in the More panel, press Search: back to one page, starting at offset 0.
-    await t.click(t.btn("More"));
+    // Change the sort in the Other section, press Search: back to one page, starting at offset 0.
+    await t.click(t.btn("Other"));
     const sort = [...document.querySelectorAll("select")].find((s) => [...s.options].some((o) => o.value === "price:asc"))!;
     await t.act(async () => {
       const set = Object.getOwnPropertyDescriptor(dom.window.HTMLSelectElement.prototype, "value")!.set!;

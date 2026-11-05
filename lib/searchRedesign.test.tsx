@@ -79,28 +79,25 @@ describe("/search page, rendered", () => {
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
     const search = async () => {
-      const label = [...document.querySelectorAll("label")].find((l) => l.textContent?.trim() === "Make") as HTMLLabelElement;
-      await click(document.getElementById(label.htmlFor)!);
-      await click([...document.querySelectorAll('[role="option"]')].find((e) => e.textContent?.startsWith("Toyota"))!);
+            await click([...document.querySelectorAll('ul[aria-label="Makes"] button')].find((e) => e.textContent?.startsWith("Toyota"))!);
       await click(btn("Show"));
     };
     const headers = () => [...document.querySelectorAll('[role="columnheader"]')].map((h) => h.textContent?.trim().toLowerCase());
     return { click, btn, search, headers };
   }
 
-  it("the top row is Location, Make, Model, Trim, Year, Price, Factory options, More; Trim and Factory options are locked until a make is picked", async () => {
+  it("the filters are a left sidebar accordion: Condition, Location, Make, Model, Trim, Year, Price, Odometer, Colour, Factory options, Other; Model, Trim and Factory options wait for a make", async () => {
     const t = await mount();
-    const row = document.querySelector('[role="group"][aria-label="Filters"]')!;
-    const labels = [...row.children].map((c) => c.querySelector("label, span")?.textContent?.trim());
-    assert.deepEqual(labels.map((l) => l?.replace(/^Paid /, "")), ["Location", "Make", "Model", "Trim", "Year", "Price", "Factory options", "More"]);
-    for (const name of ["Model", "Trim", "Factory options"]) {
-      const cell = [...row.children].find((c) => c.querySelector("label, span")?.textContent?.trim().replace(/^Paid /, "") === name)!;
-      assert.equal(cell.querySelector("input"), null, `${name} has no input until a make is picked`);
-      assert.match(cell.textContent ?? "", /Pick a make/);
-    }
+    assert.equal(document.querySelector('[role="group"][aria-label="Filters"] select[aria-label="State"]'), null, "no old dropdown row");
+    const side = document.querySelector('[data-testid="filters-sidebar"]')!;
+    assert.ok(side, "the sidebar renders");
+    const titles = () => [...side.querySelectorAll("button[aria-expanded]")].map((b) => b.textContent?.trim().replace(/^Paid /, "").replace(/\d+$/, ""));
+    assert.deepEqual(titles(), ["Condition", "Location", "Make", "Model", "Trim", "Year", "Price", "Odometer", "Colour", "Factory options", "Other"]);
+    assert.match(side.textContent ?? "", /Pick a make first/, "Model waits for a make");
+    assert.equal(side.querySelector('input[aria-label="Search models"]'), null);
     await t.search();
-    const trim = [...row.children].find((c) => c.querySelector("label")?.textContent?.trim() === "Trim")!;
-    assert.ok(trim.querySelector("input"), "Trim unlocks with a make");
+    assert.ok(side.querySelector('input[aria-label="Search models"]'), "Model unlocks with a make");
+    assert.ok(side.querySelector('[data-testid="selected-bar"]')?.textContent?.includes("Toyota"), "the make shows as a removable chip");
   });
 
   it("Vehicle ID and Days on market are hidden by default, return from the Columns menu, and no first/last-seen column ever exists", async () => {

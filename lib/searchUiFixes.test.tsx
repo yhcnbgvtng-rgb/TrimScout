@@ -58,7 +58,7 @@ describe("pure helpers", () => {
     assert.ok(!HIDDEN_BY_DEFAULT.includes("days"));
   });
   it("the contact tooltip says a valid sales email, not a named contact", () => {
-    const src = fs.readFileSync(new URL("../components/search/SearchFilterBar.tsx", import.meta.url), "utf8");
+    const src = fs.readFileSync(new URL("../components/search/SearchFilterSidebar.tsx", import.meta.url), "utf8");
     assert.match(src, /dealer has a valid sales email on file/);
     assert.doesNotMatch(src, /named sales contact/);
   });
@@ -122,9 +122,7 @@ describe("/search UI fixes, rendered", () => {
     const click = async (el: Element) => { await act(async () => { el.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true })); await tick(); }); };
     const btn = (text: string) => [...document.querySelectorAll("button")].find((b) => b.textContent?.trim().startsWith(text)) as HTMLButtonElement;
     const search = async () => {
-      const label = [...document.querySelectorAll("label")].find((l) => l.textContent?.trim() === "Make") as HTMLLabelElement;
-      await click(document.getElementById(label.htmlFor)!);
-      await click([...document.querySelectorAll('[role="option"]')].find((e) => e.textContent?.startsWith("Toyota"))!);
+            await click([...document.querySelectorAll('ul[aria-label="Makes"] button')].find((e) => e.textContent?.startsWith("Toyota"))!);
       await click(btn("Show"));
       await act(async () => { await tick(); await tick(); });
     };
