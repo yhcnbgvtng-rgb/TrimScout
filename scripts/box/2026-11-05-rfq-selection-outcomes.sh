@@ -107,7 +107,9 @@ PY
 
 node --check "$FILE" && echo "syntax ok"
 if [ "${TEST_ONLY:-0}" != "1" ]; then
-  sudo pm2 restart deals-api
+  # deals-api runs under ubuntu's pm2 (/home/ubuntu/.pm2). `sudo pm2` talks to root's daemon, finds nothing, and
+  # spawns an empty root daemon instead of restarting (seen on box2, 2026-11-05).
+  pm2 restart deals-api --update-env
   sleep 3
   echo "--- process up? (401 = up, key required) ---"
   curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3004/health
