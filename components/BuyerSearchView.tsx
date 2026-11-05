@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { NO_PAID_FACTORY_OPTIONS, optionsPaidOnlyEnabled } from "@/lib/optionsPaidOnly";
 import type { DropdownOption } from "./search/SearchableDropdown";
-import { SearchFilterBar, useIsMobile } from "./search/SearchFilterBar";
+import { FiltersDrawerButton, SearchFilterSidebar } from "./search/SearchFilterSidebar";
 import { toggleColumn, visibleColumnKeys } from "@/lib/searchColumns";
 import { fitColumnWidth, growOnly, maxCellPx } from "@/lib/searchColumnFit";
 import { useBuyerSearchState } from "./search/useBuyerSearchState";
@@ -106,6 +106,20 @@ const EMPTY_FILTERS: Filters = {
 
 // A "More" filter is anything not always visible in the primary row — its own count so the
 // trigger can say "3 more filters" instead of a generic icon with no idea how many are hiding.
+/** Phone width (the table switches to cards). */
+function useIsMobile(): boolean {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return; // no media queries (an old browser, or a test DOM): the desktop table
+    const mq = window.matchMedia("(max-width: 639px)");
+    const apply = () => setMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+  return mobile;
+}
+
 function countMoreFilters(f: Filters): number {
   return (
     [f.cond, f.priceMin, f.priceMax, f.yearMin, f.yearMax, f.odometerMax, f.exteriorColor, f.interiorColor, f.zip, f.radiusMiles].filter(Boolean).length +
@@ -197,7 +211,7 @@ export function BuyerSearchView() {
   // A VIN lookup replaces the filter results on screen until it is cleared; the filters and their results stay untouched underneath.
   const [vinHit, setVinHit] = useState<VinLookupResult<BuyerVehicle> | null>(null);
   const viewedSet = useMemo(() => new Set(picksState.viewed), [picksState.viewed]);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [stateOptions, setStateOptions] = useState<DropdownOption[]>([]);
   const [makeOptions, setMakeOptions] = useState<DropdownOption[]>([]);
@@ -369,7 +383,7 @@ export function BuyerSearchView() {
   const blockedReason = searchBlockedReason(filters);
   const submitSearch = () => {
     if (blockedReason) return;
-    setMoreOpen(false);
+    setDrawerOpen(false);
     setSortNote(null);
     // A fresh object every time, so pressing Search again re-runs the same filters on purpose.
     setApplied({ ...filters });
@@ -409,6 +423,10 @@ export function BuyerSearchView() {
   const hasMore = results ? nextOffsetOf(results) != null : false;
 
   const moreCount = countMoreFilters(filters);
+  // The number on the phone "Filters" button: one per selected-filter chip in the sidebar.
+  const activeFilterCount = [filters.cond, filters.state, filters.zip || filters.radiusMiles, filters.make, filters.model, filters.trim, filters.yearMin || filters.yearMax,
+    filters.priceMin || filters.priceMax, filters.odometerMax, filters.exteriorColor, filters.interiorColor, filters.possibleDemo, filters.contactOnFile, parseExclude(filters.exclude).length]
+    .filter(Boolean).length + filters.optionKeys.length;
   const clearMore = () =>
     setFilters((f) => ({
       ...f, cond: "", priceMin: "", priceMax: "", yearMin: "", yearMax: "", odometerMax: "",
@@ -503,20 +521,23 @@ export function BuyerSearchView() {
   const headlineCapped = live.value != null ? Boolean(live.capped) : Boolean(results?.totalCapped);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 accent-brand-500 sm:px-6 lg:px-8 [&_*:focus-visible]:outline-brand-500" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
-      <VinLookup<BuyerVehicle> active={vinHit !== null} onResult={setVinHit} onClear={() => setVinHit(null)} />
-
-      <SearchFilterBar
+    <div className="mx-auto max-w-[1600px] accent-brand-500 md:flex md:items-start [&_*:focus-visible]:outline-brand-500">
+      <SearchFilterSidebar
         filters={filters} setFilters={setFilters} setMake={setMake} setModel={setModel}
         stateOptions={shownCounts(stateOptions)} makeOptions={shownCounts(makeOptions)} modelOptions={shownCounts(modelOptions)} trimOptions={shownCounts(trimOptions)}
         facetsFailed={facetsFailed} facetsLoading={facetsLoading}
         catalogOptions={catalogOptions} catalogOptionsLoading={catalogOptionsLoading}
         optionsEmptyMessage={catalogOptionsFailed ? "Couldn't load factory options right now — try again in a moment." : paidOnly ? NO_PAID_FACTORY_OPTIONS : "No factory options in inventory for this make/model yet."}
         exteriorColors={exteriorColors} interiorColors={interiorColors}
-        moreOpen={moreOpen} setMoreOpen={setMoreOpen} moreCount={moreCount} clearMore={clearMore} clearAll={clearAll}
+        clearAll={clearAll}
         contactFilterOn={contactFilterEnabled()} blockedReason={blockedReason} hintHidden={vinHit !== null} dirty={dirty} searchLoading={searchLoading} submitSearch={submitSearch}
-        live={live} excludedHidden={excludedHidden}
+        live={live} excludedHidden={excludedHidden} drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen}
       />
+
+    <div className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8" style={{ paddingBottom: "calc(var(--picks-bar-h, 7rem) + 1.5rem)" }}>
+      <h1 className="mb-4 text-lg font-medium tracking-tight text-ink-muted sm:text-xl">Search real dealer inventory</h1>
+      <FiltersDrawerButton count={activeFilterCount} onOpen={() => setDrawerOpen(true)} expanded={drawerOpen} />
+      <VinLookup<BuyerVehicle> active={vinHit !== null} onResult={setVinHit} onClear={() => setVinHit(null)} />
 
       {vinHit ? (
         <div data-testid="vin-results">
@@ -561,6 +582,7 @@ export function BuyerSearchView() {
       </div>
       )}
       <PicksBar state={picksState} />
+    </div>
     </div>
   );
 }

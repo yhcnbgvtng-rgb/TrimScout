@@ -87,6 +87,6 @@ describe("the sort sticks", () => {
     assert.doesNotMatch(count, /f\.sort/);
   });
   it("a fresh Search clears an old sort note", () => {
-    assert.match(page, /setMoreOpen\(false\);\s*setSortNote\(null\);/);
+    assert.match(page, /setDrawerOpen\(false\);\s*setSortNote\(null\);/);
   });
 });
