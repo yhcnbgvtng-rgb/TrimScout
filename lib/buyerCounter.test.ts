@@ -138,7 +138,7 @@ describe("every add-on, fee and rebate is shown by name — never a bare total",
     assert.match(lease, /Quoted by <span className="text-ink-light">/, "masked email only in the expand detail");
     // Dealers are columns now: the row labels are the locked line items, in order.
     const labels = Array.from(lease.slice(lease.indexOf("LEASE_ROWS"), lease.indexOf("const badge")).matchAll(/label: "([^"]+)"/g)).map((m) => m[1]);
-    assert.deepEqual(labels, ["Monthly", "Due at signing", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Add-ons", "Fees", "Sales tax", "Rebates / credits", "Expires"]);
+    assert.deepEqual(labels, ["Monthly", "Due at signing", "Total lease cost", "Cap cost", "MF (APR)", "Residual %", "Term / miles", "Lender", "Credit tier assumed", "Tax method", "Vehicle status", "Add-ons", "Fees", "Sales tax", "End-of-lease costs", "Rebates / credits", "Expires"]);
     const form = read("components/CounterSheetForm.tsx");
     assert.doesNotMatch(form, /truncate text-\[11px\]/, "line names wrap, never truncate, on the counter sheet");
   });

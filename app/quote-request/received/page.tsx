@@ -50,7 +50,7 @@ type Context = {
   buyerNote: string | null;
   /** Sticker MSRP when the build was factory-verified; the dealer can type it otherwise. */
   msrp: number | null;
-  /** Buyer said a trade-in is coming (handled after the OTD price). */
+  /** Buyer said a trade-in is coming (null = unknown). */
   tradeInExpected: boolean | null;
   /** The buyer attached a trade-in (details + photos load from /api/quote-invite/trade). */
   hasTrade?: boolean;
@@ -65,15 +65,15 @@ type Context = {
   quotedOtd?: number | null;
 };
 
-/** On every dealer sheet: the quote is the car alone — a trade comes after the OTD price is agreed. */
-const DEALER_TRADE_IN_COPY = "Trade-ins are handled after an out-the-door price is agreed. Quote the car on its own — don't net a trade into these numbers; we'll work through any trade, and the registration-fee and sales-tax changes it brings, with you afterwards.";
-
-function TradeInNote({ expected }: { expected: boolean | null }) {
+/**
+ * The trade line on a dealer sheet. A request with a trade shows the trade section in the sheet itself (DealerTradePanel,
+ * every invited dealer quotes it up front), so this only says so; with no trade it says just "No trade-in."
+ */
+function TradeInNote({ expected, hasTrade }: { expected: boolean | null | undefined; hasTrade?: boolean }) {
   return (
     <p className="text-xs text-ink-muted border-t border-border/60 pt-3" data-testid="dealer-trade-in-note">
       <strong className="text-ink-light">Trade-in:</strong>{" "}
-      {expected === true ? <strong className="text-sky-300">The buyer has a trade-in and will add it in the deal.</strong> : expected === false ? <span className="text-ink-light">No trade-in.</span> : null}{" "}
-      {DEALER_TRADE_IN_COPY}
+      {hasTrade ? <strong className="text-sky-300">The buyer included a trade-in — give your trade allowance in the trade section of the sheet.</strong> : expected === true ? <strong className="text-sky-300">The buyer has a trade-in and will add it in the deal.</strong> : <span className="text-ink-light">No trade-in.</span>}
     </p>
   );
 }
@@ -325,7 +325,7 @@ function ReceivedBody() {
                     <strong className="text-white">Quote through the calculator below.</strong> Every field the buyer compares on is required —
                     cap cost, residual, money factor, monthly, and due at signing itemized. A monthly-only reply can&apos;t be submitted.
                   </p>
-                  <TradeInNote expected={ctx.tradeInExpected} />
+                  <TradeInNote expected={ctx.tradeInExpected} hasTrade={Boolean(ctx.hasTrade)} />
                   <p className="text-xs text-ink-muted border-t border-border/60 pt-3">{LEASE_NON_BINDING_COPY}</p>
                 </div>
               )}
