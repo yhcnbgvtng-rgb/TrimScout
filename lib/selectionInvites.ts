@@ -45,6 +45,8 @@ const BLOCK_TO_REASON: Partial<Record<InviteBlockReason, SelectionReasonCode>> =
 
 const live = (i: RfqInvite) => i.status !== "declined" && i.status !== "expired";
 const key = (s: string | null | undefined) => (s || "").trim().toLowerCase();
+/** One physical store: name + state. Two same-named stores in different states are two stores. */
+const storeKey = (name: string | null | undefined, state: string | null | undefined) => `${key(name)}|${(state || "").trim().toUpperCase()}`;
 
 export interface SelectionRunResult {
   outcomes: SelectionOutcome[];
@@ -61,9 +63,15 @@ export async function createSelectionInvites(rfqIn: RfqRequest, choices: Selecti
   const created: RfqInvite[] = [];
   const dealerHasInvite = new Map<string, string>(); // dealer key → invite id
 
-  for (const i of rfq.invites) if (live(i)) dealerHasInvite.set(key(i.dealerName), i.id);
+  const vehicles = rfqVehicles(rfq);
+  // A live invite occupies its store: found through the vehicle it carries (which knows the state), else by name alone.
+  for (const i of rfq.invites) {
+    if (!live(i)) continue;
+    const car = vehicles.find((c) => inviteForVehicle(rfq, c)?.id === i.id);
+    dealerHasInvite.set(storeKey(i.dealerName, car?.dealerState), i.id);
+  }
 
-  for (const v of rfqVehicles(rfq)) {
+  for (const v of vehicles) {
     const at = now();
     // Retry / double click: this vehicle already has its invitation.
     const existing = inviteForVehicle(rfq, v);
@@ -75,7 +83,7 @@ export async function createSelectionInvites(rfqIn: RfqRequest, choices: Selecti
     if (!choice) { outcomes.push(excluded(v, "not_attempted", at)); continue; }
     if (!choice.checked) { outcomes.push(excluded(v, "dealer_unchecked", at)); continue; }
     if (!v.dealerName) { outcomes.push(excluded(v, "ineligible_vehicle", at)); continue; }
-    const dealerKey = key(v.dealerName);
+    const dealerKey = storeKey(v.dealerName, v.dealerState);
     if (dealerHasInvite.has(dealerKey)) { outcomes.push(excluded(v, "same_dealer_other_vehicle", at)); continue; }
     const holding = rfq.invites.filter(live).length;
     if (holding >= Math.min(RFQ_MAX_INVITES, deps.maxInvites ?? RFQ_MAX_INVITES)) { outcomes.push(excluded(v, "invite_limit_reached", at)); continue; }

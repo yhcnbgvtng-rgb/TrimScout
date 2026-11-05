@@ -7,7 +7,7 @@
 #        token can be stored through it.
 #   GET  /api/rfqs/:id                     (and the list) now carry selectionOutcomes ([] on older requests)
 #   POST /api/rfqs/:id/invites             a dealership that already holds a live (not declined/expired) invite on this request
-#        gets that invite back (200, reused: true) instead of a second row, so a retry or double click cannot duplicate.
+#        and the same vehicle gets that invite back (200, reused: true) instead of a second row, so a retry or double click cannot duplicate.
 # The app works without this patch: it shows the reasons it just computed, says they were not stored, and an older
 # request shows "Reason unavailable". With it, the reasons survive a reload.
 # DO NOT run during the nightly inventory sync (the restart drops in-flight sync requests): the guard below refuses.
@@ -51,8 +51,8 @@ if "selection_outcomes_json" not in s:
   // that invitation (200, reused) instead of creating a second one. Checked before the cap so a repeat at the cap is
   // still a no-op, not an error.
   const [sameDealerRows] = await pool.query(
-    "SELECT * FROM rfq_invites WHERE rfq_id = ? AND LOWER(dealer_name) = ? AND status NOT IN ('declined', 'expired') ORDER BY id ASC LIMIT 1",
-    [rfqId, dealerName.toLowerCase()]
+    "SELECT * FROM rfq_invites WHERE rfq_id = ? AND LOWER(dealer_name) = ? AND status NOT IN ('declined', 'expired') AND vehicle_json IS NOT NULL AND vehicle_json LIKE ? ORDER BY id ASC LIMIT 1",
+    [rfqId, dealerName.toLowerCase(), vehicle && vehicle.vin ? `%"vin":${JSON.stringify(String(vehicle.vin))}%` : "%\u0000never%"]
   );
   if (sameDealerRows.length > 0) return sendJson(res, 200, { invite: publicRfqInvite(sameDealerRows[0], null), reused: true });
 

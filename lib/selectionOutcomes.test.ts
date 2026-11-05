@@ -97,6 +97,14 @@ describe("every selected vehicle gets an outcome", () => {
     assert.equal(summaryHeadline(summarizeRows(rows)), "3 vehicles saved · 2 invitations created · 1 blocked");
   });
 
+  it("the same dealership name in two different states is two stores: both are invited", async () => {
+    const pastes = [paste(V1, "Main Street Chevrolet", "PA"), paste(V2, "Main Street Chevrolet", "NJ")];
+    const { result, box } = await run(pastes, tick(V1, V2));
+    // (the fake box reuses by name, as the old box did; the app-side rule is what is under test, and it asks the box for both)
+    assert.equal(box.queueCalls.length, 2, "the app did not collapse them into one store");
+    assert.notEqual(result.outcomes[1].code, "same_dealer_other_vehicle");
+  });
+
   it("the invitation carries the vehicle that was meant, not just the first car at that dealership", () => {
     const rfq = buildRfq([paste(V1, "Scott Chevrolet", "PA"), paste(V2, "Scott Chevrolet", "PA", "LS")]);
     assert.equal(inviteVehicleFor(rfq, "Scott Chevrolet", V2).vin, V2);
