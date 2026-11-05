@@ -14,7 +14,7 @@ DealerOn pages (`/new-City-Year-…` URLs) carry two JSON-LD blocks: a `Vehicle`
 
 Dry-run on the repo side: 02 then 01 applied to `origin/main` minus #416 gives byte-identical `standalone.js` (`68e5d49d50d93c6219cea6360d1e5672`), `jsonLdColors.js` (`069bb6fe9390b4ba04a621b3d367da4e`) and `listingColors.js` (`c63822c08180890a66403d516fc0c561`) to the PR branch; 01 alone applies to `origin/main`. **Not yet dry-run against any box's real `standalone.js`** - the boxes' checkouts are hand-patched, so step 3's dry-run is the real test, and the "before" md5 of each box must be recorded in step 2 (it is not known here).
 
-The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Use the patches only. Box IPs: box1 34.203.148.79, box3 184.73.158.210, box4 100.50.85.234.
+The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Use the patches only. Box IPs: old box1 (retired), box3 184.73.158.210, box4 100.50.85.234.
 
 ## Steps (repeat per box; set `BOX` to the box's IP)
 

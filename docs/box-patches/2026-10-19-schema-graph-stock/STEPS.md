@@ -17,7 +17,7 @@ No restart is needed: every crawl is a fresh Node process, so the next 22:00 sta
 
 `drift-check.sh` (md5 `e6787422c978e7be723ddf6d35519f60`, this directory) works out which of the four a box still needs and applies them, in order, to a COPY of the box's files in a temp dir - nothing in the checkout changes. Repo-side proof: starting from a reconstruction of box4 (standalone.js with none of #416/#564/#353 pieces, `porscheSchemaOrgFields.js` = git `fb63fd2`, md5-identical to box4's), all four apply in order and give files identical to the PR branch; `standalone.js` there is a reconstruction from main, not box4's real file, so **the real gate is step 3 on each box**.
 
-The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Use the patches only. Box IPs: box1 34.203.148.79, box3 184.73.158.210, box4 100.50.85.234.
+The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Use the patches only. Box IPs: old box1 (retired), box3 184.73.158.210, box4 100.50.85.234.
 
 ## Off switches (add to that box's crawl cron line; each makes the new behaviour a no-op)
 - `CRAWLER_SCHEMA_GRAPH=false` - ignore `@graph` again (top-level object only, as before).
