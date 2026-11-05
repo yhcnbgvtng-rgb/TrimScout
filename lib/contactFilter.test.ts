@@ -167,6 +167,10 @@ describe("contact filter with a radius never raises the count", () => {
     assert.ok(on.vehicles.every((v) => v.dealerHasContact === true));
     const offVins = new Set(off.vehicles.map((v) => v.vin));
     assert.ok(on.vehicles.every((v) => offVins.has(v.vin)));
-    assert.ok(!calls.some((c) => c.path === "/api/inventory/contact-search"), "scan path filters page-side, not by a different box query");
+    // The scan is scoped to the dealers inside the radius (the same list whether the box is ticked or not); the contact filter itself is never
+    // pushed to the box on a scan, only applied page-side. So ticking it cannot change which cars the box was asked for.
+    const scanned = calls.filter((c) => c.path === "/api/inventory/contact-search").map((c) => JSON.stringify([...(c.body?.dealerIds ?? [])].sort()));
+    assert.ok(scanned.length >= 2, "both scans went through the radius-scoped query");
+    assert.equal(new Set(scanned).size, 1, "box on and box off ask for exactly the same dealers");
   });
 });

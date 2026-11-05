@@ -1,6 +1,6 @@
 import { searchInventory, catalogOptions, InventoryApiError, type InventoryVehicle, type BuyerSearchQuery } from "./inventoryApi";
 import type { ParsedBuyerSearch } from "./buyerSearchQuery";
-import { haversineMiles, makeDealerLocator, roundMiles, zipLatLng } from "./dealerGeo";
+import { dealerIdsWithin, haversineMiles, makeDealerLocator, roundMiles, zipLatLng } from "./dealerGeo";
 import { isReachableState } from "./dealerContactLookup";
 import { contactStateFor, loadContactIndex, type ContactIndex } from "./dealerContactIndex";
 import type { ContactState } from "./dealerContactLookup";
@@ -159,7 +159,7 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
   const fetchPage = (q: BuyerSearchQuery) => searchInventory(q, contactIds ? { dealerIds: contactIds } : undefined);
   // A scan (radius / merged colours) reads the SAME capped box result set whether or not the contact filter is on, then applies the filter
   // here, page-side. The filtered rows are then always a subset of the unfiltered ones, so ticking the box can only narrow the count.
-  const fetchScanPage = (q: BuyerSearchQuery) => searchInventory(q);
+  let fetchScanPage = (q: BuyerSearchQuery) => searchInventory(q);
 
   // Real distances: the buyer's ZIP and the dealer's directory ZIP both come from the Census ZCTA table. A dealer we cannot place has
   // NO distance (null) — never a state centroid — and a radius cuts it: a car whose distance or ZIP is unknown cannot be shown to be inside it.
@@ -176,6 +176,29 @@ export async function runBuyerSearch(parsed: ParsedBuyerSearch): Promise<BuyerSe
 
   const variants = await colorVariants(query);
   const limit = query.limit ?? 50, from = query.offset ?? 0;
+
+  // Resolve the dealers inside the radius FIRST, then ask the box only for their cars. Without this the scan read the first
+  // BUYER_COUNT_CAP cars of the make in the box's dealer order (a nationwide list) and only then cut by radius, so a sparse make
+  // could show almost nothing in range even with stock nearby. The rows are still cut by insideRadius below, so count, page and
+  // "load more" stay one set. Falls back to the old scan when the directory knows no dealer in range or the box cannot take the list.
+  if (useRadius && buyerAt) {
+    const inRange = dealerIdsWithin(contacts, buyerAt, radiusMiles as number);
+    if (inRange.length > 0) {
+      let scoped = true;
+      fetchScanPage = async (q) => {
+        if (scoped) {
+          try {
+            return await searchInventory(q, { dealerIds: inRange });
+          } catch (err) {
+            // A box without the dealer-id endpoint (404) or that did not apply it (502): scan as before. Anything else is a real error.
+            if (!(err instanceof InventoryApiError && (err.status === 404 || err.status === 502))) throw err;
+            scoped = false;
+          }
+        }
+        return searchInventory(q);
+      };
+    }
+  }
 
   // The box has no dealer lat/lng, so a radius (and a colour that merges several stored values) is applied here over the WHOLE box result
   // set (the box's own count cap bounds it): count, page and "load more" then all come from one filtered set.
