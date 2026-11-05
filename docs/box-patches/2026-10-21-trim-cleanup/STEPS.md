@@ -37,7 +37,7 @@ md5s of the two files, repo side (main, which is what the patch was cut from; a 
 
 Boxes' known `standalone.js` md5s from earlier work (before #570 is applied): box3/box4 `718da826…` (after #564/#565), box1 `0eb20a19…`. Their after-md5s are NOT known here and are not guessed: `drift-check.sh` prints the patched-copy md5s and step 5 must match them.
 Repo-side proof: the patch applied to main's pre-#570 files produces exactly the after md5s above, and `drift-check.sh` passes against that copy, reports ALREADY PATCHED on the post-#570 files, and FAILS (as it should) on 2026-09-27 files. The patch applies cleanly to the repo's versions of both files from 2026-10-07 onward; the boxes' own versions were not read.
-The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Box IPs: box1 34.203.148.79, box3 184.73.158.210, box4 100.50.85.234.
+The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Box IPs: old box1 (retired), box3 184.73.158.210, box4 100.50.85.234.
 
 ## Steps (repeat per box; set `BOX` to the IP)
 0. From the Mac, in the repo checkout:

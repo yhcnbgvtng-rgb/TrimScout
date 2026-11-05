@@ -7,11 +7,11 @@ Legend: **[verified]** read-only check from Grok Bot's computer, 2026-10-10 08:1
 
 Last verified: **2026-10-10 08:15 ET** for box2/3/4 (read-only, from Grok Bot's computer). **box1 (v2) and box5 are from Paul's 2026-11-03 report, not re-checked live.** Update the date when someone re-checks a box live.
 
-**2026-11-03 fleet change:** box1 was replaced by **box1-v2** (new machine, same label `box1`), and **box5** (Lightsail `crawler-box-5`) was added. The old box1 is stopped and is deleted around **2026-11-05** (see Retired boxes).
+**2026-11-03 fleet change:** box1 was replaced by **box1-v2** (new machine, same label `box1`), and **box5** (Lightsail `crawler-box-5`) was added. The old box1 was deleted on **2026-11-04** (see Retired boxes).
 
 | | box1 (v2) | box2 (crawler + deals box) | box3 | box4 | box5 (new) |
 |---|---|---|---|---|---|
-| Public IP | 3.211.168.213 (static) | 52.202.234.65 | 184.73.158.210 | 100.50.85.234 | 44.200.197.211 (**not static**) |
+| Public IP | 3.211.168.213 (static IP `StaticIp-1`) | 52.202.234.65 (static IP `trimscout-box2-static`) | 184.73.158.210 (static IP `trimscout-box3-static`) | 100.50.85.234 (static IP `trimscout-box4-static`) | 18.209.128.97 (static IP `trimscout-box5-static`) |
 | Private IP | 172.26.5.232 | 172.26.6.89 (was 172.26.14.74 until 2026-11-04) | 172.26.15.105 | 172.26.11.241 | 172.26.13.207 |
 | Size | 4 vCPU / 16 GB, $84/mo | 4 vCPU / 32 GB, $144/mo, Lightsail `crawler-box-2-v2` (bundle `m_xlarge_1_0`, us-east-1a), static IP `trimscout-box2-static`; MariaDB `innodb_buffer_pool_size` 20G | UNVERIFIED (4 vCPU / 15 GB per CRAWL_QUEUE.md) | UNVERIFIED | 8 vCPU / 32 GB, $164/mo, Ubuntu 24.04 (Lightsail `crawler-box-5`) |
 | SSH user | `ubuntu` | `ubuntu` | `ubuntu` | `ubuntu` | `ubuntu` |
@@ -21,7 +21,7 @@ Last verified: **2026-10-10 08:15 ET** for box2/3/4 (read-only, from Grok Bot's 
 
 **2026-11-04 box2 rebuild:** box2 moved to a new Lightsail instance, `crawler-box-2-v2` (m_xlarge_1_0, 4 vCPU / 32 GB), restored from snapshot `box2-phase2-20261104-clean` (taken after MariaDB was stopped cleanly). The public IP 52.202.234.65 (static IP `trimscout-box2-static`) moved to the new instance; the **private IP changed to 172.26.6.89**. Buyer downtime was about 60 minutes (17:19-18:18 ET), almost all of it the snapshot. The old instance `crawler-box-2` is **stopped and kept as the rollback** (rolling back loses any writes made after 2026-11-04 18:18 ET); an older snapshot, `box2-warm-20261104`, is also kept. The new instance has a new SSH host key, so clear the old `known_hosts` entry for 52.202.234.65. Nothing in the boxes' crontabs, `inventory-sync` env or crawler config referenced the old private IP (checked 2026-11-04).
 
-**box5's public IP is not static.** It changes if the instance is stopped and started (the 2026-09-28 billing-gate outage did exactly this to the old dynamic IPs). Attach a static IP, or re-check the address and update `config/boxes.json` + this file in one PR after any stop/start. The private IP is stable, so prefer the box2 ProxyJump route.
+**box5 now has a static IP (2026-11-04).** `trimscout-box5-static` = 18.209.128.97 replaced the old dynamic public IP (listed under Do not use); the private IP is unchanged (172.26.13.207). It survives stop/start (the 2026-09-28 billing-gate outage changed the old dynamic IPs). Still prefer the box2 ProxyJump route. box5's `~/inventory-sync/run_sync_when_safe.sh` has `MAX_WAIT_S=90000` (25 h) as of 2026-11-04.
 
 **Port 22 (SSH) is open only to `108.53.209.159/32` and `172.26.0.0/16`.** From anywhere else the boxes are unreachable; the private `172.26.x.x` addresses work only from inside the Lightsail VPC (e.g. via box2).
 
@@ -68,9 +68,8 @@ the shards in its own manifest. box1 (v2) and box5 stay on their fixed crons unt
 
 | Box | Public IP | Private IP | Status |
 |---|---|---|---|
-| old box1 | 34.203.148.79 | 172.26.1.32 | Replaced by box1-v2 on 2026-11-03. **Stopped; deleted around 2026-11-05.** Do not SSH to it or deploy to it. Older `docs/box-patches/*` STEPS still name 172.26.1.32 as box1; those are historical records, use the table above. |
+| old box1 (Ubuntu-1) | released (see Do not use) | 172.26.1.32 | Replaced by box1-v2 on 2026-11-03. **Deleted 2026-11-04**; its static IP `trimscout-box1-static` was released. Snapshot `box1-pre-upgrade-2026-11-02` is kept for about a week. Do not SSH to it or deploy to it. Older `docs/box-patches/*` STEPS still name 172.26.1.32 as box1; those are historical records, use the table above. |
 
-Once the old box1 is actually deleted, move both addresses into the list below (and `deadIps` in `config/boxes.json`) after scrubbing the historical references.
 
 ## Do not use
 
@@ -81,6 +80,8 @@ Retired addresses. They are dead or belong to someone else now. They may appear 
 - 3.237.204.55 — old deals box IP (older scripts called it "box2")
 - 98.92.140.11 — old box1 public IP
 - 34.205.155.92 — original single Lightsail crawler; not any current box
+- 34.203.148.79 — old box1 (Ubuntu-1) static IP `trimscout-box1-static`, released 2026-11-04
+- 44.200.197.211 — box5's old dynamic public IP, replaced by the static IP on 2026-11-04
 <!-- DEAD-IPS:END -->
 
 ## Changing a box address

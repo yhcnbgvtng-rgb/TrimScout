@@ -8,7 +8,7 @@ Code and docs only. **Nothing installed, and no box was changed**: everything be
 | `src/dom_store.js` on box1, box3 and box4 (all three read byte-identical, 215 lines, same as git main before #574) | `3265fc4a6b070519884254a38bf61360` | `bba6552b946cc4a44b3e0fef1308940e` |
 | `01-dom-extract.patch` (path relative to `scrapers/lightsail-crawler`, `patch -p1`) | | `e8dd5fb91605ac5ffc17bb88c7c4b773` |
 | `drift-check.sh` | | `402e7cc541b058e836bd4f6de4305baf` |
-The patch applied to a copy of box4's real file gives exactly the after md5; `drift-check.sh` passed on that copy (patched md5 `bba6552b…`, smoke 4/4) and reports ALREADY PATCHED on the new file. The boxes' checkouts are hand-patched and dirty: do NOT `git pull`/`merge`/`commit` there. Box IPs: box4 100.50.85.234, box3 184.73.158.210, box1 34.203.148.79.
+The patch applied to a copy of box4's real file gives exactly the after md5; `drift-check.sh` passed on that copy (patched md5 `bba6552b…`, smoke 4/4) and reports ALREADY PATCHED on the new file. The boxes' checkouts are hand-patched and dirty: do NOT `git pull`/`merge`/`commit` there. Box IPs: box4 100.50.85.234, box3 184.73.158.210, old box1 (retired).
 
 ## Cache size and disk estimate (per box, from measured values; estimates, not a run)
 What changes: for a page where no JSON-LD block carries the car's VIN and there is no DDC dataLayer (Team Velocity, and any other such platform), the cached extract goes from the dealer's JSON-LD block (about 22,000 chars) to the page window around the VIN (4,000 chars before to 8,000 after = at most 12,000 chars). DDC (Dealer.com) and VIN-bearing JSON-LD pages (DealerOn) are unchanged.

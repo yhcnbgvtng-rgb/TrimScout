@@ -19,7 +19,7 @@ Only `src/facebookPixelFields.js` changes (+19 lines, no new file, no import, `s
 | - | `drift-check.sh` | `fc31bb9bd0f01cad5af01f7a1fd69b9e` |
 
 `src/facebookPixelFields.js` md5 before (git main, unchanged since #286): `38ca8bfb10d2a91d1ea7722c16d6dd0b`. After: `3a08479b1342588d1fa30d43e0901d17`. Repo-side proof: the patch applied to a copy of main's pre-change file produced exactly the post-change md5, and `drift-check.sh` passed against that copy. The boxes' copies were NOT read; if one differs the drift check stops.
-The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Box IPs: box1 34.203.148.79, box3 184.73.158.210, box4 100.50.85.234.
+The boxes' checkouts are hand-patched and dirty: do NOT `git pull`, `git merge` or `git commit` there. Box IPs: old box1 (retired), box3 184.73.158.210, box4 100.50.85.234.
 
 ## Steps (repeat per box; set `BOX`)
 0. From the Mac, in the repo checkout:
