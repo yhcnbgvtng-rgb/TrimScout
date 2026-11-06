@@ -7,10 +7,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { loadDomIndex, saveDomIndex, domPaths, DomIndexUnreadableError } from '../src/dom_store.js';
-import { sharedDataLockPath } from '../src/shared_data_lock.js';
 import {
   createDomDelta, checkpointDomDelta, mergeDomDelta, applyDomEntries, chooseDomRecord, recordScore,
-  domDeltaDir, domConflictsDir, processIdentity, judgeOwner,
+  domDeltaDir, domConflictsDir, processIdentity, judgeOwner, domMergeLockPath, acquireDomIndexLock, withDomIndexLock, DomLockLostError,
 } from '../src/dom_index_delta.js';
 
 let cwd;
@@ -77,7 +76,7 @@ describe('mergeDomDelta', () => {
     assert.equal(fs.existsSync(d.path), false);
     assert.deepEqual(await dataFiles(), ['dom_index.json', 'dom_index_delta', 'locks']);
     assert.deepEqual(await fsp.readdir(domDeltaDir(cwd)), []);
-    assert.equal(fs.existsSync(sharedDataLockPath(cwd, 'dom-index')), false, 'lock released');
+    assert.equal(fs.existsSync(domMergeLockPath(cwd)), false, 'lock released');
   });
 
   it('merging twice (a crash between save and delete) changes nothing and logs no conflict', async () => {
@@ -101,14 +100,14 @@ describe('mergeDomDelta', () => {
     await assert.rejects(mergeDomDelta(d, quiet), DomIndexUnreadableError);
     assert.equal(await fsp.readFile(indexPath, 'utf8'), '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026');
     assert.ok(fs.existsSync(d.path));
-    assert.equal(fs.existsSync(sharedDataLockPath(cwd, 'dom-index')), false, 'lock released even on failure');
+    assert.equal(fs.existsSync(domMergeLockPath(cwd)), false, 'lock released even on failure');
   });
 
   it('a lock that cannot be taken in time: merge throws, index untouched, delta kept', async () => {
     await saveDomIndex({ OLD: { [D(1)]: rec() } }, cwd);
-    const lock = sharedDataLockPath(cwd, 'dom-index');
+    const lock = domMergeLockPath(cwd);
     await fsp.mkdir(path.dirname(lock), { recursive: true });
-    await fsp.writeFile(lock, JSON.stringify({ pid: process.pid, label: 'someone', startedAt: new Date().toISOString() }));
+    await fsp.writeFile(lock, JSON.stringify({ token: 'abc', pid: process.pid, label: 'someone', startedAt: new Date().toISOString() }));
     const d = createDomDelta({ cwd });
     d.note({ V: { [D(3)]: rec() } }, 'V', D(3));
     await checkpointDomDelta(d);

@@ -16,7 +16,7 @@ C=${DOMDELTA_CRAWLER_DIR:-/home/ubuntu/nj-scraper/scrapers/lightsail-crawler}
 BK=${DOMDELTA_BACKUP:-/home/ubuntu/backups/dom-index-delta-20261106}
 SRC=$C/src; SA=$SRC/standalone.js; DD=$SRC/dom_index_delta.js
 DD_MD5=@@DD_MD5@@
-DS_MD5=541b78ff568d0d11b740e1e67a8ba06c; BJ_MD5=650637d98c37bf861098821826b5d696; HG_MD5=452ce895cc5c82e86ae2b7b26a86ca48; SDL_MD5=218bd32964f98be618b6afe26763c882; PL_MD5=c535638661e29ecce3c964591775bc11
+DS_MD5=541b78ff568d0d11b740e1e67a8ba06c; BJ_MD5=650637d98c37bf861098821826b5d696; HG_MD5=452ce895cc5c82e86ae2b7b26a86ca48; PL_MD5=c535638661e29ecce3c964591775bc11
 B1_SA=f81fbd6177e06a4060230ff9b383c4ca; B1_SA_AFTER=@@B1_AFTER@@
 B5_SA=752cf191c2a71dee0fd0b23568dc28d5; B5_SA_AFTER=@@B5_AFTER@@
 
@@ -40,11 +40,10 @@ now=$(TZ=America/New_York date +%H%M)
 if [ $((10#$now)) -ge 2130 ] || [ $((10#$now)) -lt 700 ]; then fail "it is $now ET: installs only 07:00-21:30 ET (crons start at 22:00)"; fi
 busy=$( { pgrep -a -x node | grep -E 'src/standalone|inventory-sync|run-daily-crawl'; pgrep -af '^(/bin/|/usr/bin/)?bash [^ ]*(run-daily-crawl|run_nightly_chain|run_sync_when_safe)'; } 2>/dev/null | grep -v pgrep )
 [ -z "$busy" ] || fail "a crawl or sync is running: $busy"
-for f in "$SA" "$SRC/dom_store.js" "$SRC/bigJson.js" "$SRC/heapGuard.js" "$SRC/shared_data_lock.js" "$SRC/pid_lock.js" "$SRC/price_diff.js" "$SRC/date_utils.js"; do [ -f "$f" ] || fail "$f not found (wrong box or path, or #719/#720 not installed)"; done
+for f in "$SA" "$SRC/dom_store.js" "$SRC/bigJson.js" "$SRC/heapGuard.js" "$SRC/pid_lock.js" "$SRC/price_diff.js" "$SRC/date_utils.js"; do [ -f "$f" ] || fail "$f not found (wrong box or path, or #719/#720 not installed)"; done
 [ "$(md5of "$SRC/heapGuard.js")" = "$HG_MD5" ] || fail "heapGuard.js md5 is not the #719 file"
 [ "$(md5of "$SRC/dom_store.js")" = "$DS_MD5" ] || fail "dom_store.js md5 $(md5of "$SRC/dom_store.js") is not the #720 file $DS_MD5 (install #720 first, or send the file back)"
 [ "$(md5of "$SRC/bigJson.js")" = "$BJ_MD5" ] || fail "bigJson.js md5 is not the pinned $BJ_MD5"
-[ "$(md5of "$SRC/shared_data_lock.js")" = "$SDL_MD5" ] || fail "shared_data_lock.js md5 is not the pinned $SDL_MD5"
 [ "$(md5of "$SRC/pid_lock.js")" = "$PL_MD5" ] || fail "pid_lock.js md5 is not the pinned $PL_MD5"
 node -e 'process.exit(parseInt(process.versions.node)>=18?0:1)' || fail "node $(node -v) is too old"
 
@@ -81,19 +80,24 @@ cp "$SA" "$W/standalone.js"
 ( cd "$W" && patch -F0 -s standalone.js < standalone.patch ) || fail "the patch does not apply with zero fuzz to this box's standalone.js"
 [ "$(md5of "$W/standalone.js")" = "$SA_AFTER" ] || fail "patched standalone.js md5 $(md5of "$W/standalone.js") is not the pinned $SA_AFTER"
 cp "$W/standalone.js" "$W/src/standalone.check.mjs"; node --check "$W/src/standalone.check.mjs" || fail "patched standalone.js has a syntax error"; rm -f "$W/src/standalone.check.mjs"
-for f in dom_store.js bigJson.js shared_data_lock.js pid_lock.js price_diff.js date_utils.js; do cp "$SRC/$f" "$W/src/$f"; done
+for f in dom_store.js bigJson.js pid_lock.js price_diff.js date_utils.js; do cp "$SRC/$f" "$W/src/$f"; done
 cp "$W/dom_index_delta.js.new" "$W/src/dom_index_delta.js"
 [ -f "$C/package.json" ] && cp "$C/package.json" "$W/package.json"
 cat > "$W/src/trial.mjs" <<'TREOF'
 import fs from 'node:fs/promises'; import path from 'node:path'; import os from 'node:os';
 import { loadDomIndex, saveDomIndex, domPaths } from './dom_store.js';
-import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir, processIdentity, judgeOwner } from './dom_index_delta.js';
+import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir, processIdentity, judgeOwner, acquireDomIndexLock, domMergeLockPath } from './dom_index_delta.js';
 const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'domdelta-trial-data-'));
 const me = processIdentity(process.pid);
 if (me.start === 'x' || me.boot === 'x' || judgeOwner(me).state !== 'alive' || judgeOwner({ ...me, start: 'deadbeef' }).state !== 'reused' || judgeOwner({ pid: 2147483000 }).state !== 'dead') throw new Error('process identity (pid + start + boot) cannot be read on this machine: ' + JSON.stringify(me));
 const rec = (o = {}) => ({ hash: 'h', price: 1, oldPrice: null, priceDiff: 0, priceChangeType: 'UNCHANGED', blobStored: false, hashUnchanged: true, ...o });
 const need = (c, m) => { if (!c) throw new Error(m); };
 try {
+  // the merge lock: exclusive against a live holder (this process), released only by its own token
+  const l1 = await acquireDomIndexLock({ cwd, label: 'trial', maxWaitMs: 2000 });
+  let blocked = false; try { await acquireDomIndexLock({ cwd, label: 'trial2', maxWaitMs: 300, retryDelayMs: 20 }); } catch (e) { blocked = /owner is alive/.test(e.message); }
+  need(blocked, 'a live holder\'s lock must not be taken');
+  need((await l1.release()).released, 'release failed'); need(!(await fs.stat(domMergeLockPath(cwd)).then(() => true, () => false)), 'lock file left behind');
   const base = {}; for (let v = 0; v < 3000; v++) base['V' + v] = { '2026-11-01': rec({ price: v }) };
   base.CONTESTED = { '2026-11-06': rec({ price: 111 }) };
   await saveDomIndex(base, cwd);
@@ -119,11 +123,11 @@ try {
   need(threw, 'a malformed index must make the merge throw');
   need((await fs.readFile(domPaths(cwd).indexPath, 'utf8')) === bad, 'the malformed index was modified');
   need((await fs.readdir(domDeltaDir(cwd))).length === 1, 'the delta file must stay on disk after a failed merge');
-  console.log('trial ok: process identity readable (' + me.start + '/' + me.boot.slice(0, 8) + '), streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
+  console.log('trial ok: process identity readable, merge lock exclusive and token-released (' + me.start + '/' + me.boot.slice(0, 8) + '), streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
 } finally { await fs.rm(cwd, { recursive: true, force: true }); }
 TREOF
 ( cd "$W" && node src/trial.mjs ) || fail "smoke test on copies failed"
-echo "check ok: standalone.js $sa -> $SA_AFTER (+ new dom_index_delta.js $DD_MD5); dom_store.js/bigJson.js/heapGuard.js/shared_data_lock.js/pid_lock.js as pinned; data/ not touched"
+echo "check ok: standalone.js $sa -> $SA_AFTER (+ new dom_index_delta.js $DD_MD5); dom_store.js/bigJson.js/heapGuard.js/pid_lock.js as pinned (shared_data_lock.js is not used by the new code); data/ not touched"
 [ "$MODE" = check ] && exit 0
 
 # apply

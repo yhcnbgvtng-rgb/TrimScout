@@ -10,7 +10,7 @@
 //   * Each process keeps its loaded index READ-ONLY for the "yesterday" lookups and records only the VIN-dates it wrote itself in a DELTA.
 //   * After every dealer the delta is checkpointed to its own file (data/dom_index_delta/delta-<pid>-<startMs>.json, written to a temp name and renamed, so a
 //     reader or a crash sees the previous complete checkpoint or the new one). An unchanged delta only gets its mtime touched (a heartbeat).
-//   * At the end of the run, under the shared-data lock (scope "dom-index"), the process STREAMS the current index file through a merge into a new temp file
+//   * At the end of the run, under the dom-index merge lock (below), the process STREAMS the current index file through a merge into a new temp file
 //     (one VIN at a time: memory is bounded by the largest single VIN plus the deltas, not by the 480 MB index), verifies the temp file, and renames it over the
 //     index. Only after that are the delta files deleted. A load-based merge was measured first and works but leaves only ~200-350 MB of a 3584 MB heap when
 //     run at #719's guard threshold, and takes 14-19 s there; see scripts/dom-index-merge-heaptest.mjs.
@@ -20,6 +20,19 @@
 //     its file name. See judgeOwner(): only a dead pid, a pid now held by a process with a different start identity (genuine PID reuse), or a different boot
 //     (machine rebooted) makes a file claimable. A confirmed live owner's file is never touched, however old it is. If identity cannot be established
 //     (nothing recorded, /proc unreadable, boot unknown) the file is left untouched and reported, never guessed at.
+//
+// THE MERGE LOCK (data/locks/dom-index.merge.lock) is NOT src/shared_data_lock.js. That lock steals a lock from a LIVE holder once it is 10 minutes old, decides
+// ownership by pid alone (a dead owner whose pid is now a live process stalls everyone), removes the lock path after a separate read (another process can take a
+// fresh lock between the read and the remove, and the remove deletes it), and its release checks the pid only (a former holder's late release deletes a replacement's
+// lock if the pid matches). scripts/dom-index-lock-probe.mjs demonstrates the first three with real processes. This lock instead:
+//   * is created by hard-linking a fully written file (token, pid, start identity, boot identity, label) onto the lock path: atomic, never visible half-written;
+//   * is taken from its holder only when judgeOwner() says the holder is dead or its pid was reused (different start/boot identity). NO AGE RULE: a live holder keeps
+//     the lock however long it takes; contenders wait up to maxWaitMs and then throw (their deltas stay on disk for the next run). A holder whose identity cannot be
+//     established (uncertain) is waited for, never broken, and named in the timeout error;
+//   * breaks a dead holder's lock by renaming that path away and checking the token of what was actually moved; if the race moved a different lock, it is linked back;
+//   * is released only if the file still carries the releaser's own token (a late release by a former holder deletes nothing);
+//   * is verified with lock.assertHeld() immediately before the index rename (the only step that changes the index): a merger whose lock was taken from it aborts with
+//     DomLockLostError, leaving the index untouched and every delta on disk.
 //
 // CONFLICT POLICY (same VIN and same date, two different records). This is not assumed away: states do NOT have disjoint VINs (a car can move between
 // sister stores or states, a brand can be rerun the same day, a SOLD record can meet a live one).
@@ -43,12 +56,11 @@ import path from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
 import { writeJsonLarge } from './bigJson.js';
 import { DomIndexUnreadableError, DOM_INDEX_TRANSIENT_CODES, domPaths } from './dom_store.js';
-import { withSharedDataLock } from './shared_data_lock.js';
 import { isProcessAlive } from './pid_lock.js';
 
 export const DOM_DELTA_DIRNAME = 'dom_index_delta';
 export const DOM_CONFLICTS_DIRNAME = 'dom_index_conflicts';
-export const DOM_LOCK_SCOPE = 'dom-index';
+export const DOM_MERGE_LOCK_NAME = 'dom-index.merge.lock';
 export const DOM_MERGE_MAX_WAIT_MS = 20 * 60 * 1000; // ~18 brand runs can finish within minutes of each other; each holds the lock a few seconds
 const TMP_STALE_MS = 6 * 3600 * 1000;
 // delta-<pid>-<startMs>[-<startToken>-<bootToken>].json   (tokens are 'x' when unknown; files without tokens come from older builds/tests: identity unknown)
@@ -181,6 +193,91 @@ export function applyDomEntries(index, entries, incomingSource = null, existingS
     }
   }
   return { added, same, conflicts };
+}
+
+// ---- the merge lock -----------------------------------------------------------------------------------------------------------------------------------------
+
+export class DomLockLostError extends Error {
+  constructor(lockPath, detail) {
+    super(`dom-index merge lock ${lockPath} is no longer held by this process (${detail}); the merge was abandoned before changing the index, every delta file is still on disk`);
+    this.name = 'DomLockLostError';
+    this.code = 'DOM_LOCK_LOST';
+  }
+}
+export function domMergeLockPath(cwd = process.cwd()) { return path.join(domPaths(cwd).dataDir, 'locks', DOM_MERGE_LOCK_NAME); }
+
+async function readLockDoc(file) {
+  let text;
+  try { text = await fs.readFile(file, 'utf8'); } catch (err) { if (err.code === 'ENOENT') return { missing: true }; return { unreadable: err.message }; }
+  try { const doc = JSON.parse(text); if (doc && typeof doc.token === 'string' && Number.isInteger(doc.pid)) return { doc }; return { unreadable: 'lock file has no token/pid' }; } catch (err) { return { unreadable: `lock file is not valid JSON (${err.message})` }; }
+}
+
+/**
+ * Take the dom-index merge lock. Waits while a holder is alive or its identity is uncertain; takes over only from a dead holder or a reused pid.
+ * @returns {Promise<{ token: string, path: string, assertHeld: () => Promise<void>, release: () => Promise<{ released: boolean, reason?: string }> }>}
+ */
+export async function acquireDomIndexLock({ cwd = process.cwd(), label = null, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, retryDelayMs = 200, io = {} } = {}) {
+  const lockPath = domMergeLockPath(cwd);
+  const token = crypto.randomBytes(16).toString('hex');
+  const me = processIdentity(process.pid);
+  const doc = { v: 1, token, pid: process.pid, start: me.start, boot: me.boot, label, startedAt: new Date().toISOString() };
+  const tmp = `${lockPath}.new-${token}`;
+  await fs.mkdir(path.dirname(lockPath), { recursive: true });
+  await fs.writeFile(tmp, JSON.stringify(doc), { flag: 'wx' });
+  const deadline = Date.now() + maxWaitMs;
+  let last = null;
+  try {
+    for (;;) {
+      try {
+        await fs.link(tmp, lockPath); // atomic: succeeds only if the lock does not exist, and the file is complete from the first instant
+        break;
+      } catch (err) { if (err.code !== 'EEXIST') throw err; }
+      const cur = await readLockDoc(lockPath);
+      if (cur.missing) continue; // released between our link attempt and the read: try again at once
+      if (cur.unreadable) last = { holder: 'unknown', why: cur.unreadable, state: 'uncertain' };
+      else {
+        const j = judgeOwner({ pid: cur.doc.pid, start: cur.doc.start || 'x', boot: cur.doc.boot || 'x' }, io);
+        last = { holder: `pid ${cur.doc.pid}${cur.doc.label ? ` (${cur.doc.label})` : ''}, since ${cur.doc.startedAt}`, why: j.why, state: j.state };
+        if (j.state === 'dead' || j.state === 'reused') { await breakDomLock(lockPath, cur.doc, token); continue; }
+      }
+      if (Date.now() >= deadline) throw new Error(`Timed out after ${maxWaitMs}ms waiting for the dom-index merge lock at ${lockPath}${label ? ` (wanted by ${label})` : ''}: held by ${last.holder}; owner is ${last.state} (${last.why}). The lock is never taken from a live or uncertain holder, whatever its age.`);
+      await new Promise((r) => setTimeout(r, retryDelayMs));
+    }
+  } finally { await fs.rm(tmp, { force: true }).catch(() => {}); }
+  return {
+    token, path: lockPath, doc,
+    async assertHeld() {
+      const cur = await readLockDoc(lockPath);
+      if (cur.missing) throw new DomLockLostError(lockPath, 'the lock file is gone');
+      if (cur.unreadable) throw new DomLockLostError(lockPath, cur.unreadable);
+      if (cur.doc.token !== token) throw new DomLockLostError(lockPath, `it now belongs to pid ${cur.doc.pid}${cur.doc.label ? ` (${cur.doc.label})` : ''}`);
+    },
+    async release() {
+      const cur = await readLockDoc(lockPath);
+      if (!cur.doc || cur.doc.token !== token) return { released: false, reason: cur.missing ? 'lock already gone' : 'lock belongs to someone else; left untouched' };
+      await fs.rm(lockPath, { force: true }).catch(() => {});
+      return { released: true };
+    },
+  };
+}
+
+// (exported for tests) Remove a lock whose holder was judged dead/reused. Renaming the path away moves whichever lock is there NOW; the token of what actually moved is checked, so
+// a lock that a third process created after our read is put straight back instead of being deleted.
+export async function breakDomLock(lockPath, judged, myToken) {
+  const aside = `${lockPath}.broken-${myToken}`;
+  try { await fs.rename(lockPath, aside); } catch (err) { if (err.code === 'ENOENT') return false; throw err; }
+  const moved = await readLockDoc(aside);
+  if (moved.doc && moved.doc.token === judged.token) { await fs.rm(aside, { force: true }).catch(() => {}); return true; }
+  // We moved a different lock (the one we judged was already replaced). Put it back; if someone created yet another lock meanwhile, its displaced holder
+  // will find out in assertHeld() before it changes anything.
+  try { await fs.link(aside, lockPath); } catch { /* EEXIST: a newer lock exists; the displaced holder aborts at its next assertHeld() */ }
+  await fs.rm(aside, { force: true }).catch(() => {});
+  return false;
+}
+
+export async function withDomIndexLock(fn, opts = {}) {
+  const lock = await acquireDomIndexLock(opts);
+  try { return await fn(lock); } finally { await lock.release(); }
 }
 
 // ---- streaming over the index file ---------------------------------------------------------------------------------------------------------------------
@@ -367,7 +464,7 @@ async function claimOrphans(cwd, ownPath, myPid, io = {}) {
 export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, now = Date.now(), log = console.log, hooks = {}, attempts = 3, retryDelayMs = 500, io = {} } = {}) {
   const label = `dom-index-merge:${delta.label || delta.pid}`;
   const { indexPath, dataDir } = domPaths(cwd);
-  return withSharedDataLock(async () => {
+  return withDomIndexLock(async (lock) => {
     await removeStaleTmp(dataDir, 'dom_index.json.tmp', now);
     const found = await claimOrphans(cwd, delta.path, process.pid, io);
     const claimed = found.claimed;
@@ -403,7 +500,9 @@ export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_ME
       // 1. both full records of every conflict are durable BEFORE the index changes
       const conflictFile = await writeConflictFile(cwd, conflicts, now, `${process.pid}:${delta.label || '?'}`);
       await hooks.afterConflicts?.();
-      // 2. the new index replaces the old one atomically
+      // 2. the new index replaces the old one atomically, and only by the process that still holds the lock at this instant
+      await hooks.beforeCommit?.();
+      await lock.assertHeld();
       if (prepared.added || conflicts.length) await prepared.commit(); else await prepared.abort();
       await hooks.afterRename?.();
       // 3. only now are the delta files deleted (the index holds their records, or the conflict file holds the ones not kept)
@@ -415,5 +514,5 @@ export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_ME
       await prepared.abort();
       throw err;
     }
-  }, { scope: DOM_LOCK_SCOPE, cwd, maxWaitMs, label });
+  }, { cwd, maxWaitMs, label, io });
 }

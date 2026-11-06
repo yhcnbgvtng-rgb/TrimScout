@@ -17,7 +17,7 @@ const install = fs.readFileSync(path.join(pkg, 'install.sh'), 'utf8');
 const md5 = (b) => crypto.createHash('md5').update(b).digest('hex');
 const pinned = (name) => install.match(new RegExp(`(?:^|\\s)${name}=([0-9a-f]{32})`))[1];
 const embedded = (tag) => Buffer.from(install.match(new RegExp(`<<'${tag}'\\n([\\s\\S]*?)\\n${tag}`))[1], 'base64');
-const SRC_FILES = ['dom_store.js', 'bigJson.js', 'heapGuard.js', 'shared_data_lock.js', 'pid_lock.js', 'price_diff.js', 'date_utils.js'];
+const SRC_FILES = ['dom_store.js', 'bigJson.js', 'heapGuard.js', 'shared_data_lock.js', 'pid_lock.js', 'price_diff.js', 'date_utils.js']; // shared_data_lock.js is only there because standalone.js (untouched) imports it
 
 let w, fake, bk, shim;
 beforeEach(() => {
@@ -43,7 +43,6 @@ describe('dom-index-delta package', () => {
     assert.equal(pinned('DS_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/dom_store.js'))));
     assert.equal(pinned('BJ_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/bigJson.js'))));
     assert.equal(pinned('HG_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/heapGuard.js'))));
-    assert.equal(pinned('SDL_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/shared_data_lock.js'))));
     assert.equal(pinned('PL_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/pid_lock.js'))));
     for (const box of ['box1', 'box5']) assert.equal(md5(fs.readFileSync(path.join(here, 'fixtures', `${box}-standalone.before-2026-11-06.js`))), pinned(box === 'box1' ? 'B1_SA' : 'B5_SA'));
   });
