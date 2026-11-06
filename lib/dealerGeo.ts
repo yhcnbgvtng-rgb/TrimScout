@@ -55,3 +55,20 @@ export function makeDealerLocator(index: ContactIndex | null): (d: DealerRef) =>
     return placed;
   };
 }
+
+/**
+ * Directory dealer ids whose ZIP lies within `radiusMiles` of the buyer (the same ZCTA placement makeDealerLocator uses first).
+ * Used to scope the inventory query BEFORE the box's row cap, so a sparse make is not crowded out by far-away dealers that happen to
+ * sort first. A dealer with no placeable directory ZIP is not in the list (the locator's city fallback needs a car row to run on).
+ */
+export function dealerIdsWithin(index: ContactIndex | null, buyerAt: LatLng | null, radiusMiles: number): string[] {
+  if (!index || !buyerAt) return [];
+  const ids = new Set<string>();
+  for (const rows of index.values()) {
+    for (const r of rows) {
+      const at = zipLatLng(r.zipCode);
+      if (at && roundMiles(haversineMiles(buyerAt, at)) <= radiusMiles) ids.add(String(r.id));
+    }
+  }
+  return [...ids];
+}
