@@ -1,0 +1,45 @@
+--- deals_api_server.js
++++ deals_api_server.js
+@@ -39,6 +39,7 @@
+ import { createRfqMessagesHandler } from "./rfqMessages.js";
+ import { createChatAdminHandlers } from "./rfqChatAdmin.js";
+ import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
++import { createDealerInvitesHandlers } from "./rfqDealerInvites.js";
+ import { createRfqContactRevealHandler } from "./rfqContactReveal.js";
+ import { createRfqTradeConfirmHandlers } from "./rfqTradeConfirm.js";
+ import { tradeAnswerProblem } from "./tradeConfirm.js";
+@@ -1240,6 +1241,8 @@
+   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS sent_at DATETIME NULL");
+   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS viewed_at DATETIME NULL");
+   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS view_token VARCHAR(64) NULL");
++  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_user_id VARCHAR(128) NULL");
++  await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_dealer_user ON rfq_invites (dealer_user_id)");
+   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_view_token ON rfq_invites (view_token)");
+   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_contact_email ON rfq_invites (dealer_contact_email)");
+   quotePackageColumnsEnsured = true;
+@@ -1600,6 +1603,16 @@
+   logRfqEvent,
+ });
+ 
++// GET /api/dealer-invites?dealerUserId=… and POST /api/dealer-invites/claim — dealer "My Quotes" (rfqDealerInvites.js).
++// Test dealers = dealership_contacts.is_test = 1; if that lookup ever fails the list simply has none (audit RFQs then stay hidden).
++const dealerInvites = createDealerInvitesHandlers({
++  getPool, readBody, sendJson,
++  ensureColumns: ensureQuotePackageColumns,
++  loadTestDealers: async (pool) => {
++    try { return (await pool.query("SELECT dealer_name, contact_email FROM dealership_contacts WHERE is_test = 1"))[0]; } catch { return []; }
++  },
++});
++
+ // POST /api/rfqs/:id/invites/:inviteId/reveal-contact — the winning dealer pressed "Reveal buyer contact info" (logged, rfqContactReveal.js).
+ const handleRfqContactReveal = createRfqContactRevealHandler({
+   getPool, sendJson,
+@@ -4336,6 +4349,8 @@
+   if (req.method === "GET" && rfqInviteTokenMatch) {
+     return run(handleRfqInviteByToken, rfqInviteTokenMatch[1]);
+   }
++  if (req.method === "GET" && pathname === "/api/dealer-invites") return run(dealerInvites.list, url.searchParams);
++  if (req.method === "POST" && pathname === "/api/dealer-invites/claim") return run(dealerInvites.claim);
+   const rfqInviteNotSelectedMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/not-selected$/);
+   if (req.method === "POST" && rfqInviteNotSelectedMatch) {
+     return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));

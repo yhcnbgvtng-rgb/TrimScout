@@ -1,0 +1,6 @@
+# md5  role  file
+d29f70aa2eecc186bd9232e1d3b60895  PACKAGE  files/rfqDealerInvites.js
+cbfa562e25f60fd79300e4c067c92ecd  PACKAGE  deals_api_server.js.patch
+51145090e2242b514d919189eed50acb  PACKAGE  smoke.mjs
+846d8cabac356b37798fb047f334c387  BASE  deals_api_server.js (live box2, 2026-11-05)
+d63818f09574575a7b593d144687dead  FINAL  deals_api_server.js
