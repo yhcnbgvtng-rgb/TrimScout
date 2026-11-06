@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { CREDIT_BAND_LABELS, FINANCE_TERMS, SURCHARGE_REASON_MAX, financeMonthly, validateUsedQuote, dueAtSigningSum, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
+import { CREDIT_BAND_LABELS, FINANCE_TERMS, SURCHARGE_REASON_MAX, financeMonthly, validateUsedQuote, dueAtSigningSum, provenRebateTotal, type QuotePrefs, type UsedQuote } from "../lib/usedQuote";
 import { formatMoneyInput, formatPercentInput, num } from "../lib/leaseMath";
 import { getZipCoordinates } from "../lib/otdCalculator";
 import { counterPriceChanged, TAX_PROMPT_COPY, zipStateTax, type CounterSheet } from "../lib/counterSheet";
@@ -20,7 +20,7 @@ import { calcFee, normalizeFeeOverrides, OVERRIDE_LABELS, OVERRIDE_REASON_MAX, o
  * Monthly is computed from amount financed / APR / term — there is no
  * monthly-only entry. A request, not a bid.
  */
-type Item = { name: string; amount: string; /** Surcharge lines only. */ reason?: string };
+type Item = { name: string; amount: string; /** Surcharge lines only. */ reason?: string; /** Rebate lines only: conditional = the buyer has to qualify, so it is shown but not subtracted from the ranked out-the-door. */ eligibility?: "proven" | "conditional"; condition?: string };
 const STANDING_FEES = 3;
 
 const money = (n: number | null, digits = 0) => (n == null ? null : `$${n.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}`);
@@ -88,7 +88,7 @@ export function UsedQuoteForm({
     lenderName: initFin?.lenderName || "",
     msrp: initial?.msrp && initial.msrp > 0 ? String(initial.msrp) : msrp && msrp > 0 ? String(msrp) : "",
   });
-  const asItems = (list: { name: string; amount: number }[] | undefined | null): Item[] => (list || []).map((l) => ({ name: l.name, amount: String(l.amount) }));
+  const asItems = (list: { name: string; amount: number; eligibility?: "proven" | "conditional"; condition?: string }[] | undefined | null): Item[] => (list || []).map((l) => ({ name: l.name, amount: String(l.amount), ...(l.eligibility === "conditional" ? { eligibility: "conditional" as const, condition: l.condition || "" } : {}) }));
   const [noTaxEstimate, setNoTaxEstimate] = useState(initFin ? initFin.monthlyPaymentWithEstTax == null : false);
   const [addOns, setAddOns] = useState<Item[]>(asItems(initial?.addOns));
   const [noAddOns, setNoAddOns] = useState(initial?.noAddOns ?? false);
@@ -146,13 +146,14 @@ export function UsedQuoteForm({
     const sellingPrice = num(f.sellingPrice);
     const items = toLines(effFees);
     const addOnLines = toLines(addOns);
-    const rebateLines = toLines(rebates);
+    const rebateLines = rebates.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN, ...(i.eligibility === "conditional" ? { eligibility: "conditional" as const, condition: (i.condition || "").trim() } : {}) })).filter((i) => i.name && Number.isFinite(i.amount));
     const dasTotal = dueAtSigningSum(items);
     const addOnTotal = dueAtSigningSum(addOnLines);
     // Surcharges are in the out-the-door, amount financed and cash due — never in the sales-tax base (price + add-ons).
     const surchargeLines = surcharges.map((i) => ({ name: i.name.trim(), amount: num(i.amount) ?? NaN, reason: (i.reason || "").trim() })).filter((i) => i.name && Number.isFinite(i.amount));
     const surchargeTotal = dueAtSigningSum(surchargeLines);
-    const rebateTotal = dueAtSigningSum(rebateLines);
+    // Only proven rebates come off the figures below; a conditional one is on the sheet but not subtracted.
+    const rebateTotal = provenRebateTotal(rebateLines);
     const down = num(f.downPayment);
     const trade = num(f.tradeEquity);
     const apr = num(f.apr);
@@ -575,13 +576,22 @@ export function UsedQuoteForm({
           <section className="space-y-2.5" data-testid="rebates">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-ink-faint">Rebates / incentives <span className="font-normal normal-case">(optional)</span></h4>
             {rebates.map((it, i) => (
-              <div key={i} className="grid grid-cols-[1fr_140px_20px] items-center gap-2">
+              <div key={i} className="space-y-1.5">
+              <div className="grid grid-cols-[1fr_140px_20px] items-center gap-2">
                 <input type="text" value={it.name} onChange={(e) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} placeholder="e.g. Loyalty cash" aria-label="Rebate description" className={input} />
                 <span className="relative block">
                   <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-ink-faint">$</span>
                   <MoneyInput allowCents value={it.amount} onValueChange={(v) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, amount: v } : x)))} placeholder="0" aria-label={`${it.name || "rebate"} amount`} className={`${input} pl-6 font-mono`} />
                 </span>
                 <button type="button" onClick={() => setRebates((p) => p.filter((_, j) => j !== i))} className="text-ink-muted hover:text-rose-400" aria-label="Remove rebate"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
+              <label className="flex items-center gap-1.5 text-[11px] text-ink-muted">
+                <input type="checkbox" checked={it.eligibility === "conditional"} onChange={(e) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, eligibility: e.target.checked ? "conditional" : "proven" } : x)))} data-testid="rebate-conditional" />
+                Buyer must qualify (not applied to the out-the-door)
+              </label>
+              {it.eligibility === "conditional" ? (
+                <input type="text" value={it.condition || ""} onChange={(e) => setRebates((p) => p.map((x, j) => (j === i ? { ...x, condition: e.target.value } : x)))} placeholder="What must they qualify for? e.g. current Toyota owner" aria-label="Rebate condition" maxLength={140} className={input} />
+              ) : null}
               </div>
             ))}
             <button type="button" onClick={() => setRebates((p) => [...p, { name: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-bold text-brand-400 hover:text-brand-300"><Plus className="h-3 w-3" /> Add a rebate line</button>

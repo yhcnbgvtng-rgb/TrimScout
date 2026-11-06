@@ -1,5 +1,5 @@
 // Deal page reliability and ranking edge cases: a non-JSON 502 or a dropped connection must surface a plain error (load, pick, walk);
-// lease "Best deal" needs two comparable quotes; with a trade the headline is the lowest post-trade OTD, alternates included.
+// lease "Best deal" needs two comparable quotes; with a trade the headline is the lowest post-trade OTD among the exact-build quotes; alternates are never ranked with them.
 import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -94,22 +94,20 @@ describe("lease: Best deal needs two comparable quotes", () => {
   });
 });
 
-describe("cash with a trade: the headline is the lowest post-trade OTD, alternates included", () => {
+describe("cash with a trade: the headline is the lowest post-trade OTD among exact-build quotes; alternates sit apart", () => {
   const render = (invites: RfqInvite[]) => renderToStaticMarkup(<UsedCompare rfq={{ ...baseRfq, invites, tradeIn: trade, quotePrefs: { quoteType: "cash", cash: { zip: "07405" } } } as unknown as RfqRequest} prefs={{ quoteType: "cash", cash: { zip: "07405", timeline: null } } as never} onPick={() => {}} onWalk={() => {}} onCounter={async () => {}} busy={false} />);
   const glance = (h: string) => { const at = h.indexOf('data-testid="used-glance-best"'); return h.slice(at, h.indexOf("</div>", at)); };
   const q = (c: UsedCashQuote) => ({ price: c.sellingPrice, used: c });
   // Exact build: 40,000 + 2,650 + 495 = 43,145 − (18,000 − 6,000) = 31,145. Alternate: 38,000 + 2,500 + 495 = 40,995 − (20,000 − 6,000) = 26,995.
   const h = render([invite("1", "Exact Honda", ASKED, q(cash(40000, 2650)), appr(18000)), invite("2", "Alt Honda", ALT, q(cash(38000, 2500)), appr(20000))]);
-  it("headlines the alternate at its post-trade OTD, labelled as an alternate", () => {
+  it("headlines the exact build at its post-trade OTD, even though the alternate is cheaper", () => {
     const g = glance(h);
-    assert.match(g, /Alt Honda/);
-    assert.match(g, /\$25,679/, "26,995 less the NJ tax the 20,000 allowance saves at the quote's own rate (2,500 / 38,000)");
-    assert.match(g, /Alternate vehicle/);
-    assert.doesNotMatch(g, /tabular-nums">\$31,145/);
+    assert.match(g, /Exact Honda/);
+    assert.match(g, /tabular-nums">\$29,953/, "31,145 less the NJ tax the 18,000 allowance saves at the quote's own rate");
+    assert.doesNotMatch(g, /Alt Honda|Alternate vehicle|\$25,679/);
   });
-  it("still names the exact-build desk separately, and gives no Best deal (one comparable quote)", () => {
-    assert.match(glance(h), /Best for your exact build: Exact Honda/);
-    assert.doesNotMatch(h, /badge-best-deal/);
+  it("one alternate is not a comparison: no Best deal, no Best alternate", () => {
+    assert.doesNotMatch(h, /badge-best-deal|badge-best-alternate/);
   });
   it("a cheaper exact build still wins the headline over a pricier alternate", () => {
     const h2 = render([invite("1", "Exact Honda", ASKED, q(cash(36000, 2400)), appr(18000)), invite("2", "Alt Honda", ALT, q(cash(38000, 2500)), appr(18000))]);

@@ -61,6 +61,10 @@ export interface LineItem {
   amount: number;
   /** Surcharge lines only: the dealer's short reason, shown to the buyer under a "Dealer-imposed" label. */
   reason?: string;
+  /** Rebate lines only: "conditional" means the buyer must qualify (loyalty, military, captive finance…). Missing = "proven", so every older quote keeps its numbers. */
+  eligibility?: "proven" | "conditional";
+  /** Conditional rebate lines only: what the buyer has to meet, in the dealer's words. */
+  condition?: string;
 }
 
 /** Itemized, always — a single unlabeled lump is not a quote. */

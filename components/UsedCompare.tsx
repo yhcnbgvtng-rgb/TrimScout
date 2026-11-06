@@ -17,8 +17,8 @@ import { appraisalForCompare } from "../lib/trade/confirm";
 import { bestDeal, financeAfterTrade, orderDesks, tradeEligible, type TradeSortMode } from "../lib/trade/rank";
 import { TrueOtdCard } from "./trade/TrueOtdCard";
 import { RevisedNote, TradeAllowanceCell, TradeSortToggle } from "./trade/TradeCompareCells";
-import { compareCashQuotes, msrpDiscount, otdExcludingAddOns } from "../lib/cashCompare";
-import { cashOutTheDoor, compareFinanceQuotes, isCountyTaxSurcharge, surchargeLabel, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
+import { compareCashQuotes, msrpDiscount, otdExcludingAddOns, tieBreakCash } from "../lib/cashCompare";
+import { cashOtdIfEligible, cashOutTheDoor, compareFinanceQuotes, conditionalRebates, provenRebates, conditionalRebateTotal, provenRebateTotal, isCountyTaxSurcharge, surchargeLabel, dueAtSigningSum, financeCashDue, type QuotePrefs, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "../lib/usedQuote";
 import { isExpired } from "../lib/leaseQuote";
 import { waitingDeliveryLabel } from "../lib/quotePackage";
 import type { RfqRequest } from "../lib/rfq";
@@ -76,18 +76,20 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   // Cash ranks on post-trade OTD (ties: more net equity), so a big trade offset by a higher price can't hide, and negative equity
   // can't hide behind a low price. Finance ranks on the monthly its dealer rate and term give on the amount financed after the equity
   // is applied, then cash due. A desk with no live trade number sorts after the desks that have one and never wears "best deal".
+  // Same out the door → fewer dealer add-ons first, then the quote that expires later (lib/cashCompare.ts). % off MSRP is never a sort key.
+  const cashTie = (a: (typeof rows)[number], b: (typeof rows)[number]) => (a.used!.kind === "cash" && b.used!.kind === "cash" ? tieBreakCash(a.used as UsedCashQuote, b.used as UsedCashQuote) : 0);
   const vehicleOrder = (a: (typeof rows)[number], b: (typeof rows)[number]) =>
     finance && a.used!.kind === "finance" && b.used!.kind === "finance"
       ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote)
-      : cashOutTheDoor(a.used as UsedCashQuote) - cashOutTheDoor(b.used as UsedCashQuote);
+      : cashOutTheDoor(a.used as UsedCashQuote) - cashOutTheDoor(b.used as UsedCashQuote) || cashTie(a, b);
   const postTradeOrder = (a: (typeof rows)[number], b: (typeof rows)[number]) => {
     if (finance && a.used!.kind === "finance" && b.used!.kind === "finance") {
       const fa = a.used as UsedFinanceQuote, fb = b.used as UsedFinanceQuote;
       return financeAfterTrade(fa, eqOf(a)).monthly - financeAfterTrade(fb, eqOf(b)).monthly || financeCashDue(fa) - financeCashDue(fb) || fa.amountFinanced - fb.amountFinanced;
     }
-    return compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after });
+    return compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after }) || cashTie(a, b);
   };
-  const ranked = orderDesks(live, { mode: sort, hasTrade, eligible: eligibleRow, byPostTrade: postTradeOrder, byVehicle: hasTrade && !finance ? vehicleOrder : (a, b) => (finance && a.used!.kind === "finance" && b.used!.kind === "finance" ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote) : compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after })) });
+  const ranked = orderDesks(live, { mode: sort, hasTrade, eligible: eligibleRow, byPostTrade: postTradeOrder, byVehicle: hasTrade && !finance ? vehicleOrder : (a, b) => (finance && a.used!.kind === "finance" && b.used!.kind === "finance" ? compareFinanceQuotes(a.used as UsedFinanceQuote, b.used as UsedFinanceQuote) : compareByOtdAfterThenEquity({ eq: eqOf(a), otdAfter: otdOf(a).after }, { eq: eqOf(b), otdAfter: otdOf(b).after }) || cashTie(a, b)) });
   const best = bestDeal(ranked, { hasTrade, eligible: eligibleRow });
   // Badges and gaps only count desks that can be compared on the post-trade basis (all of them when there is no trade).
   const badgeRows = hasTrade ? live.filter(eligibleRow) : live;
@@ -98,26 +100,23 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   };
   const bestMonthly = finance ? lowest((u) => (u.kind === "finance" ? u.monthlyPaymentPreTax : null)) : null;
   const bestCashDue = finance ? lowest((u) => (u.kind === "finance" ? financeCashDue(u) : null)) : null;
-  const bestOtd = !finance ? lowest((u, r) => (u.kind === "cash" ? otdOf(r).after : null)) : null;
   const bestAfter = finance && trade ? lowest((_u, r) => (eqOf(r).status === "quoted" ? otdOf(r).after : null)) : null;
   const quotedNets = trade ? badgeRows.map((r) => eqOf(r)).filter((e) => e.status === "quoted").map((e) => e.net as number) : [];
   const bestNet = quotedNets.length > 1 ? Math.max(...quotedNets) : null;
   // Cash only: best-value picks among the ranked quotes (alternates sit outside `live`, so they never move a badge or a gap).
   const cashLive = finance ? [] : badgeRows.filter((r) => r.used!.kind === "cash");
   const cmp = compareCashQuotes(cashLive.map((r) => ({ id: r.invite.id, otd: comparedOtd(r), quote: r.used as UsedCashQuote })));
+  // One green "Lowest out the door" winner, never a shared one: ties go to fewer add-ons, then the later expiry.
+  const otdWinnerId = [...cashLive].sort((a, b) => comparedOtd(a) - comparedOtd(b) || cashTie(a, b))[0]?.invite.id ?? null;
   const ordered = [...ranked, ...sideAlternates, ...rows.filter((r) => !live.includes(r) && !sideAlternates.includes(r))];
   const bestDealId = best?.invite.id ?? null;
   const glanceBest = best ?? ranked[0] ?? null;
   // "Best deal" needs a real comparison: at least two quotes for the same thing. One exact-build quote next to alternates is not one.
   const comparableCount = badgeRows.length;
-  // The best quote for the buyer's exact build, named separately whenever alternates are in the mix.
-  const exactBest = lane !== "alternate" && sideAlternates.length > 0 ? (hasTrade ? best : best ?? ranked[0]) ?? null : null;
-  const exactBuildId = exactBest?.invite.id ?? null;
-  // The headline is the lowest out the door across every live quote, alternates included, and says so when it is one.
-  const headlinePool = lane !== "alternate" && sideAlternates.length ? [...live, ...sideAlternates] : null;
-  const headline = !headlinePool ? glanceBest
-    : !hasTrade ? [...headlinePool].sort(vehicleOrder)[0] ?? null
-    : [...headlinePool.filter(eligibleRow)].sort(sort === "vehicle" ? vehicleOrder : postTradeOrder)[0] ?? glanceBest;
+  // Alternates are never ranked against the exact build, so the headline is always an exact-build quote. With two or more alternates
+  // the lowest of them wears "Best alternate" — ranked only among themselves, on vehicle out the door.
+  const headline = glanceBest;
+  const bestAlternateId = sideAlternates.length > 1 ? [...sideAlternates].sort(vehicleOrder)[0]?.invite.id ?? null : null;
   const quoted = rows.filter((r) => r.used).length;
   const vin = rfq.invites[0]?.vehicle?.vin || rfq.vin;
   // Every line is named, always visible — a buyer has to see WHAT a dealer is adding on, not just the total.
@@ -136,6 +135,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
   const anyTaxCredit = Boolean(trade) && live.some((r) => taxCreditOf(r.used!, eqOf(r)).mid > 0);
   const taxStatuses = new Set(live.map((r) => taxCreditOf(r.used!, eqOf(r)).status));
   const anyMiles = rows.some((r) => r.used?.miles != null);
+  const anyConditionalCash = !finance && rows.some((r) => r.used?.kind === "cash" && conditionalRebates(r.used.rebates).length > 0);
   const anySurcharges = rows.some((r) => r.used && (r.used.noSurcharges || (r.used.surcharges?.length ?? 0) > 0));
   const rowDefs: QuoteRowDef[] = [
     ...(finance ? [{ key: "monthly", label: "Monthly" }, { key: "cashdue", label: "Cash due at signing" }, { key: "apr", label: "APR · financed" }] : []),
@@ -149,6 +149,8 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     { key: "rebates", label: "Rebates / credits" },
     ...(trade ? [{ key: "tradeallow", label: "Trade-in allowance" }, { key: "payoff", label: "Payoff to lender" }, { key: "netequity", label: "Net trade equity" }, ...(anyTaxCredit ? [{ key: "taxcredit", label: "Sales tax saved on trade" }] : [])] : []),
     ...(!finance ? [{ key: "otdex", label: "Out the door, excluding add-ons" }] : []),
+    // Only when a compared cash quote has a conditional rebate: what the vehicle out the door would be if the buyer qualifies for all of them.
+    ...(anyConditionalCash ? [{ key: "otdif", label: "Out the door if eligible" }] : []),
     ...(anyMiles ? [{ key: "miles", label: "Miles · CPO" }] : []),
     { key: "expires", label: "Expires" },
     ...(trade
@@ -179,7 +181,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
     if (used && !expired && !excluded) {
       if (fin && financeCashDue(fin) === bestCashDue) best.push("cashdue");
       if (fin && fin.monthlyPaymentPreTax === bestMonthly) best.push("monthly");
-      if (used.kind === "cash" && (trade ? otdFor(used, eq).after : cashOutTheDoor(used)) === bestOtd) best.push(trade ? "otdafter" : "otd");
+      if (used.kind === "cash" && invite.id === otdWinnerId) best.push(trade ? "otdafter" : "otd");
       if (used.kind === "cash" && cmp.biggestDiscount.includes(invite.id)) best.push("pctoff");
       if (trade && eq.status === "quoted" && bestNet != null && eq.net === bestNet) best.push("netequity");
       if (trade && finance && eq.status === "quoted" && bestAfter != null && otdFor(used, eq).after === bestAfter) best.push("otdafter");
@@ -247,7 +249,19 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           </ul>
         </div>
       ) : used.noSurcharges ? <span className="text-ink-muted">None</span> : <span className="text-ink-muted">—</span>,
-      rebates: used.rebates?.length ? lines(dueAtSigningSum(used.rebates), used.rebates, true) : <span className="text-ink-muted">—</span>,
+      rebates: used.rebates?.length ? (
+        <div data-testid="rebate-lines">
+          {provenRebates(used.rebates).length ? lines(provenRebateTotal(used.rebates), provenRebates(used.rebates), true) : null}
+          {conditionalRebates(used.rebates).length ? (
+            <div className="mt-1" data-testid="conditional-rebates">
+              <span className="text-[10px] font-bold uppercase text-amber-200">Not applied — if you qualify</span>
+              <ul className="mt-0.5 space-y-0.5 text-[10px] text-ink-light tabular-nums">
+                {conditionalRebates(used.rebates).map((l, i) => (<li key={i}><span className="flex justify-between gap-3"><span className="text-ink-muted">{l.name}</span><span>−{fmtMoney(l.amount)}</span></span>{l.condition ? <span className="block text-[9px] text-ink-muted">{l.condition}</span> : null}</li>))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      ) : <span className="text-ink-muted">—</span>,
       miles: used.miles != null ? <>{used.miles.toLocaleString()} mi{used.cpo ? <span className="block text-[10px] text-sky-300">CPO</span> : null}</> : "—",
       expires: <span className={expired ? "text-rose-300" : ""}>{used.expiresAt ? new Date(used.expiresAt).toLocaleDateString() : ""}</span>,
       ...(fin ? {
@@ -258,6 +272,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
       ...(used.kind === "cash" ? {
         pctoff: pctOffCell,
         otdex: <span data-testid="otd-excl-addons">{fmtMoney(otdExcludingAddOns(used))}</span>,
+        otdif: conditionalRebateTotal(used.rebates) > 0 ? <span data-testid="otd-if-eligible">{fmtMoney(cashOtdIfEligible(used))}<span className="block text-[10px] font-normal text-ink-muted">not ranked</span></span> : <span className="text-ink-muted">—</span>,
       } : {}),
       ...(used.kind === "cash" && !trade ? { otd: <>{fmtMoney(cashOutTheDoor(used))}{vsBest}</> } : {}),
       ...tradeCells,
@@ -269,7 +284,7 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           {status}
           {invite.tradeConfirmation?.status === "revised" ? chip("bg-sky-500/15 text-sky-300", "Revised", "revised-chip") : null}
           {bestDealId === invite.id && !excluded && !expired && comparableCount > 1 ? chip("bg-brand-500/15 text-brand-300", hasTrade && sort === "post_trade" ? "Best deal after trade" : "Best deal", "badge-best-deal") : null}
-          {exactBuildId === invite.id && !expired ? chip("bg-sky-500/15 text-sky-300", "Best for your exact build", "badge-exact-build") : null}
+          {bestAlternateId === invite.id && !expired ? chip("bg-sky-500/15 text-sky-300", "Best alternate", "badge-best-alternate") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestOtd.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest out the door", "badge-lowest-otd") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.biggestDiscount.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Biggest discount", "badge-biggest-discount") : null}
           {used?.kind === "cash" && !expired && !excluded && cmp.lowestFees.includes(invite.id) ? chip("bg-emerald-500/15 text-emerald-300", "Lowest fees", "badge-lowest-fees") : null}
@@ -336,8 +351,12 @@ export function UsedCompare({ rfq, prefs, staged = false, initialSort = "post_tr
           <p className="text-lg font-extrabold text-white tabular-nums">
             {finance && headline.used!.kind === "finance" ? <>{fmtMoney(headline.used!.monthlyPaymentPreTax)}<span className="text-xs font-semibold text-ink-muted">/mo · {fmtMoney(financeCashDue(headline.used as UsedFinanceQuote))} due at signing</span></> : fmtMoney(comparedOtd(headline))}
           </p>
-          <p className="text-[11px] text-ink-light">{headline.invite.dealerName}{headline.alternate && lane !== "alternate" ? <span className="ml-2 rounded bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-sky-300" data-testid="glance-alternate">Alternate vehicle — not your exact build</span> : null}</p>
-          {exactBest && exactBest !== headline ? <p className="mt-1 text-[11px] text-sky-200" data-testid="used-glance-exact">Best for your exact build: {exactBest.invite.dealerName} · {fmtMoney(comparedOtd(exactBest))}</p> : null}
+          <p className="text-[11px] text-ink-light">{headline.invite.dealerName}</p>
+        </div>
+      ) : sideAlternates.length ? (
+        <div className="rounded-xl border border-sky-500/30 bg-sky-500/5 px-4 py-3" data-testid="used-glance-alternates-only">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-ink-faint">No live quote for your exact build yet</p>
+          <p className="text-[11px] text-sky-200">{sideAlternates.length} alternate vehicle{sideAlternates.length === 1 ? "" : "s"} proposed — shown below, not ranked against your exact build{bestAlternateId ? "; the lowest of them is marked Best alternate" : ""}.</p>
         </div>
       ) : (
         <p className="rounded-xl border border-border bg-surface px-4 py-3 text-xs text-ink-light">Every quote has expired — ask a dealer to re-quote, or walk away.</p>
