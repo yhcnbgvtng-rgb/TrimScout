@@ -37,7 +37,7 @@ b67f57bcffeede0cdddb01ba355ef231  FINAL  syncRun.js
 78dceb2738bb1044e338026f579ed8f9  FINAL  deals_api_server.js
 a8eddbd033bf3f5312bc43803e58d5dd  BASE   inventorySweep.js
 4267624cff2c843c97bf0d6cfa47c9d1  FINAL  inventorySweep.js
-c9c3ccf43cdbe55c81ebde99df1cb77e  FINAL  syncSweepGuard.js
+25e105a457147c19891abd275b8ef7d6  FINAL  syncSweepGuard.js
 ```
 <!-- MD5S:END -->
 `BASE` = the file as in `origin/main` before this change; `FINAL` = after. The three client patches and the server patch were made with `git diff origin/main` (`make-patches.sh` regenerates them and this table; `scripts/box/sweep-guards-install.test.mjs` fails CI if they are stale).

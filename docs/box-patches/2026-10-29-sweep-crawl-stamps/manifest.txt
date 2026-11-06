@@ -6,7 +6,7 @@ b67f57bcffeede0cdddb01ba355ef231  FINAL  syncRun.js
 6e0fb48ccd2f3ae9a6076aabdaabbeea  BASE   syncSweep.js
 19fd8e2a40ff72bc3540edc21da2e19a  FINAL  syncSweep.js
 1d38a02b9daeae923d1584bb30d9cfc4  BASE   syncSweepGuard.js
-c9c3ccf43cdbe55c81ebde99df1cb77e  FINAL  syncSweepGuard.js
+25e105a457147c19891abd275b8ef7d6  FINAL  syncSweepGuard.js
 74c70a4ee8c084724345911df0c850af  BASE   syncRetired.js
 f8e32aaf73a2c48712a4b595ccb95c05  FINAL  syncRetired.js
 31d527ba8e277ff58e39f73ad1d00295  BOXBASE   deals_api_server.js

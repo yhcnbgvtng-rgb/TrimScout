@@ -10,8 +10,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const HOSTILE = new Set(["CLOUDFLARE", "VERCEL_CHECKPOINT", "HTTP_403", "HTTP_429"]);
-/** The crawl's hostile-answer classes: bot walls and rate limits (403/429) and any server error (HTTP_5xx). DNS/404/timeouts say nothing about the store's stock. */
+const HOSTILE = new Set(["CLOUDFLARE", "VERCEL_CHECKPOINT", "HTTP_403", "HTTP_429", "HEAP_GUARD"]);
+/** The crawl's hostile-answer classes: bot walls and rate limits (403/429), any server error (HTTP_5xx), and HEAP_GUARD (the crawler itself stopped reading the store: scrapers/lightsail-crawler/src/heapGuard.js).  DNS/404/timeouts say nothing about the store's stock. */
 export const isHostileClass = (cls) => HOSTILE.has(cls) || /^HTTP_5/.test(String(cls || ""));
 
 // The crawler's skip line (same pattern as syncBlocked.js, repeated here so this module stands alone: a box whose ~/inventory-sync predates syncBlocked.js can still run it).
@@ -20,6 +20,10 @@ const SKIP_RE = /🛡️ SKIP (.+?): ([A-Z_0-9]+)(?: \((\d{3})\))? — (.*?)(?:;
 // "⏳ Fred Beans Acura of Abington: HTTP_429 — waiting 45s and retrying once before giving up": the crawl hit a wall, waited and carried on with whatever it
 // could still read. The store then reports a "successful" partial extraction (279 of 2,125), which is why a plain SKIP-line check is not enough.
 const RETRY_RE = /⏳ (.+?): ([A-Z_0-9]+) — waiting/;
+
+// "🧠 Eastern's Nissan: heap 2800 MB of 3584 MB (guard stops at 2728 MB) — stopped this store after 812 vehicle(s); ..." (heapGuard.js formatHeapStopLine): the crawl ran low on memory and
+// read only part of the store. Its unread cars must not be swept or counted as missed, exactly like a store that answered 429 midway.
+const HEAP_RE = /🧠 (.+?): heap \d+ MB of \d+ MB \(guard stops at \d+ MB\) — stopped this store/;
 
 /** Hostile answers in one crawl log's text: [{ name, cls, kind: "skip" | "retry", url }], one per store (a skip outranks a retry). */
 export function parseHostileLines(text) {
@@ -30,6 +34,10 @@ export function parseHostileLines(text) {
       const m = SKIP_RE.exec(line);
       if (!m) continue;
       name = m[1]; cls = m[2]; url = m[6]; kind = "skip";
+    } else if (line.includes("🧠")) {
+      const m = HEAP_RE.exec(line);
+      if (!m) continue;
+      name = m[1]; cls = "HEAP_GUARD"; kind = "heap";
     } else if (line.includes("⏳")) {
       const m = RETRY_RE.exec(line);
       if (!m) continue;
@@ -38,7 +46,7 @@ export function parseHostileLines(text) {
     if (!isHostileClass(cls)) continue;
     name = name.trim();
     const prev = out.get(name);
-    if (!prev || (prev.kind === "retry" && kind === "skip")) out.set(name, { name, cls, kind, url });
+    if (!prev || (prev.kind === "retry" && kind !== "retry")) out.set(name, { name, cls, kind, url });
   }
   return [...out.values()];
 }
@@ -79,7 +87,7 @@ export function collectHostileStores({ files, dealerIdFor, readFile = (f) => fs.
       const id = dealerIdFor({ name: e.name, url: e.url || "" });
       if (!id) { unmatched++; continue; }
       const prev = byId.get(id);
-      if (!prev || (prev.kind === "retry" && e.kind === "skip")) byId.set(id, { dealerId: Number(id), name: e.name, cls: e.cls, kind: e.kind });
+      if (!prev || (prev.kind === "retry" && e.kind !== "retry")) byId.set(id, { dealerId: Number(id), name: e.name, cls: e.cls, kind: e.kind });
     }
   }
   return { ids: new Set([...byId.keys()].map(Number)), entries: [...byId.values()].sort((a, b) => a.dealerId - b.dealerId), unmatched };
@@ -137,7 +145,7 @@ export function describeSkips({ hostile = [], partial = [], nameOf = () => "?", 
   const lines = [];
   if (hostile.length) {
     lines.push(`[sync] sweep skipped for ${hostile.length} store(s) whose crawl hit a 403/429/5xx wall tonight (their cars stay live, no miss counted):`);
-    for (const h of hostile.slice(0, max)) lines.push(`[sync]   ${h.name} (#${h.dealerId}): ${h.cls}${h.kind === "retry" ? " during the crawl (retried)" : " (skipped)"}`);
+    for (const h of hostile.slice(0, max)) lines.push(`[sync]   ${h.name} (#${h.dealerId}): ${h.cls}${h.kind === "retry" ? " during the crawl (retried)" : h.kind === "heap" ? " (crawl stopped on memory, partial)" : " (skipped)"}`);
     if (hostile.length > max) lines.push(`[sync]   ... and ${hostile.length - max} more`);
   }
   if (partial.length) {

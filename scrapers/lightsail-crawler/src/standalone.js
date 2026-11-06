@@ -41,6 +41,7 @@ process.on('exit', () => {
     } catch { /* never fail an exit over a log line */ }
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
+import { makeHeapGuard, detachStrings, formatHeapStopLine, heapReserveBytes } from './heapGuard.js';
 import { resolveKeptMake } from './brand_match.js';
 import { normalizeTrimForWrite } from './oemTrim.js'; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
@@ -704,7 +705,17 @@ async function resolveSitemapDiscovery(dealer, brand, { apexFirst = false } = {}
     return { urls, attempts, ...summary };
 }
 
-const currentInventory = new Map();
+// set() stores a flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
+class FlatMap extends Map { set(key, value) { return super.set(key, detachStrings(value)); } }
+const currentInventory = new FlatMap();
+// Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
+const heapGuard = makeHeapGuard({ reserveBytes: heapReserveBytes(await fs.stat(path.join(DATA_DIR, 'dom_index.json')).then((st) => st.size, () => 0)) });
+let heapStopped = false;
+const heapStop = () => {
+    if (!heapGuard.pressured()) return false;
+    heapStopped = true;
+    return true;
+};
 // Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
 // uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
 // below is a real UTC instant (when this run happened) and stays as-is.
@@ -757,6 +768,7 @@ for (let i = 0; i < work.length; i++) {
     runProgress.currentDealer = dealer.name;
     politeStoreName = dealer.name;
     politeWall = null;
+    heapStopped = false;
     await flushRunProgress();
 
     // The retry pass already passed the bot-protection probe once; it never re-probes (and never retries a refusal).
@@ -1202,7 +1214,7 @@ for (let i = 0; i < work.length; i++) {
             }
             const pageUrls = urlPlan.pages[pageNo];
             if (urlPlan.pages.length > 1) console.log(`${progress} 📄 ${dealer.name}: page ${pageNo + 1}/${urlPlan.pages.length} (${pageUrls.length} URLs, ${dealerCount} extracted so far)`);
-            await pMapStoppable(pageUrls, extractOne, PAGE_WORKERS, () => politeWall !== null || dealerTimedOut);
+            await pMapStoppable(pageUrls, extractOne, PAGE_WORKERS, () => politeWall !== null || dealerTimedOut || heapStop());
         }
 
         if (politeWall) {
@@ -1226,6 +1238,14 @@ for (let i = 0; i < work.length; i++) {
             // Pages were fetched but nothing survived extraction — same "no
             // real evidence this run" situation as the zero-URL case above.
             failedDealerNames.add(dealer.name);
+        }
+        if (heapStopped) {
+            // Live heap hit the guard (heapGuard.js): the store was read only in part. Same treatment as a timeout: keep what was read,
+            // exclude the store from the sold-diff and the sweep so unread cars are not counted as missing.
+            failedDealerNames.add(dealer.name);
+            runProgress.lastError = `${dealer.name}: heap guard stopped the store after ${dealerCount} vehicle(s)`;
+            const h = heapGuard.snapshot();
+            console.log(formatHeapStopLine({ progress, name: dealer.name, usedMb: h.usedMb, limitMb: h.limitMb, stopAtMb: h.stopAtMb, count: dealerCount }));
         }
         if (dealerTimedOut) {
             // The page loop stopped early (pMapStoppable), so this is the
