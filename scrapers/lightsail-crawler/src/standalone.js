@@ -705,7 +705,9 @@ async function resolveSitemapDiscovery(dealer, brand, { apexFirst = false } = {}
     return { urls, attempts, ...summary };
 }
 
-const currentInventory = new Map();
+// set() stores a flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
+class FlatMap extends Map { set(key, value) { return super.set(key, detachStrings(value)); } }
+const currentInventory = new FlatMap();
 // Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
 const heapGuard = makeHeapGuard({ reserveBytes: heapReserveBytes(await fs.stat(path.join(DATA_DIR, 'dom_index.json')).then((st) => st.size, () => 0)) });
 let heapStopped = false;
@@ -1185,8 +1187,7 @@ for (let i = 0; i < work.length; i++) {
                             const ft = normalizeTrimForWrite({ make: vehicle.make, model: vehicle.model, trim: vehicle.trim });
                             if (ft.status === 'fix' && ft.trimRaw) { vehicle.trimRaw = ft.trimRaw; vehicle.trim = ft.trim; }
                         }
-                        // Flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
-                        currentInventory.set(vehicle.vin, detachStrings(vehicle));
+                        currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];
                         try {

@@ -8,10 +8,14 @@
  import { resolveKeptMake } from './brand_match.js';
  import { isLikelyVdpUrl } from './vdpUrlFilter.js';
  import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
-@@ -698,6 +699,14 @@
+@@ -697,7 +698,17 @@
+     return { urls, attempts, ...summary };
  }
  
- const currentInventory = new Map();
+-const currentInventory = new Map();
++// set() stores a flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
++class FlatMap extends Map { set(key, value) { return super.set(key, detachStrings(value)); } }
++const currentInventory = new FlatMap();
 +// Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
 +const heapGuard = makeHeapGuard({ reserveBytes: heapReserveBytes(await fs.stat(path.join(DATA_DIR, 'dom_index.json')).then((st) => st.size, () => 0)) });
 +let heapStopped = false;
@@ -23,7 +27,7 @@
  // Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
  // uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
  // below is a real UTC instant (when this run happened) and stays as-is.
-@@ -746,6 +755,7 @@
+@@ -746,6 +757,7 @@
  for (let i = 0; i < work.length; i++) {
      const { dealer, retry } = work[i];
      const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
@@ -31,17 +35,7 @@
      console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
      runProgress.currentDealer = dealer.name;
      politeStoreName = dealer.name;
-@@ -1157,7 +1167,8 @@
-                         // Trim text: HTML entities decoded, ®/™ dropped, trailing drivetrain word removed (trimClean.js cleanTrim) - every make, last step before the sticker.
-                         if (vehicle.trim) vehicle.trim = cleanTrim(vehicle.trim, { make: vehicle.make });
-                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
--                        currentInventory.set(vehicle.vin, vehicle);
-+                        // Flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
-+                        currentInventory.set(vehicle.vin, detachStrings(vehicle));
-                         dealerCount++;
-                         liteShadow.recordExtracted(url, vehicle.vin);
-                         const prev = previousSnapshot[vehicle.vin];
-@@ -1178,7 +1189,7 @@
+@@ -1178,7 +1190,7 @@
              } catch {}
          };
  
@@ -50,7 +44,7 @@
  
          if (politeWall) {
              // The site walled us partway through its pages: remaining URLs were not requested. Keep what was read, flag the store as
-@@ -1202,6 +1213,14 @@
+@@ -1202,6 +1214,14 @@
              // real evidence this run" situation as the zero-URL case above.
              failedDealerNames.add(dealer.name);
          }

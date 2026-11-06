@@ -21,10 +21,14 @@
              const idx = cursor++;
              try {
                  await mapper(items[idx], idx);
-@@ -833,6 +834,14 @@
+@@ -832,7 +833,17 @@
+     }
  }
  
- const currentInventory = new Map();
+-const currentInventory = new Map();
++// set() stores a flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
++class FlatMap extends Map { set(key, value) { return super.set(key, detachStrings(value)); } }
++const currentInventory = new FlatMap();
 +// Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
 +const heapGuard = makeHeapGuard({ reserveBytes: heapReserveBytes(await fs.stat(path.join(DATA_DIR, 'dom_index.json')).then((st) => st.size, () => 0)) });
 +let heapStopped = false;
@@ -36,7 +40,7 @@
  // Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
  // uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
  // below is a real UTC instant (when this run happened) and stays as-is.
-@@ -879,6 +888,7 @@
+@@ -879,6 +890,7 @@
  for (let i = 0; i < work.length; i++) {
      const { dealer, retry } = work[i];
      const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
@@ -44,17 +48,7 @@
      console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
      runProgress.currentDealer = dealer.name;
      await flushRunProgress();
-@@ -1285,7 +1295,8 @@
-                         // Trim text: HTML entities decoded, ®/™ dropped, trailing drivetrain word removed (trimClean.js cleanTrim) - every make, last step before the sticker.
-                         if (vehicle.trim) vehicle.trim = cleanTrim(vehicle.trim, { make: vehicle.make });
-                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
--                        currentInventory.set(vehicle.vin, vehicle);
-+                        // Flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
-+                        currentInventory.set(vehicle.vin, detachStrings(vehicle));
-                         dealerCount++;
-                         const prev = previousSnapshot[vehicle.vin];
-                         try {
-@@ -1308,7 +1319,7 @@
+@@ -1308,7 +1320,7 @@
          if (patchrightFallback) {
              await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
          } else {
@@ -63,7 +57,7 @@
          }
  
          dealerStats[dealer.name] = dealerCount;
-@@ -1323,6 +1334,14 @@
+@@ -1323,6 +1335,14 @@
              // real evidence this run" situation as the zero-URL case above.
              failedDealerNames.add(dealer.name);
          }

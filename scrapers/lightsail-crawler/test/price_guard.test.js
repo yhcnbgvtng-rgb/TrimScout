@@ -86,5 +86,5 @@ test('applyParsedPriceGuard nulls the price (and an MSRP that is a copy of it), 
 test('standalone.js runs the guard once, on the final vehicle, before it is stored', () => {
   const src = readFileSync(new URL('../src/standalone.js', import.meta.url), 'utf8');
   assert.match(src, /applyParsedPriceGuard\(vehicle, previousSnapshot\[vehicle\.vin\]\)/);
-  assert.ok(src.indexOf('applyParsedPriceGuard(vehicle') < src.indexOf('currentInventory.set(vehicle.vin, detachStrings(vehicle))'), 'guard comes before the store');
+  assert.ok(src.indexOf('applyParsedPriceGuard(vehicle') < src.indexOf('currentInventory.set(vehicle.vin, vehicle)'), 'guard comes before the store');
 });
