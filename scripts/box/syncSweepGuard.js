@@ -47,9 +47,10 @@ const NOT_CRAWL_LOG = /bot-report|write-dealers|^run-all|^chain-/;
 const LOG_DATE = /-(\d{4}-\d{2}-\d{2})\.log$/;
 
 /**
- * The newest night's per-store crawl logs: every log whose filename date (the crawl's start date) is the latest one present. A fixed mtime window
- * would also pull in the previous night's logs when the sync starts the morning after a long crawl, and a store that was blocked two nights ago would
- * be skipped for no reason. Returns [] when the newest crawl is older than `maxAgeMs` (no crawl tonight: nothing to say).
+ * The per-store crawl logs this sync should read: logs dated the newest filename day (the crawl's start date) or the day before, each also modified
+ * within `maxAgeMs`. Newest-day-only was wrong: a morning core run dated the NEXT day (e.g. 11-06 at 05:00 ET) hid the previous night's 22:00 run (dated 11-05), so
+ * on 2026-11-06 the guard read 95 logs and missed ~300 walled stores (box4 3.2k + box3 2.6k cars retired). The per-file mtime limit keeps a store that was
+ * blocked two nights ago from being skipped for no reason. Returns [] when nothing in the window is recent enough (no crawl lately: nothing to say).
  */
 export function latestCrawlLogs(dir, nowMs, maxAgeMs = 36 * 3600_000) {
   let names = [];
@@ -57,9 +58,9 @@ export function latestCrawlLogs(dir, nowMs, maxAgeMs = 36 * 3600_000) {
   const dated = names.filter((n) => n.endsWith(".log") && !NOT_CRAWL_LOG.test(n)).map((n) => ({ n, d: (LOG_DATE.exec(n) || [])[1] })).filter((x) => x.d);
   if (!dated.length) return [];
   const newest = dated.reduce((m, x) => (x.d > m ? x.d : m), "");
-  const files = dated.filter((x) => x.d === newest).map((x) => path.join(dir, x.n));
-  const newestMtime = Math.max(0, ...files.map((f) => { try { return fs.statSync(f).mtimeMs; } catch { return 0; } }));
-  return nowMs - newestMtime <= maxAgeMs ? files : [];
+  const dayBefore = new Date(Date.parse(`${newest}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+  const mtime = (f) => { try { return fs.statSync(f).mtimeMs; } catch { return 0; } };
+  return dated.filter((x) => x.d === newest || x.d === dayBefore).map((x) => path.join(dir, x.n)).filter((f) => nowMs - mtime(f) <= maxAgeMs);
 }
 
 /**
