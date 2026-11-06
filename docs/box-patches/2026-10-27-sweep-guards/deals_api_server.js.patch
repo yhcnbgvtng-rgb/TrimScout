@@ -1,8 +1,7 @@
 diff --git scrapers/lightsail-crawler/src/deals_api_server.js scrapers/lightsail-crawler/src/deals_api_server.js
-index 40408cc..535984b 100644
 --- scrapers/lightsail-crawler/src/deals_api_server.js
 +++ scrapers/lightsail-crawler/src/deals_api_server.js
-@@ -40,7 +40,8 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
+@@ -41,7 +41,8 @@ import { createRfqMessagesHandler } from "./rfqMessages.js";
  import { createChatAdminHandlers } from "./rfqChatAdmin.js";
  import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
  import { createStableCache, builtForOtherBuild } from "./stableCache.js";
@@ -12,7 +11,7 @@ index 40408cc..535984b 100644
  import { createRefreshTimeouts } from "./refreshTimeouts.js";
  import { optionRowsFromOptions, payloadHasOptions, buyerOptionCatalog, isBuyerFacingOption, CATALOG_MIN_VEHICLES } from "./inventoryOptionRows.js";
  import { loadSyncAllowlist, resolveAllowlisted, hasAllowlistFor, catalogModeFromEnv, policyFacetRows, policyApiOptions } from "./factoryOptionAllowlist.js";
-@@ -50,7 +51,7 @@ import { normalizeFordTrimForWrite } from "./fordTrim.js";
+@@ -51,7 +52,7 @@ import { normalizeFordTrimForWrite } from "./fordTrim.js";
  import { guardPrice } from "./ingestGuards.js";
  import { normalizeTransmission } from "./transmission.js";
  import { tryAcquireSyncLock, releaseSyncLock, heartbeatSyncLock } from "./syncLock.js";
@@ -21,7 +20,7 @@ index 40408cc..535984b 100644
  import { parseSupersedeRequest, buildSupersedeStatement } from "./supersededRetire.js";
  import { parseDuplicateVinRequest, planVinKeepers, buildRowsSelect, buildRetireStatement } from "./vinKeeper.js";
  import { parseBlockedReport, buildBlockedUpsert, buildBlockedCleanup, blockedRowsToJson, BLOCKED_TABLE_DDL } from "./blockedStores.js";
-@@ -2021,6 +2022,10 @@ async function ensureInventoryTableOnce(pool) {
+@@ -2040,6 +2041,10 @@ async function ensureInventoryTableOnce(pool) {
      // Set by the zero-scrape rule (zeroScrape.js): the store scraped nothing for several nights while its platform was healthy.
      // Hidden from buyer search, never removed; any upsert of the car clears it again.
      "ADD COLUMN IF NOT EXISTS stale_at DATETIME NULL",
@@ -32,7 +31,7 @@ index 40408cc..535984b 100644
      "ADD COLUMN IF NOT EXISTS vdp_url_norm VARCHAR(700) NULL",
      // The dealer's own trim text, kept whenever the trim above was rewritten by fordTrim.js (null = the trim is exactly what the dealer sent). Nothing is lost.
      "ADD COLUMN IF NOT EXISTS trim_raw VARCHAR(160) NULL",
-@@ -2665,10 +2670,18 @@ async function handleInventorySweep(req, res) {
+@@ -2684,10 +2689,18 @@ async function handleInventorySweep(req, res) {
    const body = await readBody(req);
    const parsed = parseSweepRequest(body, { toInt: INV_INT, toStr: INV_STR });
    if (!parsed.ok) return badRequest(res, parsed.error);
@@ -55,7 +54,7 @@ index 40408cc..535984b 100644
  }
  
  // POST /api/inventory/superseded { pairs: [[vin, storeId], ...], seenAfter, dryRun?, sourceBox?, foreignBefore? } — retires (removed_at) the
-@@ -3142,30 +3155,22 @@ async function computeMarketPulse(pool, state) {
+@@ -3161,30 +3174,22 @@ async function computeMarketPulse(pool, state) {
    };
  }
  
@@ -99,7 +98,7 @@ index 40408cc..535984b 100644
  }
  
  // GET /api/inventory/makes — just the make list, for the buyer /search page's make picker
-@@ -4216,6 +4221,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
+@@ -4235,6 +4240,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
    sendJson(res, 404, { error: "Not found" });
  });
  
@@ -108,7 +107,7 @@ index 40408cc..535984b 100644
  server.listen(PORT, () => {
    console.log(`Deals API server listening on port ${PORT}`);
    // First deploy (or a box whose facet tables were never built): build once shortly after start.
-@@ -4230,6 +4237,11 @@ server.listen(PORT, () => {
+@@ -4249,6 +4256,11 @@ server.listen(PORT, () => {
        console.error("startup catalog facet check failed:", err.message);
      }
    }, 30_000);
