@@ -1,0 +1,80 @@
+--- a/src/standalone.js
++++ b/src/standalone.js
+@@ -39,6 +39,7 @@
+     } catch { /* never fail an exit over a log line */ }
+ });
+ import { readJsonLarge, writeJsonLarge } from './bigJson.js';
++import { makeHeapGuard, detachStrings } from './heapGuard.js';
+ import { resolveKeptMake } from './brand_match.js';
+ import { isLikelyVdpUrl } from './vdpUrlFilter.js';
+ import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
+@@ -716,10 +717,10 @@
+     return (await resolveSitemapDiscovery(dealer, brand, patchrightPage)).urls;
+ }
+ 
+-async function pMap(items, mapper, concurrency = 8) {
++async function pMap(items, mapper, concurrency = 8, shouldStop = () => false) {
+     let cursor = 0;
+     const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+-        while (cursor < items.length) {
++        while (cursor < items.length && !shouldStop()) {
+             const idx = cursor++;
+             try {
+                 await mapper(items[idx], idx);
+@@ -833,6 +834,14 @@
+ }
+ 
+ const currentInventory = new Map();
++// Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
++const heapGuard = makeHeapGuard();
++let heapStopped = false;
++const heapStop = () => {
++    if (!heapGuard.pressured()) return false;
++    heapStopped = true;
++    return true;
++};
+ // Calendar-date bucketing (file naming, firstSeen/lastSeen, DOM retention)
+ // uses the Eastern calendar date, not UTC — see date_utils.js. todayIso
+ // below is a real UTC instant (when this run happened) and stays as-is.
+@@ -879,6 +888,7 @@
+ for (let i = 0; i < work.length; i++) {
+     const { dealer, retry } = work[i];
+     const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
++    heapStopped = false;
+     console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
+     runProgress.currentDealer = dealer.name;
+     await flushRunProgress();
+@@ -1285,7 +1295,8 @@
+                         // Trim text: HTML entities decoded, ®/™ dropped, trailing drivetrain word removed (trimClean.js cleanTrim) - every make, last step before the sticker.
+                         if (vehicle.trim) vehicle.trim = cleanTrim(vehicle.trim, { make: vehicle.make });
+                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
+-                        currentInventory.set(vehicle.vin, vehicle);
++                        // Flat copy: fields captured from `html` must not keep the whole page alive (heapGuard.js).
++                        currentInventory.set(vehicle.vin, detachStrings(vehicle));
+                         dealerCount++;
+                         const prev = previousSnapshot[vehicle.vin];
+                         try {
+@@ -1308,7 +1319,7 @@
+         if (patchrightFallback) {
+             await pMapWithPages(vehicleUrls, extractOne, patchrightFallback.pages);
+         } else {
+-            await pMap(vehicleUrls, extractOne, PAGE_WORKERS);
++            await pMap(vehicleUrls, extractOne, PAGE_WORKERS, heapStop);
+         }
+ 
+         dealerStats[dealer.name] = dealerCount;
+@@ -1323,6 +1334,14 @@
+             // real evidence this run" situation as the zero-URL case above.
+             failedDealerNames.add(dealer.name);
+         }
++        if (heapStopped) {
++            // Live heap hit the guard (heapGuard.js): the store was read only in part. Same treatment as a timeout: keep what was read,
++            // exclude the store from the sold-diff and the sweep so unread cars are not counted as missing.
++            failedDealerNames.add(dealer.name);
++            runProgress.lastError = `${dealer.name}: heap guard stopped the store after ${dealerCount} vehicle(s)`;
++            const h = heapGuard.snapshot();
++            console.log(`${progress} 🧠 ${dealer.name}: heap ${h.usedMb} MB of ${h.limitMb} MB (guard ${h.ratio}) — stopped this store after ${dealerCount} vehicle(s); the rest were not read and the store is treated as a partial crawl.`);
++        }
+         if (dealerTimedOut) {
+             // Closing the context made pMapWithPages settle instead of throw
+             // (each worker's own try/catch swallows the abort), so this is

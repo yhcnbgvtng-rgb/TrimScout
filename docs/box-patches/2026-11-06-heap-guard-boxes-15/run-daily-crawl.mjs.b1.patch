@@ -1,0 +1,17 @@
+--- a/scripts/run-daily-crawl.mjs
++++ b/scripts/run-daily-crawl.mjs
+@@ -493,9 +493,12 @@
+ // 10-03..05 and have squeaked through since. Per-run override: shards of one brand run one after another, so
+ // this adds headroom for at most one process per state at a time; boxes have 15.7GB and no swap.
+ export const HEAVY_HEAP_MB = Number(process.env.CRAWLER_HEAVY_HEAP_MB) || 5120;
+-const HEAVY_HEAP_RUNS = new Set(['FL:gmc', 'FL:buick', 'NC:ford', 'OH:stellantis', 'OH:gmc', 'OH:buick', 'TX:ford']);
++// CRAWLER_HEAVY_HEAP_EXTRA="MD:nissan,FL:infiniti" adds runs per box without a code edit (a box with RAM to spare, e.g. box1 at 2 concurrent states).
++const heavyHeapExtra = (env = process.env) => String(env.CRAWLER_HEAVY_HEAP_EXTRA || '').split(',').map((x) => x.trim().toUpperCase()).filter((x) => /^[A-Z]{2}:[A-Z0-9_-]+$/.test(x));
++const HEAVY_HEAP_RUNS = new Set(['FL:gmc', 'FL:buick', 'NC:ford', 'OH:stellantis', 'OH:gmc', 'OH:buick', 'TX:ford'].map((x) => x.toUpperCase()));
+ export function heapMbFor(state, brand) {
+-  return HEAVY_HEAP_RUNS.has(`${String(state).toUpperCase()}:${String(brand).toLowerCase()}`) ? HEAVY_HEAP_MB : DEFAULT_HEAP_MB;
++  const key = `${String(state).toUpperCase()}:${String(brand).toUpperCase()}`;
++  return HEAVY_HEAP_RUNS.has(key) || heavyHeapExtra().includes(key) ? HEAVY_HEAP_MB : DEFAULT_HEAP_MB;
+ }
+ 
+ export function buildBrandCrawlEnv({ state, brand, dealersFile, date }) {
