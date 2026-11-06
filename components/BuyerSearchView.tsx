@@ -435,7 +435,22 @@ export function BuyerSearchView() {
     }));
 
   // "Clear all": every filter back to empty. The header sort is kept (it is not a filter), except a Distance sort, which goes with the ZIP.
-  const clearAll = () => setFilters((f) => ({ ...EMPTY_FILTERS, sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort }));
+  // The applied search, its results and error, any request still in flight, and a header-sort retry all go with the filters: otherwise the
+  // old inventory stays on screen (only dimmed) under an empty panel, and a slow response could even land after the clear.
+  const clearAll = () => {
+    runSearchRef.current++; // a response already on its way is now stale and is dropped
+    controllerRef.current?.abort();
+    controllerRef.current = null;
+    pageInFlightRef.current = false;
+    sortAttemptRef.current = null;
+    setSearchLoading(false);
+    setApplied(null);
+    setResults(null);
+    setSearchError(null);
+    setMoreError(false);
+    setSortNote(null);
+    setFilters((f) => ({ ...EMPTY_FILTERS, sort: parseSort(f.sort)?.key === "distance" ? "" : f.sort }));
+  };
 
   // Counts are hidden while the facet request is in flight or has failed, so a stale number is never shown (#389).
   const countsHidden = facetsLoading || facetsFailed;

@@ -19,6 +19,20 @@ export interface LiveCountProps {
 
 const DURATION_MS = 380;
 
+/**
+ * The count shown `p` of the way from `start` to `target`. `p` is clamped to 0..1 (a requestAnimationFrame timestamp can be earlier than the
+ * performance.now() the animation started at, which made `p` negative and the cubic ease swing past the start), and the result is held
+ * between the two ends and never below 0 — a vehicle count cannot be negative or exceed the real total.
+ */
+export function easedCount(start: number, target: number, p: number): number {
+  const t = Number.isFinite(target) ? Math.max(0, target) : 0;
+  const s = Number.isFinite(start) ? Math.max(0, start) : t;
+  const q = Number.isFinite(p) ? Math.min(1, Math.max(0, p)) : 1;
+  const eased = 1 - Math.pow(1 - q, 3);
+  const v = Math.round(s + (t - s) * eased);
+  return Math.max(0, Math.min(Math.max(s, t), Math.max(Math.min(s, t), v)));
+}
+
 function useEasedNumber(target: number | null): number | null {
   const [shown, setShown] = useState<number | null>(target);
   const from = useRef<number | null>(target);
@@ -30,9 +44,8 @@ function useEasedNumber(target: number | null): number | null {
     let raf = 0;
     const t0 = performance.now();
     const step = (now: number) => {
-      const p = Math.min(1, (now - t0) / DURATION_MS);
-      const eased = 1 - Math.pow(1 - p, 3);
-      const v = Math.round(start + (target - start) * eased);
+      const p = Math.min(1, Math.max(0, (now - t0) / DURATION_MS));
+      const v = easedCount(start, target, p);
       setShown(v);
       from.current = v;
       if (p < 1) raf = requestAnimationFrame(step); else from.current = target;
