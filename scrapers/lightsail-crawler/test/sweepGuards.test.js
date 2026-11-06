@@ -312,14 +312,31 @@ describe('client: reading the crawl logs', () => {
     assert.equal(r.unmatched, 2);
   });
 
-  it('latestCrawlLogs reads only the newest night, never the report/driver logs, and nothing when that night is old', () => {
+  it('latestCrawlLogs reads the newest day and the day before (within the mtime window), never the report/driver logs, and nothing when all are old', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crawl-logs-'));
-    const touch = (n) => fs.writeFileSync(path.join(dir, n), 'x');
-    ['pa-acura-2026-10-25.log', 'pa-acura-2026-10-26.log', 'pa-hyundai-shard1-2026-10-26.log', 'nj-bot-report-2026-10-26.log', 'ok-write-dealers-2026-10-26.log', 'run-all-2026-10-26.log', 'chain-2026-10-26.log', 'notes.txt'].forEach(touch);
     const now = Date.now();
-    assert.deepEqual(latestCrawlLogs(dir, now).map((f) => path.basename(f)).sort(), ['pa-acura-2026-10-26.log', 'pa-hyundai-shard1-2026-10-26.log']);
-    assert.deepEqual(latestCrawlLogs(dir, now + 48 * 3600_000), [], 'older than the max age: no crawl tonight, nothing to exclude');
+    const touch = (n, ageH = 1) => { const f = path.join(dir, n); fs.writeFileSync(f, 'x'); const t = new Date(now - ageH * 3600_000); fs.utimesSync(f, t, t); };
+    ['pa-acura-2026-10-26.log', 'pa-hyundai-shard1-2026-10-26.log', 'nj-bot-report-2026-10-26.log', 'ok-write-dealers-2026-10-26.log', 'run-all-2026-10-26.log', 'chain-2026-10-26.log', 'notes.txt'].forEach((n) => touch(n));
+    touch('pa-acura-2026-10-25.log', 8);      // the previous night's run: in the window, so read
+    touch('pa-honda-2026-10-25.log', 40);     // same day-before but older than the 36 h window: not read
+    touch('pa-kia-2026-10-24.log', 2);        // two days before the newest: not read even if recent
+    assert.deepEqual(latestCrawlLogs(dir, now).map((f) => path.basename(f)).sort(), ['pa-acura-2026-10-25.log', 'pa-acura-2026-10-26.log', 'pa-hyundai-shard1-2026-10-26.log']);
+    assert.deepEqual(latestCrawlLogs(dir, now + 72 * 3600_000), [], 'everything older than the max age: no crawl lately, nothing to exclude');
     assert.deepEqual(latestCrawlLogs(path.join(dir, 'missing'), now), []);
+  });
+
+  it('latestCrawlLogs: a morning core run dated the next day no longer hides the previous night (2026-11-06 regression)', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crawl-logs-'));
+    const now = Date.now();
+    const touch = (n, ageH) => { const f = path.join(dir, n); fs.writeFileSync(f, 'x'); const t = new Date(now - ageH * 3600_000); fs.utimesSync(f, t, t); };
+    touch('ca-ford-shard1-2026-11-05.log', 6);   // 22:00 ET nightly run, finished before the sync
+    touch('fl-toyota-shard0-2026-11-05.log', 5);
+    touch('hi-acura-2026-11-06.log', 1);         // morning core run, dated the next day
+    const got = latestCrawlLogs(dir, now).map((f) => path.basename(f)).sort();
+    assert.deepEqual(got, ['ca-ford-shard1-2026-11-05.log', 'fl-toyota-shard0-2026-11-05.log', 'hi-acura-2026-11-06.log']);
+    // Before the fix only the newest filename day was read, so the two nightly logs (and every wall in them) were invisible:
+    const oldBehaviour = (() => { const n = fs.readdirSync(dir); const newest = n.map((x) => /-(\d{4}-\d{2}-\d{2})\.log$/.exec(x)[1]).sort().pop(); return n.filter((x) => x.includes(newest)).sort(); })();
+    assert.deepEqual(oldBehaviour, ['hi-acura-2026-11-06.log']);
   });
 
   it('guardConfigFromEnv: everything on by default, each switch can turn one off, minMisses 1 is "off"', () => {
