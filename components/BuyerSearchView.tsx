@@ -284,6 +284,16 @@ export function BuyerSearchView() {
     if (filters.make) sp.set("make", filters.make);
     if (filters.model) sp.set("model", filters.model);
     if (filters.trim) sp.set("trim", filters.trim);
+    // The previous scope's colors must not linger while the new ones load, and with no make there is nothing to scope by:
+    // the all-makes catalog (hundreds of stored spellings) is never offered as a color list.
+    setExteriorColors([]);
+    setInteriorColors([]);
+    if (!filters.make) {
+      setCatalogOptions([]);
+      setCatalogOptionsLoading(false);
+      setCatalogOptionsFailed(false);
+      return () => controller.abort();
+    }
     setCatalogOptionsLoading(true);
     setCatalogOptionsFailed(false);
     fetch(`/api/catalog/options${sp.toString() ? `?${sp}` : ""}`, { signal: controller.signal })

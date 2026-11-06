@@ -54,7 +54,10 @@ export interface SearchFilterSidebarProps {
 const money = (n: string) => `$${Number(n).toLocaleString()}`;
 const COND_LABEL: Record<string, string> = { new: "New", used: "Used", cpo: "Certified" };
 const TOP_MAKES = 6;
-const SECTION_IDS = ["condition", "location", "make", "model", "trim", "year", "price", "odometer", "color", "options", "other"] as const;
+/** A picked color always stays selectable, even before (or after) the scoped list loads, so the dropdown never shows blank for an active filter. */
+export const withPicked = (list: string[], picked: string): string[] => (picked && !list.includes(picked) ? [picked, ...list] : list);
+
+const SECTION_IDS =["condition", "location", "make", "model", "trim", "year", "price", "odometer", "color", "options", "other"] as const;
 type SectionId = (typeof SECTION_IDS)[number];
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -340,13 +343,13 @@ export function SearchFilterSidebar(p: SearchFilterSidebarProps) {
               <div>
                 <label htmlFor={`${uid}-ext`} className={fieldLabel}>Exterior color</label>
                 <select id={`${uid}-ext`} value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className={field}>
-                  <option value="">Any</option>{p.exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
+                  <option value="">Any</option>{withPicked(p.exteriorColors, filters.exteriorColor).map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
                 <label htmlFor={`${uid}-int`} className={fieldLabel}>Interior color</label>
                 <select id={`${uid}-int`} value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className={field}>
-                  <option value="">Any</option>{p.interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
+                  <option value="">Any</option>{withPicked(p.interiorColors, filters.interiorColor).map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             </div>

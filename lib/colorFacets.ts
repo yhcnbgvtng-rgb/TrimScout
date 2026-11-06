@@ -15,19 +15,46 @@ function titleCase(s: string): string {
   }).join(" ");
 }
 
+/** Words that look like a 2-3 letter code but are real colours, so "Black - Red" keeps its second colour. */
+const CODE_LOOKALIKES = new Set(["red", "tan", "ice", "sky", "sea", "sun", "ash", "oak", "fog", "jet", "gold", "blue", "gray", "grey", "pink", "teal", "lime", "plum", "rose", "rust", "sand", "navy", "mint", "dark", "light", "pearl", "white", "black", "green", "brown", "beige", "ivory", "cream", "silver", "orange", "yellow"]);
+const FINISH_WORDS = "(?:metallic|tintcoat|tricoat|clearcoat|pearl|pearlcoat|mica|crystal|effect)";
+
+/** "Black - Gba", "Black-Bk" and "Ashen Gray Metallic Glj": a dealer's trailing paint code after the name. */
+function stripTrailingPaintCode(s: string): string {
+  let out = s;
+  const dash = out.match(/^(.*\S)\s+-\s*([A-Za-z]{2,3})$/);                      // "Black - Gba"
+  if (dash && !CODE_LOOKALIKES.has(dash[2].toLowerCase())) out = dash[1];
+  const tight = out.match(/^(.*[A-Za-z])-([A-Za-z]{1,2})$/);                     // "Black-Bk"
+  if (tight && !CODE_LOOKALIKES.has(tight[2].toLowerCase())) out = tight[1];
+  const after = out.match(new RegExp(`^(.*\\b${FINISH_WORDS})\\s+([A-Za-z]{3})$`, "i")); // "Blue Glow Metallic Ght"
+  if (after && !CODE_LOOKALIKES.has(after[2].toLowerCase())) out = after[1];
+  return out.trim();
+}
+
+/** One spelling per paint word: "Tint Coat" = "Tintcoat", "Tri Coat" = "Tricoat", "Clear Coat" = "Clearcoat", "Grey" = "Gray" (American spelling), "Black Black" = "Black". */
+function spellingKey(s: string): string {
+  return s.toLowerCase()
+    .replace(/\btint[\s-]+coat\b/g, "tintcoat").replace(/\btri[\s-]+coat\b/g, "tricoat").replace(/\bclear[\s-]+coat\b/g, "clearcoat").replace(/\bpearl[\s-]+coat\b/g, "pearlcoat")
+    .replace(/\bgrey\b/g, "gray")
+    .replace(/\b(\w+)(?:\s+\1\b)+/g, "$1")
+    .replace(/\s+/g, " ").trim();
+}
+
 /** The clean colour name for one raw value, or null when the value is not a usable colour. */
 export function cleanColorName(raw: string | null | undefined): string | null {
   let s = (raw ?? "").replace(/\s+/g, " ").trim();
   if (!s) return null;
-  s = s.replace(/\([^)]*\)/g, " ");                       // "(P0WT)" / "Alpine White (300)"
+  s = s.replace(/\([^)]*\)|\[[^\]]*\]/g, " ");            // "(P0WT)" / "Alpine White (300)" / "Black [black]"
+  s = s.replace(/[*.)(\][]+/g, " ").replace(/\s+/g, " ").trim(); // stray punctuation: "Black***", "Black Grille.)"
   s = s.replace(/^(?:[0-9A-Za-z]{0,3}[0-9][0-9A-Za-z]{0,5})\s+(?=[A-Za-z])/, ""); // leading code token: "0300 Alpine White", "WA8555 Glacier"
   s = s.replace(/\s+[-–]?\s*(?:[0-9][0-9A-Za-z]{2,5})$/, "");  // trailing code token: "Glacier 8555"
   s = s.replace(/\s+/g, " ").replace(/^[\s\-–,/]+|[\s\-–,/]+$/g, "");
+  s = stripTrailingPaintCode(s);
   if (!s || isColorCode(s) || JUNK_WORDS.has(s.toLowerCase())) return null;
   if (/^(19|20)\d{2}\b/.test(s)) return null;               // a vehicle description, not a colour ("2007 Bmw 3 Series 328Xi")
   if (!/[A-Za-z]{3}/.test(s) || /\d/.test(s.replace(/\b(?:ii|iii)\b/gi, ""))) return null; // still carries digits: not a plain name
   if (s.length > 40) return null;
-  return titleCase(s);
+  return titleCase(spellingKey(s));
 }
 
 /** Does `short` look like `long` cut off mid-word ("Alpine Whi" / "Alpine White")? Single-word names are never merged this way ("Red" vs "Redline"). */

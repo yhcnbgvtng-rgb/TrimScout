@@ -95,7 +95,7 @@ export interface BuyerSearchResult {
 /** Rows per box call while a scan walks a whole result set (the route's own page ceiling), and how many calls run at once. */
 const SCAN_PAGE = 100;
 const SCAN_CONCURRENCY = 3;
-const MAX_COLOR_VARIANTS = 12;
+const MAX_COLOR_VARIANTS = 24; // a clean colour now stands for more stored spellings (Black / Black - Gba / Black***)
 
 const nextOffsetOf = (from: number, shown: number, total: number): number | null => (shown > 0 && from + shown < total ? from + shown : null);
 
