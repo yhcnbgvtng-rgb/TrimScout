@@ -154,7 +154,11 @@ describe("privacy: no dealer sees contact details before acceptance; losing deal
     assert.doesNotMatch(input, /buyerContact|phone|email/);
     const route = read("app/api/rfqs/[id]/invites/[inviteId]/stage/route.ts");
     assert.match(route, /action\.type === "accept_final"/);
-    assert.doesNotMatch(route, /body\??\.(buyerContact|contact|email|phone)/);
+    // The one client-supplied contact: a top-level `contact` read only under accept_final and re-validated server-side.
+    assert.doesNotMatch(route, /body\??\.(buyerContact|email|phone)/);
+    assert.equal((route.match(/body\??\.contact/g) || []).length, 3);
+    assert.ok(/if \(action\.type === "accept_final"\) \{\s*const sent = body\?\.contact/.test(route));
+    assert.ok(route.includes("validateContactDraft(draft)"));
     assert.doesNotMatch(read("app/api/quote-invite/stage/route.ts"), /buyerContact/);
   });
   it("no stage notice email (either direction, any action) ever contains the details", () => {

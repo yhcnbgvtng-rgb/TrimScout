@@ -72,10 +72,10 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
   // installed (docs/STAGED_ACCEPT_ORIGINAL.md); set NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL=on after that. Until then the state shows without an accept button.
   const quoteLive = Boolean(used) && invite.status === "quoted" && (!invite.counterDeclined || ACCEPT_ORIGINAL_ON) && !isExpired({ expiresAt: used!.expiresAt });
 
-  const act = async (action: StageAction) => {
+  const act = async (action: StageAction, contact?: ShareContact) => {
     setBusy(true); setError(null);
     try {
-      const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/stage`, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ action }) });
+      const res = await fetch(`/api/rfqs/${rfq.id}/invites/${invite.id}/stage`, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify({ action, ...(action.type === "accept_final" && contact ? { contact } : {}) }) });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) { setError(json.error || "That didn't go through."); return; }
       onRfq(json.rfq as RfqRequest);
@@ -240,7 +240,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
       ) : null}
 
       {open && stage.stage === "final" ? (
-        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => acceptShare.request(invite.dealerName, () => act({ type: "accept_final" }), "final")} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
+        <FinalReview stage={stage} dealerName={invite.dealerName} busy={busy} onAccept={() => acceptShare.request(invite.dealerName, (c) => act({ type: "accept_final" }, c), "final")} onChange={() => act({ type: "change_payment" })} primary={primary} ghost={ghost} />
       ) : null}
 
       {stage.stage === "closed" ? (

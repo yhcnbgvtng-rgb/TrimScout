@@ -7,7 +7,7 @@ import path from "node:path";
 import { describe, it } from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { acceptShareBody, createAcceptGate, guestEmailFromBuyerId, sharedFields, CONTACT_SHARED_LINE } from "./acceptShare";
+import { acceptShareBody, createAcceptGate, guestEmailFromBuyerId, sharedFields, submitContactDraft, validateContactDraft, CONTACT_SHARED_LINE, type ShareContact } from "./acceptShare";
 import { AcceptShareDialog } from "../components/AcceptShareConfirm";
 
 const read = (f: string) => fs.readFileSync(path.join(process.cwd(), f), "utf8");
@@ -62,18 +62,45 @@ describe("full values and dialog", () => {
     assert.ok(html.includes("Go back"));
     for (const v of [CONTACT.name, CONTACT.phone, CONTACT.email]) assert.ok(html.includes(v), v);
     assert.ok(!html.includes("•••"), "nothing masked");
+    assert.equal((html.match(/<input /g) || []).length, 3, "name, phone and email are editable inputs");
+    assert.ok(!/<button[^>]*data-testid="accept-share-confirm"[^>]*disabled/.test(html) && !/<button[^>]*disabled=""[^>]*data-testid="accept-share-confirm"/.test(html), "a complete profile leaves the button enabled");
   });
 
-  it("a partly-missing contact still lists the fields, with Not on file for the gap", () => {
-    const html = renderToStaticMarkup(<AcceptShareDialog dealerName="X" contact={{ email: "a@b.co" }} onConfirm={() => {}} onCancel={() => {}} />);
-    assert.ok(html.includes("Not on file") && html.includes("a@b.co"));
+  it("a missing phone renders an empty required input and a disabled Continue", () => {
+    const html = renderToStaticMarkup(<AcceptShareDialog mode="early" dealerName="X" contact={{ name: "Pat Buyer", email: "a@b.co" }} onConfirm={() => {}} onCancel={() => {}} />);
+    assert.ok(!html.includes("Not on file"));
+    const phone = html.match(/<input[^>]*name="phone"[^>]*>/)![0];
+    assert.ok(phone.includes('required=""') && phone.includes('value=""'));
+    assert.ok(/<button[^>]*disabled=""[^>]*data-testid="accept-share-confirm"|<button[^>]*data-testid="accept-share-confirm"[^>]*disabled=""/.test(html), "Continue is blocked");
   });
 
-  it("a guest sees exactly which email goes to the dealer, in both modes", () => {
+  it("empty phone is blocked: nothing is confirmed, and the error names the phone", () => {
+    let confirmed: ShareContact | null = null;
+    const errors = submitContactDraft({ name: "Pat Buyer", phone: "   ", email: "pat@outlook.com" }, (c) => { confirmed = c; });
+    assert.equal(confirmed, null);
+    assert.deepEqual(Object.keys(errors), ["phone"]);
+    assert.deepEqual(Object.keys(validateContactDraft({ name: "", phone: "973", email: "nope" })).sort(), ["email", "name", "phone"]);
+    assert.deepEqual(validateContactDraft({ name: "Pat", phone: "(973) 555-0142", email: "pat@outlook.com" }), {});
+  });
+
+  it("a successful submit hands on the edited, trimmed values (not the profile's)", async () => {
+    const ran: Array<ShareContact | undefined> = [];
+    const gate = createAcceptGate(() => {});
+    gate.request("Smith Ford", (c) => { ran.push(c); }, "final");
+    let confirmed: ShareContact | null = null;
+    const errors = submitContactDraft({ name: " Patricia Buyer ", phone: " 973-555-0199 ", email: " patricia@example.com " }, (c) => { confirmed = c; });
+    assert.deepEqual(errors, {});
+    assert.deepEqual(confirmed, { name: "Patricia Buyer", phone: "973-555-0199", email: "patricia@example.com" });
+    assert.equal(ran.length, 0, "nothing runs before the confirm reaches the gate");
+    await gate.confirm(confirmed!);
+    assert.deepEqual(ran, [{ name: "Patricia Buyer", phone: "973-555-0199", email: "patricia@example.com" }]);
+  });
+
+  it("a guest sees the same three required fields, email prefilled, in both modes", () => {
     for (const mode of ["early", "final"] as const) {
       const html = renderToStaticMarkup(<AcceptShareDialog mode={mode} dealerName="Smith Ford" contact={{ email: "pat@outlook.com", guest: true }} onConfirm={() => {}} onCancel={() => {}} />);
-      assert.ok(html.includes("Your email pat@outlook.com goes to Smith Ford"));
-      assert.ok(!html.includes("We&#x27;ll ask") && !html.includes("Not on file"));
+      assert.ok(html.includes('value="pat@outlook.com"'));
+      assert.equal((html.match(/<input /g) || []).length, 3);
       assert.ok(html.includes(mode === "early" ? ">Continue<" : ">Accept and share my info<"));
     }
   });
@@ -99,7 +126,7 @@ describe("full values and dialog", () => {
     gate.request("A", () => {}, "final");
     assert.equal(gate.pending()?.mode, "final");
     const src = read("components/StagedDeals.tsx");
-    assert.ok(/type: "accept_final" \}\), "final"\)/.test(src));
+    assert.ok(/type: "accept_final" \}, c\), "final"\)/.test(src));
     assert.ok(!/type: "accept_otd" \}\), "final"\)/.test(src));
   });
 
@@ -121,8 +148,8 @@ describe("every acceptance site goes through the dialog", () => {
   it("staged accept_otd and accept_final only run inside the gate", () => {
     const src = read("components/StagedDeals.tsx");
     for (const t of ["accept_otd", "accept_final"]) {
-      const calls = src.match(new RegExp(`act\\(\\{ type: "${t}" \\}\\)`, "g")) || [];
-      const gated = src.match(new RegExp(`acceptShare\\.request\\([^;]*?\\(\\) => act\\(\\{ type: "${t}" \\}\\)(?:, "final")?\\)`, "g")) || [];
+      const calls = src.match(new RegExp(`act\\(\\{ type: "${t}" \\}(?:, c)?\\)`, "g")) || [];
+      const gated = src.match(new RegExp(`acceptShare\\.request\\([^;]*?\\((?:c)?\\) => act\\(\\{ type: "${t}" \\}(?:, c)?\\)(?:, "final")?\\)`, "g")) || [];
       assert.equal(calls.length, 1, t);
       assert.equal(gated.length, 1, `${t} must be wrapped`);
     }
