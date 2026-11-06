@@ -10,7 +10,7 @@ import { loadDomIndex, saveDomIndex, domPaths, DomIndexUnreadableError } from '.
 import { sharedDataLockPath } from '../src/shared_data_lock.js';
 import {
   createDomDelta, checkpointDomDelta, mergeDomDelta, applyDomEntries, chooseDomRecord, recordScore,
-  domDeltaDir, domConflictsDir,
+  domDeltaDir, domConflictsDir, DOM_DELTA_LIVE_MAX_STALE_MS,
 } from '../src/dom_index_delta.js';
 
 let cwd;
@@ -229,6 +229,215 @@ describe('concurrent processes (real child processes)', () => {
     assert.equal(m.orphanFiles, 1);
     const idx = await loadDomIndex(cwd);
     for (let i = 0; i < 50; i++) assert.equal(idx['K' + i]['2026-11-06'].price, i);
+  });
+});
+
+const stableJson = (v) => JSON.stringify(v, (k, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((kk) => [kk, x[kk]])) : x));
+// The invariant behind "replay must lose no history": every record anyone ever wrote is either the one in the index or sits, complete, in a conflict file.
+async function assertNothingLost(records) {
+  const idx = await loadDomIndex(cwd);
+  const seen = new Set((await readConflicts()).flatMap((c) => [stableJson(c.kept), stableJson(c.dropped)]));
+  for (const { vin, date, record } of records) {
+    const inIndex = idx[vin]?.[date] && stableJson(idx[vin][date]) === stableJson(record);
+    assert.ok(inIndex || seen.has(stableJson(record)), `history lost: ${vin} ${date} ${stableJson(record)}`);
+  }
+}
+
+describe('checkpoint atomicity', () => {
+  it('a process killed in the middle of a checkpoint leaves the previous complete checkpoint, and the half-written temp file is never mistaken for a delta', async () => {
+    const dir = domDeltaDir(cwd);
+    const script = `
+      import fs from 'node:fs/promises';
+      import { createDomDelta, checkpointDomDelta } from ${JSON.stringify(DELTA)};
+      const delta = createDomDelta({ cwd: process.argv[1], label: 'victim' });
+      const note = (i) => delta.note({ ['V' + i]: { '2026-11-06': { hash: 'h' + i, price: i, priceChangeType: 'NEW', blobStored: true, pad: 'x'.repeat(120) } } }, 'V' + i, '2026-11-06');
+      for (let i = 0; i < 100; i++) note(i);
+      await checkpointDomDelta(delta);
+      await fs.writeFile(process.argv[1] + '/first-checkpoint-done', '1');
+      for (let i = 100; i < 900000; i++) note(i);
+      await checkpointDomDelta(delta);`;
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script, cwd], { stdio: 'ignore' });
+    for (let i = 0; i < 30000 && !fs.existsSync(path.join(cwd, 'first-checkpoint-done')); i++) await new Promise((r) => setTimeout(r, 1)); // first checkpoint complete
+    let sawTmp = false;
+    for (let i = 0; i < 30000 && !sawTmp; i++) {
+      sawTmp = (await fsp.readdir(dir).catch(() => [])).some((n) => /\.tmp-/.test(n));
+      if (!sawTmp) await new Promise((r) => setTimeout(r, 1));
+    }
+    child.kill('SIGKILL'); await new Promise((r) => child.on('exit', r));
+    assert.ok(sawTmp, 'could not interrupt the second checkpoint');
+    const names = await fsp.readdir(dir);
+    const real = names.filter((n) => /^delta-\d+-\d+\.json$/.test(n));
+    assert.equal(real.length, 1);
+    const doc = JSON.parse(await fsp.readFile(path.join(dir, real[0]), 'utf8')); // complete, parseable
+    assert.equal(Object.keys(doc.entries).length, 100);
+    assert.ok(names.some((n) => /\.tmp-/.test(n)), 'the half-written temp file is left behind (named so it can never match a delta)');
+    const d = createDomDelta({ cwd });
+    const r = await mergeDomDelta(d, quiet);
+    assert.equal(r.orphanFiles, 1);
+    assert.equal(Object.keys(await loadDomIndex(cwd)).length, 100);
+  });
+
+  it('an unchanged delta only gets a heartbeat; if a merger claimed its file meanwhile the next checkpoint writes it again', async () => {
+    const d = createDomDelta({ cwd });
+    d.note({ A: { [D(6)]: rec() } }, 'A', D(6));
+    assert.equal(await checkpointDomDelta(d), true);
+    const old = new Date(Date.now() - 3600 * 1000); await fsp.utimes(d.path, old, old);
+    assert.equal(await checkpointDomDelta(d), false);
+    assert.ok(Date.now() - (await fsp.stat(d.path)).mtimeMs < 60000, 'heartbeat touched the mtime');
+    await fsp.rm(d.path); // claimed and removed by someone else
+    assert.equal(await checkpointDomDelta(d), true);
+    assert.deepEqual(Object.keys(JSON.parse(await fsp.readFile(d.path, 'utf8')).entries), ['A']);
+  });
+});
+
+describe('orphan detection and PID reuse', () => {
+  const mk = async (name, entries, ageMs = 0) => {
+    const dir = domDeltaDir(cwd); await fsp.mkdir(dir, { recursive: true });
+    const f = path.join(dir, name); await fsp.writeFile(f, JSON.stringify({ entries }));
+    if (ageMs) { const t = new Date(Date.now() - ageMs); await fsp.utimes(f, t, t); }
+    return f;
+  };
+  it('a delta whose pid is dead is merged; a live pid with a fresh file is left to its owner; a live (reused) pid with no heartbeat for hours is merged', async () => {
+    await saveDomIndex({}, cwd);
+    const dead = await mk('delta-2147483000-1.json', { DEAD: { [D(6)]: rec() } });
+    const liveFresh = await mk(`delta-${process.ppid}-1.json`, { FRESH: { [D(6)]: rec() } }, 60 * 1000);
+    const liveStale = await mk(`delta-${process.ppid}-2.json`, { REUSED: { [D(6)]: rec() } }, DOM_DELTA_LIVE_MAX_STALE_MS + 60000);
+    const d = createDomDelta({ cwd });
+    d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    const r = await mergeDomDelta(d, quiet);
+    assert.equal(r.orphanFiles, 2);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['DEAD', 'MINE', 'REUSED']);
+    assert.equal(fs.existsSync(dead), false); assert.equal(fs.existsSync(liveStale), false); assert.ok(fs.existsSync(liveFresh));
+  });
+  it('claim files: a dead merger\'s claim is recovered; this process\'s own and a live merger\'s fresh claim are not touched', async () => {
+    await saveDomIndex({}, cwd);
+    const recovered = await mk('claimed-2147483000-5-delta-1-1.json', { REC: { [D(6)]: rec() } });
+    const live = await mk(`claimed-${process.ppid}-5-delta-2-2.json`, { LIVECLAIM: { [D(6)]: rec() } }, 60 * 1000);
+    const d = createDomDelta({ cwd });
+    d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    await mergeDomDelta(d, quiet);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['MINE', 'REC']);
+    assert.equal(fs.existsSync(recovered), false); assert.ok(fs.existsSync(live));
+  });
+  it('a delta that is claimed by a merger while its owner keeps running loses nothing: the owner still merges its in-memory delta', async () => {
+    await saveDomIndex({}, cwd);
+    const owner = createDomDelta({ cwd, pid: 2147483002 }); // pretend-dead pid so the other merger claims it
+    owner.note({ OWN1: { [D(6)]: rec({ price: 1 }) } }, 'OWN1', D(6));
+    await checkpointDomDelta(owner);
+    const other = createDomDelta({ cwd });
+    await mergeDomDelta(other, quiet); // claims and merges the owner's file, deletes it
+    owner.note({ OWN2: { [D(6)]: rec({ price: 2 }) } }, 'OWN2', D(6)); // owner carries on and adds more
+    await mergeDomDelta(owner, quiet);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['OWN1', 'OWN2']);
+  });
+});
+
+describe('conflict records are complete and durable', () => {
+  it('each merge writes its own conflict file with both FULL records, their sources, and a reason; every line is a whole JSON record', async () => {
+    const a = rec({ price: 111, blobStored: false, priceChangeType: 'UNCHANGED' });
+    const b = rec({ price: 222, blobStored: false, priceChangeType: 'UNCHANGED' }); // two LIVE records, different prices, equal score
+    await saveDomIndex({ SHARED: { [D(7)]: a } }, cwd);
+    const d = createDomDelta({ cwd, label: 'TX/Kia' });
+    d.note({ SHARED: { [D(7)]: b } }, 'SHARED', D(7));
+    const r = await mergeDomDelta(d, quiet);
+    const names = await fsp.readdir(domConflictsDir(cwd));
+    assert.equal(names.length, 1);
+    const lines = (await fsp.readFile(path.join(domConflictsDir(cwd), names[0]), 'utf8')).split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    assert.equal(lines.length, 1);
+    const c = lines[0];
+    assert.equal(c.reason, 'tie-canonical-arbitrary');
+    assert.deepEqual([stableJson(c.kept), stableJson(c.dropped)].sort(), [stableJson(a), stableJson(b)].sort());
+    assert.deepEqual([c.keptSource, c.droppedSource].sort(), ['delta:TX/Kia:' + path.basename(d.path), 'index'].sort());
+    assert.match(c.mergedBy, /TX\/Kia/); assert.ok(c.at);
+    assert.equal(r.conflictFile, path.join(domConflictsDir(cwd), names[0]));
+  });
+  it('two merges in the same process in the same millisecond never share or overwrite a conflict file', async () => {
+    await saveDomIndex({ S: { [D(7)]: rec({ price: 1, blobStored: false }) } }, cwd);
+    const now = Date.now();
+    for (const price of [2, 3]) { const d = createDomDelta({ cwd, startedAtMs: price }); d.note({ S: { [D(7)]: rec({ price, blobStored: false }) } }, 'S', D(7)); await mergeDomDelta(d, { ...quiet, now }); }
+    assert.equal((await fsp.readdir(domConflictsDir(cwd))).length, 2);
+  });
+});
+
+describe('crashes at every step of a merge, then replay', () => {
+  const HOOKS = { afterConflicts: 'before the index rename', afterRename: 'after the index rename, before any delta file is deleted', afterDelete1: 'after the first delta file was deleted, before the rest' };
+  for (const [hook, desc] of Object.entries(HOOKS)) {
+    it(`killed ${desc}: replay loses nothing`, async () => {
+      // history in the index, a conflicting live-vs-SOLD and a conflicting live-vs-live overlap, two dead processes' deltas, and the victim's own delta
+      const history = [];
+      const base = {};
+      for (let i = 0; i < 200; i++) { const r = rec({ price: i, hash: 'b' + i }); base['H' + i] = { [D(1)]: r }; history.push({ vin: 'H' + i, date: D(1), record: r }); }
+      const sold = rec({ priceChangeType: 'SOLD', price: null, blobStored: false });
+      const live1 = rec({ price: 500, priceChangeType: 'UNCHANGED', blobStored: false });
+      const live2 = rec({ price: 600, priceChangeType: 'UNCHANGED', blobStored: false });
+      base.OVER1 = { [D(6)]: sold }; base.OVER2 = { [D(6)]: live1 };
+      history.push({ vin: 'OVER1', date: D(6), record: sold }, { vin: 'OVER2', date: D(6), record: live1 });
+      await saveDomIndex(base, cwd);
+      const indexBefore = await fsp.readFile(domPaths(cwd).indexPath);
+      const dir = domDeltaDir(cwd); await fsp.mkdir(dir, { recursive: true });
+      const written = [];
+      const orphanRec = (n) => rec({ price: 7000 + n, hash: 'o' + n });
+      for (const [pid, n] of [[2147483010, 1], [2147483011, 2]]) {
+        const e = { [`ORPH${n}`]: { [D(6)]: orphanRec(n) }, OVER2: { [D(6)]: n === 1 ? live2 : live1 } };
+        await fsp.writeFile(path.join(dir, `delta-${pid}-1.json`), JSON.stringify({ entries: e }));
+        written.push({ vin: `ORPH${n}`, date: D(6), record: orphanRec(n) });
+      }
+      written.push({ vin: 'OVER2', date: D(6), record: live2 });
+      const victimEntries = { VICT1: { [D(6)]: rec({ price: 42, hash: 'v1' }) }, OVER1: { [D(6)]: live1 }, OVER2: { [D(6)]: rec({ price: 700, priceChangeType: 'UNCHANGED', blobStored: false }) } };
+      for (const [vin, dates] of Object.entries(victimEntries)) for (const [date, record] of Object.entries(dates)) written.push({ vin, date, record });
+      const hookCode = hook === 'afterDelete1' ? "afterDelete: (n) => { if (n === 1) process.kill(process.pid, 'SIGKILL'); }" : `${hook}: () => process.kill(process.pid, 'SIGKILL')`;
+      const script = `
+        import { createDomDelta, checkpointDomDelta, mergeDomDelta } from ${JSON.stringify(DELTA)};
+        const cwd = process.argv[1];
+        const d = createDomDelta({ cwd, label: 'victim' });
+        d.entries = ${JSON.stringify(victimEntries)}; d.count = 3;
+        await checkpointDomDelta(d);
+        await mergeDomDelta(d, { log() {}, hooks: { ${hookCode.replace('afterDelete:', 'afterDelete:')} } });
+        console.log('SURVIVED');`;
+      const r = await runChild(script, [cwd]);
+      assert.equal(r.signal, 'SIGKILL', r.out + r.err);
+      if (hook === 'afterConflicts') assert.ok(indexBefore.equals(await fsp.readFile(domPaths(cwd).indexPath)), 'index must be byte-identical when the kill came before the rename');
+      // replay: the next process to finish merges whatever is left
+      const d2 = createDomDelta({ cwd, label: 'replay' });
+      await mergeDomDelta(d2, quiet);
+      await assertNothingLost([...history, ...written]);
+      const idx = await loadDomIndex(cwd);
+      for (let i = 0; i < 200; i++) assert.ok(idx['H' + i][D(1)]);
+      assert.ok(idx.ORPH1 && idx.ORPH2 && idx.VICT1);
+      assert.equal(idx.OVER1[D(6)].priceChangeType !== 'SOLD', true, 'a live record must win over SOLD');
+      const left = (await fsp.readdir(domDeltaDir(cwd))).filter((n) => /^(delta|claimed)-/.test(n));
+      assert.deepEqual(left, [], 'every delta and claim file merged and removed after the replay');
+    });
+  }
+});
+
+describe('streaming merge equals the in-memory merge', () => {
+  it('on a random index with random overlapping/conflicting/new entries, and with odd characters in values', async () => {
+    let seed = 12345; const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const idx = {};
+    for (let v = 0; v < 2500; v++) { idx['V' + v] = {}; for (let d = 1; d <= 1 + Math.floor(rnd() * 6); d++) idx['V' + v][D(d)] = rec({ price: Math.floor(rnd() * 50000), hash: 'h' + Math.floor(rnd() * 9), blobStored: rnd() < 0.5, note: 'q"} ] , \\ \u2028 ünï ✓', priceChangeType: rnd() < 0.2 ? 'SOLD' : 'UNCHANGED' }); }
+    await saveDomIndex(idx, cwd);
+    const delta = {};
+    for (let i = 0; i < 1500; i++) { const vin = rnd() < 0.5 ? 'V' + Math.floor(rnd() * 2500) : 'N' + i; delta[vin] = delta[vin] || {}; delta[vin][D(1 + Math.floor(rnd() * 7))] = rec({ price: Math.floor(rnd() * 50000), hash: 'h' + Math.floor(rnd() * 9), blobStored: rnd() < 0.5, priceChangeType: rnd() < 0.2 ? 'SOLD' : 'UNCHANGED' }); }
+    const expected = JSON.parse(JSON.stringify(idx));
+    const ref = applyDomEntries(expected, delta);
+    const d = createDomDelta({ cwd, label: 'rnd' }); d.entries = delta; d.count = 1;
+    const r = await mergeDomDelta(d, quiet);
+    assert.deepEqual(await loadDomIndex(cwd), expected);
+    assert.equal(r.added, ref.added); assert.equal(r.conflicts, ref.conflicts.length);
+    assert.equal(r.vinsOut, Object.keys(expected).length);
+  });
+  it('a missing index file starts from empty; an index with the same VIN twice, and one that is not an object, are refused untouched', async () => {
+    const d = createDomDelta({ cwd }); d.note({ A: { [D(1)]: rec() } }, 'A', D(1));
+    await mergeDomDelta(d, quiet);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)), ['A']);
+    for (const bad of ['{"A":{"2026-11-01":{"hash":"1"}},"A":{"2026-11-01":{"hash":"2"}}}', '[1,2,3]', '']) {
+      await fsp.writeFile(domPaths(cwd).indexPath, bad);
+      const d2 = createDomDelta({ cwd }); d2.note({ A: { [D(2)]: rec() } }, 'A', D(2));
+      await assert.rejects(mergeDomDelta(d2, { ...quiet, attempts: 1 }), DomIndexUnreadableError);
+      assert.equal(await fsp.readFile(domPaths(cwd).indexPath, 'utf8'), bad);
+    }
+    assert.deepEqual((await fsp.readdir(domPaths(cwd).dataDir)).filter((n) => /\.tmp-/.test(n)), [], 'failed merges leave no temp file');
   });
 });
 

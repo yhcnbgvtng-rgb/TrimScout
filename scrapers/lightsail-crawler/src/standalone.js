@@ -1427,7 +1427,7 @@ await withSharedDataLock(async () => {
     await writeJsonLarge(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), dailyChangesDoc);
 }, { scope: `daily-changes-${todayDate}`, label: `standalone:${state}/${brand.name}/daily-changes` });
 
-// Today's rows for the DB come from this run's own writes; take them, then drop the loaded index so the merge (which loads the current file) does not hold two copies.
+// Today's rows for the DB come from this run's own writes; take them, then drop the loaded index so the merge does not hold it alongside its own working set.
 const domTodayRows = flattenDomIndex(domDelta.entries).filter((r) => r.snapshotDate === todayDate);
 domIndex = null;
 try {
