@@ -103,7 +103,9 @@ try {
   let blocked = false; try { await mergeDomDelta(d0, { log: () => {}, maxWaitMs: 1000 }); } catch (e) { blocked = /Timed out.*merge lock/.test(e.message); }
   need(blocked, 'a merge must wait for (and here time out on) a live holder of the flock');
   holder.kill('SIGKILL'); await new Promise((r) => holder.on('exit', r));
-  await fs.rm(d0.path, { force: true }); // the probe's empty delta
+  const t0 = Date.now(); // the holder is dead: the kernel freed the lock at once, so this must go through in seconds, not wait out the sleep (that would mean the lock outlived its holder)
+  let freed = false; try { await mergeDomDelta(d0, { log: () => {}, maxWaitMs: 8000 }); freed = Date.now() - t0 < 6000; } catch (e) { freed = false; }
+  need(freed, 'the flock was not freed when its holder was killed');
   const base = {}; for (let v = 0; v < 3000; v++) base['V' + v] = { '2026-11-01': rec({ price: v }) };
   base.CONTESTED = { '2026-11-06': rec({ price: 111 }) };
   await saveDomIndex(base, cwd);

@@ -27,8 +27,8 @@
 // token-checked release, assertHeld before the commit) still let a contender that had judged a DEAD lock rename a replacement LIVE holder's lock aside, a third
 // process then took the empty path, and the displaced holder, which had already passed assertHeld, renamed its merge over the third one's commit. Any scheme where one
 // process decides "that lock is stale, remove it" and a second step acts on the decision has that window. flock has no such step:
-//   * the merge runs in a short-lived worker process (this file with --merge-worker) started as `flock -x -w <secs> <lockfile> node dom_index_delta.js --merge-worker ...`.
-//     flock(1) takes the lock and EXECS the worker, which inherits the locked file descriptor: the process that streams the index and renames it over dom_index.json is the
+//   * the merge runs in a short-lived worker process (this file with --merge-worker) started as `flock -x -F -w <secs> <lockfile> node dom_index_delta.js --merge-worker ...`.
+//     flock(1) takes the lock and EXECS the worker (-F, --no-fork: flock replaces itself), which inherits the locked file descriptor: the process that streams the index and renames it over dom_index.json is the
 //     lock holder itself;
 //   * the kernel releases the lock when that process exits or is killed, for any reason, at that instant. There is no stale lock, no age, no pid or identity judgement,
 //     no takeover, no file contents, nothing to remove. A live (even stopped or hung) holder keeps the lock; a dead one cannot commit anything any more;
@@ -221,7 +221,12 @@ const PY_FLOCK = [
 /** Command prefix that takes the exclusive flock on `lockPath` (waiting up to `waitSec`) and then execs the rest of the command line in the SAME process. */
 export function flockPrefix(lockPath, waitSec, { flockBin = 'flock', pythonBin = 'python3' } = {}) {
   const has = (bin, args) => { try { return spawnSync(bin, args, { stdio: 'ignore', timeout: 3000 }).status === 0; } catch { return false; } };
-  if (has(flockBin, ['--version'])) return [flockBin, '-x', '-E', String(LOCK_CONFLICT_EXIT), '-w', String(waitSec), lockPath];
+  if (has(flockBin, ['--version'])) {
+    // -F/--no-fork (util-linux >= 2.37?): flock REPLACES itself with the command, so the lock is held by exactly that process and ends with it. Without it flock(1) forks, stays
+    // behind holding the descriptor, and the lock would outlive a killed command for as long as that parent (or any child that inherited the descriptor) lives.
+    let noFork = false; try { noFork = /--no-fork/.test(String(spawnSync(flockBin, ['--help'], { encoding: 'utf8', timeout: 3000 }).stdout)); } catch { /* old flock */ }
+    return [flockBin, '-x', ...(noFork ? ['-F'] : []), '-E', String(LOCK_CONFLICT_EXIT), '-w', String(waitSec), lockPath];
+  }
   if (has(pythonBin, ['-c', 'import fcntl'])) return [pythonBin, '-c', PY_FLOCK, lockPath, String(waitSec)];
   return null;
 }
