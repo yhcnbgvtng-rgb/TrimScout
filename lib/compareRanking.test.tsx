@@ -1,5 +1,5 @@
-// Buyer cash compare: "Best deal" needs two comparable quotes; the headline is the lowest out the door across every quote and says
-// when that is an alternate vehicle; the best quote for the buyer's exact build is named separately.
+// Buyer cash compare: "Best deal" needs two comparable quotes; the headline is the lowest out the door among the exact-build quotes.
+// Alternate vehicles are never ranked against them — with two or more, the lower one is marked "Best alternate".
 import "./testdata/blockLiveHttp";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
@@ -39,21 +39,20 @@ describe("Basil (exact) vs Brewster and Burdick (alternates)", () => {
     assert.equal(cashOutTheDoor(BREWSTER), 91783);
     assert.equal(cashOutTheDoor(BURDICK), 91238);
   });
-  it("the headline is Burdick $91,238, labelled as an alternate", () => {
+  it("the headline is Basil, the only exact-build quote; no alternate is ranked against it", () => {
     const g = glance(html);
     assert.match(g, /Lowest out the door/);
-    assert.match(g, /\$91,238/);
-    assert.match(g, /Burdick/);
-    assert.match(g, /Alternate vehicle/);
-    assert.match(g, /tabular-nums">\$91,238<\/p>/, "the big number is Burdick's, not Basil's or Brewster's");
+    assert.match(g, /tabular-nums">\$103,513<\/p>/, "the big number is Basil's, not an alternate's");
+    assert.match(g, /Basil/);
+    assert.doesNotMatch(g, /Alternate vehicle|Burdick|Brewster/);
   });
   it("nobody gets 'Best deal': only one quote is comparable to the exact build", () => {
     assert.doesNotMatch(html, /badge-best-deal|Best deal/);
   });
-  it("Basil gets 'Best for your exact build', in the headline note and on its column", () => {
-    assert.match(html, /data-testid="badge-exact-build"/);
-    assert.equal((html.match(/data-testid="badge-exact-build"/g) || []).length, 1);
-    assert.match(glance(html), /Best for your exact build: Basil · \$103,513/);
+  it("the lower of the two alternates wears 'Best alternate', once; it is only ever ranked among alternates", () => {
+    assert.equal((html.match(/data-testid="badge-best-alternate"/g) || []).length, 1);
+    assert.match(html, /Burdick<\/span><div[^>]*>(?:(?!<\/div>).)*badge-best-alternate/, "on Burdick's column");
+    assert.doesNotMatch(html, /badge-exact-build|used-glance-exact/);
   });
 });
 
@@ -61,20 +60,21 @@ describe("when there is a real comparison", () => {
   it("two exact-build quotes: the cheaper gets Best deal", () => {
     const html = render([{ name: "Basil", vin: EXACT_2, used: BASIL }, { name: "Bluff", vin: ASKED, used: cash(90000, 3000) }]);
     assert.equal((html.match(/data-testid="badge-best-deal"/g) || []).length, 1);
-    assert.doesNotMatch(html, /badge-exact-build/, "no alternates in the mix, so no separate exact-build note");
+    assert.doesNotMatch(html, /badge-best-alternate/, "no alternates in the mix");
   });
   it("two alternates in the alternate lane are compared with each other, so Best deal is given", () => {
     const html = render([{ name: "Brewster", vin: ALT_A, used: BREWSTER }, { name: "Burdick", vin: ALT_B, used: BURDICK }], "alternate");
     assert.equal((html.match(/data-testid="badge-best-deal"/g) || []).length, 1);
-    assert.doesNotMatch(html, /badge-exact-build/);
+    assert.doesNotMatch(html, /badge-best-alternate/, "the alternate lane ranks them as the set being compared");
   });
   it("a lone quote is never 'Best deal'", () => {
     assert.doesNotMatch(render([{ name: "Basil", vin: ASKED, used: BASIL }]), /badge-best-deal/);
   });
-  it("only alternates in the same-spec lane: still a headline, labelled alternate, no Best deal, no exact-build note", () => {
+  it("only alternates in the same-spec lane: no exact-build headline, a plain note, Best alternate on the lower one, no Best deal", () => {
     const html = render([{ name: "Brewster", vin: ALT_A, used: BREWSTER }, { name: "Burdick", vin: ALT_B, used: BURDICK }]);
-    assert.match(glance(html), /Burdick/);
-    assert.match(glance(html), /Alternate vehicle/);
-    assert.doesNotMatch(html, /badge-best-deal|badge-exact-build/);
+    assert.doesNotMatch(html, /data-testid="used-glance-best"/);
+    assert.match(html, /data-testid="used-glance-alternates-only"/);
+    assert.equal((html.match(/data-testid="badge-best-alternate"/g) || []).length, 1);
+    assert.doesNotMatch(html, /badge-best-deal|badge-lowest-otd|badge-exact-build/);
   });
 });

@@ -9,7 +9,7 @@ import { buildFeeOverrideNotice } from "@/lib/feeOverrideNotice";
 import { sendFeeOverrideNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
 import { guestTrackerPath, isGuestBuyerId } from "@/lib/buyerAccess";
-import { validateUsedQuote, cashOutTheDoor, type UsedQuote } from "@/lib/usedQuote";
+import { validateUsedQuote, cashOutTheDoor, parseRebateLines, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { recordTradeWithQuote } from "@/lib/trade/quoteTrade";
 import { notifyDealerQuoted } from "@/lib/noticeOutbox";
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     // Each surcharge also carries the dealer's short reason (shown to the buyer as "Dealer-imposed").
     surcharges: Array.isArray(raw.surcharges) ? (raw.surcharges as Array<Record<string, unknown>>).map((l) => ({ name: String(l?.name || ""), amount: num(l?.amount) ?? NaN, reason: typeof l?.reason === "string" ? l.reason.trim().replace(/\s+/g, " ").slice(0, 140) : "" })) : [],
     noSurcharges: Boolean(raw.noSurcharges),
-    rebates: toLines(raw.rebates) ?? [],
+    rebates: parseRebateLines(raw.rebates),
     miles: condition === "new" ? null : num(raw.miles) ?? undefined,
     stockNumber,
     cpo: Boolean(raw.cpo),

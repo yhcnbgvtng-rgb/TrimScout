@@ -10,7 +10,6 @@ import { DealVehiclesSummary } from "./DealVehiclesSummary";
 import { DealerEngagementChips, OfferCloseClockCard } from "./DealEngagementPanel";
 import {
   ShieldCheck,
-  Trophy,
   FileText,
   Camera,
   Eye,
@@ -39,7 +38,6 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
   pollBids,
   buyerAlias: buyerAliasProp,
 }) => {
-  const [sortBy, setSortBy] = useState<"discount" | "quoted">("discount");
   const [isTradeInModalOpen, setIsTradeInModalOpen] = useState(false);
   const bidsForRequest = bids.filter((b) => b.dealRequestId === request.id);
   const [liveBids, setLiveBids] = useState<DealerBid[]>(() => (pollBids ? [] : bidsForRequest));
@@ -113,12 +111,9 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
     };
   }, [pollBids, request.id]);
 
-  const sortedBids = [...liveBids].sort((a, b) => {
-    if (sortBy === "discount") {
-      return b.dealerDiscountPercent - a.dealerDiscountPercent;
-    }
-    return a.quotedOtdPrice - b.quotedOtdPrice;
-  });
+  // Listed by the dealer's quoted price, low to high. That price is selling price + doc fee + accessories only — no tax, registration or
+  // other fees — so it is a list order, not a ranking: no #1/#2/#3, no winner styling. % off MSRP is shown on each card, never sorted on.
+  const sortedBids = [...liveBids].sort((a, b) => a.quotedOtdPrice - b.quotedOtdPrice);
 
   // The same per-buyer alias the dealer sees; passed in from the session.
   const buyerAlias = buyerAliasProp || "Buyer";
@@ -265,35 +260,13 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
         )}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
           <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-brand-400" />
+            <FileText className="h-4 w-4 text-brand-400" />
             <h2 className="text-sm font-bold text-white uppercase tracking-wider">
               Dealer Quotes ({sortedBids.length})
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-ink-muted font-medium">Sort by:</span>
-            <button
-              onClick={() => setSortBy("discount")}
-              className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
-                sortBy === "discount"
-                  ? "bg-brand-500 text-black shadow-sm"
-                  : "border border-border bg-surface text-ink-muted hover:text-white"
-              }`}
-            >
-              % off MSRP
-            </button>
-            <button
-              onClick={() => setSortBy("quoted")}
-              className={`rounded-lg px-2.5 py-1 font-semibold transition-all ${
-                sortBy === "quoted"
-                  ? "bg-brand-500 text-black shadow-sm"
-                  : "border border-border bg-surface text-ink-muted hover:text-white"
-              }`}
-            >
-              Lowest quote
-            </button>
-          </div>
+          <span className="text-xs text-ink-muted" data-testid="bid-room-order-note">Listed lowest quoted price first — before tax and registration, so not a ranking.</span>
         </div>
 
         {sortedBids.length === 0 && (
@@ -304,34 +277,15 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 
         {/* Dealer Bid Cards */}
         <div className="space-y-4">
-          {sortedBids.map((bid, index) => {
-            const isFirst = index === 0;
-
+          {sortedBids.map((bid) => {
             return (
               <div
                 key={bid.id}
-                className={`rounded-2xl border transition-all p-5 space-y-4 ${
-                  isFirst
-                    ? "border-brand-500 bg-surface-elevated shadow-xl ring-1 ring-brand-500/50"
-                    : "border-border bg-surface hover:border-border-strong"
-                }`}
+                className="rounded-2xl border border-border bg-surface transition-all p-5 space-y-4 hover:border-border-strong"
               >
                 {/* Card Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    {/* Rank Badge */}
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl font-black text-sm ${
-                        index === 0
-                          ? "bg-brand-500 text-black shadow-lg shadow-brand-500/20"
-                          : index === 1
-                          ? "bg-slate-300 text-black"
-                          : "bg-amber-700 text-white"
-                      }`}
-                    >
-                      #{index + 1}
-                    </div>
-
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-extrabold text-white text-base">{bid.dealerName}</h3>
@@ -386,14 +340,14 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
                   </div>
 
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-brand-400">Quoted Price</span>
+                    <span className="text-[10px] uppercase font-bold text-ink-faint">Price + doc fee</span>
                     <div className="font-black text-white font-mono text-base">
                       {formatCurrency(bid.quotedOtdPrice)}
                     </div>
                   </div>
                 </div>
                 <p className="text-[10px] text-ink-faint -mt-2">
-                  Quoted price excludes sales tax & registration fees, which depend on your location — those are computed exactly at checkout.
+                  This is not the out-the-door price: it leaves out sales tax, registration and any other fees, which depend on your location and are computed at checkout. Compare out-the-door totals once quotes are itemized.
                 </p>
 
                 {/* Dealer Notes */}
@@ -414,11 +368,7 @@ export const LiveDealRoom: React.FC<LiveDealRoomProps> = ({
 
                   <button
                     onClick={() => onInspectFee(bid)}
-                    className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-extrabold transition-all shadow-md active:scale-95 ${
-                      isFirst
-                        ? "bg-brand-500 text-black hover:bg-brand-400 shadow-brand-500/20"
-                        : "border border-brand-500/40 bg-brand-500/10 text-brand-300 hover:bg-brand-500 hover:text-black"
-                    }`}
+                    className="flex items-center gap-2 rounded-xl border border-brand-500/40 bg-brand-500/10 px-5 py-2.5 text-xs font-extrabold text-brand-300 shadow-md transition-all hover:bg-brand-500 hover:text-black active:scale-95"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" /> Pick this quote
                   </button>

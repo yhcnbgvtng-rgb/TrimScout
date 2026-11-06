@@ -140,6 +140,28 @@ export function dueAtSigningSum(items: LineItem[] | null | undefined): number {
   return (items || []).reduce((t, i) => t + (Number.isFinite(i.amount) ? i.amount : 0), 0);
 }
 
+/** A rebate is conditional only when the dealer says so; anything older (no field) is proven and keeps its numbers. */
+export const isConditionalRebate = (l: LineItem): boolean => l.eligibility === "conditional";
+export const provenRebates = (items: LineItem[] | null | undefined): LineItem[] => (items || []).filter((l) => !isConditionalRebate(l));
+export const conditionalRebates = (items: LineItem[] | null | undefined): LineItem[] => (items || []).filter(isConditionalRebate);
+/** Server-side read of a dealer's rebate lines: name + amount, plus the conditional mark and its note when the dealer set one. Anything else is a proven rebate. */
+export function parseRebateLines(raw: unknown): LineItem[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as Array<Record<string, unknown> | null>).map((l) => {
+    const amt = typeof l?.amount === "number" ? l.amount : typeof l?.amount === "string" && l.amount.trim() !== "" ? Number(l.amount) : NaN;
+    const line: LineItem = { name: String(l?.name || ""), amount: Number.isFinite(amt) ? amt : NaN };
+    if (l?.eligibility === "conditional") {
+      line.eligibility = "conditional";
+      line.condition = typeof l.condition === "string" ? l.condition.trim().replace(/\s+/g, " ").slice(0, 140) : "";
+    }
+    return line;
+  });
+}
+
+/** What comes off the ranked figures: proven rebates only. A conditional rebate is shown, never subtracted. */
+export const provenRebateTotal = (items: LineItem[] | null | undefined): number => dueAtSigningSum(provenRebates(items));
+export const conditionalRebateTotal = (items: LineItem[] | null | undefined): number => dueAtSigningSum(conditionalRebates(items));
+
 /** Standard amortized payment: P × r / (1 − (1+r)^−n); 0% APR is just P / n. */
 export function financeMonthly(amountFinanced: number, apr: number, termMonths: number): number | null {
   if (!(amountFinanced > 0) || !(termMonths > 0) || apr < 0 || !Number.isFinite(apr)) return null;
@@ -198,6 +220,7 @@ export function validateUsedQuote(
   if (q.noSurcharges && surcharges.length > 0) errors.push("Either list the surcharges or mark none — not both.");
   const rebates = Array.isArray(q.rebates) ? q.rebates : [];
   if (!rebates.every((r) => r && typeof r.name === "string" && r.name.trim().length >= 2 && pos(r.amount))) errors.push("Every rebate / incentive needs a name and an amount above $0.");
+  if (!rebates.every((r) => !isConditionalRebate(r) || (typeof r.condition === "string" && r.condition.trim().length >= 3))) errors.push("A conditional rebate needs a short note on what the buyer must qualify for.");
   // The offer date is optional: blank means the dealer gave no end date (nothing is shown, nothing is defaulted). A date that IS given must be real and in the future.
   if (q.expiresAt) {
     if (Number.isNaN(new Date(q.expiresAt).getTime())) errors.push("The expiry date isn't a valid date.");
@@ -247,7 +270,12 @@ export function lineSum(items: LineItem[] | null | undefined): number {
  * can't hide money moved to the front.
  */
 export function financeCashDue(q: Pick<UsedFinanceQuote, "downPayment" | "dueAtSigning" | "addOns" | "rebates"> & Partial<Pick<UsedFinanceQuote, "surcharges">>): number {
-  return Math.round((q.downPayment + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - dueAtSigningSum(q.rebates)) * 100) / 100;
+  return Math.round((q.downPayment + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - provenRebateTotal(q.rebates)) * 100) / 100;
+}
+
+/** The same figure if the buyer also qualifies for every conditional rebate. Equals cashOutTheDoor when there are none. */
+export function cashOtdIfEligible(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "surcharges" | "rebates">>): number {
+  return Math.round((cashOutTheDoor(q) - conditionalRebateTotal(q.rebates)) * 100) / 100;
 }
 
 /**
@@ -258,7 +286,7 @@ export function compareFinanceQuotes(a: UsedFinanceQuote, b: UsedFinanceQuote): 
   return a.monthlyPaymentPreTax - b.monthlyPaymentPreTax || financeCashDue(a) - financeCashDue(b) || a.amountFinanced - b.amountFinanced;
 }
 
-/** Buyer-comparable out-the-door figure for a cash quote: selling price + itemized fees & tax + add-ons + surcharges − rebates. */
+/** Buyer-comparable out-the-door figure for a cash quote: selling price + itemized fees & tax + add-ons + surcharges − proven rebates. Conditional rebates are not subtracted — see cashOtdIfEligible. */
 export function cashOutTheDoor(q: Pick<UsedCashQuote, "sellingPrice" | "dueAtSigning"> & Partial<Pick<UsedCashQuote, "addOns" | "surcharges" | "rebates">>): number {
-  return Math.round((q.sellingPrice + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - dueAtSigningSum(q.rebates)) * 100) / 100;
+  return Math.round((q.sellingPrice + dueAtSigningSum(q.dueAtSigning) + dueAtSigningSum(q.addOns) + dueAtSigningSum(q.surcharges) - provenRebateTotal(q.rebates)) * 100) / 100;
 }

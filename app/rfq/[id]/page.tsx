@@ -15,6 +15,7 @@ import { isStagedRfq } from "../../../lib/dealStages";
 import { UnsubscribedBanner } from "@/components/UnsubscribedBanner";
 import { SiteFooter } from "@/components/SiteFooter";
 import { rfqVehicles } from "@/lib/rfqTracker";
+import { rankGenericQuotes } from "@/lib/cashCompare";
 import { selectionApplies, vehicleRows } from "@/lib/selectionOutcomes";
 import { SelectionOutcomes } from "@/components/SelectionOutcomes";
 import { LEASE_NON_BINDING_COPY } from "@/lib/leaseQuote";
@@ -313,7 +314,7 @@ function InviteActions({ invite, rfq, onAction }: { invite: RfqInvite; rfq: RfqR
   );
 }
 
-function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite; rfq: RfqRequest; onPick: () => void; picking: boolean }) {
+function QuoteCompareCard({ invite, rfq, onPick, picking, lowest = false }: { invite: RfqInvite; rfq: RfqRequest; onPick: () => void; picking: boolean; /** The one exact-build quote that beats the others on out the door. Every other total is neutral. */ lowest?: boolean }) {
   const q = invite.quote;
   if (!q) return null;
   const specOk = quoteMatchesLockedSpec(q, rfq);
@@ -324,7 +325,10 @@ function QuoteCompareCard({ invite, rfq, onPick, picking }: { invite: RfqInvite;
     <div className={`rounded-2xl border p-4 space-y-3 bg-surface ${isPicked ? "border-brand-500/60" : "border-border"}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="text-sm font-bold text-white">{invite.dealerName}</div>
-        <div className="text-sm font-extrabold text-brand-400">{formatCurrency(q.totalOtdPrice)}</div>
+        <div className="text-right">
+          <div className={`text-sm font-extrabold ${lowest ? "text-brand-400" : "text-white"}`} data-testid="quote-card-total">{formatCurrency(q.totalOtdPrice)}</div>
+          {lowest ? <div className="text-[10px] font-bold uppercase text-brand-300" data-testid="quote-card-lowest">Lowest out the door</div> : null}
+        </div>
       </div>
       <div className="space-y-1 text-[11px] text-ink-muted">
         <div>Price: {formatCurrency(q.price)}</div>
@@ -494,6 +498,9 @@ export default function RfqWorkspacePage() {
   const quotedInvites = rfq.invites.filter((i) => i.quote);
   const respondedCount = rfq.invites.filter((i) => i.status !== "invited").length;
   const hasQuotes = quotedInvites.length > 0;
+  // Plain cards: exact-build quotes by lowest out the door first, then the rest; one highlighted winner.
+  const quoteRank = rankGenericQuotes(quotedInvites.map((i) => ({ id: i.id, otd: i.quote!.totalOtdPrice, exact: quoteMatchesLockedSpec(i.quote!, rfq), expiresAt: i.quote!.expiresAt })));
+  const orderedQuotedInvites = quoteRank.order.map((id) => quotedInvites.find((i) => i.id === id)!);
   const requestSummary = [
     rfq.leasePrefs ? `${rfq.leasePrefs.termMonths} mo · ${rfq.leasePrefs.milesPerYear.toLocaleString()} mi/yr · ZIP ${rfq.leasePrefs.zip}` : rfq.quotePrefs?.quoteType === "finance" ? `${rfq.quotePrefs.finance.termMonths} mo · $${rfq.quotePrefs.finance.downPayment.toLocaleString()} down` : rfq.quotePrefs ? "Cash" : null,
     `${rfq.invites.length} dealer${rfq.invites.length === 1 ? "" : "s"} invited`,
@@ -684,9 +691,10 @@ export default function RfqWorkspacePage() {
                 {respondedCount} of {rfq.invites.length} dealers have responded so far.
               </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {quotedInvites.map((invite) => (
+            {orderedQuotedInvites.map((invite) => (
               <QuoteCompareCard
                 key={invite.id}
+                lowest={invite.id === quoteRank.lowestId}
                 invite={invite}
                 rfq={rfq}
                 picking={picking}

@@ -10,7 +10,7 @@ import { isStagedRfq } from "@/lib/dealStages";
 import { acceptableCashCounter, acceptedOutTheDoor, buildAcceptedQuote, verifyAcceptedQuote } from "@/lib/acceptCounter";
 import { isTaxLine } from "@/lib/counterSheet";
 import { activeOverrides } from "@/lib/feeOverride";
-import { surchargeSummary, validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
+import { parseRebateLines, surchargeSummary, validateUsedQuote, type UsedCashQuote, type UsedQuote } from "@/lib/usedQuote";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { sendCounterAcceptedNotice } from "@/lib/dealerEmail";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     noAddOns: Boolean(raw.noAddOns),
     surcharges: toLines(raw.surcharges) ?? [],
     noSurcharges: Boolean(raw.noSurcharges),
-    rebates: toLines(raw.rebates) ?? [],
+    rebates: parseRebateLines(raw.rebates),
     miles: num(raw.miles) ?? null,
     cpo: Boolean(raw.cpo),
     expiresAt: typeof raw.expiresAt === "string" ? raw.expiresAt : "",

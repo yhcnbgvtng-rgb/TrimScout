@@ -16,7 +16,7 @@ import { dasTotal, monthlyPreTax, netCapCost, sumItems } from "./leaseMath";
 import { computeSalesTax, quoteIsNew } from "./salesTax";
 import type { LeaseQuote, LineItem } from "./leaseQuote";
 import type { FeeOverride } from "./feeOverride";
-import { cashOutTheDoor, financeMonthly, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "./usedQuote";
+import { cashOutTheDoor, financeMonthly, provenRebateTotal, type UsedCashQuote, type UsedFinanceQuote, type UsedQuote } from "./usedQuote";
 
 export type CounterKind = "lease" | "finance" | "cash";
 export type CounterQuote = LeaseQuote | UsedQuote;
@@ -162,6 +162,15 @@ export function applyLeaseCounter(before: LeaseQuote, edits: LeaseCounterEdits):
 // Finance / cash
 // ---------------------------------------------------------------------------
 
+/** A counter form sends rebate lines as name + amount only. A line the dealer marked conditional keeps that mark (matched by name); a line the buyer adds is theirs to claim and stays proven. */
+export function keepRebateEligibility(after: LineItem[], before: LineItem[] | undefined): LineItem[] {
+  const prior = new Map((before || []).filter((l) => l.eligibility === "conditional").map((l) => [l.name.trim().toLowerCase(), l]));
+  return after.map((l) => {
+    const p = prior.get(l.name.trim().toLowerCase());
+    return p ? { ...l, eligibility: "conditional" as const, condition: p.condition } : l;
+  });
+}
+
 export interface UsedCounterEdits {
   sellingPrice?: number;
   downPayment?: number;
@@ -176,11 +185,11 @@ export function applyFinanceCounter(before: UsedFinanceQuote, edits: UsedCounter
   const sellingPrice = edits.sellingPrice ?? before.sellingPrice;
   const downPayment = edits.downPayment ?? before.downPayment;
   const addOns = (edits.addOns ?? before.addOns).filter((a) => a.name.trim());
-  const rebates = (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim());
+  const rebates = keepRebateEligibility((edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim()), before.rebates);
   const dueAtSigning = retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip, before.feeOverrides, quoteIsNew(before));
   // Amount financed moves by exactly the change in what's rolled in — the dealer's own tax/title
   // treatment (whatever it was) is preserved through the delta rather than re-derived.
-  const delta = sellingPrice - before.sellingPrice + (sumItems(addOns) - sumItems(before.addOns)) + (sumItems(dueAtSigning) - sumItems(before.dueAtSigning)) - (sumItems(rebates) - sumItems(before.rebates ?? [])) - (downPayment - before.downPayment);
+  const delta = sellingPrice - before.sellingPrice + (sumItems(addOns) - sumItems(before.addOns)) + (sumItems(dueAtSigning) - sumItems(before.dueAtSigning)) - (provenRebateTotal(rebates) - provenRebateTotal(before.rebates)) - (downPayment - before.downPayment);
   const amountFinanced = Math.max(0, r2(before.amountFinanced + delta));
   const monthly = financeMonthly(amountFinanced, before.apr, before.termMonths) ?? before.monthlyPaymentPreTax;
   const rate = before.monthlyPaymentWithEstTax != null && before.monthlyPaymentPreTax > 0 ? Math.max(0, before.monthlyPaymentWithEstTax / before.monthlyPaymentPreTax - 1) : null;
@@ -206,7 +215,7 @@ export function applyCashCounter(before: UsedCashQuote, edits: UsedCounterEdits,
     sellingPrice,
     addOns,
     noAddOns: addOns.every((a) => !(a.amount > 0)),
-    rebates: (edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim()),
+    rebates: keepRebateEligibility((edits.rebates ?? before.rebates ?? []).filter((a) => a.name.trim()), before.rebates),
     dueAtSigning: retax((edits.dueAtSigning ?? before.dueAtSigning).filter((a) => a.name.trim()), before.dueAtSigning, sellingPrice, addOns, zip, before.feeOverrides, quoteIsNew(before)),
   };
 }
