@@ -13,6 +13,7 @@ import zlib from 'node:zlib';
 import { promisify } from 'node:util';
 import { priceChangeVsYesterday } from './price_diff.js';
 import { easternDateStamp } from './date_utils.js';
+import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -100,20 +101,67 @@ export function blobPath(vin, date, cwd = process.cwd()) {
   return path.join(domPaths(cwd).blobsDir, safeVin, `${date}.html.gz`);
 }
 
+// dom_index.json holds one entry per VIN and grows every night (box1, 2026-11-06: 480,663,249 bytes, 2.37M vin-dates). V8 cannot build a string longer than
+// 2^29-24 = 536,870,888 characters, and the old save did JSON.stringify(wholeIndex), so it would have started throwing "Invalid string length" about 56 MB
+// (~12%) past that size, and the old load (readFile + JSON.parse) fails the same way. Both now go through bigJson.js: save writes one VIN at a time, load
+// parses one VIN at a time (files above STREAM_ABOVE_BYTES), so no string bigger than one VIN's history ever exists. The file is still one JSON object
+// keyed by VIN, so every older reader (JSON.parse of the whole file) keeps working; the only difference is a newline between VINs.
+export const DOM_INDEX_TMP_STALE_MS = 6 * 3600 * 1000; // a save takes seconds to minutes; a temp file this old belongs to a killed process
+
 export async function loadDomIndex(cwd = process.cwd()) {
+  const { indexPath } = domPaths(cwd);
   try {
-    return JSON.parse(await fs.readFile(domPaths(cwd).indexPath, 'utf-8'));
-  } catch {
+    return await readJsonLarge(indexPath);
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return {};
+    // The file exists but cannot be read (corrupt, truncated, too big for this reader). Starting from {} is the old behaviour, but the next save
+    // would then overwrite the file and with it the whole price history: move it aside first so nothing is lost.
+    const aside = `${indexPath}.unreadable-${Date.now()}`;
+    try {
+      await fs.rename(indexPath, aside);
+      console.error(`dom_index: ${indexPath} could not be read (${err && err.message}); kept as ${aside}, starting from an empty index`);
+    } catch (e) {
+      console.error(`dom_index: ${indexPath} could not be read (${err && err.message}) and could not be moved aside (${e && e.message})`);
+    }
     return {};
   }
 }
 
+async function removeStaleDomIndexTmp(dataDir, now = Date.now()) {
+  let names;
+  try { names = await fs.readdir(dataDir); } catch { return; }
+  for (const name of names) {
+    if (!name.startsWith(`${DOM_INDEX_FILENAME}.tmp`)) continue;
+    const f = path.join(dataDir, name);
+    try {
+      const st = await fs.stat(f);
+      if (st.isFile() && now - st.mtimeMs > DOM_INDEX_TMP_STALE_MS) await fs.unlink(f);
+    } catch { /* gone already, or not ours to remove */ }
+  }
+}
+
+// Saves in this process run one at a time per file (two overlapping saves would otherwise walk the same object while it is being changed and race
+// on the rename). Across processes each save writes its own uniquely named temp file (.tmp-<pid>-<ms>) and renames it into place, so a reader or
+// a killed process sees the previous complete index or the new complete one, never a mix. Two processes saving at once is still last-writer-wins,
+// exactly as before: each holds its own copy of the index.
+const saveChains = new Map();
+
 export async function saveDomIndex(index, cwd = process.cwd()) {
   const { dataDir, indexPath } = domPaths(cwd);
-  await fs.mkdir(dataDir, { recursive: true });
-  const tmp = `${indexPath}.tmp`;
-  await fs.writeFile(tmp, JSON.stringify(index));
-  await fs.rename(tmp, indexPath);
+  // Take the queue slot synchronously, so saves run in call order (anything awaited before this line could reorder them).
+  const prev = saveChains.get(indexPath) || Promise.resolve();
+  const run = prev.catch(() => {}).then(async () => {
+    await fs.mkdir(dataDir, { recursive: true });
+    await removeStaleDomIndexTmp(dataDir);
+    // writeJsonLarge: element-at-a-time, fsync, rename; on any error it closes and deletes its temp file and the previous index stays in place.
+    await writeJsonLarge(indexPath, index);
+  });
+  saveChains.set(indexPath, run);
+  try {
+    await run;
+  } finally {
+    if (saveChains.get(indexPath) === run) saveChains.delete(indexPath);
+  }
 }
 
 function previousDate(date) {

@@ -20,3 +20,5 @@ data/enriched_cache.json
 data/inventory_latest.json
 data/national_inventory_latest.json
 data/snapshots/latest_snapshot.json
+data/dom_index.json.tmp-*
+data/dom_index.json.unreadable-*
