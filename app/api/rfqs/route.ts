@@ -9,7 +9,7 @@ import { s3Storage } from "@/lib/trade/storage";
 import { adoptDraftIntoRfq, prepareTradeForRfq } from "@/lib/trade/service";
 import { tradeErrorResponse } from "@/lib/trade/routeKit";
 import { publicRfqForBuyer } from "@/lib/rfq";
-import { hasActiveRfq, isFullyLockedSpec } from "@/lib/rfqLogic";
+import { hasActiveRfq, isFullyLockedSpec, sanitizeLinkMustHaves } from "@/lib/rfqLogic";
 import { MAX_PACKAGE_LINKS } from "@/lib/quotePackage";
 import { parseAlternateAsk } from "@/lib/alternateAsk";
 import { recordQuoteRequest } from "@/lib/apiSpendGuard";
@@ -175,7 +175,8 @@ export async function POST(req: Request) {
       vehicleMake: vehicle.make,
       vehicleModel: vehicle.model,
       vehicleTrim: vehicle.trim,
-      mustHaves: packageKind === "match" ? body.mustHaves : [],
+      // Links packages keep the buyer's picks too (incl. exterior/interior color); they used to be zeroed here.
+      mustHaves: packageKind === "match" ? body.mustHaves : lane === "alternate" ? [] : sanitizeLinkMustHaves(body.mustHaves),
       packageKind,
       linkPastes: packageKind === "links" ? repairLinkPastes(body.linkPastes) : undefined,
       dealReference: typeof body.dealReference === "string" ? body.dealReference : null,

@@ -11,6 +11,27 @@ export function freezeMustHaves(hits: { code: string; name: string }[]): RfqMust
   return hits.map((h) => ({ code: h.code, name: h.name, status: "hit" as const }));
 }
 
+/**
+ * Must-haves on a "links" package. The buyer picked them off the car they pasted (including "Exterior color: X" /
+ * "Interior color: X" rows), so each is a hit on that car by construction. Anything that is not a named string is dropped;
+ * a pick with no factory code (colors have none) gets a stable code derived from its name. Capped so a hostile body can't bloat the row.
+ */
+export function sanitizeLinkMustHaves(raw: unknown, max = 40): RfqMustHave[] {
+  if (!Array.isArray(raw)) return [];
+  const out: RfqMustHave[] = [];
+  const seen = new Set<string>();
+  for (const m of raw) {
+    const name = typeof (m as { name?: unknown })?.name === "string" ? (m as { name: string }).name.replace(/\s+/g, " ").trim().slice(0, 160) : "";
+    if (!name || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    const given = typeof (m as { code?: unknown })?.code === "string" ? (m as { code: string }).code.trim().slice(0, 40) : "";
+    const code = given || name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 40);
+    out.push({ code, name, status: "hit" });
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
 /** True only when every must-have is a confirmed hit — mirrors the v1 gate that only a full match can ever reach here. */
 export function isFullyLockedSpec(mustHaves: RfqMustHave[]): boolean {
   return mustHaves.length > 0 && mustHaves.every((m) => m.status === "hit");

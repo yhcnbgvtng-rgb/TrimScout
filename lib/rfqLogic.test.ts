@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it } from "node:test";
 import {
   buyerRfqStrikeCount,
@@ -8,6 +10,7 @@ import {
   dealerResponseRate,
   firstQuoteFor,
   freezeMustHaves,
+  sanitizeLinkMustHaves,
   hasActiveRfq,
   isFullyLockedSpec,
   isQuoteComplete,
@@ -312,5 +315,33 @@ describe("isReachableEmail", () => {
     assert.equal(isReachableEmail(undefined), false);
     assert.equal(isReachableEmail("not-an-email"), false);
     assert.equal(isReachableEmail("missing-domain@"), false);
+  });
+});
+
+describe("links package keeps exterior/interior color must-haves", () => {
+  it("sanitizeLinkMustHaves keeps color picks as hits, deriving a code when there is none", () => {
+    const out = sanitizeLinkMustHaves([
+      { name: "Exterior color: Oxford White", code: "" },
+      { name: "Interior color: Black Onyx" },
+      { name: "Equipment Group 301A", code: "301A" },
+    ]);
+    assert.deepEqual(out, [
+      { code: "exterior_color_oxford_white", name: "Exterior color: Oxford White", status: "hit" },
+      { code: "interior_color_black_onyx", name: "Interior color: Black Onyx", status: "hit" },
+      { code: "301A", name: "Equipment Group 301A", status: "hit" },
+    ]);
+  });
+  it("drops junk, repeats and non-arrays, and caps the list", () => {
+    assert.deepEqual(sanitizeLinkMustHaves(undefined), []);
+    assert.deepEqual(sanitizeLinkMustHaves("x"), []);
+    assert.deepEqual(sanitizeLinkMustHaves([null, 3, { name: "" }, { name: "A" }, { name: "a" }]).map((m) => m.name), ["A"]);
+    assert.equal(sanitizeLinkMustHaves(Array.from({ length: 100 }, (_, i) => ({ name: `O${i}` }))).length, 40);
+  });
+  it("the route stores the sanitized picks for links (not []) and the wizard sends them", () => {
+    const route = fs.readFileSync(path.join(process.cwd(), "app/api/rfqs/route.ts"), "utf8");
+    const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    assert.match(route, /packageKind === "match" \? body\.mustHaves : lane === "alternate" \? \[\] : sanitizeLinkMustHaves\(body\.mustHaves\)/);
+    assert.doesNotMatch(route, /packageKind === "match" \? body\.mustHaves : \[\]/);
+    assert.match(wizard, /mustHaves: alternateLane \? \[\] : mustHavePackages\.map/);
   });
 });
