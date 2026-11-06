@@ -9,7 +9,16 @@
 //   POST /api/dealer-invites/claim { dealerUserId, viewToken }   link the invite behind a tracked link to the signed-in dealer
 //        account (first authenticated use of the token). Idempotent for the same account; a different account is refused.
 import { stageForDealer } from "./dealStages.js";
-import { isTestInvite } from "./auditKey.js";
+
+// A "test dealer" is a dealership_contacts row with is_test = 1 (rows: { dealer_name, contact_email }). Matched on the invite's
+// dealer name or its contact email. Local on purpose: the live box's auditKey.js predates isTestInvite, so importing it would
+// stop deals-api from starting.
+const norm = (v) => String(v ?? "").trim().toLowerCase();
+export function isTestInvite(testDealers, invite) {
+  const name = norm(invite.dealer_name);
+  const email = norm(invite.dealer_contact_email);
+  return (testDealers || []).some((d) => (name !== "" && norm(d.dealer_name) === name) || (email !== "" && norm(d.contact_email) === email));
+}
 
 export const MAX_ROWS = 500;
 const USER_ID = /^[A-Za-z0-9_.:@-]{1,128}$/;
