@@ -44,27 +44,52 @@ export function sharedFields(c: ShareContact | null | undefined): SharedField[] 
   ];
 }
 
+export interface ContactDraft { name: string; phone: string; email: string }
+export type ContactErrors = Partial<Record<keyof ContactDraft, string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Prefill for the editable fields: whatever is on file, trimmed; "" when nothing is. */
+export const draftFromContact = (c: ShareContact | null | undefined): ContactDraft => ({ name: clean(c?.name) ?? "", phone: clean(c?.phone) ?? "", email: clean(c?.email) ?? "" });
+
+/** Name, phone and email are all required before anything can be shared. A phone needs at least 10 digits. */
+export function validateContactDraft(d: ContactDraft): ContactErrors {
+  const errors: ContactErrors = {};
+  if (!d.name.trim()) errors.name = "Enter your name.";
+  if (d.phone.replace(/\D/g, "").length < 10) errors.phone = d.phone.trim() ? "Enter a 10-digit phone number." : "Enter your phone number.";
+  if (!EMAIL_RE.test(d.email.trim())) errors.email = d.email.trim() ? "Enter a valid email address." : "Enter your email address.";
+  return errors;
+}
+
+/** The Continue / Accept click: blocked (returns the errors, calls nothing) until all three are valid, else hands the trimmed values on. */
+export function submitContactDraft(d: ContactDraft, onConfirm: (c: ShareContact) => void): ContactErrors {
+  const errors = validateContactDraft(d);
+  if (Object.keys(errors).length) return errors;
+  onConfirm({ name: d.name.trim(), phone: d.phone.trim(), email: d.email.trim() });
+  return {};
+}
+
 export interface AcceptGate<T> {
   /** The parked action's dealer, or null when no dialog is open. */
   pending(): { dealerName: string; mode: AcceptMode } | null;
   /** Open the dialog. Runs nothing. */
-  request(dealerName: string, action: () => T | Promise<T>, mode?: AcceptMode): void;
+  request(dealerName: string, action: (contact?: ShareContact) => T | Promise<T>, mode?: AcceptMode): void;
   /** "Accept and share my info": run the parked action once. */
-  confirm(): Promise<T | undefined>;
+  confirm(contact?: ShareContact): Promise<T | undefined>;
   /** "Go back": drop the parked action. Runs nothing. */
   cancel(): void;
 }
 
 export function createAcceptGate<T = void>(onChange: () => void = () => {}): AcceptGate<T> {
-  let parked: { dealerName: string; mode: AcceptMode; action: () => T | Promise<T> } | null = null;
+  let parked: { dealerName: string; mode: AcceptMode; action: (contact?: ShareContact) => T | Promise<T> } | null = null;
   return {
     pending: () => (parked ? { dealerName: parked.dealerName, mode: parked.mode } : null),
     request(dealerName, action, mode = "early") { parked = { dealerName, mode, action }; onChange(); },
-    async confirm() {
+    async confirm(contact) {
       const p = parked;
       parked = null;
       onChange();
-      return p ? await p.action() : undefined;
+      return p ? await p.action(contact) : undefined;
     },
     cancel() { parked = null; onChange(); },
   };

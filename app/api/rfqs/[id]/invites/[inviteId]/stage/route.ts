@@ -13,6 +13,7 @@ import { buildStageNotice } from "@/lib/dealStageNotice";
 import { sendDealStageNotice } from "@/lib/dealerEmail";
 import { zipStateTax } from "@/lib/counterSheet";
 import { DEALER_EMAIL_BASE_URL } from "@/lib/dealerUnsubscribe";
+import { draftFromContact, validateContactDraft } from "@/lib/acceptShare";
 import { closeOutLosers, sendBuyerDetailsRelease } from "@/lib/inviteOutbox";
 import { isNotSelected } from "@/lib/rfqClose";
 import { vehicleTitle } from "@/lib/vehicleTitle";
@@ -40,12 +41,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (isNotSelected(invite) && action.type !== "walk") return NextResponse.json({ error: "You chose a different dealer, so this quote is closed." }, { status: 409 });
 
     const zip = rfq.quotePrefs?.quoteType === "cash" ? rfq.quotePrefs.cash?.zip || null : null;
-    // The buyer's details are assembled here, from the signed-in buyer (or the guest's own email), and sent to the box ONLY with
-    // accept_final: no other action carries them, and the box stores them on this dealer's deal alone.
+    // The buyer's details are sent to the box ONLY with accept_final: no other action carries them, and the box stores them on this
+    // dealer's deal alone. They are the three fields the buyer confirmed (and may have edited) in the accept dialog, read from the
+    // top-level `contact` key (never from `action`), re-validated here; when absent they fall back to the signed-in profile. All
+    // three must be complete, so a partial contact is never released. A guest's request is still owned by its own email.
     const user = (session?.user ?? {}) as { name?: string | null; phone?: string | null };
-    const buyerContact = action.type === "accept_final"
-      ? { name: user.name ?? null, email: buyer.email ?? session?.user?.email ?? null, phone: user.phone ?? null, zip: zip ?? null }
-      : undefined;
+    let buyerContact: { name: string | null; email: string | null; phone: string | null; zip: string | null } | undefined;
+    if (action.type === "accept_final") {
+      const sent = body?.contact && typeof body.contact === "object" ? (body.contact as Record<string, unknown>) : null;
+      const str = (v: unknown) => (typeof v === "string" ? v : "");
+      const draft = sent
+        ? { name: str(sent.name), phone: str(sent.phone), email: str(sent.email) }
+        : draftFromContact({ name: user.name, phone: user.phone, email: buyer.email ?? session?.user?.email ?? null });
+      if (Object.keys(validateContactDraft(draft)).length) {
+        return NextResponse.json({ error: "Add your name, phone number and email so the dealer can reach you." }, { status: 400 });
+      }
+      buyerContact = { name: draft.name.trim(), email: draft.email.trim(), phone: draft.phone.trim(), zip: zip ?? null };
+    }
     const result = await postDealStage(id, inviteId, { action: action as unknown as Record<string, unknown>, actor: "buyer", state: zipStateTax(zip)?.state ?? null, ...(buyerContact ? { buyerContact } : {}) });
 
     // Tell the desk. Best effort: the move is already saved and shows on their quote page.
