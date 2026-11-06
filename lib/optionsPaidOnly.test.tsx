@@ -74,6 +74,10 @@ describe("filterMustHaveOptions", () => {
   const opts = [{ name: "A", price: 100 }, { name: "B", price: 0 }, { name: "C" }, { name: "D", price: 5, kind: "dealer" }];
   it("flag on: only paid factory rows", () => assert.deepEqual(filterMustHaveOptions(opts, true).map((o) => o.name), ["A"]));
   it("flag off: the list exactly as given", () => assert.deepEqual(filterMustHaveOptions(opts, false), opts));
+  it("flag on: exterior/interior color rows (no price) stay pickable", () => {
+    const withColors = [{ name: "Exterior color: Oxford White", price: null }, { name: "Interior color: Black Onyx", price: null }, ...opts];
+    assert.deepEqual(filterMustHaveOptions(withColors, true).map((o) => o.name), ["Exterior color: Oxford White", "Interior color: Black Onyx", "A"]);
+  });
 });
 
 describe("compare view list (flag on)", () => {

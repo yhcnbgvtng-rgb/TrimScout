@@ -11,6 +11,9 @@ export const OPTIONS_PAID_ONLY_ENV = "OPTIONS_PAID_ONLY";
 export const NO_PAID_FACTORY_OPTIONS = "No paid factory options listed";
 export const STANDARD_FEATURES_HEADING = "Standard features";
 
+/** "Exterior color: X" / "Interior color: X" (same labels as fordSticker.ts, which is not client-safe to import here). */
+const COLOR_MUST_HAVE = /^\s*(exterior|interior) color:\s*\S/i;
+
 const ON = /^(1|true|yes|on)$/i;
 
 /** Off unless explicitly turned on. `source` is for tests; the app reads process.env. */
@@ -93,5 +96,6 @@ export function paidOptionView<T extends PricedOption>(options: readonly T[] | n
 
 /** The wizard's must-have picker: with the flag on, only rows priced above 0. With it off, the list as given. */
 export function filterMustHaveOptions<T extends PricedOption>(options: readonly T[], paidOnly: boolean): T[] {
-  return paidOnly ? options.filter((o) => typeof o.price === "number" && o.price > 0 && (o.kind == null || o.kind === "" || o.kind === "factory")) : [...options];
+  // Exterior/interior color rows carry no price (they're the car's paint, not an option) but are real must-haves: never filter them out.
+  return paidOnly ? options.filter((o) => COLOR_MUST_HAVE.test(o.name) || (typeof o.price === "number" && o.price > 0 && (o.kind == null || o.kind === "" || o.kind === "factory"))) : [...options];
 }

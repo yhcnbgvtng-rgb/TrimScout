@@ -2679,6 +2679,8 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
           vehicleModel: primary.model,
           vehicleTrim: primary.trim,
           stockNumber: primary.stockNumber || null,
+          // The buyer's must-have picks (factory options + exterior/interior color) ride along on the links package.
+          mustHaves: alternateLane ? [] : mustHavePackages.map((name) => ({ name, code: fordFilterableOptions.find((o) => o.name === name)?.code || "", status: "hit" })),
           linkPastes: alternateLane ? [] : pastes,
           dealReference,
           ...(guestMode ? { guestEmail: guestEmail.trim() } : {}),
