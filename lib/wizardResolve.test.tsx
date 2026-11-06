@@ -24,7 +24,7 @@ const vehicle = (vin: string, make: string, model: string, over: Record<string, 
 });
 
 let adxRoute: "fail" | "free" = "fail";
-let rav4Sticker: "unreleased" | "released" = "unreleased";
+let rav4Sticker: "unreleased" | "released" | "generating" = "unreleased";
 const beacons: Array<{ name: string; props: Record<string, unknown> }> = [];
 
 function stubFetch() {
@@ -45,6 +45,7 @@ function stubFetch() {
     }
     if (url.includes("-sticker")) {
       if (vin === VIN_RAV4 && rav4Sticker === "released") return json({ handled: true, vin, sticker: { status: "released", pdfUrl: "https://example.test/rav4.pdf", msrp: 41000 }, vehicle: vehicle(vin, "Toyota", "RAV4", { msrp: 41000, buildConfidence: "verified_factory" }), buildConfidence: "verified_factory", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: "https://example.test/rav4.pdf" });
+      if (vin === VIN_RAV4 && rav4Sticker === "generating") return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, stickerUnavailable: { reason: "GM is still generating the factory sticker for VIN " + vin + " — it usually appears within a few seconds. Ask again in a moment." }, vehicle: vehicle(vin, "Toyota", "RAV4", { daysOnLot: 12 }), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
       if (vin === VIN_RAV4) return json({ handled: true, vin, sticker: { status: "unreleased", pdfUrl: null, msrp: null, source: "free_decode" }, vehicle: vehicle(vin, "Toyota", "RAV4", { daysOnLot: 12 }), buildConfidence: "dealer_listing_only", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: null });
       if (vin === VIN_F150) return json({ handled: true, vin, sticker: { status: "released", pdfUrl: "https://example.test/sticker.pdf", msrp: 61000 }, vehicle: vehicle(vin, "Ford", "F-150", { msrp: 61000, buildConfidence: "verified_factory" }), buildConfidence: "verified_factory", mustHaveLines: [], niceToHaveLines: [], filterableOptions: [], pdfUrl: "https://example.test/sticker.pdf" });
       // Every OEM route disowns the Acura → the client falls through to /api/free-vin.
@@ -110,6 +111,13 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     };
     const continueBtn = () => Array.from(doc.querySelectorAll<HTMLButtonElement>("button")).find((b) => b.textContent?.trim().startsWith("Continue"))!;
     const card = () => doc.querySelector<HTMLElement>('[data-testid="primary-vehicle-card"]');
+    /** The removed "GM is still generating…" wait panel (Try again / Notify me / Save for later) must never render. */
+    const assertNoStickerWaitPanel = () => {
+      for (const id of ["factory-build-pending", "factory-build-state", "factory-build-retry", "factory-build-notify", "factory-build-save", "factory-build-notify-ack"]) {
+        assert.equal(doc.querySelector(`[data-testid="${id}"]`), null, `${id} is gone`);
+      }
+      assert.doesNotMatch(text(), /still generating|Notify me when|Save for later & exit/i);
+    };
 
     // ---- 1. A dealer VDP with the VIN in the path: one click, no retyping, rooftop from the VDP.
     await act(async () => { bump(); setOpen(true); }); await tick();
@@ -148,8 +156,7 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.equal(card()!.dataset.dealerFromVdp, "true");
     assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota");
     assert.ok(card()!.className.includes("border-brand-500/40"), "the primary is green like an alternate");
-    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet — details come from the VIN decode/);
-    assert.doesNotMatch(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /on the lot|\bdays?\b/i);
+    assertNoStickerWaitPanel();
     assert.equal(continueBtn().disabled, false, "a real car with a pending build still continues; the dealer confirms the build");
 
     // ---- 3. No OEM claims the VIN and the catch-all can't build it: Continue stays off, with a reason.
@@ -169,8 +176,8 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.match(text(), /2026 Acura ADX/);
     assert.equal(card()!.dataset.resolvePath, "factory_pending");
     assert.equal(card()!.dataset.dealerFromVdp, "false");
-    assert.match(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /Factory build not published yet/);
-    assert.doesNotMatch(doc.querySelector('[data-testid="factory-build-state"]')!.textContent!, /on the lot|\bdays?\b/i);
+    assertNoStickerWaitPanel();
+    assert.equal(continueBtn().disabled, false, "bare VIN with no sticker continues on the limited decode");
 
     // ---- 4. A link with no VIN in it, then the VIN pasted bare: the link's store sticks.
     await openFresh();
@@ -189,44 +196,35 @@ describe("Configure Quote Request — vehicle resolve hardening", () => {
     assert.equal(primaryInput().value, "");
     assert.equal(card(), null);
     assert.doesNotMatch(text(), /RAV4|Route 22|F-150|Freedom Ford|ADX/);
-    // ---- 6. Factory pending is recoverable: the analytics event fired; Try again picks up a build that has since posted.
+    // ---- 6. Sticker pending: the confirm step says it is a limited VIN decode, the wait panel is gone, and Continue is open.
     await openFresh();
     await paste(URL_RAV4);
     await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
+    assert.match(doc.querySelector('[data-testid="confirm-build-state"]')!.textContent!, /Factory build not published yet/);
     await act(async () => { button("Confirm & add")!.click(); });
-    await settle(() => Boolean(doc.querySelector('[data-testid="factory-build-pending"]')));
+    await settle(() => Boolean(card()));
+    assertNoStickerWaitPanel();
     const pendingBeacon = beacons.find((b) => b.name === "factory_build_pending");
     assert.deepEqual(pendingBeacon?.props, { make: "Toyota", vinPrefix: VIN_RAV4.slice(0, 11), dealerHost: "route22toyota.com" });
     assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota", "rooftop shown while the build is pending");
-    assert.equal(continueBtn().disabled, false);
-    rav4Sticker = "released";
-    await act(async () => { (doc.querySelector('[data-testid="factory-build-retry"]') as HTMLButtonElement).click(); });
-    await settle(() => !doc.querySelector('[data-testid="factory-build-pending"]'));
-    assert.equal(card()!.dataset.buildState, "factory_verified");
-    assert.equal(card()!.dataset.dealerShown, "Route 22 Toyota", "the retry never loses the rooftop");
-    assert.equal(card()!.dataset.resolvePath, "url_only");
-    assert.ok(beacons.some((b) => b.name === "factory_build_retry"));
-    rav4Sticker = "unreleased";
+    assert.equal(continueBtn().disabled, false, "continue without the sticker; the dealer confirms the build");
 
-    // ---- 7. Notify me is an honest stub; Save for later & exit keeps the VIN without sending anything.
+    // ---- 6b. Sticker service says "still generating": same outcome — limited-decode confirm copy, no wait panel, Continue open.
+    rav4Sticker = "generating";
     await openFresh();
     await paste(URL_RAV4);
     await settle(() => Boolean(doc.querySelector('[data-testid="link-confirm-build"]')));
+    assert.match(doc.querySelector('[data-testid="confirm-build-state"]')!.textContent!, /limited VIN decode\. You can still confirm and continue/);
     await act(async () => { button("Confirm & add")!.click(); });
-    await settle(() => Boolean(doc.querySelector('[data-testid="factory-build-pending"]')));
-    await act(async () => { (doc.querySelector('[data-testid="factory-build-notify"]') as HTMLButtonElement).click(); });
-    assert.match(doc.querySelector('[data-testid="factory-build-notify-ack"]')!.textContent!, /Alerts aren't live yet/);
-    assert.ok(beacons.some((b) => b.name === "factory_build_notify_requested"));
-    await act(async () => { (doc.querySelector('[data-testid="factory-build-save"]') as HTMLButtonElement).click(); });
-    assert.equal(primaryInput(), null, "wizard closed");
-    assert.equal(dom.window.sessionStorage.length, 0, "the quote draft is still cleared on exit");
-    const parked = JSON.parse(dom.window.localStorage.getItem("trimscout.parkedVehicle.v1")!);
-    assert.equal(parked.vin, VIN_RAV4);
-    assert.equal(parked.url, URL_RAV4);
-    assert.equal(parked.dealerName, "Route 22 Toyota");
-    assert.equal(parked.notify, true);
-    assert.ok(beacons.some((b) => b.name === "vehicle_saved_for_later"));
+    await settle(() => Boolean(card()));
+    assertNoStickerWaitPanel();
+    assert.equal(continueBtn().disabled, false, "a generating sticker never blocks Continue");
+    rav4Sticker = "unreleased";
 
+    // ---- 7. A car saved by an earlier version is still offered back (the panel that saved it is gone).
+    dom.window.localStorage.setItem("trimscout.parkedVehicle.v1", JSON.stringify({
+      version: 1, savedAt: Date.now(), vin: VIN_RAV4, url: URL_RAV4, year: 2026, make: "Toyota", model: "RAV4", trim: "XLE", dealerName: "Route 22 Toyota", notify: true,
+    }));
     // ---- 8. Next open offers the saved car back; Try again resolves it through the link, rooftop intact.
     await openFresh();
     assert.equal(primaryInput().value, "", "still opens empty — the saved car is an offer, not a restore");

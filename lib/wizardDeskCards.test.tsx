@@ -76,7 +76,8 @@ describe("wizard desk cards", () => {
     assert.doesNotMatch(text, /on the lot|days on|first seen/i);
     assert.doesNotMatch(text, /for Kia/);
     assert.doesNotMatch(text, /0C7V/, "a bare paint code never shows as a colour");
-    assert.match(text, /Window sticker isn't available for Hyundai on TrimScout/, "the note names the vehicle's own make");
+    assert.equal(t.doc.querySelector('[data-testid="factory-build-pending"]'), null, "no sticker wait panel on Step 1");
+    assert.doesNotMatch(text, /Notify me when|Save for later & exit|still generating/i);
     assert.match(text, /2026 Hyundai Tucson SEL/, "title keeps the model");
     await t.act(async () => { t.root.unmount(); });
     t.dom.window.close();
