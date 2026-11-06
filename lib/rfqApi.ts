@@ -14,6 +14,7 @@ import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { SelectionOutcome } from "./selectionOutcomes";
+import type { BoxDealerInvite } from "./dealerQuotes";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
 const DEALS_API_PORT = 3004;
@@ -443,4 +444,24 @@ export async function pickRfqQuote(rfqId: string, quoteId: string): Promise<RfqR
 export async function walkAwayFromRfq(rfqId: string): Promise<RfqRequest> {
   const json = await request("POST", `/api/rfqs/${rfqId}/walk`);
   return asRfq(json.rfq);
+}
+
+/**
+ * Every invite linked to this dealer ACCOUNT (rfq_invites.dealer_user_id), never a dealer-name match. Server-to-server
+ * only: rows carry the tracked-link token, which the caller turns into a link and never forwards.
+ */
+export async function listInvitesForDealerUser(dealerUserId: string): Promise<BoxDealerInvite[]> {
+  const json = await request("GET", `/api/dealer-invites?dealerUserId=${encodeURIComponent(dealerUserId)}`);
+  return (Array.isArray(json.invites) ? json.invites : []) as BoxDealerInvite[];
+}
+
+/** Link the invite behind a tracked link to the signed-in dealer account. Resolves false when it belongs to another account. */
+export async function claimInviteForDealerUser(dealerUserId: string, viewToken: string): Promise<boolean> {
+  try {
+    await request("POST", "/api/dealer-invites/claim", { dealerUserId, viewToken });
+    return true;
+  } catch (err) {
+    if (err instanceof RfqApiError && (err.status === 409 || err.status === 404)) return false;
+    throw err;
+  }
 }

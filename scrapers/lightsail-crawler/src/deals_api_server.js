@@ -39,6 +39,7 @@ import { createRfqStageHandler } from "./rfqStages.js";
 import { createRfqMessagesHandler } from "./rfqMessages.js";
 import { createChatAdminHandlers } from "./rfqChatAdmin.js";
 import { createRfqNotSelectedHandler } from "./rfqNotSelected.js";
+import { createDealerInvitesHandlers } from "./rfqDealerInvites.js";
 import { createStableCache, builtForOtherBuild } from "./stableCache.js";
 import { createStatsCache, warmStatsCache } from "./statsCache.js";
 import { createInventoryStats } from "./inventoryStats.js";
@@ -1292,6 +1293,8 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS sent_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS viewed_at DATETIME NULL");
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS view_token VARCHAR(64) NULL");
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_user_id VARCHAR(128) NULL");
+  await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_dealer_user ON rfq_invites (dealer_user_id)");
   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_view_token ON rfq_invites (view_token)");
   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_contact_email ON rfq_invites (dealer_contact_email)");
   quotePackageColumnsEnsured = true;
@@ -1601,6 +1604,13 @@ const handleRfqNotSelected = createRfqNotSelectedHandler({
   getPool, readBody, sendJson,
   ensureColumns: ensureQuotePackageColumns,
   logRfqEvent,
+});
+
+// GET /api/dealer-invites?dealerUserId=… and POST /api/dealer-invites/claim — dealer "My Quotes" (rfqDealerInvites.js).
+const dealerInvites = createDealerInvitesHandlers({
+  getPool, readBody, sendJson,
+  ensureColumns: ensureQuotePackageColumns,
+  loadTestDealers,
 });
 
 // POST /api/rfqs/:id/invites/:inviteId/stage — one action on the staged Cash / Finance deal (rules: dealStages.js).
@@ -4178,6 +4188,8 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   if (req.method === "GET" && rfqInviteTokenMatch) {
     return run(handleRfqInviteByToken, rfqInviteTokenMatch[1]);
   }
+  if (req.method === "GET" && pathname === "/api/dealer-invites") return run(dealerInvites.list, url.searchParams);
+  if (req.method === "POST" && pathname === "/api/dealer-invites/claim") return run(dealerInvites.claim);
   const rfqInviteNotSelectedMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/not-selected$/);
   if (req.method === "POST" && rfqInviteNotSelectedMatch) {
     return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));
