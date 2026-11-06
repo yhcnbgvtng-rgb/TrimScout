@@ -15,9 +15,11 @@
 //     index. Only after that are the delta files deleted. A load-based merge was measured first and works but leaves only ~200-350 MB of a 3584 MB heap when
 //     run at #719's guard threshold, and takes 14-19 s there; see scripts/dom-index-merge-heaptest.mjs.
 //   * Orphaned deltas (process killed before it merged) are CLAIMED by an atomic rename to claimed-<mergerPid>-... before they are read, so a delta written
-//     again by a still-running owner can never be deleted unmerged. A delta whose pid is alive is left to its owner unless its file has had no heartbeat for
-//     DOM_DELTA_LIVE_MAX_STALE_MS (pid numbers get reused; merging a delta early is harmless because every merge is idempotent and the owner still merges its
-//     in-memory delta at the end).
+//     again by a still-running owner can never be deleted unmerged. WHO OWNS A FILE is decided by process identity, never by age: every delta (and every
+//     claim) carries its owner's pid, process START identity (Linux: field 22 of /proc/<pid>/stat) and BOOT identity (/proc/sys/kernel/random/boot_id) in
+//     its file name. See judgeOwner(): only a dead pid, a pid now held by a process with a different start identity (genuine PID reuse), or a different boot
+//     (machine rebooted) makes a file claimable. A confirmed live owner's file is never touched, however old it is. If identity cannot be established
+//     (nothing recorded, /proc unreadable, boot unknown) the file is left untouched and reported, never guessed at.
 //
 // CONFLICT POLICY (same VIN and same date, two different records). This is not assumed away: states do NOT have disjoint VINs (a car can move between
 // sister stores or states, a brand can be rerun the same day, a SOLD record can meet a live one).
@@ -35,6 +37,8 @@
 
 import fs from 'node:fs/promises';
 import fssync from 'node:fs';
+import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
 import { writeJsonLarge } from './bigJson.js';
@@ -45,11 +49,12 @@ import { isProcessAlive } from './pid_lock.js';
 export const DOM_DELTA_DIRNAME = 'dom_index_delta';
 export const DOM_CONFLICTS_DIRNAME = 'dom_index_conflicts';
 export const DOM_LOCK_SCOPE = 'dom-index';
-export const DOM_DELTA_LIVE_MAX_STALE_MS = 6 * 3600 * 1000; // a delta whose owner pid is "alive" but which has had no checkpoint/heartbeat this long is treated as orphaned
 export const DOM_MERGE_MAX_WAIT_MS = 20 * 60 * 1000; // ~18 brand runs can finish within minutes of each other; each holds the lock a few seconds
 const TMP_STALE_MS = 6 * 3600 * 1000;
-const DELTA_NAME = /^delta-(\d+)-(\d+)\.json$/;
-const CLAIMED_NAME = /^claimed-(\d+)-(\d+)-(delta-\d+-\d+\.json)$/;
+// delta-<pid>-<startMs>[-<startToken>-<bootToken>].json   (tokens are 'x' when unknown; files without tokens come from older builds/tests: identity unknown)
+const DELTA_NAME = /^delta-(\d+)-(\d+)(?:-([0-9a-f]+|x)-([0-9a-f]+|x))?\.json$/;
+// claimed-<mergerPid>-<startToken>-<bootToken>-<claimMs>-<original delta name>
+const CLAIMED_NAME = /^claimed-(\d+)-([0-9a-f]+|x)-([0-9a-f]+|x)-(\d+)-(delta-.+\.json)$/;
 const WRITE_CHUNK_CHARS = 1 << 20;
 
 export function domDeltaDir(cwd = process.cwd()) { return path.join(domPaths(cwd).dataDir, DOM_DELTA_DIRNAME); }
@@ -74,11 +79,60 @@ export function chooseDomRecord(a, b) {
   return stable(a) >= stable(b) ? { keep: a, drop: b, reason: 'tie-canonical-arbitrary' } : { keep: b, drop: a, reason: 'tie-canonical-arbitrary' };
 }
 
+// ---- who owns a file: pid + process start identity + boot identity ---------------------------------------------------------------------------------------
+
+const tok = (str) => crypto.createHash('sha1').update(String(str)).digest('hex').slice(0, 16);
+const hexOnly = (str) => String(str).replace(/[^0-9a-f]/gi, '').toLowerCase() || null;
+
+/** Identity of the running OS boot. Linux: boot_id. macOS (dev machines): hash of kern.boottime. null if it cannot be read. */
+export function readBootToken({ procRoot = '/proc' } = {}) {
+  try { const t = hexOnly(fssync.readFileSync(`${procRoot}/sys/kernel/random/boot_id`, 'utf8')); if (t) return t; } catch { /* not Linux */ }
+  try { return tok(execFileSync('sysctl', ['-n', 'kern.boottime'], { encoding: 'utf8', timeout: 2000 })); } catch { return null; }
+}
+
+/** Start identity of a process. Linux: starttime (field 22 of /proc/<pid>/stat, clock ticks since boot). macOS: hash of `ps -o lstart=`. null if it cannot be read. */
+export function readStartToken(pid, { procRoot = '/proc' } = {}) {
+  try {
+    const stat = fssync.readFileSync(`${procRoot}/${pid}/stat`, 'utf8');
+    const rest = stat.slice(stat.lastIndexOf(')') + 2).split(' '); // after "pid (comm) ": state is field 3, so starttime (field 22) is index 19
+    const st = rest[19];
+    if (st && /^\d+$/.test(st)) return st.toString(16);
+  } catch { /* no /proc entry: not Linux, or the process is gone */ }
+  try { const out = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)], { encoding: 'utf8', timeout: 2000 }).trim(); return out ? tok(out) : null; } catch { return null; }
+}
+
+/** { pid, start, boot } of a process; start/boot are 'x' when they cannot be read. */
+export function processIdentity(pid, io = {}) { return { pid, start: readStartToken(pid, io) || 'x', boot: readBootToken(io) || 'x' }; }
+
+/**
+ * Judge the owner recorded for a delta or claim file.
+ *   'dead'      the pid is not running                                  -> claimable
+ *   'reused'    the pid is running but is NOT the recorded process      -> claimable (genuine PID reuse: different start identity, or a different boot)
+ *   'alive'     the pid is running and start AND boot identity match    -> NEVER touched, whatever the file's age
+ *   'uncertain' identity cannot be established                          -> NEVER touched, reported
+ * `io` lets tests replace the OS probes: { alive(pid), start(pid), boot() }.
+ */
+export function judgeOwner({ pid, start = 'x', boot = 'x' }, io = {}) {
+  const alive = io.alive || isProcessAlive;
+  const curStart = io.start || readStartToken;
+  const curBootFn = io.boot || readBootToken;
+  if (!alive(pid)) return { state: 'dead', why: 'process is not running' };
+  const curBoot = curBootFn();
+  if (boot !== 'x' && curBoot && boot !== curBoot) return { state: 'reused', why: 'recorded boot identity differs from this boot (machine restarted since)' };
+  if (start === 'x') return { state: 'uncertain', why: 'no start identity was recorded for the owner and its pid is running' };
+  if (boot === 'x') return { state: 'uncertain', why: 'no boot identity was recorded for the owner and its pid is running' };
+  if (!curBoot) return { state: 'uncertain', why: 'cannot read this machine\'s boot identity' };
+  const now = curStart(pid);
+  if (!now) return { state: 'uncertain', why: `cannot read the start identity of running pid ${pid}` };
+  if (now !== start) return { state: 'reused', why: `pid ${pid} is now a different process (start identity ${now}, recorded ${start})` };
+  return { state: 'alive', why: 'process with the recorded start and boot identity is running' };
+}
+
 /** This process's own writes. `entries` has the same shape as the index: { VIN: { 'YYYY-MM-DD': record } }. */
-export function createDomDelta({ cwd = process.cwd(), label = null, pid = process.pid, startedAtMs = Date.now() } = {}) {
+export function createDomDelta({ cwd = process.cwd(), label = null, pid = process.pid, startedAtMs = Date.now(), identity = processIdentity(pid) } = {}) {
   return {
-    pid, label, startedAtMs, cwd,
-    path: path.join(domDeltaDir(cwd), `delta-${pid}-${startedAtMs}.json`),
+    pid, label, startedAtMs, cwd, identity,
+    path: path.join(domDeltaDir(cwd), `delta-${pid}-${startedAtMs}-${identity.start}-${identity.boot}.json`),
     entries: {},
     count: 0,
     checkpointedCount: -1,
@@ -95,13 +149,13 @@ export function createDomDelta({ cwd = process.cwd(), label = null, pid = proces
   };
 }
 
-/** Write the delta to its own file, atomically (temp name + fsync + rename). Unchanged since the last checkpoint: only touch the file's mtime (heartbeat). */
+/** Write the delta to its own file, atomically (temp name + fsync + rename). Nothing new since the last checkpoint: nothing to write, unless the file has gone. */
 export async function checkpointDomDelta(delta) {
   if (delta.count === delta.checkpointedCount) {
-    try { const now = new Date(); await fs.utimes(delta.path, now, now); return false; } catch (err) { if (err.code !== 'ENOENT') throw err; /* another merger claimed it: write it again */ }
+    try { await fs.access(delta.path); return false; } catch (err) { if (err.code !== 'ENOENT') throw err; /* removed by a merger: write it again */ }
   }
   await fs.mkdir(path.dirname(delta.path), { recursive: true });
-  await writeJsonLarge(delta.path, { v: 1, pid: delta.pid, label: delta.label, startedAtMs: delta.startedAtMs, entries: delta.entries });
+  await writeJsonLarge(delta.path, { v: 2, pid: delta.pid, identity: delta.identity, label: delta.label, startedAtMs: delta.startedAtMs, entries: delta.entries });
   delta.checkpointedCount = delta.count;
   return true;
 }
@@ -278,28 +332,31 @@ async function writeConflictFile(cwd, conflicts, now, tag) {
   return file;
 }
 
-async function claimOrphans(cwd, ownPath, now, myPid) {
+/**
+ * Claim the delta files (and dead mergers' claims) whose owner is provably gone. Never touches a file of a confirmed live owner, and never guesses: a file
+ * whose owner's identity cannot be established is left where it is and returned in `uncertain`.
+ * @returns {{ claimed: string[], originals: Map<string,string>, uncertain: Array<{ file: string, owner: string, why: string }>, skippedLive: number }}
+ */
+async function claimOrphans(cwd, ownPath, myPid, io = {}) {
   const dir = domDeltaDir(cwd);
-  let names; try { names = await fs.readdir(dir); } catch { return []; }
-  const claimed = [];
-  claimed.originals = new Map();
+  const out = { claimed: [], originals: new Map(), uncertain: [], skippedLive: 0 };
+  let names; try { names = await fs.readdir(dir); } catch { return out; }
+  const me = processIdentity(myPid);
   for (const name of names.sort()) {
     const file = path.join(dir, name);
     if (file === ownPath) continue;
-    let ownerPid = null, isClaim = false;
-    let m = DELTA_NAME.exec(name);
-    if (m) ownerPid = Number(m[1]);
-    else if ((m = CLAIMED_NAME.exec(name))) { ownerPid = Number(m[1]); isClaim = true; } // a merger's claim: orphaned when that merger is gone
+    let owner, isClaim = false, m;
+    if ((m = DELTA_NAME.exec(name))) owner = { pid: Number(m[1]), start: m[3] || 'x', boot: m[4] || 'x' };
+    else if ((m = CLAIMED_NAME.exec(name))) { owner = { pid: Number(m[1]), start: m[2], boot: m[3] }; isClaim = true; } // a merger's claim: judged by the MERGER's identity
     else continue;
-    let age; try { age = now - (await fs.stat(file)).mtimeMs; } catch { continue; }
-    const ownerGone = !isProcessAlive(ownerPid);
-    if (!ownerGone && age <= DOM_DELTA_LIVE_MAX_STALE_MS) continue; // alive and recently heard from: its owner merges it
-    if (isClaim && ownerPid === myPid) continue;
-    if (isClaim) { claimed.push(file); continue; }
-    const target = path.join(dir, `claimed-${myPid}-${now}-${name}`);
-    try { await fs.rename(file, target); claimed.push(target); claimed.originals.set(target, file); } catch (err) { if (err.code !== 'ENOENT') throw err; /* someone else claimed it first */ }
+    const j = judgeOwner(owner, io);
+    if (j.state === 'alive') { out.skippedLive++; continue; }
+    if (j.state === 'uncertain') { out.uncertain.push({ file, owner: `${isClaim ? 'merger' : 'owner'} pid ${owner.pid}`, why: j.why }); continue; }
+    if (isClaim) { out.claimed.push(file); continue; } // dead/reused merger: take the claim over as it is
+    const target = path.join(dir, `claimed-${myPid}-${me.start}-${me.boot}-${Date.now()}-${name}`);
+    try { await fs.rename(file, target); out.claimed.push(target); out.originals.set(target, file); } catch (err) { if (err.code !== 'ENOENT') throw err; /* someone else claimed it first */ }
   }
-  return claimed;
+  return out;
 }
 
 /**
@@ -307,12 +364,13 @@ async function claimOrphans(cwd, ownPath, now, myPid) {
  * the index file is untouched and every delta file is still on disk. `hooks` exist for crash tests only (called at the named points).
  * @returns {Promise<{ added: number, same: number, conflicts: number, conflictFile: string|null, mergedFiles: number, orphanFiles: number, unreadableDeltas: string[], vinsOut: number }>}
  */
-export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, now = Date.now(), log = console.log, hooks = {}, attempts = 3, retryDelayMs = 500 } = {}) {
+export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, now = Date.now(), log = console.log, hooks = {}, attempts = 3, retryDelayMs = 500, io = {} } = {}) {
   const label = `dom-index-merge:${delta.label || delta.pid}`;
   const { indexPath, dataDir } = domPaths(cwd);
   return withSharedDataLock(async () => {
     await removeStaleTmp(dataDir, 'dom_index.json.tmp', now);
-    const claimed = await claimOrphans(cwd, delta.path, now, process.pid);
+    const found = await claimOrphans(cwd, delta.path, process.pid, io);
+    const claimed = found.claimed;
     // Combine all deltas (orphans first, own last) into one { VIN: { date: record } }; overlaps between deltas are resolved by the same policy and logged.
     const combined = {};
     const conflicts = [];
@@ -326,7 +384,7 @@ export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_ME
         mergedClaimed.push(file);
       } catch (err) {
         unreadableDeltas.push(`${file}: ${err.message}`); // stays on disk, never deleted unmerged
-        const original = claimed.originals.get(file);
+        const original = found.originals.get(file);
         if (original) await fs.rename(file, original).catch(() => {}); // put it back under its own name, exactly as it was found
       }
     }
@@ -351,8 +409,8 @@ export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_ME
       // 3. only now are the delta files deleted (the index holds their records, or the conflict file holds the ones not kept)
       let deleted = 0;
       for (const file of [...mergedClaimed, delta.path]) { await fs.rm(file, { force: true }).catch(() => {}); await hooks.afterDelete?.(++deleted); }
-      log(`DOM index merge: +${prepared.added} new VIN-date(s), ${prepared.same} already present, ${conflicts.length} overlapping VIN-date(s) with a different record (both full records in ${conflictFile ? path.basename(conflictFile) : 'none'}), ${mergedClaimed.length} orphaned delta file(s) merged${unreadableDeltas.length ? `, ${unreadableDeltas.length} unreadable delta file(s) left in place` : ''}.`);
-      return { added: prepared.added, same: prepared.same, conflicts: conflicts.length, conflictFile, mergedFiles: mergedClaimed.length + 1, orphanFiles: mergedClaimed.length, unreadableDeltas, vinsOut: prepared.vinsOut };
+      log(`DOM index merge: +${prepared.added} new VIN-date(s), ${prepared.same} already present, ${conflicts.length} overlapping VIN-date(s) with a different record (both full records in ${conflictFile ? path.basename(conflictFile) : 'none'}), ${mergedClaimed.length} orphaned delta file(s) merged${unreadableDeltas.length ? `, ${unreadableDeltas.length} unreadable delta file(s) left in place` : ''}${found.uncertain.length ? `. NOT TOUCHED, owner identity uncertain: ${found.uncertain.map((u) => `${path.basename(u.file)} (${u.owner}: ${u.why})`).join('; ')}` : ''}${found.skippedLive ? `; ${found.skippedLive} file(s) belong to live processes and were left alone` : ''}.`);
+      return { added: prepared.added, same: prepared.same, conflicts: conflicts.length, conflictFile, mergedFiles: mergedClaimed.length + 1, orphanFiles: mergedClaimed.length, unreadableDeltas, uncertain: found.uncertain, skippedLive: found.skippedLive, vinsOut: prepared.vinsOut };
     } catch (err) {
       await prepared.abort();
       throw err;

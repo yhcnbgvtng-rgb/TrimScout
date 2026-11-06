@@ -10,7 +10,7 @@ import { loadDomIndex, saveDomIndex, domPaths, DomIndexUnreadableError } from '.
 import { sharedDataLockPath } from '../src/shared_data_lock.js';
 import {
   createDomDelta, checkpointDomDelta, mergeDomDelta, applyDomEntries, chooseDomRecord, recordScore,
-  domDeltaDir, domConflictsDir, DOM_DELTA_LIVE_MAX_STALE_MS,
+  domDeltaDir, domConflictsDir, processIdentity, judgeOwner,
 } from '../src/dom_index_delta.js';
 
 let cwd;
@@ -266,7 +266,7 @@ describe('checkpoint atomicity', () => {
     child.kill('SIGKILL'); await new Promise((r) => child.on('exit', r));
     assert.ok(sawTmp, 'could not interrupt the second checkpoint');
     const names = await fsp.readdir(dir);
-    const real = names.filter((n) => /^delta-\d+-\d+\.json$/.test(n));
+    const real = names.filter((n) => /^delta-\d+-\d+(-[0-9a-f]+-[0-9a-f]+)?\.json$/.test(n));
     assert.equal(real.length, 1);
     const doc = JSON.parse(await fsp.readFile(path.join(dir, real[0]), 'utf8')); // complete, parseable
     assert.equal(Object.keys(doc.entries).length, 100);
@@ -277,55 +277,122 @@ describe('checkpoint atomicity', () => {
     assert.equal(Object.keys(await loadDomIndex(cwd)).length, 100);
   });
 
-  it('an unchanged delta only gets a heartbeat; if a merger claimed its file meanwhile the next checkpoint writes it again', async () => {
+  it('an unchanged delta is not rewritten; if a merger removed its file meanwhile the next checkpoint writes it again', async () => {
     const d = createDomDelta({ cwd });
     d.note({ A: { [D(6)]: rec() } }, 'A', D(6));
     assert.equal(await checkpointDomDelta(d), true);
-    const old = new Date(Date.now() - 3600 * 1000); await fsp.utimes(d.path, old, old);
     assert.equal(await checkpointDomDelta(d), false);
-    assert.ok(Date.now() - (await fsp.stat(d.path)).mtimeMs < 60000, 'heartbeat touched the mtime');
     await fsp.rm(d.path); // claimed and removed by someone else
     assert.equal(await checkpointDomDelta(d), true);
     assert.deepEqual(Object.keys(JSON.parse(await fsp.readFile(d.path, 'utf8')).entries), ['A']);
+    assert.match(path.basename(d.path), /^delta-\d+-\d+-[0-9a-f]+-[0-9a-f]+\.json$/, 'the file name carries pid, start identity and boot identity');
   });
 });
 
-describe('orphan detection and PID reuse', () => {
+describe('who owns a file: identity, not age', () => {
   const mk = async (name, entries, ageMs = 0) => {
     const dir = domDeltaDir(cwd); await fsp.mkdir(dir, { recursive: true });
     const f = path.join(dir, name); await fsp.writeFile(f, JSON.stringify({ entries }));
     if (ageMs) { const t = new Date(Date.now() - ageMs); await fsp.utimes(f, t, t); }
     return f;
   };
-  it('a delta whose pid is dead is merged; a live pid with a fresh file is left to its owner; a live (reused) pid with no heartbeat for hours is merged', async () => {
+  const YEAR = 365 * 24 * 3600 * 1000;
+  let sleeper; // a real, long-lived process whose pid plays the "owner" (or a live merger)
+  beforeEach(() => { sleeper = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' }); });
+  afterEach(async () => { sleeper.kill('SIGKILL'); await new Promise((r) => sleeper.on('exit', r)); });
+  const idOf = (pid) => processIdentity(pid);
+  const dname = (id, ms = 1) => `delta-${id.pid}-${ms}-${id.start}-${id.boot}.json`;
+  const quietIo = quiet;
+
+  it('judgeOwner: dead, alive, reused (different start / different boot) and uncertain (nothing recorded, unreadable) are told apart', () => {
+    const me = processIdentity(process.pid);
+    assert.equal(judgeOwner({ pid: 2147483000 }).state, 'dead');
+    assert.equal(judgeOwner(me).state, 'alive');
+    assert.equal(judgeOwner({ ...me, start: 'deadbeef' }).state, 'reused');
+    assert.equal(judgeOwner({ ...me, boot: 'abc123' }).state, 'reused');
+    assert.equal(judgeOwner({ pid: process.pid }).state, 'uncertain'); // alive pid, nothing recorded
+    assert.equal(judgeOwner({ ...me, start: 'x' }).state, 'uncertain');
+    assert.equal(judgeOwner({ ...me, boot: 'x' }).state, 'uncertain');
+    assert.equal(judgeOwner(me, { start: () => null }).state, 'uncertain'); // cannot read the live pid's identity
+    assert.equal(judgeOwner(me, { boot: () => null }).state, 'uncertain');
+  });
+
+  it('a delta of a dead pid is claimed and merged', async () => {
     await saveDomIndex({}, cwd);
     const dead = await mk('delta-2147483000-1.json', { DEAD: { [D(6)]: rec() } });
-    const liveFresh = await mk(`delta-${process.ppid}-1.json`, { FRESH: { [D(6)]: rec() } }, 60 * 1000);
-    const liveStale = await mk(`delta-${process.ppid}-2.json`, { REUSED: { [D(6)]: rec() } }, DOM_DELTA_LIVE_MAX_STALE_MS + 60000);
-    const d = createDomDelta({ cwd });
-    d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    const d = createDomDelta({ cwd }); d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
     const r = await mergeDomDelta(d, quiet);
-    assert.equal(r.orphanFiles, 2);
-    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['DEAD', 'MINE', 'REUSED']);
-    assert.equal(fs.existsSync(dead), false); assert.equal(fs.existsSync(liveStale), false); assert.ok(fs.existsSync(liveFresh));
+    assert.equal(r.orphanFiles, 1); assert.deepEqual(r.uncertain, []);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['DEAD', 'MINE']);
+    assert.equal(fs.existsSync(dead), false);
   });
-  it('claim files: a dead merger\'s claim is recovered; this process\'s own and a live merger\'s fresh claim are not touched', async () => {
+
+  it('a delta of a CONFIRMED LIVE owner is never claimed, however old the file is (a year)', async () => {
     await saveDomIndex({}, cwd);
-    const recovered = await mk('claimed-2147483000-5-delta-1-1.json', { REC: { [D(6)]: rec() } });
-    const live = await mk(`claimed-${process.ppid}-5-delta-2-2.json`, { LIVECLAIM: { [D(6)]: rec() } }, 60 * 1000);
-    const d = createDomDelta({ cwd });
-    d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
-    await mergeDomDelta(d, quiet);
-    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['MINE', 'REC']);
-    assert.equal(fs.existsSync(recovered), false); assert.ok(fs.existsSync(live));
+    const live = await mk(dname(idOf(sleeper.pid)), { LIVE: { [D(6)]: rec() } }, YEAR);
+    const before = await fsp.readFile(live);
+    const d = createDomDelta({ cwd }); d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    const r = await mergeDomDelta(d, quiet);
+    assert.equal(r.orphanFiles, 0); assert.equal(r.skippedLive, 1); assert.deepEqual(r.uncertain, []);
+    assert.ok(before.equals(await fsp.readFile(live)));
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)), ['MINE']);
   });
+
+  it('genuine PID reuse: the pid is running but it is a different process (different start identity) -> claimed and merged', async () => {
+    await saveDomIndex({}, cwd);
+    const id = idOf(sleeper.pid);
+    const reused = await mk(`delta-${id.pid}-1-0badc0ffee-${id.boot}.json`, { PREDECESSOR: { [D(6)]: rec({ price: 3 }) } }); // written by an earlier process that had this pid
+    const d = createDomDelta({ cwd });
+    const r = await mergeDomDelta(d, quiet);
+    assert.equal(r.orphanFiles, 1);
+    assert.ok((await loadDomIndex(cwd)).PREDECESSOR);
+    assert.equal(fs.existsSync(reused), false);
+  });
+
+  it('after a reboot (different boot identity) a file whose pid is running again is claimed, even if the start identity happens to match', async () => {
+    await saveDomIndex({}, cwd);
+    const id = idOf(sleeper.pid);
+    await mk(`delta-${id.pid}-1-${id.start}-0123456789abcdef.json`, { PRE_REBOOT: { [D(6)]: rec() } });
+    const r = await mergeDomDelta(createDomDelta({ cwd }), quiet);
+    assert.equal(r.orphanFiles, 1); assert.ok((await loadDomIndex(cwd)).PRE_REBOOT);
+  });
+
+  it('uncertain identity: left untouched and REPORTED (nothing recorded; unreadable /proc), never guessed', async () => {
+    await saveDomIndex({}, cwd);
+    const noTokens = await mk(`delta-${sleeper.pid}-1.json`, { NOID: { [D(6)]: rec() } }, YEAR);
+    const id = idOf(sleeper.pid);
+    const unreadable = await mk(dname(id, 2), { UNREADABLE: { [D(6)]: rec() } }, YEAR);
+    const lines = [];
+    const d = createDomDelta({ cwd }); d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    const r = await mergeDomDelta(d, { log: (l) => lines.push(l), io: { start: (pid) => (pid === sleeper.pid ? null : undefined) } });
+    assert.equal(r.orphanFiles, 0);
+    assert.equal(r.uncertain.length, 2);
+    assert.ok(fs.existsSync(noTokens) && fs.existsSync(unreadable));
+    assert.match(lines.join('\n'), /NOT TOUCHED, owner identity uncertain/);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)), ['MINE']);
+  });
+
+  it('claim files: a dead merger\'s claim is recovered; a reused merger pid\'s claim is recovered; a live merger\'s claim and an uncertain one are left alone', async () => {
+    await saveDomIndex({}, cwd);
+    const live = idOf(sleeper.pid);
+    const deadClaim = await mk('claimed-2147483000-x-x-5-delta-1-1.json', { DEADCLAIM: { [D(6)]: rec() } });
+    const reusedClaim = await mk(`claimed-${live.pid}-0badc0ffee-${live.boot}-5-delta-2-2.json`, { REUSEDCLAIM: { [D(6)]: rec() } });
+    const liveClaim = await mk(`claimed-${live.pid}-${live.start}-${live.boot}-5-delta-3-3.json`, { LIVECLAIM: { [D(6)]: rec() } }, YEAR);
+    const uncertainClaim = await mk(`claimed-${live.pid}-x-x-5-delta-4-4.json`, { UNCERTAINCLAIM: { [D(6)]: rec() } }, YEAR);
+    const d = createDomDelta({ cwd }); d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
+    const r = await mergeDomDelta(d, quiet);
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['DEADCLAIM', 'MINE', 'REUSEDCLAIM']);
+    assert.equal(fs.existsSync(deadClaim), false); assert.equal(fs.existsSync(reusedClaim), false);
+    assert.ok(fs.existsSync(liveClaim)); assert.ok(fs.existsSync(uncertainClaim));
+    assert.equal(r.skippedLive, 1); assert.equal(r.uncertain.length, 1);
+  });
+
   it('a delta that is claimed by a merger while its owner keeps running loses nothing: the owner still merges its in-memory delta', async () => {
     await saveDomIndex({}, cwd);
     const owner = createDomDelta({ cwd, pid: 2147483002 }); // pretend-dead pid so the other merger claims it
     owner.note({ OWN1: { [D(6)]: rec({ price: 1 }) } }, 'OWN1', D(6));
     await checkpointDomDelta(owner);
-    const other = createDomDelta({ cwd });
-    await mergeDomDelta(other, quiet); // claims and merges the owner's file, deletes it
+    await mergeDomDelta(createDomDelta({ cwd }), quiet); // claims and merges the owner's file, deletes it
     owner.note({ OWN2: { [D(6)]: rec({ price: 2 }) } }, 'OWN2', D(6)); // owner carries on and adds more
     await mergeDomDelta(owner, quiet);
     assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['OWN1', 'OWN2']);
@@ -438,6 +505,96 @@ describe('streaming merge equals the in-memory merge', () => {
       assert.equal(await fsp.readFile(domPaths(cwd).indexPath, 'utf8'), bad);
     }
     assert.deepEqual((await fsp.readdir(domPaths(cwd).dataDir)).filter((n) => /\.tmp-/.test(n)), [], 'failed merges leave no temp file');
+  });
+});
+
+describe('a live owner with an artificially old checkpoint, while another real process attempts recovery', () => {
+  const waitFor = async (file, ms = 20000) => { for (let i = 0; i < ms && !fs.existsSync(file); i++) await new Promise((r) => setTimeout(r, 1)); assert.ok(fs.existsSync(file), `timed out waiting for ${path.basename(file)}`); };
+  const touch = (name) => fs.writeFileSync(path.join(cwd, name), '1');
+  const OWNER = `
+    import fs from 'node:fs';
+    import { createDomDelta, checkpointDomDelta, mergeDomDelta } from ${JSON.stringify(DELTA)};
+    const [cwd, mode] = process.argv.slice(1);
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const waitFile = async (n) => { while (!fs.existsSync(cwd + '/' + n)) await sleep(2); };
+    const delta = createDomDelta({ cwd, label: 'owner' });
+    const note = (vin) => delta.note({ [vin]: { '2026-11-06': { hash: vin, price: 1, priceChangeType: 'NEW', blobStored: true } } }, vin, '2026-11-06');
+    for (let i = 0; i < 50; i++) note('OA' + i);
+    await checkpointDomDelta(delta);
+    const old = new Date(Date.now() - 30 * 24 * 3600 * 1000); fs.utimesSync(delta.path, old, old);   // artificially old checkpoint
+    fs.writeFileSync(cwd + '/o-aged', delta.path);
+    await waitFile('go');
+    for (let i = 0; i < 100; i++) { note('OB' + i); await checkpointDomDelta(delta); await sleep(4); } // checkpoints again, repeatedly, while the recoverer runs
+    fs.writeFileSync(cwd + '/o-burst-done', '1');
+    if (mode === 'die') { process.kill(process.pid, 'SIGKILL'); }
+    await waitFile('finish');
+    await mergeDomDelta(delta, { log() {} });
+    console.log('OWNER_MERGED');`;
+  const RECOVERER = `
+    import fs from 'node:fs';
+    import { createDomDelta, mergeDomDelta } from ${JSON.stringify(DELTA)};
+    const cwd = process.argv[1];
+    const tot = { merges: 0, orphanFiles: 0, skippedLive: 0, uncertain: 0 };
+    while (!fs.existsSync(cwd + '/stop-recovery')) {
+      const r = await mergeDomDelta(createDomDelta({ cwd, label: 'recoverer' }), { log() {} });
+      tot.merges++; tot.orphanFiles += r.orphanFiles; tot.skippedLive += r.skippedLive; tot.uncertain += r.uncertain.length;
+      await new Promise((r) => setTimeout(r, 3));
+    }
+    console.log(JSON.stringify(tot));`;
+  const start = (script, args) => { const c = spawn(process.execPath, ['--input-type=module', '-e', script, ...args], { stdio: ['ignore', 'pipe', 'pipe'] }); c.out = ''; c.err = ''; c.stdout.on('data', (b) => { c.out += b; }); c.stderr.on('data', (b) => { c.err += b; }); c.done = new Promise((r) => c.on('exit', (code, signal) => r({ code, signal }))); return c; };
+  const ownerRecords = () => [...Array(50).keys()].map((i) => 'OA' + i).concat([...Array(100).keys()].map((i) => 'OB' + i));
+
+  it('owner stays alive: its old delta is never claimed, never deleted, never lost while it checkpoints again and the recoverer runs; its own final merge has every record', async () => {
+    await saveDomIndex({ HISTORY: { [D(1)]: rec({ price: 9 }) } }, cwd);
+    const owner = start(OWNER, [cwd, 'live']);
+    await waitFor(path.join(cwd, 'o-aged'));
+    const deltaPath = fs.readFileSync(path.join(cwd, 'o-aged'), 'utf8');
+    assert.ok(Date.now() - fs.statSync(deltaPath).mtimeMs > 29 * 24 * 3600 * 1000, 'the owner\'s checkpoint is 30 days old');
+    const recoverer = start(RECOVERER, [cwd]);
+    await new Promise((r) => setTimeout(r, 400)); // recovery attempts against the old checkpoint of a live owner
+    assert.ok(fs.existsSync(deltaPath), 'old checkpoint of a live owner must not be claimed');
+    touch('go');
+    // while the owner rewrites its delta (atomic rename) and the recoverer keeps trying, poll the directory: the delta must always be there, never a claim
+    for (let i = 0; i < 400 && !fs.existsSync(path.join(cwd, 'o-burst-done')); i++) {
+      const names = fs.readdirSync(domDeltaDir(cwd));
+      assert.ok(names.includes(path.basename(deltaPath)), 'the live owner\'s delta disappeared');
+      assert.equal(names.filter((n) => n.startsWith('claimed-')).length, 0, 'a claim file appeared for a live owner');
+      await new Promise((r) => setTimeout(r, 2));
+    }
+    await waitFor(path.join(cwd, 'o-burst-done'));
+    await new Promise((r) => setTimeout(r, 300));
+    assert.ok(fs.existsSync(deltaPath));
+    assert.equal(JSON.parse(fs.readFileSync(deltaPath, 'utf8')).entries.OB99 !== undefined, true, 'the latest checkpoint is complete on disk');
+    const before = await loadDomIndex(cwd);
+    assert.deepEqual(Object.keys(before), ['HISTORY'], 'nothing of the owner was merged by anyone else yet');
+    touch('finish');
+    assert.deepEqual(await owner.done, { code: 0, signal: null }, owner.err); assert.match(owner.out, /OWNER_MERGED/);
+    touch('stop-recovery');
+    assert.equal((await recoverer.done).code, 0, recoverer.err);
+    const tot = JSON.parse(recoverer.out.trim().split('\n').pop());
+    assert.ok(tot.merges >= 20, `recoverer only attempted ${tot.merges} merges`);
+    assert.equal(tot.orphanFiles, 0, 'the recoverer claimed something of a live owner'); assert.ok(tot.skippedLive > 0);
+    const idx = await loadDomIndex(cwd);
+    for (const vin of ownerRecords()) assert.ok(idx[vin]?.['2026-11-06'], `lost ${vin}`);
+    assert.equal(idx.HISTORY[D(1)].price, 9);
+    assert.deepEqual(fs.readdirSync(domDeltaDir(cwd)), []);
+  });
+
+  it('owner is then killed: the recoverer sees a dead owner and merges its complete last checkpoint, nothing lost', async () => {
+    await saveDomIndex({ HISTORY: { [D(1)]: rec({ price: 9 }) } }, cwd);
+    const owner = start(OWNER, [cwd, 'die']);
+    await waitFor(path.join(cwd, 'o-aged'));
+    const recoverer = start(RECOVERER, [cwd]);
+    touch('go');
+    assert.equal((await owner.done).signal, 'SIGKILL');
+    for (let i = 0; i < 5000 && Object.keys(await loadDomIndex(cwd)).length < 151; i++) await new Promise((r) => setTimeout(r, 5));
+    touch('stop-recovery');
+    assert.equal((await recoverer.done).code, 0, recoverer.err);
+    const tot = JSON.parse(recoverer.out.trim().split('\n').pop());
+    assert.equal(tot.orphanFiles, 1, 'exactly one orphan (the dead owner\'s delta) was claimed, once');
+    const idx = await loadDomIndex(cwd);
+    for (const vin of ownerRecords()) assert.ok(idx[vin]?.['2026-11-06'], `lost ${vin}`);
+    assert.deepEqual(fs.readdirSync(domDeltaDir(cwd)), []);
   });
 });
 
