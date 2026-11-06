@@ -710,6 +710,7 @@ const VIN_NON_GM = "1FTEST00000000005";
 const VIN_PDF_ON_BARE = "1GTEST00000000006";
 const VIN_GENERATING = "1GTEST00000000007";
 const VIN_GENERATING_5 = "1GTEST00000000008";
+const VIN_EMPTY_503 = "1GTEST00000000009";
 const FIXTURE = fs.readFileSync(path.join(process.cwd(), "lib/testdata/gm-stickers/1GCPYBEK4TZ300055.txt"), "utf8");
 const buildFor = (vin: string) => FIXTURE.replace(/1GCPYBEK4TZ300055/g, vin);
 const BUILD_TEXT = buildFor(FRESH_VIN);
@@ -736,7 +737,7 @@ function scripted(bodies: ScriptedBody[]) {
 }
 
 describe("getGmSticker — empty bodies are retried, then reported plainly", () => {
-  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM, VIN_PDF_ON_BARE, VIN_GENERATING, VIN_GENERATING_5];
+  const SYNTHETIC = [FRESH_VIN, VIN_EMPTY3, VIN_DENIED, VIN_NETWORK, VIN_NON_GM, VIN_PDF_ON_BARE, VIN_GENERATING, VIN_GENERATING_5, VIN_EMPTY_503];
   for (const v of SYNTHETIC) forgetGmStickerForTests(v);
   after(() => {
     for (const v of SYNTHETIC) forgetGmStickerForTests(v);
@@ -768,15 +769,15 @@ describe("getGmSticker — empty bodies are retried, then reported plainly", () 
       await assert.rejects(getGmSticker(VIN_EMPTY3), (err: unknown) => {
         assert.ok(err instanceof GmStickerUnavailableError);
         assert.equal(err.kind, "empty");
-        assert.equal(err.attempts.length, 4);
-        assert.deepEqual(err.attempts.map((a) => [a.status, a.bytes, a.kind]), [[200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"], [200, 0, "empty"]]);
-        assert.deepEqual(err.attempts.map((a) => a.profile), ["browser", "bare", "browser-nav", "browser"], "attempts rotate request profiles");
+        assert.equal(err.attempts.length, 2, "fail fast: one quick retry, not four");
+        assert.deepEqual(err.attempts.map((a) => [a.status, a.bytes, a.kind]), [[200, 0, "empty"], [200, 0, "empty"]]);
+        assert.deepEqual(err.attempts.map((a) => a.profile), ["browser", "bare"], "the retry rotates request profile");
         assert.doesNotMatch(err.message, /0 bytes|returned empty|no data/);
         assert.match(err.message, /empty response .* block or hiccup on their side, not a missing sticker/);
         return true;
       });
-      assert.equal(calls.length, 4);
-      assert.deepEqual(profiles, ["browser", "bare", "browser-nav", "browser"]);
+      assert.equal(calls.length, 2);
+      assert.deepEqual(profiles, ["browser", "bare"]);
     } finally {
       globalThis.fetch = orig;
       clearGmStickerMemoryCache();
@@ -807,39 +808,88 @@ describe("getGmSticker — empty bodies are retried, then reported plainly", () 
   // were 200 / application/pdf / 0 B while GM rendered the sticker; the
   // 152 KB PDF arrived on attempt 4. The client must read that as "not
   // yet" and keep going, never as "no data".
-  it("200 + application/pdf + 0 bytes is 'generating': the loop waits it out and takes the PDF when it lands", async () => {
+  it("200 + application/pdf + 0 bytes is 'generating': one quick retry takes the PDF if it landed", async () => {
     clearGmStickerMemoryCache();
     const { classifyGmFetchBody } = await import("./gmSticker");
     assert.equal(classifyGmFetchBody(new Uint8Array(), "application/pdf"), "generating");
     assert.equal(classifyGmFetchBody(new Uint8Array(), null), "empty", "no Content-Type + no body is still the plain empty case");
-    const { impl, calls } = scripted([{ pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, buildFor(VIN_GENERATING)]);
+    const { impl, calls } = scripted([{ pdfEmpty: true }, buildFor(VIN_GENERATING)]);
     const orig = globalThis.fetch;
     globalThis.fetch = impl;
     try {
       const sticker = await getGmSticker(VIN_GENERATING);
       assert.equal(sticker.status, "released");
-      assert.equal(calls.length, 4);
+      assert.equal(calls.length, 2);
     } finally {
       globalThis.fetch = orig;
       clearGmStickerMemoryCache();
     }
   });
 
-  it("four 'generating' answers earn one extra, longer attempt; five → a 'generating' error with 'still generating' copy", async () => {
+  it("'generating' twice → a 'generating' error after 2 attempts (no long backoff), copy offers the limited decode", async () => {
     clearGmStickerMemoryCache();
     const { impl, calls } = scripted([{ pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }, { pdfEmpty: true }]);
     const orig = globalThis.fetch;
     globalThis.fetch = impl;
     try {
+      const t0 = Date.now();
       await assert.rejects(getGmSticker(VIN_GENERATING_5), (err: unknown) => {
         assert.ok(err instanceof GmStickerUnavailableError);
         assert.equal(err.kind, "generating");
-        assert.equal(err.attempts.length, 5, "one extra attempt beyond the usual four");
-        assert.match(err.message, /still generating the factory sticker .* Ask again in a moment/);
+        assert.equal(err.attempts.length, 2);
+        assert.match(err.message, /still generating the factory sticker .* limited VIN decode .* try again/);
         assert.doesNotMatch(err.message, /no data|blocked/);
         return true;
       });
-      assert.equal(calls.length, 5);
+      assert.equal(calls.length, 2);
+      assert.ok(Date.now() - t0 < 2000, "fails in well under the old ~5 s backoff");
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("empty HTTP 503 fails fast: exactly one request, no backoff sleep", async () => {
+    clearGmStickerMemoryCache();
+    const orig = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = (async () => {
+      calls++;
+      return new Response(new ArrayBuffer(0), { status: 503, headers: { "content-type": "application/pdf" } });
+    }) as typeof fetch;
+    try {
+      const t0 = Date.now();
+      await assert.rejects(getGmSticker(VIN_EMPTY_503), (err: unknown) => {
+        assert.ok(err instanceof GmStickerUnavailableError);
+        assert.equal(err.attempts.length, 1);
+        assert.equal(err.attempts[0].status, 503);
+        assert.equal(gmStickerRefused(err), false, "a 503 is a hiccup, not a refusal");
+        return true;
+      });
+      assert.equal(calls, 1);
+      assert.ok(Date.now() - t0 < 250, "no 300 ms retry delay either");
+      // Failures are never cached: Try again refetches and a real PDF/build then succeeds.
+      const { impl: ok, calls: okCalls } = scripted([buildFor(VIN_EMPTY_503)]);
+      globalThis.fetch = ok;
+      const sticker = await getGmSticker(VIN_EMPTY_503);
+      assert.equal(sticker.status, "released");
+      assert.equal(okCalls.length, 1);
+    } finally {
+      globalThis.fetch = orig;
+      clearGmStickerMemoryCache();
+    }
+  });
+
+  it("a real PDF/build on the first request is returned with one request (the fast path is unchanged)", async () => {
+    clearGmStickerMemoryCache();
+    const { impl, calls } = scripted([buildFor(VIN_EMPTY_503)]);
+    const orig = globalThis.fetch;
+    globalThis.fetch = impl;
+    try {
+      forgetGmStickerForTests(VIN_EMPTY_503);
+      const sticker = await getGmSticker(VIN_EMPTY_503);
+      assert.equal(sticker.status, "released");
+      assert.equal(calls.length, 1);
     } finally {
       globalThis.fetch = orig;
       clearGmStickerMemoryCache();
@@ -931,5 +981,17 @@ describe("GM sticker fetch respects a refusal (2026-10-29)", () => {
   }
   it("a network failure is not a refusal", () => {
     assert.equal(gmStickerRefused(new Error("offline")), false);
+  });
+});
+
+describe("confirm modal keeps a real 'Try again' next to the limited decode (2026-11-05)", () => {
+  it("the limited-decode line stays, Confirm is not gated on the sticker, and Try again refetches", () => {
+    const wizard = fs.readFileSync(path.join(process.cwd(), "components/BiddingWizard.tsx"), "utf8");
+    assert.match(wizard, /details are a limited VIN decode\. You can still confirm and continue\./, "continue-with-limited-decode is kept");
+    assert.match(wizard, /data-testid="confirm-sticker-retry"/);
+    assert.match(wizard, /onRetrySticker=\{retryPendingSticker\}/);
+    // Retry re-runs the import for the pending VIN and swaps the prebuilt in place; Confirm's disabled rule is untouched.
+    assert.match(wizard, /const retryPendingSticker = async \(\)[\s\S]*?importAndPrime\(vinForBuild[\s\S]*?prebuilt: built/);
+    assert.match(wizard, /disabled=\{busy \|\| !isPlausibleVin\(cleanVin\)\}/);
   });
 });
