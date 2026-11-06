@@ -33,6 +33,7 @@ import {
   Info
 } from "lucide-react";
 import { MoneyInput } from "./MoneyInput";
+import { DealerMyQuotes } from "./DealerMyQuotes";
 
 interface DealerInventoryOption {
   vin: string;
@@ -59,7 +60,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
   onDealerUploadPaperwork,
   onSwitchToBuyerView,
 }) => {
-  const [activeTab, setActiveTab] = useState<"leads" | "my_bids" | "locked_deals">("leads");
+  const [activeTab, setActiveTab] = useState<"leads" | "my_quotes" | "my_bids" | "locked_deals">("leads");
 
   const [inboundRequests, setInboundRequests] = useState<DealerInboundRequest[]>([]);
   const [isLoadingRequests, setIsLoadingRequests] = useState(true);
@@ -398,6 +399,18 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
         </button>
 
         <button
+          onClick={() => setActiveTab("my_quotes")}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+            activeTab === "my_quotes"
+              ? "bg-brand-500 text-black shadow-md"
+              : "bg-surface text-ink-muted hover:text-white border border-border"
+          }`}
+        >
+          <FileCheck className="h-4 w-4" />
+          <span>My Quotes</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("my_bids")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "my_bids"
@@ -423,6 +436,9 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           </button>
         )}
       </div>
+
+      {/* My Quotes: the signed-in dealer's own quote requests (legacy Leads / My Bids stay until cutover). */}
+      {activeTab === "my_quotes" && <DealerMyQuotes />}
 
       {/* TAB 1: Inbound Deals */}
       {activeTab === "leads" && (

@@ -1294,6 +1294,9 @@ async function ensureQuotePackageColumns(pool) {
   await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS view_token VARCHAR(64) NULL");
   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_view_token ON rfq_invites (view_token)");
   await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_contact_email ON rfq_invites (dealer_contact_email)");
+  // The signed-in dealer account an invite belongs to (My Quotes). Set once, by id, never by name match.
+  await pool.query("ALTER TABLE rfq_invites ADD COLUMN IF NOT EXISTS dealer_user_id BIGINT NULL");
+  await pool.query("CREATE INDEX IF NOT EXISTS idx_rfq_invites_dealer_user ON rfq_invites (dealer_user_id)");
   quotePackageColumnsEnsured = true;
 }
 
@@ -1669,6 +1672,70 @@ async function handleRfqInviteByToken(req, res, token) {
   const [rows] = await pool.query("SELECT * FROM rfq_invites WHERE view_token = ?", [token]);
   if (rows.length === 0) return sendJson(res, 404, { error: "Unknown token" });
   sendJson(res, 200, { rfqId: String(rows[0].rfq_id), invite: publicRfqInvite(rows[0], null) });
+}
+
+// GET /api/dealer-invites?dealerUserId=&includeAudit=0|1 — the invites linked to one dealer ACCOUNT (dealer_user_id,
+// never a name match), each with its request's lifecycle fields and the live quote. Released requests only (nothing
+// reaches a dealer before approval); audit rows are left out unless includeAudit=1 (the app sends that for test-dealer
+// accounts only). Buyer identity is never selected: no buyer_user_id. stage_json rides in publicRfqInvite and the app
+// runs it through stageForDealer before anything leaves the server.
+async function handleListDealerInvites(req, res, query) {
+  const dealerUserId = Number(query.get("dealerUserId"));
+  if (!Number.isInteger(dealerUserId) || dealerUserId <= 0) return badRequest(res, "Invalid dealerUserId");
+  const includeAudit = query.get("includeAudit") === "1" && !req.audit;
+  const pool = getPool();
+  await ensureQuotePackageColumns(pool);
+  await ensureAuditColumns(pool);
+  const [rows] = await pool.query(
+    `SELECT i.*, r.status AS rfq_status, r.picked_quote_id AS rfq_picked_quote_id, r.approval_status AS rfq_approval_status,
+            r.audit AS rfq_audit, r.audit_forced_safe AS rfq_audit_forced_safe, r.package_kind AS rfq_package_kind,
+            r.vehicle_year AS rfq_vehicle_year, r.vehicle_make AS rfq_vehicle_make, r.vehicle_model AS rfq_vehicle_model,
+            r.vehicle_trim AS rfq_vehicle_trim, r.vin AS rfq_vin
+       FROM rfq_invites i JOIN rfq_requests r ON r.id = i.rfq_id
+      WHERE i.dealer_user_id = ? AND i.deleted_at IS NULL AND r.deleted_at IS NULL
+        AND COALESCE(r.approval_status, 'approved') = 'approved'
+        ${includeAudit ? "" : "AND r.audit = 0 AND i.audit = 0 AND r.audit_forced_safe = 0"}
+      ORDER BY i.invited_at DESC LIMIT 500`,
+    [dealerUserId]
+  );
+  if (rows.length === 0) return sendJson(res, 200, { invites: [] });
+  const ids = rows.map((r) => r.id);
+  const [quoteRows] = await pool.query(`SELECT * FROM rfq_quotes WHERE invite_id IN (${ids.map(() => "?").join(", ")}) AND superseded_at IS NULL`, ids);
+  const liveByInvite = new Map(quoteRows.map((q) => [q.invite_id, q]));
+  sendJson(res, 200, {
+    invites: rows.map((r) => ({
+      rfqId: String(r.rfq_id),
+      rfq: {
+        status: r.rfq_status,
+        pickedQuoteId: r.rfq_picked_quote_id ? String(r.rfq_picked_quote_id) : null,
+        approvalStatus: r.rfq_approval_status || "approved",
+        audit: Boolean(r.rfq_audit || r.audit),
+        auditForcedSafeMode: Boolean(r.rfq_audit_forced_safe),
+        packageKind: r.rfq_package_kind || "match",
+        vin: r.rfq_vin || "",
+        vehicleYear: Number(r.rfq_vehicle_year) || 0,
+        vehicleMake: r.rfq_vehicle_make || "",
+        vehicleModel: r.rfq_vehicle_model || "",
+        vehicleTrim: r.rfq_vehicle_trim || "",
+      },
+      invite: publicRfqInvite(r, liveByInvite.get(r.id) || null),
+    })),
+  });
+}
+
+// POST /api/rfq-invites/:id/bind-dealer { dealerUserId } — links an invite to a dealer account. Write-once: only an
+// unlinked invite is bound, so an invite can never be re-homed to another account (dealerUserId isolation).
+async function handleBindInviteDealer(req, res, inviteId) {
+  const body = await readBody(req);
+  const dealerUserId = Number(body.dealerUserId);
+  if (!Number.isInteger(dealerUserId) || dealerUserId <= 0) return badRequest(res, "Invalid dealerUserId");
+  const pool = getPool();
+  await ensureQuotePackageColumns(pool);
+  const [result] = await pool.query("UPDATE rfq_invites SET dealer_user_id = ? WHERE id = ? AND dealer_user_id IS NULL AND deleted_at IS NULL", [dealerUserId, inviteId]);
+  if (result.affectedRows === 1) return sendJson(res, 200, { bound: true, dealerUserId: String(dealerUserId) });
+  const [rows] = await pool.query("SELECT dealer_user_id FROM rfq_invites WHERE id = ? AND deleted_at IS NULL", [inviteId]);
+  if (rows.length === 0) return sendJson(res, 404, { error: "Invite not found" });
+  sendJson(res, 200, { bound: false, dealerUserId: rows[0].dealer_user_id == null ? null : String(rows[0].dealer_user_id) });
 }
 
 // POST /api/rfqs/:id/invites/:inviteId/decline
@@ -4178,6 +4245,13 @@ if (req.method === "GET" && pathname === "/api/inventory/by-listing-url") return
   if (req.method === "GET" && rfqInviteTokenMatch) {
     return run(handleRfqInviteByToken, rfqInviteTokenMatch[1]);
   }
+  if (req.method === "GET" && pathname === "/api/dealer-invites") {
+    return run(handleListDealerInvites, url.searchParams);
+  }
+  const bindDealerMatch = pathname.match(/^\/api\/rfq-invites\/(\d+)\/bind-dealer$/);
+  if (req.method === "POST" && bindDealerMatch) {
+    return run(handleBindInviteDealer, Number(bindDealerMatch[1]));
+  }
   const rfqInviteNotSelectedMatch = pathname.match(/^\/api\/rfqs\/(\d+)\/invites\/(\d+)\/not-selected$/);
   if (req.method === "POST" && rfqInviteNotSelectedMatch) {
     return run(handleRfqNotSelected, Number(rfqInviteNotSelectedMatch[1]), Number(rfqInviteNotSelectedMatch[2]));
@@ -4261,6 +4335,7 @@ server.listen(PORT, () => {
   console.log(`  GET  /api/deal-requests/:id/market`);
   console.log(`  GET  /api/dealer-bids?dealerUserId=`);
   console.log(`  GET  /api/dealer-won-deals?dealerUserId=`);
+  console.log(`  GET  /api/dealer-invites?dealerUserId=`);
   console.log(`  GET  /api/dealer-responsiveness?dealerName=`);
   console.log(`  POST /api/rfqs`);
   console.log(`  GET  /api/rfqs?buyerUserId=`);
