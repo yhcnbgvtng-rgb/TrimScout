@@ -21,3 +21,5 @@ data/inventory_latest.json
 data/national_inventory_latest.json
 data/snapshots/latest_snapshot.json
 data/dom_index.json.tmp-*
+data/dom_index_delta/
+data/dom_index_conflicts/

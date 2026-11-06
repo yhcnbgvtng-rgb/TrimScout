@@ -9,6 +9,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import v8 from 'node:v8';
 import { loadDomIndex, saveDomIndex, domPaths } from '../src/dom_store.js';
+import { createDomDelta, checkpointDomDelta, mergeDomDelta } from '../src/dom_index_delta.js';
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i === -1 ? d : process.argv[i + 1]; };
 const targetMb = Number(arg('mb', 600));
@@ -60,14 +61,25 @@ try {
   console.log(`  ${vins} VINs, ${entries} vin-dates`);
   const want = (await phase('digest of built index', async () => digest(idx))).out;
 
-  if (mode === 'limit') { // does the old whole-string save really hit V8's wall at this size?
+  if (mode === 'merge') { // end-of-run flow of one brand process: loaded copy released, delta merged into the current file under the lock; repeated like consecutive brand runs finishing
+    await saveDomIndex(idx, cwd);
+    idx = null; global.gc?.();
+    for (let r = 1; r <= saves; r++) {
+      const delta = createDomDelta({ cwd, label: `bigtest${r}` });
+      const mine = {}; for (let v = 0; v < 3000; v++) mine[`ZZ${r}${String(v).padStart(8, '0')}`] = { '2026-11-06': { hash: 'n', price: v, oldPrice: null, priceDiff: 0, priceChangeType: 'NEW', blobStored: true, hashUnchanged: false } };
+      for (const [k, v] of Object.entries(mine)) { delta.entries[k] = v; delta.count++; }
+      await phase(`merge #${r} (3000 new VINs)`, async () => { await checkpointDomDelta(delta); return mergeDomDelta(delta, { log: () => {} }); });
+    }
+    const final = (await phase('load merged index', () => loadDomIndex(cwd))).out;
+    console.log(`  merged index has ${Object.keys(final).length} VINs (built ${vins} + ${saves * 3000})  ${Object.keys(final).length === vins + saves * 3000 ? 'OK' : 'MISMATCH'}`);
+  } else if (mode === 'limit') { // does the old whole-string save really hit V8's wall at this size?
     await phase('JSON.stringify(whole index)', async () => { const s = JSON.stringify(idx); return s.length; });
   } else if (mode === 'old') {
     for (let i = 1; i <= saves; i++) await phase(`old save #${i}`, async () => { await fs.writeFile(`${indexPath}.tmp`, JSON.stringify(idx)); await fs.rename(`${indexPath}.tmp`, indexPath); });
   } else {
     for (let i = 1; i <= saves; i++) await phase(`new save #${i}`, async () => saveDomIndex(idx, cwd));
   }
-  if (mode !== 'limit') {
+  if (mode !== 'limit' && mode !== 'merge') {
     const st = await fs.stat(indexPath).catch(() => null);
     if (st) console.log(`  file ${st.size} bytes (${(st.size / MB).toFixed(1)} MB)  ${st.size > 536870888 ? '> V8 string limit 536,870,888' : '<= V8 string limit'}`);
     idx = null; global.gc?.();
