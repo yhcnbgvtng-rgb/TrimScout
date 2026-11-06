@@ -41,7 +41,7 @@ process.on('exit', () => {
     } catch { /* never fail an exit over a log line */ }
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
-import { makeHeapGuard, detachStrings } from './heapGuard.js';
+import { makeHeapGuard, detachStrings, formatHeapStopLine, heapReserveBytes } from './heapGuard.js';
 import { resolveKeptMake } from './brand_match.js';
 import { normalizeTrimForWrite } from './oemTrim.js'; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
@@ -707,7 +707,7 @@ async function resolveSitemapDiscovery(dealer, brand, { apexFirst = false } = {}
 
 const currentInventory = new Map();
 // Live heap near its limit: stop reading pages and save what we have rather than abort (heapGuard.js). Stores cut short are flagged like a timeout.
-const heapGuard = makeHeapGuard();
+const heapGuard = makeHeapGuard({ reserveBytes: heapReserveBytes(await fs.stat(path.join(DATA_DIR, 'dom_index.json')).then((st) => st.size, () => 0)) });
 let heapStopped = false;
 const heapStop = () => {
     if (!heapGuard.pressured()) return false;
@@ -1185,7 +1185,7 @@ for (let i = 0; i < work.length; i++) {
                             const ft = normalizeTrimForWrite({ make: vehicle.make, model: vehicle.model, trim: vehicle.trim });
                             if (ft.status === 'fix' && ft.trimRaw) { vehicle.trimRaw = ft.trimRaw; vehicle.trim = ft.trim; }
                         }
-                        // Flat copy: fields captured from `html` must not keep the whole page alive (heapGuard.js).
+                        // Flat copy so no field is a slice of the page (defensive, unmeasured: heapGuard.js).
                         currentInventory.set(vehicle.vin, detachStrings(vehicle));
                         dealerCount++;
                         const prev = previousSnapshot[vehicle.vin];
@@ -1244,7 +1244,7 @@ for (let i = 0; i < work.length; i++) {
             failedDealerNames.add(dealer.name);
             runProgress.lastError = `${dealer.name}: heap guard stopped the store after ${dealerCount} vehicle(s)`;
             const h = heapGuard.snapshot();
-            console.log(`${progress} 🧠 ${dealer.name}: heap ${h.usedMb} MB of ${h.limitMb} MB (guard ${h.ratio}) — stopped this store after ${dealerCount} vehicle(s); the rest were not read and the store is treated as a partial crawl.`);
+            console.log(formatHeapStopLine({ progress, name: dealer.name, usedMb: h.usedMb, limitMb: h.limitMb, stopAtMb: h.stopAtMb, count: dealerCount }));
         }
         if (dealerTimedOut) {
             // The page loop stopped early (pMapStoppable), so this is the

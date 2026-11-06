@@ -18,6 +18,7 @@ import {
 } from '../src/inventorySweep.js';
 import { runSweep, SweepAbortError } from '../../../scripts/box/syncSweep.js';
 import { runWritePhase, configFromEnv } from '../../../scripts/box/syncRun.js';
+import { formatHeapStopLine } from '../src/heapGuard.js';
 import { parseHostileLines, latestCrawlLogs, collectHostileStores, guardConfigFromEnv, isHostileClass, describeSkips, describeGuardCounts, noteCrawlStamp, crawlStampsToIso } from '../../../scripts/box/syncSweepGuard.js';
 
 const toInt = (v) => (Number.isFinite(Number(v)) && v !== null && v !== '' ? Math.round(Number(v)) : null);
@@ -687,4 +688,76 @@ describe('returnRetired: the sync client', () => {
     await runSweep({ api, stores: [1], startedAt: '2026-10-29T12:27:00Z', guards: g, sleep: async () => {} });
     assert.equal('returnRetired' in calls[0], false);
   });
+
+  // ---- heap guard (PR #719): a store the crawler cut short on memory is a partial crawl and must be treated like a 429 midway ----------------------------------
+  describe('a store stopped by the heap guard', () => {
+    const HEAPSTORE = 7001, DONESTORE = 7002;
+    const cfg = { ...configFromEnv({}), batchRows: 50, progressMs: 0, bulkRetries: 0, sweepBatchStores: 50 };
+    const memoryStore = () => { const s = { data: null, load: () => (s.data ? JSON.parse(JSON.stringify(s.data)) : null), save: (x) => { s.data = JSON.parse(JSON.stringify(x)); }, clear: () => { s.data = null; } }; return s; };
+    const deals = (inv, clock) => async (p, body) => {
+      if (p === '/api/inventory/bulk') { for (const v of JSON.parse(body).vehicles) inv.upsert(v.vin, v.dealerId, clock.t); return { upserted: JSON.parse(body).vehicles.length }; }
+      if (p === '/api/inventory/stats') return { total: inv.rows.size, vins: inv.rows.size, inStock: 0, dealers: 0, byState: [] };
+      return serve(inv)(body);
+    };
+    const T = D('2026-11-06T15:00:00Z');
+    const stopLine = formatHeapStopLine({ progress: '[10/24]', name: "Eastern's Nissan of White Marsh", usedMb: 3100, limitMb: 3584, stopAtMb: 2728, count: 600 });
+
+    // 1,000 live cars at the heap-stopped store; the crawl read 600 of them (60% fresh, ABOVE the 0.5 fresh-ratio guard, so only the log line can protect it).
+    const world = () => {
+      const inv = new FakeInventory(); const clock = { t: T };
+      for (let i = 0; i < 1000; i++) inv.put(`H${i}`, HEAPSTORE, T - 86_400_000);
+      for (let i = 0; i < 50; i++) inv.put(`D${i}`, DONESTORE, T - 86_400_000);
+      const rows = [
+        ...Array.from({ length: 600 }, (_, i) => ({ vin: `H${i}`, dealerId: HEAPSTORE, dealerName: "Eastern's Nissan of White Marsh", source: 'nightly' })),
+        ...Array.from({ length: 49 }, (_, i) => ({ vin: `D${i}`, dealerId: DONESTORE, dealerName: 'Done Nissan', source: 'nightly' })), // D49 is genuinely gone
+      ];
+      return { inv, clock, rows };
+    };
+    const run = (w, hostileStores) => runWritePhase({ rows: w.rows, fileIdentity: 'heap', api: deals(w.inv, w.clock), store: memoryStore(), config: cfg, now: () => w.clock.t, sleep: async () => {}, log: () => {}, hostileStores, guards: FULL, requireGuards: true });
+
+    it('the line the crawler really prints is read by the sync client as a hostile (do-not-sweep) store', () => {
+      const [e] = parseHostileLines(stopLine);
+      assert.deepEqual(e, { name: "Eastern's Nissan of White Marsh", cls: 'HEAP_GUARD', kind: 'heap', url: null });
+      assert.equal(isHostileClass('HEAP_GUARD'), true);
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crawl-logs-'));
+      fs.writeFileSync(path.join(dir, 'md-nissan-2026-11-06.log'), `[9/24] ✅ Extracted 262 vehicles from CRISWELL NISSAN. (Running Total: 1302)\n${stopLine}\n[11/24] 🏢 Crawling NEXT (X, MD)...\n`);
+      const h = collectHostileStores({ files: latestCrawlLogs(dir, Date.now()), dealerIdFor: ({ name }) => (name === "Eastern's Nissan of White Marsh" ? HEAPSTORE : null) });
+      assert.deepEqual([...h.ids], [HEAPSTORE]);
+      assert.match(describeSkips({ hostile: h.entries }).join('\n'), /White Marsh \(#7001\): HEAP_GUARD \(crawl stopped on memory, partial\)/);
+      fs.rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('WITHOUT the log line the unread 40% would be counted missing (why the line matters)', async () => {
+      const w = world();
+      await run(w, []);
+      assert.equal(w.inv.get('H999', HEAPSTORE).missCount, 1, 'ratio guard alone lets a 60%-fresh partial crawl through');
+    });
+
+    it('WITH the log line: no sweep for the store, nothing retired, no miss counter moves; the cars that were read are saved; a completed store still counts its real miss', async () => {
+      const w = world();
+      const h = collectHostileStores({ files: ['x'], readFile: () => stopLine, dealerIdFor: () => HEAPSTORE });
+      const r = await run(w, h.entries);
+      assert.ok(r.guardSkippedStores.includes(HEAPSTORE));
+      assert.equal(w.inv.live(HEAPSTORE).length, 1000, 'nothing retired');
+      for (const vin of ['H0', 'H599', 'H600', 'H999']) assert.equal(w.inv.get(vin, HEAPSTORE).missCount, 0, `${vin}: miss counter untouched`);
+      assert.equal(w.inv.get('H0', HEAPSTORE).lastSeen, T, 'a car the crawl read is saved fresh');
+      assert.equal(w.inv.get('H700', HEAPSTORE).lastSeen, T - 86_400_000, 'an unread car is left exactly as it was');
+      assert.equal(w.inv.get('D49', DONESTORE).missCount, 1, 'the completed store counts its genuine first miss');
+      assert.equal(w.inv.get('D49', DONESTORE).removed, false, 'first miss never retires');
+      assert.equal(w.inv.get('D0', DONESTORE).lastSeen, T, 'completed store saved normally');
+    });
+
+    it('three nights in a row of heap stops still retire nothing', async () => {
+      const w = world();
+      const h = collectHostileStores({ files: ['x'], readFile: () => stopLine, dealerIdFor: () => HEAPSTORE }).entries;
+      for (let night = 0; night < 4; night++) {
+        w.clock.t += 86_400_000;
+        for (let i = 0; i < 600; i++) w.inv.upsert(`H${i}`, HEAPSTORE, w.clock.t - 1); // the cars read tonight
+        await run(w, h);
+      }
+      assert.equal(w.inv.live(HEAPSTORE).length, 1000);
+      assert.equal(w.inv.get('H999', HEAPSTORE).missCount, 0);
+    });
+  });
+
 });

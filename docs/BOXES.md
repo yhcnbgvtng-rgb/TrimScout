@@ -5,7 +5,7 @@ Machine-readable mirror: [`config/boxes.json`](../config/boxes.json) (loaded by 
 
 Legend: **[verified]** read-only check from Grok Bot's computer, 2026-10-10 08:15 ET · **[repo]** read from code/docs · **UNVERIFIED** not confirmed live.
 
-Last verified: **2026-10-10 08:15 ET** for box2/3/4 (read-only, from Grok Bot's computer). **box1 (v2) and box5 are from Paul's 2026-11-03 report, not re-checked live.** Update the date when someone re-checks a box live.
+Last verified: **2026-10-10 08:15 ET** for box2/3/4 (read-only, from Grok Bot's computer). **box1 (v2) and box5: crontab, RAM and CPU re-read live, read-only, 2026-11-06 12:30 ET** (rows below; nothing else on them re-checked). Update the date when someone re-checks a box live.
 
 **2026-11-03 fleet change:** box1 was replaced by **box1-v2** (new machine, same label `box1`), and **box5** (Lightsail `crawler-box-5`) was added. The old box1 was deleted on **2026-11-04** (see Retired boxes).
 
@@ -50,11 +50,11 @@ As of 2026-10-10 the four then-existing crawler checkouts (box1 was the old mach
 
 | Box | Cron | CRAWL_STATES | Settings |
 |---|---|---|---|
-| box1 (v2) | 22:00 crawl; sync 22:05 via `~/inventory-sync/run_sync_when_safe.sh` (Paul, 2026-11-03) | AK,AZ,CT,DE,IA,ID,KS,LA,MN,RI,VA | `CRAWLER_MAX_CONCURRENT_STATES=2` (P90 / lite settings: UNVERIFIED on the new machine) |
+| box1 (v2) | 22:00 crawl; sync 22:05 via `~/inventory-sync/run_sync_when_safe.sh` (**verified live 2026-11-06**) | AK,AL,AZ,CO,CT,DE,IA,ID,KS,LA,MD,MN,ND,OR,RI,VA,VT,WY (**verified live 2026-11-06**; includes MD, CO, AL, OR, VT, WY, ND, so the "planned" move from box2 below has at least started: confirm box2's cron before relying on either) | **verified live 2026-11-06:** `CRAWLER_MAX_CONCURRENT_STATES=2`, `CRAWLER_P90_SEC_PER_ROOFTOP=55`, `CRAWLER_DRIVER_BUDGET_HOURS=23`, `CRAWLER_LITE_NIGHTLY=shadow`; 15.8 GB RAM, no swap, 4 vCPU, node 22. Per-brand heap is 3584 MB (5120 MB for 7 named heavy runs), so 2 concurrent runs fit |
 | box2 | 22:00 `run-daily-crawl`; sync 22:10 (UNVERIFIED since box5 split) | MD,CO,AL,OR,VT,WY,ND (was 21 states until 2026-11-03; the rest moved to box5) | concurrency and P90: UNVERIFIED since the split (were 6 / 30). **Planned: these 7 states move to box1-v2 and box2 stops crawling.** |
 | box3 | 22:00 `run_nightly_chain.sh` | expansion: AL,IA,IN,LA,MI,NJ,OH,PA,TX,VA,WI; then core: AR,MA,MO,NH,SC,SD,NE,UT,WI (2026-10-10; **not re-checked after box1-v2/box5**: several overlap box5's states, confirm before relying on it) | expansion concurrency 4, max 1000/dealer; core concurrency 6 |
 | box4 | 22:00 `run_nightly_chain.sh` | expansion: CA,FL,GA,IL,KY,MA,MN,MO,NC,NY,OK,TN; then core: FL,HI,IL,KY,MI,MS,NJ,NM,WA (2026-10-10; **not re-checked after box5**: confirm) | not reported (concurrency/limits UNVERIFIED) |
-| box5 | 22:00 crawl; sync 22:05 (Paul, 2026-11-03) | NY,OH,PA,CA,TX,NC,GA,TN,IN,OK,ME,NV,WV,MT | concurrency 4 |
+| box5 | 22:00 crawl; sync 22:05 (**verified live 2026-11-06**) | NY,OH,PA,CA,TX,FL,NC,GA,TN,IN,OK,ME,NV,WV,MT (**verified live 2026-11-06**; FL was missing here before) | **verified live 2026-11-06:** `CRAWLER_MAX_CONCURRENT_STATES=8` (this table said 4 before: wrong), `CRAWLER_P90_SEC_PER_ROOFTOP=55`, `CRAWLER_DRIVER_BUDGET_HOURS=23`, `CRAWLER_LITE_NIGHTLY=shadow`; 31.7 GB RAM, no swap, 8 vCPU. 8 x 3584 MB heaps already take ~28 of 31.7 GB, so **do not raise the default heap here** |
 
 `CRAWL_STATES` order is the order claims are tried, not an exclusive allotment (CAPACITY_SLA.md). Re-verify with `crontab -l` before relying on these.
 

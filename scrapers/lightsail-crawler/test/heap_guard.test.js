@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeHeapGuard, heapGuardRatio, detachStrings, DEFAULT_HEAP_GUARD_RATIO } from '../src/heapGuard.js';
+import { makeHeapGuard, heapGuardRatio, detachStrings, heapReserveBytes, IN_FLIGHT_RESERVE_BYTES, DEFAULT_HEAP_GUARD_RATIO } from '../src/heapGuard.js';
 import { heapMbFor, DEFAULT_HEAP_MB, HEAVY_HEAP_MB } from '../scripts/run-daily-crawl.mjs';
 
 const MB = 1048576;
@@ -11,7 +11,19 @@ describe('heapGuard', () => {
     assert.equal(g.pressured(), false);
     used = 3100 * MB; assert.equal(g.pressured(), true);
     used = 3000 * MB; assert.equal(g.pressured(), false);
-    assert.deepEqual(g.snapshot(), { usedMb: 3000, limitMb: 3584, ratio: 0.85 });
+    assert.deepEqual(g.snapshot(), { usedMb: 3000, limitMb: 3584, ratio: 0.85, stopAtMb: 3046 });
+  });
+  it('stops at limit minus the reserve the index save needs (box1: 489 MB index -> ~2.7 GB of 3.5 GB), never below half the limit', () => {
+    const at = (usedMb, reserveBytes) => makeHeapGuard({ ratio: 0.85, reserveBytes, stats: () => ({ used_heap_size: usedMb * MB, heap_size_limit: 3584 * MB }), minIntervalMs: 0 });
+    const box1 = heapReserveBytes(489 * MB);
+    assert.equal(Math.round(box1 / MB), Math.round(489 * 1.25 + 256));
+    assert.equal(at(2700, box1).pressured(), false);
+    assert.equal(at(2800, box1).pressured(), true, 'trips well before the 85% line, which the index save would not survive');
+    assert.equal(at(2800, heapReserveBytes(107 * MB)).pressured(), false, 'box5 (107 MB index) keeps the 85% line');
+    assert.equal(at(1700, 3000 * MB).pressured(), false, 'floor: half the limit');
+    assert.equal(at(1800, 3000 * MB).pressured(), true);
+    assert.equal(heapReserveBytes(0), IN_FLIGHT_RESERVE_BYTES);
+    assert.equal(at(2800, box1).snapshot().stopAtMb, Math.round((3584 * MB - box1) / MB));
   });
   it('reads heap statistics at most once per interval', () => {
     let calls = 0, t = 0;
@@ -59,5 +71,37 @@ describe('heap sizing extra runs', () => {
       assert.equal(heapMbFor('MD', 'honda'), DEFAULT_HEAP_MB);
     } finally { delete process.env.CRAWLER_HEAVY_HEAP_EXTRA; }
     assert.equal(heapMbFor('FL', 'gmc'), HEAVY_HEAP_MB);
+  });
+});
+
+// ---- the crawl half of "excluded from the sold-diff": the real merge, with the set standalone.js fills --------------------------------------------------
+import { mergeInventorySnapshot } from '../src/inventory_merge.js';
+import { readFileSync } from 'node:fs';
+
+describe('a heap-stopped store in the sold-diff', () => {
+  const rec = (vin, dealerName) => ({ vin, dealerName, configDealerName: dealerName, status: 'ACTIVE', price: 1, firstSeen: '2026-11-01', lastSeen: '2026-11-05' });
+  const previousSnapshot = {
+    H1: rec('H1', 'BIG STORE'), H2: rec('H2', 'BIG STORE'), H3: rec('H3', 'BIG STORE'), // H3 is never read tonight (guard stopped the store)
+    D1: rec('D1', 'DONE STORE'), D2: rec('D2', 'DONE STORE'), // D2 is really gone
+  };
+  const run = (failed) => mergeInventorySnapshot({
+    previousSnapshot, currentInventory: new Map([['H1', rec('H1', 'BIG STORE')], ['H2', rec('H2', 'BIG STORE')], ['D1', rec('D1', 'DONE STORE')]]),
+    dealers: [{ name: 'BIG STORE' }, { name: 'DONE STORE' }], failedDealerNames: new Set(failed), todayDate: '2026-11-06', todayIso: '2026-11-06T10:00:00Z',
+  });
+  it('flagged as failed: the unread car stays ACTIVE and unsold, the completed store still sells its gone car, read cars are saved', () => {
+    const r = run(['BIG STORE']);
+    assert.equal(r.updatedSnapshot.H3.status, 'ACTIVE');
+    assert.deepEqual(r.soldVehicles.map((v) => v.vin), ['D2']);
+    assert.ok(r.updatedSnapshot.H1 && r.updatedSnapshot.H2 && r.updatedSnapshot.D1);
+  });
+  it('not flagged (what would happen without the flag): the unread car is wrongly marked sold', () => {
+    assert.deepEqual(run([]).soldVehicles.map((v) => v.vin).sort(), ['D2', 'H3']);
+  });
+  it('standalone.js adds the store to failedDealerNames in the heap-stop branch, after the retry-recovery delete, and resets the flag per store', () => {
+    const src = readFileSync(new URL('../src/standalone.js', import.meta.url), 'utf8');
+    const branch = src.slice(src.indexOf('if (heapStopped) {'));
+    assert.match(branch.slice(0, 700), /failedDealerNames\.add\(dealer\.name\)/);
+    assert.ok(src.indexOf('failedDealerNames.delete(dealer.name)') < src.indexOf('if (heapStopped) {'), 'the retry-pass delete runs BEFORE the heap flag, so the flag wins');
+    assert.match(src, /heapStopped = false;/);
   });
 });
