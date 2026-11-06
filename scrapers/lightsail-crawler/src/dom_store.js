@@ -108,22 +108,34 @@ export function blobPath(vin, date, cwd = process.cwd()) {
 // keyed by VIN, so every older reader (JSON.parse of the whole file) keeps working; the only difference is a newline between VINs.
 export const DOM_INDEX_TMP_STALE_MS = 6 * 3600 * 1000; // a save takes seconds to minutes; a temp file this old belongs to a killed process
 
-export async function loadDomIndex(cwd = process.cwd()) {
+// Load fails CLOSED. Only ENOENT (no index yet: first run on a box) gives an empty index. Anything else (permission error, malformed or truncated JSON, a read
+// that keeps failing) throws DomIndexUnreadableError and leaves the file exactly as it is: starting from {} would let the next save replace the whole price
+// history with an empty index. standalone.js loads at startup with a top-level await, so the brand run stops with a non-zero exit and the driver records it as
+// a failed run, like any other crashed brand. Transient errors (a busy or interrupted read) are retried a few times first; malformed JSON and EACCES are not.
+export class DomIndexUnreadableError extends Error {
+  constructor(indexPath, cause) {
+    super(`dom_index: ${indexPath} exists but cannot be read (${cause && (cause.code || cause.name)}: ${cause && cause.message}). It was left untouched; this run stops rather than start from an empty index. Fix or restore the file, then run again.`);
+    this.name = 'DomIndexUnreadableError';
+    this.code = 'DOM_INDEX_UNREADABLE';
+    this.path = indexPath;
+    this.cause = cause;
+  }
+}
+export const DOM_INDEX_TRANSIENT_CODES = new Set(['EAGAIN', 'EBUSY', 'EINTR', 'EMFILE', 'ENFILE', 'EIO', 'ETIMEDOUT', 'ENOMEM']);
+
+export async function loadDomIndex(cwd = process.cwd(), { read = readJsonLarge, attempts = 3, retryDelayMs = 500 } = {}) {
   const { indexPath } = domPaths(cwd);
-  try {
-    return await readJsonLarge(indexPath);
-  } catch (err) {
-    if (err && err.code === 'ENOENT') return {};
-    // The file exists but cannot be read (corrupt, truncated, too big for this reader). Starting from {} is the old behaviour, but the next save
-    // would then overwrite the file and with it the whole price history: move it aside first so nothing is lost.
-    const aside = `${indexPath}.unreadable-${Date.now()}`;
+  for (let n = 1; ; n++) {
     try {
-      await fs.rename(indexPath, aside);
-      console.error(`dom_index: ${indexPath} could not be read (${err && err.message}); kept as ${aside}, starting from an empty index`);
-    } catch (e) {
-      console.error(`dom_index: ${indexPath} could not be read (${err && err.message}) and could not be moved aside (${e && e.message})`);
+      return await read(indexPath);
+    } catch (err) {
+      if (err && err.code === 'ENOENT') return {};
+      if (n < attempts && err && DOM_INDEX_TRANSIENT_CODES.has(err.code)) {
+        await new Promise((r) => setTimeout(r, retryDelayMs * n));
+        continue;
+      }
+      throw new DomIndexUnreadableError(indexPath, err);
     }
-    return {};
   }
 }
 

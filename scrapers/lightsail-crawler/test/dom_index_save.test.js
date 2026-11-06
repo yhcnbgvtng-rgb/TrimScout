@@ -6,8 +6,8 @@ import assert from 'node:assert/strict';
 import fsp from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { loadDomIndex, saveDomIndex, domPaths, captureVehicleDom, DOM_INDEX_TMP_STALE_MS } from '../src/dom_store.js';
-import { spawn } from 'node:child_process';
+import { loadDomIndex, saveDomIndex, domPaths, captureVehicleDom, DOM_INDEX_TMP_STALE_MS, DomIndexUnreadableError } from '../src/dom_store.js';
+import { spawn, spawnSync } from 'node:child_process';
 import { heapReserveBytes } from '../src/heapGuard.js';
 
 let cwd;
@@ -110,16 +110,104 @@ describe('saveDomIndex / loadDomIndex', () => {
     assert.deepEqual(await files(), ['dom_index.json', 'dom_index.json.tmp-222-2', 'something_else.json.tmp-1-1']);
   });
 
-  it('an unreadable index is moved aside (not overwritten) and the crawl starts empty', async () => {
-    const { dataDir, indexPath } = domPaths(cwd);
-    await fsp.mkdir(dataDir, { recursive: true });
-    await fsp.writeFile(indexPath, '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026-11'); // truncated
-    const origError = console.error; console.error = () => {};
-    try { assert.deepEqual(await loadDomIndex(cwd), {}); } finally { console.error = origError; }
-    const names = await files();
-    assert.equal(names.length, 1);
-    assert.match(names[0], /^dom_index\.json\.unreadable-\d+$/);
-    assert.match(await fsp.readFile(path.join(dataDir, names[0]), 'utf8'), /"B":\{"2026-11$/);
+  describe('load fails closed (only ENOENT starts empty)', () => {
+    const put = async (content) => { const { dataDir, indexPath } = domPaths(cwd); await fsp.mkdir(dataDir, { recursive: true }); await fsp.writeFile(indexPath, content); return indexPath; };
+    const untouched = async (indexPath, content) => {
+      assert.equal(await fsp.readFile(indexPath, 'utf8'), content, 'the original file must be untouched');
+      assert.deepEqual(await files(), ['dom_index.json'], 'no file may be created, moved or renamed');
+    };
+    const fast = { retryDelayMs: 1 };
+
+    it('missing file -> {} (first run on a box)', async () => {
+      assert.deepEqual(await loadDomIndex(cwd, fast), {});
+    });
+
+    it('malformed JSON throws DomIndexUnreadableError and preserves the file', async () => {
+      const bad = '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026-11';
+      const ip = await put(bad);
+      await assert.rejects(loadDomIndex(cwd, fast), (e) => e instanceof DomIndexUnreadableError && e.code === 'DOM_INDEX_UNREADABLE' && e.path === ip && /left untouched/.test(e.message));
+      await untouched(ip, bad);
+    });
+
+    it('malformed JSON in a file above the streaming threshold (element-by-element reader) also throws', async () => {
+      const bad = '{"A":{"2026-11-01":{"hash":"h"}},"B":not-json}';
+      const ip = await put(bad);
+      const { readJsonLarge } = await import('../src/bigJson.js');
+      await assert.rejects(loadDomIndex(cwd, { ...fast, read: (f) => readJsonLarge(f, { streamAboveBytes: 0 }) }), DomIndexUnreadableError);
+      await untouched(ip, bad);
+    });
+
+    it('empty file and non-JSON garbage throw (never {})', async () => {
+      const ip = await put('');
+      await assert.rejects(loadDomIndex(cwd, fast), DomIndexUnreadableError);
+      await untouched(ip, '');
+    });
+
+    it('a directory where the file should be (EISDIR) throws', async () => {
+      const { indexPath } = domPaths(cwd);
+      await fsp.mkdir(indexPath, { recursive: true });
+      await assert.rejects(loadDomIndex(cwd, fast), DomIndexUnreadableError);
+      assert.ok((await fsp.stat(indexPath)).isDirectory());
+    });
+
+    it('permission error (EACCES, injected) throws at once without retrying, file untouched', async () => {
+      const ip = await put('{"A":{}}');
+      let calls = 0;
+      const read = async () => { calls++; throw Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' }); };
+      await assert.rejects(loadDomIndex(cwd, { ...fast, read }), (e) => e instanceof DomIndexUnreadableError && e.cause.code === 'EACCES');
+      assert.equal(calls, 1);
+      await untouched(ip, '{"A":{}}');
+    });
+
+    it('permission error on the real file (chmod 000) throws and the file is preserved', { skip: process.getuid && process.getuid() === 0 ? 'root ignores file modes' : false }, async () => {
+      const ip = await put('{"A":{"2026-11-01":{"hash":"h"}}}');
+      await fsp.chmod(ip, 0o000);
+      try {
+        await assert.rejects(loadDomIndex(cwd, fast), (e) => e instanceof DomIndexUnreadableError && e.cause.code === 'EACCES');
+      } finally { await fsp.chmod(ip, 0o644); }
+      await untouched(ip, '{"A":{"2026-11-01":{"hash":"h"}}}');
+    });
+
+    it('a transient read failure (EAGAIN, EBUSY) is retried and then succeeds with the real data', async () => {
+      const idx = makeIndex(5, 2);
+      await saveDomIndex(idx, cwd);
+      const { readJsonLarge } = await import('../src/bigJson.js');
+      let calls = 0;
+      const read = async (f) => { calls++; if (calls === 1) throw Object.assign(new Error('try again'), { code: 'EAGAIN' }); if (calls === 2) throw Object.assign(new Error('busy'), { code: 'EBUSY' }); return readJsonLarge(f); };
+      assert.deepEqual(await loadDomIndex(cwd, { ...fast, read }), idx);
+      assert.equal(calls, 3);
+    });
+
+    it('a read that keeps failing is retried, then throws; it never returns {} and never touches the file', async () => {
+      const ip = await put('{"A":{}}');
+      let calls = 0;
+      const read = async () => { calls++; throw Object.assign(new Error('input/output error'), { code: 'EIO' }); };
+      await assert.rejects(loadDomIndex(cwd, { ...fast, read, attempts: 4 }), DomIndexUnreadableError);
+      assert.equal(calls, 4);
+      await untouched(ip, '{"A":{}}');
+    });
+
+    it('a failed load followed by a save never happens: a process that awaits the load at startup exits non-zero and the file stays byte-identical', async () => {
+      const bad = '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026-11';
+      const ip = await put(bad);
+      const url = new URL('../src/dom_store.js', import.meta.url).href;
+      // same shape as standalone.js: top-level await loadDomIndex(), then saves later in the run
+      const r = spawnSync(process.execPath, ['--input-type=module', '-e', `
+        import { loadDomIndex, saveDomIndex } from ${JSON.stringify(url)};
+        const domIndex = await loadDomIndex(${JSON.stringify(cwd)});
+        await saveDomIndex(domIndex, ${JSON.stringify(cwd)});
+        console.log('SHOULD NOT GET HERE');`], { encoding: 'utf8' });
+      assert.notEqual(r.status, 0);
+      assert.doesNotMatch(r.stdout, /SHOULD NOT GET HERE/);
+      assert.match(r.stderr, /DomIndexUnreadableError|cannot be read/);
+      await untouched(ip, bad);
+    });
+
+    it('captureVehicleDom / recordSoldDom without a passed index also refuse on an unreadable index', async () => {
+      const ip = await put('{broken');
+      await assert.rejects(captureVehicleDom({ vin: 'V1', date: day(1), html: '<html/>', price: 1, cwd }), DomIndexUnreadableError);
+      await untouched(ip, '{broken');
+    });
   });
 
   it('price history survives load -> capture -> save -> load (earlier days untouched, new day added with the right diff)', async () => {

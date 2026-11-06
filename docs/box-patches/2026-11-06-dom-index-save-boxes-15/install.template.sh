@@ -63,7 +63,12 @@ try {
   if (JSON.stringify(await loadDomIndex(cwd)) !== JSON.stringify(idx)) throw new Error('loadDomIndex does not give the index back');
   const left = (await fs.readdir(domPaths(cwd).dataDir)).filter((n) => n !== 'dom_index.json');
   if (left.length) throw new Error('leftover files: ' + left.join(','));
-  console.log('trial ok: 5000 VINs saved twice (overlapping), reloaded identical, no temp files left');
+  if (JSON.stringify(await loadDomIndex(await fs.mkdtemp(path.join(os.tmpdir(), 'domsave-trial-empty-')))) !== '{}') throw new Error('a missing index must load as {}');
+  const bad = domPaths(cwd).indexPath; await fs.writeFile(bad, '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026'); // malformed: must throw and stay as it is
+  let threw = false; try { await loadDomIndex(cwd, { retryDelayMs: 1 }); } catch (e) { threw = e.code === 'DOM_INDEX_UNREADABLE'; }
+  if (!threw) throw new Error('a malformed index must make the load throw (fail closed)');
+  if ((await fs.readFile(bad, 'utf8')) !== '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026') throw new Error('the malformed index was modified');
+  console.log('trial ok: 5000 VINs saved twice (overlapping), reloaded identical, no temp files left; missing index -> {}, malformed index -> throws and is left untouched');
 } finally { await fs.rm(cwd, { recursive: true, force: true }); }
 TREOF
 ( cd "$W" && node src/trial.mjs ) || fail "trial on copies failed"
