@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { UserProfile, DealerBid, LockedDeal, TradeInVehicle, DealerInboundRequest } from "../lib/types";
 import type { DealerWonDeal } from "../lib/dealsApi";
 import type { ContractVerificationResult } from "../lib/contractVerification";
+import { DealerMyQuotes } from "./DealerMyQuotes";
 import { TradeInAppraisalPanel } from "./TradeInAppraisalPanel";
 import { formatCurrency, calculateOtd } from "../lib/otdCalculator";
 import {
@@ -59,7 +60,7 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
   onDealerUploadPaperwork,
   onSwitchToBuyerView,
 }) => {
-  const [activeTab, setActiveTab] = useState<"leads" | "my_bids" | "locked_deals">("leads");
+  const [activeTab, setActiveTab] = useState<"my_quotes" | "leads" | "my_bids" | "locked_deals">("my_quotes");
 
   const [inboundRequests, setInboundRequests] = useState<DealerInboundRequest[]>([]);
   const [isLoadingRequests, setIsLoadingRequests] = useState(true);
@@ -386,6 +387,19 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2 border-b border-border pb-3">
         <button
+          onClick={() => setActiveTab("my_quotes")}
+          data-testid="tab-my-quotes"
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+            activeTab === "my_quotes"
+              ? "bg-brand-500 text-black shadow-md"
+              : "bg-surface text-ink-muted hover:text-white border border-border"
+          }`}
+        >
+          <FileCheck className="h-4 w-4" />
+          <span>My Quotes</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("leads")}
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
             activeTab === "leads"
@@ -423,6 +437,8 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
           </button>
         )}
       </div>
+
+      {activeTab === "my_quotes" && <DealerMyQuotes />}
 
       {/* TAB 1: Inbound Deals */}
       {activeTab === "leads" && (

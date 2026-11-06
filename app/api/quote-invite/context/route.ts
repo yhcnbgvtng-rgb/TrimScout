@@ -2,10 +2,11 @@
 // quote against: the vehicle, the buyer's lease prefs, and the invite's
 // state. Nothing about the buyer beyond term / miles / ZIP.
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { requireAdminSession } from "@/lib/adminAuth";
 import { dealerReference } from "@/lib/dealerReference";
 import { counterDeclinedQuote } from "@/lib/counterDeclined";
-import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
+import { claimInviteForDealerUser, getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { isStagedRfq, stageForDealer, stageOf } from "@/lib/dealStages";
 import { cashOutTheDoor } from "@/lib/usedQuote";
@@ -25,6 +26,12 @@ export async function GET(req: Request) {
   // first time). Server-side, so a direct visit without the tracked
   // redirect still counts.
   if (!preview && found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
+  // First authenticated use of the link links this invite to the signed-in dealer ACCOUNT, so it shows up in My Quotes
+  // (dealer_user_id on the box; first account wins, a different account is refused). Never blocks the page.
+  if (!preview) {
+    const dealer = (await auth().catch(() => null))?.user as any;
+    if (dealer?.id && dealer.role === "dealer") await claimInviteForDealerUser(String(dealer.id), token).catch(() => null);
+  }
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   // The by-token row is bare; the full rfq carries the buyer counter and
