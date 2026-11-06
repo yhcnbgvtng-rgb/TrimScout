@@ -24,7 +24,9 @@ for (const contact of [null, { name: 'Pat' }, { email: 'not-an-email' }]) {
   assert.equal(bad.ok, false); assert.equal(bad.code, 'no_contact');
 }
 assert.equal(releaseOnPick(initialStageState({ tradeInExpected: true }), { otd: 43749, contact: CONTACT, now: NOW }).released, true, 'a deal with no stage yet (trade-in expected) releases too');
+for (const missing of [null, undefined, '']) assert.equal(releaseOnPick(null, { otd: missing, contact: CONTACT, now: NOW }).state.final.summary.otd, null, 'a missing OTD is recorded as null, not 0');
+assert.equal(releaseOnPick(null, { otd: '43749.00', contact: CONTACT, now: NOW }).state.final.summary.otd, 43749, 'a DB decimal string still parses');
 
 const later = applyStageAction(r.state, { type: 'accept_final', actor: 'buyer' }, { buyerContact: CONTACT, now: NOW });
 assert.equal(later.ok, false, 'a later accept_final cannot introduce the buyer a second time');
-console.log('smoke ok: pick releases once (closed/accepted/released), idempotent, needs a reachable email, later accept_final refused');
+console.log('smoke ok: pick releases once (closed/accepted/released), idempotent, null OTD stays null, needs a reachable email, later accept_final refused');

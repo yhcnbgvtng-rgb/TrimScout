@@ -14,7 +14,7 @@ PM2=${PM2:-pm2}; LOCK_LOG=${LOCK_LOG:-/home/ubuntu/.pm2/logs/deals-api-out.log}
 PROC_RE=${PROC_RE:-inventory-sync|run_sync|run_nightly_chain|run-daily-crawl|run_daily_crawl|standalone\.js|unretire|backfill|facet|make-from-vin}
 API=${API:-http://127.0.0.1:3004}; ENVFILE=${ENVFILE:-/opt/trimscout-deals/.env.trimscout-db}
 md() { if command -v md5sum >/dev/null 2>&1; then md5sum "$1" 2>/dev/null | cut -d' ' -f1; else md5 -q "$1" 2>/dev/null; fi; }
-SV_BASE=d63818f09574575a7b593d144687dead; SV_AFTER=af0269fc579aa51ee5b7d9499bc8a265; DS_BASE=ac03cf8c496a89fcbe9ec1bfefc2ab67; DS_AFTER=3ec2b488915b154b4eef0b86f59e75e3; PATCH_MD5=aeb9ef881d2163af4ec603a787691af4
+SV_BASE=d63818f09574575a7b593d144687dead; SV_AFTER=af0269fc579aa51ee5b7d9499bc8a265; DS_BASE=ac03cf8c496a89fcbe9ec1bfefc2ab67; DS_AFTER=8e853ba43911504784f431c6b34c495e; PATCH_MD5=aeb9ef881d2163af4ec603a787691af4
 fail() { echo "FAIL: $*"; exit 1; }
 [ -d "$D" ] || fail "$D is not a directory"
 ds=$(md "$D/dealStages.js"); sv=$(md "$D/deals_api_server.js")

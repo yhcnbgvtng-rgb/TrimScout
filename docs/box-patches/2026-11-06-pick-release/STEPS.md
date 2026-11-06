@@ -9,7 +9,7 @@ Install only on Paul's typed **GO**, on **box2** (`ssh box2`, 52.202.234.65, `do
 ## What changes (two files in `/opt/trimscout-deals/src`)
 | File | Before (live box2, read 2026-11-06) | After |
 |---|---|---|
-| `dealStages.js` | `ac03cf8c496a89fcbe9ec1bfefc2ab67` | `3ec2b488915b154b4eef0b86f59e75e3` (replaced whole from `files/`; the only difference is the new `releaseOnPick` export, 18 lines) |
+| `dealStages.js` | `ac03cf8c496a89fcbe9ec1bfefc2ab67` | `8e853ba43911504784f431c6b34c495e` (replaced whole from `files/`; the only difference is the new `releaseOnPick` export, 19 lines) |
 | `deals_api_server.js` | `d63818f09574575a7b593d144687dead` (the My Quotes install result) | `af0269fc579aa51ee5b7d9499bc8a265`, patched by `deals_api_server.js.patch` (`aeb9ef88…`): 1 import + the release block in `handlePickRfqQuote` (2 hunks, 19 added lines) |
 
 Live `dealStages.js` already has `cleanContact`, `done`, `initialStageState`, `fail`, and its one import `stateTradeCredit.js` matches the repo (`c4c22951…`).
@@ -29,18 +29,18 @@ Behaviour: on a pick with a `buyerContact` and a non-staged request, the winner'
 Rollback: `bash /tmp/pkr/install.sh restore && pm2 restart deals-api` (both files back from the backup; no schema change to undo).
 
 ## Known limitations
-- A pick on a quote with a null `total_otd_price` records OTD `0` in the release summary (`Number(null)` is 0 in `releaseOnPick`). Not changed here: the package mirrors the merged code.
+- A quote with a null / missing `total_otd_price` is recorded as OTD `null` in the release summary (fixed in this PR; the first draft recorded `0` because `Number(null)` is 0).
 - Trade-in picks (the confirmation step) are not released by this change.
 
 <!-- MD5S:START -->
 ```
 # md5  role  file
-3ec2b488915b154b4eef0b86f59e75e3  PACKAGE  files/dealStages.js
+8e853ba43911504784f431c6b34c495e  PACKAGE  files/dealStages.js
 aeb9ef881d2163af4ec603a787691af4  PACKAGE  deals_api_server.js.patch
-dc40f3a76b5ac774a1852680da0b8949  PACKAGE  smoke.mjs
+8811cdd151733cfc4ede4d9a32085e67  PACKAGE  smoke.mjs
 d63818f09574575a7b593d144687dead  BASE  deals_api_server.js (live box2, read 2026-11-06)
 af0269fc579aa51ee5b7d9499bc8a265  FINAL  deals_api_server.js
 ac03cf8c496a89fcbe9ec1bfefc2ab67  BASE  dealStages.js (live box2, read 2026-11-06)
-3ec2b488915b154b4eef0b86f59e75e3  FINAL  dealStages.js
+8e853ba43911504784f431c6b34c495e  FINAL  dealStages.js
 ```
 <!-- MD5S:END -->
