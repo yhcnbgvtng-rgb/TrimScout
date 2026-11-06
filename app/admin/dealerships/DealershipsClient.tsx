@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import type { Dealership, DealershipInput, BulkUpsertResult } from "@/lib/dealershipsApi";
 import { parseDealershipCsv, type DealershipCsvParseResult } from "@/lib/dealershipCsv";
+import { PhoneInput } from "@/components/PhoneInput";
+import { formatPhoneDisplay } from "@/lib/phone";
 
 const EMPTY_FORM: DealershipInput = {
   dealerName: "",
@@ -386,7 +388,7 @@ export default function DealershipsClient() {
                       <td className="py-3.5 px-4 text-[11px]">
                         {d.contactName && <div className="text-white font-medium">{d.contactName}</div>}
                         {d.phone && (
-                          <div className="flex items-center gap-1 text-ink-muted"><Phone className="h-3 w-3" />{d.phone}</div>
+                          <div className="flex items-center gap-1 text-ink-muted"><Phone className="h-3 w-3" />{formatPhoneDisplay(d.phone)}</div>
                         )}
                         {d.contactEmail && (
                           <div className="flex items-center gap-1 text-ink-muted font-mono"><Mail className="h-3 w-3" />{d.contactEmail}</div>
@@ -528,10 +530,9 @@ export default function DealershipsClient() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase text-ink-faint">Phone</label>
-                  <input
-                    type="text"
+                  <PhoneInput
                     value={form.phone || ""}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    onChange={(v) => setForm({ ...form, phone: v })}
                     className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>

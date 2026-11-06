@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { formatPhoneDisplay } from "../lib/phone";
 import { LockedDeal } from "../lib/types";
 import { formatCurrency, getEstimatedTaxRate, getStateTaxRate } from "../lib/otdCalculator";
 import { TradeInRevisedOtd } from "./TradeInRevisedOtd";
@@ -208,7 +209,7 @@ export const VoucherModal: React.FC<VoucherModalProps> = ({
                   <div className="text-ink-muted text-xs">{deal.winningBid.salesRep.title}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-mono font-bold text-brand-400 text-sm">{deal.winningBid.salesRep.phone}</div>
+                  <div className="font-mono font-bold text-brand-400 text-sm">{formatPhoneDisplay(deal.winningBid.salesRep.phone)}</div>
                   <span className="text-[10px] text-ink-faint">Direct Line</span>
                 </div>
               </div>

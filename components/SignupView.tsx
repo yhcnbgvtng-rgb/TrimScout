@@ -5,6 +5,8 @@ import Link from "next/link";
 import Script from "next/script";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { PhoneInput } from "./PhoneInput";
+import { isCompletePhone } from "../lib/phone";
 import {
   ShieldCheck,
   Building2,
@@ -135,6 +137,11 @@ export const SignupView: React.FC<SignupViewProps> = ({
     }
     if (password !== confirmPassword) {
       setErrorMsg("Passwords don't match — check and re-enter them.");
+      return;
+    }
+    // The phone is optional, but a number that was started has to be a whole one (SMS alerts go to it).
+    if (role === "buyer" && phone.trim() && !isCompletePhone(phone)) {
+      setErrorMsg("Enter your full 10-digit phone number, or leave it blank.");
       return;
     }
     if (!agreeTerms) {
@@ -480,10 +487,9 @@ export const SignupView: React.FC<SignupViewProps> = ({
                   </div>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-faint" />
-                    <input
-                      type="tel"
+                    <PhoneInput
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={setPhone}
                       placeholder="(415) 555-0199"
                       className="w-full rounded-xl border border-border bg-surface-elevated pl-9 pr-3.5 py-2.5 text-white placeholder-ink-faint text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all"
                     />

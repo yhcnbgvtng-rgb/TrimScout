@@ -2,6 +2,8 @@
 // which emails the winning dealer) or picks a winner runs until the buyer confirms; "Go back" runs nothing. The gate is a tiny
 // state machine so the rule is testable without a DOM: request() parks the action, only confirm() runs it, cancel() drops it.
 
+import { isCompletePhone } from "./phone";
+
 export const ACCEPT_SHARE_BUTTON = "Accept and share my info";
 export const ACCEPT_SHARE_CANCEL = "Go back";
 export const CONTACT_SHARED_LINE = "Your contact info is shared only with the dealer you choose.";
@@ -52,11 +54,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 /** Prefill for the editable fields: whatever is on file, trimmed; "" when nothing is. */
 export const draftFromContact = (c: ShareContact | null | undefined): ContactDraft => ({ name: clean(c?.name) ?? "", phone: clean(c?.phone) ?? "", email: clean(c?.email) ?? "" });
 
-/** Name, phone and email are all required before anything can be shared. A phone needs at least 10 digits. */
+/** Name, phone and email are all required before anything can be shared. A phone is exactly 10 digits (a leading country code 1 / +1 is allowed and not counted). */
 export function validateContactDraft(d: ContactDraft): ContactErrors {
   const errors: ContactErrors = {};
   if (!d.name.trim()) errors.name = "Enter your name.";
-  if (d.phone.replace(/\D/g, "").length < 10) errors.phone = d.phone.trim() ? "Enter a 10-digit phone number." : "Enter your phone number.";
+  if (!isCompletePhone(d.phone)) errors.phone = d.phone.trim() ? "Enter a 10-digit phone number." : "Enter your phone number.";
   if (!EMAIL_RE.test(d.email.trim())) errors.email = d.email.trim() ? "Enter a valid email address." : "Enter your email address.";
   return errors;
 }

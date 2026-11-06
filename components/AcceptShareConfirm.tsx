@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { PhoneInput } from "./PhoneInput";
 import { acceptShareBody, ACCEPT_CONTINUE_BUTTON, ACCEPT_SHARE_BUTTON, ACCEPT_SHARE_CANCEL, createAcceptGate, draftFromContact, submitContactDraft, validateContactDraft, type AcceptMode, type ContactDraft, type ContactErrors, type ShareContact } from "../lib/acceptShare";
 
 const FIELDS: { key: keyof ContactDraft; label: string; type: string; autoComplete: string; inputMode?: "tel" | "email" }[] = [
@@ -32,9 +33,13 @@ export function AcceptShareDialog({ dealerName, contact, onConfirm, onCancel, bu
             return (
               <div key={f.key} data-testid={`accept-share-${f.key}`}>
                 <label htmlFor={`accept-share-input-${f.key}`} className="block text-[11px] text-ink-faint">{f.label} <span aria-hidden="true">*</span></label>
-                <input id={`accept-share-input-${f.key}`} name={f.key} type={f.type} inputMode={f.inputMode} autoComplete={f.autoComplete} required aria-required="true" aria-invalid={err ? true : undefined} aria-describedby={err ? `accept-share-error-${f.key}` : undefined} value={draft[f.key]} disabled={busy}
-                  onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, [f.key]: true }))}
+                {f.key === "phone"
+                  ? <PhoneInput id={`accept-share-input-${f.key}`} name={f.key} autoComplete={f.autoComplete} required aria-required="true" aria-invalid={err ? true : undefined} aria-describedby={err ? `accept-share-error-${f.key}` : undefined} value={draft[f.key]} disabled={busy}
+                  onChange={(v) => setDraft((d) => ({ ...d, phone: v }))} onBlur={() => setTouched((t) => ({ ...t, [f.key]: true }))}
                   className="mt-0.5 w-full rounded-md border border-border bg-black/30 px-2.5 py-2 text-xs font-bold text-white" data-testid={`accept-share-input-${f.key}`} />
+                  : <input id={`accept-share-input-${f.key}`} name={f.key} type={f.type} inputMode={f.inputMode} autoComplete={f.autoComplete} required aria-required="true" aria-invalid={err ? true : undefined} aria-describedby={err ? `accept-share-error-${f.key}` : undefined} value={draft[f.key]} disabled={busy}
+                  onChange={(e) => setDraft((d) => ({ ...d, [f.key]: e.target.value }))} onBlur={() => setTouched((t) => ({ ...t, [f.key]: true }))}
+                  className="mt-0.5 w-full rounded-md border border-border bg-black/30 px-2.5 py-2 text-xs font-bold text-white" data-testid={`accept-share-input-${f.key}`} />}
                 {err ? <p id={`accept-share-error-${f.key}`} role="alert" className="mt-0.5 text-[11px] text-red-400" data-testid={`accept-share-error-${f.key}`}>{err}</p> : null}
               </div>
             );

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { formatPhoneDisplay } from "../lib/phone";
 import { signOut, useSession } from "next-auth/react";
 import { UserProfile } from "../lib/types";
 import {
@@ -583,7 +584,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                       {/* Zip / Contact */}
                       <td className="py-3.5 px-4 text-[11px]">
                         <div className="font-mono text-white">ZIP {acc.zipCode}</div>
-                        <div className="text-ink-muted text-[10.5px]">{acc.phone}</div>
+                        <div className="text-ink-muted text-[10.5px]">{formatPhoneDisplay(acc.phone)}</div>
                       </td>
 
                       {/* Status */}
