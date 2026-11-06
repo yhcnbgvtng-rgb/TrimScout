@@ -34,6 +34,7 @@ import {
   Info
 } from "lucide-react";
 import { MoneyInput } from "./MoneyInput";
+import { PhoneInput } from "./PhoneInput";
 
 interface DealerInventoryOption {
   vin: string;
@@ -1260,9 +1261,9 @@ export const DealerPortal: React.FC<DealerPortalProps> = ({
                 </div>
                 <div className="space-y-1">
                   <label className="font-bold text-ink-light uppercase text-[11px]">Direct Phone:</label>
-                  <input
+                  <PhoneInput
                     value={salesRepPhone}
-                    onChange={(e) => setSalesRepPhone(e.target.value)}
+                    onChange={setSalesRepPhone}
                     className="w-full rounded-xl border border-border bg-background p-2 text-xs text-white focus:border-brand-500 focus:outline-none"
                   />
                 </div>

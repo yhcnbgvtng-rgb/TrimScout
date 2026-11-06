@@ -62,6 +62,7 @@ import { NO_PAID_FACTORY_OPTIONS, STANDARD_FEATURES_HEADING, optionsPaidOnlyEnab
 import { vehicleTitle } from "../lib/vehicleTitle";
 import { distinctMsrp } from "../lib/listingMsrp";
 import { MoneyInput } from "./MoneyInput";
+import { formatPhoneDisplay } from "../lib/phone";
 
 function unavailableSheet(vin: string, note: string): ShopperListingSheet {
   return {
@@ -1328,7 +1329,7 @@ function ListingFacts({ sheet }: { sheet: ShopperListingSheet }) {
       label: "Phone",
       value: (
         <span className="inline-flex items-center gap-1">
-          <Phone className="h-3 w-3" /> {sheet.dealerPhone}
+          <Phone className="h-3 w-3" /> {formatPhoneDisplay(sheet.dealerPhone)}
         </span>
       ),
     });

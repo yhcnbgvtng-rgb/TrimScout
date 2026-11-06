@@ -6,6 +6,7 @@ import React, { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { SiteFooter } from "../../../components/SiteFooter";
+import { formatPhoneDisplay } from "../../../lib/phone";
 
 // Where the winning dealer lands from the "View buyer contact info" button in the "Your offer was accepted" email. The link is a
 // signed, expiring, single-dealer token (lib/contactRevealToken.ts). Opening the page shows only the vehicle; pressing
@@ -77,7 +78,7 @@ function Body() {
           <dl className="mt-5 space-y-1 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-4 text-sm" data-testid="buyer-contact">
             <div className="flex justify-between gap-3"><dt className="text-ink-faint">Name</dt><dd className="font-bold text-white">{contact.name ?? "Not provided"}</dd></div>
             <div className="flex justify-between gap-3"><dt className="text-ink-faint">Email</dt><dd className="break-all font-bold text-white">{contact.email}</dd></div>
-            <div className="flex justify-between gap-3"><dt className="text-ink-faint">Phone</dt><dd className="font-bold text-white">{contact.phone ?? "Not provided"}</dd></div>
+            <div className="flex justify-between gap-3"><dt className="text-ink-faint">Phone</dt><dd className="font-bold text-white">{contact.phone ? formatPhoneDisplay(contact.phone) : "Not provided"}</dd></div>
           </dl>
         ) : null}
         {contact ? <p className="mt-3 text-xs text-ink-faint">Use these details only to complete this purchase. The buyer sees that you viewed them.</p> : null}
