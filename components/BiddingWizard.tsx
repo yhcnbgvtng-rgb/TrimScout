@@ -505,6 +505,7 @@ function LinkConfirmPanel({
   onConfirm,
   onCancel,
   onRetry,
+  onRetrySticker,
 }: {
   pending: Extract<PendingLink, { kind: "link" }>;
   busy: boolean;
@@ -514,6 +515,8 @@ function LinkConfirmPanel({
   onCancel: () => void;
   /** Re-run the hostname match — offered when the directory itself didn't answer. */
   onRetry?: () => void;
+  /** Refetch the factory sticker for the VIN — offered when it came back limited. Confirm never waits on it. */
+  onRetrySticker?: () => void;
 }) {
   const r = pending.resolution;
   const [vin, setVin] = useState(r.vinFromUrl || pending.knownVin || "");
@@ -620,6 +623,17 @@ function LinkConfirmPanel({
                       ? factoryBuildStateLine({ ...build.vehicle, buildConfidence: "dealer_listing_only", stickerPendingNote: build.stickerPending?.note || null })
                       : colorsLine(build.vehicle.exteriorColor, build.vehicle.interiorColor, [build.vehicle.drivetrain]) || "Factory record read"}
               </span>
+              {build.stickerUnavailable && !isUsedCondition(build.vehicle.condition) && onRetrySticker ? (
+                <button
+                  type="button"
+                  onClick={onRetrySticker}
+                  disabled={busy}
+                  className="mt-0.5 text-[10px] font-bold text-sky-300 hover:text-white disabled:opacity-50"
+                  data-testid="confirm-sticker-retry"
+                >
+                  {busy ? "Trying…" : "Try again"}
+                </button>
+              ) : null}
             </span>
             <span className="flex shrink-0 items-center gap-2">
               {isUsedCondition(build.vehicle.condition) || build.buildConfidence === "verified_factory" ? (
@@ -1998,6 +2012,18 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
     setLinkBusy(false);
   };
 
+  /** Refetch the factory sticker for the pending link's VIN; the limited decode stays confirmable meanwhile. */
+  const retryPendingSticker = async () => {
+    if (!pendingLink || pendingLink.kind !== "link") return;
+    const { slot, prebuilt } = pendingLink;
+    const vinForBuild = prebuilt?.vehicle.vin;
+    if (!vinForBuild) return;
+    setLinkBusy(true);
+    const built = await importAndPrime(vinForBuild, fetch, { existingVehicles: slotVehicles(slot), ...usedOpt, freeDecodeOnly: intent === "alternate" });
+    setLinkBusy(false);
+    if (built.ok) setPendingLink((p) => (p && p.kind === "link" && p.slot === slot ? { ...p, prebuilt: built } : p));
+  };
+
   /** The buyer confirmed VIN + store: build from the VIN alone and commit to the slot that asked. */
   const confirmLink = async (choice: { vin: string; desk: DeskMatch | null; deskSource: "listing_domain" | "buyer_picked" }) => {
     if (!pendingLink || pendingLink.kind !== "link") return;
@@ -3009,7 +3035,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                 )}
 
                 {pendingLink?.slot === "primary" && pendingLink.kind === "link" && (
-                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
+                  <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} onRetrySticker={retryPendingSticker} />
                 )}
                 {pendingLink?.slot === "primary" && pendingLink.kind === "pick_dealer" && (
                   <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
@@ -3226,7 +3252,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} onRetrySticker={retryPendingSticker} />
                     )}
                     {pendingLink?.slot === "alt1" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">
@@ -3248,7 +3274,7 @@ export const BiddingWizard: React.FC<BiddingWizardProps> = ({
                       mustHaves={selectedMustHaveRefs}
                     />
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "link" && (
-                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} />
+                      <LinkConfirmPanel pending={pendingLink} busy={linkBusy} error={linkError} zipHint={buyerZipHint} onConfirm={confirmLink} onCancel={cancelPendingLink} onRetry={retryPendingLink} onRetrySticker={retryPendingSticker} />
                     )}
                     {pendingLink?.slot === "alt2" && pendingLink.kind === "pick_dealer" && (
                       <div className="space-y-1.5 rounded-xl border border-sky-500/40 bg-sky-950/20 px-3.5 py-3 text-[11px] animate-fadeIn">

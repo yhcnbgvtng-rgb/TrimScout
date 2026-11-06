@@ -762,7 +762,7 @@ export function gmUnavailableMessage(vin: string, kind: GmFetchKind | "network_e
     case "html_denied":
       return `GM's factory-sticker service blocked this request from our server (VIN ${vin}). The sticker exists; it's temporarily unavailable here.`;
     case "generating":
-      return `GM is still generating the factory sticker for VIN ${vin} — it usually appears within a few seconds. Ask again in a moment.`;
+      return `GM is still generating the factory sticker for VIN ${vin}. You can continue with the limited VIN decode now, or try again in a moment.`;
     case "empty":
       return `GM's factory-sticker service answered our server with an empty response for VIN ${vin} — a block or hiccup on their side, not a missing sticker. Try again in a moment.`;
     case "network_error":
@@ -772,10 +772,22 @@ export function gmUnavailableMessage(vin: string, kind: GmFetchKind | "network_e
   }
 }
 
-const GM_FETCH_ATTEMPTS = 4;
-const GM_RETRY_DELAYS_MS = [500, 1500, 3000];
-/** One extra, longer wait when GM is visibly still rendering the PDF (see GmFetchKind "generating"). */
-const GM_GENERATING_EXTRA_DELAY_MS = 5000;
+/**
+ * Fail fast. The buyer is staring at the Confirm modal, and the limited
+ * VIN-decode path ("continue with limited decode") is always available, so
+ * an empty answer must not hold the modal behind a long retry/backoff loop.
+ * Before: 4 attempts + 500/1500/3000 ms backoff (+5 s extra on "generating")
+ * and a 15 s timeout per attempt, i.e. ~5 s of sleeping on an empty answer,
+ * far more on a hang. Now:
+ *  - empty 503 (GM's edge says "not now"): 1 attempt, no retry.
+ *  - empty / "generating" 200: one quick retry on another header profile
+ *    after 300 ms (the one shape that has been seen to recover that fast).
+ *  - per-attempt timeout 6 s.
+ * A real "Try again" in the confirm panel refetches (failures are never cached).
+ */
+const GM_FETCH_ATTEMPTS = 2;
+const GM_RETRY_DELAYS_MS = [300];
+const GM_ATTEMPT_TIMEOUT_MS = 6_000;
 
 /**
  * GM's edge answers the same VIN with a 150 KB PDF for a bare curl and, at
@@ -825,21 +837,14 @@ async function fetchGmStickerBytesHttp(
 ): Promise<{ bytes: Uint8Array; contentType: string | null; attempts: GmFetchDiagnostic[] }> {
   const url = gmStickerPdfUrl(vin);
   const attempts: GmFetchDiagnostic[] = [];
-  // A "generating" answer earns one more attempt after a longer pause —
-  // the sticker is on its way, and the buyer would rather wait 5 s than
-  // be told to come back.
-  let maxAttempts = GM_FETCH_ATTEMPTS;
-  for (let i = 0; i < maxAttempts; i++) {
-    if (i > 0) {
-      const generating = attempts[i - 1]?.kind === "generating" && i >= GM_FETCH_ATTEMPTS;
-      await new Promise((r) => setTimeout(r, generating ? GM_GENERATING_EXTRA_DELAY_MS : GM_RETRY_DELAYS_MS[i - 1] ?? 1500));
-    }
+  for (let i = 0; i < GM_FETCH_ATTEMPTS; i++) {
+    if (i > 0) await new Promise((r) => setTimeout(r, GM_RETRY_DELAYS_MS[i - 1] ?? 300));
     const profile = GM_HEADER_PROFILES[i % GM_HEADER_PROFILES.length];
     try {
       const res = await fetch(url, {
         headers: profile.headers,
         cache: "no-store",
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(GM_ATTEMPT_TIMEOUT_MS),
       });
       const bytes = new Uint8Array(await res.arrayBuffer());
       const contentType = res.headers.get("content-type");
@@ -851,7 +856,8 @@ async function fetchGmStickerBytesHttp(
       if (kind === "pdf" || kind === "text" || kind === "unreleased_json") return { bytes, contentType, attempts };
       // GM said no (403) or slow down (429): stop. Trying the next header profile would be probing past a refusal.
       if (res.status === 403 || res.status === 429) break;
-      if (kind === "generating" && i === GM_FETCH_ATTEMPTS - 1 && maxAttempts === GM_FETCH_ATTEMPTS) maxAttempts = GM_FETCH_ATTEMPTS + 1;
+      // Empty 503: GM's edge is declining right now; a retry only makes the buyer wait.
+      if (res.status === 503 && bytes.length === 0) break;
       // empty / generating / unknown / html_denied → retry with the next profile
     } catch (err) {
       const diag: GmFetchDiagnostic = { attempt: i + 1, status: null, finalUrl: null, contentType: null, bytes: 0, magic: "", kind: "network_error", error: err instanceof Error ? err.message : String(err), profile: profile.name };
