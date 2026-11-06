@@ -86,13 +86,13 @@ describe("/search page, rendered", () => {
     return { click, btn, search, headers };
   }
 
-  it("the filters are a left sidebar accordion: Condition, Location, Make, Model, Trim, Year, Price, Odometer, Colour, Factory options, Other; Model, Trim and Factory options wait for a make", async () => {
+  it("the filters are a left sidebar accordion: Condition, Location, Make, Model, Trim, Year, Price, Odometer, Color, Factory options, Other; Model, Trim and Factory options wait for a make", async () => {
     const t = await mount();
     assert.equal(document.querySelector('[role="group"][aria-label="Filters"] select[aria-label="State"]'), null, "no old dropdown row");
     const side = document.querySelector('[data-testid="filters-sidebar"]')!;
     assert.ok(side, "the sidebar renders");
     const titles = () => [...side.querySelectorAll("button[aria-expanded]")].map((b) => b.textContent?.trim().replace(/^Paid /, "").replace(/\d+$/, ""));
-    assert.deepEqual(titles(), ["Condition", "Location", "Make", "Model", "Trim", "Year", "Price", "Odometer", "Colour", "Factory options", "Other"]);
+    assert.deepEqual(titles(), ["Condition", "Location", "Make", "Model", "Trim", "Year", "Price", "Odometer", "Color", "Factory options", "Other"]);
     assert.match(side.textContent ?? "", /Pick a make first/, "Model waits for a make");
     assert.equal(side.querySelector('input[aria-label="Search models"]'), null);
     await t.search();

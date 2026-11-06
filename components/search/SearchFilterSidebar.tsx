@@ -1,6 +1,6 @@
 "use client";
 
-// The filters on /search: one left-hand FILTERS accordion (Condition, Location, Make, Model, Trim, Year, Price, Odometer, Colour,
+// The filters on /search: one left-hand FILTERS accordion (Condition, Location, Make, Model, Trim, Year, Price, Odometer, Color,
 // Factory options, Other). Desktop: a fixed ~300px column that sticks under the site header. Phone: a slide-over drawer opened from
 // the "Filters" button above the results. It is the same component in both places (one DOM instance, moved with CSS), so the form
 // controls exist once.
@@ -53,7 +53,8 @@ export interface SearchFilterSidebarProps {
 
 const money = (n: string) => `$${Number(n).toLocaleString()}`;
 const COND_LABEL: Record<string, string> = { new: "New", used: "Used", cpo: "Certified" };
-const SECTION_IDS = ["condition", "location", "make", "model", "trim", "year", "price", "odometer", "colour", "options", "other"] as const;
+const TOP_MAKES = 6;
+const SECTION_IDS = ["condition", "location", "make", "model", "trim", "year", "price", "odometer", "color", "options", "other"] as const;
 type SectionId = (typeof SECTION_IDS)[number];
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -112,14 +113,25 @@ export function SearchFilterSidebar(p: SearchFilterSidebarProps) {
   const uid = useId();
   const paidOnly = optionsPaidOnlyEnabled();
   const panelRef = useRef<HTMLElement>(null);
-  const [open, setOpen] = useState<Record<SectionId, boolean>>({ condition: true, location: true, make: true, model: true, trim: false, year: false, price: false, odometer: false, colour: false, options: false, other: false });
+  const [open, setOpen] = useState<Record<SectionId, boolean>>({ condition: true, location: true, make: true, model: true, trim: false, year: false, price: false, odometer: false, color: false, options: false, other: false });
   const toggle = (id: SectionId) => setOpen((o) => ({ ...o, [id]: !o[id] }));
   // A section a shopper cannot use yet (Model before a make) opens as soon as it can be used, and any section with a value stays openable.
   const [q, setQ] = useState({ make: "", model: "", trim: "", options: "" });
+  const [allMakes, setAllMakes] = useState(false);
   const match = <T extends { label: string }>(items: T[], text: string) => {
     const t = text.trim().toLowerCase();
     return t ? items.filter((i) => i.label.toLowerCase().includes(t)) : items;
   };
+  // Make: the six biggest (by the existing vehicle counts) show by default; a search always runs over the FULL list, and a picked make stays visible.
+  const makeSearching = q.make.trim() !== "";
+  const makeRanked = useMemo(
+    () => p.makeOptions.map((o, i) => ({ o, i })).filter(({ o }) => o.count == null || o.count > 0 || o.value === filters.make)
+      .sort((a, b) => (b.o.count ?? 0) - (a.o.count ?? 0) || a.i - b.i).map(({ o }) => o),
+    [p.makeOptions, filters.make]);
+  const makeHidden = Math.max(0, makeRanked.length - TOP_MAKES);
+  const makeShown = makeSearching ? match(p.makeOptions, q.make)
+    : allMakes ? makeRanked
+    : makeRanked.filter((o, i) => i < TOP_MAKES || o.value === filters.make);
   const typeBox = (key: keyof typeof q, placeholder: string) => (
     <input
       type="search" value={q[key]} onChange={(e) => setQ((s) => ({ ...s, [key]: e.target.value }))} placeholder={placeholder} aria-label={placeholder} autoComplete="off"
@@ -189,7 +201,7 @@ export function SearchFilterSidebar(p: SearchFilterSidebarProps) {
   }));
   const toggleOption = (key: string) => setFilters((f) => ({ ...f, optionKeys: f.optionKeys.includes(key) ? f.optionKeys.filter((x) => x !== key) : [...f.optionKeys, key] }));
   const toggleIn = (key: "cond", value: string) => setFilters((f) => ({ ...f, [key]: f[key] === value ? "" : value }));
-  const colourCount = (filters.exteriorColor ? 1 : 0) + (filters.interiorColor ? 1 : 0);
+  const colorCount = (filters.exteriorColor ? 1 : 0) + (filters.interiorColor ? 1 : 0);
   const locationCount = (filters.state ? 1 : 0) + (filters.zip ? 1 : 0);
   const otherCount = (filters.exclude ? 1 : 0) + (filters.possibleDemo ? 1 : 0) + (filters.contactOnFile ? 1 : 0);
   const countLabel = p.searchLoading ? "Searching…" : p.live.value == null ? "Search" : `Show ${p.live.value.toLocaleString()}${p.live.capped ? "+" : ""} vehicle${p.live.value === 1 && !p.live.capped ? "" : "s"}`;
@@ -279,7 +291,12 @@ export function SearchFilterSidebar(p: SearchFilterSidebarProps) {
             {p.facetsLoading && !p.makeOptions.length ? <p className="text-xs text-ink-faint">Loading makes…</p> : (
               <>
                 {typeBox("make", "Search makes")}
-                <PillList label="Makes" options={match(p.makeOptions, q.make)} selected={filters.make ? [filters.make] : []} onToggle={(v) => p.setMake(filters.make === v ? "" : v)} />
+                <PillList label="Makes" options={makeShown} selected={filters.make ? [filters.make] : []} onToggle={(v) => p.setMake(filters.make === v ? "" : v)} />
+                {!makeSearching && makeHidden > 0 && (
+                  <button type="button" onClick={() => setAllMakes((v) => !v)} aria-expanded={allMakes} className={`mt-2 text-xs font-semibold text-brand-300 hover:text-white ${RING}`}>
+                    {allMakes ? "Show fewer" : "Show all makes"}
+                  </button>
+                )}
               </>
             )}
           </Section>
@@ -318,16 +335,16 @@ export function SearchFilterSidebar(p: SearchFilterSidebarProps) {
             <input id={`${uid}-odo`} type="number" inputMode="numeric" value={filters.odometerMax} onChange={(e) => setFilters((f) => ({ ...f, odometerMax: e.target.value }))} className={field} />
           </Section>
 
-          <Section id={id("colour")} title="Colour" badge={colourCount} open={open.colour} onToggle={() => toggle("colour")}>
+          <Section id={id("color")} title="Color" badge={colorCount} open={open.color} onToggle={() => toggle("color")}>
             <div className="space-y-3">
               <div>
-                <label htmlFor={`${uid}-ext`} className={fieldLabel}>Exterior colour</label>
+                <label htmlFor={`${uid}-ext`} className={fieldLabel}>Exterior color</label>
                 <select id={`${uid}-ext`} value={filters.exteriorColor} onChange={(e) => setFilters((f) => ({ ...f, exteriorColor: e.target.value }))} className={field}>
                   <option value="">Any</option>{p.exteriorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label htmlFor={`${uid}-int`} className={fieldLabel}>Interior colour</label>
+                <label htmlFor={`${uid}-int`} className={fieldLabel}>Interior color</label>
                 <select id={`${uid}-int`} value={filters.interiorColor} onChange={(e) => setFilters((f) => ({ ...f, interiorColor: e.target.value }))} className={field}>
                   <option value="">Any</option>{p.interiorColors.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
