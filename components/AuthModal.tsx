@@ -38,6 +38,8 @@ interface AuthModalProps {
   // somewhere useful post-login without having to guess why the modal
   // closed (a plain cancel calls onClose alone).
   onSignedIn?: () => void;
+  // Where Google sign-in returns to (credentials sign-in uses onSignedIn). Same-site paths only; default "/".
+  callbackUrl?: string | null;
 }
 
 // Sign-in only. This used to also have an inline "Sign Up" tab with its
@@ -51,6 +53,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   initialError,
   onSignedIn,
+  callbackUrl,
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,7 +95,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setOauthLoading(provider);
     // Real redirect flow (not redirect: false) — the provider's own login
     // page needs the full page, not an in-modal fetch.
-    await signIn(provider, { callbackUrl: "/" });
+    await signIn(provider, { callbackUrl: callbackUrl || "/" });
   };
 
   return (

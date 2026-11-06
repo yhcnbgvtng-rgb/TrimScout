@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Flag, MessageSquare, Send, X } from "lucide-react";
 import { bubbleAlign, MAX_CHAT_LENGTH, unreadCount, type ThreadEntry, type ThreadViewer } from "../lib/dealThread";
 import { COMPOSE_NOTICE } from "../lib/chatCopy";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 /**
  * The conversation on one dealer's quote, instant-messaging style (lib/dealThread.ts builds it from what the deal already
@@ -45,6 +46,7 @@ export function DealThreadPanel({
   heading,
   headerExtra = null,
   initial = null,
+  signedInRole,
 }: {
   /** GET loads the thread, POST { text } sends. */
   endpoint: string;
@@ -57,6 +59,8 @@ export function DealThreadPanel({
   headerExtra?: React.ReactNode;
   /** For tests and server rendering: skips the first fetch. */
   initial?: ThreadData | null;
+  /** The session role when the page knows it; otherwise the buyer-only warning reads it. */
+  signedInRole?: string | null;
 }) {
   const [data, setData] = useState<ThreadData | null>(initial);
   const [error, setError] = useState<string | null>(null);
@@ -192,7 +196,7 @@ export function DealThreadPanel({
         </header>
 
         <div ref={listRef} className="flex-1 space-y-2 overflow-y-auto px-3 py-3" data-testid="thread-list" role="log" aria-live="polite">
-          {error ? <p className="rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-200">{error}</p> : null}
+          {error ? <p className="rounded-lg border border-amber-500/40 bg-amber-950/20 px-3 py-2 text-[11px] text-amber-200">{error}<BuyerSignInLink message={error} role={signedInRole} /></p> : null}
           {!data && !error ? <p className="text-center text-[11px] text-ink-muted">Loading the conversation…</p> : null}
           {data && entries.length === 0 ? <p className="py-6 text-center text-[11px] text-ink-muted" data-testid="thread-empty">Nothing here yet. Quotes, counters and messages show up as they happen.</p> : null}
           {entries.map((e) => {
@@ -237,7 +241,7 @@ export function DealThreadPanel({
             </div>
           ) : null}
           <p className="text-[10px] leading-snug text-ink-faint" data-testid="thread-compose-notice">{COMPOSE_NOTICE}</p>
-          {sendError ? <p className="text-[10px] text-rose-300" data-testid="thread-send-error">{sendError}</p> : null}
+          {sendError ? <p className="text-[10px] text-rose-300" data-testid="thread-send-error">{sendError}<BuyerSignInLink message={sendError} role={signedInRole} /></p> : null}
           <div className="flex items-end gap-2">
             <textarea
               value={text}

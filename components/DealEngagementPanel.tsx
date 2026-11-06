@@ -8,6 +8,7 @@ import {
   formatRemainingClock,
   pauseReasonLabel,
 } from "../lib/offerCloseClock";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 function liveClock(clock: OfferCloseClockView | undefined, nowMs: number): OfferCloseClockView | undefined {
   if (!clock) return undefined;
@@ -172,7 +173,7 @@ export function OfferCloseClockCard({
             {pending ? "Extending…" : "Extend +24h"}
           </button>
         ) : null}
-        {error ? <span className="font-sans text-rose-300">{error}</span> : null}
+        {error ? <span className="font-sans text-rose-300">{error}<BuyerSignInLink message={error} /></span> : null}
       </span>
     );
   }
@@ -213,7 +214,7 @@ export function OfferCloseClockCard({
               </span>
             </div>
           ) : null}
-          {error ? <p className="text-[11px] text-rose-300 mt-1">{error}</p> : null}
+          {error ? <p className="text-[11px] text-rose-300 mt-1">{error}<BuyerSignInLink message={error} /></p> : null}
         </div>
       </div>
       {canExtend ? (

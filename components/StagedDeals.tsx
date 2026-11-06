@@ -11,6 +11,7 @@ import { useAcceptShare } from "./AcceptShareConfirm";
 import { tradeInAnswerOf } from "../lib/tradeInAnswer";
 import { CONTACT_SHARED_LINE, type ShareContact } from "../lib/acceptShare";
 import { MoneyInput } from "./MoneyInput";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 /** Off until the box patch is installed; read at build time. */
 const ACCEPT_ORIGINAL_ON = process.env.NEXT_PUBLIC_STAGED_ACCEPT_ORIGINAL === "on";
@@ -257,7 +258,7 @@ function DealCard({ rfq, invite, stage, headers, onRfq, buyerContact }: { rfq: R
         <p className="text-[11px] text-rose-200" data-testid="stage-walked">{stage.walk?.by === "dealer" ? "The dealer walked away from this deal." : "You walked away from this deal."} Nothing was binding.</p>
       ) : null}
 
-      {error ? <p className="text-[11px] text-rose-300" role="alert">{error}</p> : null}
+      {error ? <p className="text-[11px] text-rose-300" role="alert">{error}<BuyerSignInLink message={error} /></p> : null}
       {open ? (
         <div className="flex items-center gap-2">
           {confirmWalk ? (
