@@ -44,12 +44,12 @@ describe('manifest, STEPS.md and the files agree', () => {
     }
   });
 
-  it('STEPS.md carries exactly the manifest as its md5 table, and says nothing is installed', () => {
+  it('STEPS.md carries exactly the manifest as its md5 table, and records the install state', () => {
     const steps = fs.readFileSync(path.join(PKG, 'STEPS.md'), 'utf8');
     const block = /<!-- MD5S:START -->\n```\n([\s\S]*?)\n```\n<!-- MD5S:END -->/.exec(steps);
     assert.ok(block, 'md5 block present');
     assert.equal(block[1], fs.readFileSync(path.join(PKG, 'manifest.txt'), 'utf8').trimEnd());
-    for (const must of ['NOT INSTALLED', 'install.sh check', 'install.sh apply', 'install.sh restart', 'install.sh verify', 'restore', 'SAFE MODE', 'sweep-guards']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
+    for (const must of ['install.sh check', 'install.sh apply', 'install.sh restart', 'install.sh verify', 'restore', 'SAFE MODE', 'sweep-guards']) assert.ok(steps.includes(must), `STEPS.md mentions ${must}`);
   });
 
   it('the sweep-guards package is untouched: this package does not list its files or pin its md5s', () => {

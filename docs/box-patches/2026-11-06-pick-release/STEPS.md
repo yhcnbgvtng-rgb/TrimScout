@@ -1,6 +1,6 @@
-# "Choose this quote" releases the winner on box2 (PR #710, box half) — NOT INSTALLED
+# "Choose this quote" releases the winner on box2 (PR #710, box half) — INSTALLED 2026-11-06 ~11:30 ET
 
-**Status: code and package only. `install.sh check` passed on box2 on 2026-11-06 (read-only). Nothing was applied, restarted or mailed.**
+**Status: INSTALLED on box2 by Paul, 2026-11-06 ~11:30 ET: `apply` OK (`deals_api_server.js` `af0269fc…`, `dealStages.js` `8e853ba4…`), `restart` OK (deals-api online, restarts=4, up since 16:30:10Z), `verify` OK. Backup: `~/backups/box2-pick-release-20261106/` (`deals_api_server.js` `d63818f0…`, `dealStages.js` `ac03cf8c…`, `md5s.txt`); keep about a week. Step 5 (the SAFE MODE test pick) is separate and is recorded below when done.**
 Install only on Paul's typed **GO**, on **box2** (`ssh box2`, 52.202.234.65, `docs/BOXES.md`), in an idle window (not 22:00-23:30 ET), sync lock free, no sync/crawl process on any box. One `pm2 restart deals-api`. No schema or env change.
 
 ## Why
@@ -22,7 +22,7 @@ Behaviour: on a pick with a `buyerContact` and a non-staged request, the winner'
 ## Steps (box2 only)
 1. `scp -r docs/box-patches/2026-11-06-pick-release box2:/tmp/pkr && ssh box2 'bash /tmp/pkr/install.sh check'` — read-only. Must end `DRIFT CHECK PASS`. If it stops on an md5, the live file drifted: do not hand-edit, re-cut.
 2. On GO, in an idle window: `bash /tmp/pkr/install.sh apply` — gates (sync lock, processes), backup to `~/backups/box2-pick-release-20261106/` with `md5s.txt`, copy, md5 + syntax + smoke on the live files, auto-restores on any failure. Does not restart.
-3. `bash /tmp/pkr/install.sh restart` — gates again, `pm2 restart deals-api`, checks online + fresh uptime + `/health` 200 + `POST /api/rfqs/0/pick` without the key -> 401.
+3. `bash /tmp/pkr/install.sh restart` — gates again, `pm2 restart deals-api`, checks online + fresh uptime + `/health` answers (a keyless `/health` is **401** on the live box because the key guard sits in front of every route, so 200 or 401 both mean up; 000 means down) + `POST /api/rfqs/0/pick` without the key -> 401. (The first install on 2026-11-06 stopped here with a false FAIL because the check demanded 200; the files and the restart were fine.)
 4. `bash /tmp/pkr/install.sh verify` — read-only: with the box's own key a pick of a nonexistent quote answers 404 (the handler returns before any write) and the live `dealStages.js` passes the smoke test.
 5. End-to-end (separate, writes, needs GO): one non-staged test RFQ in SAFE MODE, pick a quote with the test buyer; expect `stage_json.release` on the winner, one `buyer_details_released` event, and one email to pausmi@ with the SAFE MODE tag and no contact details in the body.
 
