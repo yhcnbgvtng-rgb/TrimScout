@@ -21,18 +21,21 @@
 //     (machine rebooted) makes a file claimable. A confirmed live owner's file is never touched, however old it is. If identity cannot be established
 //     (nothing recorded, /proc unreadable, boot unknown) the file is left untouched and reported, never guessed at.
 //
-// THE MERGE LOCK (data/locks/dom-index.merge.lock) is NOT src/shared_data_lock.js. That lock steals a lock from a LIVE holder once it is 10 minutes old, decides
-// ownership by pid alone (a dead owner whose pid is now a live process stalls everyone), removes the lock path after a separate read (another process can take a
-// fresh lock between the read and the remove, and the remove deletes it), and its release checks the pid only (a former holder's late release deletes a replacement's
-// lock if the pid matches). scripts/dom-index-lock-probe.mjs demonstrates the first three with real processes. This lock instead:
-//   * is created by hard-linking a fully written file (token, pid, start identity, boot identity, label) onto the lock path: atomic, never visible half-written;
-//   * is taken from its holder only when judgeOwner() says the holder is dead or its pid was reused (different start/boot identity). NO AGE RULE: a live holder keeps
-//     the lock however long it takes; contenders wait up to maxWaitMs and then throw (their deltas stay on disk for the next run). A holder whose identity cannot be
-//     established (uncertain) is waited for, never broken, and named in the timeout error;
-//   * breaks a dead holder's lock by renaming that path away and checking the token of what was actually moved; if the race moved a different lock, it is linked back;
-//   * is released only if the file still carries the releaser's own token (a late release by a former holder deletes nothing);
-//   * is verified with lock.assertHeld() immediately before the index rename (the only step that changes the index): a merger whose lock was taken from it aborts with
-//     DomLockLostError, leaving the index untouched and every delta on disk.
+// THE MERGE LOCK is a kernel flock(2), held by the process that does the merge. Every lock built from files plus checks failed under a deterministic
+// three-process test (scripts/dom-index-lock-takeover-demo.mjs): shared_data_lock.js takes a live holder's lock at 10 minutes of age, trusts the pid alone and
+// removes by path after a separate read (scripts/dom-index-lock-probe.mjs), and the token-file protocol that replaced it (age rule gone, identity-judged takeover,
+// token-checked release, assertHeld before the commit) still let a contender that had judged a DEAD lock rename a replacement LIVE holder's lock aside, a third
+// process then took the empty path, and the displaced holder, which had already passed assertHeld, renamed its merge over the third one's commit. Any scheme where one
+// process decides "that lock is stale, remove it" and a second step acts on the decision has that window. flock has no such step:
+//   * the merge runs in a short-lived worker process (this file with --merge-worker) started as `flock -x -w <secs> <lockfile> node dom_index_delta.js --merge-worker ...`.
+//     flock(1) takes the lock and EXECS the worker, which inherits the locked file descriptor: the process that streams the index and renames it over dom_index.json is the
+//     lock holder itself;
+//   * the kernel releases the lock when that process exits or is killed, for any reason, at that instant. There is no stale lock, no age, no pid or identity judgement,
+//     no takeover, no file contents, nothing to remove. A live (even stopped or hung) holder keeps the lock; a dead one cannot commit anything any more;
+//   * contenders wait inside flock(1) for at most maxWaitMs, then give up (exit 200): their deltas stay on disk for the next run;
+//   * the lock file (data/locks/dom-index.merge.flock) is never deleted or replaced by this code; do not delete it by hand while a merge can be running;
+//   * Linux boxes use util-linux flock(1) (2.39.3 on box1/box5); where it is missing (macOS dev machines) a python3 fcntl.flock launcher does the same thing.
+// The worker also keeps the merge's memory out of the crawler process (a fresh node process with a 1 GB heap, streaming).
 //
 // CONFLICT POLICY (same VIN and same date, two different records). This is not assumed away: states do NOT have disjoint VINs (a car can move between
 // sister stores or states, a brand can be rerun the same day, a SOLD record can meet a live one).
@@ -51,7 +54,8 @@
 import fs from 'node:fs/promises';
 import fssync from 'node:fs';
 import crypto from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
 import { writeJsonLarge } from './bigJson.js';
@@ -195,89 +199,31 @@ export function applyDomEntries(index, entries, incomingSource = null, existingS
   return { added, same, conflicts };
 }
 
-// ---- the merge lock -----------------------------------------------------------------------------------------------------------------------------------------
+// ---- the merge lock: kernel flock, held by the worker process -----------------------------------------------------------------------------------------------
 
-export class DomLockLostError extends Error {
-  constructor(lockPath, detail) {
-    super(`dom-index merge lock ${lockPath} is no longer held by this process (${detail}); the merge was abandoned before changing the index, every delta file is still on disk`);
-    this.name = 'DomLockLostError';
-    this.code = 'DOM_LOCK_LOST';
-  }
-}
-export function domMergeLockPath(cwd = process.cwd()) { return path.join(domPaths(cwd).dataDir, 'locks', DOM_MERGE_LOCK_NAME); }
+export function domMergeLockPath(cwd = process.cwd()) { return path.join(domPaths(cwd).dataDir, 'locks', 'dom-index.merge.flock'); }
+const LOCK_CONFLICT_EXIT = 200;
+const PY_FLOCK = [
+  'import fcntl, os, sys, time',
+  'path, wait = sys.argv[1], float(sys.argv[2]); cmd = sys.argv[3:]',
+  'fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o666)',
+  'deadline = time.time() + wait',
+  'while True:',
+  '    try:',
+  '        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB); break',
+  '    except OSError:',
+  `        if time.time() >= deadline: sys.exit(${LOCK_CONFLICT_EXIT})`,
+  '        time.sleep(0.05)',
+  'os.set_inheritable(fd, True)',
+  'os.execvp(cmd[0], cmd)',
+].join('\n');
 
-async function readLockDoc(file) {
-  let text;
-  try { text = await fs.readFile(file, 'utf8'); } catch (err) { if (err.code === 'ENOENT') return { missing: true }; return { unreadable: err.message }; }
-  try { const doc = JSON.parse(text); if (doc && typeof doc.token === 'string' && Number.isInteger(doc.pid)) return { doc }; return { unreadable: 'lock file has no token/pid' }; } catch (err) { return { unreadable: `lock file is not valid JSON (${err.message})` }; }
-}
-
-/**
- * Take the dom-index merge lock. Waits while a holder is alive or its identity is uncertain; takes over only from a dead holder or a reused pid.
- * @returns {Promise<{ token: string, path: string, assertHeld: () => Promise<void>, release: () => Promise<{ released: boolean, reason?: string }> }>}
- */
-export async function acquireDomIndexLock({ cwd = process.cwd(), label = null, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, retryDelayMs = 200, io = {} } = {}) {
-  const lockPath = domMergeLockPath(cwd);
-  const token = crypto.randomBytes(16).toString('hex');
-  const me = processIdentity(process.pid);
-  const doc = { v: 1, token, pid: process.pid, start: me.start, boot: me.boot, label, startedAt: new Date().toISOString() };
-  const tmp = `${lockPath}.new-${token}`;
-  await fs.mkdir(path.dirname(lockPath), { recursive: true });
-  await fs.writeFile(tmp, JSON.stringify(doc), { flag: 'wx' });
-  const deadline = Date.now() + maxWaitMs;
-  let last = null;
-  try {
-    for (;;) {
-      try {
-        await fs.link(tmp, lockPath); // atomic: succeeds only if the lock does not exist, and the file is complete from the first instant
-        break;
-      } catch (err) { if (err.code !== 'EEXIST') throw err; }
-      const cur = await readLockDoc(lockPath);
-      if (cur.missing) continue; // released between our link attempt and the read: try again at once
-      if (cur.unreadable) last = { holder: 'unknown', why: cur.unreadable, state: 'uncertain' };
-      else {
-        const j = judgeOwner({ pid: cur.doc.pid, start: cur.doc.start || 'x', boot: cur.doc.boot || 'x' }, io);
-        last = { holder: `pid ${cur.doc.pid}${cur.doc.label ? ` (${cur.doc.label})` : ''}, since ${cur.doc.startedAt}`, why: j.why, state: j.state };
-        if (j.state === 'dead' || j.state === 'reused') { await breakDomLock(lockPath, cur.doc, token); continue; }
-      }
-      if (Date.now() >= deadline) throw new Error(`Timed out after ${maxWaitMs}ms waiting for the dom-index merge lock at ${lockPath}${label ? ` (wanted by ${label})` : ''}: held by ${last.holder}; owner is ${last.state} (${last.why}). The lock is never taken from a live or uncertain holder, whatever its age.`);
-      await new Promise((r) => setTimeout(r, retryDelayMs));
-    }
-  } finally { await fs.rm(tmp, { force: true }).catch(() => {}); }
-  return {
-    token, path: lockPath, doc,
-    async assertHeld() {
-      const cur = await readLockDoc(lockPath);
-      if (cur.missing) throw new DomLockLostError(lockPath, 'the lock file is gone');
-      if (cur.unreadable) throw new DomLockLostError(lockPath, cur.unreadable);
-      if (cur.doc.token !== token) throw new DomLockLostError(lockPath, `it now belongs to pid ${cur.doc.pid}${cur.doc.label ? ` (${cur.doc.label})` : ''}`);
-    },
-    async release() {
-      const cur = await readLockDoc(lockPath);
-      if (!cur.doc || cur.doc.token !== token) return { released: false, reason: cur.missing ? 'lock already gone' : 'lock belongs to someone else; left untouched' };
-      await fs.rm(lockPath, { force: true }).catch(() => {});
-      return { released: true };
-    },
-  };
-}
-
-// (exported for tests) Remove a lock whose holder was judged dead/reused. Renaming the path away moves whichever lock is there NOW; the token of what actually moved is checked, so
-// a lock that a third process created after our read is put straight back instead of being deleted.
-export async function breakDomLock(lockPath, judged, myToken) {
-  const aside = `${lockPath}.broken-${myToken}`;
-  try { await fs.rename(lockPath, aside); } catch (err) { if (err.code === 'ENOENT') return false; throw err; }
-  const moved = await readLockDoc(aside);
-  if (moved.doc && moved.doc.token === judged.token) { await fs.rm(aside, { force: true }).catch(() => {}); return true; }
-  // We moved a different lock (the one we judged was already replaced). Put it back; if someone created yet another lock meanwhile, its displaced holder
-  // will find out in assertHeld() before it changes anything.
-  try { await fs.link(aside, lockPath); } catch { /* EEXIST: a newer lock exists; the displaced holder aborts at its next assertHeld() */ }
-  await fs.rm(aside, { force: true }).catch(() => {});
-  return false;
-}
-
-export async function withDomIndexLock(fn, opts = {}) {
-  const lock = await acquireDomIndexLock(opts);
-  try { return await fn(lock); } finally { await lock.release(); }
+/** Command prefix that takes the exclusive flock on `lockPath` (waiting up to `waitSec`) and then execs the rest of the command line in the SAME process. */
+export function flockPrefix(lockPath, waitSec, { flockBin = 'flock', pythonBin = 'python3' } = {}) {
+  const has = (bin, args) => { try { return spawnSync(bin, args, { stdio: 'ignore', timeout: 3000 }).status === 0; } catch { return false; } };
+  if (has(flockBin, ['--version'])) return [flockBin, '-x', '-E', String(LOCK_CONFLICT_EXIT), '-w', String(waitSec), lockPath];
+  if (has(pythonBin, ['-c', 'import fcntl'])) return [pythonBin, '-c', PY_FLOCK, lockPath, String(waitSec)];
+  return null;
 }
 
 // ---- streaming over the index file ---------------------------------------------------------------------------------------------------------------------
@@ -457,14 +403,14 @@ async function claimOrphans(cwd, ownPath, myPid, io = {}) {
 }
 
 /**
- * Merge this process's delta (and any orphaned deltas) into the shared index under the lock, streaming. Throws if the merge could not complete; in that case
- * the index file is untouched and every delta file is still on disk. `hooks` exist for crash tests only (called at the named points).
+ * The merge itself: claim orphans, stream the index through it, make the conflict records durable, rename, delete the deltas. The CALLER MUST HOLD THE FLOCK (the
+ * merge worker does; tests that run it directly are single-process). Throws if the merge could not complete; then the index file is untouched and every delta file
+ * is still on disk. `hooks` exist for crash tests only (called at the named points).
  * @returns {Promise<{ added: number, same: number, conflicts: number, conflictFile: string|null, mergedFiles: number, orphanFiles: number, unreadableDeltas: string[], vinsOut: number }>}
  */
-export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, now = Date.now(), log = console.log, hooks = {}, attempts = 3, retryDelayMs = 500, io = {} } = {}) {
-  const label = `dom-index-merge:${delta.label || delta.pid}`;
+export async function mergeDomDeltaCore(delta, { cwd = delta.cwd, now = Date.now(), log = console.log, hooks = {}, attempts = 3, retryDelayMs = 500, io = {} } = {}) {
   const { indexPath, dataDir } = domPaths(cwd);
-  return withDomIndexLock(async (lock) => {
+  {
     await removeStaleTmp(dataDir, 'dom_index.json.tmp', now);
     const found = await claimOrphans(cwd, delta.path, process.pid, io);
     const claimed = found.claimed;
@@ -500,19 +446,84 @@ export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_ME
       // 1. both full records of every conflict are durable BEFORE the index changes
       const conflictFile = await writeConflictFile(cwd, conflicts, now, `${process.pid}:${delta.label || '?'}`);
       await hooks.afterConflicts?.();
-      // 2. the new index replaces the old one atomically, and only by the process that still holds the lock at this instant
+      // 2. the new index replaces the old one atomically; the caller holds the flock for the whole of this function, and the kernel drops it only when this process ends
       await hooks.beforeCommit?.();
-      await lock.assertHeld();
       if (prepared.added || conflicts.length) await prepared.commit(); else await prepared.abort();
       await hooks.afterRename?.();
       // 3. only now are the delta files deleted (the index holds their records, or the conflict file holds the ones not kept)
       let deleted = 0;
       for (const file of [...mergedClaimed, delta.path]) { await fs.rm(file, { force: true }).catch(() => {}); await hooks.afterDelete?.(++deleted); }
-      log(`DOM index merge: +${prepared.added} new VIN-date(s), ${prepared.same} already present, ${conflicts.length} overlapping VIN-date(s) with a different record (both full records in ${conflictFile ? path.basename(conflictFile) : 'none'}), ${mergedClaimed.length} orphaned delta file(s) merged${unreadableDeltas.length ? `, ${unreadableDeltas.length} unreadable delta file(s) left in place` : ''}${found.uncertain.length ? `. NOT TOUCHED, owner identity uncertain: ${found.uncertain.map((u) => `${path.basename(u.file)} (${u.owner}: ${u.why})`).join('; ')}` : ''}${found.skippedLive ? `; ${found.skippedLive} file(s) belong to live processes and were left alone` : ''}.`);
-      return { added: prepared.added, same: prepared.same, conflicts: conflicts.length, conflictFile, mergedFiles: mergedClaimed.length + 1, orphanFiles: mergedClaimed.length, unreadableDeltas, uncertain: found.uncertain, skippedLive: found.skippedLive, vinsOut: prepared.vinsOut };
+      const logLine = (`DOM index merge: +${prepared.added} new VIN-date(s), ${prepared.same} already present, ${conflicts.length} overlapping VIN-date(s) with a different record (both full records in ${conflictFile ? path.basename(conflictFile) : 'none'}), ${mergedClaimed.length} orphaned delta file(s) merged${unreadableDeltas.length ? `, ${unreadableDeltas.length} unreadable delta file(s) left in place` : ''}${found.uncertain.length ? `. NOT TOUCHED, owner identity uncertain: ${found.uncertain.map((u) => `${path.basename(u.file)} (${u.owner}: ${u.why})`).join('; ')}` : ''}${found.skippedLive ? `; ${found.skippedLive} file(s) belong to live processes and were left alone` : ''}.`);
+      log(logLine);
+      return { logLine, added: prepared.added, same: prepared.same, conflicts: conflicts.length, conflictFile, mergedFiles: mergedClaimed.length + 1, orphanFiles: mergedClaimed.length, unreadableDeltas, uncertain: found.uncertain, skippedLive: found.skippedLive, vinsOut: prepared.vinsOut };
     } catch (err) {
       await prepared.abort();
       throw err;
     }
-  }, { cwd, maxWaitMs, label, io });
+  }
 }
+
+// ---- running the merge under the flock -----------------------------------------------------------------------------------------------------------------------
+
+const SELF = fileURLToPath(import.meta.url);
+
+function rebuildError(e) {
+  if (e?.name === 'DomIndexUnreadableError') { const err = Object.create(DomIndexUnreadableError.prototype); Object.assign(err, { message: e.message, name: e.name, code: e.code, path: e.path, stack: e.stack }); err.cause = Object.assign(new Error(e.cause?.message || ''), { code: e.cause?.code }); return err; }
+  return Object.assign(new Error(e?.message || 'merge worker failed'), { name: e?.name || 'Error', code: e?.code });
+}
+
+/**
+ * Merge this process's delta (and any orphaned deltas) into the shared index. Writes a final checkpoint of the delta, then runs the merge in a worker process that
+ * holds the kernel flock (see the header), waits for it, and returns its result. Throws if the lock could not be had within maxWaitMs, if no flock launcher exists, or
+ * if the merge failed; in every case the index file is untouched or complete (atomic rename) and the delta files are still on disk. `log` receives the worker's one-line summary.
+ */
+export async function mergeDomDelta(delta, { cwd = delta.cwd, maxWaitMs = DOM_MERGE_MAX_WAIT_MS, now = Date.now(), log = console.log, attempts = 3, retryDelayMs = 500, launcher = {}, env = {}, hooks, io } = {}) {
+  if (hooks || io) throw new Error('mergeDomDelta runs in a separate locked worker process: hooks/io cannot cross it; use mergeDomDeltaCore (the caller then holds the lock) in tests');
+  await checkpointDomDelta(delta); // the worker reads the delta from disk
+  const lockPath = domMergeLockPath(cwd);
+  await fs.mkdir(path.dirname(lockPath), { recursive: true });
+  const prefix = flockPrefix(lockPath, Math.max(1, Math.ceil(maxWaitMs / 1000)), launcher);
+  if (!prefix) throw new Error('cannot take the dom-index merge lock: neither flock(1) nor python3 with fcntl is available. Nothing was changed; the delta file stays on disk and is merged by the next run that has one.');
+  const args = { cwd, deltaPath: delta.path, label: delta.label, pid: delta.pid, expectDates: delta.count, now, attempts, retryDelayMs };
+  const argv = [...prefix, process.execPath, '--max-old-space-size=1024', SELF, '--merge-worker', JSON.stringify(args)];
+  const child = spawn(argv[0], argv.slice(1), { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...env } });
+  let out = '', err = '';
+  child.stdout.on('data', (b) => { out += b; }); child.stderr.on('data', (b) => { err += b; });
+  const { code, signal } = await new Promise((resolve, reject) => { child.on('error', reject); child.on('exit', (c, sg) => resolve({ code: c, signal: sg })); });
+  if (code === LOCK_CONFLICT_EXIT) throw new Error(`Timed out after ${maxWaitMs}ms waiting for the dom-index merge lock at ${lockPath}: another merge holds it (flock). The lock is held by a process, not a file's age: it is never taken from a live holder, and is released the instant that process ends. The delta stays on disk for the next run.`);
+  const line = out.trim().split('\n').filter(Boolean).pop();
+  let msg = null; try { msg = line ? JSON.parse(line) : null; } catch { /* not ours */ }
+  if (code === 0 && msg?.ok) { log(msg.result.logLine); return msg.result; }
+  if (msg && msg.ok === false) throw rebuildError(msg.error);
+  throw new Error(`dom-index merge worker ended without a result (exit ${code}${signal ? `, signal ${signal}` : ''}): ${err.trim().slice(-400) || 'no output'}. The index is untouched or complete; the delta files are still on disk.`);
+}
+
+// ---- the worker: `flock ... node dom_index_delta.js --merge-worker '<json>'` runs this, holding the lock ----------------------------------------------------------
+
+async function pauseAt(point) { // TEST SCAFFOLDING, inert unless DOM_INDEX_MERGE_PAUSE_DIR and DOM_INDEX_MERGE_PAUSE_POINTS (comma list) are set: freezes the lock holder at a named point
+  const dir = process.env.DOM_INDEX_MERGE_PAUSE_DIR;
+  if (!dir || !(process.env.DOM_INDEX_MERGE_PAUSE_POINTS || '').split(',').includes(point)) return;
+  await fs.writeFile(path.join(dir, `${point}.reached`), String(process.pid));
+  while (!fssync.existsSync(path.join(dir, `${point}.go`))) await new Promise((r) => setTimeout(r, 5));
+}
+
+async function mergeWorkerMain(raw) {
+  const startedAtMs = Date.now(); // the lock is already ours: flock(1) / the python launcher took it before exec'ing this process
+  try {
+    const a = JSON.parse(raw);
+    await pauseAt('locked');
+    const doc = JSON.parse(await fs.readFile(a.deltaPath, 'utf8'));
+    const dates = Object.values(doc.entries || {}).reduce((n, d) => n + Object.keys(d).length, 0);
+    if (dates !== a.expectDates) throw new Error(`the delta file ${a.deltaPath} holds ${dates} VIN-date(s) but its owner wrote ${a.expectDates}; refusing to merge a delta that may be incomplete (nothing was changed)`);
+    const delta = { path: a.deltaPath, label: a.label, pid: a.pid, entries: doc.entries || {} };
+    const hooks = { afterConflicts: () => pauseAt('afterConflicts'), beforeCommit: () => pauseAt('beforeCommit'), afterRename: () => pauseAt('afterRename') };
+    const result = await mergeDomDeltaCore(delta, { cwd: a.cwd, now: a.now, log: () => {}, hooks, attempts: a.attempts, retryDelayMs: a.retryDelayMs });
+    process.stdout.write(`${JSON.stringify({ ok: true, result: { ...result, lockedAtMs: startedAtMs, doneAtMs: Date.now(), workerPid: process.pid, maxRssMb: Math.round(process.resourceUsage().maxRSS / 1024) /* KB, as libuv reports it on Linux and macOS */ } })}\n`);
+    process.exit(0);
+  } catch (err) {
+    process.stdout.write(`${JSON.stringify({ ok: false, error: { name: err.name, code: err.code, message: err.message, path: err.path, stack: err.stack, cause: err.cause ? { code: err.cause.code, message: err.cause.message } : undefined } })}\n`);
+    process.exit(3);
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === SELF && process.argv[2] === '--merge-worker') await mergeWorkerMain(process.argv[3]);

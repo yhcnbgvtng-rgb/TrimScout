@@ -9,7 +9,7 @@ import { spawn } from 'node:child_process';
 import { loadDomIndex, saveDomIndex, domPaths, DomIndexUnreadableError } from '../src/dom_store.js';
 import {
   createDomDelta, checkpointDomDelta, mergeDomDelta, applyDomEntries, chooseDomRecord, recordScore,
-  domDeltaDir, domConflictsDir, processIdentity, judgeOwner, domMergeLockPath, acquireDomIndexLock, withDomIndexLock, DomLockLostError,
+  domDeltaDir, domConflictsDir, processIdentity, judgeOwner, domMergeLockPath, mergeDomDeltaCore, flockPrefix,
 } from '../src/dom_index_delta.js';
 
 let cwd;
@@ -26,6 +26,12 @@ const readConflicts = async () => {
   for (const n of names) for (const l of (await fsp.readFile(path.join(dir, n), 'utf8')).split('\n').filter(Boolean)) out.push(JSON.parse(l));
   return out;
 };
+// the flock is free iff a non-blocking attempt to take it succeeds right now (the lock FILE stays, by design)
+const lockIsFree = () => new Promise((resolve) => {
+  const prefix = flockPrefix(domMergeLockPath(cwd), 1);
+  const c = spawn(prefix[0], [...prefix.slice(1), 'true'].map((x) => x), { stdio: 'ignore' });
+  c.on('exit', (code) => resolve(code === 0));
+});
 const dataFiles = async () => (await fsp.readdir(domPaths(cwd).dataDir)).sort();
 
 describe('record choice for overlapping VIN-dates', () => {
@@ -76,7 +82,7 @@ describe('mergeDomDelta', () => {
     assert.equal(fs.existsSync(d.path), false);
     assert.deepEqual(await dataFiles(), ['dom_index.json', 'dom_index_delta', 'locks']);
     assert.deepEqual(await fsp.readdir(domDeltaDir(cwd)), []);
-    assert.equal(fs.existsSync(domMergeLockPath(cwd)), false, 'lock released');
+    assert.equal(await lockIsFree(), true, 'lock released');
   });
 
   it('merging twice (a crash between save and delete) changes nothing and logs no conflict', async () => {
@@ -100,20 +106,31 @@ describe('mergeDomDelta', () => {
     await assert.rejects(mergeDomDelta(d, quiet), DomIndexUnreadableError);
     assert.equal(await fsp.readFile(indexPath, 'utf8'), '{"A":{"2026-11-01":{"hash":"h"}},"B":{"2026');
     assert.ok(fs.existsSync(d.path));
-    assert.equal(fs.existsSync(domMergeLockPath(cwd)), false, 'lock released even on failure');
+    assert.equal(await lockIsFree(), true, 'lock released even on failure');
   });
 
-  it('a lock that cannot be taken in time: merge throws, index untouched, delta kept', async () => {
+  it('a flock held by a live process: merge throws a lock timeout, index untouched, delta kept; when the holder ends the next merge goes through', async () => {
     await saveDomIndex({ OLD: { [D(1)]: rec() } }, cwd);
-    const lock = domMergeLockPath(cwd);
-    await fsp.mkdir(path.dirname(lock), { recursive: true });
-    await fsp.writeFile(lock, JSON.stringify({ token: 'abc', pid: process.pid, label: 'someone', startedAt: new Date().toISOString() }));
+    await fsp.mkdir(path.dirname(domMergeLockPath(cwd)), { recursive: true });
+    const prefix = flockPrefix(domMergeLockPath(cwd), 5);
+    const holder = spawn(prefix[0], [...prefix.slice(1), 'sleep', '60'], { stdio: 'ignore' });
+    await new Promise((r) => setTimeout(r, 400)); // let it take the lock
     const d = createDomDelta({ cwd });
     d.note({ V: { [D(3)]: rec() } }, 'V', D(3));
     await checkpointDomDelta(d);
-    await assert.rejects(mergeDomDelta(d, { ...quiet, maxWaitMs: 300 }), /Timed out/);
+    await assert.rejects(mergeDomDelta(d, { ...quiet, maxWaitMs: 1000 }), /Timed out.*merge lock/);
     assert.deepEqual(await loadDomIndex(cwd), { OLD: { [D(1)]: rec() } });
     assert.ok(fs.existsSync(d.path));
+    holder.kill('SIGKILL'); await new Promise((r) => holder.on('exit', r));
+    await mergeDomDelta(d, quiet); // the kernel dropped the lock the instant the holder died
+    assert.deepEqual(Object.keys(await loadDomIndex(cwd)).sort(), ['OLD', 'V']);
+  });
+
+  it('no flock(1) and no python3: merge refuses (nothing changed, delta kept) instead of running unlocked', async () => {
+    const d = createDomDelta({ cwd });
+    d.note({ V: { [D(3)]: rec() } }, 'V', D(3));
+    await assert.rejects(mergeDomDelta(d, { ...quiet, launcher: { flockBin: '/nonexistent/flock', pythonBin: '/nonexistent/python3' } }), /neither flock\(1\) nor python3/);
+    assert.ok(fs.existsSync(d.path)); assert.deepEqual(Object.keys(await loadDomIndex(cwd)), []);
   });
 
   it('merges the delta of a dead process (orphan) but never one that belongs to a live process; an unreadable orphan is left in place', async () => {
@@ -363,7 +380,7 @@ describe('who owns a file: identity, not age', () => {
     const unreadable = await mk(dname(id, 2), { UNREADABLE: { [D(6)]: rec() } }, YEAR);
     const lines = [];
     const d = createDomDelta({ cwd }); d.note({ MINE: { [D(6)]: rec() } }, 'MINE', D(6));
-    const r = await mergeDomDelta(d, { log: (l) => lines.push(l), io: { start: (pid) => (pid === sleeper.pid ? null : undefined) } });
+    const r = await mergeDomDeltaCore(d, { log: (l) => lines.push(l), io: { start: (pid) => (pid === sleeper.pid ? null : undefined) } });
     assert.equal(r.orphanFiles, 0);
     assert.equal(r.uncertain.length, 2);
     assert.ok(fs.existsSync(noTokens) && fs.existsSync(unreadable));
@@ -453,12 +470,12 @@ describe('crashes at every step of a merge, then replay', () => {
       for (const [vin, dates] of Object.entries(victimEntries)) for (const [date, record] of Object.entries(dates)) written.push({ vin, date, record });
       const hookCode = hook === 'afterDelete1' ? "afterDelete: (n) => { if (n === 1) process.kill(process.pid, 'SIGKILL'); }" : `${hook}: () => process.kill(process.pid, 'SIGKILL')`;
       const script = `
-        import { createDomDelta, checkpointDomDelta, mergeDomDelta } from ${JSON.stringify(DELTA)};
+        import { createDomDelta, checkpointDomDelta, mergeDomDeltaCore } from ${JSON.stringify(DELTA)};
         const cwd = process.argv[1];
         const d = createDomDelta({ cwd, label: 'victim' });
         d.entries = ${JSON.stringify(victimEntries)}; d.count = 3;
         await checkpointDomDelta(d);
-        await mergeDomDelta(d, { log() {}, hooks: { ${hookCode.replace('afterDelete:', 'afterDelete:')} } });
+        await mergeDomDeltaCore(d, { log() {}, hooks: { ${hookCode} } });
         console.log('SURVIVED');`;
       const r = await runChild(script, [cwd]);
       assert.equal(r.signal, 'SIGKILL', r.out + r.err);
@@ -487,7 +504,7 @@ describe('streaming merge equals the in-memory merge', () => {
     for (let i = 0; i < 1500; i++) { const vin = rnd() < 0.5 ? 'V' + Math.floor(rnd() * 2500) : 'N' + i; delta[vin] = delta[vin] || {}; delta[vin][D(1 + Math.floor(rnd() * 7))] = rec({ price: Math.floor(rnd() * 50000), hash: 'h' + Math.floor(rnd() * 9), blobStored: rnd() < 0.5, priceChangeType: rnd() < 0.2 ? 'SOLD' : 'UNCHANGED' }); }
     const expected = JSON.parse(JSON.stringify(idx));
     const ref = applyDomEntries(expected, delta);
-    const d = createDomDelta({ cwd, label: 'rnd' }); d.entries = delta; d.count = 1;
+    const d = createDomDelta({ cwd, label: 'rnd' }); d.entries = delta; d.count = Object.values(delta).reduce((n, x) => n + Object.keys(x).length, 0);
     const r = await mergeDomDelta(d, quiet);
     assert.deepEqual(await loadDomIndex(cwd), expected);
     assert.equal(r.added, ref.added); assert.equal(r.conflicts, ref.conflicts.length);
@@ -571,7 +588,7 @@ describe('a live owner with an artificially old checkpoint, while another real p
     touch('stop-recovery');
     assert.equal((await recoverer.done).code, 0, recoverer.err);
     const tot = JSON.parse(recoverer.out.trim().split('\n').pop());
-    assert.ok(tot.merges >= 20, `recoverer only attempted ${tot.merges} merges`);
+    assert.ok(tot.merges >= 5, `recoverer only attempted ${tot.merges} merges`); // each attempt now starts a locked worker process
     assert.equal(tot.orphanFiles, 0, 'the recoverer claimed something of a live owner'); assert.ok(tot.skippedLive > 0);
     const idx = await loadDomIndex(cwd);
     for (const vin of ownerRecords()) assert.ok(idx[vin]?.['2026-11-06'], `lost ${vin}`);

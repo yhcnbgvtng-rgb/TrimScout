@@ -46,6 +46,7 @@ for f in "$SA" "$SRC/dom_store.js" "$SRC/bigJson.js" "$SRC/heapGuard.js" "$SRC/p
 [ "$(md5of "$SRC/bigJson.js")" = "$BJ_MD5" ] || fail "bigJson.js md5 is not the pinned $BJ_MD5"
 [ "$(md5of "$SRC/pid_lock.js")" = "$PL_MD5" ] || fail "pid_lock.js md5 is not the pinned $PL_MD5"
 node -e 'process.exit(parseInt(process.versions.node)>=18?0:1)' || fail "node $(node -v) is too old"
+{ flock --version >/dev/null 2>&1 || python3 -c 'import fcntl' >/dev/null 2>&1; } || fail "neither flock(1) nor python3 with fcntl is installed: the merge lock needs one of them"
 
 sa=$(md5of "$SA"); BOX=
 case "$sa" in
@@ -84,20 +85,25 @@ for f in dom_store.js bigJson.js pid_lock.js price_diff.js date_utils.js; do cp 
 cp "$W/dom_index_delta.js.new" "$W/src/dom_index_delta.js"
 [ -f "$C/package.json" ] && cp "$C/package.json" "$W/package.json"
 cat > "$W/src/trial.mjs" <<'TREOF'
-import fs from 'node:fs/promises'; import path from 'node:path'; import os from 'node:os';
+import fs from 'node:fs/promises'; import path from 'node:path'; import os from 'node:os'; import { spawn } from 'node:child_process';
 import { loadDomIndex, saveDomIndex, domPaths } from './dom_store.js';
-import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir, processIdentity, judgeOwner, acquireDomIndexLock, domMergeLockPath } from './dom_index_delta.js';
+import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir, processIdentity, judgeOwner, flockPrefix, domMergeLockPath } from './dom_index_delta.js';
 const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'domdelta-trial-data-'));
 const me = processIdentity(process.pid);
 if (me.start === 'x' || me.boot === 'x' || judgeOwner(me).state !== 'alive' || judgeOwner({ ...me, start: 'deadbeef' }).state !== 'reused' || judgeOwner({ pid: 2147483000 }).state !== 'dead') throw new Error('process identity (pid + start + boot) cannot be read on this machine: ' + JSON.stringify(me));
 const rec = (o = {}) => ({ hash: 'h', price: 1, oldPrice: null, priceDiff: 0, priceChangeType: 'UNCHANGED', blobStored: false, hashUnchanged: true, ...o });
 const need = (c, m) => { if (!c) throw new Error(m); };
 try {
-  // the merge lock: exclusive against a live holder (this process), released only by its own token
-  const l1 = await acquireDomIndexLock({ cwd, label: 'trial', maxWaitMs: 2000 });
-  let blocked = false; try { await acquireDomIndexLock({ cwd, label: 'trial2', maxWaitMs: 300, retryDelayMs: 20 }); } catch (e) { blocked = /owner is alive/.test(e.message); }
-  need(blocked, 'a live holder\'s lock must not be taken');
-  need((await l1.release()).released, 'release failed'); need(!(await fs.stat(domMergeLockPath(cwd)).then(() => true, () => false)), 'lock file left behind');
+  // the merge lock is a kernel flock held by the merge worker: a live holder excludes everyone, and the kernel frees it the instant the holder ends
+  const prefix = flockPrefix(domMergeLockPath(cwd), 5); need(prefix, 'neither flock(1) nor python3 fcntl is available');
+  await fs.mkdir(path.dirname(domMergeLockPath(cwd)), { recursive: true });
+  const holder = spawn(prefix[0], [...prefix.slice(1), 'sleep', '60'], { stdio: 'ignore' });
+  await new Promise((r) => setTimeout(r, 500));
+  const d0 = createDomDelta({ cwd, label: 'trial-held' });
+  let blocked = false; try { await mergeDomDelta(d0, { log: () => {}, maxWaitMs: 1000 }); } catch (e) { blocked = /Timed out.*merge lock/.test(e.message); }
+  need(blocked, 'a merge must wait for (and here time out on) a live holder of the flock');
+  holder.kill('SIGKILL'); await new Promise((r) => holder.on('exit', r));
+  await fs.rm(d0.path, { force: true }); // the probe's empty delta
   const base = {}; for (let v = 0; v < 3000; v++) base['V' + v] = { '2026-11-01': rec({ price: v }) };
   base.CONTESTED = { '2026-11-06': rec({ price: 111 }) };
   await saveDomIndex(base, cwd);
@@ -123,7 +129,7 @@ try {
   need(threw, 'a malformed index must make the merge throw');
   need((await fs.readFile(domPaths(cwd).indexPath, 'utf8')) === bad, 'the malformed index was modified');
   need((await fs.readdir(domDeltaDir(cwd))).length === 1, 'the delta file must stay on disk after a failed merge');
-  console.log('trial ok: process identity readable, merge lock exclusive and token-released (' + me.start + '/' + me.boot.slice(0, 8) + '), streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
+  console.log('trial ok: process identity readable, flock merge lock exclusive and freed when its holder dies (' + me.start + '/' + me.boot.slice(0, 8) + '), streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
 } finally { await fs.rm(cwd, { recursive: true, force: true }); }
 TREOF
 ( cd "$W" && node src/trial.mjs ) || fail "smoke test on copies failed"

@@ -1,6 +1,6 @@
-// The dom-index merge lock (dom_index_delta.js), with real processes: it must not be stolen from a live holder because of age or pid reuse, must be taken at once
-// from a dead holder or a reused pid, must give exclusive access under simultaneous acquisition, and must never let a former holder delete a replacement's lock.
-// Contrast: scripts/dom-index-lock-probe.mjs shows src/shared_data_lock.js doing the opposite of each of these.
+// The dom-index merge lock is a kernel flock held by the merge worker process (dom_index_delta.js). Real processes only. The deterministic scenario that broke the
+// token-file protocol (scripts/dom-index-lock-takeover-demo.mjs: a contender renames a live holder's lock aside, a third process takes the empty path, the displaced
+// holder commits over it) is replayed here against the flock: nobody can take the lock from a live holder, so two mergers can never commit at once.
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -8,187 +8,159 @@ import fsp from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { saveDomIndex, domPaths } from '../src/dom_store.js';
-import {
-  acquireDomIndexLock, domMergeLockPath, DomLockLostError, breakDomLock, processIdentity, createDomDelta, checkpointDomDelta, mergeDomDelta,
-} from '../src/dom_index_delta.js';
+import { saveDomIndex, loadDomIndex, domPaths } from '../src/dom_store.js';
+import { domMergeLockPath, flockPrefix, domDeltaDir } from '../src/dom_index_delta.js';
 
 const DELTA = new URL('../src/dom_index_delta.js', import.meta.url).href;
-let cwd, kids;
-beforeEach(async () => { cwd = await fsp.mkdtemp(path.join(os.tmpdir(), 'domlock-')); kids = []; });
+let cwd, pauseDir, kids;
+beforeEach(async () => { cwd = await fsp.mkdtemp(path.join(os.tmpdir(), 'domflock-')); pauseDir = path.join(cwd, 'pause'); fs.mkdirSync(pauseDir); kids = []; });
 afterEach(async () => {
-  for (const k of kids) { try { k.kill('SIGKILL'); } catch { /* gone */ } }
+  for (const k of kids) { try { process.kill(k.pid, 'SIGCONT'); k.kill('SIGKILL'); } catch { /* gone */ } }
+  for (const f of fs.existsSync(pauseDir) ? fs.readdirSync(pauseDir).filter((n) => n.endsWith('.reached')) : []) { try { process.kill(Number(fs.readFileSync(path.join(pauseDir, f), 'utf8')), 'SIGKILL'); } catch { /* gone */ } }
   await Promise.all(kids.map((k) => new Promise((r) => (k.exitCode !== null || k.signalCode ? r() : k.on('exit', r)))));
   await fsp.rm(cwd, { recursive: true, force: true });
 });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const waitFor = async (file, ms = 20000) => { for (let i = 0; i < ms && !fs.existsSync(file); i++) await sleep(1); assert.ok(fs.existsSync(file), `timed out waiting for ${path.basename(file)}`); };
-const touch = (name, text = '1') => fs.writeFileSync(path.join(cwd, name), text);
-const start = (script, args = []) => {
-  const c = spawn(process.execPath, ['--input-type=module', '-e', script, cwd, ...args], { stdio: ['ignore', 'pipe', 'pipe'] });
-  c.out = ''; c.err = ''; c.stdout.on('data', (b) => { c.out += b; }); c.stderr.on('data', (b) => { c.err += b; });
-  c.done = new Promise((r) => c.on('exit', (code, signal) => r({ code, signal }))); kids.push(c); return c;
-};
-const sleeper = () => { const c = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' }); kids.push(c); return c; };
-const lockDoc = () => JSON.parse(fs.readFileSync(domMergeLockPath(cwd), 'utf8'));
-const writeLock = (doc) => { fs.mkdirSync(path.dirname(domMergeLockPath(cwd)), { recursive: true }); fs.writeFileSync(domMergeLockPath(cwd), JSON.stringify({ v: 1, token: 'f'.repeat(32), label: 'planted', startedAt: new Date().toISOString(), ...doc })); };
-const lockDir = () => fs.readdirSync(path.dirname(domMergeLockPath(cwd))).sort();
+const go = (point) => fs.writeFileSync(path.join(pauseDir, `${point}.go`), '1');
+const reachedPid = (point) => Number(fs.readFileSync(path.join(pauseDir, `${point}.reached`), 'utf8'));
+const rec = (id) => ({ hash: `h${id}`, price: 100, oldPrice: null, priceDiff: 0, priceChangeType: 'NEW', blobStored: true, hashUnchanged: false });
 
-const HOLDER = `
+// One "crawler process": writes a delta with the record REC<id> and merges it. env DOM_INDEX_MERGE_PAUSE_DIR (set only for the one we want to freeze) pauses ITS worker.
+const MERGER = `
+  import { createDomDelta, mergeDomDelta } from ${JSON.stringify(DELTA)};
   import fs from 'node:fs';
-  import { acquireDomIndexLock } from ${JSON.stringify(DELTA)};
-  const [cwd, mode] = process.argv.slice(1);
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const lock = await acquireDomIndexLock({ cwd, label: 'holder-' + mode, maxWaitMs: 5000 });
-  if (mode === 'old') { // an artificially old lock: startedAt 30 days ago and an mtime to match, same token and inode
-    const d = JSON.parse(fs.readFileSync(lock.path, 'utf8')); d.startedAt = new Date(Date.now() - 30 * 864e5).toISOString(); fs.writeFileSync(lock.path, JSON.stringify(d));
-    const t = new Date(Date.now() - 30 * 864e5); fs.utimesSync(lock.path, t, t);
-  }
-  fs.writeFileSync(cwd + '/holder-ready', lock.token);
-  if (mode === 'die') process.kill(process.pid, 'SIGKILL');
-  while (!fs.existsSync(cwd + '/release')) await sleep(5);
-  let verdict = 'held';
-  try { await lock.assertHeld(); } catch (e) { verdict = e.name; }
-  const r = await lock.release();
-  console.log(JSON.stringify({ verdict, release: r }));`;
-const CONTENDER = `
-  import { acquireDomIndexLock } from ${JSON.stringify(DELTA)};
-  const [cwd, maxWait] = process.argv.slice(1);
-  try { const l = await acquireDomIndexLock({ cwd, label: 'contender', maxWaitMs: Number(maxWait), retryDelayMs: 20 }); await l.release(); console.log('ACQUIRED'); } catch (e) { console.log('TIMEOUT ' + e.message); }`;
+  const [cwd, id, maxWait, barrier, launcherJson] = process.argv.slice(1);
+  while (barrier !== '-' && !fs.existsSync(barrier)) await new Promise((r) => setTimeout(r, 1));
+  const d = createDomDelta({ cwd, label: 'merger-' + id });
+  d.note({ ['REC' + id]: { '2026-11-06': { hash: 'h' + id, price: 100, priceChangeType: 'NEW', blobStored: true } } }, 'REC' + id, '2026-11-06');
+  try { const r = await mergeDomDelta(d, { cwd, log() {}, maxWaitMs: Number(maxWait), launcher: launcherJson === '-' ? {} : JSON.parse(launcherJson) }); console.log(JSON.stringify({ ok: true, r })); }
+  catch (e) { console.log(JSON.stringify({ ok: false, msg: e.message })); }`;
+const merger = (id, { maxWait = 15000, pause = false, barrier = '-', launcher } = {}) => {
+  const c = spawn(process.execPath, ['--input-type=module', '-e', MERGER, cwd, id, String(maxWait), barrier, launcher ? JSON.stringify(launcher) : '-'], {
+    stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...(pause ? { DOM_INDEX_MERGE_PAUSE_DIR: pauseDir, DOM_INDEX_MERGE_PAUSE_POINTS: 'beforeCommit' } : {}) },
+  });
+  c.out = ''; c.err = ''; c.stdout.on('data', (b) => { c.out += b; }); c.stderr.on('data', (b) => { c.err += b; });
+  c.done = new Promise((r) => c.on('exit', (code, signal) => r({ code, signal }))); kids.push(c);
+  c.result = async () => { await c.done; const line = c.out.trim().split('\n').filter(Boolean).pop(); return line ? JSON.parse(line) : { ok: false, msg: `no output: ${c.err.slice(-200)}` }; };
+  return c;
+};
+const seed = () => saveDomIndex({ BASE: { '2026-11-01': rec('BASE') } }, cwd);
+const indexBytes = () => fsp.readFile(domPaths(cwd).indexPath);
+const holdsKeys = async (...keys) => { const idx = await loadDomIndex(cwd); for (const k of keys) assert.ok(idx[k], `${k} missing from the index`); return idx; };
+const tmpFiles = async () => (await fsp.readdir(domPaths(cwd).dataDir)).filter((n) => /\.tmp-/.test(n));
 
-describe('a live holder keeps the lock, whatever its age', () => {
-  it('holder alive with a 30-day-old lock: three real contenders and this process all fail to take it; the holder still holds it and releases normally', async () => {
-    const holder = start(HOLDER, ['old']);
-    await waitFor(path.join(cwd, 'holder-ready'));
-    const token = fs.readFileSync(path.join(cwd, 'holder-ready'), 'utf8');
-    assert.ok(Date.now() - fs.statSync(domMergeLockPath(cwd)).mtimeMs > 29 * 864e5);
-    assert.ok(Date.now() - Date.parse(lockDoc().startedAt) > 29 * 864e5);
-    const contenders = [start(CONTENDER, ['1200']), start(CONTENDER, ['1200']), start(CONTENDER, ['1200'])];
-    await assert.rejects(acquireDomIndexLock({ cwd, label: 'test process', maxWaitMs: 1200, retryDelayMs: 20 }), (e) => /Timed out/.test(e.message) && /alive/.test(e.message) && /whatever its age/.test(e.message));
-    for (const c of contenders) { await c.done; assert.match(c.out, /^TIMEOUT .*alive/m, c.out + c.err); }
-    assert.equal(lockDoc().token, token, 'the live holder\'s lock must be untouched');
-    touch('release');
-    assert.deepEqual(await holder.done, { code: 0, signal: null }, holder.err);
-    assert.deepEqual(JSON.parse(holder.out.trim()), { verdict: 'held', release: { released: true } });
-    assert.deepEqual(lockDir(), []);
-    const l = await acquireDomIndexLock({ cwd, maxWaitMs: 500 });
-    assert.equal((await l.release()).released, true); // free again
+describe('the takeover scenario that broke the token protocol, against the flock', () => {
+  it('holder frozen after streaming and before the index rename; a stale-lock contender and a third contender cannot get in; nobody commits twice; nothing is lost', async () => {
+    await seed();
+    const before = await indexBytes();
+    fs.mkdirSync(path.dirname(domMergeLockPath(cwd)), { recursive: true });
+    fs.writeFileSync(domMergeLockPath(cwd), ''); const old = new Date(Date.now() - 30 * 864e5); fs.utimesSync(domMergeLockPath(cwd), old, old); // an artificially old lock file
+    const H = merger('H', { pause: true });                              // the live holder
+    await waitFor(path.join(pauseDir, 'beforeCommit.reached'));            // its worker holds the flock, merge streamed + verified + conflicts durable, about to rename
+    const C1 = merger('C1', { maxWait: 1500 });                            // plays the stale-lock contender
+    const C3 = merger('C3', { maxWait: 1500 });                            // plays the third contender
+    const r1 = await C1.result(); const r3 = await C3.result();
+    assert.equal(r1.ok, false); assert.match(r1.msg, /Timed out.*merge lock/);
+    assert.equal(r3.ok, false); assert.match(r3.msg, /Timed out.*merge lock/);
+    assert.ok(before.equals(await indexBytes()), 'nobody may have committed while the holder is inside its section');
+    assert.equal((await tmpFiles()).length, 1, 'only the holder\'s merge temp file exists');
+    go('beforeCommit');                                                    // the holder resumes and commits
+    const rH = await H.result(); assert.equal(rH.ok, true, JSON.stringify(rH));
+    // the two contenders try again (their deltas are still on disk, or they write them again) and go through one after the other
+    const C1b = merger('C1', { maxWait: 20000 }); const r1b = await C1b.result();
+    const C3b = merger('C3', { maxWait: 20000 }); const r3b = await C3b.result();
+    assert.equal(r1b.ok, true, JSON.stringify(r1b)); assert.equal(r3b.ok, true, JSON.stringify(r3b));
+    await holdsKeys('BASE', 'RECH', 'RECC1', 'RECC3');
+    // critical sections are disjoint in time
+    const spans = [rH.r, r1b.r, r3b.r].map((x) => [x.lockedAtMs, x.doneAtMs]).sort((a, b) => a[0] - b[0]);
+    for (let i = 1; i < spans.length; i++) assert.ok(spans[i][0] >= spans[i - 1][1], `merge sections overlap: ${JSON.stringify(spans)}`);
+    assert.deepEqual(await tmpFiles(), []);
+    assert.deepEqual(fs.readdirSync(domDeltaDir(cwd)).filter((n) => /^(delta|claimed)-/.test(n)), []);
   });
 
-  it('a holder that really holds it for longer than any limit (no merge-finishes-in-time assumption): the lock is waited for, then taken once it is released', async () => {
-    const holder = start(HOLDER, ['old']);
-    await waitFor(path.join(cwd, 'holder-ready'));
+  it('a holder stopped with SIGSTOP right before its rename keeps the lock (no age, no identity judgement can move it); contenders time out; after SIGCONT it commits', async () => {
+    await seed();
+    const H = merger('H', { pause: true });
+    await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
+    const worker = reachedPid('beforeCommit');
+    process.kill(worker, 'SIGSTOP');
+    const r = await merger('C3', { maxWait: 1500 }).result();
+    assert.equal(r.ok, false); assert.match(r.msg, /Timed out/);
+    process.kill(worker, 'SIGCONT'); go('beforeCommit');
+    assert.equal((await H.result()).ok, true);
+    await holdsKeys('BASE', 'RECH');
+  });
+
+  it('the holder\'s worker is killed (SIGKILL) at the same point: the kernel frees the lock at once, the index is untouched, and the next merger also merges the dead one\'s delta', async () => {
+    await seed();
+    const before = await indexBytes();
+    const H = merger('H', { pause: true });
+    await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
+    process.kill(reachedPid('beforeCommit'), 'SIGKILL');
+    const rH = await H.result();                                   // its crawler process sees the worker die and gives up; its delta file stays on disk
+    assert.equal(rH.ok, false); assert.match(rH.msg, /ended without a result/);
+    assert.ok(before.equals(await indexBytes()));
     const t0 = Date.now();
-    const waiter = acquireDomIndexLock({ cwd, label: 'waiter', maxWaitMs: 20000, retryDelayMs: 10 });
-    await sleep(1500);
-    touch('release'); await holder.done;
-    const lock = await waiter;
-    assert.ok(Date.now() - t0 >= 1400, 'the waiter must have waited for the holder, not taken the lock');
-    assert.equal(lockDoc().token, lock.token);
-    await lock.release();
+    const rC = await merger('C3', { maxWait: 5000 }).result();      // lock free immediately; H's crawler is gone, so its delta is an orphan
+    assert.equal(rC.ok, true, JSON.stringify(rC)); assert.ok(Date.now() - t0 < 4000);
+    assert.equal(rC.r.orphanFiles, 1);
+    await holdsKeys('BASE', 'RECH', 'RECC3');
+  });
+
+  it('the CRAWLER (parent) is killed while its worker holds the lock: the worker finishes the merge by itself and releases the lock', async () => {
+    await seed();
+    const H = merger('H', { pause: true });
+    await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
+    const worker = reachedPid('beforeCommit');
+    H.kill('SIGKILL'); await H.done;
+    go('beforeCommit');
+    for (let i = 0; i < 5000 && (() => { try { process.kill(worker, 0); return true; } catch { return false; } })(); i++) await sleep(5);
+    await holdsKeys('BASE', 'RECH');
+    assert.deepEqual(fs.readdirSync(domDeltaDir(cwd)).filter((n) => /^(delta|claimed)-/.test(n)), []);
+    assert.equal((await merger('C3', { maxWait: 5000 }).result()).ok, true);
   });
 });
 
-describe('a dead holder or a reused pid is replaced at once, by identity', () => {
-  it('holder killed (SIGKILL) while holding: the next acquire takes over immediately, the old file is gone, no leftovers', async () => {
-    const holder = start(HOLDER, ['die']);
-    assert.equal((await holder.done).signal, 'SIGKILL');
-    assert.ok(fs.existsSync(domMergeLockPath(cwd)), 'the dead holder left its lock behind');
-    const t0 = Date.now();
-    const lock = await acquireDomIndexLock({ cwd, label: 'next', maxWaitMs: 3000 });
-    assert.ok(Date.now() - t0 < 2000, 'takeover must not wait for any age limit');
-    assert.notEqual(lock.token, fs.readFileSync(path.join(cwd, 'holder-ready'), 'utf8'));
-    assert.equal(lockDoc().token, lock.token);
-    await lock.release();
-    assert.deepEqual(lockDir(), []);
+describe('simultaneous mergers', () => {
+  it('8 real processes merging at the same instant: all succeed, every record is in the index, critical sections never overlap, no leftovers', async () => {
+    await seed();
+    const barrier = path.join(cwd, 'go');
+    const procs = Array.from({ length: 8 }, (_, i) => merger(`P${i}`, { barrier, maxWait: 60000 }));
+    await sleep(400); fs.writeFileSync(barrier, '1');
+    const rs = [];
+    for (const p of procs) rs.push(await p.result());
+    rs.forEach((r) => assert.equal(r.ok, true, JSON.stringify(r)));
+    await holdsKeys('BASE', ...Array.from({ length: 8 }, (_, i) => `RECP${i}`));
+    const spans = rs.map((x) => [x.r.lockedAtMs, x.r.doneAtMs]).sort((a, b) => a[0] - b[0]);
+    for (let i = 1; i < spans.length; i++) assert.ok(spans[i][0] >= spans[i - 1][1], `merge sections overlap: ${JSON.stringify(spans)}`);
+    assert.deepEqual(await tmpFiles(), []);
   });
 
-  it('pid reuse: the lock names a pid that is now another live process (different start identity) -> taken at once; a different boot identity -> taken at once', async () => {
-    const sq = sleeper(); const id = processIdentity(sq.pid);
-    writeLock({ pid: sq.pid, start: '0badc0ffee', boot: id.boot });
-    let lock = await acquireDomIndexLock({ cwd, maxWaitMs: 1500 }); assert.equal(lockDoc().token, lock.token); await lock.release();
-    writeLock({ pid: sq.pid, start: id.start, boot: '0123456789abcdef' });
-    lock = await acquireDomIndexLock({ cwd, maxWaitMs: 1500 }); assert.equal(lockDoc().token, lock.token); await lock.release();
-  });
-
-  it('the SAME live process (matching start and boot identity) is never replaced, and an UNCERTAIN holder (identity not recorded / unreadable file) is waited for and named, not broken', async () => {
-    const sq = sleeper(); const id = processIdentity(sq.pid);
-    writeLock({ pid: sq.pid, start: id.start, boot: id.boot, startedAt: new Date(Date.now() - 365 * 864e5).toISOString() });
-    await assert.rejects(acquireDomIndexLock({ cwd, maxWaitMs: 600, retryDelayMs: 20 }), /owner is alive/);
-    writeLock({ pid: sq.pid, start: 'x', boot: 'x' });
-    await assert.rejects(acquireDomIndexLock({ cwd, maxWaitMs: 600, retryDelayMs: 20 }), /owner is uncertain/);
-    fs.writeFileSync(domMergeLockPath(cwd), 'not json at all');
-    await assert.rejects(acquireDomIndexLock({ cwd, maxWaitMs: 600, retryDelayMs: 20 }), /owner is uncertain.*not valid JSON/);
-    assert.equal(fs.readFileSync(domMergeLockPath(cwd), 'utf8'), 'not json at all', 'never touched');
+  it('the lock file is never removed or replaced by merges (same inode before and after)', async () => {
+    await seed();
+    assert.equal((await merger('A').result()).ok, true);
+    const ino = fs.statSync(domMergeLockPath(cwd)).ino;
+    assert.equal((await merger('B').result()).ok, true);
+    assert.equal(fs.statSync(domMergeLockPath(cwd)).ino, ino);
   });
 });
 
-describe('simultaneous acquisition', () => {
-  const SECTION = `
-    import fs from 'node:fs';
-    import { withDomIndexLock } from ${JSON.stringify(DELTA)};
-    const [cwd, id] = process.argv.slice(1);
-    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-    while (!fs.existsSync(cwd + '/go')) await sleep(1);                   // barrier: everyone starts together
-    await withDomIndexLock(async () => {
-      try { fs.writeFileSync(cwd + '/in-section', id, { flag: 'wx' }); } catch { fs.appendFileSync(cwd + '/violations', id + '\\n'); }   // someone else is inside
-      const n = fs.existsSync(cwd + '/counter') ? Number(fs.readFileSync(cwd + '/counter', 'utf8')) : 0;
-      await sleep(15);                                                    // widen the read-modify-write window
-      fs.writeFileSync(cwd + '/counter', String(n + 1));
-      try { fs.unlinkSync(cwd + '/in-section'); } catch {}
-    }, { cwd, label: 'section-' + id, maxWaitMs: 60000, retryDelayMs: 5 });
-    console.log('DONE');`;
-  for (const stale of [false, true]) {
-    it(`8 real processes at once${stale ? ', all racing to break the same dead holder\'s lock' : ''}: never two inside, no update lost, no leftovers`, async () => {
-      if (stale) { const h = start(HOLDER, ['die']); await h.done; assert.ok(fs.existsSync(domMergeLockPath(cwd))); }
-      const procs = Array.from({ length: 8 }, (_, i) => start(SECTION, [String(i)]));
-      await sleep(200); touch('go');
-      for (const p of procs) { const r = await p.done; assert.equal(r.code, 0, p.err); assert.match(p.out, /DONE/); }
-      assert.equal(fs.existsSync(path.join(cwd, 'violations')), false, 'two processes were inside the critical section at once');
-      assert.equal(fs.readFileSync(path.join(cwd, 'counter'), 'utf8'), '8', 'a read-modify-write was lost');
-      assert.deepEqual(lockDir(), []);
-    });
-  }
-  it('breakDomLock that moves a different lock aside by mistake puts it straight back; a matching token is deleted', async () => {
-    const sq = sleeper(); const id = processIdentity(sq.pid);
-    writeLock({ pid: sq.pid, start: id.start, boot: id.boot, token: 'b'.repeat(32) }); // a live holder's lock...
-    assert.equal(await breakDomLock(domMergeLockPath(cwd), { token: 'a'.repeat(32) }, 'me'), false); // ...while we meant to break lock "a"
-    assert.equal(lockDoc().token, 'b'.repeat(32)); assert.deepEqual(lockDir(), ['dom-index.merge.lock']);
-    assert.equal(await breakDomLock(domMergeLockPath(cwd), { token: 'b'.repeat(32) }, 'me'), true);
-    assert.deepEqual(lockDir(), []);
-  });
-});
-
-describe('delayed cleanup by a former owner', () => {
-  it('A\'s lock is taken from it outside the protocol and B holds a new one; A\'s late assertHeld fails and A\'s late release deletes nothing of B\'s', async () => {
-    const A = start(HOLDER, ['live']);
-    await waitFor(path.join(cwd, 'holder-ready'));
-    const tokenA = fs.readFileSync(path.join(cwd, 'holder-ready'), 'utf8');
-    fs.rmSync(domMergeLockPath(cwd)); // whatever removed it (operator, other code): A's lock is gone
-    const B = await acquireDomIndexLock({ cwd, label: 'B', maxWaitMs: 2000 });
-    assert.notEqual(B.token, tokenA);
-    touch('release'); // A wakes up and cleans up late
-    assert.deepEqual(await A.done, { code: 0, signal: null }, A.err);
-    assert.deepEqual(JSON.parse(A.out.trim()), { verdict: 'DomLockLostError', release: { released: false, reason: 'lock belongs to someone else; left untouched' } });
-    assert.equal(lockDoc().token, B.token, 'B\'s lock must survive A\'s late cleanup');
-    await B.assertHeld();
-    assert.equal((await B.release()).released, true);
-    assert.deepEqual(lockDir(), []);
-  });
-
-  it('a merge whose lock was taken before the commit abandons it: index byte-identical, delta kept, the other holder\'s lock untouched', async () => {
-    await saveDomIndex({ OLD: { '2026-11-01': { hash: 'h', price: 1, priceChangeType: 'NEW', blobStored: true } } }, cwd);
-    const before = await fsp.readFile(domPaths(cwd).indexPath);
-    const sq = sleeper(); const id = processIdentity(sq.pid);
-    const d = createDomDelta({ cwd, label: 'victim' });
-    d.note({ NEWVIN: { '2026-11-06': { hash: 'n', price: 2, priceChangeType: 'NEW', blobStored: true } } }, 'NEWVIN', '2026-11-06');
-    await checkpointDomDelta(d);
-    const hooks = { beforeCommit: () => { fs.rmSync(domMergeLockPath(cwd)); writeLock({ pid: sq.pid, start: id.start, boot: id.boot, token: 'c'.repeat(32), label: 'new holder' }); } };
-    await assert.rejects(mergeDomDelta(d, { log() {}, hooks }), DomLockLostError);
-    assert.ok(before.equals(await fsp.readFile(domPaths(cwd).indexPath)));
-    assert.ok(fs.existsSync(d.path), 'delta must stay on disk');
-    assert.equal(lockDoc().token, 'c'.repeat(32), 'the new holder\'s lock is not deleted by the abandoned merge');
-    assert.deepEqual((await fsp.readdir(domPaths(cwd).dataDir)).filter((n) => /\.tmp-/.test(n)), [], 'temp file removed');
+describe('both launchers take the same kernel lock', () => {
+  const hasFlock = flockPrefix('/tmp/x', 1)?.[0] === 'flock';
+  it('python3 fcntl launcher: merges work, and a holder started by flock(1) (when present) excludes a contender using the python launcher', async () => {
+    await seed();
+    const py = { flockBin: '/nonexistent/flock' };
+    assert.equal((await merger('PY1', { launcher: py }).result()).ok, true);
+    if (!hasFlock) return;
+    const prefix = flockPrefix(domMergeLockPath(cwd), 5);
+    const holder = spawn(prefix[0], [...prefix.slice(1), 'sleep', '30'], { stdio: 'ignore' }); kids.push(holder);
+    await sleep(500);
+    const r = await merger('PY2', { launcher: py, maxWait: 1200 }).result();
+    assert.equal(r.ok, false); assert.match(r.msg, /Timed out/);
+    holder.kill('SIGKILL'); await new Promise((x) => holder.on('exit', x));
+    assert.equal((await merger('PY3', { launcher: py, maxWait: 5000 }).result()).ok, true);
+    await holdsKeys('BASE', 'RECPY1', 'RECPY3');
   });
 });

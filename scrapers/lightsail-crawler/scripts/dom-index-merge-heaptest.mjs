@@ -4,7 +4,8 @@
 //   2. retained crawler allocations (ballast: plain objects and strings, i.e. V8 heap, not external buffers) bring used heap to --used-mb
 //      (#719's guard trips at limit - reserve = limit - (1.25 x index + 256 MB); --used-mb defaults to that threshold, --over-mb adds in-flight overshoot)
 //   3. domIndex = null (a reference drop only: NO explicit gc), then mergeDomDelta() with a delta of 3000 new VINs and --overlap existing VIN-dates that conflict
-// Output: PASS/FAIL, peak used heap during the merge, elapsed. A V8 abort ("heap out of memory") shows up as a non-zero exit of the child.
+// Since the flock change (PR #721) mergeDomDelta() runs the merge in a SEPARATE worker process (1 GB heap, streaming): the crawler process only waits. This script now reports
+// both: the crawler process's peak used heap while it waits (should not move), and the worker's peak RSS. A V8 abort ("heap out of memory") shows up as a non-zero exit of the child.
 //   node scripts/dom-index-merge-heaptest.mjs [--index-mb 480] [--over-mb 0] [--used-mb N] [--overlap 500] [--keep-ref]   (parent spawns the child)
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -77,4 +78,4 @@ const r = await mergeDomDelta(delta, { log: () => {} });
 clearInterval(t);
 peak = Math.max(peak, v8.getHeapStatistics().used_heap_size);
 const after = await loadDomIndex(dir).catch((e) => e);
-console.log(`PASS: merged +${r.added} new, ${r.conflicts} conflicts in ${((performance.now() - t0) / 1000).toFixed(1)}s, peak used heap ${Math.round(peak / MB)} MB of ${Math.round(limit / MB)} MB (headroom ${Math.round((limit - peak) / MB)} MB); merged file has ${after instanceof Error ? after.message : Object.keys(after).length + ' VINs'}; ballast still alive: ${ballast.length}`);
+console.log(`PASS: merged +${r.added} new, ${r.conflicts} conflicts in ${((performance.now() - t0) / 1000).toFixed(1)}s; crawler process peak used heap ${Math.round(peak / MB)} MB of ${Math.round(limit / MB)} MB (headroom ${Math.round((limit - peak) / MB)} MB, before the merge it was ${Math.round(before.used_heap_size / MB)} MB); merge worker peak RSS ${r.maxRssMb} MB; merged file has ${after instanceof Error ? after.message : Object.keys(after).length + ' VINs'}; ballast still alive: ${ballast.length}`);
