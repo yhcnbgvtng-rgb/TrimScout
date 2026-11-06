@@ -28,6 +28,27 @@ describe("cleanColorName", () => {
   });
 });
 
+describe("near-identical stored spellings fold into one color (live Chevrolet Equinox data)", () => {
+  it("merges Tint Coat / Tintcoat and drops trailing paint codes", () => {
+    const f = normalizeColorFacets(["Cajun Red Tint Coat", "Cajun Red Tintcoat", "Cajun Red Tintcoat - Gpj", "Cherry Red Tintcoat", "Cherry Red"]);
+    assert.deepEqual(f.values, ["Cajun Red Tintcoat", "Cherry Red", "Cherry Red Tintcoat"]);
+    assert.equal(rawsForColor(f, "Cajun Red Tintcoat").length, 3);
+  });
+  it("strips dash codes, brackets, stray punctuation and repeated words", () => {
+    const f = normalizeColorFacets(["Black", "Black - Gba", "Black Gba", "Black-Bk", "Black [black]", "Black***", "Black Black"]);
+    assert.ok(f.values.includes("Black"));
+    assert.deepEqual(f.values.filter((v) => v.startsWith("Black ")), ["Black Gba"]); // an un-dashed bare suffix is ambiguous: kept
+    assert.equal(rawsForColor(f, "Black").length, 6);
+  });
+  it("drops 3-letter codes after a finish word and uses American Gray", () => {
+    const f = normalizeColorFacets(["Ashen Gray Metallic", "Ashen Gray Metallic Glj", "Ashen Grey Metallic", "Blue Glow Metallic Ght", "Blue Glow Metallic"]);
+    assert.deepEqual(f.values, ["Ashen Gray Metallic", "Blue Glow Metallic"]);
+  });
+  it("keeps real second colors after a dash", () => {
+    assert.equal(cleanColorName("Black - Red"), "Black - Red");
+  });
+});
+
 describe("normalizeColorFacets", () => {
   const raws = ["0300 Alpine White", "Alpine White", "ALPINE WHITE", "Alpine Whi", "BK", "XDRIVE", "490vdb", "2007 Bmw 3 Series 328Xi", "Black", "Black Sapphire Metallic", "Red", "Redline"];
   const f = normalizeColorFacets(raws);
