@@ -19,7 +19,6 @@ import { writeProgress, emptyProgress } from './progress.js';
 import { dealerProbeUrls } from './nj_policy.js';
 import {
     loadDomIndex,
-    saveDomIndex,
     captureVehicleDom,
     recordSoldDom,
     flattenDomIndex,
@@ -41,6 +40,7 @@ process.on('exit', () => {
     } catch { /* never fail an exit over a log line */ }
 });
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
+import { createDomDelta, checkpointDomDelta, mergeDomDelta } from './dom_index_delta.js';
 import { makeHeapGuard, detachStrings, formatHeapStopLine, heapReserveBytes } from './heapGuard.js';
 import { resolveKeptMake } from './brand_match.js';
 import { normalizeTrimForWrite } from './oemTrim.js'; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
@@ -192,7 +192,10 @@ try {
     console.error(`⚠️ Progress write failed: ${err.message}`);
 }
 
+// The loaded index is READ-ONLY here (yesterday lookups). What this run writes goes into domDelta and is merged into the shared file at the end under a lock
+// (dom_index_delta.js): concurrent brand processes used to save whole copies over each other and lose each other's entries.
 let domIndex = await loadDomIndex();
+const domDelta = createDomDelta({ label: `${process.env.CRAWLER_STATE || ''}/${process.env.CRAWLER_BRAND || ''}` });
 
 let previousSnapshot = {};
 try {
@@ -1201,6 +1204,7 @@ for (let i = 0; i < work.length; i++) {
                                 cwd: process.cwd(),
                                 index: domIndex,
                             });
+                            domDelta.note(domIndex, vehicle.vin, todayDate);
                         } catch {}
                     }
                 }
@@ -1266,9 +1270,9 @@ for (let i = 0; i < work.length; i++) {
         runProgress.skippedForBotProtection = skippedBotProtection;
         await flushRunProgress();
         try {
-            await saveDomIndex(domIndex);
+            await checkpointDomDelta(domDelta);
         } catch (domErr) {
-            console.error(`⚠️ DOM index write failed: ${domErr.message}`);
+            console.error(`⚠️ DOM index delta checkpoint failed: ${domErr.message}`);
         }
     }
 
@@ -1362,6 +1366,7 @@ await withSharedDataLock(async () => {
                 cwd: process.cwd(),
                 index: domIndex,
             });
+            domDelta.note(domIndex, soldRecord.vin, todayDate);
         } catch {}
     }
 
@@ -1422,8 +1427,12 @@ await withSharedDataLock(async () => {
     await writeJsonLarge(path.join(CHANGES_DIR, `daily_changes_${todayDate}.json`), dailyChangesDoc);
 }, { scope: `daily-changes-${todayDate}`, label: `standalone:${state}/${brand.name}/daily-changes` });
 
+// Today's rows for the DB come from this run's own writes; take them, then drop the loaded index so the merge does not hold it alongside its own working set.
+const domTodayRows = flattenDomIndex(domDelta.entries).filter((r) => r.snapshotDate === todayDate);
+domIndex = null;
 try {
-    await saveDomIndex(domIndex);
+    await checkpointDomDelta(domDelta);
+    await mergeDomDelta(domDelta); // on failure the delta file stays on disk and the next run merges it
     const pruned = await pruneDomBlobs({ today: todayDate });
     console.log(`DOM snapshots: hashes kept indefinitely; pruned ${pruned.removed} blob(s) older than 7 days (cutoff ${pruned.cutoff}).`);
 } catch (domErr) {
@@ -1468,7 +1477,7 @@ if (dbRunId) {
         if (process.env.DB_HOST) {
             try {
                 const { upsertDomSnapshots, upsertDealers } = await import('./db.js');
-                await upsertDomSnapshots(flattenDomIndex(domIndex).filter((r) => r.snapshotDate === todayDate));
+                await upsertDomSnapshots(domTodayRows);
                 if (dbBrandId) await upsertDealers(dbBrandId, dealers);
             } catch (domDbErr) {
                 console.error('DB DOM/dealer contact sync failed (non-fatal):', domDbErr.message);
