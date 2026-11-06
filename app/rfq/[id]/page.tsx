@@ -45,6 +45,7 @@ import { NON_BINDING_COPY } from "@/lib/quotePackage";
 import { formatFactoryOptionLine } from "@/lib/fordCompetitionUi";
 import { formatCurrency } from "@/lib/otdCalculator";
 import { MoneyInput } from "@/components/MoneyInput";
+import { BuyerSignInLink } from "@/components/BuyerSignInLink";
 
 interface DraftFee {
   label: string;
@@ -199,7 +200,7 @@ function QuoteIntakeForm({
         <span>The dealer confirmed all locked must-haves are on this VIN before quoting.</span>
       </label>
 
-      {error && <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">{error}</div>}
+      {error && <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">{error}<BuyerSignInLink message={error} /></div>}
 
       <div className="flex gap-2">
         <button
@@ -486,7 +487,7 @@ export default function RfqWorkspacePage() {
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center space-y-3" data-testid="load-error">
-        <p className="text-sm text-rose-400">{loadError}</p>
+        <p className="text-sm text-rose-400">{loadError}<BuyerSignInLink message={loadError} /></p>
         <button onClick={() => void load()} className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-white hover:bg-surface" data-testid="load-retry">Retry</button>
       </div>
     );
@@ -732,6 +733,7 @@ export default function RfqWorkspacePage() {
           key={threadInvite.id}
           endpoint={`/api/rfqs/${rfq.id}/invites/${threadInvite.id}/thread`}
           viewer="buyer"
+          signedInRole={sessionStatus === "authenticated" ? ((sessionData?.user as { role?: string } | undefined)?.role ?? null) : sessionStatus === "unauthenticated" ? null : undefined}
           headers={guest.headers}
           seenKey={`thread-seen:buyer:${rfq.id}:${threadInvite.id}`}
           heading={`Conversation with ${threadInvite.dealerName}`}

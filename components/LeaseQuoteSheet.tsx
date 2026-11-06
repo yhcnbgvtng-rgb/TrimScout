@@ -7,6 +7,7 @@ import type { RfqRequest } from "../lib/rfq";
 import { LEASE_DAS_INTENTS, LEASE_DAS_INTENT_LABELS, LEASE_MILES, LEASE_TERMS, type LeaseDueAtSigningIntent, type LeaseMiles, type LeaseRequestPrefs, type LeaseTerm } from "../lib/leaseQuote";
 import { CREDIT_BANDS, CREDIT_BAND_COPY, CREDIT_BAND_LABELS, type CreditBand } from "../lib/creditBand";
 import { LEASE_SHEET_RULES, LEASE_TIMELINE_LABELS, leaseSheetRows, rfqDealNumber, rfqVehicles, vehicleLine } from "../lib/rfqTracker";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 export const SHEET_UNLOCKED_COPY = "You can still adjust this lease request until a dealer opens it.";
 export const SHEET_LOCKED_COPY = "Locked — a dealer has viewed this request. New terms need a new quote request.";
@@ -232,7 +233,7 @@ function LeasePrefsEditor({ rfq, prefs, onCancel, onSaved }: { rfq: RfqRequest; 
           </select>
         </label>
       </div>
-      {error ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{error}</p> : null}
+      {error ? <p className="rounded-lg border border-rose-500/40 bg-rose-950/30 px-3 py-2 text-[11px] text-rose-300">{error}<BuyerSignInLink message={error} /></p> : null}
       <div className="flex gap-2">
         <button type="button" onClick={save} disabled={saving || !zipOk || !dasIntent || !band} className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 transition-all disabled:opacity-50">
           {saving ? "Saving…" : "Save changes"}

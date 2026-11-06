@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import { trackEvent, quoteCtaProps, type QuoteCtaPlacement } from "@/lib/analytics";
 import { formatBuyerAlias } from "@/lib/buyerAlias";
 import Link from "next/link";
+import { safeCallbackUrl } from "../lib/buyerSignIn";
 import { useSession, signOut as authSignOut } from "next-auth/react";
 import { Vehicle, BiddingRequest, DealerBid, LockedDeal, UserProfile } from "../lib/types";
 import type { RfqLane } from "../lib/alternateAsk";
@@ -50,6 +51,7 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalError, setAuthModalError] = useState<string | null>(null);
+  const [signInCallbackUrl, setSignInCallbackUrl] = useState<string | null>(null);
   const { data: session, status: sessionStatus } = useSession();
 
   // Wizard state
@@ -480,7 +482,10 @@ export default function Home() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("login") !== "1") return;
+    // /?login=1&callbackUrl=/rfq/… (the "Sign in" link on a buyer-only warning): after a successful sign-in, go back there.
+    setSignInCallbackUrl(safeCallbackUrl(params.get("callbackUrl")));
     params.delete("login");
+    params.delete("callbackUrl");
     const rest = params.toString();
     window.history.replaceState({}, "", window.location.pathname + (rest ? `?${rest}` : ""));
     setIsAuthModalOpen(true);
@@ -803,6 +808,8 @@ export default function Home() {
           setAuthModalError(null);
         }}
         initialError={authModalError}
+        callbackUrl={signInCallbackUrl}
+        onSignedIn={() => { if (signInCallbackUrl) window.location.assign(signInCallbackUrl); }}
       />
     </main>
   );

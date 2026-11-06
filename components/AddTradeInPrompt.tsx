@@ -5,6 +5,7 @@ import type { RfqRequest } from "../lib/rfq";
 import { needsTradePrompt, tradeAttachable, TRADE_PROMPT_COPY } from "../lib/acceptTrade";
 import { tradeInAnswerOf } from "../lib/tradeInAnswer";
 import { TradeInStep, type TradeStepState } from "./trade/TradeInStep";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 const dismissKey = (rfqId: string) => `trimscout.skipTrade.${rfqId}`;
@@ -79,7 +80,7 @@ export function AddTradeInPrompt({ rfq, headers, defaultZip, onRfq }: { rfq: Rfq
         <p className="mt-1 text-[11px] text-ink-faint">With {deal.invite.dealerName}. Only they see your trade-in.</p>
       </div>
       <TradeInStep enabled onToggle={(on) => { if (!on) void skip(); }} defaultZip={defaultZip} attempted={attempted} onState={setStep} />
-      {error ? <p className="text-xs font-semibold text-rose-300" role="alert" data-testid="trade-prompt-error">{error}</p> : null}
+      {error ? <p className="text-xs font-semibold text-rose-300" role="alert" data-testid="trade-prompt-error">{error}<BuyerSignInLink message={error} /></p> : null}
       {!step.ready && step.firstError ? <p className="text-xs font-semibold text-amber-300" data-testid="trade-prompt-reason">{step.firstError}</p> : null}
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={submit} disabled={busy} className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-extrabold text-black hover:bg-brand-400 disabled:opacity-50" data-testid="trade-prompt-submit">{TRADE_PROMPT_COPY.submit}</button>

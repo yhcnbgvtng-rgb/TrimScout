@@ -16,6 +16,7 @@ import { formatFactoryOptionLine } from "../lib/fordCompetitionUi";
 import { formatCurrency } from "../lib/otdCalculator";
 import { dealerHandoffText, freezeMustHaves } from "../lib/rfqLogic";
 import { RFQ_MAX_INVITES } from "../lib/rfq";
+import { BuyerSignInLink } from "./BuyerSignInLink";
 
 interface DraftDealer {
   name: string;
@@ -215,7 +216,7 @@ export const RfqInviteDraft: React.FC<RfqInviteDraftProps> = ({ result, currentU
       </div>
 
       {error && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">{error}</div>
+        <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 px-3 py-2 text-[11px] text-amber-200">{error}<BuyerSignInLink message={error} /></div>
       )}
 
       <button
