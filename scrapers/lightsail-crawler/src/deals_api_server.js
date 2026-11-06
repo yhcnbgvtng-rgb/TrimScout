@@ -31,6 +31,7 @@ import { randomBytes } from "node:crypto";
 import { authenticate, authorizeAudit, authorizeAuditDealer, auditLogLine, bidVerdict, checkOwnership, createRateLimiter, dealVerdict, evaluateGuard, inviteCreationVerdict } from "./auditKey.js";
 import fs from "node:fs";
 import path from "node:path";
+import { releaseOnPick } from "./dealStages.js";
 import mysql from "mysql2/promise";
 import { seenWithinDaysOf, contactDealerIdsOf, contactFacetQueries, inventoryListQuery, totalFromPage, applyCountCap, deferredPageSql, withExportFastSort } from "./inventoryListQuery.js";
 import { adminFacetQueries, adminFacetResponse } from "./inventoryAdminFacets.js";
@@ -1827,6 +1828,24 @@ async function handlePickRfqQuote(req, res, rfqId) {
     mustHaves,
     pickedQuoteId: quoteId,
   });
+  // Non-staged request: the pick IS the acceptance. Record the release on the winning invite (same stage_json accept_final writes),
+  // once, when the Next app sent a reachable buyer contact. Staged requests keep "Accept final deal" as their only release.
+  if (body.buyerContact && !parseJsonCol(rows[0].quote_prefs_json)?.staged) {
+    try {
+      const [wq] = await pool.query("SELECT invite_id, total_otd_price FROM rfq_quotes WHERE id = ?", [quoteId]);
+      const [wi] = wq[0] ? await pool.query("SELECT stage_json FROM rfq_invites WHERE id = ? AND rfq_id = ?", [wq[0].invite_id, rfqId]) : [[]];
+      if (wi[0]) {
+        const rawBefore = wi[0].stage_json ?? null;
+        const out = releaseOnPick(parseJsonCol(rawBefore), { otd: wq[0].total_otd_price, contact: body.buyerContact, tradeInExpected: Boolean(rows[0].trade_in_expected) });
+        if (out.ok && out.released) {
+          const [upd] = await pool.query("UPDATE rfq_invites SET stage_json = ? WHERE id = ? AND rfq_id = ? AND (stage_json <=> ?)", [JSON.stringify(out.state), wq[0].invite_id, rfqId, rawBefore]);
+          if (upd.affectedRows) await logRfqEvent(pool, rfqId, "buyer_details_released", { inviteId: wq[0].invite_id, actor: "system", action: "release", stage: "pick", vin: null, stockNumber: null, mustHaves: [] });
+        }
+      }
+    } catch (err) {
+      console.error("pick release failed", err && err.message);
+    }
+  }
   const invites = await loadRfqInvitesWithQuotes(pool, rfqId);
   sendJson(res, 200, { rfq: publicRfqRequest(rows[0], invites) });
 }

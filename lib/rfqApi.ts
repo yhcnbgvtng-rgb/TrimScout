@@ -436,8 +436,8 @@ export async function submitRfqQuote(
   await request("POST", `/api/rfqs/${rfqId}/invites/${inviteId}/quotes`, input);
 }
 
-export async function pickRfqQuote(rfqId: string, quoteId: string): Promise<RfqRequest> {
-  const json = await request("POST", `/api/rfqs/${rfqId}/pick`, { quoteId });
+export async function pickRfqQuote(rfqId: string, quoteId: string, buyerContact?: Record<string, string | null>): Promise<RfqRequest> {
+  const json = await request("POST", `/api/rfqs/${rfqId}/pick`, { quoteId, ...(buyerContact ? { buyerContact } : {}) });
   return asRfq(json.rfq);
 }
 

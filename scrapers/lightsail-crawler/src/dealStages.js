@@ -511,6 +511,24 @@ export function applyStageAction(prev, action, ctx = {}) {
   }
 }
 
+/**
+ * "Choose this quote" on a request that does NOT use the staged flow: the buyer's pick is the acceptance, so the winning dealer's
+ * invite gets the same closed / accepted / released state accept_final writes (and the reveal link + "offer accepted" email read it).
+ * Pure and idempotent: a deal that already carries a release (a staged accept_final got there first) is returned untouched with
+ * released:false, so the dealer is never introduced twice. Needs a reachable buyer email, like accept_final.
+ */
+export function releaseOnPick(prev, { otd, contact, tradeInExpected = false, now = new Date() } = {}) {
+  if (prev?.release) return { ok: true, released: false, state: prev };
+  const clean = cleanContact(contact);
+  if (!clean) return fail("no_contact", "We need your email to introduce you to the dealer.");
+  const at = now.toISOString();
+  const base = prev || initialStageState({ tradeInExpected });
+  const amount = Number.isFinite(Number(otd)) ? Number(otd) : null;
+  const summary = { otd: amount, tradeValue: null, payoff: 0, trueOtd: amount, method: null, lenderName: null, downPayment: null, apr: null, termMonths: null, monthly: null, amountFinanced: null };
+  const next = { ...base, stage: "closed", final: { status: "accepted", summary, acceptedAt: at }, release: { at, contact: clean } };
+  return { ok: true, released: true, state: done(next, at, { actor: "system", type: "buyer_details_released", stage: "pick" }).state };
+}
+
 /** Display-ready progress: the four steps, each upcoming / current / locked / skipped / walked, with the locked number. */
 export function stageProgress(state) {
   const s = state || initialStageState({ tradeInExpected: false });

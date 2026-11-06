@@ -17,6 +17,7 @@ import {
   liveTrueOtd as liveOtd,
   MAX_APR,
   monthlyPayment,
+  releaseOnPick as pickRelease,
   revealContact as reveal,
   stageForDealer as forDealer,
   stageProgress as progress,
@@ -116,6 +117,7 @@ export const financeMath = finMath as (i: { trueOtd: number; downPayment: number
 export const finalSummary = summarize as (state: DealStageState) => FinalSummary;
 /** What a dealer may see of a deal state: the buyer's released details only on the winning, finally accepted deal. */
 export const revealContact = reveal as (state: DealStageState | null, now?: Date) => { ok: true; contact: BuyerContact; state: DealStageState } | { ok: false; code: string; error: string };
+export const releaseOnPick = pickRelease as (prev: DealStageState | null, i: { otd: number | null; contact: Partial<BuyerContact> | null; tradeInExpected?: boolean; now?: Date }) => { ok: true; released: boolean; state: DealStageState } | { ok: false; code: string; error: string };
 export const stageForDealer = forDealer as (state: DealStageState | null, opts?: { notSelected?: boolean }) => DealStageState | null;
 export interface StageStep { id: StageId; label: string; state: "upcoming" | "current" | "locked" | "skipped" | "walked"; value: number | null }
 export const stageProgress = progress as (state: DealStageState | null) => StageStep[];
