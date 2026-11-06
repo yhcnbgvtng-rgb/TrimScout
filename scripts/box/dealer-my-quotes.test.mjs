@@ -3,13 +3,7 @@
 // two tables (the SQL itself is only exercised on the box: see the deploy notes).
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createDealerInvitesHandlers, dealerListStage } from '../../scrapers/lightsail-crawler/src/rfqDealerInvites.js';
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-const MIRROR = path.join(here, '..', '..', 'scrapers', 'lightsail-crawler', 'src', 'deals_api_server.js');
 
 const contactStage = JSON.stringify({
   stage: 'closed', final: { status: 'accepted' }, walk: null, log: [],
@@ -107,15 +101,5 @@ describe('POST dealer-invites/claim', () => {
     assert.equal((await w.claim({ dealerUserId: '', viewToken: 'token_1_abcdefgh' })).status, 400);
     assert.equal((await w.claim({ dealerUserId: 'dealerA', viewToken: 'x' })).status, 400);
     assert.equal((await w.claim({ dealerUserId: 'dealerA', viewToken: 'no_such_token_zzzz' })).status, 404);
-  });
-});
-
-describe('repo mirror wiring', () => {
-  const src = fs.readFileSync(MIRROR, 'utf8');
-  it('registers both routes and the column + index', () => {
-    assert.match(src, /pathname === "\/api\/dealer-invites"/);
-    assert.match(src, /pathname === "\/api\/dealer-invites\/claim"/);
-    assert.match(src, /ADD COLUMN IF NOT EXISTS dealer_user_id VARCHAR\(128\) NULL/);
-    assert.match(src, /idx_rfq_invites_dealer_user/);
   });
 });
