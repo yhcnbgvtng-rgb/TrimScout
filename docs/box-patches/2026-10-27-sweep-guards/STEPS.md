@@ -33,8 +33,8 @@ f00cbde12034021b342d8c62229952c8  FINAL  inventory-sync.mjs
 b67f57bcffeede0cdddb01ba355ef231  FINAL  syncRun.js
 074117d3a43fd5cecd60f0cac36be0a4  BASE   syncSweep.js
 19fd8e2a40ff72bc3540edc21da2e19a  FINAL  syncSweep.js
-4b5c560a9f7469d06388e98b2921959d  BASE   deals_api_server.js
-ea4e44214914ab0dd32368bf8dc1f623  FINAL  deals_api_server.js
+65011bf81ea441ba5573fa8827445d00  BASE   deals_api_server.js
+78dceb2738bb1044e338026f579ed8f9  FINAL  deals_api_server.js
 a8eddbd033bf3f5312bc43803e58d5dd  BASE   inventorySweep.js
 4267624cff2c843c97bf0d6cfa47c9d1  FINAL  inventorySweep.js
 c9c3ccf43cdbe55c81ebde99df1cb77e  FINAL  syncSweepGuard.js

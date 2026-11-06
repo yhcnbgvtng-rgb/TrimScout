@@ -20,6 +20,7 @@ import { matchDirectoryDealership } from "./dealerContactLookup";
 import { sendQuoteInviteEmail } from "./dealerEmail";
 import { dealerReference } from "./dealerReference";
 import { featureEnabled } from "./featureFlags";
+import { isStagedRfq } from "./dealStages";
 import { rfqIsTestOrAudit } from "./buyerTestMode";
 import { bump } from "./opsMetrics";
 import { notSelectedHtml, notSelectedSubject, quoteInviteHtml, quoteInviteSubject, type QuoteEmailType, type QuoteInviteEmailInput } from "./quoteInviteEmail";
@@ -326,4 +327,16 @@ export async function sendBuyerDetailsRelease(
     count("buyerdetails_failed");
     return "failed";
   }
+}
+
+/**
+ * "Choose this quote" on a non-staged request: the pick is the acceptance, so the winner gets the same "Your offer was accepted" email
+ * accept_final sends. `rfq` is the box's answer to the pick (the winner's invite carries the release the box just wrote). Staged requests
+ * are skipped (their "Accept final deal" sends it), and a winner without a fresh release is skipped, so nothing is sent twice.
+ */
+export async function awardWinnerOnPick(rfq: RfqRequest, winnerInviteId: string, deps: Parameters<typeof sendBuyerDetailsRelease>[2] = {}): Promise<BuyerDetailsResult | "staged" | "no_release"> {
+  if (isStagedRfq(rfq)) return "staged";
+  const winner = rfq.invites.find((i) => i.id === winnerInviteId);
+  if (!winner?.stage?.release) return "no_release";
+  return sendBuyerDetailsRelease(rfq, winner, deps);
 }
