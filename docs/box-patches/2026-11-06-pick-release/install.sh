@@ -6,7 +6,7 @@
 # Both patches are cut from the LIVE box2 files (md5s below). Any other md5 stops everything: do not hand-edit, re-cut.
 # check   read-only: md5 drift, patch dry-run (zero fuzz) on a COPY, smoke test on a temp copy. Changes nothing in DEALS_DIR.
 # apply   gates (sync lock, sync/crawl processes), backup first, copy, md5 + syntax + smoke on the live files; auto-restores on failure. Does NOT restart.
-# restart gates again, then $PM2 restart deals-api, then checks online + fresh uptime + /health + the pick route still answers 401 without the key.
+# restart gates again, then $PM2 restart deals-api, then checks online + fresh uptime + /health answers (401 without the key counts: the key guard sits in front of every route) + the pick route still answers 401 without the key.
 # verify  read-only: with the box's own key (read from the env file, never printed) a pick of a quote that does not exist answers 404 (no write happens before that), and the live dealStages.js passes the smoke test.
 # restore puts the backed-up files back (does not restart; prints the command). There is no schema change, so nothing else to undo.
 D=${DEALS_DIR:-/opt/trimscout-deals/src}; HERE=$(cd "$(dirname "$0")" && pwd); BACKUP=${BACKUP:-$HOME/backups/box2-pick-release-20261106}; MODE=${1:-check}
@@ -88,8 +88,8 @@ restart)
   after=$(pm2_state); echo "deals-api after restart: $after (uptime stamp before: $before_up)"
   case "$after" in online*) [ "$(echo "$after" | cut -d' ' -f2)" != "$before_up" ] || fail "uptime stamp unchanged - did the restart happen?";; *) fail "deals-api is not online - roll back NOW with: $rollback_cmd";; esac
   h=$(curl -s -o /dev/null -w '%{http_code}' "$API/health"); g=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$API/api/rfqs/0/pick")
-  echo "GET /health -> $h    POST /api/rfqs/0/pick without the key -> $g   (401 = route exists and guarded)"
-  [ "$h" = 200 ] && [ "$g" = 401 ] || fail "health is not 200 or the pick route does not answer 401 - roll back NOW with: $rollback_cmd"
+  echo "GET /health without the key -> $h    POST /api/rfqs/0/pick without the key -> $g   (the key guard answers before any route: 401 = server up and guarded, on /health too; 000 = not answering)"
+  { [ "$h" = 200 ] || [ "$h" = 401 ]; } && [ "$g" = 401 ] || fail "/health did not answer 200 or 401 (000 = server down) or the pick route does not answer 401 - roll back NOW with: $rollback_cmd"
   echo "RESTARTED. Next: bash $HERE/install.sh verify     Logs: $PM2 logs deals-api --lines 30 --nostream     ROLLBACK: $rollback_cmd";;
 verify)
   [ "$(state_of)" = after ] || fail "the files are not in the patched state"
