@@ -6,6 +6,7 @@ import { requireAdminSession } from "@/lib/adminAuth";
 import { dealerReference } from "@/lib/dealerReference";
 import { counterDeclinedQuote } from "@/lib/counterDeclined";
 import { getRfq, getRfqInviteByViewToken, markRfqInviteDelivery } from "@/lib/rfqApi";
+import { linkInviteToSignedInDealer } from "@/lib/dealerInviteLink";
 import { rfqVehicles } from "@/lib/rfqTracker";
 import { isStagedRfq, stageForDealer, stageOf } from "@/lib/dealStages";
 import { cashOutTheDoor } from "@/lib/usedQuote";
@@ -25,6 +26,9 @@ export async function GET(req: Request) {
   // first time). Server-side, so a direct visit without the tracked
   // redirect still counts.
   if (!preview && found.invite.status === "invited") await markRfqInviteDelivery(found.rfqId, found.invite.id, "viewed").catch(() => null);
+  // First authenticated token use: a signed-in dealer opening their link claims the invite for their account
+  // (My Quotes). Write-once on the box, so an invite already linked to someone else is never re-homed.
+  if (!preview) await linkInviteToSignedInDealer(found.invite.id);
   const rfq = await getRfq(found.rfqId).catch(() => null);
   if (!rfq) return NextResponse.json({ error: "Quote request not found." }, { status: 404 });
   // The by-token row is bare; the full rfq carries the buyer counter and

@@ -14,6 +14,7 @@ import { coerceQuotePrefs } from "./usedQuote";
 import type { QuotePrefs, UsedQuote } from "./usedQuote";
 import { serverSecret } from "./serverSecret";
 import type { SelectionOutcome } from "./selectionOutcomes";
+import type { DealerInviteRecord } from "./dealerQuotes";
 import type { DealMessage, RfqDeclineReason, RfqInvite, RfqQuoteFee, RfqRequest } from "./rfq";
 
 const DEALS_API_PORT = 3004;
@@ -227,6 +228,26 @@ export async function revealBuyerContact(rfqId: string, inviteId: string): Promi
     if (err instanceof RfqApiError && err.status === 404 && err.message === "Not found") throw new RfqApiError("Contact info isn't available yet.", 503);
     throw err;
   }
+}
+
+/**
+ * The invites linked to one dealer ACCOUNT (box GET /api/dealer-invites, keyed on rfq_invites.dealer_user_id).
+ * Raw, server-to-server: lib/dealerQuotes.ts turns these into the rows a browser may see. `includeAudit` is for
+ * test-dealer accounts only (the route derives it from the session).
+ */
+export async function listDealerInvites(dealerUserId: string, opts: { includeAudit?: boolean } = {}): Promise<DealerInviteRecord[]> {
+  const qs = `dealerUserId=${encodeURIComponent(dealerUserId)}${opts.includeAudit ? "&includeAudit=1" : ""}`;
+  const json = await request("GET", `/api/dealer-invites?${qs}`);
+  return Array.isArray(json?.invites) ? (json.invites as DealerInviteRecord[]) : [];
+}
+
+/**
+ * Links an invite to a dealer account (write-once on the box: an already-linked invite is never re-homed).
+ * Returns whether this call did the linking.
+ */
+export async function bindInviteToDealer(inviteId: string, dealerUserId: string): Promise<{ bound: boolean }> {
+  const json = await request("POST", `/api/rfq-invites/${encodeURIComponent(inviteId)}/bind-dealer`, { dealerUserId });
+  return { bound: Boolean(json?.bound) };
 }
 
 /** Resolves a tracked-link token to its invite, for the "viewed" event. */

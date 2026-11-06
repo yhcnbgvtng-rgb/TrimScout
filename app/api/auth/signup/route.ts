@@ -3,6 +3,7 @@ import { signup, AuthApiError } from "@/lib/authApi";
 import { signIn } from "@/auth";
 import { verifyDealerSignupInviteToken } from "@/lib/dealerSignupInvite";
 import { listDealerships } from "@/lib/dealershipsApi";
+import { linkInviteTokenToNewDealer } from "@/lib/dealerInviteLink";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { clientIpFromHeaders } from "@/lib/clientIp";
 import { firstTrippedLimit, tooManyRequests } from "@/lib/rateLimit";
@@ -61,8 +62,9 @@ export async function POST(req: Request) {
   // straight to active, same as a buyer always has.
   const accountStatus = role === "dealer" && !isVerifiedDealerInvite ? "pending_verification" : "active";
 
+  let created: Awaited<ReturnType<typeof signup>> | null = null;
   try {
-    await signup({
+    created = await signup({
       email,
       password,
       name,
@@ -77,6 +79,10 @@ export async function POST(req: Request) {
     const message = err instanceof AuthApiError ? err.message : "Signup failed";
     return NextResponse.json({ error: message }, { status });
   }
+
+  // Signing up from a quote-email link: the new dealer account claims that invite (My Quotes). By account id,
+  // best effort — a failed link never fails the signup.
+  if (role === "dealer") await linkInviteTokenToNewDealer(body?.quoteInviteToken, created?.id);
 
   if (accountStatus === "pending_verification") {
     // Don't attempt to sign in — verify-credentials would just reject a
