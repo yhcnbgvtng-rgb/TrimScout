@@ -87,8 +87,10 @@ cp "$W/dom_index_delta.js.new" "$W/src/dom_index_delta.js"
 cat > "$W/src/trial.mjs" <<'TREOF'
 import fs from 'node:fs/promises'; import path from 'node:path'; import os from 'node:os';
 import { loadDomIndex, saveDomIndex, domPaths } from './dom_store.js';
-import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir } from './dom_index_delta.js';
+import { createDomDelta, checkpointDomDelta, mergeDomDelta, domDeltaDir, domConflictsDir, processIdentity, judgeOwner } from './dom_index_delta.js';
 const cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'domdelta-trial-data-'));
+const me = processIdentity(process.pid);
+if (me.start === 'x' || me.boot === 'x' || judgeOwner(me).state !== 'alive' || judgeOwner({ ...me, start: 'deadbeef' }).state !== 'reused' || judgeOwner({ pid: 2147483000 }).state !== 'dead') throw new Error('process identity (pid + start + boot) cannot be read on this machine: ' + JSON.stringify(me));
 const rec = (o = {}) => ({ hash: 'h', price: 1, oldPrice: null, priceDiff: 0, priceChangeType: 'UNCHANGED', blobStored: false, hashUnchanged: true, ...o });
 const need = (c, m) => { if (!c) throw new Error(m); };
 try {
@@ -117,7 +119,7 @@ try {
   need(threw, 'a malformed index must make the merge throw');
   need((await fs.readFile(domPaths(cwd).indexPath, 'utf8')) === bad, 'the malformed index was modified');
   need((await fs.readdir(domDeltaDir(cwd))).length === 1, 'the delta file must stay on disk after a failed merge');
-  console.log('trial ok: streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
+  console.log('trial ok: process identity readable (' + me.start + '/' + me.boot.slice(0, 8) + '), streaming merge of 3003 VINs (1 new, 1 orphan delta, 1 conflict with both full records kept), malformed index refused untouched with its delta kept');
 } finally { await fs.rm(cwd, { recursive: true, force: true }); }
 TREOF
 ( cd "$W" && node src/trial.mjs ) || fail "smoke test on copies failed"
