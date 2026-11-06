@@ -523,7 +523,8 @@ export function releaseOnPick(prev, { otd, contact, tradeInExpected = false, now
   if (!clean) return fail("no_contact", "We need your email to introduce you to the dealer.");
   const at = now.toISOString();
   const base = prev || initialStageState({ tradeInExpected });
-  const amount = Number.isFinite(Number(otd)) ? Number(otd) : null;
+  // A missing price stays null: Number(null) and Number("") are 0, which would record a $0 out-the-door price. DB decimals arrive as strings ("43749.00").
+  const amount = otd === null || otd === undefined || otd === "" || !Number.isFinite(Number(otd)) ? null : Number(otd);
   const summary = { otd: amount, tradeValue: null, payoff: 0, trueOtd: amount, method: null, lenderName: null, downPayment: null, apr: null, termMonths: null, monthly: null, amountFinanced: null };
   const next = { ...base, stage: "closed", final: { status: "accepted", summary, acceptedAt: at }, release: { at, contact: clean } };
   return { ok: true, released: true, state: done(next, at, { actor: "system", type: "buyer_details_released", stage: "pick" }).state };

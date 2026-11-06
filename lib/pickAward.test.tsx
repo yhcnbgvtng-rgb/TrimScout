@@ -40,6 +40,12 @@ describe("releaseOnPick (box rule)", () => {
     const s = released(); const again = releaseOnPick(s, { otd: 43749, contact: CONTACT, now: new Date("2026-11-06T00:00:00Z") });
     assert.deepEqual(again, { ok: true, released: false, state: s });
   });
+  it("a missing price is recorded as null, never 0 (Number(null) is 0); DB decimal strings still parse", () => {
+    const otdOf = (otd: unknown) => { const r = releaseOnPick(null, { otd: otd as number | null, contact: CONTACT, now: NOW }); return r.ok ? r.state.final?.summary?.otd : "failed"; };
+    for (const missing of [null, undefined, "", "n/a", Number.NaN]) assert.equal(otdOf(missing), null, String(missing));
+    assert.equal(otdOf("43749.00"), 43749);
+    assert.equal(otdOf(0), 0, "a real zero is kept as a number, only a missing price becomes null");
+  });
   it("needs a reachable buyer email", () => {
     const r = releaseOnPick(null, { otd: 43749, contact: { name: "Pat", email: "nope" } });
     assert.equal(r.ok, false);

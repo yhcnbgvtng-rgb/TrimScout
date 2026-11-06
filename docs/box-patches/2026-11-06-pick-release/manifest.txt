@@ -1,0 +1,8 @@
+# md5  role  file
+8e853ba43911504784f431c6b34c495e  PACKAGE  files/dealStages.js
+aeb9ef881d2163af4ec603a787691af4  PACKAGE  deals_api_server.js.patch
+8811cdd151733cfc4ede4d9a32085e67  PACKAGE  smoke.mjs
+d63818f09574575a7b593d144687dead  BASE  deals_api_server.js (live box2, read 2026-11-06)
+af0269fc579aa51ee5b7d9499bc8a265  FINAL  deals_api_server.js
+ac03cf8c496a89fcbe9ec1bfefc2ab67  BASE  dealStages.js (live box2, read 2026-11-06)
+8e853ba43911504784f431c6b34c495e  FINAL  dealStages.js
