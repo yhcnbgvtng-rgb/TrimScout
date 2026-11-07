@@ -183,6 +183,57 @@ describe('readJsonLarge', () => {
   });
 });
 
+describe('readJsonLarge streaming: elements are parsed while the file is read, not collected as text first', () => {
+  // A reader that keeps every element's text until the end holds a second, file-sized copy next to the parsed data (1.2 GB peak heap for a 600 MB dom_index.json).
+  // Proof without measuring memory: count JSON.parse calls made before the read stream ends. A collect-then-parse reader makes none before 'end'.
+  async function parsesBeforeEnd(file) {
+    const events = [];
+    const realCreate = fs.createReadStream;
+    const realParse = JSON.parse;
+    mock.method(fs, 'createReadStream', (...a) => { const st = realCreate.apply(fs, a); st.on('end', () => events.push('end')); return st; });
+    mock.method(JSON, 'parse', (...a) => { events.push('parse'); return realParse.apply(JSON, a); });
+    const result = await readJsonLarge(file, { streamAboveBytes: 0, chunkBytes: 256 });
+    mock.restoreAll();
+    return { result, before: events.indexOf('end') === -1 ? events.length : events.indexOf('end') };
+  }
+
+  it('object: all but the last few entries are parsed before the stream ends', async () => {
+    const file = path.join(dir, 'obj.json');
+    const data = Object.fromEntries(records(400).map((r) => [r.vin, r]));
+    await writeJsonLarge(file, data);
+    const { result, before } = await parsesBeforeEnd(file);
+    assert.deepEqual(result, data);
+    assert.ok(before >= 390, `only ${before} of 400 entries were parsed before the read ended`);
+  });
+
+  it('array: same', async () => {
+    const file = path.join(dir, 'arr.json');
+    const data = records(400);
+    await writeJsonLarge(file, data);
+    const { result, before } = await parsesBeforeEnd(file);
+    assert.deepEqual(result, data);
+    assert.ok(before >= 390, `only ${before} of 400 elements were parsed before the read ended`);
+  });
+
+  it('empty containers, scalars and a malformed element behave as before', async () => {
+    const cases = { '{}': {}, '[]': [], '  {\n}\n': {}, '42': 42, '"x"': 'x' };
+    for (const [text, want] of Object.entries(cases)) {
+      const f = path.join(dir, 'c.json');
+      await fsp.writeFile(f, text);
+      assert.deepEqual(await readJsonLarge(f, STREAM), want, JSON.stringify(text));
+    }
+    const bad = path.join(dir, 'bad.json');
+    await fsp.writeFile(bad, '{"A":{"x":1},"B":{"x":}}');
+    await assert.rejects(readJsonLarge(bad, STREAM), SyntaxError);
+  });
+
+  it('a duplicate key keeps the last value, as JSON.parse does', async () => {
+    const f = path.join(dir, 'dup.json');
+    await fsp.writeFile(f, '{"A":1,"B":2,"A":3}');
+    assert.deepEqual(await readJsonLarge(f, STREAM), JSON.parse('{"A":1,"B":2,"A":3}'));
+  });
+});
+
 describe('the new layout stays readable by the existing consumers', () => {
   it("inventory-sync's own streamTopLevelObjects reads the compact layout (so the sync needs no change)", async () => {
     const here = path.dirname(fileURLToPath(import.meta.url));
