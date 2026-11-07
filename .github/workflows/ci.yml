@@ -40,3 +40,6 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run GC tests (node --expose-gc; fails on any skip)
+        run: npm run test:gc
