@@ -1,0 +1,111 @@
+--- a/standalone.js
++++ b/standalone.js
+@@ -40,6 +40,7 @@
+ import { readJsonLarge, writeJsonLarge } from './bigJson.js';
+ import { createDomDelta, checkpointDomDelta, mergeDomDelta } from './dom_index_delta.js';
+ import { makeHeapGuard, detachStrings, formatHeapStopLine, heapReserveBytes } from './heapGuard.js';
++import { createDealerTracker } from './dealerTracker.js';
+ import { resolveKeptMake } from './brand_match.js';
+ import { isLikelyVdpUrl } from './vdpUrlFilter.js';
+ import { candidateSitemapUrls, robotsSitemapUrls, summarizeDiscovery, describeAttempt, previousCountsByDealer, zeroVdpAlerts, formatZeroVdpAlert } from './sitemapDiscovery.js';
+@@ -890,10 +891,13 @@
+ // apex host first, when the box is least busy. Appending to `work` while iterating is deliberate. CRAWLER_SITEMAP_RETRY_PASS=false turns it off.
+ const SITEMAP_RETRY_PASS = process.env.CRAWLER_SITEMAP_RETRY_PASS !== 'false';
+ const work = dealers.map((d) => ({ dealer: d, retry: false }));
++// Per-dealer performance log (dealerTracker.js): observes only, never throws, never prints, off with CRAWLER_DEALER_TRACKER=off.
++const dealerTrack = createDealerTracker({ state, brand: brand.name, dealerTotal: work.length, runDate: todayDate });
+ for (let i = 0; i < work.length; i++) {
+     const { dealer, retry } = work[i];
+     const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
+     heapStopped = false;
++    dealerTrack.begin(dealer, { retry, index: i });
+     console.log(`${progress} 🏢 ${retry ? 'Retrying sitemap discovery for' : 'Crawling'} ${dealer.name} (${dealer.city}, ${dealer.state})...`);
+     runProgress.currentDealer = dealer.name;
+     await flushRunProgress();
+@@ -909,6 +913,7 @@
+         runProgress.dealersDone = Math.min(i + 1, dealers.length);
+         runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
+         const kind = isBotProtected(botProbe.classification) ? 'bot protection' : 'uncrawlable';
++        dealerTrack.endProbeSkip(() => botProbe);
+         console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || kind} [${botProbe.url || dealer.domain}]`);
+         await flushRunProgress();
+         continue;
+@@ -975,6 +980,7 @@
+         }
+         if (vehicleUrls.length === 0) {
+             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}. [${discovery.note}]`);
++            dealerTrack.noUrls(() => discovery);
+             dealerStats[dealer.name] = 0;
+             failedDealerNames.add(dealer.name);
+             if (discovery.outcome === 'failed' && !retry && SITEMAP_RETRY_PASS) {
+@@ -1010,9 +1016,11 @@
+         }
+ 
+         console.log(`${progress} Found ${vehicleUrls.length} vehicle URLs. Extracting data...`);
++        dealerTrack.discovered(vehicleUrls.length);
+ 
+         let dealerCount = 0;
+         const extractOne = async (url, _idx, patchrightPage) => {
++            dealerTrack.urlStart();
+             try {
+                 const res = await safeFetch(url, patchrightPage ? 15000 : 7000, patchrightPage);
+                 const html = res.body;
+@@ -1022,12 +1030,14 @@
+                     body: html,
+                 });
+                 if (isBotProtected(pageClass.classification)) {
++                    dealerTrack.pageBlocked(pageClass.classification);
+                     return;
+                 }
+                 // An error page (5xx maintenance, 404 ...) has no vehicle on it; without this it reached the last-resort
+                 // VIN-from-URL strategy and was written as a blank-model stub — see vdpResponseGate.js.
+                 const skipReason = vdpSkipReason(pageClass);
+                 if (skipReason) {
++                    dealerTrack.pageSkipped(skipReason);
+                     console.log(`⚠️ VDP skipped, no vehicle written (${skipReason}): ${url}`);
+                     return;
+                 }
+@@ -1302,6 +1312,7 @@
+                         applyWindowSticker(vehicle, html, url, { classification: pageClass.classification });
+                         currentInventory.set(vehicle.vin, vehicle);
+                         dealerCount++;
++                        dealerTrack.vehicle();
+                         const prev = previousSnapshot[vehicle.vin];
+                         try {
+                             await captureVehicleDom({
+@@ -1318,7 +1329,7 @@
+                         } catch {}
+                     }
+                 }
+-            } catch {}
++            } catch { dealerTrack.urlError(); }
+         };
+ 
+         if (patchrightFallback) {
+@@ -1358,11 +1369,18 @@
+         }
+     } catch (err) {
+         erroredDealersCount++;
++        dealerTrack.error(err);
+         failedDealerNames.add(dealer.name);
+         runProgress.lastError = `${dealer.name}: ${err.message}`;
+         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
+     } finally {
+         clearTimeout(dealerTimeoutHandle);
++        dealerTrack.end(() => ({
++            timedOut: dealerTimedOut, heapStopped,
++            browserFallback: !!patchrightFallback,
++            countedAsFailedStore: failedDealerNames.has(dealer.name),
++            heapSnapshot: () => heapGuard.snapshot(),
++        }));
+         if (patchrightFallback) {
+             await patchrightFallback.context.close().catch(() => {});
+         }
+@@ -1402,6 +1420,7 @@
+ }
+ 
+ console.log(`\n🎉 Nationwide Crawl Complete!`);
++dealerTrack.runEnd();
+ console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
+ console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
+ 
