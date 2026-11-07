@@ -28,7 +28,11 @@ beforeEach(() => {
   fake = path.join(w, 'crawler'); bk = path.join(w, 'bk'); shim = path.join(w, 'shim');
   fs.mkdirSync(path.join(fake, 'src'), { recursive: true }); fs.mkdirSync(shim);
   fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 1200\n', { mode: 0o755 });
+  // The install script's "is a crawl or sync running" gate calls pgrep. Other test files run in parallel processes on the same machine (CI saw another test's
+  // inventory-sync.mjs trip it), so by default every test here sees an empty process table. The tests that need a running crawl or sync say so with setBusy().
+  setBusy(null);
 });
+const setBusy = (line) => fs.writeFileSync(path.join(shim, 'pgrep'), line ? `#!/bin/bash\necho ${JSON.stringify(line)}\n` : '#!/bin/bash\nexit 1\n', { mode: 0o755 });
 afterEach(() => fs.rmSync(w, { recursive: true, force: true }));
 const run = (mode) => spawnSync('bash', ['-s', '--', mode], { input: install, encoding: 'utf8', env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, BIGJSON_CRAWLER_DIR: fake, BIGJSON_BACKUP: bk } });
 // A fake box in the post-#719/#720/#721 state: current dependency sources, the frozen old bigJson.js, and standalone.js = box fixture + the #721 patch.
@@ -106,4 +110,17 @@ describe('bigjson-parse-as-read package', () => {
     stage('box1'); fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 2315\n', { mode: 0o755 });
     r = run('check'); assert.equal(r.status, 1); assert.match(r.stderr, /installs only 07:00-21:30/);
   });
+
+  for (const [what, line] of [['a crawl', '4242 node src/standalone.js'], ['a sync', '4243 node /home/ubuntu/inventory-sync/inventory-sync.mjs'], ['the daily crawl driver', '4244 node scripts/run-daily-crawl.mjs']]) {
+    it(`refuses check and apply while ${what} is running, and writes nothing`, () => {
+      stage('box1');
+      const before = md5(fs.readFileSync(path.join(fake, 'src/bigJson.js')));
+      setBusy(line);
+      for (const mode of ['check', 'apply']) { const r = run(mode); assert.equal(r.status, 1, mode); assert.match(r.stderr, /a crawl or sync is running/, mode); }
+      assert.equal(md5(fs.readFileSync(path.join(fake, 'src/bigJson.js'))), before, 'bigJson.js must be untouched');
+      assert.equal(fs.existsSync(bk), false, 'no backup directory may be created');
+      setBusy(null);
+      assert.equal(run('check').status, 0, 'and the same box passes once nothing is running');
+    });
+  }
 });

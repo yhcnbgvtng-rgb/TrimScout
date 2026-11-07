@@ -42,6 +42,7 @@ process.on('exit', () => {
 import { readJsonLarge, writeJsonLarge } from './bigJson.js';
 import { createDomDelta, checkpointDomDelta, mergeDomDelta } from './dom_index_delta.js';
 import { makeHeapGuard, detachStrings, formatHeapStopLine, heapReserveBytes } from './heapGuard.js';
+import { createDealerTracker } from './dealerTracker.js';
 import { resolveKeptMake } from './brand_match.js';
 import { normalizeTrimForWrite } from './oemTrim.js'; // Ford (fordTrim.js) + Chevrolet / GMC / Toyota / Ram
 import { isLikelyVdpUrl } from './vdpUrlFilter.js';
@@ -764,6 +765,8 @@ const SITEMAP_RETRY_PASS = process.env.CRAWLER_SITEMAP_RETRY_PASS !== 'false';
 // CRAWLER_SPREAD_SCHEDULE=false keeps the file order.
 const scheduled = process.env.CRAWLER_SPREAD_SCHEDULE === 'false' ? dealers : spreadSchedule(dealers, { minGap: Number(process.env.CRAWLER_SPREAD_MIN_GAP) || 3 });
 const work = scheduled.map((d) => ({ dealer: d, retry: false }));
+// Per-dealer performance log (dealerTracker.js): observes only, never throws, never prints, off with CRAWLER_DEALER_TRACKER=off.
+const dealerTrack = createDealerTracker({ state, brand: brand.name, dealerTotal: work.length, runDate: todayDate });
 for (let i = 0; i < work.length; i++) {
     const { dealer, retry } = work[i];
     const progress = `[${i + 1}/${work.length}]${retry ? ' (retry)' : ''}`;
@@ -772,6 +775,7 @@ for (let i = 0; i < work.length; i++) {
     politeStoreName = dealer.name;
     politeWall = null;
     heapStopped = false;
+    dealerTrack.begin(dealer, { retry, index: i });
     await flushRunProgress();
 
     // The retry pass already passed the bot-protection probe once; it never re-probes (and never retries a refusal).
@@ -785,6 +789,7 @@ for (let i = 0; i < work.length; i++) {
         runProgress.dealersDone = Math.min(i + 1, dealers.length);
         runProgress.lastError = `${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` HTTP ${botProbe.httpStatus}` : ''} — skipped, no bypass`;
         const kind = isBotProtected(botProbe.classification) ? 'bot protection' : 'uncrawlable';
+        dealerTrack.endProbeSkip(() => botProbe);
         console.log(`${progress} 🛡️ SKIP ${dealer.name}: ${botProbe.classification}${botProbe.httpStatus ? ` (${botProbe.httpStatus})` : ''} — ${botProbe.notes || kind} [${botProbe.url || dealer.domain}]`);
         await flushRunProgress();
         continue;
@@ -848,6 +853,7 @@ for (let i = 0; i < work.length; i++) {
         // already halted above and skipped. Nothing here drives a browser through a Cloudflare interstitial.
         if (vehicleUrls.length === 0) {
             console.log(`${progress} ⚠️ No inventory URLs detected for ${dealer.name}. [${discovery.note}]`);
+            dealerTrack.noUrls(() => discovery);
             dealerStats[dealer.name] = 0;
             failedDealerNames.add(dealer.name);
             if (discovery.outcome === 'failed' && !retry && SITEMAP_RETRY_PASS) {
@@ -873,9 +879,11 @@ for (let i = 0; i < work.length; i++) {
         }
 
         console.log(`${progress} Found ${urlPlan.kept} vehicle URLs. Extracting data...`);
+        dealerTrack.discovered(urlPlan.kept);
 
         let dealerCount = 0;
         const extractOne = async (url) => {
+            dealerTrack.urlStart();
             try {
                 const res = await safeFetch(url, 7000);
                 const html = res.body;
@@ -885,12 +893,14 @@ for (let i = 0; i < work.length; i++) {
                     body: html,
                 });
                 if (isBotProtected(pageClass.classification)) {
+                    dealerTrack.pageBlocked(pageClass.classification);
                     return;
                 }
                 // An error page (5xx maintenance, 404 ...) has no vehicle on it; without this it reached the last-resort
                 // VIN-from-URL strategy and was written as a blank-model stub — see vdpResponseGate.js.
                 const skipReason = vdpSkipReason(pageClass);
                 if (skipReason) {
+                    dealerTrack.pageSkipped(skipReason);
                     console.log(`⚠️ VDP skipped, no vehicle written (${skipReason}): ${url}`);
                     return;
                 }
@@ -1192,6 +1202,7 @@ for (let i = 0; i < work.length; i++) {
                         }
                         currentInventory.set(vehicle.vin, vehicle);
                         dealerCount++;
+                        dealerTrack.vehicle();
                         const prev = previousSnapshot[vehicle.vin];
                         try {
                             await captureVehicleDom({
@@ -1208,7 +1219,7 @@ for (let i = 0; i < work.length; i++) {
                         } catch {}
                     }
                 }
-            } catch {}
+            } catch { dealerTrack.urlError(); }
         };
 
         for (let pageNo = 0; pageNo < urlPlan.pages.length; pageNo++) {
@@ -1261,11 +1272,18 @@ for (let i = 0; i < work.length; i++) {
         }
     } catch (err) {
         erroredDealersCount++;
+        dealerTrack.error(err);
         failedDealerNames.add(dealer.name);
         runProgress.lastError = `${dealer.name}: ${err.message}`;
         console.error(`${progress} ❌ Error crawling ${dealer.name}: ${err.message}`);
     } finally {
         clearTimeout(dealerTimeoutHandle);
+        dealerTrack.end(() => ({
+            timedOut: dealerTimedOut, heapStopped,
+            wall: politeWall,
+            countedAsFailedStore: failedDealerNames.has(dealer.name),
+            heapSnapshot: () => heapGuard.snapshot(),
+        }));
         runProgress.dealersDone = Math.min(i + 1, dealers.length);
         runProgress.skippedForBotProtection = skippedBotProtection;
         await flushRunProgress();
@@ -1298,6 +1316,7 @@ for (let i = 0; i < work.length; i++) {
 }
 
 console.log(`\n🎉 Nationwide Crawl Complete!`);
+dealerTrack.runEnd();
 console.log(`Total Active ${brand.name} Centers with Live Inventory: ${activeDealersCount}`);
 console.log(`Total Live Vehicles Tracked: ${currentInventory.size}`);
 
