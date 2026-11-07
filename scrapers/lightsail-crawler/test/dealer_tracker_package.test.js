@@ -157,8 +157,10 @@ describe('dealer-tracker package: install.sh on a fake box', () => {
     stage('box1'); fs.appendFileSync(path.join(fake, 'src/dom_index_delta.js'), '\n// drift\n');
     r = run('apply'); assert.equal(r.status, 1); assert.match(r.stderr, /dom_index_delta\.js md5/);
     stage('box1');
-    fs.writeFileSync(path.join(shim, 'pgrep'), '#!/bin/bash\necho "4242 node src/standalone.js"\n', { mode: 0o755 });
-    r = run('apply'); assert.equal(r.status, 1); assert.match(r.stderr, /crawl or sync is running/);
+    for (const line of ['4242 node src/standalone.js', '4243 node /home/ubuntu/inventory-sync/inventory-sync.mjs', '4244 node scripts/run-daily-crawl.mjs']) {
+      fs.writeFileSync(path.join(shim, 'pgrep'), `#!/bin/bash\necho "${line}"\n`, { mode: 0o755 });
+      for (const mode of ['check', 'apply']) { r = run(mode); assert.equal(r.status, 1, mode); assert.match(r.stderr, /crawl or sync is running/, mode); }
+    }
     fs.writeFileSync(path.join(shim, 'pgrep'), '#!/bin/bash\nexit 1\n', { mode: 0o755 });
     fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 2301\n', { mode: 0o755 });
     r = run('apply'); assert.equal(r.status, 1); assert.match(r.stderr, /installs only 07:00-21:30/);
