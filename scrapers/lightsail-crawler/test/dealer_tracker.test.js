@@ -428,7 +428,10 @@ describe('shared file under load: cap, cleanup and torn writes (real processes)'
         const s = summarize(recs);
         assert.equal(s.interrupted.length, 0, 'a capped log must not produce interrupted attempts');
         assert.equal(s.loggingStopped.length, 4);
-        assert.ok(s.loggingStopped.every((x) => x.dealersInRun === 600 && x.attemptsLogged < 600 && x.notLoggedAtLeast > 0));
+        // A writer that starts after the file is already at the cap has its run_start dropped too: then the run total is unknown (null), never invented.
+        assert.ok(s.loggingStopped.every((x) => (x.dealersInRun === 600 && x.notLoggedAtLeast === 600 - x.attemptsLogged && x.notLoggedAtLeast >= 0) || (x.dealersInRun === null && x.notLoggedAtLeast === null)), JSON.stringify(s.loggingStopped));
+        assert.ok(s.loggingStopped.every((x) => x.attemptsLogged <= 600));
+        assert.ok(s.loggingStopped.some((x) => x.notLoggedAtLeast > 0 || x.dealersInRun === null), 'a stop that lost nothing anywhere means the cap was never really hit');
         assert.match(render(s), /LOGGING STOPPED in 4 run\(s\).*INCOMPLETE/);
     });
 
