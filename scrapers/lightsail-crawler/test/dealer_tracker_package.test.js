@@ -1,6 +1,7 @@
 // docs/box-patches/2026-11-07-dealer-tracker-boxes-15/install.sh: embedded files == the sources, pins agree with the repo and with the live files' md5s,
 // the patches only ADD lines (plus one same-behaviour catch), every identifier a hook reads exists, and check / apply / restore behave on a fake box1 and a
-// fake box5 built from the real live (post-#721) standalone.js of each. Works with the pre-#726 bigJson.js, the #726 one, and neither: the tracker never uses it.
+// fake box5 built from the real live (post-#721) standalone.js of each. Works with the pre-#726 bigJson.js (frozen fixture; the boxes had it until #726 is installed),
+// the #726 one (src/bigJson.js once #726 is on main), and neither: the tracker never uses it.
 // The time-of-day gate is satisfied with a PATH shim for `date`, never by a switch in the script.
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -30,7 +31,8 @@ beforeEach(() => {
 });
 afterEach(() => fs.rmSync(w, { recursive: true, force: true }));
 const run = (mode, extraEnv = {}) => spawnSync('bash', ['-s', '--', mode], { input: install, encoding: 'utf8', env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, DTRACK_CRAWLER_DIR: fake, DTRACK_BACKUP: bk, ...extraEnv } });
-const stage = (box, bigJson = path.join(crawler, 'src/bigJson.js')) => {
+const PRE_726 = path.join(here, 'fixtures/bigJson.2026-11-06.js'); // what box1 and box5 run today
+const stage = (box, bigJson = PRE_726) => {
   for (const f of ['heapGuard.js', 'dom_index_delta.js', 'dom_store.js']) fs.copyFileSync(path.join(crawler, 'src', f), path.join(fake, 'src', f));
   fs.copyFileSync(bigJson, path.join(fake, 'src/bigJson.js'));
   fs.copyFileSync(fixture(box), path.join(fake, 'src/standalone.js'));
@@ -46,8 +48,8 @@ describe('dealer-tracker package: contents', () => {
     assert.ok(embedded('P5EOF').equals(fs.readFileSync(path.join(pkg, 'standalone.js.b5.patch'))));
     assert.equal(pinned('HG_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/heapGuard.js'))), '#719 heapGuard.js');
     assert.equal(pinned('DD_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/dom_index_delta.js'))), '#721 dom_index_delta.js');
-    assert.equal(pinned('BJ_OLD'), md5(fs.readFileSync(path.join(crawler, 'src/bigJson.js'))));
-    assert.equal(pinned('BJ_726'), md5(fs.readFileSync(path.join(here, 'fixtures/bigJson.pr726.js'))), '#726 bigJson.js candidate');
+    assert.equal(pinned('BJ_OLD'), md5(fs.readFileSync(PRE_726)), 'pre-#726 bigJson.js (frozen fixture)');
+    assert.equal(pinned('BJ_726'), md5(fs.readFileSync(path.join(crawler, 'src/bigJson.js'))), '#726 bigJson.js (src, now on main)');
     assert.equal(md5(fs.readFileSync(fixture('box1'))), pinned('B1_SA'));
     assert.equal(md5(fs.readFileSync(fixture('box5'))), pinned('B5_SA'));
   });
@@ -112,12 +114,14 @@ describe('dealer-tracker package: install.sh on a fake box', () => {
       assert.equal(sa(), before, 'check must not change standalone.js');
       assert.equal(fs.existsSync(path.join(fake, 'src/dealerTracker.js')), false); assert.equal(fs.existsSync(bk), false);
       assert.equal(fs.existsSync(path.join(fake, 'data')), false, 'check must not create data/');
+      const bjBefore = md5(fs.readFileSync(path.join(fake, 'src/bigJson.js')));
       r = run('apply');
       assert.equal(r.status, 0, r.stderr + r.stdout);
       assert.equal(sa(), pinned(`${key}_SA_AFTER`));
       assert.equal(md5(fs.readFileSync(path.join(fake, 'src/dealerTracker.js'))), pinned('DT_MD5'));
       assert.equal(md5(fs.readFileSync(path.join(bk, 'standalone.js.before'))), before);
-      for (const f of ['heapGuard.js', 'dom_index_delta.js', 'dom_store.js', 'bigJson.js']) assert.equal(md5(fs.readFileSync(path.join(fake, 'src', f))), md5(fs.readFileSync(path.join(crawler, 'src', f))), `${f} must be untouched`);
+      for (const f of ['heapGuard.js', 'dom_index_delta.js', 'dom_store.js']) assert.equal(md5(fs.readFileSync(path.join(fake, 'src', f))), md5(fs.readFileSync(path.join(crawler, 'src', f))), `${f} must be untouched`);
+      assert.equal(md5(fs.readFileSync(path.join(fake, 'src/bigJson.js'))), bjBefore, 'bigJson.js must be untouched');
       r = run('apply');
       assert.equal(r.status, 0); assert.match(r.stdout, /ALREADY INSTALLED/);
       r = run('restore');
@@ -127,7 +131,7 @@ describe('dealer-tracker package: install.sh on a fake box', () => {
   }
 
   it('works whichever bigJson.js the box has: pre-#726, the #726 file, or something else', () => {
-    for (const [name, file] of [['pre', path.join(crawler, 'src/bigJson.js')], ['726', path.join(here, 'fixtures/bigJson.pr726.js')]]) {
+    for (const [name, file] of [['pre', PRE_726], ['726', path.join(crawler, 'src/bigJson.js')]]) {
       stage('box5', file);
       const r = run('check'); assert.equal(r.status, 0, name + r.stderr + r.stdout); assert.match(r.stdout, name === 'pre' ? /pre-#726/ : /is the #726 file/);
     }
@@ -136,7 +140,7 @@ describe('dealer-tracker package: install.sh on a fake box', () => {
   });
 
   it('applies on top of #726 installed, and the order does not matter to the tracker', () => {
-    stage('box1', path.join(here, 'fixtures/bigJson.pr726.js'));
+    stage('box1', path.join(crawler, 'src/bigJson.js'));
     assert.equal(run('apply').status, 0);
     assert.equal(md5(fs.readFileSync(path.join(fake, 'src/bigJson.js'))), pinned('BJ_726'));
   });
