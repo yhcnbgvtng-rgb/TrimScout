@@ -17,6 +17,14 @@
 //
 // Not recorded: page bodies, URLs of vehicle pages, cookies, headers, env, credentials, buyer data. Error messages are cut to 160 chars with URLs removed.
 //
+// Records are framed "\n<json>\n": if a writer ever dies mid-record (ENOSPC), the next record still starts on its own line, so a torn record costs one
+// line (readers skip and count malformed lines), never its neighbour.
+//
+// Size cap (64 MB per day file, checked every 20 appends because other processes write the same file): at the cap a process writes ONE `logging_stopped`
+// marker (reason size_cap) and stops adding begin/run_start/run_end records; the one attempt it may have open still gets its `end`, so a capped log never
+// makes a finished dealer look interrupted. Overshoot is bounded by (writers x 20 appends x <4 KB). Three consecutive write failures stop the process the
+// same way (reason write_failures), marker attempted best-effort. The summary reports both and does NOT count them as interrupted attempts.
+//
 // Switches: CRAWLER_DEALER_TRACKER=off (kill switch), CRAWLER_DEALER_TRACKER_RETAIN_DAYS (default 14), CRAWLER_DEALER_TRACKER_MAX_FILE_MB (default 64, per day file).
 // Retention: at start-up a process deletes crawl-*.jsonl files in ITS OWN directory older than the retain window; nothing else is ever deleted.
 
@@ -78,7 +86,7 @@ function build(opts) {
 
     const retainDays = Number(env.CRAWLER_DEALER_TRACKER_RETAIN_DAYS) > 0 ? Number(env.CRAWLER_DEALER_TRACKER_RETAIN_DAYS) : DEFAULT_RETAIN_DAYS;
     const maxBytes = (Number(env.CRAWLER_DEALER_TRACKER_MAX_FILE_MB) > 0 ? Number(env.CRAWLER_DEALER_TRACKER_MAX_FILE_MB) : DEFAULT_MAX_FILE_MB) * MB;
-    try { pruneOld(dir, runDate, retainDays); } catch { /* retention is best effort */ }
+    try { pruneOld(dir, runDate, retainDays, { now: now(), keepName: path.basename(file) }); } catch { /* retention is best effort */ }
 
     const box = opts.box || env.CRAWLER_BOX || os.hostname();
     const pid = process.pid;
@@ -91,27 +99,46 @@ function build(opts) {
     let written = 0;
     let failures = 0;
     let consecutive = 0;
-    let disabled = false;
+    let disabled = false; // no more begin/run records from this process (cap or write failures); see `stopReason`
+    let stopReason = null;
     let sizeKnown = statSize(file);
     let sinceStat = 0;
     let reported = false;
     const report = (msg) => { if (reported) return; reported = true; try { stderr(`[dealer-tracker] ${msg}`); } catch { /* nothing */ } };
 
-    function write(rec) {
-        if (disabled) return;
-        try {
-            const line = JSON.stringify(rec) + '\n';
-            if (++sinceStat >= 50) { sizeKnown = statSize(file); sinceStat = 0; }
-            if (sizeKnown >= maxBytes) { disabled = true; report(`day file reached ${Math.round(maxBytes / MB)} MB, no more records this process`); return; }
+    // kind: 'open' (begin, run_start, run_end: dropped once stopped) | 'close' (the end of an attempt whose begin was logged: allowed after a size-cap stop).
+    // Returns true when the record was appended.
+    function appendRecord(rec) {
+        const line = '\n' + JSON.stringify(rec) + '\n';
+        try { appendLine(file, line); } catch (e) {
+            if (!e || e.code !== 'ENOENT') throw e;
+            fs.mkdirSync(dir, { recursive: true }); // the directory was removed under us (a cleanup, a restore): make it again, once
             appendLine(file, line);
-            sizeKnown += Buffer.byteLength(line);
-            written++;
+        }
+        sizeKnown += Buffer.byteLength(line);
+        written++;
+    }
+    function stop(reason) {
+        if (stopReason) return;
+        stopReason = reason; disabled = true;
+        report(reason === 'size_cap' ? `day file reached ${Math.round(maxBytes / MB)} MB, no more begin records from this process` : 'stopped after repeated write failures');
+        try { appendRecord({ v: SCHEMA_VERSION, ev: 'logging_stopped', t: new Date(now()).toISOString(), run, pid, box, state, brand, reason, fileBytes: sizeKnown, capBytes: maxBytes, attemptsLogged: counters.attempts, openAttempt: cur ? cur.attempt : null }); } catch { /* best effort: a failing disk cannot take a marker either */ }
+    }
+    function write(rec, kind = 'open') {
+        try {
+            if (stopReason === 'write_failures') return false;
+            if (++sinceStat >= 20) { sizeKnown = statSize(file); sinceStat = 0; }
+            if (!stopReason && sizeKnown >= maxBytes) stop('size_cap');
+            if (stopReason && kind !== 'close') return false;
+            appendRecord(rec);
             consecutive = 0;
+            return true;
         } catch (e) {
             failures++;
             consecutive++;
             report(`write failed (${scrubMessage(e && e.message)}); the crawl is not affected`);
-            if (consecutive >= MAX_CONSECUTIVE_WRITE_FAILURES) { disabled = true; report('stopped after repeated write failures'); }
+            if (consecutive >= MAX_CONSECUTIVE_WRITE_FAILURES) stop('write_failures');
+            return false;
         }
     }
 
@@ -184,7 +211,7 @@ function build(opts) {
                     : null,
             },
         };
-        write(rec);
+        if (c.beginDropped !== true) write(rec, 'close');
         counters.attempts++;
     }
     const counters = { attempts: 0 };
@@ -192,7 +219,7 @@ function build(opts) {
     const api = {
         enabled: true,
         file,
-        stats: () => ({ written, failures, disabled }),
+        stats: () => ({ written, failures, disabled, stopReason }),
 
         begin: safe((dealer, { retry = false, index = null } = {}) => {
             if (cur) closeOrphan('next_attempt_started'); // an attempt left open by a path with no hook
@@ -204,7 +231,7 @@ function build(opts) {
             };
             if (cur.memStart.rssMb != null) cur.peakRssMb = cur.memStart.rssMb;
             if (cur.memStart.heapUsedMb != null) cur.peakHeapMb = cur.memStart.heapUsedMb;
-            write({ v: SCHEMA_VERSION, ev: 'begin', t: new Date(startMs).toISOString(), ...identity(cur), mem: { process: { scope: 'process', ...cur.memStart } } });
+            if (!write({ v: SCHEMA_VERSION, ev: 'begin', t: new Date(startMs).toISOString(), ...identity(cur), mem: { process: { scope: 'process', ...cur.memStart } } }) && stopReason) cur.beginDropped = true; // dropped by a stop: no orphan end either
         }),
 
         // Skipped by the bot-protection probe before any page was requested.
@@ -294,13 +321,24 @@ export function classify(c, x, wall) {
     return ['complete', null];
 }
 
-export function pruneOld(dir, runDate, retainDays) {
-    const cutoff = Date.parse(`${runDate}T00:00:00Z`) - retainDays * 86400000;
+export const ACTIVE_FILE_GRACE_MS = 48 * 3600 * 1000;
+/**
+ * Delete crawl-YYYY-MM-DD.jsonl older than the window, in `dir` only. Never deletes: the caller's own file (`keepName`), any file written to in the last 48 h
+ * (an active file), or anything when the window would be computed from a run date in the future (cutoff = the earlier of the run date and today).
+ */
+export function pruneOld(dir, runDate, retainDays, { now = Date.now(), keepName = null } = {}) {
+    const base = Math.min(Date.parse(`${runDate}T00:00:00Z`), now);
+    const cutoff = base - retainDays * 86400000;
     let removed = 0;
     for (const name of fs.readdirSync(dir)) {
         const m = FILE_RE.exec(name);
-        if (!m) continue; // only files this module wrote, in this directory
-        if (Date.parse(`${m[1]}T00:00:00Z`) < cutoff) { try { fs.unlinkSync(path.join(dir, name)); removed++; } catch { /* leave it */ } }
+        if (!m || name === keepName) continue; // only files this module wrote, in this directory
+        if (!(Date.parse(`${m[1]}T00:00:00Z`) < cutoff)) continue;
+        try {
+            const full = path.join(dir, name);
+            if (now - fs.statSync(full).mtimeMs < ACTIVE_FILE_GRACE_MS) continue; // recently written: someone may still be appending to it
+            fs.unlinkSync(full); removed++;
+        } catch { /* leave it */ }
     }
     return removed;
 }

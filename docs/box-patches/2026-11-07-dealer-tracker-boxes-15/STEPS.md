@@ -35,9 +35,24 @@ Reasons: `probe_skip`, `wall_sitemap`, `wall_mid_crawl`, `no_inventory_urls`, `d
 - Crash: SIGKILL leaves `begin` with no `end`; a clean exit (incl. uncaught exception) with an attempt open writes `incomplete/process_exit`.
 - Kill switch: `CRAWLER_DEALER_TRACKER=off`.
 
-## Overhead and retention
-Measured (Mac, node 22, 5,000 attempts x 200 URLs): 0.03 us per URL (about 32 ms per million URLs), 57 us per attempt (2 appends), 1.9 KB per attempt on disk (9.4 MB for 5,000 attempts).
-Retention: each process, at start-up, deletes `crawl-YYYY-MM-DD.jsonl` files older than 14 days (`CRAWLER_DEALER_TRACKER_RETAIN_DAYS`) in its own directory only; per-day file cap 64 MB (`CRAWLER_DEALER_TRACKER_MAX_FILE_MB`), after which that process stops writing and says so on stderr. Disk on box5 on 2026-11-07: 600 GB free.
+## Overhead, retention, and the shared file under load
+Measured (Mac, node 22, 5,000 attempts x 200 URLs): 0.03 us per URL (about 32 ms per million URLs), 57 us per attempt (2 appends), 1.9 KB per attempt on disk (9.4 MB for 5,000 attempts). Disk on box5 on 2026-11-07: 600 GB free.
+
+**Cleanup (14 days).** At start-up each process deletes `crawl-YYYY-MM-DD.jsonl` files in its own directory whose date is older than `CRAWLER_DEALER_TRACKER_RETAIN_DAYS` (default 14), counted back from the EARLIER of its run date and today. It never deletes: a file written to in the last 48 h (an active file, even one with an old date, e.g. a replayed run), its own file, or anything outside that directory or not matching the exact name pattern. Even if a file were deleted under a writer, each append reopens the path (`O_APPEND|O_CREAT`) and recreates the directory once on ENOENT: the writer keeps going, nothing throws.
+**Size cap (64 MB per day file, `CRAWLER_DEALER_TRACKER_MAX_FILE_MB`).** Other processes write the same file, so the size is re-read every 20 appends. At the cap a process writes ONE `logging_stopped` marker (`reason: size_cap`, file size, cap, attempts it had logged, open attempt id) and stops adding `begin`/`run_start`/`run_end` records. The attempt it has open still gets its `end` record. So a capped log never leaves a finished dealer looking interrupted, and never contains an `end` without its `begin`. Overshoot is bounded by writers x 20 appends x < 4 KB (about 640 KB for 8 writers) plus one marker per process.
+**Torn records.** Records are framed `"\n<json>\n"`: if a writer dies mid-record (ENOSPC), the next record starts on its own line; a torn record costs only itself. Readers skip and count malformed lines (the summary prints the count).
+**Write failures.** A failed append is counted; after 3 in a row the process stops writing (a marker with `reason: write_failures` is attempted, and will usually fail too), prints one `[dealer-tracker]` line on stderr, and the crawl carries on. In that case there is NO marker in the file, so the last dealer may read as interrupted: the stderr line in the crawl's log is the evidence.
+
+**Telling "logging stopped" from "interrupted"** (the summary does this; `--json` has both lists):
+
+| in the file | meaning | summary |
+|---|---|---|
+| `begin`, no `end`, no `logging_stopped` for that run | the process died mid-attempt (OOM abort, SIGKILL, crash) or is still running | "Interrupted attempts" |
+| `begin`, no `end`, and the run ALSO has `logging_stopped` | still a genuine interruption: after a cap stop the open attempt always gets its `end`, so a missing one means the process died | "Interrupted attempts" |
+| `logging_stopped` record | writing stopped (cap or failures); later dealers of that run are simply absent | "LOGGING STOPPED ... INCOMPLETE" with logged vs run total and `>= N missing` |
+| run with no `run_end` | loop did not finish, or the cap stopped writing (check for `logging_stopped`), or still running | "Runs with no run_end" |
+
+Not-complete rates on a day with a stop cover only the logged part of those runs; the summary says so at the top.
 
 ## Reading it
 ```

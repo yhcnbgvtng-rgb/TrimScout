@@ -20,7 +20,8 @@ beforeEach(() => { cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'dealertracker-')
 afterEach(() => fs.rmSync(cwd, { recursive: true, force: true }));
 
 const mk = (o = {}) => createDealerTracker({ cwd, state: 'NJ', brand: 'Ford', dealerTotal: 3, runDate: '2026-11-08', box: 'box5', stderr: (m) => errs.push(m), installExitHandler: false, ...o });
-const read = (t) => fs.readFileSync(t.file, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+const lines = (f) => fs.readFileSync(f, 'utf8').split('\n').filter((l) => l.trim());
+const read = (t) => lines(t.file).map((l) => JSON.parse(l));
 const ends = (t) => read(t).filter((r) => r.ev === 'end');
 
 describe('record content', () => {
@@ -172,8 +173,7 @@ describe('failure isolation: the tracker can never reach the crawl', () => {
         let calls = 0;
         const t = mk({ appendLine: () => { calls++; throw new Error('ENOSPC: no space left on device'); } });
         assert.doesNotThrow(() => { for (let i = 0; i < 5; i++) callEverything(t); });
-        assert.equal(calls, 1 + MAX_CONSECUTIVE_WRITE_FAILURES - 1 + 0 || calls, 'bounded attempts');
-        assert.ok(calls <= MAX_CONSECUTIVE_WRITE_FAILURES, `kept writing after ${calls} failures`);
+        assert.ok(calls <= MAX_CONSECUTIVE_WRITE_FAILURES + 1, `kept writing after ${calls} failures`);
         assert.equal(errs.filter((m) => /write failed/.test(m)).length, 1, 'reported once, not per record');
         assert.equal(t.stats().disabled, true);
     });
@@ -236,17 +236,33 @@ describe('failure isolation: the tracker can never reach the crawl', () => {
 });
 
 describe('retention', () => {
-    it('removes only crawl-YYYY-MM-DD.jsonl older than the window, in the tracker directory only', () => {
+    const setAge = (f, days) => { const d = new Date(Date.now() - days * 86400000); fs.utimesSync(f, d, d); };
+    it('removes only stale crawl-YYYY-MM-DD.jsonl older than the window, in the tracker directory only', () => {
         const dir = path.join(cwd, 'data', 'dealer_tracker'); fs.mkdirSync(dir, { recursive: true });
-        const keep = ['crawl-2026-11-08.jsonl', 'crawl-2026-10-30.jsonl', 'notes.txt', 'crawl-2026-01-01.jsonl.bak', 'crawl-old.jsonl'];
+        const keep = ['crawl-2026-10-30.jsonl', 'notes.txt', 'crawl-2026-01-01.jsonl.bak', 'crawl-old.jsonl'];
         const drop = ['crawl-2026-10-01.jsonl', 'crawl-2025-12-31.jsonl'];
-        for (const f of [...keep, ...drop]) fs.writeFileSync(path.join(dir, f), '{}\n');
-        const other = path.join(cwd, 'data', 'crawl-2020-01-01.jsonl'); fs.writeFileSync(other, 'x');
+        for (const f of [...keep, ...drop]) { fs.writeFileSync(path.join(dir, f), '{}\n'); setAge(path.join(dir, f), 30); }
+        const other = path.join(cwd, 'data', 'crawl-2020-01-01.jsonl'); fs.writeFileSync(other, 'x'); setAge(other, 900);
         mk();
-        assert.deepEqual(fs.readdirSync(dir).filter((f) => !f.endsWith('2026-11-08.jsonl') || true).sort(), [...keep, 'crawl-2026-11-08.jsonl'].filter((v, i, a) => a.indexOf(v) === i).sort());
+        assert.deepEqual(fs.readdirSync(dir).sort(), [...keep, 'crawl-2026-11-08.jsonl'].sort());
         assert.ok(fs.existsSync(other), 'files outside the tracker directory are never touched');
         assert.equal(DEFAULT_RETAIN_DAYS, 14);
-        assert.equal(pruneOld(dir, '2026-11-08', 14), 0);
+    });
+
+    it('never deletes a file written to in the last 48 h, this process\'s own file, or anything because of a run date in the future', () => {
+        const dir = path.join(cwd, 'data', 'dealer_tracker'); fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, 'crawl-2026-01-05.jsonl'), '{}\n'); // old name, written just now: an active file of a long-running or replayed run
+        fs.writeFileSync(path.join(dir, 'crawl-2026-02-01.jsonl'), '{}\n'); setAge(path.join(dir, 'crawl-2026-02-01.jsonl'), 200);
+        assert.equal(pruneOld(dir, '2026-11-08', 14), 1, 'only the stale one goes');
+        assert.deepEqual(fs.readdirSync(dir), ['crawl-2026-01-05.jsonl']);
+        setAge(path.join(dir, 'crawl-2026-01-05.jsonl'), 200);
+        assert.equal(pruneOld(dir, '2026-11-08', 14, { keepName: 'crawl-2026-01-05.jsonl' }), 0, 'own file is kept even when stale');
+        assert.equal(pruneOld(dir, '2099-01-01', 14), 1, 'but a stale file goes when asked with a sane date');
+        fs.writeFileSync(path.join(dir, 'crawl-2026-03-01.jsonl'), '{}\n'); setAge(path.join(dir, 'crawl-2026-03-01.jsonl'), 200);
+        const future = pruneOld(dir, '2099-01-01', 14, { now: Date.parse('2026-11-08T00:00:00Z') });
+        assert.equal(future, 1); // window counted from today, not from 2099: 2026-03-01 is older than today-14d, nothing newer is touched
+        fs.writeFileSync(path.join(dir, 'crawl-2026-11-01.jsonl'), '{}\n'); setAge(path.join(dir, 'crawl-2026-11-01.jsonl'), 200);
+        assert.equal(pruneOld(dir, '2099-01-01', 14, { now: Date.parse('2026-11-08T00:00:00Z') }), 0, 'a future run date cannot widen the deletion window');
     });
 });
 
@@ -263,8 +279,7 @@ describe('concurrent writers and crashes (real processes)', () => {
         const res = await Promise.all(procs.map(done));
         for (const r of res) assert.deepEqual([r.code, r.stderr], [0, '']);
         const file = path.join(cwd, 'data', 'dealer_tracker', 'crawl-2026-11-08.jsonl');
-        const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean);
-        const recs = lines.map((l) => JSON.parse(l)); // throws on any torn line
+        const recs = lines(file).map((l) => JSON.parse(l)); // throws on any torn line
         assert.equal(recs.length, 8 * (1 + 300 * 2 + 1));
         assert.equal(new Set(recs.filter((r) => r.ev === 'end').map((r) => r.attempt)).size, 8 * 300);
         assert.ok(recs.filter((r) => r.ev === 'end').every((r) => r.status === 'complete' && r.vins === 10));
@@ -294,7 +309,7 @@ describe('concurrent writers and crashes (real processes)', () => {
           throw new Error('uncaught in the crawl');`;
         const r = await done(child(body, { CWD: cwd }));
         assert.equal(r.code, 1);
-        const e = fs.readFileSync(path.join(cwd, 'data', 'dealer_tracker', 'crawl-2026-11-08.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((x) => x.ev === 'end');
+        const e = lines(path.join(cwd, 'data', 'dealer_tracker', 'crawl-2026-11-08.jsonl')).map((l) => JSON.parse(l)).filter((x) => x.ev === 'end');
         assert.deepEqual(e.map((x) => [x.status, x.reason]), [['incomplete', 'process_exit']]);
         assert.match(e[0].note, /exit code 1/);
     });
@@ -377,5 +392,100 @@ describe('summary command', () => {
 
     it('scrubMessage removes URLs and absolute paths', () => {
         assert.equal(scrubMessage('GET https://a.example/x?y=1 failed in /srv/app/src/a.js'), 'GET <url> failed in <path>');
+    });
+});
+
+describe('shared file under load: cap, cleanup and torn writes (real processes)', () => {
+    const run = (body, env = {}) => new Promise((res) => {
+        const p = spawn(process.execPath, ['--input-type=module', '-e', `import { createDealerTracker } from ${JSON.stringify('file://' + trackerSrc)};\n${body}`], { env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
+        let err = ''; p.stderr.on('data', (d) => { err += d; });
+        p.on('exit', (code) => res({ code, err }));
+    });
+    const writer = `
+      const t = createDealerTracker({ cwd: process.env.CWD, state: 'S' + process.pid, brand: 'B', dealerTotal: Number(process.env.N), runDate: process.env.DAY, box: 'box5' });
+      for (let i = 0; i < Number(process.env.N); i++) { t.begin({ id: 'd' + i, name: 'Dealer ' + i + ' ' + 'x'.repeat(200), domain: 'd' + i + '.example' }, { index: i }); t.discovered(5); for (let k = 0; k < 5; k++) { t.urlStart(); t.vehicle(); } t.end(() => ({})); }
+      t.runEnd();`;
+    const file = (day) => path.join(cwd, 'data', 'dealer_tracker', `crawl-${day}.jsonl`);
+    const parse = (f) => lines(f).map((l) => JSON.parse(l)); // throws on any torn line
+
+    it('size cap with 4 concurrent writers: no torn records, bounded overshoot, one marker per process, no orphan end, nothing reads as interrupted', async () => {
+        const capMb = 0.3;
+        const res = await Promise.all(Array.from({ length: 4 }, () => run(writer, { CWD: cwd, N: '600', DAY: '2026-11-08', CRAWLER_DEALER_TRACKER_MAX_FILE_MB: String(capMb) })));
+        for (const r of res) assert.equal(r.code, 0, r.err);
+        for (const r of res) assert.equal((r.err.match(/\[dealer-tracker\]/g) || []).length, 1, 'one stderr line per process: ' + r.err);
+        const recs = parse(file('2026-11-08'));
+        const size = fs.statSync(file('2026-11-08')).size;
+        const cap = capMb * 1048576;
+        assert.ok(size > cap * 0.9, 'the cap was never reached, the test proves nothing: ' + size);
+        assert.ok(size < cap + 4 * 20 * 4096 + 65536, `overshoot beyond the bound: ${size} vs cap ${cap}`);
+        const stops = recs.filter((r) => r.ev === 'logging_stopped');
+        assert.equal(stops.length, 4); assert.ok(stops.every((s) => s.reason === 'size_cap' && Math.abs(s.capBytes - cap) < 1));
+        const begins = new Set(recs.filter((r) => r.ev === 'begin').map((r) => r.attempt));
+        const endRecs = recs.filter((r) => r.ev === 'end');
+        assert.ok(endRecs.every((e) => begins.has(e.attempt)), 'an end record without its begin');
+        assert.ok([...begins].every((b) => endRecs.some((e) => e.attempt === b)), 'a logged begin with no end: would read as a crash');
+        assert.ok(endRecs.every((e) => e.status === 'complete'));
+        const s = summarize(recs);
+        assert.equal(s.interrupted.length, 0, 'a capped log must not produce interrupted attempts');
+        assert.equal(s.loggingStopped.length, 4);
+        assert.ok(s.loggingStopped.every((x) => x.dealersInRun === 600 && x.attemptsLogged < 600 && x.notLoggedAtLeast > 0));
+        assert.match(render(s), /LOGGING STOPPED in 4 run\(s\).*INCOMPLETE/);
+    });
+
+    it('a genuinely interrupted attempt is still reported as interrupted in a run whose logging also stopped', () => {
+        const recs = [
+            { v: 1, ev: 'run_start', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', dealers: 100 },
+            { v: 1, ev: 'begin', attempt: 'r#1', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', dealer: { id: 'a', name: 'A' }, pid: 9, t: 't1' },
+            { v: 1, ev: 'end', attempt: 'r#1', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', dealer: { id: 'a', name: 'A' }, status: 'complete', durationMs: 1 },
+            { v: 1, ev: 'begin', attempt: 'r#2', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', dealer: { id: 'b', name: 'B' }, pid: 9, t: 't2' },
+            { v: 1, ev: 'logging_stopped', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', reason: 'size_cap', t: 't3', fileBytes: 1, openAttempt: 'r#2' },
+        ];
+        const s = summarize(recs);
+        assert.deepEqual(s.interrupted.map((i) => i.dealer), ['b']); // begun, never ended, process died: a crash, not a cap
+        assert.equal(s.loggingStopped.length, 1); assert.equal(s.loggingStopped[0].notLoggedAtLeast, 99);
+    });
+
+    it('a torn record (ENOSPC halfway through a write) costs exactly that line: the next record still parses', () => {
+        let n = 0;
+        const t = mk({ appendLine: (f, l) => { if (++n === 3) { fs.appendFileSync(f, l.slice(0, 40)); throw Object.assign(new Error('ENOSPC'), { code: 'ENOSPC' }); } fs.appendFileSync(f, l); } });
+        t.begin(DEALER, {}); t.discovered(1); t.end(() => ({})); // write 3 (the end record) is torn
+        t.begin(DEALER, {}); t.end(() => ({}));
+        const raw = fs.readFileSync(t.file, 'utf8').split('\n').filter((l) => l.trim());
+        const ok = []; let bad = 0; for (const l of raw) { try { ok.push(JSON.parse(l)); } catch { bad++; } }
+        assert.equal(bad, 1, 'exactly one torn line');
+        assert.ok(ok.some((r) => r.ev === 'end' && r.attempt.endsWith('#2')) && ok.filter((r) => r.ev === 'begin').length === 2, 'neighbouring records survived');
+    });
+
+    it('cleanup by a LATER run, while writers are active: the active file and its records are untouched, stale files are removed, no writer fails', async () => {
+        const dir = path.join(cwd, 'data', 'dealer_tracker'); fs.mkdirSync(dir, { recursive: true });
+        const stale = path.join(dir, 'crawl-2026-09-01.jsonl'); fs.writeFileSync(stale, '{}\n'); const old = new Date(Date.now() - 60 * 86400000); fs.utimesSync(stale, old, old);
+        const writers = Array.from({ length: 3 }, () => run(writer, { CWD: cwd, N: '400', DAY: '2026-11-07' }));
+        const pruners = Array.from({ length: 3 }, (_, i) => run(`const t = createDealerTracker({ cwd: process.env.CWD, runDate: '2026-12-${20 + i}', box: 'p' }); t.begin({ id: 'x' }, {}); t.end(() => ({}));`, { CWD: cwd })); // run dates a month later: 2026-11-07 is past THEIR window
+        const res = await Promise.all([...writers, ...pruners]);
+        for (const r of res) assert.deepEqual([r.code, r.err], [0, '']);
+        assert.equal(fs.existsSync(stale), false, 'stale file removed');
+        assert.equal(parse(file('2026-11-07')).length, 3 * (1 + 400 * 2 + 1), 'every record of the active file survived');
+    });
+
+    it('the tracker directory removed mid-run: the next write recreates it, nothing throws, the crawl process exits 0', async () => {
+        const body = `
+          import fs from 'node:fs'; import path from 'node:path';
+          const t = createDealerTracker({ cwd: process.env.CWD, runDate: '2026-11-08', box: 'b' });
+          t.begin({ id: 'a' }, {}); t.end(() => ({}));
+          fs.rmSync(path.join(process.env.CWD, 'data'), { recursive: true, force: true });
+          t.begin({ id: 'b' }, {}); t.end(() => ({})); t.runEnd();`;
+        const r = await run(body, { CWD: cwd });
+        assert.deepEqual([r.code, r.err], [0, '']);
+        const recs = parse(file('2026-11-08'));
+        assert.deepEqual(recs.filter((x) => x.ev === 'end').map((x) => x.dealer.id), ['b']);
+    });
+
+    it('three consecutive write failures stop the process quietly (marker attempted), and the run_end is not written', () => {
+        let calls = 0;
+        const t = mk({ appendLine: () => { calls++; throw new Error('EIO'); } });
+        for (let i = 0; i < 6; i++) { t.begin(DEALER, {}); t.end(() => ({})); }
+        t.runEnd();
+        assert.equal(t.stats().stopReason, 'write_failures');
+        assert.ok(calls <= MAX_CONSECUTIVE_WRITE_FAILURES + 2, 'kept hammering a dead disk: ' + calls);
     });
 });

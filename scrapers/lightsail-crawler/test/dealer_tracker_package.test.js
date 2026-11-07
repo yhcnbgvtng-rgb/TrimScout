@@ -91,7 +91,11 @@ describe('dealer-tracker package: contents', () => {
     const box = fs.readFileSync(fixture('box1'), 'utf8');
     const hooks = (t) => [...t.matchAll(/dealerTrack\.(\w+)\(/g)].map((m) => m[1]).sort().join(',');
     assert.match(main, /import \{ createDealerTracker \} from '\.\/dealerTracker\.js';/);
-    assert.equal(hooks(main), hooks(spawnSync('python3', [path.join(pkg, 'mkpatch.py'), fixture('box1'), '/dev/stdout'], { encoding: 'utf8' }).stdout));
+    const out = path.join(w, 'box1-tracked.js');
+    const r = spawnSync('python3', [path.join(pkg, 'mkpatch.py'), fixture('box1'), out], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(hooks(main), hooks(fs.readFileSync(out, 'utf8')));
+    assert.ok(hooks(main).length > 0);
     assert.ok(box.length > 0);
   });
 });

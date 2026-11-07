@@ -43,15 +43,17 @@ const fmtMs = (ms) => {
 export function summarize(rawRecords, { box = null, state = null, brand = null, top = 15 } = {}) {
     const records = rawRecords.map((r) => (r && r.box ? { ...r, box: boxLabel(r.box) } : r));
     const keep = (r) => (!box || r.box === box) && (!state || r.state === state) && (!brand || String(r.brand || '').toLowerCase() === String(brand).toLowerCase());
-    const sel = records.filter((r) => r.attempt || r.ev === 'run_start' || r.ev === 'run_end').filter(keep);
+    const sel = records.filter((r) => r.attempt || r.ev === 'run_start' || r.ev === 'run_end' || r.ev === 'logging_stopped').filter(keep);
     const begins = new Map();
     const ends = new Map();
     const runs = new Map();
+    const stops = [];
     for (const r of sel) {
         if (r.ev === 'begin') begins.set(r.attempt, r);
         else if (r.ev === 'end') ends.set(r.attempt, r);
         else if (r.ev === 'run_start') runs.set(r.run, { ...(runs.get(r.run) || {}), ...r });
         else if (r.ev === 'run_end') runs.set(r.run, { ...(runs.get(r.run) || {}), finished: true });
+        else if (r.ev === 'logging_stopped') stops.push(r);
     }
     const finished = [...ends.values()];
     // A begin with no end: the process died mid-attempt (crash, OOM abort, kill) or is still running.
@@ -80,6 +82,16 @@ export function summarize(rawRecords, { box = null, state = null, brand = null, 
         peakRssMb: e.mem && e.mem.process && e.mem.process.peakRssMbSampled, heapDeltaMb: e.mem && e.mem.dealerEstimate ? e.mem.dealerEstimate.heapUsedDeltaMb : null, retry: e.retry,
     }));
     const heapStops = real.filter((e) => e.reason === 'heap_stop').map((e) => ({ dealer: e.dealer && (e.dealer.id || e.dealer.name), state: e.state, brand: e.brand, vins: e.vins, heapStop: e.heapStop, peakHeapUsedMbSampled: e.mem && e.mem.process && e.mem.process.peakHeapUsedMbSampled }));
+    // Logging that STOPPED (size cap, repeated write failures) is a different thing from an attempt that was INTERRUPTED: after a stop the run's later dealers are
+    // simply absent from the data, and the open attempt (if any) still got its end record. Each stop says how many dealers that run had and how many were logged.
+    const loggedPerRun = new Map();
+    for (const e of finished) loggedPerRun.set(e.run, (loggedPerRun.get(e.run) || 0) + 1);
+    const loggingStopped = stops.map((x) => {
+        const run = runs.get(x.run) || {};
+        const dealers = run.dealers ?? null;
+        const logged = loggedPerRun.get(x.run) || 0;
+        return { run: x.run, box: x.box, state: x.state, brand: x.brand, reason: x.reason, at: x.t, fileBytes: x.fileBytes, dealersInRun: dealers, attemptsLogged: logged, notLoggedAtLeast: dealers == null ? null : Math.max(0, dealers - logged) };
+    });
     const sum = (f) => real.reduce((a, e) => a + (f(e) || 0), 0);
     return {
         attempts: real.length,
@@ -90,6 +102,7 @@ export function summarize(rawRecords, { box = null, state = null, brand = null, 
         countedAsFailedStore: real.filter((e) => e.countedAsFailedStore === true).length,
         countedAsFailedStoreKnown: real.filter((e) => typeof e.countedAsFailedStore === 'boolean').length,
         totals: { durationMs: sum((e) => e.durationMs), urlsAttempted: sum((e) => e.urls && e.urls.attempted), vins: sum((e) => e.vins), pagesBlocked: sum((e) => e.urls && e.urls.blocked) },
+        loggingStopped,
         interrupted: interrupted.map((b) => ({ attempt: b.attempt, dealer: b.dealer && (b.dealer.id || b.dealer.name), state: b.state, brand: b.brand, box: b.box, pid: b.pid, startedAt: b.t })),
         exitIncomplete: exitIncomplete.map((e) => ({ dealer: e.dealer && (e.dealer.id || e.dealer.name), state: e.state, brand: e.brand, box: e.box, vins: e.vins, note: e.note })),
         byState: groupRate((e) => e.state || '?'),
@@ -110,7 +123,11 @@ export function render(s, filters = {}) {
     out.push('', 'Partial / skip / failure reasons:');
     for (const [k, v] of Object.entries(s.byReason).sort((a, b) => b[1] - a[1])) out.push(`  ${String(v).padStart(5)}  ${pct(v, s.attempts).padStart(6)}  ${k}`);
     if (!Object.keys(s.byReason).length) out.push('  none');
-    out.push('', `Interrupted attempts (begin record, no end: crash, OOM abort, kill, or still running): ${s.interrupted.length}`);
+    if (s.loggingStopped.length) {
+        out.push('', `LOGGING STOPPED in ${s.loggingStopped.length} run(s): the data below is INCOMPLETE for these (dealers after the stop were not logged; this is not a crash):`);
+        for (const x of s.loggingStopped.slice(0, 20)) out.push(`  ${x.box} ${x.state}/${x.brand} ${x.reason} at ${x.at}: ${x.attemptsLogged} of ${x.dealersInRun ?? '?'} dealers logged${x.notLoggedAtLeast != null ? ` (>= ${x.notLoggedAtLeast} missing)` : ''}`);
+    }
+    out.push('', `Interrupted attempts (begin record, no end: crash, OOM abort, kill, or still running; a logging stop does not create these): ${s.interrupted.length}`);
     for (const i of s.interrupted.slice(0, 20)) out.push(`  ${i.box} ${i.state}/${i.brand} ${i.dealer} pid ${i.pid} since ${i.startedAt}`);
     if (s.exitIncomplete.length) { out.push(`Attempts open at a clean process exit: ${s.exitIncomplete.length}`); for (const i of s.exitIncomplete.slice(0, 10)) out.push(`  ${i.box} ${i.state}/${i.brand} ${i.dealer} (${i.note || ''})`); }
     if (s.runsWithoutRunEnd) out.push(`Runs with no run_end record (loop did not finish, or still running): ${s.runsWithoutRunEnd}`);

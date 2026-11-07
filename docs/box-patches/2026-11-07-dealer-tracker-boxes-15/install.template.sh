@@ -103,7 +103,7 @@ try {
   t.begin({ id: 'boom', name: 'Trial Boom' }, { index: 1 }); t.error(new Error('trial error')); t.end(() => ({}));
   t.begin({ id: 'skip', name: 'Trial Skip' }, { index: 2 }); t.endProbeSkip(() => ({ classification: 'X', httpStatus: 403 }));
   t.runEnd();
-  const recs = fs.readFileSync(t.file, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
+  const recs = fs.readFileSync(t.file, 'utf8').split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
   const e = recs.filter((r) => r.ev === 'end');
   need(recs.length === 8 && e.length === 3, 'wrong record count ' + recs.length);
   need(e[0].status === 'complete' && e[0].vins === 1 && e[0].urls.attempted === 2 && e[0].mem.dealerAttributable === null, 'complete record wrong');
