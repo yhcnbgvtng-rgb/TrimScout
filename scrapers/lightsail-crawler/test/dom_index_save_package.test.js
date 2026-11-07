@@ -25,10 +25,13 @@ beforeEach(() => {
 });
 afterEach(() => fs.rmSync(w, { recursive: true, force: true }));
 
+const stageDeps = () => { for (const f of ['heapGuard.js', 'price_diff.js', 'date_utils.js']) fs.copyFileSync(path.join(crawler, 'src', f), path.join(fake, 'src', f)); fs.copyFileSync(frozenBigJson, path.join(fake, 'src/bigJson.js')); };
 const run = (mode, extraEnv = {}) => spawnSync('bash', ['-s', '--', mode], {
   input: install, encoding: 'utf8',
   env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, DOMSAVE_CRAWLER_DIR: fake, DOMSAVE_BACKUP: bk, ...extraEnv },
 });
+// bigJson.js as installed on box1/box5 on 2026-11-06 (md5 pinned in install.sh): frozen, so this historical package keeps testing what it installed against even after src/bigJson.js changes.
+const frozenBigJson = path.join(here, 'fixtures/bigJson.2026-11-06.js');
 const stageBefore = () => fs.readFileSync(path.join(here, 'fixtures/dom_store.before-2026-11-06.js')); // the file on box1/box5 after #719 (md5 pinned in install.sh)
 
 describe('dom-index-save package', () => {
@@ -38,14 +41,14 @@ describe('dom-index-save package', () => {
     const src = fs.readFileSync(path.join(crawler, 'src/dom_store.js'));
     assert.ok(embedded.equals(src), 'embedded dom_store.js differs from src/dom_store.js: rebuild install.sh from install.template.sh');
     assert.equal(pinned('DS_AFTER'), md5(src));
-    assert.equal(pinned('BJ_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/bigJson.js'))));
+    assert.equal(pinned('BJ_MD5'), md5(fs.readFileSync(frozenBigJson)), 'BJ_MD5 pins the frozen 2026-11-06 bigJson.js, not the current src (see 2026-11-07-bigjson-parse-as-read-boxes-15)');
     assert.equal(pinned('HG_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/heapGuard.js'))));
   });
 
   it('check/apply/restore on a fake box that is in the pinned before-state', () => {
     const before = stageBefore();
     assert.equal(md5(before), pinned('DS_BEFORE'));
-    for (const f of ['bigJson.js', 'heapGuard.js', 'price_diff.js', 'date_utils.js']) fs.copyFileSync(path.join(crawler, 'src', f), path.join(fake, 'src', f));
+    stageDeps();
     fs.writeFileSync(path.join(fake, 'src/dom_store.js'), before);
     const dataFile = path.join(fake, 'data/dom_index.json'); fs.mkdirSync(path.dirname(dataFile)); fs.writeFileSync(dataFile, '{"V1":{"2026-11-01":{"hash":"h"}}}');
 
@@ -66,7 +69,7 @@ describe('dom-index-save package', () => {
   });
 
   it('refuses an unknown dom_store.js, outside 07:00-21:30 ET, and without #719', () => {
-    for (const f of ['bigJson.js', 'heapGuard.js', 'price_diff.js', 'date_utils.js']) fs.copyFileSync(path.join(crawler, 'src', f), path.join(fake, 'src', f));
+    stageDeps();
     fs.writeFileSync(path.join(fake, 'src/dom_store.js'), '// some other version\n');
     let r = run('check'); assert.equal(r.status, 1); assert.match(r.stderr, /not a known state/);
     fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 2315\n', { mode: 0o755 });

@@ -17,7 +17,8 @@ const install = fs.readFileSync(path.join(pkg, 'install.sh'), 'utf8');
 const md5 = (b) => crypto.createHash('md5').update(b).digest('hex');
 const pinned = (name) => install.match(new RegExp(`(?:^|\\s)${name}=([0-9a-f]{32})`))[1];
 const embedded = (tag) => Buffer.from(install.match(new RegExp(`<<'${tag}'\\n([\\s\\S]*?)\\n${tag}`))[1], 'base64');
-const SRC_FILES = ['dom_store.js', 'bigJson.js', 'heapGuard.js', 'shared_data_lock.js', 'pid_lock.js', 'price_diff.js', 'date_utils.js']; // shared_data_lock.js is only there because standalone.js (untouched) imports it
+const frozenBigJson = path.join(here, 'fixtures/bigJson.2026-11-06.js'); // bigJson.js as installed on box1/box5 on 2026-11-06 (this package's BJ_MD5): frozen, not the current src/bigJson.js
+const SRC_FILES = ['dom_store.js', 'heapGuard.js', 'shared_data_lock.js', 'pid_lock.js', 'price_diff.js', 'date_utils.js']; // shared_data_lock.js is only there because standalone.js (untouched) imports it
 
 let w, fake, bk, shim;
 beforeEach(() => {
@@ -30,6 +31,7 @@ afterEach(() => fs.rmSync(w, { recursive: true, force: true }));
 const run = (mode) => spawnSync('bash', ['-s', '--', mode], { input: install, encoding: 'utf8', env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, DOMDELTA_CRAWLER_DIR: fake, DOMDELTA_BACKUP: bk } });
 const stage = (box) => {
   for (const f of SRC_FILES) fs.copyFileSync(path.join(crawler, 'src', f), path.join(fake, 'src', f));
+  fs.copyFileSync(frozenBigJson, path.join(fake, 'src/bigJson.js'));
   fs.copyFileSync(path.join(here, 'fixtures', `${box}-standalone.before-2026-11-06.js`), path.join(fake, 'src/standalone.js'));
 };
 
@@ -41,7 +43,7 @@ describe('dom-index-delta package', () => {
     assert.ok(embedded('P1EOF').equals(fs.readFileSync(path.join(pkg, 'standalone.js.b1.patch'))));
     assert.ok(embedded('P5EOF').equals(fs.readFileSync(path.join(pkg, 'standalone.js.b5.patch'))));
     assert.equal(pinned('DS_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/dom_store.js'))));
-    assert.equal(pinned('BJ_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/bigJson.js'))));
+    assert.equal(pinned('BJ_MD5'), md5(fs.readFileSync(frozenBigJson)), 'BJ_MD5 pins the frozen 2026-11-06 bigJson.js (see 2026-11-07-bigjson-parse-as-read-boxes-15)');
     assert.equal(pinned('HG_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/heapGuard.js'))));
     assert.equal(pinned('PL_MD5'), md5(fs.readFileSync(path.join(crawler, 'src/pid_lock.js'))));
     for (const box of ['box1', 'box5']) assert.equal(md5(fs.readFileSync(path.join(here, 'fixtures', `${box}-standalone.before-2026-11-06.js`))), pinned(box === 'box1' ? 'B1_SA' : 'B5_SA'));
