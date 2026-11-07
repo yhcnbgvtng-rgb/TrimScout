@@ -435,6 +435,57 @@ describe('shared file under load: cap, cleanup and torn writes (real processes)'
         assert.match(render(s), /LOGGING STOPPED in 4 run\(s\).*INCOMPLETE/);
     });
 
+    it('deterministic: cap reached FIRST, then another writer starts: its run total is null, the marker is kept, and the interrupted attempt stays distinct', async () => {
+        const capMb = 0.05;
+        const env = { CWD: cwd, DAY: '2026-11-09', CRAWLER_DEALER_TRACKER_MAX_FILE_MB: String(capMb) };
+        const spawnWriter = (body, e) => spawn(process.execPath, ['--input-type=module', '-e', `import { createDealerTracker } from ${JSON.stringify('file://' + trackerSrc)};\n${body}`], { env: { ...process.env, ...e }, stdio: ['ignore', 'pipe', 'pipe'] });
+        const done = (p) => new Promise((res) => { let err = ''; p.stderr.on('data', (d) => { err += d; }); p.on('exit', (code, sig) => res({ code, sig, err })); });
+        // A: starts while the file is empty, logs run_start + begin of ONE attempt, then hangs (it will be SIGKILLed: a genuine interruption).
+        const a = spawnWriter(`
+          const t = createDealerTracker({ cwd: process.env.CWD, state: 'AA', brand: 'Victim', dealerTotal: 50, runDate: process.env.DAY, box: 'box5' });
+          t.begin({ id: 'victim', name: 'Victim Store' }, {}); t.discovered(10); t.urlStart();
+          process.stdout.write('ready\\n'); setInterval(() => {}, 1000);`, env);
+        await new Promise((res) => a.stdout.once('data', res));
+        // B: runs to completion and drives the file past the cap (known total: 600 dealers).
+        const b = await done(spawnWriter(writer.replace(/process\.env\.N/g, '600').replace("state: 'S' + process.pid", "state: 'BB'"), env));
+        assert.equal(b.code, 0, b.err);
+        const f = file('2026-11-09');
+        const capBytes = capMb * 1048576;
+        assert.ok(fs.statSync(f).size >= capBytes, 'precondition: the cap must already be reached before the late writer starts');
+        const sizeBefore = fs.statSync(f).size;
+        // C: starts AFTER the cap. Everything it would write first is dropped; only the marker may land.
+        const c = await done(spawnWriter(writer.replace(/process\.env\.N/g, '40').replace("state: 'S' + process.pid", "state: 'CC'"), env));
+        assert.equal(c.code, 0, c.err);
+        assert.match(c.err, /\[dealer-tracker\] day file reached/, 'one stderr line says why');
+        a.kill('SIGKILL'); await done(a);
+        const recs = parse(f); // every line parses: nothing torn by any of the three
+        const sizeAfter = fs.statSync(f).size;
+        assert.ok(sizeAfter - sizeBefore < 2048, `a writer started after the cap must add at most its marker, added ${sizeAfter - sizeBefore} bytes`);
+        // C left exactly one record: the marker. No run_start, begin, end or run_end.
+        const cRecs = recs.filter((r) => r.state === 'CC');
+        assert.deepEqual(cRecs.map((r) => r.ev), ['logging_stopped']);
+        assert.equal(cRecs[0].reason, 'size_cap'); assert.equal(cRecs[0].attemptsLogged, 0);
+        const s = summarize(recs);
+        const stopC = s.loggingStopped.find((x) => x.state === 'CC');
+        const stopB = s.loggingStopped.find((x) => x.state === 'BB');
+        assert.ok(stopC && stopB, 'both markers survive into the summary');
+        // C: unknown totals are null, never 0 and never a guess
+        assert.deepEqual([stopC.dealersInRun, stopC.attemptsLogged, stopC.notLoggedAtLeast], [null, 0, null]);
+        // B: the known-total assertions still hold
+        assert.equal(stopB.dealersInRun, 600);
+        assert.ok(stopB.attemptsLogged > 0 && stopB.attemptsLogged < 600);
+        assert.equal(stopB.notLoggedAtLeast, 600 - stopB.attemptsLogged);
+        // A: begin without end is INTERRUPTED; B and C produced no interrupted attempts, and a logging stop never creates one
+        assert.deepEqual(s.interrupted.map((i) => i.dealer), ['victim']);
+        assert.ok(!s.interrupted.some((i) => i.state === 'BB' || i.state === 'CC'));
+        assert.ok(!s.loggingStopped.some((x) => x.state === 'AA'), 'the killed writer never stopped logging: it was interrupted');
+        const text = render(s);
+        assert.match(text, /LOGGING STOPPED in 2 run\(s\)/);
+        assert.match(text, /CC\/.*size_cap.*: 0 of \? dealers logged\n/); // unknown total printed as ?, with no "missing" count
+        assert.match(text, new RegExp(`BB/.*size_cap.*: ${stopB.attemptsLogged} of 600 dealers logged \\(>= ${stopB.notLoggedAtLeast} missing\\)`));
+        assert.match(text, /Interrupted attempts[^\n]*: 1\n[^\n]*victim/);
+    });
+
     it('a genuinely interrupted attempt is still reported as interrupted in a run whose logging also stopped', () => {
         const recs = [
             { v: 1, ev: 'run_start', run: 'r', box: 'box5', state: 'TX', brand: 'Kia', dealers: 100 },
