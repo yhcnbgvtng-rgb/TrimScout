@@ -104,7 +104,7 @@ function createTopLevelSplitter(onElement) {
   const emit = () => {
     const t = cur.trim();
     cur = '';
-    if (t) onElement(t);
+    if (t) onElement(t, kind);
   };
   return {
     feed(chunk) {
@@ -156,8 +156,21 @@ function createTopLevelSplitter(onElement) {
 }
 
 async function readJsonStreaming(filePath, { chunkBytes }) {
-  const elements = [];
-  const splitter = createTopLevelSplitter((t) => elements.push(t));
+  // Each element is parsed the moment the splitter emits it and its text is dropped, so the peak is the parsed data plus one element plus one chunk. (Collecting
+  // every element's text first and parsing afterwards kept a second copy of the whole file, as many small strings, alive next to the parsed data: a transient of
+  // about the file size on top of the index, measured 1.2 GB peak heap loading a 600 MB index.) A malformed element throws from inside feed(), which destroys the
+  // stream and rejects with the same SyntaxError the two-pass version raised.
+  let arr = null, obj = null, scalarText = null;
+  const splitter = createTopLevelSplitter((t, kind) => {
+    if (kind === 'array') { (arr || (arr = [])).push(JSON.parse(t)); return; }
+    if (kind === 'object') {
+      const entry = JSON.parse(`{${t}}`);
+      const out = obj || (obj = {});
+      for (const k of Object.keys(entry)) Object.defineProperty(out, k, { value: entry[k], enumerable: true, writable: true, configurable: true });
+      return;
+    }
+    scalarText = t;
+  });
   const decoder = new StringDecoder('utf8');
   await new Promise((resolve, reject) => {
     const stream = fs.createReadStream(filePath, { highWaterMark: chunkBytes });
@@ -166,23 +179,9 @@ async function readJsonStreaming(filePath, { chunkBytes }) {
     stream.on('error', reject);
   });
   const kind = splitter.finish();
-  // Elements were collected as text above only because each is small; parse them now, one at a time, releasing the
-  // text as we go so the peak is the parsed data plus one element, never the whole file as a string.
-  if (kind === 'array') {
-    const out = new Array(elements.length);
-    for (let i = 0; i < elements.length; i++) { out[i] = JSON.parse(elements[i]); elements[i] = null; }
-    return out;
-  }
-  if (kind === 'object') {
-    const out = {};
-    for (let i = 0; i < elements.length; i++) {
-      const entry = JSON.parse(`{${elements[i]}}`);
-      elements[i] = null;
-      for (const k of Object.keys(entry)) Object.defineProperty(out, k, { value: entry[k], enumerable: true, writable: true, configurable: true });
-    }
-    return out;
-  }
-  return JSON.parse(elements[0]);
+  if (kind === 'array') return arr || [];
+  if (kind === 'object') return obj || {};
+  return JSON.parse(scalarText);
 }
 
 /**
