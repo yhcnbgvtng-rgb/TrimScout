@@ -8,7 +8,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createDealerTracker, noopTracker, classify, scrubMessage, pruneOld, DEFAULT_RETAIN_DAYS, MAX_CONSECUTIVE_WRITE_FAILURES } from '../src/dealerTracker.js';
-import { summarize, render, readRecords, pickFiles } from '../scripts/dealer-tracker-summary.mjs';
+import { summarize, render, readRecords, pickFiles, boxLabel } from '../scripts/dealer-tracker-summary.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const trackerSrc = path.resolve(here, '../src/dealerTracker.js');
@@ -366,6 +366,13 @@ describe('summary command', () => {
         assert.deepEqual(fs.readdirSync(dir).map((f) => fs.statSync(path.join(dir, f)).mtimeMs), before);
         assert.equal(spawnSync(process.execPath, [summaryCli, '--dir', path.join(cwd, 'nope')], { encoding: 'utf8' }).status, 1);
         assert.deepEqual(pickFiles({ dir, days: 2 }).map((f) => path.basename(f)), ['crawl-2026-11-07.jsonl', 'crawl-2026-11-08.jsonl']);
+    });
+
+    it('hostnames recorded on the boxes are shown and filtered as box1..box5', () => {
+        const recs = fixture.map((r) => (r.box === 'box5' ? { ...r, box: 'ip-172-26-13-207' } : r.box === 'box1' ? { ...r, box: 'ip-172-26-5-232' } : r));
+        assert.equal(boxLabel('ip-172-26-13-207'), 'box5'); assert.equal(boxLabel('somewhere'), 'somewhere');
+        assert.equal(summarize(recs, { box: 'box5' }).attempts, 3);
+        assert.deepEqual(summarize(recs).byBox.map((b) => b.key).sort(), ['box1', 'box5']);
     });
 
     it('scrubMessage removes URLs and absolute paths', () => {

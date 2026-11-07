@@ -9,7 +9,7 @@ Not touched: `heapGuard.js` (#719), `dom_store.js` (#720), `dom_index_delta.js` 
 
 | record | when | use |
 |---|---|---|
-| `run_start` | process start | box, state, brand, dealer count, node, heap limit, page workers |
+| `run_start` | process start | box (the machine hostname, e.g. `ip-172-26-13-207`; the summary shows box1..box5), state, brand, dealer count, node, heap limit, page workers |
 | `begin` | attempt starts | an attempt with a `begin` and **no `end`** was interrupted (OOM abort, SIGKILL, crash, power loss) |
 | `end` | attempt finishes by any route | everything below |
 | `run_end` | dealer loop finished | a run with no `run_end` did not finish (or is still running) |

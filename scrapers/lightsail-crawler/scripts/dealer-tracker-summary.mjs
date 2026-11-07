@@ -28,6 +28,10 @@ export async function readRecords(files) {
     return { records, malformed };
 }
 
+// The tracker records the machine's hostname (no env edit needed on the boxes); docs/BOXES.md private IPs name them.
+export const BOX_ALIASES = { 'ip-172-26-5-232': 'box1', 'ip-172-26-6-89': 'box2', 'ip-172-26-15-105': 'box3', 'ip-172-26-11-241': 'box4', 'ip-172-26-13-207': 'box5' };
+export const boxLabel = (b) => BOX_ALIASES[b] || b;
+
 const pct = (n, d) => (d ? `${Math.round((n / d) * 1000) / 10}%` : 'n/a');
 const fmtMs = (ms) => {
     if (ms == null) return 'n/a';
@@ -36,7 +40,8 @@ const fmtMs = (ms) => {
 };
 
 /** Pure: records -> summary object. */
-export function summarize(records, { box = null, state = null, brand = null, top = 15 } = {}) {
+export function summarize(rawRecords, { box = null, state = null, brand = null, top = 15 } = {}) {
+    const records = rawRecords.map((r) => (r && r.box ? { ...r, box: boxLabel(r.box) } : r));
     const keep = (r) => (!box || r.box === box) && (!state || r.state === state) && (!brand || String(r.brand || '').toLowerCase() === String(brand).toLowerCase());
     const sel = records.filter((r) => r.attempt || r.ev === 'run_start' || r.ev === 'run_end').filter(keep);
     const begins = new Map();
