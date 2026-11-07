@@ -14,9 +14,12 @@ import { domMergeLockPath, flockPrefix, domDeltaDir } from '../src/dom_index_del
 const DELTA = new URL('../src/dom_index_delta.js', import.meta.url).href;
 let cwd, pauseDir, kids;
 beforeEach(async () => { cwd = await fsp.mkdtemp(path.join(os.tmpdir(), 'domflock-')); pauseDir = path.join(cwd, 'pause'); fs.mkdirSync(pauseDir); kids = []; });
+// NEVER signal a pid that is not a plain child pid: kill(0, sig) signals the caller's whole process group (the npm/tsx runner and every parallel test file with it) and
+// kill(-n, sig) a group; an empty or half-written pid file parses to 0. This is what froze whole CI runs in state T for 40+ minutes.
+const signal = (pid, sig) => { if (!Number.isInteger(pid) || pid <= 1 || pid === process.pid) throw new Error(`refusing to send ${sig} to pid ${pid}`); process.kill(pid, sig); };
 afterEach(async () => {
-  for (const k of kids) { try { process.kill(k.pid, 'SIGCONT'); k.kill('SIGKILL'); } catch { /* gone */ } }
-  for (const f of fs.existsSync(pauseDir) ? fs.readdirSync(pauseDir).filter((n) => n.endsWith('.reached')) : []) { try { process.kill(Number(fs.readFileSync(path.join(pauseDir, f), 'utf8')), 'SIGKILL'); } catch { /* gone */ } }
+  for (const k of kids) { try { signal(k.pid, 'SIGCONT'); k.kill('SIGKILL'); } catch { /* gone */ } }
+  for (const f of fs.existsSync(pauseDir) ? fs.readdirSync(pauseDir).filter((n) => n.endsWith('.reached')) : []) { try { signal(readPid(path.join(pauseDir, f)), 'SIGKILL'); } catch { /* gone */ } }
   await Promise.all(kids.map((k) => new Promise((r) => (k.exitCode !== null || k.signalCode ? r() : k.on('exit', r)))));
   await fsp.rm(cwd, { recursive: true, force: true });
 });
@@ -24,7 +27,11 @@ afterEach(async () => {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const waitFor = async (file, ms = 20000) => { for (let i = 0; i < ms && !fs.existsSync(file); i++) await sleep(1); assert.ok(fs.existsSync(file), `timed out waiting for ${path.basename(file)}`); };
 const go = (point) => fs.writeFileSync(path.join(pauseDir, `${point}.go`), '1');
-const reachedPid = (point) => Number(fs.readFileSync(path.join(pauseDir, `${point}.reached`), 'utf8'));
+// The worker (pauseAt in dom_index_delta.js) publishes its pid with fs.writeFile, which makes the file EXISTS-but-EMPTY for a moment before the pid is written. Reading in that
+// window gave Number('') === 0, and kill(0, 'SIGSTOP') then stopped the whole process group: the CI runner, tsx and every parallel test file (all in state T, 40+ min). So wait for a real pid.
+const readPid = (file) => { try { const t = fs.readFileSync(file, 'utf8').trim(); return /^\d+$/.test(t) && Number(t) > 1 ? Number(t) : null; } catch { return null; } };
+const awaitPid = async (file, ms = 20000) => { for (let i = 0; i < ms; i++) { const pid = readPid(file); if (pid) return pid; await sleep(1); } assert.fail(`${path.basename(file)} never held a valid pid`); };
+const reachedPid = (point) => awaitPid(path.join(pauseDir, `${point}.reached`));
 const rec = (id) => ({ hash: `h${id}`, price: 100, oldPrice: null, priceDiff: 0, priceChangeType: 'NEW', blobStored: true, hashUnchanged: false });
 
 // One "crawler process": writes a delta with the record REC<id> and merges it. env DOM_INDEX_MERGE_PAUSE_DIR (set only for the one we want to freeze) pauses ITS worker.
@@ -84,11 +91,11 @@ describe('the takeover scenario that broke the token protocol, against the flock
     await seed();
     const H = merger('H', { pause: true });
     await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
-    const worker = reachedPid('beforeCommit');
-    process.kill(worker, 'SIGSTOP');
+    const worker = await reachedPid('beforeCommit');
+    signal(worker, 'SIGSTOP');
     const r = await merger('C3', { maxWait: 1500 }).result();
     assert.equal(r.ok, false); assert.match(r.msg, /Timed out/);
-    process.kill(worker, 'SIGCONT'); go('beforeCommit');
+    signal(worker, 'SIGCONT'); go('beforeCommit');
     assert.equal((await H.result()).ok, true);
     await holdsKeys('BASE', 'RECH');
   });
@@ -98,7 +105,7 @@ describe('the takeover scenario that broke the token protocol, against the flock
     const before = await indexBytes();
     const H = merger('H', { pause: true });
     await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
-    process.kill(reachedPid('beforeCommit'), 'SIGKILL');
+    signal(await reachedPid('beforeCommit'), 'SIGKILL');
     const rH = await H.result();                                   // its crawler process sees the worker die and gives up; its delta file stays on disk
     assert.equal(rH.ok, false); assert.match(rH.msg, /ended without a result/);
     assert.ok(before.equals(await indexBytes()));
@@ -113,7 +120,7 @@ describe('the takeover scenario that broke the token protocol, against the flock
     await seed();
     const H = merger('H', { pause: true });
     await waitFor(path.join(pauseDir, 'beforeCommit.reached'));
-    const worker = reachedPid('beforeCommit');
+    const worker = await reachedPid('beforeCommit');
     H.kill('SIGKILL'); await H.done;
     go('beforeCommit');
     for (let i = 0; i < 5000 && (() => { try { process.kill(worker, 0); return true; } catch { return false; } })(); i++) await sleep(5);
@@ -162,5 +169,19 @@ describe('both launchers take the same kernel lock', () => {
     holder.kill('SIGKILL'); await new Promise((x) => holder.on('exit', x));
     assert.equal((await merger('PY3', { launcher: py, maxWait: 5000 }).result()).ok, true);
     await holdsKeys('BASE', 'RECPY1', 'RECPY3');
+  });
+});
+
+describe('the pause scaffolding can never hand a test a bad pid (regression: CI hung 40+ min with every process in state T)', () => {
+  it('reachedPid waits through the window where .reached exists but is still empty or half-written', async () => {
+    const f = path.join(pauseDir, 'beforeCommit.reached');
+    fs.writeFileSync(f, '');                                              // what a reader sees between the worker's open(O_TRUNC) and its write
+    setTimeout(() => fs.writeFileSync(f, String(process.pid)), 60);
+    assert.equal(readPid(f), null);
+    assert.equal(await reachedPid('beforeCommit'), process.pid);
+    for (const bad of ['', ' ', '0', '-5', '1', 'abc', '12x']) { fs.writeFileSync(f, bad); assert.equal(readPid(f), null, JSON.stringify(bad)); }
+  });
+  it('the signalling helper refuses pid 0, negative pids, NaN, null, 1 and its own pid (each would hit a whole group or the runner)', () => {
+    for (const bad of [0, -1, -12345, NaN, null, undefined, 1, process.pid, 1.5]) assert.throws(() => signal(bad, 'SIGCONT'), /refusing to send/);
   });
 });
