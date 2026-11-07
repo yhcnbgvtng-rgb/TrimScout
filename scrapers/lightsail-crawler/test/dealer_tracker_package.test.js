@@ -28,6 +28,9 @@ beforeEach(() => {
   fake = path.join(w, 'crawler'); bk = path.join(w, 'bk'); shim = path.join(w, 'shim');
   fs.mkdirSync(path.join(fake, 'src'), { recursive: true }); fs.mkdirSync(shim);
   fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 1200\n', { mode: 0o755 });
+  // The script's "is a crawl or sync running" gate uses pgrep. Other test files run in parallel processes on the same machine (CI saw an unrelated test's
+  // inventory-sync.mjs trip this gate in another package's test), so every test here sees an empty process table unless it says otherwise.
+  fs.writeFileSync(path.join(shim, 'pgrep'), '#!/bin/bash\nexit 1\n', { mode: 0o755 });
 });
 afterEach(() => fs.rmSync(w, { recursive: true, force: true }));
 const run = (mode, extraEnv = {}) => spawnSync('bash', ['-s', '--', mode], { input: install, encoding: 'utf8', env: { ...process.env, PATH: `${shim}:${process.env.PATH}`, DTRACK_CRAWLER_DIR: fake, DTRACK_BACKUP: bk, ...extraEnv } });
@@ -156,7 +159,7 @@ describe('dealer-tracker package: install.sh on a fake box', () => {
     stage('box1');
     fs.writeFileSync(path.join(shim, 'pgrep'), '#!/bin/bash\necho "4242 node src/standalone.js"\n', { mode: 0o755 });
     r = run('apply'); assert.equal(r.status, 1); assert.match(r.stderr, /crawl or sync is running/);
-    fs.rmSync(path.join(shim, 'pgrep'));
+    fs.writeFileSync(path.join(shim, 'pgrep'), '#!/bin/bash\nexit 1\n', { mode: 0o755 });
     fs.writeFileSync(path.join(shim, 'date'), '#!/bin/bash\necho 2301\n', { mode: 0o755 });
     r = run('apply'); assert.equal(r.status, 1); assert.match(r.stderr, /installs only 07:00-21:30/);
     assert.equal(fs.existsSync(path.join(fake, 'src/dealerTracker.js')), false); assert.equal(fs.existsSync(bk), false);
